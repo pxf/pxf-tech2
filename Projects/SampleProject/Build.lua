@@ -6,4 +6,6 @@ project = NewProject()
 --project.settings.static = True
 
 project:RequireModule("SampleModule")
+project:AddIncludeDirectory("Include/")
+project:AddSourceDirectory("Source/")
 project:Build()

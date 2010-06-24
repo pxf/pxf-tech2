@@ -1,4 +1,4 @@
-Import("../../../Base.lua")
+Import("../../Build.lua")
 
 
-module = NewModule()
+module = NewModule("SampleModule")
