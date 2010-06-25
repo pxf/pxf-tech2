@@ -60,11 +60,11 @@ function NewModule(name)
     end
      
     module.AddIncludeDirectory = function(self, dir)
-        table.insert(self.include_directories, dir)
+        table.insert(self.include_directories, PathJoin(PathJoin(path_prefix, "Modules/"..self.name), dir))
     end
     
     module.AddSourceDirectory = function(self, dir)
-        table.insert(self.source_directories, dir)
+        table.insert(self.source_directories, PathJoin(PathJoin(path_prefix, "Modules/"..self.name), dir))
     end
     
     module.Build = function(self, project, settings)
@@ -80,7 +80,9 @@ function NewModule(name)
         end
         
         -- Also handle other modules and libs
-        return Compile(module_settings, source_files)
+        objs = Compile(module_settings, source_files)
+        -- Link to static library
+        return StaticLibrary(module_settings, self.name, objs)
     end
     
     return module
@@ -140,19 +142,22 @@ function NewProject(name)
         
         -- Compile Project
         local DoBuild = function(settings, source_files, libraries)
+            local modules = {}
             -- Build modules first
             for i,m in ipairs(self.required_modules) do
                 -- Import the module build files, and build modules.
                 for i,n in ipairs(CollectDirs(path_prefix .. "/Modules/")) do
                     Import(n .. "/Build.lua")
-                    table.insert(modules, module)
-                    module:Build(self, settings)
+                    table.insert(modules, module:Build(self, settings))
+                    for j, incdir in ipairs(module.include_directories) do
+                        settings.cc.includes:Add(incdir)
+                    end
                 end
             end
         
             -- Then build the project
             project = Compile(settings, source_files)
-            project_exe = Link(settings, self.name, project, libraries)
+            project_exe = Link(settings, self.name, project, modules, libraries)
             project_target = PseudoTarget(self.name.."_"..settings.config_name, project_exe)
             PseudoTarget(settings.config_name, project_target)
         end
