@@ -147,7 +147,7 @@ function NewProject(name)
             for i,m in ipairs(self.required_modules) do
                 -- Import the module build files, and build modules.
                 for i,n in ipairs(CollectDirs(path_prefix .. "/Modules/")) do
-                    Import(n .. "/Build.lua")
+                    Import(n .. "/Module.lua")
                     table.insert(modules, module:Build(self, settings))
                     for j, incdir in ipairs(module.include_directories) do
                         settings.cc.includes:Add(incdir)

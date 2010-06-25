@@ -1,4 +1,4 @@
-Import("../../Build.lua")
+Import("../../PxfBuild.lua")
 
 library = NewLibrary("SampleLibrary")
 library:AddSystemLibrary("ole")

@@ -1,4 +1,4 @@
-Import("../../Build.lua")
+Import("../../PxfBuild.lua")
 
 project = NewProject("SampleProject")
 
