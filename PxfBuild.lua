@@ -56,6 +56,14 @@ function NewLibrary(name)
             end
         end
         
+        for i, l in ipairs(self.system_libraries) do
+            settings.link.libs:Add(l)
+        end
+        
+        for i, l in ipairs(self.system_frameworks) do
+            settings.link.frameworks:Add(l)
+        end
+        
         -- Also handle other modules and libs
         objs = Compile(library_settings, source_files)
         -- Link to static library
@@ -192,19 +200,19 @@ function NewProject(name)
             -- Build modules
             for i, m in ipairs(self.required_modules) do
                 for i, l in ipairs(dep_modules[m].required_libraries) do
-                    print(l)
                     table.insert(built_libs, dep_libraries[l]:Build(self, settings))
+                    
                 end
                 table.insert(built_mods, dep_modules[m]:Build(self, settings))
             end
         
             -- Then build the project
             project = Compile(settings, source_files)
-            project_exe = Link(settings, self.name, project, built_mods, built_libs)
+            project_exe = Link(settings, self.name, project, built_libs, built_mods)
             project_target = PseudoTarget(self.name.."_"..settings.config_name, project_exe)
             PseudoTarget(settings.config_name, project_target)
         end
-        --DoBuild(debug_settings, source_files, {})
+        DoBuild(debug_settings, source_files, {})
         DoBuild(release_settings, source_files,  {})
         
     end
