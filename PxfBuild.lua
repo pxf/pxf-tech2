@@ -179,6 +179,9 @@ function NewProject(name)
                 for j, incdir in ipairs(library.include_directories) do
                     settings.cc.includes:Add(incdir)
                 end
+                for j, def in ipairs(library.defines) do
+                    settings.cc.defines:Add(def)
+                end
             end
             
             -- Collect modules
