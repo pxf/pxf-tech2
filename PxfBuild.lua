@@ -1,17 +1,4 @@
---/Include
---/Source
---/Module/ModuleName/Source
---/Module/ModuleName/Include
---/Module/ModuleName/Build.lua
---/Libraries/LibName/Source
---/Libraries/LibName/Include
---/Libraries/LibName/Build.lua
---/Build.lua
-
 path_prefix = PathDir(ModuleFilename())
-
--- Merge so that Libraries are implemented as modules!
--- Must figure out how to make sure that dependencies works.
 
 function NewLibrary(name)
     local library = {}
@@ -22,6 +9,11 @@ function NewLibrary(name)
     library.system_frameworks = {}
     library.include_directories = {}
     library.source_directories = {}
+    library.defines = {}
+    
+    library.AddDefine = function(self, def)
+        table.insert(self.defines, def)
+    end
     
     library.AddSystemLibrary = function(self, lib)
         table.insert(self.system_libraries, lib)
@@ -42,10 +34,14 @@ function NewLibrary(name)
     end
     
     library.Build = function(self, project, settings)
-        print("Building library [".. self.name .. settings.config_ext .. "]")
         settings.cc.flags:Add("/EHsc")
         local library_settings = settings:Copy()
         local source_files = {}
+        
+        for i,d in ipairs(self.defines) do
+            library_settings.cc.defines:Add(d)
+        end
+        
         for i,m in ipairs(self.include_directories) do
             library_settings.cc.includes:Add(m)
         end
@@ -98,7 +94,6 @@ function NewModule(name)
     end
     
     module.Build = function(self, project, settings)
-        print("Building module [".. self.name .. settings.config_ext .. "]")
         local module_settings = settings:Copy()
         local source_files = {}
         for i,m in ipairs(self.include_directories) do
@@ -147,7 +142,6 @@ function NewProject(name)
         local source_files = {}
         
         print("Preparing to build...")
-        print("Required modules: ", table.concat(self.required_modules, ", "))
         
         for i,m in ipairs(self.include_directories) do
             print("Include directory: ", m)
@@ -207,14 +201,17 @@ function NewProject(name)
             for i, m in ipairs(self.required_modules) do
                 for i, l in ipairs(dep_modules[m].required_libraries) do
                     table.insert(built_libs, dep_libraries[l]:Build(self, settings))
+                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
                     built_list[l] = l
                 end
                 table.insert(built_mods, dep_modules[m]:Build(self, settings))
+                settings.cc.defines:Add("CONF_WITH_MODULE_"..string.upper(dep_modules[m].name))
             end
             
             for i, l in ipairs(self.required_libraries) do
                 if built_list[l] == nil then
                     table.insert(built_libs, dep_libraries[l]:Build(self, settings))
+                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
                 end
             end
         
