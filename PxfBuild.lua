@@ -85,7 +85,7 @@ function NewModule(name)
 --        table.insert(self.required_modules, module)
 --    end
     
-    module.AddLibraryDependency = function(self, library)
+    module.RequireLibrary = function(self, library)
         table.insert(self.required_libraries, library)
     end
      
@@ -122,8 +122,13 @@ function NewProject(name)
     local project = {}
     project.name = name
     project.required_modules = {}
+    project.required_libraries = {}
     project.include_directories = {}
     project.source_directories = {}
+    
+    project.RequireLibrary = function(self, library)
+        table.insert(self.required_libraries, library)
+    end
     
     project.RequireModule = function(self, module)
         table.insert(self.required_modules, module)
@@ -196,14 +201,21 @@ function NewProject(name)
             
             local built_libs = {}
             local built_mods = {}
+            local built_list = {}
             
             -- Build modules
             for i, m in ipairs(self.required_modules) do
                 for i, l in ipairs(dep_modules[m].required_libraries) do
                     table.insert(built_libs, dep_libraries[l]:Build(self, settings))
-                    
+                    built_list[l] = l
                 end
                 table.insert(built_mods, dep_modules[m]:Build(self, settings))
+            end
+            
+            for i, l in ipairs(self.required_libraries) do
+                if built_list[l] == nil then
+                    table.insert(built_libs, dep_libraries[l]:Build(self, settings))
+                end
             end
         
             -- Then build the project
