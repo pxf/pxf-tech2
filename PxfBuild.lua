@@ -203,18 +203,19 @@ function NewProject(name)
             -- Build modules
             for i, m in ipairs(self.required_modules) do
                 for i, l in ipairs(dep_modules[m].required_libraries) do
-                    table.insert(built_libs, dep_libraries[l]:Build(self, settings))
-                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
+                    local s = settings:Copy()
+                    s.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
+                    table.insert(built_libs, dep_libraries[l]:Build(self, s))
                     built_list[l] = l
                 end
-                table.insert(built_mods, dep_modules[m]:Build(self, settings))
                 settings.cc.defines:Add("CONF_WITH_MODULE_"..string.upper(dep_modules[m].name))
+                table.insert(built_mods, dep_modules[m]:Build(self, settings))
             end
             
             for i, l in ipairs(self.required_libraries) do
                 if built_list[l] == nil then
-                    table.insert(built_libs, dep_libraries[l]:Build(self, settings))
                     settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
+                    table.insert(built_libs, dep_libraries[l]:Build(self, settings))
                 end
             end
         
