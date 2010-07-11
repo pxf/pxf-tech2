@@ -1,5 +1,12 @@
 path_prefix = PathDir(ModuleFilename())
 
+function Intermediate_Output(settings, input)
+    basepath = Path(PathJoin(path_prefix, "Build/Object"))
+    MakeDirectory(Path(basepath .. "/" .. PathDir(input)))
+    print(input)
+    return Path(basepath .. "/" .. PathJoin(PathDir(input), PathBase(PathFilename(input)) .. settings.config_name))
+end
+
 function NewLibrary(name)
     local library = {}
     library.name = name
@@ -52,14 +59,6 @@ function NewLibrary(name)
             end
         end
         
-        for i, l in ipairs(self.system_libraries) do
-            settings.link.libs:Add(l)
-        end
-        
-        for i, l in ipairs(self.system_frameworks) do
-            settings.link.frameworks:Add(l)
-        end
-        
         -- Also handle other modules and libs
         objs = Compile(library_settings, source_files)
         -- Link to static library
@@ -93,7 +92,7 @@ function NewModule(name)
         table.insert(self.source_directories, Path(PathJoin(PathJoin(path_prefix, "Modules/"..self.name), dir)))
     end
     
-    module.Build = function(self, project, settings)
+    module.Build = function(self, project, settings, baked_exe)
         local module_settings = settings:Copy()
         local source_files = {}
         for i,m in ipairs(self.include_directories) do
@@ -104,10 +103,31 @@ function NewModule(name)
             table.insert(source_files, CollectRecursive(m))
         end
         
-        -- Also handle other modules and libs
         objs = Compile(module_settings, source_files)
-        -- Link to static library
-        return StaticLibrary(module_settings, self.name, objs)
+        
+        if baked_exe then
+            -- SharedLibrary needs to link with self.required_libs
+            libs = {}
+            for i, l in ipairs(self.required_libraries) do
+                module_settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(project.dep_libraries[l].name))
+                lib = project.dep_libraries[l]:Build(self, module_settings)
+                table.insert(libs, lib)
+                table.insert(project.built_libs, lib)
+                project.built_list[l] = l
+                
+                for i, l in ipairs(project.dep_libraries[l].system_libraries) do
+                    module_settings.dll.libs:Add(l)
+                end
+                
+                for i, l in ipairs(project.dep_libraries[l].system_frameworks) do
+                    module_settings.dll.frameworks:Add(l)
+                end
+            end
+            return SharedLibrary(module_settings, self.name, objs, libs)
+        else
+            -- Link to static library
+            return StaticLibrary(module_settings, self.name, objs)
+        end
     end
     
     return module
@@ -153,29 +173,40 @@ function NewProject(name)
             table.insert(source_files, CollectRecursive(m))
         end
         
+        --settings.cc.Output = Intermediate_Output
+        
         debug_settings = settings:Copy()
         debug_settings.config_name = "debug"
         debug_settings.config_ext = "_d"
         debug_settings.debug = 1
         debug_settings.optimize = 0
-        debug_settings.cc.defines:Add("CONF_DEBUG")
+        debug_settings_dll = debug_settings:Copy()
+        debug_settings_dll.config_name = "debug_dll"
+        debug_settings_dll.config_ext = "_ds"
 
         release_settings = settings:Copy()
         release_settings.config_name = "release"
         release_settings.config_ext = ""
         release_settings.debug = 0
         release_settings.optimize = 1
+        release_settings_dll = release_settings:Copy()
+        release_settings_dll.config_name = "release_dll"
+        release_settings_dll.config_ext = "_s"
+        
+        debug_settings.cc.defines:Add("CONF_DEBUG")
+        debug_settings_dll.cc.defines:Add("CONF_DEBUG_DLL")
         release_settings.cc.defines:Add("CONF_RELEASE")
+        release_settings_dll.cc.defines:Add("CONF_RELEASE_DLL")
         
         -- Compile Project
-        local DoBuild = function(settings, source_files, libraries)
+        local DoBuild = function(settings, source_files, baked_exe, libraries)
             local dep_modules = {}
-            local dep_libraries = {}
+            self.dep_libraries = {}
             
             -- Collect libraries
             for i,n in ipairs(CollectDirs(path_prefix .. "/Libraries/")) do
                 Import(n .. "/" .. PathFilename(n) .. ".lua")
-                dep_libraries[library.name] = library
+                self.dep_libraries[library.name] = library
                 for j, incdir in ipairs(library.include_directories) do
                     settings.cc.includes:Add(incdir)
                 end
@@ -196,38 +227,49 @@ function NewProject(name)
                 end
             end
             
-            local built_libs = {}
-            local built_mods = {}
-            local built_list = {}
+            self.built_libs = {}
+            self.built_mods = {}
+            self.built_list = {}
             
             -- Build modules
             for i, m in ipairs(self.required_modules) do
-                for i, l in ipairs(dep_modules[m].required_libraries) do
-                    -- TODO: This define will be visible in the project, it shouldn't.
-                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
-                    table.insert(built_libs, dep_libraries[l]:Build(self, settings))
-                    built_list[l] = l
-                end
                 settings.cc.defines:Add("CONF_WITH_MODULE_"..string.upper(dep_modules[m].name))
-                table.insert(built_mods, dep_modules[m]:Build(self, settings))
+                module = dep_modules[m]:Build(self, settings, baked_exe)
+                if not baked_exe then -- Compile modules as static libraries instead of shared libraries
+                    table.insert(self.built_mods, module)
+                end
             end
             
             for i, l in ipairs(self.required_libraries) do
-                if built_list[l] == nil then
-                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
-                    table.insert(built_libs, dep_libraries[l]:Build(self, settings))
+                if self.built_list[l] == nil then
+                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(self.dep_libraries[l].name))
+                    table.insert(self.built_libs, self.dep_libraries[l]:Build(self, settings))
                 end
+                
+                -- Add system libraries
+                for i, l in ipairs(self.dep_libraries[l].system_libraries) do
+                    settings.link.libs:Add(l)
+                end
+                
+                -- Add system frameworks (macosx)
+                for i, l in ipairs(self.dep_libraries[l].system_frameworks) do
+                    settings.link.frameworks:Add(l)
+                end
+                
             end
+
         
             -- Then build the project
             project = Compile(settings, source_files)
-            project_exe = Link(settings, self.name, project, built_libs, built_mods)
+            project_exe = Link(settings, self.name, project, self.built_libs, self.built_mods)
             project_target = PseudoTarget(self.name.."_"..settings.config_name, project_exe)
             PseudoTarget(settings.config_name, project_target)
             return project_exe
         end
-        DefaultTarget(DoBuild(debug_settings, source_files, {}))
-        DoBuild(release_settings, source_files,  {})
+        DefaultTarget(DoBuild(debug_settings, source_files, false, {}))
+        DoBuild(release_settings, source_files, false, {})
+        DoBuild(debug_settings_dll, source_files, true, {})
+        DoBuild(release_settings_dll, source_files, true, {})
         
     end
 

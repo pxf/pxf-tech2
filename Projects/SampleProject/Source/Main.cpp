@@ -21,5 +21,6 @@ int main()
     RtAudio* audio = new RtAudio(RtAudio::WINDOWS_DS);
     s7_scheme *s7;
     int bajs = SOIL_HDR_RGBE;
-    return lulz();
+    return 0;
+    //return lulz();
 }
