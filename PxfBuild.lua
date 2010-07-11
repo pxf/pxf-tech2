@@ -105,7 +105,7 @@ function NewModule(name)
         
         objs = Compile(module_settings, source_files)
         
-        if baked_exe then
+        if not baked_exe then
             -- SharedLibrary needs to link with self.required_libs
             libs = {}
             for i, l in ipairs(self.required_libraries) do
@@ -174,6 +174,9 @@ function NewProject(name)
         end
         
         --settings.cc.Output = Intermediate_Output
+        if family == "windows" then
+            settings.cc.flags:Add("/EHsc")
+        end
         
         debug_settings = settings:Copy()
         debug_settings.cc.defines:Add("CONF_DEBUG")
@@ -228,14 +231,17 @@ function NewProject(name)
             
             self.built_libs = {}
             self.built_mods = {}
+            self.built_dlls = {}
             self.built_list = {}
             
             -- Build modules
             for i, m in ipairs(self.required_modules) do
                 settings.cc.defines:Add("CONF_WITH_MODULE_"..string.upper(dep_modules[m].name))
                 module = dep_modules[m]:Build(self, settings, baked_exe)
-                if not baked_exe then -- Compile modules as static libraries instead of shared libraries
+                if baked_exe == true then -- Compile modules as static libraries instead of shared libraries
                     table.insert(self.built_mods, module)
+                else
+                    table.insert(self.built_dlls, module)
                 end
             end
             
@@ -259,19 +265,19 @@ function NewProject(name)
             
             -- Add framework base
             settings.cc.includes:Add(PathJoin(path_prefix, "Include"))
-            pxf_source_files = CollectRecursive(PathJoin(path_prefix, "Source"))
+            pxf_source_files = CollectRecursive(PathJoin(path_prefix, "Source/*.cpp"))
         
             -- Then build the project
             project = Compile(settings, source_files, pxf_source_files)
             project_exe = Link(settings, self.name, project, self.built_libs, self.built_mods)
             project_target = PseudoTarget(self.name.."_"..settings.config_name, project_exe)
-            PseudoTarget(settings.config_name, project_target)
+            PseudoTarget(settings.config_name, project_target, self.built_dlls)
             return project_exe
         end
-        DefaultTarget(DoBuild(debug_settings, source_files, false, {}))
-        DoBuild(release_settings, source_files, false, {})
-        DoBuild(debug_settings_dll, source_files, true, {})
-        DoBuild(release_settings_dll, source_files, true, {})
+        DefaultTarget(DoBuild(debug_settings, source_files, true, {}))
+        DoBuild(release_settings, source_files, true, {})
+        DoBuild(debug_settings_dll, source_files, false, {})
+        DoBuild(release_settings_dll, source_files, false, {})
         
     end
 

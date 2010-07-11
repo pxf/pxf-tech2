@@ -1,8 +1,6 @@
 #include <SampleModule.h>
-#include <GL/glfw.h>
 
-int lulz()
+extern "C" int __declspec(dllexport) lulz(int x)
 {
-    glfwInit();
     return 3;
 }
