@@ -203,9 +203,9 @@ function NewProject(name)
             -- Build modules
             for i, m in ipairs(self.required_modules) do
                 for i, l in ipairs(dep_modules[m].required_libraries) do
-                    local s = settings:Copy()
-                    s.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
-                    table.insert(built_libs, dep_libraries[l]:Build(self, s))
+                    -- TODO: This define will be visible in the project, it shouldn't.
+                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(dep_libraries[l].name))
+                    table.insert(built_libs, dep_libraries[l]:Build(self, settings))
                     built_list[l] = l
                 end
                 settings.cc.defines:Add("CONF_WITH_MODULE_"..string.upper(dep_modules[m].name))
@@ -224,8 +224,9 @@ function NewProject(name)
             project_exe = Link(settings, self.name, project, built_libs, built_mods)
             project_target = PseudoTarget(self.name.."_"..settings.config_name, project_exe)
             PseudoTarget(settings.config_name, project_target)
+            return project_exe
         end
-        DoBuild(debug_settings, source_files, {})
+        DefaultTarget(DoBuild(debug_settings, source_files, {}))
         DoBuild(release_settings, source_files,  {})
         
     end
