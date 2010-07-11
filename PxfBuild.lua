@@ -176,6 +176,7 @@ function NewProject(name)
         --settings.cc.Output = Intermediate_Output
         
         debug_settings = settings:Copy()
+        debug_settings.cc.defines:Add("CONF_DEBUG")
         debug_settings.config_name = "debug"
         debug_settings.config_ext = "_d"
         debug_settings.debug = 1
@@ -183,8 +184,10 @@ function NewProject(name)
         debug_settings_dll = debug_settings:Copy()
         debug_settings_dll.config_name = "debug_dll"
         debug_settings_dll.config_ext = "_ds"
+        debug_settings_dll.cc.defines:Add("CONF_MODULAR")
 
         release_settings = settings:Copy()
+        release_settings.cc.defines:Add("CONF_RELEASE")
         release_settings.config_name = "release"
         release_settings.config_ext = ""
         release_settings.debug = 0
@@ -192,11 +195,7 @@ function NewProject(name)
         release_settings_dll = release_settings:Copy()
         release_settings_dll.config_name = "release_dll"
         release_settings_dll.config_ext = "_s"
-        
-        debug_settings.cc.defines:Add("CONF_DEBUG")
-        debug_settings_dll.cc.defines:Add("CONF_DEBUG_DLL")
-        release_settings.cc.defines:Add("CONF_RELEASE")
-        release_settings_dll.cc.defines:Add("CONF_RELEASE_DLL")
+        release_settings_dll.cc.defines:Add("CONF_MODULAR")
         
         -- Compile Project
         local DoBuild = function(settings, source_files, baked_exe, libraries)
@@ -257,10 +256,13 @@ function NewProject(name)
                 end
                 
             end
-
+            
+            -- Add framework base
+            settings.cc.includes:Add(PathJoin(path_prefix, "Include"))
+            pxf_source_files = CollectRecursive(PathJoin(path_prefix, "Source"))
         
             -- Then build the project
-            project = Compile(settings, source_files)
+            project = Compile(settings, source_files, pxf_source_files)
             project_exe = Link(settings, self.name, project, self.built_libs, self.built_mods)
             project_target = PseudoTarget(self.name.."_"..settings.config_name, project_exe)
             PseudoTarget(settings.config_name, project_target)

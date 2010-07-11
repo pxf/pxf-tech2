@@ -10,6 +10,8 @@
 #include <RtAudio.h>
 #include <s7.h>
 
+#include <Pxf/Base/SharedLibrary.h>
+
 int main()
 {
     glfwInit();
