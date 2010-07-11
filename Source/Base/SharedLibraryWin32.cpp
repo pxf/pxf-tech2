@@ -2,6 +2,8 @@
 
 #ifdef CONF_FAMILY_WINDOWS
 
+#include <stdlib.h>
+
 using namespace Pxf::Base;
 
 SharedLibrary::SharedLibrary()
@@ -33,8 +35,20 @@ void* SharedLibrary::LookupName(const char* _Name)
 
 char* SharedLibrary::GetError()
 {
-    return "Unknown error.";
-    //return GetLastError();
+    LPVOID lpMsgBuf;
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL, 
+        GetLastError(), 
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
+        (LPTSTR) &lpMsgBuf,
+        0, 
+        NULL);
+
+    this->m_LastError = (char*)realloc(m_LastError, wcslen((const wchar_t*)lpMsgBuf)*sizeof(char*));
+    WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)lpMsgBuf, -1, m_LastError, wcslen((const wchar_t*)lpMsgBuf)*sizeof(char*), NULL, NULL);
+    LocalFree(lpMsgBuf);
+    return m_LastError;
 }
 
 #endif // CONF_FAMILY_WINDOWS

@@ -16,6 +16,7 @@ namespace Base
     private:
         #ifdef CONF_FAMILY_WINDOWS
             HMODULE m_pHandle;
+            char *m_LastError;
         #else
             void* m_pHandle;
         #endif
