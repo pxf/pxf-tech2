@@ -34,7 +34,12 @@ class SampleModule : public Pxf::Base::Module
     {}
 };
 
-extern "C" __declspec(dllexport) SampleModule* CreateModule()
+extern "C" __declspec(dllexport) SampleModule* CreateInstance()
 {
     return new SampleModule(SAMPLE_MODULE_API_VERSION);
+}
+
+extern "C" __declspec(dllexport) void DestroyInstance(SampleModule* _module)
+{
+    delete _module;
 }
