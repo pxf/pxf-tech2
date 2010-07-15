@@ -32,15 +32,6 @@ extern "C" PXFDLLEXPORT unsigned GetModuleType()
     return SampleModule_Type;
 }
 
-class SampleModule : public Pxf::Base::Module
-{
-    private:
-    public:
-    SampleModule(unsigned ApiVersion)
-        : Module(ApiVersion)
-    {}
-};
-
 extern "C" PXFDLLEXPORT SampleModule* CreateInstance()
 {
     return new SampleModule(SAMPLE_MODULE_API_VERSION);
