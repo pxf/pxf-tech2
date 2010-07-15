@@ -1,21 +1,15 @@
 #include <Pxf/SampleModule/SampleModule.h>
 #include <stdio.h>
-#include <Pxf/Base/SharedLibrary.h>
+
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Debug.h>
 
 int main()
-{   
-    Pxf::Base::SharedLibrary lib;
+{
+    Pxf::Kernel* kernel = Pxf::Kernel::GetInstance();
+    Pxf::Message("Main", "Using kernel %x", kernel);
+    kernel->RegisterModule(Pxf::Kernel::MODULE_TYPE_GRAPHICS, "SampleModule_ds.dll");
     
-    Pxf::KernelLocator kernel_locator;
-    Pxf::Kernel* kernel = kernel_locator.GetInstance();
-    
-    if(lib.Load("SampleModule_ds.dll"))
-        printf("loaded dll.\n");
-    typedef int(*lulz)(int);
-    printf("%x\n", lib.LookupName("lulz"));
-    lulz f = (lulz)lib.LookupName("lulz");
-    printf("%d\n", f(1));
-    
+
     return 0;
 }
