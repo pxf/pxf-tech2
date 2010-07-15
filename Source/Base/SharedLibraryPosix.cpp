@@ -25,7 +25,7 @@ bool SharedLibrary::Load(const char* _File)
 
 bool SharedLibrary::Close()
 {
-    if (dlclose(this->m_pHandle) < 0)
+    if (dlclose(m_pHandle) < 0)
         return false;
     else
         return true;
@@ -33,7 +33,7 @@ bool SharedLibrary::Close()
 
 void* SharedLibrary::LookupName(const char* _Name)
 {
-    return dlsym(this->m_pHandle, _Name);
+    return dlsym(m_pHandle, _Name);
 }
 
 char* SharedLibrary::GetError()

@@ -178,6 +178,9 @@ function NewProject(name)
             settings.cc.flags:Add("/EHsc")
         end
         
+        -- Add framework include dir
+        settings.cc.includes:Add(PathJoin(path_prefix, "Include"))
+        
         debug_settings = settings:Copy()
         debug_settings.cc.defines:Add("CONF_DEBUG")
         debug_settings.config_name = "debug"
@@ -263,8 +266,7 @@ function NewProject(name)
                 
             end
             
-            -- Add framework base
-            settings.cc.includes:Add(PathJoin(path_prefix, "Include"))
+            -- Pxf source files
             pxf_source_files = CollectRecursive(PathJoin(path_prefix, "Source/*.cpp"))
         
             -- Then build the project

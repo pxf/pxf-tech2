@@ -8,12 +8,16 @@ using namespace Pxf::Base;
 
 SharedLibrary::SharedLibrary()
 {
+    m_LastError = (char*)malloc(1);
 }
 
 SharedLibrary::~SharedLibrary()
 {
     if (m_pHandle)
         Close();
+        
+    if (m_LastError)
+        free(m_LastError);
 }
 
 bool SharedLibrary::Load(const char* _File)
