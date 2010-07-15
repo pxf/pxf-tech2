@@ -189,7 +189,7 @@ function NewProject(name)
         debug_settings.optimize = 0
         debug_settings_dll = debug_settings:Copy()
         debug_settings_dll.config_name = "debug_dll"
-        debug_settings_dll.config_ext = "_ds"
+        debug_settings_dll.config_ext = "_ddyn"
         debug_settings_dll.cc.defines:Add("CONF_MODULAR")
 
         release_settings = settings:Copy()

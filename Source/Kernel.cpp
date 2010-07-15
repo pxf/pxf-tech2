@@ -12,7 +12,7 @@ bool Pxf::Kernel::RegisterModule(ModuleType _ModuleType, const char* _FilePath)
         Message("Kernel::RegisterModule","Loading '%s'", _FilePath);
     else
     {
-        Message("Kernel::RegisterModule", "File not found.");
+        Message("Kernel::RegisterModule", "File not found: '%s'.", _FilePath);
         return false;
     }
         
