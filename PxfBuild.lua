@@ -222,13 +222,10 @@ function NewProject(name)
             
             -- Collect modules
             for i,m in ipairs(self.required_modules) do
-                -- Import the module build files, and build modules.
-                for i,n in ipairs(CollectDirs(path_prefix .. "/Modules/")) do
-                    Import(n .. "/" .. PathFilename(n) .. ".lua")
-                    dep_modules[module.name] = module
-                    for j, incdir in ipairs(module.include_directories) do
-                        settings.cc.includes:Add(incdir)
-                    end
+                Import(path_prefix .. "/Modules/" .. m .. "/" .. m .. ".lua")
+                dep_modules[module.name] = module
+                for j, incdir in ipairs(module.include_directories) do
+                    settings.cc.includes:Add(incdir)
                 end
             end
             
@@ -268,6 +265,11 @@ function NewProject(name)
             
             -- Pxf source files
             pxf_source_files = CollectRecursive(PathJoin(path_prefix, "Source/*.cpp"))
+        
+            if family == "unix" then
+                settings.link.libs:Add("dl")
+                settings.link.libs:Add("pthread")
+            end
         
             -- Then build the project
             project = Compile(settings, source_files, pxf_source_files)
