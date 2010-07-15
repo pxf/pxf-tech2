@@ -4,7 +4,6 @@
 namespace Pxf {
 namespace Base
 {
-    template<typename System>
     class Module
     {
     private:
@@ -13,9 +12,12 @@ namespace Base
         Module(unsigned ApiVersion)
             : m_ApiVersion(ApiVersion)
         {}
-        
-        virtual System* CreateInstance() = 0;
-        
+/*
+        static System* CreateInstance()
+        {
+            return new System;
+        }
+*/
         unsigned GetApiVersion() const
         {
             return m_ApiVersion;

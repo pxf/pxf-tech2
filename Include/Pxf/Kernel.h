@@ -13,6 +13,8 @@ namespace Pxf {
     {
     private:
         static Kernel* s_Kernel;
+        // Pxf::Util::Array< Pxf::Util::Stack<Module>*> > m_Modules;
+        //m_Modules[MODULE_TYPE_GRAPHICS].top(), pushback(), pushfront()
     public:
         enum ModuleType
         {
