@@ -264,7 +264,9 @@ function NewProject(name)
             end
             
             -- Pxf source files
-            pxf_source_files = CollectRecursive(PathJoin(path_prefix, "Source/*.cpp"))
+            pxf_source_files = Collect(PathJoin(path_prefix, "Source/*.cpp")
+                                      ,PathJoin(path_prefix, "Source/Base/*.cpp"))
+            print(table.concat(pxf_source_files, ", "))
         
             if family == "unix" then
                 settings.link.libs:Add("dl")
