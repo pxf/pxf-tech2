@@ -23,7 +23,7 @@ namespace Pxf
 	#else
 		#define PXF_ASSERT(_Expression, _Message, ...) do{}while(0)
 	#endif
-	bool Assert(bool _Expression, int _Line, char* _File, const char* _Message, ...);
+	bool Assert(bool _Expression, int _Line, const char* _File, const char* _Message, ...);
 	
 	/* Simple message reporting */
 	void Message(const char* _SubSystem, const char* _Message, ...);

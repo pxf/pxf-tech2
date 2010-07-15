@@ -10,7 +10,7 @@
 
 using namespace Pxf;
 
-bool Pxf::Assert(bool _Expression, int _Line, char* _File, const char* _Message, ...)
+bool Pxf::Assert(bool _Expression, int _Line, const char* _File, const char* _Message, ...)
 {
 	if (!_Expression)
 	{
