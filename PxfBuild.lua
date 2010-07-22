@@ -92,7 +92,7 @@ function NewModule(name)
         table.insert(self.source_directories, Path(PathJoin(PathJoin(path_prefix, "Modules/"..self.name), dir)))
     end
     
-    module.Build = function(self, project, settings, baked_exe)
+    module.Build = function(self, project, settings, frameworkobjs, baked_exe)
         local module_settings = settings:Copy()
         local source_files = {}
         for i,m in ipairs(self.include_directories) do
@@ -123,10 +123,10 @@ function NewModule(name)
                     module_settings.dll.frameworks:Add(l)
                 end
             end
-            return SharedLibrary(module_settings, self.name, objs, libs)
+            return SharedLibrary(module_settings, self.name, objs, frameworkobjs, libs)
         else
             -- Link to static library
-            return StaticLibrary(module_settings, self.name, objs)
+            return StaticLibrary(module_settings, self.name, objs, frameworkobjs)
         end
     end
     
@@ -234,10 +234,24 @@ function NewProject(name)
             self.built_dlls = {}
             self.built_list = {}
             
+            -- Build framework
+            -- Pxf source files
+            framework_settings = settings:Copy()
+            pxf_source_files = Collect(PathJoin(path_prefix, "Source/*.cpp")
+                                      ,PathJoin(path_prefix, "Source/Base/*.cpp"))
+        
+            if family == "unix" then
+                settings.link.libs:Add("dl")
+                settings.link.libs:Add("pthread")
+            end
+            
+            pxf_objs = Compile(framework_settings, pxf_source_files)
+            
+            
             -- Build modules
             for i, m in ipairs(self.required_modules) do
                 settings.cc.defines:Add("CONF_WITH_MODULE_"..string.upper(dep_modules[m].name))
-                module = dep_modules[m]:Build(self, settings, baked_exe)
+                module = dep_modules[m]:Build(self, settings, pxf_objs, baked_exe)
                 if baked_exe == true then -- Compile modules as static libraries instead of shared libraries
                     table.insert(self.built_mods, module)
                 else
@@ -262,19 +276,10 @@ function NewProject(name)
                 end
                 
             end
-            
-            -- Pxf source files
-            pxf_source_files = Collect(PathJoin(path_prefix, "Source/*.cpp")
-                                      ,PathJoin(path_prefix, "Source/Base/*.cpp"))
-        
-            if family == "unix" then
-                settings.link.libs:Add("dl")
-                settings.link.libs:Add("pthread")
-            end
-        
+
             -- Then build the project
-            project = Compile(settings, source_files, pxf_source_files)
-            project_exe = Link(settings, self.name, project, self.built_libs, self.built_mods)
+            project = Compile(settings, source_files)
+            project_exe = Link(settings, self.name, project, pxf_objs, self.built_libs, self.built_mods)
             project_target = PseudoTarget(self.name.."_"..settings.config_name, project_exe)
             PseudoTarget(settings.config_name, project_target, self.built_dlls)
             return project_exe
