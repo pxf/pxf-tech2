@@ -8,13 +8,20 @@ namespace Base
     class Module
     {
     private:
+        unsigned m_KernelVersion;
         unsigned m_ApiVersion;
     public:
-        Module(unsigned ApiVersion)
-            : m_ApiVersion(ApiVersion)
+        Module(unsigned KernelVersion, unsigned ApiVersion)
+            : m_KernelVersion(KernelVersion)
+            , m_ApiVersion(ApiVersion)
         {}
 
         virtual void RegisterSystems(Pxf::Kernel* _Kernel) = 0;
+
+        unsigned GetKernelVersion() const
+        {
+            return m_KernelVersion;
+        }
 
         unsigned GetApiVersion() const
         {
