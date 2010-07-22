@@ -5,39 +5,37 @@
 
 #define SAMPLE_MODULE_API_VERSION 2
 
-#ifdef CONF_FAMILY_WINDOWS
-#define PXFDLLEXPORT __declspec(dllexport)
-#else
-#define PXFDLLEXPORT
-#endif
 
-static const unsigned SampleModule_API_Version = 1;
-static const unsigned SampleModule_Engine_Version = 0; // Pxf::Kernel::GetEngineVersion();
-static const unsigned SampleModule_Type = Pxf::Kernel::MODULE_TYPE_GRAPHICS;
+
+static const unsigned Module_API_Version = 1; // Pxf::Kernel::GRAPHICS_API_VERSION
+static const unsigned Module_Kernel_Version = 0; // Pxf::Kernel::KERNEL_VERSION;
+static const unsigned Module_Type = Pxf::Kernel::MODULE_TYPE_GRAPHICS;
 // Pxf::Kernel::RegisterModule(MODULE_TYPE_GRAPHICS, "module.dll")
 // Pxf::Kernel::SetPreferredModule(MODULE_TYPE_GRAPHICS, "OPENGL2)
 
-extern "C" PXFDLLEXPORT unsigned GetEngineVersion()
+// TODO: Declare in header file if compiling statically.
+
+PXFMODULE unsigned GetEngineVersion()
 {
-    return SampleModule_Engine_Version;
+    return Module_Kernel_Version;
 }
 
-extern "C" PXFDLLEXPORT unsigned GetModuleVersion()
+PXFMODULE unsigned GetModuleVersion()
 {
-    return SampleModule_API_Version;
+    return Module_API_Version;
 }
 
-extern "C" PXFDLLEXPORT unsigned GetModuleType()
+PXFMODULE unsigned GetModuleType()
 {
-    return SampleModule_Type;
+    return Module_Type;
 }
 
-extern "C" PXFDLLEXPORT SampleModule* CreateInstance()
+PXFMODULE Pxf::Base::Module* CreateInstance()
 {
-    return new SampleModule(SAMPLE_MODULE_API_VERSION);
+    return new Pxf::Modules::SampleModule(SAMPLE_MODULE_API_VERSION);
 }
 
-extern "C" PXFDLLEXPORT void DestroyInstance(SampleModule* _module)
+PXFMODULE void DestroyInstance(Pxf::Base::Module* _module)
 {
     delete _module;
 }

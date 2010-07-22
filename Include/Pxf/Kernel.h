@@ -9,12 +9,14 @@ static const int SampleModule_Type = 0; //Pxf::Kernel::MODULE_TYPE_GRAPHICS
 */
 
 namespace Pxf {
+    class Module;
     class Kernel
     {
     private:
         static Kernel* s_Kernel;
         // Pxf::Util::Array< Pxf::Util::Stack<Module>*> > m_Modules;
         //m_Modules[MODULE_TYPE_GRAPHICS].top(), pushback(), pushfront()
+        friend class Pxf::Module;
     public:
         enum ModuleType
         {

@@ -100,7 +100,7 @@ function NewModule(name)
         end
         
         for i,m in ipairs(self.source_directories) do
-            table.insert(source_files, CollectRecursive(m))
+            table.insert(source_files, Collect(m))
         end
         
         objs = Compile(module_settings, source_files)

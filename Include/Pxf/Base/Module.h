@@ -2,6 +2,7 @@
 #define _PXF_BASE_MODULE_H_
 
 namespace Pxf {
+    class Kernel;
 namespace Base
 {
     class Module
@@ -12,12 +13,9 @@ namespace Base
         Module(unsigned ApiVersion)
             : m_ApiVersion(ApiVersion)
         {}
-/*
-        static System* CreateInstance()
-        {
-            return new System;
-        }
-*/
+
+        virtual void RegisterSystems(Pxf::Kernel* _Kernel) = 0;
+
         unsigned GetApiVersion() const
         {
             return m_ApiVersion;

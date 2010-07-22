@@ -12,7 +12,7 @@ bool Pxf::Kernel::RegisterModule(ModuleType _ModuleType, const char* _FilePath)
         Message("Kernel::RegisterModule","Loading '%s'", _FilePath);
     else
     {
-        Message("Kernel::RegisterModule", "File not found: '%s'.", _FilePath);
+        Message("Kernel::RegisterModule", "File not found: '%s'", _FilePath);
         return false;
     }
         
@@ -31,6 +31,14 @@ bool Pxf::Kernel::RegisterModule(ModuleType _ModuleType, const char* _FilePath)
     Pxf::Message("Kernel::RegisterModule", "EngineVersion = %d", GetEngineVersion());
     Pxf::Message("Kernel::RegisterModule", "ModuleVersion = %d", GetModuleVersion());
     Pxf::Message("Kernel::RegisterModule", "ModuleType = %d", GetModuleType());
+    
+    /*
+    switch(GetModuleType())
+    {
+    case Pxf::Kernel::MODULE_TYPE_GRAPHICS: system = Pxf::System::Graphics* gfx = (Pxf::System::Graphics*)CreateInstance();
+                                            break
+    }
+    */
     
     Pxf::Base::Module* module = CreateInstance();
     Pxf::Message("Kernel::RegisterModule", "module_version = %d, module_ptr = %x", module->GetApiVersion(), module);
