@@ -208,6 +208,16 @@ function NewProject(name)
             local dep_modules = {}
             self.dep_libraries = {}
             
+            if baked_exe == false then
+                if family == "windows" then
+                    settings.cc.defines:Add("PXFMODULE=\"extern \\\"C\\\" __declspec(dllexport)\"")
+                else
+                    settings.cc.defines:Add("PXFMODULE=\"extern \\\"C\"\\\"")
+                end
+            else
+                settings.cc.defines:Add("PXFMODULE=\"\"")
+            end
+            
             -- Collect libraries
             for i,n in ipairs(CollectDirs(path_prefix .. "/Libraries/")) do
                 Import(n .. "/" .. PathFilename(n) .. ".lua")
