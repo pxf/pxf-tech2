@@ -3,6 +3,7 @@
 
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Base/Utils.h>
 
 int main()
 {
@@ -12,6 +13,11 @@ int main()
     // kernel->Initialize(Pxf::Kernel::SYSTEM_TYPE_GRAPHICS, 'OGL2');
     kernel->RegisterModule("SampleModule_ddyn.dll", true);
     kernel->DumpAvailableModules();
+    
+    if (kernel->RegisterSystem("SampleModule", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS))
+    {
+        // SampleModule contained a graphics system, available via kernel->GetGraphicsSystem()?
+    }
     
     delete kernel;
 

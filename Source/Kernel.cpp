@@ -2,10 +2,10 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/SharedLibrary.h>
 #include <Pxf/Module.h>
-
-
+#include <Pxf/Base/Utils.h>
 
 Pxf::Kernel* Pxf::Kernel::s_Kernel = 0;
+const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
 
 Pxf::Kernel::Kernel()
 {
@@ -31,9 +31,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
 
     Pxf::Base::SharedLibrary* lib = new Pxf::Base::SharedLibrary();
     
-    if(lib->Load(_FilePath))
-        Message("Kernel","Loading '%s'", _FilePath);
-    else
+    if(!lib->Load(_FilePath))
     {
         Message("Kernel", "File not found: '%s'", _FilePath);
         return false;
@@ -45,10 +43,10 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     DestroyModuleInstance_fun DestroyInstance = (DestroyModuleInstance_fun)lib->LookupName("DestroyInstance");
     
     Pxf::Module* module = CreateInstance();
-    Pxf::Message("Kernel", "kernel_version = %d, module_ptr = %x", module->GetKernelVersion(), module);
-    Pxf::Message("Kernel", "module_version = %d, module_ptr = %x", module->GetApiVersion(), module);
+    Pxf::Message("Kernel", "Loaded '%s' (0x%x)", _FilePath, module);
     
     // Check that the module isn't already available, or override
+    bool replaced = false;
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
         if (strcmp(m_AvailableModules[i]->module->GetIdentifier(), module->GetIdentifier()) == 0)
@@ -74,13 +72,36 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
                 m_AvailableModules[i]->dynlib = lib;
                 m_AvailableModules[i]->destroy = DestroyInstance;
                 
-                return true;
+                replaced = true;
+                break;
             }
         }
     }
     
+    unsigned short kmaj, kmin;
+    unsigned short mmaj, mmin;
+    Pxf::UnpackShort2(module->GetKernelVersion(), &kmaj, &kmin);
+    Pxf::UnpackShort2(module->GetApiVersion(), &mmaj, &mmin);
+    Pxf::Message("Kernel", "Compiled kernel version = %d.%d, API version = %d.%d", kmaj, kmin, mmaj, mmin);
+    
+    unsigned short currkmaj, currkmin;
+    Pxf::UnpackShort2(Pxf::Kernel::KERNEL_VERSION, &currkmaj, &currkmin);
+    if (kmaj < currkmaj || (kmaj == currkmaj && kmin < currkmin))
+    {
+        Message("Kernel", "Warning - Kernel version mismatch (%d.%d is recommended)", currkmaj, currkmin);
+    }
+    
+    unsigned short currmmaj, currmmin;
+    Pxf::UnpackShort2(Pxf::Module::MODULE_VERSION, &currmmaj, &currmmin);
+    if (mmaj < currmmaj || (mmaj == currmmaj && mmin < currmmin))
+    {
+        Message("Kernel", "Warning - Module API version mismatch (%d.%d is recommended)", currmmaj, currmmin);
+    }
+    
     Message("Kernel", "Registered %s (sharedlib) to kernel %x", module->GetIdentifier(), this);
-    m_AvailableModules.push_back(new ModuleEntry_t(lib, module, DestroyInstance));
+    
+    if (!replaced)
+        m_AvailableModules.push_back(new ModuleEntry_t(lib, module, DestroyInstance));
 
     return true;
 }
@@ -97,9 +118,19 @@ bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
     return true;
 }
 
-void Pxf::Kernel::SetPreferredModule(SystemType _SystemType, const char* _ModuleID)
+bool Pxf::Kernel::RegisterSystem(const char* _ModuleID, SystemType _SystemType)
 {
-
+    for(int i = 0; i < m_AvailableModules.size(); i++)
+    {
+        Pxf::Module* mod = m_AvailableModules[i]->module;
+        if (strcmp(mod->GetIdentifier(), _ModuleID) == 0)
+        {
+            mod->RegisterSystem(this, _SystemType);
+            return true;
+            break;
+        }
+    }
+    return false;
 }
 
 void Pxf::Kernel::DumpAvailableModules()

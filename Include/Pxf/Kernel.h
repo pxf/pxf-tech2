@@ -42,6 +42,8 @@ namespace Pxf {
         Kernel(const Kernel& _Other){};
         
     public:
+        static const unsigned KERNEL_VERSION;
+    
         ~Kernel();
         enum SystemType
         {
@@ -59,14 +61,14 @@ namespace Pxf {
             return s_Kernel;
         }
         
-        static unsigned int GetEngineVersion()
+        static unsigned int GetKernelVersion()
         {
             return 1;
         }
         
         bool RegisterModule(const char* _FilePath, bool _OverrideBuiltin = false);
         bool RegisterModule(Pxf::Module* _Module);
-        void SetPreferredModule(SystemType _SystemType, const char* _ModuleID);
+        bool RegisterSystem(const char* _ModuleID, SystemType _SystemType);
         void DumpAvailableModules();
     }; // class Kernel
     

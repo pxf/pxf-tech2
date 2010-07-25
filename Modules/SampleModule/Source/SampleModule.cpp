@@ -1,11 +1,12 @@
 #include <Pxf/Base/Config.h>
+#include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Kernel.h>
 #include <Pxf/Module.h>
 #include <Pxf/SampleModule/SampleModule.h>
 
-static const unsigned Module_Kernel_Version = 0; // Pxf::Kernel::KERNEL_VERSION;
-static const unsigned Module_Api_Version = 1; // Pxf::Kernel::GRAPHICS_API_VERSION
+static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
+static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
 #include <Pxf/Kernel.h>
 using Pxf::Modules::SampleModule;
@@ -15,7 +16,6 @@ REGISTER_MODULE(SampleModule, Module_Kernel_Version, Module_Api_Version);
 PXFEXPORT Pxf::Module* CreateInstance()
 {
     Pxf::Modules::SampleModule *m = new Pxf::Modules::SampleModule("SampleModule", Module_Kernel_Version, Module_Api_Version);
-    Message("SampleModule", "Creating module = '%x'", m);
     return m;
 }
 
@@ -23,12 +23,12 @@ PXFEXPORT void DestroyInstance(Pxf::Module* _module)
 {
     if (_module)
     {
-        Message("SampleModule", "Deleting module = '%x'", _module);
         delete _module;
     }
 }
 
-void Pxf::Modules::SampleModule::RegisterSystems(Pxf::Kernel* _Kernel)
+bool Pxf::Modules::SampleModule::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
-    Message("SampleModule", "Registering all available systems to kernel %x", _Kernel);
+    Message("SampleModule", "Checking module for system type %d", _SystemType);
+    return false;
 }

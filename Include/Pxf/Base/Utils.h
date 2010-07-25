@@ -4,6 +4,8 @@
 #include <Pxf/Base/Types.h>
 #include <Pxf/Base/Config.h>
 
+#define PXF_PACKSHORT2(maj, min) (((uint32)(maj)) << 16) | (min)
+
 namespace Pxf
 {
 
@@ -50,6 +52,17 @@ namespace Pxf
 	{
 		return (uint8)(((v * 0x0802LU & 0x22110LU) | (v * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16);
 	}
+
+    inline uint32 PackShort2(uint16 _Maj, uint16 _Min)
+    {
+        return (((uint32)_Maj) << 16) | _Min;
+    }
+    
+    inline void UnpackShort2(uint32 _Encoded, uint16* _pMaj, uint16* _pMin)
+    {
+        *_pMin = _Encoded & 0x7f;
+        *_pMaj = (_Encoded >> 16) & 0x7f;
+    }
 
 	// Merge two bytes into a short
 	inline uint16 Merge2(char a, char b)

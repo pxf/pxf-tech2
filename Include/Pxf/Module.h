@@ -26,13 +26,15 @@ namespace Pxf {
         unsigned m_ApiVersion;
         const char* m_Identifier;
     public:
+        static const unsigned MODULE_VERSION;
+    
         Module(const char* _Identifier, unsigned _KernelVersion, unsigned _ApiVersion)
             : m_Identifier(_Identifier)
             , m_KernelVersion(_KernelVersion)
             , m_ApiVersion(_ApiVersion)
         {}
 
-        virtual void RegisterSystems(Pxf::Kernel* _Kernel) = 0;
+        virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType) = 0;
 
         static void DestroySystem(Pxf::System* _System)
         {
