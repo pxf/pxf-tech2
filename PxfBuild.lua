@@ -81,7 +81,9 @@ function NewModule(name)
 --    end
     
     module.RequireLibrary = function(self, library)
-        table.insert(self.required_libraries, library)
+        if self.required_libraries[library] == nil then
+            table.insert(self.required_libraries, library)
+        end
     end
      
     module.AddIncludeDirectory = function(self, dir)
@@ -125,8 +127,8 @@ function NewModule(name)
             end
             return SharedLibrary(module_settings, self.name, objs, frameworkobjs, libs)
         else
-            -- Link to static library
-            return StaticLibrary(module_settings, self.name, objs, frameworkobjs)
+            -- Return compiled objects instead of creating a static library.
+            return objs;
         end
     end
     
@@ -142,7 +144,9 @@ function NewProject(name)
     project.source_directories = {}
     
     project.RequireLibrary = function(self, library)
-        table.insert(self.required_libraries, library)
+        if self.required_libraries[library] == nil then
+            table.insert(self.required_libraries, library)
+        end
     end
     
     project.RequireModule = function(self, module)
@@ -206,16 +210,22 @@ function NewProject(name)
         -- Compile Project
         local DoBuild = function(settings, source_files, baked_exe, libraries)
             local dep_modules = {}
+            local req_libraries = {}
             self.dep_libraries = {}
+            
+            for i,l in ipairs(self.required_libraries) do
+                table.insert(req_libraries, l)
+            end
+            
             
             if baked_exe == false then
                 if family == "windows" then
-                    settings.cc.defines:Add("PXFMODULE=\"extern \\\"C\\\" __declspec(dllexport)\"")
+                    settings.cc.defines:Add("PXFEXPORT=\"extern \\\"C\\\" __declspec(dllexport)\"")
                 else
-                    settings.cc.defines:Add("PXFMODULE=\"extern \\\"C\"\\\"")
+                    settings.cc.defines:Add("PXFEXPORT=\"extern \\\"C\"\\\"")
                 end
             else
-                settings.cc.defines:Add("PXFMODULE=\"\"")
+                settings.cc.defines:Add("PXFEXPORT=\"\"")
             end
             
             -- Collect libraries
@@ -262,14 +272,22 @@ function NewProject(name)
             for i, m in ipairs(self.required_modules) do
                 settings.cc.defines:Add("CONF_WITH_MODULE_"..string.upper(dep_modules[m].name))
                 module = dep_modules[m]:Build(self, settings, pxf_objs, baked_exe)
-                if baked_exe == true then -- Compile modules as static libraries instead of shared libraries
+                -- Build with embedded modules
+                if baked_exe == true then
                     table.insert(self.built_mods, module)
+                    -- Add required libraries if they aren't already wanted
+                    for j, l in ipairs(dep_modules[m].required_libraries) do
+                        if req_libraries[l] == nil then
+                            table.insert(req_libraries, l)
+                        end
+                    end
+                -- Build with dynamic modules
                 else
                     table.insert(self.built_dlls, module)
                 end
             end
             
-            for i, l in ipairs(self.required_libraries) do
+            for i, l in ipairs(req_libraries) do
                 if self.built_list[l] == nil then
                     settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(self.dep_libraries[l].name))
                     table.insert(self.built_libs, self.dep_libraries[l]:Build(self, settings))

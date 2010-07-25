@@ -1,23 +1,34 @@
 #ifndef _PXF_KERNEL_H_
 #define _PXF_KERNEL_H_
 
-/*
-// Pxf::Kernel::GetEngineVersion();
-static const int SampleModule_Type = 0; //Pxf::Kernel::MODULE_TYPE_GRAPHICS
-// Pxf::Kernel::RegisterModule(MODULE_TYPE_GRAPHICS, "module.dll")
-// Pxf::Kernel::SetPreferredModule(MODULE_TYPE_GRAPHICS, "OPENGL2")
-*/
-
 namespace Pxf {
-    class Module;
+    namespace Base
+    {
+        class Module;
+    }
+    
     class Kernel
     {
     private:
         static Kernel* s_Kernel;
+        
+        /*
+        typedef void*(*RegisterSystems_fun)(Kernel*);
+        typedef void*(*Destroy_fun)(System*);
+        struct Module_t
+        {
+            const char* module;
+            unsigned type;
+            unsigned ident;
+            Destroy_fun destroy;
+        }
+        */
+
         // Pxf::Util::Array< Pxf::Util::Stack<Module>*> > m_Modules;
         //m_Modules[MODULE_TYPE_GRAPHICS].top(), pushback(), pushfront()
-        friend class Pxf::Module;
     public:
+        Kernel();
+        ~Kernel();
         enum ModuleType
         {
             MODULE_TYPE_GRAPHICS = 1,
@@ -39,7 +50,8 @@ namespace Pxf {
             return 1;
         }
         
-        bool RegisterModule(ModuleType _ModuleType, const char* _FilePath);
+        bool RegisterModule(const char* _FilePath);
+        bool RegisterModule(Pxf::Base::Module* _Module);
         void SetPreferredModule(ModuleType _ModuleType, const char* _ModuleID);
     }; // class Kernel
     

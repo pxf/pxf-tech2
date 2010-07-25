@@ -5,20 +5,6 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Kernel.h>
 
-#ifdef CONF_FAMILY_WINDOWS
-    #ifdef CONF_MODULAR
-        #define PXFMODULE extern "C" __declspec(dllexport)
-    #else
-        #define PXFMODULE
-    #endif
-#else
-    #ifdef CONF_MODULAR
-        #define PXFMODULE extern "C"
-    #else
-        #define PXFMODULE
-    #endif
-#endif
-
 namespace Pxf {
 namespace Modules
 {
@@ -26,8 +12,8 @@ namespace Modules
     {
         private:
         public:
-        SampleModule(unsigned KernelVersion, unsigned ApiVersion)
-            : Module(KernelVersion, ApiVersion)
+        SampleModule(const char* _Identifier, unsigned _KernelVersion, unsigned _ApiVersion)
+            : Module(_Identifier, _KernelVersion, _ApiVersion)
         {}
         
         virtual void RegisterSystems(Pxf::Kernel* _Kernel);
