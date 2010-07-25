@@ -13,11 +13,6 @@
                                         m_Module = new MODULE(#MODULE, KERNELV, MODULEV);  \
                                         k->RegisterModule(m_Module);                       \
                                     }                                                      \
-                                    ~RegisterModule()                                      \
-                                    {                                                      \
-                                        if (m_Module)                                      \
-                                            delete m_Module;                               \
-                                    }                                                      \
                                 };                                                         \
                                 static RegisterModule g_GlobalInitializer;
 namespace Pxf {

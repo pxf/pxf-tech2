@@ -14,12 +14,18 @@ REGISTER_MODULE(SampleModule, Module_Kernel_Version, Module_Api_Version);
 
 PXFEXPORT Pxf::Module* CreateInstance()
 {
-    return new Pxf::Modules::SampleModule("SampleModule", Module_Kernel_Version, Module_Api_Version);
+    Pxf::Modules::SampleModule *m = new Pxf::Modules::SampleModule("SampleModule", Module_Kernel_Version, Module_Api_Version);
+    Message("SampleModule", "Creating module = '%x'", m);
+    return m;
 }
 
 PXFEXPORT void DestroyInstance(Pxf::Module* _module)
 {
-    delete _module;
+    if (_module)
+    {
+        Message("SampleModule", "Deleting module = '%x'", _module);
+        delete _module;
+    }
 }
 
 void Pxf::Modules::SampleModule::RegisterSystems(Pxf::Kernel* _Kernel)

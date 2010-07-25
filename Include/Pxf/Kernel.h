@@ -4,6 +4,11 @@
 #include <Pxf/Util/Array.h>
 
 namespace Pxf {
+    namespace Base
+    {
+        class SharedLibrary;
+    }
+    
     class Module;
     
     class Kernel
@@ -14,12 +19,20 @@ namespace Pxf {
         typedef void(*DestroyModuleInstance_fun)(Pxf::Module*);
         struct ModuleEntry_t
         {
+            Pxf::Base::SharedLibrary* dynlib;
             Pxf::Module* module;
             DestroyModuleInstance_fun destroy;
-            ModuleEntry_t(Pxf::Module* _Module, DestroyModuleInstance_fun dmi)
+            ModuleEntry_t(Pxf::Module* _Module, DestroyModuleInstance_fun _Fun)
             {
                 module = _Module;
-                destroy = dmi;
+                destroy = _Fun;
+                dynlib = 0;
+            }
+            ModuleEntry_t(Pxf::Base::SharedLibrary* _Library, Pxf::Module* _Module, DestroyModuleInstance_fun _Fun)
+            {
+                module = _Module;
+                destroy = _Fun;
+                dynlib = _Library;
             }
         };
         
@@ -30,13 +43,13 @@ namespace Pxf {
         
     public:
         ~Kernel();
-        enum ModuleType
+        enum SystemType
         {
-            MODULE_TYPE_GRAPHICS = 1,
-            MODULE_TYPE_SOUND,
-            MODULE_TYPE_PHYSICS,
-            MODULE_TYPE_RESOURCE_LOADER,
-            MODULE_TYPE_SCRIPTLANG
+            SYSTEM_TYPE_GRAPHICS = 1,
+            SYSTEM_TYPE_SOUND,
+            SYSTEM_TYPE_PHYSICS,
+            SYSTEM_TYPE_RESOURCE_LOADER,
+            SYSTEM_TYPE_SCRIPTLANG
         };
         
         static Kernel* GetInstance()
@@ -51,9 +64,9 @@ namespace Pxf {
             return 1;
         }
         
-        bool RegisterModule(const char* _FilePath);
+        bool RegisterModule(const char* _FilePath, bool _OverrideBuiltin = false);
         bool RegisterModule(Pxf::Module* _Module);
-        void SetPreferredModule(ModuleType _ModuleType, const char* _ModuleID);
+        void SetPreferredModule(SystemType _SystemType, const char* _ModuleID);
         void DumpAvailableModules();
     }; // class Kernel
     
