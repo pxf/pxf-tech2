@@ -1,7 +1,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/SharedLibrary.h>
-#include <Pxf/Base/Module.h>
+#include <Pxf/Module.h>
 
 
 
@@ -26,15 +26,15 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath)
         return false;
     }
     
-    typedef Pxf::Base::Module*(*CreateInstance_fun)(void);
-    typedef void(*DestroyInstance_fun)(Pxf::Base::Module*);
+    typedef Pxf::Module*(*CreateInstance_fun)(void);
+    typedef void(*DestroyInstance_fun)(Pxf::Module*);
         
     CreateInstance_fun CreateInstance = (CreateInstance_fun)lib.LookupName("CreateInstance");
     DestroyInstance_fun DestroyInstance = (DestroyInstance_fun)lib.LookupName("DestroyInstance");
     
     // Create a module instance to register the subsystems...
     // remove Module and replace with a few functions and a RegisterModules(Kernel*)...???
-    Pxf::Base::Module* module = CreateInstance();
+    Pxf::Module* module = CreateInstance();
     Pxf::Message("Kernel::RegisterModule", "kernel_version = %d, module_ptr = %x", module->GetKernelVersion(), module);
     Pxf::Message("Kernel::RegisterModule", "module_version = %d, module_ptr = %x", module->GetApiVersion(), module);
     module->RegisterSystems(this);
@@ -45,7 +45,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath)
     return true;
 }
 
-bool Pxf::Kernel::RegisterModule(Pxf::Base::Module* _Module)
+bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
 {
     Message("Kernel::RegisterModule(Module*)", "Registered %s", _Module->GetIdentifier());
     return true;

@@ -1,7 +1,7 @@
 #include <Pxf/Base/Config.h>
-#include <Pxf/Base/Module.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Kernel.h>
+#include <Pxf/Module.h>
 #include <Pxf/SampleModule/SampleModule.h>
 
 static const unsigned Module_Kernel_Version = 0; // Pxf::Kernel::KERNEL_VERSION;
@@ -12,12 +12,12 @@ using Pxf::Modules::SampleModule;
 REGISTER_MODULE(SampleModule, Module_Kernel_Version, Module_Api_Version);
 
 
-PXFEXPORT Pxf::Base::Module* CreateInstance()
+PXFEXPORT Pxf::Module* CreateInstance()
 {
     return new Pxf::Modules::SampleModule("SampleModule", Module_Kernel_Version, Module_Api_Version);
 }
 
-PXFEXPORT void DestroyInstance(Pxf::Base::Module* _module)
+PXFEXPORT void DestroyInstance(Pxf::Module* _module)
 {
     delete _module;
 }

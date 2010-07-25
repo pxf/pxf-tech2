@@ -1,14 +1,14 @@
 #ifndef _PXF_MODULES_SAMPLEMODULE_H_
 #define _PXF_MODULES_SAMPLEMODULE_H_
 
-#include <Pxf/Base/Module.h>
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Module.h>
 #include <Pxf/Kernel.h>
 
 namespace Pxf {
 namespace Modules
 {
-    class SampleModule : public Pxf::Base::Module
+    class SampleModule : public Pxf::Module
     {
         private:
         public:

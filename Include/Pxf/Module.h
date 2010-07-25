@@ -1,12 +1,12 @@
-#ifndef _PXF_BASE_MODULE_H_
-#define _PXF_BASE_MODULE_H_
+#ifndef _PXF_MODULE_H_
+#define _PXF_MODULE_H_
 
 // Does not work because the module is compiled as a static library.
 #define REGISTER_MODULE(MODULE, KERNELV, MODULEV) \
                                 class RegisterModule                                       \
                                 {                                                          \
                                 private:                                                   \
-                                    Pxf::Base::Module* m_Module;                           \
+                                    Pxf::Module* m_Module;                                 \
                                 public:                                                    \
                                     RegisterModule() : m_Module(0)                         \
                                     {                                                      \
@@ -24,8 +24,7 @@
 namespace Pxf {
     class Kernel;
     class System;
-namespace Base
-{
+    
     class Module
     {
     private:
@@ -62,7 +61,6 @@ namespace Base
             return m_Identifier;
         }
     };
-} // Base
 } // Pxf
 
-#endif // _PXF_BASE_MODULE_H_
+#endif // _PXF_MODULE_H_

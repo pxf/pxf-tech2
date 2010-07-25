@@ -2,10 +2,7 @@
 #define _PXF_KERNEL_H_
 
 namespace Pxf {
-    namespace Base
-    {
-        class Module;
-    }
+    class Module;
     
     class Kernel
     {
@@ -51,7 +48,7 @@ namespace Pxf {
         }
         
         bool RegisterModule(const char* _FilePath);
-        bool RegisterModule(Pxf::Base::Module* _Module);
+        bool RegisterModule(Pxf::Module* _Module);
         void SetPreferredModule(ModuleType _ModuleType, const char* _ModuleID);
     }; // class Kernel
     
