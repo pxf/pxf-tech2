@@ -1,5 +1,5 @@
-#ifndef __PXF_UTIL_LIST_H__
-#define __PXF_UTIL_LIST_H__
+#ifndef _PXF_UTIL_LIST_H_
+#define _PXF_UTIL_LIST_H_
 
 #include <list>
 
@@ -15,6 +15,6 @@ class List : public std::list<T>
 } // Util
 } // Pxf
 
-#endif //__PXF_UTIL_LIST_H__
+#endif //_PXF_UTIL_LIST_H_
 
 

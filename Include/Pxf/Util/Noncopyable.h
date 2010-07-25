@@ -1,5 +1,5 @@
-#ifndef __PXF_UTIL_NONCOPYABLE_H__
-#define __PXF_UTIL_NONCOPYABLE_H__
+#ifndef _PXF_UTIL_NONCOPYABLE_H_
+#define _PXF_UTIL_NONCOPYABLE_H_
 
 namespace Pxf {
 namespace Util {
@@ -22,6 +22,6 @@ typedef Noncopyable_::Noncopyable Noncopyable;
 } // Util
 } // Pxf
 
-#endif //__PXF_UTIL_NONCOPYABLE_H__
+#endif //_PXF_UTIL_NONCOPYABLE_H_
 
 

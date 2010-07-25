@@ -1,5 +1,5 @@
-#ifndef __PXF_UTIL_MAP_H__
-#define __PXF_UTIL_MAP_H__
+#ifndef _PXF_UTIL_MAP_H_
+#define _PXF_UTIL_MAP_H_
 
 #include <map>
 
@@ -17,6 +17,6 @@ class Map : public std::map<K,V>
 } // Util
 } // Pxf
 
-#endif //__PXF_UTIL_MAP_H__
+#endif //_PXF_UTIL_MAP_H_
 
 
