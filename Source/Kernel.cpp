@@ -27,31 +27,44 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath)
     }
     
     typedef Pxf::Module*(*CreateInstance_fun)(void);
-    typedef void(*DestroyInstance_fun)(Pxf::Module*);
         
     CreateInstance_fun CreateInstance = (CreateInstance_fun)lib.LookupName("CreateInstance");
-    DestroyInstance_fun DestroyInstance = (DestroyInstance_fun)lib.LookupName("DestroyInstance");
+    DestroyModuleInstance_fun DestroyInstance = (DestroyModuleInstance_fun)lib.LookupName("DestroyInstance");
     
     // Create a module instance to register the subsystems...
     // remove Module and replace with a few functions and a RegisterModules(Kernel*)...???
     Pxf::Module* module = CreateInstance();
     Pxf::Message("Kernel::RegisterModule", "kernel_version = %d, module_ptr = %x", module->GetKernelVersion(), module);
     Pxf::Message("Kernel::RegisterModule", "module_version = %d, module_ptr = %x", module->GetApiVersion(), module);
-    module->RegisterSystems(this);
     
-    // All system required are registered, safe to delete the module.
-    DestroyInstance(module);
+    
+    m_AvailableModules.push_back(new ModuleEntry_t(module, DestroyInstance));
 
     return true;
 }
 
+static void DestroyInstance(Pxf::Module* _Module)
+{
+    if (_Module)
+        delete _Module;
+}
+
 bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
 {
-    Message("Kernel::RegisterModule(Module*)", "Registered %s", _Module->GetIdentifier());
+    Message("Kernel::RegisterModule(Module*)", "Registered %s to kernel %x", _Module->GetIdentifier(), this);
+    m_AvailableModules.push_back(new ModuleEntry_t(_Module, DestroyInstance));
     return true;
 }
 
 void Pxf::Kernel::SetPreferredModule(ModuleType _ModuleType, const char* _ModuleID)
 {
 
+}
+
+void Pxf::Kernel::DumpAvailableModules()
+{
+    for(int i = 0; i < m_AvailableModules.size(); i++)
+    {
+        Message("Kernel::DumpAvailableModules", "%d. %s", i, m_AvailableModules[i]->module->GetIdentifier());
+    }
 }

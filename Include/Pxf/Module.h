@@ -1,7 +1,6 @@
 #ifndef _PXF_MODULE_H_
 #define _PXF_MODULE_H_
 
-// Does not work because the module is compiled as a static library.
 #define REGISTER_MODULE(MODULE, KERNELV, MODULEV) \
                                 class RegisterModule                                       \
                                 {                                                          \
@@ -10,9 +9,9 @@
                                 public:                                                    \
                                     RegisterModule() : m_Module(0)                         \
                                     {                                                      \
-                                        Pxf::Kernel k;                                     \
-                                        m_Module = new MODULE(#MODULE, KERNELV, MODULEV);           \
-                                        k.RegisterModule(m_Module);                        \
+                                        Pxf::Kernel* k = Pxf::Kernel::GetInstance();       \
+                                        m_Module = new MODULE(#MODULE, KERNELV, MODULEV);  \
+                                        k->RegisterModule(m_Module);                       \
                                     }                                                      \
                                     ~RegisterModule()                                      \
                                     {                                                      \
