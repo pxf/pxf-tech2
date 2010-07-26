@@ -9,8 +9,6 @@
 #endif
 
 namespace Pxf {
-namespace Base
-{
     class SharedLibrary
     {
     private:
@@ -20,6 +18,7 @@ namespace Base
         #else
             void* m_pHandle;
         #endif
+        const char* m_Path;
     public:
         SharedLibrary();
         ~SharedLibrary();
@@ -27,7 +26,11 @@ namespace Base
         bool Close();
         void* LookupName(const char* _Name);
         char* GetError();
+        const char* GetFilePath() const
+        {
+            return m_Path;
+        }
     };
-}}
+}
 
 #endif // _PXF_BASE_SHAREDLIBRARY_H_

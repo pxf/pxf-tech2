@@ -1,4 +1,4 @@
-#include <Pxf/SampleModule/SampleModule.h>
+//#include <Pxf/SampleModule/SampleModule.h>
 #include <stdio.h>
 
 #include <Pxf/Kernel.h>
@@ -11,10 +11,11 @@ int main()
     Pxf::Message("Main", "Using kernel %x", kernel);
 
     // kernel->Initialize(Pxf::Kernel::SYSTEM_TYPE_GRAPHICS, 'OGL2');
-    kernel->RegisterModule("SampleModule_ddyn.dll", true);
+    kernel->RegisterModule("SampleModule_ddyn.dll", false);
+    kernel->RegisterModule("pri_ddyn.dll", false);
     kernel->DumpAvailableModules();
     
-    if (kernel->RegisterSystem("SampleModule", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS))
+    //if (kernel->RegisterSystem("SampleModule", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS))
     {
         // SampleModule contained a graphics system, available via kernel->GetGraphicsSystem()?
     }

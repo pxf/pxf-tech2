@@ -4,7 +4,7 @@
 #include <Pxf/Base/Types.h>
 #include <Pxf/Base/Config.h>
 
-#define PXF_PACKSHORT2(maj, min) (((uint32)(maj)) << 16) | (min)
+#define PXF_PACKSHORT2(maj, min) ((((uint32)(maj)) << 16) | (min))
 
 namespace Pxf
 {

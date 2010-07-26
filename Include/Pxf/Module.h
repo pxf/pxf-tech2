@@ -2,19 +2,19 @@
 #define _PXF_MODULE_H_
 
 #define REGISTER_MODULE(MODULE, KERNELV, MODULEV) \
-                                class RegisterModule                                       \
+                                class RegisterModule##MODULE                               \
                                 {                                                          \
                                 private:                                                   \
                                     Pxf::Module* m_Module;                                 \
                                 public:                                                    \
-                                    RegisterModule() : m_Module(0)                         \
+                                    RegisterModule##MODULE() : m_Module(0)                 \
                                     {                                                      \
                                         Pxf::Kernel* k = Pxf::Kernel::GetInstance();       \
                                         m_Module = new MODULE(#MODULE, KERNELV, MODULEV);  \
                                         k->RegisterModule(m_Module);                       \
                                     }                                                      \
                                 };                                                         \
-                                static RegisterModule g_GlobalInitializer;
+                                static RegisterModule##MODULE g_GlobalInitializer##MODULE;
 namespace Pxf {
     class Kernel;
     class System;

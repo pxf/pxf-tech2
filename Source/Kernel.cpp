@@ -29,7 +29,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     // Check if _FilePath ends with .dll, .so or .dylib
     // if not, append the correct one depending on platform
 
-    Pxf::Base::SharedLibrary* lib = new Pxf::Base::SharedLibrary();
+    Pxf::SharedLibrary* lib = new Pxf::SharedLibrary();
     
     if(!lib->Load(_FilePath))
     {
@@ -41,6 +41,13 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
         
     CreateInstance_fun CreateInstance = (CreateInstance_fun)lib->LookupName("CreateInstance");
     DestroyModuleInstance_fun DestroyInstance = (DestroyModuleInstance_fun)lib->LookupName("DestroyInstance");
+    
+    if(!CreateInstance)
+    {
+        Pxf::Message("Kernel", "CreateInstance: %x", CreateInstance);
+        //delete lib;
+        return false;
+    }
     
     Pxf::Module* module = CreateInstance();
     Pxf::Message("Kernel", "Loaded '%s' (0x%x)", _FilePath, module);
@@ -60,7 +67,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
             }
             else
             {
-                Message("Kernel", "Module '%x' is overriding built-in '%x'", module, m_AvailableModules[i]->module);
+                Message("Kernel", "'%s' is overriding built-in '%s'.", _FilePath, module->GetIdentifier());
                 
                 // Remove built-in module
                 m_AvailableModules[i]->destroy(m_AvailableModules[i]->module);
@@ -82,13 +89,11 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     unsigned short mmaj, mmin;
     Pxf::UnpackShort2(module->GetKernelVersion(), &kmaj, &kmin);
     Pxf::UnpackShort2(module->GetApiVersion(), &mmaj, &mmin);
-    Pxf::Message("Kernel", "Compiled kernel version = %d.%d, API version = %d.%d", kmaj, kmin, mmaj, mmin);
-    
     unsigned short currkmaj, currkmin;
     Pxf::UnpackShort2(Pxf::Kernel::KERNEL_VERSION, &currkmaj, &currkmin);
     if (kmaj < currkmaj || (kmaj == currkmaj && kmin < currkmin))
     {
-        Message("Kernel", "Warning - Kernel version mismatch (%d.%d is recommended)", currkmaj, currkmin);
+        Message("Kernel", "Warning, kernel version mismatch (%d.%d is recommended)", currkmaj, currkmin);
     }
     
     unsigned short currmmaj, currmmin;
@@ -98,7 +103,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
         Message("Kernel", "Warning - Module API version mismatch (%d.%d is recommended)", currmmaj, currmmin);
     }
     
-    Message("Kernel", "Registered %s (sharedlib) to kernel %x", module->GetIdentifier(), this);
+    Message("Kernel", "Registered %s (dylib, kv: %d.%d, mv: %d.%d) to kernel %x", module->GetIdentifier(), kmaj, kmin, mmaj, mmin, this);
     
     if (!replaced)
         m_AvailableModules.push_back(new ModuleEntry_t(lib, module, DestroyInstance));
@@ -138,6 +143,9 @@ void Pxf::Kernel::DumpAvailableModules()
     Message("Kernel", "Dumping available modules:");
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
-        Message("Kernel", "%d. \t%s", i, m_AvailableModules[i]->module->GetIdentifier());
+		const char* path = "built-in";
+		if (m_AvailableModules[i]->dynlib)
+			path = m_AvailableModules[i]->dynlib->GetFilePath();
+        Message("Kernel", "%d. \t%s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
     }
 }

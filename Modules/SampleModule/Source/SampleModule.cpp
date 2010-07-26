@@ -8,11 +8,12 @@
 static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
-#include <Pxf/Kernel.h>
 using Pxf::Modules::SampleModule;
 REGISTER_MODULE(SampleModule, Module_Kernel_Version, Module_Api_Version);
 
 
+namespace Aoeaoe
+{
 PXFEXPORT Pxf::Module* CreateInstance()
 {
     Pxf::Modules::SampleModule *m = new Pxf::Modules::SampleModule("SampleModule", Module_Kernel_Version, Module_Api_Version);
@@ -26,6 +27,8 @@ PXFEXPORT void DestroyInstance(Pxf::Module* _module)
         delete _module;
     }
 }
+}
+
 
 bool Pxf::Modules::SampleModule::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {

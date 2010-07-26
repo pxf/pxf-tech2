@@ -4,26 +4,26 @@
 #ifdef CONF_FAMILY_UNIX
 
 #include <dlfcn.h>
-using namespace Pxf::Base;
 
-SharedLibrary::SharedLibrary()
+Pxf::SharedLibrary::SharedLibrary()
     : m_pHandle(0)
 {
 }
 
-SharedLibrary::~SharedLibrary()
+Pxf::SharedLibrary::~SharedLibrary()
 {
     if (m_pHandle)
         Close();
 }
 
-bool SharedLibrary::Load(const char* _File)
+bool Pxf::SharedLibrary::Load(const char* _File)
 {
+    m_Path = _File;
     m_pHandle = dlopen(_File, RTLD_NOW);
     return m_pHandle != 0;
 }
 
-bool SharedLibrary::Close()
+bool Pxf::SharedLibrary::Close()
 {
     if (dlclose(m_pHandle) < 0)
         return false;
@@ -31,12 +31,12 @@ bool SharedLibrary::Close()
         return true;
 }
 
-void* SharedLibrary::LookupName(const char* _Name)
+void* Pxf::SharedLibrary::LookupName(const char* _Name)
 {
     return dlsym(m_pHandle, _Name);
 }
 
-char* SharedLibrary::GetError()
+char* Pxf::SharedLibrary::GetError()
 {
     return dlerror();
 }

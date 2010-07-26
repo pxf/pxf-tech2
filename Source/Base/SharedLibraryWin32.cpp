@@ -4,14 +4,12 @@
 
 #include <stdlib.h>
 
-using namespace Pxf::Base;
-
-SharedLibrary::SharedLibrary()
+Pxf::SharedLibrary::SharedLibrary()
 {
     m_LastError = (char*)malloc(1);
 }
 
-SharedLibrary::~SharedLibrary()
+Pxf::SharedLibrary::~SharedLibrary()
 {
     if (m_pHandle)
         Close();
@@ -20,24 +18,25 @@ SharedLibrary::~SharedLibrary()
         free(m_LastError);
 }
 
-bool SharedLibrary::Load(const char* _File)
+bool Pxf::SharedLibrary::Load(const char* _File)
 {
+    m_Path = _File;
     m_pHandle = LoadLibrary(_File);
     return m_pHandle != 0;
 }
 
-bool SharedLibrary::Close()
+bool Pxf::SharedLibrary::Close()
 {
     bool r = FreeLibrary(m_pHandle);
     return r;
 }
 
-void* SharedLibrary::LookupName(const char* _Name)
+void* Pxf::SharedLibrary::LookupName(const char* _Name)
 {
     return GetProcAddress(m_pHandle, _Name);
 }
 
-char* SharedLibrary::GetError()
+char* Pxf::SharedLibrary::GetError()
 {
     LPVOID lpMsgBuf;
     FormatMessage(

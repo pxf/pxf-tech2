@@ -60,7 +60,7 @@ function NewLibrary(name)
         end
         
         -- Also handle other modules and libs
-        objs = Compile(library_settings, source_files)
+        local objs = Compile(library_settings, source_files)
         -- Link to static library
         return StaticLibrary(library_settings, self.name, objs)
     end
@@ -102,11 +102,12 @@ function NewModule(name)
         end
         
         for i,m in ipairs(self.source_directories) do
-            table.insert(source_files, Collect(m))
+            for j, p in ipairs(Collect(m)) do
+                print(p)
+                table.insert(source_files, p)
+            end
         end
-        
-        objs = Compile(module_settings, source_files)
-        
+       
         if not baked_exe then
             -- SharedLibrary needs to link with self.required_libs
             libs = {}
@@ -125,9 +126,11 @@ function NewModule(name)
                     module_settings.dll.frameworks:Add(l)
                 end
             end
+            local objs = Compile(module_settings, source_files)
             return SharedLibrary(module_settings, self.name, objs, frameworkobjs, libs)
         else
             -- Return compiled objects instead of creating a static library.
+            local objs = Compile(module_settings, source_files)
             return objs;
         end
     end

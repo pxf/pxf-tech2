@@ -4,11 +4,7 @@
 #include <Pxf/Util/Array.h>
 
 namespace Pxf {
-    namespace Base
-    {
-        class SharedLibrary;
-    }
-    
+    class SharedLibrary;
     class Module;
     
     class Kernel
@@ -19,7 +15,7 @@ namespace Pxf {
         typedef void(*DestroyModuleInstance_fun)(Pxf::Module*);
         struct ModuleEntry_t
         {
-            Pxf::Base::SharedLibrary* dynlib;
+            Pxf::SharedLibrary* dynlib;
             Pxf::Module* module;
             DestroyModuleInstance_fun destroy;
             ModuleEntry_t(Pxf::Module* _Module, DestroyModuleInstance_fun _Fun)
@@ -28,7 +24,7 @@ namespace Pxf {
                 destroy = _Fun;
                 dynlib = 0;
             }
-            ModuleEntry_t(Pxf::Base::SharedLibrary* _Library, Pxf::Module* _Module, DestroyModuleInstance_fun _Fun)
+            ModuleEntry_t(Pxf::SharedLibrary* _Library, Pxf::Module* _Module, DestroyModuleInstance_fun _Fun)
             {
                 module = _Module;
                 destroy = _Fun;
@@ -61,9 +57,15 @@ namespace Pxf {
             return s_Kernel;
         }
         
+        //Audio* GetAudiodevice();
+        //Graphics* GetGraphicsDevice();
+        //Physics* GetPhysicsEngine();
+        //ResourceManager* GetResourceManager();
+        //ScriptEngine* GetScriptEngine();
+        
         static unsigned int GetKernelVersion()
         {
-            return 1;
+            return KERNEL_VERSION;
         }
         
         bool RegisterModule(const char* _FilePath, bool _OverrideBuiltin = false);
