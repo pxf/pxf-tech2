@@ -68,7 +68,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     unsigned offset = 0;
     
     // Also add prefixing ./ on unix
-    #if CONF_FAMILY_UNIX
+    #ifdef CONF_FAMILY_UNIX
         if (!is_prefix(_FilePath, "./"))
         {
             offset = 2;
