@@ -123,16 +123,14 @@ bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
     return true;
 }
 
-bool Pxf::Kernel::RegisterSystem(const char* _ModuleID, SystemType _SystemType)
+bool Pxf::Kernel::RegisterSystem(const char* _ModuleID, SystemType _SystemType, unsigned _Identifier)
 {
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
         Pxf::Module* mod = m_AvailableModules[i]->module;
         if (strcmp(mod->GetIdentifier(), _ModuleID) == 0)
         {
-            mod->RegisterSystem(this, _SystemType);
-            return true;
-            break;
+            return mod->RegisterSystem(this, _SystemType, _Identifier);
         }
     }
     return false;

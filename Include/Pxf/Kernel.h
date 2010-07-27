@@ -57,11 +57,16 @@ namespace Pxf {
             return s_Kernel;
         }
         
-        //Audio* GetAudiodevice();
-        //Graphics* GetGraphicsDevice();
-        //Physics* GetPhysicsEngine();
-        //ResourceManager* GetResourceManager();
+        //void RegisterAudioDevice(AudioDevice* _Device);
+        //AudioDevice* GetAudioDevice();
+        //void RegisterGraphicsDevice(GraphicsDevice* _Device);
+        //GraphicsDevice* GetGraphicsDevice();
+        //void RegisterPhysicsEngine(PhysicsEngine* _Engine);
+        //PhysicsEngine* GetPhysicsEngine();
+        //void RegisterScriptEngine(ScriptEngine* _Engine);
         //ScriptEngine* GetScriptEngine();
+
+        //ResourceManager* GetResourceManager();
         
         static unsigned int GetKernelVersion()
         {
@@ -70,7 +75,7 @@ namespace Pxf {
         
         bool RegisterModule(const char* _FilePath, bool _OverrideBuiltin = false);
         bool RegisterModule(Pxf::Module* _Module);
-        bool RegisterSystem(const char* _ModuleID, SystemType _SystemType);
+        bool RegisterSystem(const char* _ModuleID, SystemType _SystemType, unsigned _Identifier = 0);
         void DumpAvailableModules();
     }; // class Kernel
     

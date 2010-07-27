@@ -103,7 +103,6 @@ function NewModule(name)
         
         for i,m in ipairs(self.source_directories) do
             for j, p in ipairs(Collect(m)) do
-                print(p)
                 table.insert(source_files, p)
             end
         end

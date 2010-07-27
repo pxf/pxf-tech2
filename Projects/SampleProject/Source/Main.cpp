@@ -12,12 +12,17 @@ int main()
 
     // kernel->Initialize(Pxf::Kernel::SYSTEM_TYPE_GRAPHICS, 'OGL2');
     kernel->RegisterModule("SampleModule_ddyn.dll", false);
-    kernel->RegisterModule("pri_ddyn.dll", false);
+    kernel->RegisterModule("pri_ddyn.dll", true);
     kernel->DumpAvailableModules();
     
-    //if (kernel->RegisterSystem("SampleModule", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS))
+    if (kernel->RegisterSystem("SampleModule", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS))
     {
-        // SampleModule contained a graphics system, available via kernel->GetGraphicsSystem()?
+
+    }
+    
+    if (kernel->RegisterSystem("PortableRendererInput", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS, 'GL2'))
+    {
+
     }
     
     delete kernel;

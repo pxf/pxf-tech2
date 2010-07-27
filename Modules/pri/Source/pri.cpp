@@ -11,23 +11,25 @@ static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 using Pxf::Modules::PortableRendererInput;
 REGISTER_MODULE(PortableRendererInput, Module_Kernel_Version, Module_Api_Version);
 
-
-PXFEXPORT Pxf::Module* CreateInstance()
+namespace PortableRenderInput_
 {
-    Pxf::Modules::PortableRendererInput *m = new Pxf::Modules::PortableRendererInput("PortableRendererInput", Module_Kernel_Version, Module_Api_Version);
-    return m;
-}
-
-PXFEXPORT void DestroyInstance(Pxf::Module* _module)
-{
-    if (_module)
+    PXFEXPORT Pxf::Module* CreateInstance()
     {
-        delete _module;
+        Pxf::Modules::PortableRendererInput *m = new Pxf::Modules::PortableRendererInput("PortableRendererInput", Module_Kernel_Version, Module_Api_Version);
+        return m;
+    }
+
+    PXFEXPORT void DestroyInstance(Pxf::Module* _module)
+    {
+        if (_module)
+        {
+            delete _module;
+        }
     }
 }
 
-bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
+bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier)
 {
-    Message("PortableRendererInput", "Checking module for system type %d", _SystemType);
+    Message("PortableRendererInput", "Checking module for system type %d, identifier = %d", _SystemType, _Identifier);
     return false;
 }

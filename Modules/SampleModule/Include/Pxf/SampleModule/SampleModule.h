@@ -16,7 +16,7 @@ namespace Modules
             : Module(_Identifier, _KernelVersion, _ApiVersion)
         {}
         
-        virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType);
+        virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier);
     };
 }}
 
