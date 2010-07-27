@@ -28,15 +28,35 @@ Pxf::Kernel::~Kernel()
 }
 
 //TODO: Should the build file define PXF_MODULE_EXT instead?
+static const char* get_full_module_ext()
+{
+    #ifdef CONF_DEBUG
+        #define MODULE_SUFFIX "_ddyn"
+    #else
+        #define MODULE_SUFFIX "_s"
+    #endif
+    
+    #if defined(CONF_FAMILY_WINDOWS)
+        #define MODULE_EXT ".dll"
+    #elif defined(CONF_FAMILY_UNIX) && defined(CONF_PLATFORM_MACOSX)
+        #define MODULE_EXT ".dylib"
+    #else
+        #define MODULE_EXT ".so"
+    #endif
+    #define RETVAL MODULE_SUFFIX MODULE_EXT
+    return RETVAL;
+}
+
 static const char* get_module_ext()
 {
     #if defined(CONF_FAMILY_WINDOWS)
-        return ".dll";
+        #define MODULE_EXT ".dll"
     #elif defined(CONF_FAMILY_UNIX) && defined(CONF_PLATFORM_MACOSX)
-        return ".dylib";
+        #define MODULE_EXT ".dylib"
     #else
-        return ".so";
+        #define MODULE_EXT ".so"
     #endif
+    return MODULE_EXT;
 }
 
 static bool is_suffix(const char *s, const char *p)
@@ -62,7 +82,7 @@ static bool is_prefix(const char *s, const char *p)
 bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
 {
     // If the file is missing extention, add one that's appropriate for the platform.
-    const char* suffix = get_module_ext();
+    const char* suffix = get_full_module_ext();
     char FilePath[256] = {0};
     unsigned len = strlen(_FilePath);
     unsigned offset = 0;
@@ -79,7 +99,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     
     
     strncpy(FilePath+offset, _FilePath, len);
-    if (!is_suffix(_FilePath, suffix))
+    if (!is_suffix(_FilePath, get_module_ext()))
     {
         unsigned slen = strlen(suffix);
         for(int i = len; i < len+slen; i++)

@@ -11,8 +11,8 @@ int main()
     Pxf::Message("Main", "Using kernel %x", kernel);
 
     // kernel->Initialize(Pxf::Kernel::SYSTEM_TYPE_GRAPHICS, 'OGL2');
-    kernel->RegisterModule("SampleModule_ddyn", false);
-    kernel->RegisterModule("pri_ddyn", true);
+    kernel->RegisterModule("SampleModule_ddyn.dll", false);
+    kernel->RegisterModule("pri", true);
     kernel->DumpAvailableModules();
     
     if (kernel->RegisterSystem("SampleModule", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS))
