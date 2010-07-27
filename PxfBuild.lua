@@ -8,7 +8,7 @@ function Intermediate_Output(settings, input)
 end
 
 function LoadLibrary(name)
-     Import(base_path .. "/Libraries/" .. l .. "/" .. l .. ".lua")
+     Import(path_prefix .. "/Libraries/" .. name .. "/" .. name .. ".lua")
      return library;
 end
 
@@ -305,18 +305,19 @@ function NewProject(name)
             end
             
             for i, l in ipairs(req_libraries) do
+                library = LoadLibrary(l)
                 if self.built_list[l] == nil then
-                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(self.dep_libraries[l].name))
-                    table.insert(self.built_libs, self.dep_libraries[l]:Build(self, settings))
+                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
+                    table.insert(self.built_libs, library:Build(self, settings))
                 end
                 
                 -- Add system libraries
-                for i, l in ipairs(self.dep_libraries[l].system_libraries) do
+                for i, l in ipairs(library.system_libraries) do
                     settings.link.libs:Add(l)
                 end
                 
                 -- Add system frameworks (macosx)
-                for i, l in ipairs(self.dep_libraries[l].system_frameworks) do
+                for i, l in ipairs(library.system_frameworks) do
                     settings.link.frameworks:Add(l)
                 end
                 
