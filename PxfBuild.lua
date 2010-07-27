@@ -7,6 +7,11 @@ function Intermediate_Output(settings, input)
     return Path(basepath .. "/" .. PathJoin(PathDir(input), PathBase(PathFilename(input)) .. settings.config_name))
 end
 
+function LoadLibrary(name)
+     Import(base_path .. "/Libraries/" .. l .. "/" .. l .. ".lua")
+     return library;
+end
+
 function NewLibrary(name)
     local library = {}
     library.name = name
@@ -41,7 +46,6 @@ function NewLibrary(name)
     end
     
     library.Build = function(self, project, settings)
-        settings.cc.flags:Add("/EHsc")
         local library_settings = settings:Copy()
         local source_files = {}
         
@@ -230,8 +234,19 @@ function NewProject(name)
                 settings.cc.defines:Add("PXFEXPORT=\"\"")
             end
             
+            -- TODO: CollectDirs doesn't want to work anymore on linux...?
+            -- Ignore collect, and just import based on specified modules?
+            
+            if family == "windows" then
+                fun = CollectDirs
+                arg = path_prefix .. "/Libraries/"
+            else
+                fun = Collect
+                arg = "../..Libraries/*"
+            end
+            
             -- Collect libraries
-            for i,n in ipairs(CollectDirs(path_prefix .. "/Libraries/")) do
+            for i,n in ipairs(fun(arg)) do
                 Import(n .. "/" .. PathFilename(n) .. ".lua")
                 self.dep_libraries[library.name] = library
                 for j, incdir in ipairs(library.include_directories) do

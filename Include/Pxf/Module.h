@@ -15,9 +15,11 @@
                                     }                                                      \
                                 };                                                         \
                                 static RegisterModule##MODULE g_GlobalInitializer##MODULE;
+
+#include <Pxf/System.h>
+
 namespace Pxf {
     class Kernel;
-    class System;
     
     class Module
     {

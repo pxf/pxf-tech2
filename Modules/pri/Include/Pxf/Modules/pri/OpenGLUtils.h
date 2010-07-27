@@ -7,6 +7,7 @@ namespace Pxf
 {
 	namespace Graphics 
 	{
+    /*
 		// Should this be elsewhere?
 		bool IsExtensionSupported( char* szTargetExtension )
 		{
@@ -54,6 +55,7 @@ namespace Pxf
 				free(infoLog);
 			}
 		}
+    */
 	}
 }
 

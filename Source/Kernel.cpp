@@ -4,6 +4,10 @@
 #include <Pxf/Module.h>
 #include <Pxf/Base/Utils.h>
 
+#ifdef CONF_FAMILY_UNIX
+#include <string.h> // strcmp
+#endif
+
 Pxf::Kernel* Pxf::Kernel::s_Kernel = 0;
 const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
 
