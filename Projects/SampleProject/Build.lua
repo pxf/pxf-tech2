@@ -2,6 +2,9 @@ Import("../../PxfBuild.lua")
 
 project = NewProject("SampleProject")
 
+print(table.concat(CollectDirs("./*"), ", "))
+print(table.concat(CollectDirs("../"), ", "))
+
 --project.settings.debug = True
 --project.settings.static = True
 project:RequireModule("SampleModule")

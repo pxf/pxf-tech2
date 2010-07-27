@@ -297,7 +297,6 @@ function NewProject(name)
                 if self.built_list[l] == nil then
                     settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
                     table.insert(self.built_libs, library:Build(self, settings))
-                    print(self.built_libs)
                 end
                 
                 -- Add system libraries

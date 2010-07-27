@@ -27,17 +27,72 @@ Pxf::Kernel::~Kernel()
     }
 }
 
+//TODO: Should the build file define PXF_MODULE_EXT instead?
+static const char* get_module_ext()
+{
+    #if defined(CONF_FAMILY_WINDOWS)
+        return ".dll";
+    #elif defined(CONF_FAMILY_UNIX) && defined(CONF_PLATFORM_MACOSX)
+        return ".dylib";
+    #else
+        return ".so";
+    #endif
+}
+
+static bool is_suffix(const char *s, const char *p)
+{
+	if (!s || !p) return 0;
+	p += strlen(p) - 1;
+	s += strlen(s) - 1;
+	for(;*p && *s;s--,p--)
+		if(*p != *s)
+			return false;
+	return true;
+}
+
+static bool is_prefix(const char *s, const char *p)
+{
+	if (!s || !p) return 0;
+	for(;*p && *s;p++,s++)
+		if(*p != *s)
+			return false;
+	return true;
+}
+
 bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
 {
-    // TODO:
-    // Check if _FilePath ends with .dll, .so or .dylib
-    // if not, append the correct one depending on platform
-
+    // If the file is missing extention, add one that's appropriate for the platform.
+    const char* suffix = get_module_ext();
+    char FilePath[256] = {0};
+    unsigned len = strlen(_FilePath);
+    unsigned offset = 0;
+    
+    // Also add prefixing ./ on unix
+    #if CONF_FAMILY_UNIX
+        if (!is_prefix(_FilePath, "./"))
+        {
+            offset = 2;
+            FilePath[0] = '.';
+            FilePath[1] = '/';
+        }
+    #endif
+    
+    
+    strncpy(FilePath+offset, _FilePath, len);
+    if (!is_suffix(_FilePath, suffix))
+    {
+        unsigned slen = strlen(suffix);
+        for(int i = len; i < len+slen; i++)
+        {
+            FilePath[i+offset] = suffix[i-len];
+        }
+    }
+    
     Pxf::SharedLibrary* lib = new Pxf::SharedLibrary();
     
-    if(!lib->Load(_FilePath))
+    if(!lib->Load(FilePath))
     {
-        Message("Kernel", "File not found: '%s'", _FilePath);
+        Message("Kernel", "File not found: '%s'", FilePath);
         return false;
     }
     
@@ -54,7 +109,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     }
     
     Pxf::Module* module = CreateInstance();
-    Pxf::Message("Kernel", "Loaded '%s' (0x%x)", _FilePath, module);
+    Pxf::Message("Kernel", "Loaded '%s' (0x%x)", FilePath, module);
     
     // Check that the module isn't already available, or override
     bool replaced = false;
@@ -71,7 +126,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
             }
             else
             {
-                Message("Kernel", "'%s' is overriding built-in '%s'.", _FilePath, module->GetIdentifier());
+                Message("Kernel", "'%s' is overriding built-in '%s'.", FilePath, module->GetIdentifier());
                 
                 // Remove built-in module
                 m_AvailableModules[i]->destroy(m_AvailableModules[i]->module);
