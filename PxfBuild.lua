@@ -8,7 +8,7 @@ function Intermediate_Output(settings, input)
 end
 
 function LoadLibrary(name)
-     Import(base_path .. "/Libraries/" .. l .. "/" .. l .. ".lua")
+     Import(path_prefix .. "/Libraries/" .. name .. "/" .. name .. ".lua")
      return library;
 end
 
@@ -115,17 +115,18 @@ function NewModule(name)
             -- SharedLibrary needs to link with self.required_libs
             libs = {}
             for i, l in ipairs(self.required_libraries) do
-                module_settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(project.dep_libraries[l].name))
-                lib = project.dep_libraries[l]:Build(self, module_settings)
+                library = LoadLibrary(l)
+                module_settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
+                lib = library:Build(self, module_settings)
                 table.insert(libs, lib)
                 table.insert(project.built_libs, lib)
                 project.built_list[l] = l
                 
-                for i, l in ipairs(project.dep_libraries[l].system_libraries) do
+                for i, l in ipairs(library.system_libraries) do
                     module_settings.dll.libs:Add(l)
                 end
                 
-                for i, l in ipairs(project.dep_libraries[l].system_frameworks) do
+                for i, l in ipairs(library.system_frameworks) do
                     module_settings.dll.frameworks:Add(l)
                 end
             end
@@ -305,18 +306,19 @@ function NewProject(name)
             end
             
             for i, l in ipairs(req_libraries) do
+                library = LoadLibrary(l)
                 if self.built_list[l] == nil then
-                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(self.dep_libraries[l].name))
-                    table.insert(self.built_libs, self.dep_libraries[l]:Build(self, settings))
+                    settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
+                    table.insert(self.built_libs, library:Build(self, settings))
                 end
                 
                 -- Add system libraries
-                for i, l in ipairs(self.dep_libraries[l].system_libraries) do
+                for i, l in ipairs(library.system_libraries) do
                     settings.link.libs:Add(l)
                 end
                 
                 -- Add system frameworks (macosx)
-                for i, l in ipairs(self.dep_libraries[l].system_frameworks) do
+                for i, l in ipairs(library.system_frameworks) do
                     settings.link.frameworks:Add(l)
                 end
                 
