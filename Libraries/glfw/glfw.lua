@@ -29,7 +29,7 @@ elseif family == "windows" then
         library:AddSystemLibrary("ole32")
 end
 
-library:AddIncludeDirectory("Include/")
+library:AddIncludeDirectory("include/")
 library:AddIncludeDirectory("Source/")
 library:AddIncludeDirectory("Source/" .. glfw_platform)
 library:AddSourceDirectory("Source/*.c")

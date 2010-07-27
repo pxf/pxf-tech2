@@ -218,12 +218,10 @@ function NewProject(name)
         local DoBuild = function(settings, source_files, baked_exe, libraries)
             local dep_modules = {}
             local req_libraries = {}
-            self.dep_libraries = {}
             
             for i,l in ipairs(self.required_libraries) do
                 table.insert(req_libraries, l)
             end
-            
             
             if baked_exe == false then
                 if family == "windows" then
@@ -234,36 +232,24 @@ function NewProject(name)
             else
                 settings.cc.defines:Add("PXFEXPORT=\"\"")
             end
-            
-            -- TODO: CollectDirs doesn't want to work anymore on linux...?
-            -- Ignore collect, and just import based on specified modules?
-            
-            if family == "windows" then
-                fun = CollectDirs
-                arg = path_prefix .. "/Libraries/"
-            else
-                fun = Collect
-                arg = "../..Libraries/*"
-            end
-            
-            -- Collect libraries
-            for i,n in ipairs(fun(arg)) do
-                Import(n .. "/" .. PathFilename(n) .. ".lua")
-                self.dep_libraries[library.name] = library
-                for j, incdir in ipairs(library.include_directories) do
-                    settings.cc.includes:Add(incdir)
-                end
-                for j, def in ipairs(library.defines) do
-                    settings.cc.defines:Add(def)
-                end
-            end
-            
+           
             -- Collect modules
             for i,m in ipairs(self.required_modules) do
                 Import(path_prefix .. "/Modules/" .. m .. "/" .. m .. ".lua")
                 dep_modules[module.name] = module
                 for j, incdir in ipairs(module.include_directories) do
                     settings.cc.includes:Add(incdir)
+                end
+                for j, lib in ipairs(module.required_libraries) do
+                    library = LoadLibrary(lib)
+                    
+                    for j, incdir in ipairs(library.include_directories) do
+                        settings.cc.includes:Add(incdir)
+                    end
+                    
+                    for j, def in ipairs(library.defines) do
+                        settings.cc.defines:Add(def)
+                    end
                 end
             end
             
@@ -307,9 +293,11 @@ function NewProject(name)
             
             for i, l in ipairs(req_libraries) do
                 library = LoadLibrary(l)
+  
                 if self.built_list[l] == nil then
                     settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
                     table.insert(self.built_libs, library:Build(self, settings))
+                    print(self.built_libs)
                 end
                 
                 -- Add system libraries
@@ -326,7 +314,7 @@ function NewProject(name)
 
             -- Then build the project
             project = Compile(settings, source_files)
-            project_exe = Link(settings, self.name, project, pxf_objs, self.built_libs, self.built_mods)
+            project_exe = Link(settings, self.name, project, pxf_objs, self.built_mods, self.built_libs)
             project_target = PseudoTarget(self.name.."_"..settings.config_name, project_exe)
             PseudoTarget(settings.config_name, project_target, self.built_dlls)
             return project_exe
