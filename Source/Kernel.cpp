@@ -88,7 +88,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     unsigned offset = 0;
     
     // Also add prefixing ./ on unix
-    #ifdef CONF_PLATFORM_MACOSX
+    #if defined(CONF_PLATFORM_MACOSX)
         if (!is_prefix(_FilePath, "./"))
         {
             offset = 5;
@@ -98,7 +98,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
             FilePath[3] = 'i';
             FilePath[4] = 'b';
         }
-    #elif CONF_FAMILY_UNIX
+    #elif defined(CONF_FAMILY_UNIX)
         if (!is_prefix(_FilePath, "./"))
         {
             offset = 2;
