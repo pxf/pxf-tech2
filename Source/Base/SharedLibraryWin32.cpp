@@ -5,12 +5,16 @@
 #include <stdlib.h>
 
 Pxf::SharedLibrary::SharedLibrary()
+    : m_Path(0)
 {
     m_LastError = (char*)malloc(1);
 }
 
 Pxf::SharedLibrary::~SharedLibrary()
 {
+    if (m_Path)
+        delete [] m_Path;
+        
     if (m_pHandle)
         Close();
         
@@ -20,7 +24,13 @@ Pxf::SharedLibrary::~SharedLibrary()
 
 bool Pxf::SharedLibrary::Load(const char* _File)
 {
-    m_Path = _File;
+    if (m_Path)
+        delete [] m_Path;
+    unsigned len = strlen(_File);
+    m_Path = new char[len+1];
+    strncpy(m_Path, _File, len);
+    m_Path[len] = 0;
+    
     m_pHandle = LoadLibrary(_File);
     return m_pHandle != 0;
 }

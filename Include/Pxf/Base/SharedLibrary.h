@@ -18,7 +18,7 @@ namespace Pxf {
         #else
             void* m_pHandle;
         #endif
-        const char* m_Path;
+        char* m_Path;
     public:
         SharedLibrary();
         ~SharedLibrary();

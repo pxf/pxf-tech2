@@ -161,8 +161,10 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
                 // Remove built-in module
                 m_AvailableModules[i]->destroy(m_AvailableModules[i]->module);
                 if (m_AvailableModules[i]->dynlib)
+                {
                     delete m_AvailableModules[i]->dynlib;
-                    
+                    m_AvailableModules[i] = 0;
+                }
                 // And replace with the newly loaded one.
                 m_AvailableModules[i]->module = module;
                 m_AvailableModules[i]->dynlib = lib;

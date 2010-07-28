@@ -7,18 +7,28 @@
 
 Pxf::SharedLibrary::SharedLibrary()
     : m_pHandle(0)
+    , m_Path(0)
 {
 }
 
 Pxf::SharedLibrary::~SharedLibrary()
 {
+    if (m_Path)
+        delete [] m_Path;
+        
     if (m_pHandle)
         Close();
 }
 
 bool Pxf::SharedLibrary::Load(const char* _File)
 {
-    m_Path = _File;
+    if (m_Path)
+        delete [] m_Path;
+    unsigned len = strlen(_File);
+    m_Path = new char[len+1];
+    strncpy(m_Path, _File, len);
+    m_Path[len] = 0;
+    
     m_pHandle = dlopen(_File, RTLD_NOW);
     return m_pHandle != 0;
 }
