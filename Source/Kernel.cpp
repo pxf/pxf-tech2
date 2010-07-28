@@ -88,7 +88,17 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     unsigned offset = 0;
     
     // Also add prefixing ./ on unix
-    #ifdef CONF_FAMILY_UNIX
+    #if defined(CONF_PLATFORM_MACOSX)
+        if (!is_prefix(_FilePath, "./"))
+        {
+            offset = 5;
+            FilePath[0] = '.';
+            FilePath[1] = '/';
+            FilePath[2] = 'l';
+            FilePath[3] = 'i';
+            FilePath[4] = 'b';
+        }
+    #elif defined(CONF_FAMILY_UNIX)
         if (!is_prefix(_FilePath, "./"))
         {
             offset = 2;
@@ -151,8 +161,10 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
                 // Remove built-in module
                 m_AvailableModules[i]->destroy(m_AvailableModules[i]->module);
                 if (m_AvailableModules[i]->dynlib)
+                {
                     delete m_AvailableModules[i]->dynlib;
-                    
+                    m_AvailableModules[i] = 0;
+                }
                 // And replace with the newly loaded one.
                 m_AvailableModules[i]->module = module;
                 m_AvailableModules[i]->dynlib = lib;
