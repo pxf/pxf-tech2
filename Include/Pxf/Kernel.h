@@ -44,10 +44,10 @@ namespace Pxf {
         enum SystemType
         {
             SYSTEM_TYPE_GRAPHICS = 1,
-            SYSTEM_TYPE_SOUND,
-            SYSTEM_TYPE_PHYSICS,
-            SYSTEM_TYPE_RESOURCE_LOADER,
-            SYSTEM_TYPE_SCRIPTLANG
+            SYSTEM_TYPE_SOUND = 2,
+            SYSTEM_TYPE_PHYSICS = 4,
+            SYSTEM_TYPE_RESOURCE_LOADER = 8,
+            SYSTEM_TYPE_SCRIPTLANG = 16
         };
         
         static Kernel* GetInstance()

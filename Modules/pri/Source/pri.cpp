@@ -5,6 +5,8 @@
 #include <Pxf/Module.h>
 #include <Pxf/Modules/pri/pri.h>
 
+#include <Pxf/Modules/pri/DeviceGL2.h>
+
 static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
@@ -31,5 +33,12 @@ namespace PortableRenderInput_
 bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier)
 {
     Message("PortableRendererInput", "Checking module for system type %d, identifier = %d", _SystemType, _Identifier);
+    
+    if (_SystemType == Pxf::Kernel::SYSTEM_TYPE_GRAPHICS)
+    {
+        //_Kernel->RegisterSystem(_SystemType, new Pxf::Modules::pri::GraphicsDeviceGL2());
+        return true;
+    }
+    
     return false;
 }
