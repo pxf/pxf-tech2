@@ -5,12 +5,11 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
-#include <Pxf/Audio/NullAudioDevice.h>
-
+#include <Pxf/Audio/AudioDevice.h>
+#include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
 
-#include <Pxf/Modules/pri/DeviceGL2.h>
 
 using namespace Pxf;
 
@@ -18,14 +17,10 @@ int main()
 {
     Pxf::Kernel* kernel = Pxf::Kernel::GetInstance();
     Pxf::Message("Main", "Using kernel %x", kernel);
-
-    // kernel->Initialize(Pxf::Kernel::SYSTEM_TYPE_GRAPHICS, 'OGL2');
-    kernel->RegisterModule("SampleModule", false);
-    kernel->RegisterModule("pri", true);
-    kernel->DumpAvailableModules();
     
-    //kernel->RegisterGraphicsDevice(new Pxf::Graphics::DeviceGL2(kernel));
+    kernel->RegisterModule("pri", true);
     kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS);
+    kernel->DumpAvailableModules();
     
     Pxf::Audio::AudioDevice* audio = kernel->GetAudioDevice();
     audio->Play(2);
