@@ -4,6 +4,8 @@
 #include <Pxf/Module.h>
 #include <Pxf/Base/Utils.h>
 
+#include <Pxf/AudioDevice/AudioDevice.h>
+
 #ifdef CONF_FAMILY_UNIX
 #include <string.h> // strcmp
 #endif
@@ -12,6 +14,7 @@ Pxf::Kernel* Pxf::Kernel::s_Kernel = 0;
 const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
 
 Pxf::Kernel::Kernel()
+    : m_AudioDevice(0)
 {
 }
 
@@ -26,6 +29,13 @@ Pxf::Kernel::~Kernel()
         delete m_AvailableModules[i];
     }
 }
+
+void Pxf::Kernel::RegisterAudioDevice(Pxf::AudioDevice* _Device)
+{
+    Pxf::Message("Kernel", "Registering audio device '%s'", _Device->GetIdentifier());
+    m_AudioDevice = _Device;
+}
+
 
 //TODO: Should the build file define PXF_MODULE_EXT instead?
 static const char* get_full_module_ext()
@@ -214,7 +224,7 @@ bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
     return true;
 }
 
-bool Pxf::Kernel::RegisterSystem(const char* _ModuleID, SystemType _SystemType, unsigned _Identifier)
+bool Pxf::Kernel::RegisterSystem(const char* _ModuleID, Pxf::System::SystemType _SystemType, unsigned _Identifier)
 {
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {

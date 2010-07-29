@@ -2,6 +2,7 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Kernel.h>
+#include <Pxf/System.h>
 #include <Pxf/Module.h>
 #include <Pxf/Modules/pri/pri.h>
 
@@ -34,7 +35,7 @@ bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, u
 {
     Message("PortableRendererInput", "Checking module for system type %d, identifier = %d", _SystemType, _Identifier);
     
-    if (_SystemType == Pxf::Kernel::SYSTEM_TYPE_GRAPHICS)
+    if (_SystemType == Pxf::System::SYSTEM_TYPE_GRAPHICS)
     {
         //_Kernel->RegisterSystem(_SystemType, new Pxf::Modules::pri::GraphicsDeviceGL2());
         return true;

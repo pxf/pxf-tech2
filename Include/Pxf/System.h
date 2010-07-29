@@ -11,19 +11,36 @@ namespace Pxf
     {
     protected:
         Kernel* m_Kernel;
-        unsigned m_Identifier;
+        const char* m_Identifier;
+        unsigned m_SystemType;
         virtual bool Init() = 0;
     public:
-        System(Kernel* _Kernel, unsigned _Identifier)
+    
+        enum SystemType
+        {
+            SYSTEM_TYPE_AUDIODEVICE = 2,
+            SYSTEM_TYPE_GRAPHICS = 1,
+            SYSTEM_TYPE_PHYSICS = 4,
+            SYSTEM_TYPE_RESOURCE_LOADER = 8,
+            SYSTEM_TYPE_SCRIPTLANG = 16
+        };
+    
+        System(Kernel* _Kernel, unsigned _SystemType, const char* _Identifier)
         {
             m_Kernel = _Kernel;
+            m_SystemType = _SystemType;
             m_Identifier = _Identifier;
         }
 
         virtual ~System()
         {}
         
-        unsigned GetIdentifier() const
+        unsigned GetSystemType() const
+        {
+            return m_SystemType;
+        }
+        
+        const char* GetIdentifier() const
         {
             return m_Identifier;
         }

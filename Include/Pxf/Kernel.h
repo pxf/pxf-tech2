@@ -2,10 +2,13 @@
 #define _PXF_KERNEL_H_
 
 #include <Pxf/Util/Array.h>
+#include <Pxf/System.h>
 
 namespace Pxf {
     class SharedLibrary;
     class Module;
+    
+    class AudioDevice;
     
     class Kernel
     {
@@ -34,6 +37,8 @@ namespace Pxf {
         
         Pxf::Util::Array<ModuleEntry_t*> m_AvailableModules;
         
+        AudioDevice* m_AudioDevice;
+        
         Kernel();
         Kernel(const Kernel& _Other){};
         
@@ -41,14 +46,6 @@ namespace Pxf {
         static const unsigned KERNEL_VERSION;
     
         ~Kernel();
-        enum SystemType
-        {
-            SYSTEM_TYPE_GRAPHICS = 1,
-            SYSTEM_TYPE_SOUND = 2,
-            SYSTEM_TYPE_PHYSICS = 4,
-            SYSTEM_TYPE_RESOURCE_LOADER = 8,
-            SYSTEM_TYPE_SCRIPTLANG = 16
-        };
         
         static Kernel* GetInstance()
         {
@@ -57,8 +54,10 @@ namespace Pxf {
             return s_Kernel;
         }
         
-        //void RegisterAudioDevice(AudioDevice* _Device);
-        //AudioDevice* GetAudioDevice();
+        void RegisterAudioDevice(AudioDevice* _Device);
+        AudioDevice* GetAudioDevice()
+        {   return m_AudioDevice; }
+        
         //void RegisterGraphicsDevice(GraphicsDevice* _Device);
         //GraphicsDevice* GetGraphicsDevice();
         //void RegisterPhysicsEngine(PhysicsEngine* _Engine);
@@ -75,7 +74,7 @@ namespace Pxf {
         
         bool RegisterModule(const char* _FilePath, bool _OverrideBuiltin = false);
         bool RegisterModule(Pxf::Module* _Module);
-        bool RegisterSystem(const char* _ModuleID, SystemType _SystemType, unsigned _Identifier = 0);
+        bool RegisterSystem(const char* _ModuleID, Pxf::System::SystemType _SystemType, unsigned _Identifier = 0);
         void DumpAvailableModules();
     }; // class Kernel
     

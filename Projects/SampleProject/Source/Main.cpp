@@ -5,6 +5,8 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
+#include <Pxf/AudioDevice/NullAudioDevice.h>
+
 int main()
 {
     Pxf::Kernel* kernel = Pxf::Kernel::GetInstance();
@@ -15,12 +17,17 @@ int main()
     kernel->RegisterModule("pri", true);
     kernel->DumpAvailableModules();
     
-    if (kernel->RegisterSystem("SampleModule", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS))
+    kernel->RegisterAudioDevice(new Pxf::NullAudioDevice(kernel));
+    Pxf::AudioDevice* audio = kernel->GetAudioDevice();
+    
+    audio->Play(2);
+    
+    if (kernel->RegisterSystem("SampleModule", Pxf::System::SYSTEM_TYPE_GRAPHICS))
     {
 
     }
     
-    if (kernel->RegisterSystem("PortableRendererInput", Pxf::Kernel::SYSTEM_TYPE_GRAPHICS, 'GL2'))
+    if (kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS, 'GL2'))
     {
 
     }
