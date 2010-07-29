@@ -5,7 +5,14 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
-#include <Pxf/AudioDevice/NullAudioDevice.h>
+#include <Pxf/Audio/NullAudioDevice.h>
+
+#include <Pxf/Graphics/Window.h>
+#include <Pxf/Graphics/WindowSpecifications.h>
+
+#include <Pxf/Modules/pri/DeviceGL2.h>
+
+using namespace Pxf;
 
 int main()
 {
@@ -17,19 +24,30 @@ int main()
     kernel->RegisterModule("pri", true);
     kernel->DumpAvailableModules();
     
-    kernel->RegisterAudioDevice(new Pxf::Audio::NullAudioDevice(kernel));
-    Pxf::Audio::AudioDevice* audio = kernel->GetAudioDevice();
+    //kernel->RegisterGraphicsDevice(new Pxf::Graphics::DeviceGL2(kernel));
+    kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS);
     
+    Pxf::Audio::AudioDevice* audio = kernel->GetAudioDevice();
     audio->Play(2);
     
-    if (kernel->RegisterSystem("SampleModule", Pxf::System::SYSTEM_TYPE_GRAPHICS))
-    {
-
-    }
+    Pxf::Graphics::GraphicsDevice* video = kernel->GetGraphicsDevice();
     
-    if (kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS, 'GL2'))
+    Graphics::WindowSpecifications spec;
+    spec.Width = 800;
+    spec.Height = 600;
+    spec.ColorBits = 24;
+    spec.AlphaBits = 8;
+    spec.DepthBits = 8;
+    spec.StencilBits = 0;
+    spec.FSAASamples = 0;
+    spec.Fullscreen = false;
+    spec.Resizeable = false;
+    spec.VerticalSync = false;
+    Graphics::Window* win = video->OpenWindow(&spec);
+    
+    while(win->IsOpen())
     {
-
+        win->Swap();
     }
     
     delete kernel;

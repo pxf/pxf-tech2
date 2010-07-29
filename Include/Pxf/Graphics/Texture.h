@@ -9,12 +9,13 @@ namespace Pxf
 {
 	namespace Graphics
 	{
+        class GraphicsDevice;
 		
 		//! Abstract texture class
 		class Texture : public DeviceResource
 		{
 		public:
-			Texture(Device* _pDevice)
+			Texture(GraphicsDevice* _pDevice)
 				: DeviceResource(_pDevice)
 			{}
 

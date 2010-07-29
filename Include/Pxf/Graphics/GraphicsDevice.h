@@ -29,7 +29,7 @@ namespace Pxf
 		{
 		public:
             GraphicsDevice(Pxf::Kernel* _Kernel, const char* _Identifier)
-                : System(_Kernel, Pxf::System::SYSTEM_TYPE_AUDIODEVICE, _Identifier);
+                : System(_Kernel, Pxf::System::SYSTEM_TYPE_AUDIODEVICE, _Identifier)
             {}
 
 			// Windowing

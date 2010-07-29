@@ -45,7 +45,7 @@ static GLuint LookupAccessFlag(VertexBufferAccessFlag _BufferAccessFlag)
 }
 
 
-VertexBufferGL2::VertexBufferGL2(Device* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
+VertexBufferGL2::VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
 	: VertexBuffer(_pDevice, _VertexBufferLocation, _VertexBufferUsageFlag)
 	, m_BufferObjectId(0)
 {}

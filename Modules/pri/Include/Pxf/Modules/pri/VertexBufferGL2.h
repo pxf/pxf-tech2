@@ -3,7 +3,7 @@
 
 #include <Pxf/Graphics/VertexBuffer.h>
 #include <Pxf/Graphics/DeviceType.h>
-#include <Pxf/Graphics/Device.h> // VertexBufferType
+#include <Pxf/Graphics/GraphicsDevice.h> // VertexBufferType
 
 // http://www.songho.ca/opengl/gl_vertexarray.html
 // http://www.songho.ca/opengl/gl_vbo.html
@@ -18,7 +18,7 @@ namespace Pxf
 		private:
 			unsigned m_BufferObjectId;
 		public:
-			VertexBufferGL2(Device* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag);
+			VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag);
 			virtual ~VertexBufferGL2();
 
 			void CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize);

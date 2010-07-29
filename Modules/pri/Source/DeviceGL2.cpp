@@ -16,7 +16,8 @@ using namespace Pxf;
 using namespace Pxf::Graphics;
 using Util::String;
 
-DeviceGL2::DeviceGL2()
+DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
+    : GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
 {
 	// Initialize GLFW
 	if (glfwInit() != GL_TRUE)

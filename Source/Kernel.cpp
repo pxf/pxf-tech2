@@ -4,7 +4,8 @@
 #include <Pxf/Module.h>
 #include <Pxf/Base/Utils.h>
 
-#include <Pxf/AudioDevice/AudioDevice.h>
+#include <Pxf/Audio/NullAudioDevice.h>
+#include <Pxf/Graphics/GraphicsDevice.h>
 
 #ifdef CONF_FAMILY_UNIX
 #include <string.h> // strcmp
@@ -15,6 +16,7 @@ const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
 
 Pxf::Kernel::Kernel()
     : m_AudioDevice(0)
+    , m_GraphicsDevice(0)
 {
 }
 
@@ -34,6 +36,26 @@ void Pxf::Kernel::RegisterAudioDevice(Pxf::Audio::AudioDevice* _Device)
 {
     Pxf::Message("Kernel", "Registering audio device '%s'", _Device->GetIdentifier());
     m_AudioDevice = _Device;
+}
+
+Pxf::Audio::AudioDevice* Pxf::Kernel::GetAudioDevice()
+{
+    if (!m_AudioDevice)
+        m_AudioDevice = new Pxf::Audio::NullAudioDevice(this);
+    return m_AudioDevice;
+}
+        
+void Pxf::Kernel::RegisterGraphicsDevice(Pxf::Graphics::GraphicsDevice* _Device)
+{
+    Pxf::Message("Kernel", "Registering video device '%s'", _Device->GetIdentifier());
+    m_GraphicsDevice = _Device;
+}
+
+Pxf::Graphics::GraphicsDevice* Pxf::Kernel::GetGraphicsDevice()
+{
+    //if (!m_GraphicsDevice)
+    //    m_GraphicsDevice = new Pxf::Graphics::NullGraphicsDevice(this);
+    return m_GraphicsDevice;
 }
 
 

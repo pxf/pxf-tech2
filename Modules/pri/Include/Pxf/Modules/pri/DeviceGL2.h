@@ -1,8 +1,9 @@
 #ifndef _PXF_GRAPHICS_DEVICEGL2_H_
 #define _PXF_GRAPHICS_DEVICEGL2_H_
 
-#include <Pxf/GraphicsDevice/GraphicsDevice.h>
-#include <Pxf/GraphicsDevice/Window.h>
+#include <Pxf/Kernel.h>
+#include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Graphics/Window.h>
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <Pxf/Modules/pri/WindowGL2.h>
 
@@ -13,10 +14,10 @@ namespace Pxf{
 		class VertexBuffer;
 		class RenderTarget;
 
-		class DeviceGL2 : public Device
+		class DeviceGL2 : public GraphicsDevice
 		{
 		public:
-			DeviceGL2();
+			DeviceGL2(Pxf::Kernel* _Kernel);
 			virtual ~DeviceGL2();
 
 			Window* OpenWindow(WindowSpecifications* _pWindowSpecs);
@@ -39,6 +40,7 @@ namespace Pxf{
 			void DestroyVertexBuffer(VertexBuffer* _pVertexBuffer);
 			void DrawBuffer(VertexBuffer* _pVertexBuffer);
 		private:
+            bool Init(){ return true; };
 			Window* m_Window;
 		};
 

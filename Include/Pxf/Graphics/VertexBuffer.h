@@ -3,7 +3,7 @@
 
 #include <Pxf/Base/Types.h>
 #include <Pxf/Graphics/DeviceType.h> // enum DeviceType
-#include <Pxf/Graphics/Device.h>
+#include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/DeviceResource.h>
 #include <Pxf/Math/Vector.h>
 
@@ -13,7 +13,7 @@ namespace Pxf
 {
 	namespace Graphics
 	{
-		class Device;
+		class GraphicsDevice;
 
 		//! Abstract class for vertex buffer
 		class VertexBuffer : public DeviceResource
@@ -49,7 +49,7 @@ namespace Pxf
 			AttributeData m_EdgeFlagAttributes;
 
 		public:
-			VertexBuffer(Device* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
+			VertexBuffer(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
 				: DeviceResource(_pDevice)
 				, m_Attributes(0)
 				, m_PrimitiveType(VB_PRIMITIVE_NONE)

@@ -12,7 +12,7 @@ using namespace Pxf;
 using namespace Pxf::Graphics;
 using Util::String;
 
-TextureGL2::TextureGL2(Device* _pDevice)
+TextureGL2::TextureGL2(GraphicsDevice* _pDevice)
 	: Texture(_pDevice)
 {
 	m_TextureID = 0;

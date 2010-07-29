@@ -4,14 +4,14 @@
 namespace Pxf {
 namespace Graphics {
 
-	class Device;
+	class GraphicsDevice;
 
 	class DeviceResource
 	{
 	protected:
-		Device *m_pDevice;
+		GraphicsDevice *m_pDevice;
 	public:
-		DeviceResource(Device *_pDevice)
+		DeviceResource(GraphicsDevice *_pDevice)
 		{
 			m_pDevice = _pDevice;
 		}
