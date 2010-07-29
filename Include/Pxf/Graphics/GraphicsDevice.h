@@ -13,6 +13,7 @@
 
 namespace Pxf
 {
+    class Kernel;
 	namespace Graphics
 	{
 		class Window;
@@ -24,10 +25,12 @@ namespace Pxf
 		
 		class Texture;
 		
-		//! Abstract video device
-		class Device// : public System
+		class GraphicsDevice : public System
 		{
 		public:
+            GraphicsDevice(Pxf::Kernel* _Kernel, const char* _Identifier)
+                : System(_Kernel, Pxf::System::SYSTEM_TYPE_AUDIODEVICE, _Identifier);
+            {}
 
 			// Windowing
 			virtual Window* OpenWindow(WindowSpecifications* _pWindowSpecs) = 0;

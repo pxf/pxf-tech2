@@ -5,10 +5,10 @@
 #include <Pxf/System.h>
 
 namespace Pxf {
+    namespace Audio { class AudioDevice; }
+    
     class SharedLibrary;
     class Module;
-    
-    class AudioDevice;
     
     class Kernel
     {
@@ -37,7 +37,7 @@ namespace Pxf {
         
         Pxf::Util::Array<ModuleEntry_t*> m_AvailableModules;
         
-        AudioDevice* m_AudioDevice;
+        Audio::AudioDevice* m_AudioDevice;
         
         Kernel();
         Kernel(const Kernel& _Other){};
@@ -54,8 +54,8 @@ namespace Pxf {
             return s_Kernel;
         }
         
-        void RegisterAudioDevice(AudioDevice* _Device);
-        AudioDevice* GetAudioDevice()
+        void RegisterAudioDevice(Audio::AudioDevice* _Device);
+        Audio::AudioDevice* GetAudioDevice()
         {   return m_AudioDevice; }
         
         //void RegisterGraphicsDevice(GraphicsDevice* _Device);

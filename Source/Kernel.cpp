@@ -30,7 +30,7 @@ Pxf::Kernel::~Kernel()
     }
 }
 
-void Pxf::Kernel::RegisterAudioDevice(Pxf::AudioDevice* _Device)
+void Pxf::Kernel::RegisterAudioDevice(Pxf::Audio::AudioDevice* _Device)
 {
     Pxf::Message("Kernel", "Registering audio device '%s'", _Device->GetIdentifier());
     m_AudioDevice = _Device;

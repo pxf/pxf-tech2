@@ -17,8 +17,8 @@ int main()
     kernel->RegisterModule("pri", true);
     kernel->DumpAvailableModules();
     
-    kernel->RegisterAudioDevice(new Pxf::NullAudioDevice(kernel));
-    Pxf::AudioDevice* audio = kernel->GetAudioDevice();
+    kernel->RegisterAudioDevice(new Pxf::Audio::NullAudioDevice(kernel));
+    Pxf::Audio::AudioDevice* audio = kernel->GetAudioDevice();
     
     audio->Play(2);
     

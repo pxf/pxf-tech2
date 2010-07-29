@@ -1,8 +1,8 @@
 #ifndef _PXF_GRAPHICS_DEVICEGL2_H_
 #define _PXF_GRAPHICS_DEVICEGL2_H_
 
-#include <Pxf/Graphics/Device.h>
-#include <Pxf/Graphics/Window.h>
+#include <Pxf/GraphicsDevice/GraphicsDevice.h>
+#include <Pxf/GraphicsDevice/Window.h>
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <Pxf/Modules/pri/WindowGL2.h>
 
