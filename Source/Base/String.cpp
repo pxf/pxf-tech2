@@ -1,151 +1,29 @@
-#include <Pxf/Base/Utils2.h>
+#include <Pxf/Base/String.h>
+#include <Pxf/Base/Memory.h>
+#include <Pxf/Base/Utils.h>
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <cstdarg> /* strfmt_n*/
 #include <cctype>
-/******************************************************************************
-* Hash functions
-* - Super fast hash, from http://www.azillionmonkeys.com/qed/hash.html
-*******************************************************************************/
-#undef pxf_get16bits
-#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
-#define pxf_get16bits(d) (*((const unsigned short *) (d)))
-#endif
-
-#if !defined (pxf_get16bits)
-#define pxf_get16bits(d) ((((unsigned long)(((const unsigned char *)(d))[1])) << 8)+(unsigned long)(((const unsigned char *)(d))[0]) )
-#endif
-
-unsigned long Pxf::Utils::HashData(const char *data, int len)
-{
-	unsigned long hash = len, tmp;
-	int rem;
-
-	if (len <= 0 || data == NULL) return 0;
-
-	rem = len & 3;
-	len >>= 2;
-
-	/* Main loop */
-	for (;len > 0; len--) {
-		hash  += pxf_get16bits (data);
-		tmp    = (pxf_get16bits (data+2) << 11) ^ hash;
-		hash   = (hash << 16) ^ tmp;
-		data  += 2*sizeof (unsigned short);
-		hash  += hash >> 11;
-	}
-
-	/* Handle end cases */
-	switch (rem) {
-		case 3: hash += pxf_get16bits (data);
-				hash ^= hash << 16;
-				hash ^= data[sizeof (unsigned short)] << 18;
-				hash += hash >> 11;
-				break;
-		case 2: hash += pxf_get16bits (data);
-				hash ^= hash << 11;
-				hash += hash >> 17;
-				break;
-		case 1: hash += *data;
-				hash ^= hash << 10;
-				hash += hash >> 1;
-	}
-
-	/* Force "avalanching" of final 127 bits */
-	hash ^= hash << 3;
-	hash += hash >> 5;
-	hash ^= hash << 4;
-	hash += hash >> 17;
-	hash ^= hash << 25;
-	hash += hash >> 6;
-
-	return hash;
-}
-
-size_t Pxf::Utils::HashPointer(void *ptr)
-{
-	size_t x = (size_t)ptr;
-	x = x + (x>>6) + (x >> 19);
-	x += x << 16;
-
-	x ^= x << 3;
-	x += x >> 5;
-	x ^= x << 2;
-	x += x >> 15;
-	x ^= x << 10;
-	return x + (x>>6) + (x >> 19);
-}
-
-/******************************************************************************
-* Memory functions
-*******************************************************************************/
-void *Pxf::Utils::MemoryAllocate(size_t len)
-{
-	return malloc(len);
-}
-
-void *Pxf::Utils::MemoryAllocateArray(size_t n, size_t len)
-{
-	return calloc(n, len);
-}
-
-void *Pxf::Utils::ReAllocate(void *p, size_t size)
-{
-	return realloc(p, size);
-}
-
-void  Pxf::Utils::MemoryFree(void *p)
-{
-	free(p);
-}
-
-void Pxf::Utils::MemoryCopy(void *dest, const void *src, unsigned length)
-{
-	memcpy(dest, src, length);
-}
-
-void Pxf::Utils::MemoryMove(void *dest, const void *src, unsigned length)
-{
-	memmove(dest, src, length);
-}
-
-void Pxf::Utils::MemoryZero(void *dest, unsigned length)
-{
-	memset(dest, 0, length);
-}
-
-void Pxf::Utils::MemorySet(void *dest, char what, unsigned length)
-{
-	memset(dest, what, length);
-}
-
-int  Pxf::Utils::MemoryCompare(const void *buff1, const void *buff2, unsigned length)
-{
-	return memcmp(buff1, buff2, length);
-}
-
-/******************************************************************************
-* String functions
-*******************************************************************************/
-
 
 /*
  * String manipulation functions
  *****************************************************************************/
-char *Pxf::Utils::StringCopy(char *dest, const char *src, unsigned count)
+char *Pxf::StringCopy(char *dest, const char *src, unsigned count)
 {
 	strncpy(dest, src, count);
 	return dest;
 }
 
-char *Pxf::Utils::StringCat(char *dest, const char *src, unsigned count)
+char *Pxf::StringCat(char *dest, const char *src, unsigned count)
 {
 	strncat(dest, src, count);
 	return dest;
 }
 
-char *Pxf::Utils::StringPadLeft(char *dest, const char *src, int width, char pad_char)
+char *Pxf::StringPadLeft(char *dest, const char *src, int width, char pad_char)
 {
 	int len = StringLength(src);
 	MemorySet(dest, pad_char, width);
@@ -154,7 +32,7 @@ char *Pxf::Utils::StringPadLeft(char *dest, const char *src, int width, char pad
 	return dest;
 }
 
-char *Pxf::Utils::StringPadRight(char *dest, const char *src, int width, char pad_char)
+char *Pxf::StringPadRight(char *dest, const char *src, int width, char pad_char)
 {
 	int len = StringLength(src);
 	int dst_off = width-len;
@@ -167,7 +45,7 @@ char *Pxf::Utils::StringPadRight(char *dest, const char *src, int width, char pa
 	return dest;
 }
 
-char *Pxf::Utils::StringPadCenter(char *dest, const char *src, int width, char pad_char)
+char *Pxf::StringPadCenter(char *dest, const char *src, int width, char pad_char)
 {
 	int len = StringLength(src);
 	int dst_off = (width-len) / 2; /* OPT (width-len) << 1 */
@@ -183,7 +61,7 @@ char *Pxf::Utils::StringPadCenter(char *dest, const char *src, int width, char p
 /*
  * String manipulaton functions which returns malloced memory 
  *****************************************************************************/
-char *Pxf::Utils::StringDuplicate(const char *str)
+char *Pxf::StringDuplicate(const char *str)
 {
 	return (char*)strdup(str);
 }
@@ -224,7 +102,7 @@ char*	StringDuplicateF(const char *format, ...)
 	}
 }
 
-char *Pxf::Utils::StringSub(const char *str, int start, int length)
+char *Pxf::StringSub(const char *str, int start, int length)
 {
 	int str_length = StringLength(str);
 	char *ret;
@@ -242,7 +120,7 @@ char *Pxf::Utils::StringSub(const char *str, int start, int length)
 }
 
 
-char *Pxf::Utils::StringConcat(const char *str1, const char *str2)
+char *Pxf::StringConcat(const char *str1, const char *str2)
 {
 	int len_str1 = StringLength(str1);
 	int len_str2 = StringLength(str2);
@@ -254,7 +132,7 @@ char *Pxf::Utils::StringConcat(const char *str1, const char *str2)
 	return ret;
 }
 
-char **Pxf::Utils::StringSplit(const char *str, const char *split_at)
+char **Pxf::StringSplit(const char *str, const char *split_at)
 {
 	/*
 		in-memory format (on a 32-bit system):
@@ -312,7 +190,7 @@ char **Pxf::Utils::StringSplit(const char *str, const char *split_at)
 	return (char**) ret;
 }
 
-char *Pxf::Utils::StringJoin(char **strs, const char *join_with)
+char *Pxf::StringJoin(char **strs, const char *join_with)
 {
 	char *ret;
 
@@ -354,14 +232,14 @@ char *Pxf::Utils::StringJoin(char **strs, const char *join_with)
 	return ret;
 }
 
-char *Pxf::Utils::DuplicateReplaceChar(const char *str, const char find, const char replace)
+char *Pxf::DuplicateReplaceChar(const char *str, const char find, const char replace)
 {
 	char *p = StringDuplicate(str);
 	ReplaceChar(p, find, replace);
 	return p;
 }
 
-char *Pxf::Utils::DuplicateReplaceString(const char *str, const char *find, const char *replace)
+char *Pxf::DuplicateReplaceString(const char *str, const char *find, const char *replace)
 {
 	int len_find = StringLength(find);
 	int len_replace = StringLength(replace);
@@ -405,7 +283,7 @@ char *Pxf::Utils::DuplicateReplaceString(const char *str, const char *find, cons
 /*
  * String manipulaton functions which modifies input string
  *****************************************************************************/
-void Pxf::Utils::ReplaceChar(char *str, const char find, const char replace)
+void Pxf::ReplaceChar(char *str, const char find, const char replace)
 {
 	if (!str || !find || !replace) return;
 	for(;*str;str++)
@@ -413,7 +291,7 @@ void Pxf::Utils::ReplaceChar(char *str, const char find, const char replace)
 			*str = replace;
 }
 
-void Pxf::Utils::ReplaceString(char *str, const char *find, const char *replace)
+void Pxf::ReplaceString(char *str, const char *find, const char *replace)
 {
 	int len_find = StringLength(find);
 	int len_replace = StringLength(replace);
@@ -441,21 +319,21 @@ void Pxf::Utils::ReplaceString(char *str, const char *find, const char *replace)
 	*t = 0;
 }
 
-void Pxf::Utils::StringToLower(char *p)
+void Pxf::StringToLower(char *p)
 {
 	if (!p) return;
 	for(;*p;p++)
 		*p = tolower(*p);
 }
 
-void Pxf::Utils::StringToUpper(char *p)
+void Pxf::StringToUpper(char *p)
 {
 	if (!p) return;
 	for(;*p;p++)
 		*p = toupper(*p);
 }
 
-void Pxf::Utils::StringRollLeft(char *str)
+void Pxf::StringRollLeft(char *str)
 {
 	int len_str = StringLength(str);
 	char c = *str;
@@ -463,7 +341,7 @@ void Pxf::Utils::StringRollLeft(char *str)
 	str[len_str-1] = c;
 }
 
-void Pxf::Utils::StringRollRight(char *str)
+void Pxf::StringRollRight(char *str)
 {
 	int len_str = StringLength(str);
 	char c = str[len_str-1];
@@ -474,12 +352,12 @@ void Pxf::Utils::StringRollRight(char *str)
 /*
  * String find functions
  *****************************************************************************/
-const char *Pxf::Utils::StringFind(const char *target, const char *find)
+const char *Pxf::StringFind(const char *target, const char *find)
 {
 	return strstr(target, find);
 }
 
-const char *Pxf::Utils::StringFindI(const char *t, const char *f)
+const char *Pxf::StringFindI(const char *t, const char *f)
 {
 	int n = StringLength(f);
 	const char *p;
@@ -492,19 +370,19 @@ const char *Pxf::Utils::StringFindI(const char *t, const char *f)
 	return 0;
 }
 
-const char *Pxf::Utils::StringFind(const char *target, const char find)
+const char *Pxf::StringFind(const char *target, const char find)
 {
 	return strchr(target, find);
 }
 
-const char *Pxf::Utils::StringFindI(const char *target, const char find)
+const char *Pxf::StringFindI(const char *target, const char find)
 {
 	if(tolower(find) == toupper(find))
 		return StringFind(target, find);
 	return StringFind2(target, tolower(find), toupper(find));
 }
 
-const char *Pxf::Utils::StringFind2(const char *target, const char find, const char alt)
+const char *Pxf::StringFind2(const char *target, const char find, const char alt)
 {
 	for(;*target;target++)
 		if (*target == find || *target == alt)
@@ -512,7 +390,7 @@ const char *Pxf::Utils::StringFind2(const char *target, const char find, const c
 	return 0;
 }
 
-const char *Pxf::Utils::StringFindRev2(const char *target, const char find, const char alt)
+const char *Pxf::StringFindRev2(const char *target, const char find, const char alt)
 {
 	int len_target = StringLength(target);
 
@@ -526,7 +404,7 @@ const char *Pxf::Utils::StringFindRev2(const char *target, const char find, cons
 	return 0;
 }
 
-const char *Pxf::Utils::StringFindRev(const char *t, const char *f)
+const char *Pxf::StringFindRev(const char *t, const char *f)
 {
 	int lt = StringLength(t);
 	int lf = StringLength(f);
@@ -543,7 +421,7 @@ const char *Pxf::Utils::StringFindRev(const char *t, const char *f)
 	return 0;
 }
 
-const char *Pxf::Utils::StringFindRevI(const char *t, const char *f)
+const char *Pxf::StringFindRevI(const char *t, const char *f)
 {
 	int lt = StringLength(t);
 	int lf = StringLength(f);
@@ -559,12 +437,12 @@ const char *Pxf::Utils::StringFindRevI(const char *t, const char *f)
 	return 0;
 }
 
-const char *Pxf::Utils::StringFindRev(const char *target, const char find)
+const char *Pxf::StringFindRev(const char *target, const char find)
 {
 	return strrchr(target, find);
 }
 
-const char *Pxf::Utils::StringFindRevI(const char *target, const char find)
+const char *Pxf::StringFindRevI(const char *target, const char find)
 {
 	if(tolower(find) == toupper(find))
 		return StringFindRev(target, find);
@@ -582,27 +460,27 @@ const char *Pxf::Utils::StringFindRevI(const char *target, const char find)
 	#define _strnicmp(a,b,n) strncasecmp(a,b,n)
 #endif
 
-int Pxf::Utils::StringCompare(const char *str1, const char *str2)
+int Pxf::StringCompare(const char *str1, const char *str2)
 {
 	return strcmp(str1, str2);
 }
 
-int Pxf::Utils::StringCompare(const char *str1, const char *str2, unsigned count)
+int Pxf::StringCompare(const char *str1, const char *str2, unsigned count)
 {
 	return strncmp(str1, str2, count);
 }
 
-int Pxf::Utils::StringCompareI(const char *str1, const char *str2)
+int Pxf::StringCompareI(const char *str1, const char *str2)
 {
 	return _stricmp(str1, str2);
 }
 
-int Pxf::Utils::StringCompareI(const char *str1, const char *str2, unsigned count)
+int Pxf::StringCompareI(const char *str1, const char *str2, unsigned count)
 {
 	return _strnicmp(str1, str2, count);
 }
 
-bool Pxf::Utils::IsPrefix(char *s, char *p)
+bool Pxf::IsPrefix(const char *s, const char *p)
 {
 	if (!s || !p) return 0;
 	for(;*p && *s;p++,s++)
@@ -611,7 +489,7 @@ bool Pxf::Utils::IsPrefix(char *s, char *p)
 	return true;
 }
 
-bool Pxf::Utils::IsPrefixI(char *s, char *p)
+bool Pxf::IsPrefixI(const char *s, const char *p)
 {
 	if (!s || !p) return 0;
 	for(;*p && *s;p++,s++)
@@ -620,7 +498,7 @@ bool Pxf::Utils::IsPrefixI(char *s, char *p)
 	return true;
 }
 
-bool Pxf::Utils::IsSuffix(char *s, char *p)
+bool Pxf::IsSuffix(const char *s, const char *p)
 {
 	if (!s || !p) return 0;
 	p += StringLength(p) - 1;
@@ -631,7 +509,7 @@ bool Pxf::Utils::IsSuffix(char *s, char *p)
 	return true;
 }
 
-bool Pxf::Utils::IsSuffixI(char *s, char *p)
+bool Pxf::IsSuffixI(const char *s, const char *p)
 {
 	if (!s || !p) return 0;
 	p += StringLength(p) - 1;
@@ -642,24 +520,24 @@ bool Pxf::Utils::IsSuffixI(char *s, char *p)
 	return true;
 }
 
-bool Pxf::Utils::IsWhitespace(char c)
+bool Pxf::IsWhitespace(const char c)
 {
 	return (c == ' ' || c == '\n' || c == '\t' || c == '\r');
 }
 
-bool Pxf::Utils::IsAlpha(char c)
+bool Pxf::IsAlpha(const char c)
 {
 	if ((c >= 'a') && (c <= 'z')) return true;
 	if ((c >= 'A') && (c <= 'Z')) return true;
 	return false;
 }
 
-bool Pxf::Utils::IsNumeric(char c)
+bool Pxf::IsNumeric(const char c)
 {
 	return (c >= '0') && (c <= '9');
 }
 
-bool Pxf::Utils::IsAlphanumeric(char c)
+bool Pxf::IsAlphanumeric(const char c)
 {
 	return IsAlpha(c) || IsNumeric(c) || c == '_';
 }
@@ -667,12 +545,12 @@ bool Pxf::Utils::IsAlphanumeric(char c)
 /*
  * String conversion functions
  *****************************************************************************/
-int Pxf::Utils::StringToInteger(const char *number)
+int Pxf::StringToInteger(const char *number)
 {
 	return atoi(number);
 }
 
-double Pxf::Utils::StringToDouble(const char *number)
+double Pxf::StringToDouble(const char *number)
 {
 	return atof(number);
 }
@@ -681,12 +559,12 @@ double Pxf::Utils::StringToDouble(const char *number)
  * Other string functions
  *****************************************************************************/
 
-int Pxf::Utils::StringLength(const char *str)
+int Pxf::StringLength(const char *str)
 {
 	return (int)strlen(str);
 }
 
-int Pxf::Utils::StringCount(const char *target, const char *str)
+int Pxf::StringCount(const char *target, const char *str)
 {
 	int ret = 0;
 	/* OPT remove one line with: ret++, target++); */
@@ -695,82 +573,9 @@ int Pxf::Utils::StringCount(const char *target, const char *str)
 	return ret;
 }
 
-const char *Pxf::Utils::SkipWhitespace(const char *p)
+const char *Pxf::SkipWhitespace(const char *p)
 {
 	if (!p) return 0;
 	while(IsWhitespace(*p)) p++;
 	return p;
-}
-
-/*
- * Random number generation, Mersenne twister
- *
- * http://en.literateprograms.org/Mersenne_twister_(C)
- * + Optimized initiation (I think)
- *****************************************************************************/
-
-#define PXF__MT_LEN       624
-#define PXF__MT_IA        397
-#define PXF__MT_IB        (PXF__MT_LEN - PXF__MT_IA)
-#define PXF__UPPER_MASK   0x80000000
-#define PXF__LOWER_MASK   0x7FFFFFFF
-#define PXF__MATRIX_A     0x9908B0DF
-#define PXF__TWIST(b,i,j) ((b)[i] & PXF__UPPER_MASK) | ((b)[j] & PXF__LOWER_MASK)
-#define PXF__MAGIC(s)     (((s)&1)*PXF__MATRIX_A)
-
-
-int mt_index = 0;
-unsigned long mt_buffer[PXF__MT_LEN];
-
-void rand_init(unsigned long seed)
-{
-	int i;
-	mt_buffer[0] = seed & 0xffffffffUL;
-	for (i = 1; i < PXF__MT_LEN; i++)
-		mt_buffer[i] = (1812433253UL * (mt_buffer[i-1] ^ (mt_buffer[i-1] >> 30)) + i) & 0xffffffffUL;
-}
-
-// Interval: [0, 0xffffffff]
-unsigned long Pxf::Utils::rand_uint32()
-{
-	unsigned long * b = mt_buffer;
-	int idx = mt_index;
-	unsigned long s;
-	int i;
-
-	if (idx == PXF__MT_LEN*sizeof(unsigned long))
-	{
-		idx = 0;
-		i = 0;
-		for (; i < PXF__MT_IB; i++) {
-			s = PXF__TWIST(b, i, i+1);
-			b[i] = b[i + PXF__MT_IA] ^ (s >> 1) ^ PXF__MAGIC(s);
-		}
-		for (; i < PXF__MT_LEN-1; i++) {
-			s = PXF__TWIST(b, i, i+1);
-			b[i] = b[i - PXF__MT_IB] ^ (s >> 1) ^ PXF__MAGIC(s);
-		}
-	    
-		s = PXF__TWIST(b, PXF__MT_LEN-1, 0);
-		b[PXF__MT_LEN-1] = b[PXF__MT_IA-1] ^ (s >> 1) ^ PXF__MAGIC(s);
-	}
-	mt_index = idx + sizeof(unsigned long);
-	return *(unsigned long *)((unsigned char *)b + idx);
-}
-
-// Interval: [0, 0x7fffffff]
-long  Pxf::Utils::rand_int32()
-{
-	return (long)(rand_uint32() >> 1);
-}
-
-// Interval: [0, 1]
-double  Pxf::Utils::rand_fp64()
-{
-	return rand_uint32() / ((double) (1 << 16) * (1 << 16));
-}
-
-float  Pxf::Utils::rand_fp32()
-{
-	return rand_uint32() / ((float) (1 << 16) * (1 << 16));
 }

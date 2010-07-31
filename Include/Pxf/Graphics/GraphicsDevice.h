@@ -1,5 +1,5 @@
-#ifndef _PXF_GRAPHICS_DEVICE_H_
-#define _PXF_GRAPHICS_DEVICE_H_
+#ifndef _PXF_GRAPHICS_GRAPHICSDEVICE_H_
+#define _PXF_GRAPHICS_GRAPHICSDEVICE_H_
 
 #include <Pxf/System.h>
 
@@ -71,4 +71,4 @@ namespace Pxf
 	} // Graphics
 } // Pxf
 
-#endif // _PXF_GRAPHICS_DEVICE_H_
+#endif // _PXF_GRAPHICS_GRAPHICSDEVICE_H_

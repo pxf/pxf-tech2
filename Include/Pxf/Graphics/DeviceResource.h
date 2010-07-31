@@ -1,5 +1,5 @@
-#ifndef _PXF_GRAPHICS_DEVICERESOURCE_
-#define _PXF_GRAPHICS_DEVICERESOURCE_
+#ifndef _PXF_GRAPHICS_DEVICERESOURCE_H_
+#define _PXF_GRAPHICS_DEVICERESOURCE_H_
 
 namespace Pxf {
 namespace Graphics {

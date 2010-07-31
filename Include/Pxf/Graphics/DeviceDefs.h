@@ -1,5 +1,5 @@
-#ifndef _PXF_GRAPHICS_DEVICEDEFS_H
-#define _PXF_GRAPHICS_DEVICEDEFS_H
+#ifndef _PXF_GRAPHICS_DEVICEDEFS_H_
+#define _PXF_GRAPHICS_DEVICEDEFS_H_
 
 #include <Pxf/Math/Math.h>
 #include <Pxf/Math/Vector.h>

@@ -1,5 +1,5 @@
-#ifndef _PXF_AUDIODEVICE_AUDIODEVICENULL_H_
-#define _PXF_AUDIODEVICE_AUDIODEVICENULL_H_
+#ifndef _PXF_AUDIODEVICE_NULLAUDIODEVICE_H_
+#define _PXF_AUDIODEVICE_NULLAUDIODEVICE_H_
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Base/Debug.h>
@@ -32,4 +32,4 @@ namespace Pxf
     }
 }
 
-#endif // _PXF_AUDIODEVICE_AUDIODEVICENULL_H_
+#endif // _PXF_AUDIODEVICE_NULLAUDIODEVICE_H_

@@ -162,4 +162,4 @@ namespace Pxf
 	} // Graphics
 } // Pxf
 
-#endif // _PXF_GRAPHICS_INTERLEAVEDVERTEXBUFFER_H_
+#endif // _PXF_GRAPHICS_VERTEXBUFFER_H_

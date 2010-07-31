@@ -6,10 +6,9 @@
 
 #include <Pxf/Audio/NullAudioDevice.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Resource/ResourceManager.h>
 
-#ifdef CONF_FAMILY_UNIX
-#include <string.h> // strcmp
-#endif
+#include <Pxf/Base/String.h>
 
 Pxf::Kernel* Pxf::Kernel::s_Kernel = 0;
 const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
@@ -17,6 +16,7 @@ const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
 Pxf::Kernel::Kernel()
     : m_AudioDevice(0)
     , m_GraphicsDevice(0)
+    , m_ResourceManager(0)
 {
 }
 
@@ -58,6 +58,13 @@ Pxf::Graphics::GraphicsDevice* Pxf::Kernel::GetGraphicsDevice()
     return m_GraphicsDevice;
 }
 
+Pxf::Resource::ResourceManager* Pxf::Kernel::GetResourceManager()
+{
+    if (!m_ResourceManager)
+        m_ResourceManager = new Pxf::Resource::ResourceManager();
+    return m_ResourceManager;
+}
+
 
 //TODO: Should the build file define PXF_MODULE_EXT instead?
 static const char* get_full_module_ext()
@@ -91,57 +98,37 @@ static const char* get_module_ext()
     return MODULE_EXT;
 }
 
-static bool is_suffix(const char *s, const char *p)
-{
-	if (!s || !p) return 0;
-	p += strlen(p) - 1;
-	s += strlen(s) - 1;
-	for(;*p && *s;s--,p--)
-		if(*p != *s)
-			return false;
-	return true;
-}
-
-static bool is_prefix(const char *s, const char *p)
-{
-	if (!s || !p) return 0;
-	for(;*p && *s;p++,s++)
-		if(*p != *s)
-			return false;
-	return true;
-}
-
 bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
 {
     // If the file is missing extention, add one that's appropriate for the platform.
     const char* suffix = get_full_module_ext();
     char FilePath[256] = {0};
-    unsigned len = strlen(_FilePath);
+    unsigned len = Pxf::StringLength(_FilePath);
     unsigned offset = 0;
     
-    // Also add prefixing ./ on unix
-    #if defined(CONF_PLATFORM_MACOSX)
-        if (!is_prefix(_FilePath, "./"))
-        {
-            offset = 5;
-            FilePath[0] = '.';
-            FilePath[1] = '/';
-            FilePath[2] = 'l';
-            FilePath[3] = 'i';
-            FilePath[4] = 'b';
-        }
-    #elif defined(CONF_FAMILY_UNIX)
-        if (!is_prefix(_FilePath, "./"))
-        {
-            offset = 2;
-            FilePath[0] = '.';
-            FilePath[1] = '/';
-        }
-    #endif
+// Also add prefixing ./ on unix
+#if defined(CONF_PLATFORM_MACOSX)
+    if (!Pxf::IsPrefix(_FilePath, "./"))
+    {
+        offset = 5;
+        FilePath[0] = '.';
+        FilePath[1] = '/';
+        FilePath[2] = 'l';
+        FilePath[3] = 'i';
+        FilePath[4] = 'b';
+    }
+#elif defined(CONF_FAMILY_UNIX)
+    if (!Pxf::IsPrefix(_FilePath, "./"))
+    {
+        offset = 2;
+        FilePath[0] = '.';
+        FilePath[1] = '/';
+    }
+#endif
     
     
     strncpy(FilePath+offset, _FilePath, len);
-    if (!is_suffix(_FilePath, get_module_ext()))
+    if (!Pxf::IsSuffix(_FilePath, get_module_ext()))
     {
         unsigned slen = strlen(suffix);
         for(int i = len; i < len+slen; i++)

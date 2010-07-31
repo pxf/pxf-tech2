@@ -46,12 +46,42 @@ namespace Pxf
 	{
 		T t; t = a; a = b; b = t;
 	}
+    
+    /* Numeric compare functions */
 
-	// Reverse the bits of a byte
-	inline uint8 BitReverse8(uint8 v)
-	{
-		return (uint8)(((v * 0x0802LU & 0x22110LU) | (v * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16);
-	}
+    /* Returns the absolute value of a */
+    template <typename T> 
+    inline T Abs(const T& a)
+    {
+        return (a < 0 ? -a : a);
+    }
+
+    /* Returns the biggest of a and b */
+    template<typename T1, typename T2> 
+    inline T1 Max(const T1& a, const T2& b)
+    {
+        return (b < a ? a : b);
+    }
+
+    /* Returns the smallest of a and b */
+    template<typename T1, typename T2> 
+    inline T1 Min(const T1& a,const T2& b)
+    {
+        return (a < b ? a : b);
+    }
+
+    /* Clamps value between min and max */
+    template <typename T1, typename T2, typename T3> 
+    inline T1 Clamp(const T1& value, const T2& min, const T3& max)
+    {
+        return (value < min ? min : (value > max ? max : value));
+    }
+
+    // Reverse the bits of a byte
+    inline uint8 BitReverse8(uint8 v)
+    {
+        return (uint8)(((v * 0x0802LU & 0x22110LU) | (v * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16);
+    }
 
     inline uint32 PackShort2(uint16 _Maj, uint16 _Min)
     {
@@ -133,7 +163,10 @@ namespace Pxf
 	#else
 		#error unable to generate bitswapping functions for your platform. endianess unknown.
 	#endif
-	
+    
+/* Usefull macros */
+#define PXF_ELEMENTS_OF(t) (sizeof((t))/sizeof((t)[0]))
+#define PXF_OFFSET_OF(s,m) (size_t)&reinterpret_cast<const volatile char&>((((s *)0)->m))
 } // namespace Pxf
 
 #endif //_PXF_BASE_UTILS_H_

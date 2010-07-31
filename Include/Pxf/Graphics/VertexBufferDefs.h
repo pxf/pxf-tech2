@@ -17,17 +17,6 @@ namespace Pxf
 		};
 
 		/**
-		 * VertexBuffer type
-		 * VB_TYPE_INTERLEAVED: stores data interleaved in one continuous chunk
-		 * VB_TYPE_NONINTERLEAVED: stores data in independent chunks
-		 */
-		enum VertexBufferType
-		{
-			VB_TYPE_INTERLEAVED,
-			VB_TYPE_NONINTERLEAVED
-		};
-
-		/**
 		 * VertexBuffer attributes
 		 */
 		enum VertexBufferAttribute

@@ -10,13 +10,28 @@
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
 
+#include <Pxf/Base/Hash.h>
+#include <Pxf/Base/String.h>
+#include <Pxf/Base/Memory.h>
+#include <Pxf/Base/Random.h>
+
+#include <ctime>
 
 using namespace Pxf;
 
 int main()
 {
     Pxf::Kernel* kernel = Pxf::Kernel::GetInstance();
-    Pxf::Message("Main", "Using kernel %x", kernel);
+    Pxf::Message("Main", "Using kernel %x, %d", kernel, Pxf::HashPtr(kernel));
+    Pxf::Message("Main", "Test: %d", Pxf::Hash("Heyo", 4));
+    
+    const char* str = "HEy mang!";
+    if (!Pxf::IsPrefix(str, "Hey") && Pxf::IsPrefixI(str, "HEY"))
+        Pxf::Message("Main", "Heyo!");
+        
+    Pxf::RandSetSeed(time(NULL));
+    Message("Main", "%u %d %f %f", Pxf::RandUI32(), Pxf::RandI32()
+                                 , Pxf::RandFP64(), Pxf::RandFP32());
     
     kernel->RegisterModule("pri", true);
     kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS);

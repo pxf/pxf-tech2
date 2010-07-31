@@ -7,6 +7,7 @@
 namespace Pxf {
     namespace Audio { class AudioDevice; }
     namespace Graphics { class GraphicsDevice; }
+    namespace Resource { class ResourceManager; }
     
     class SharedLibrary;
     class Module;
@@ -40,6 +41,7 @@ namespace Pxf {
         
         Audio::AudioDevice* m_AudioDevice;
         Graphics::GraphicsDevice* m_GraphicsDevice;
+        Resource::ResourceManager* m_ResourceManager;
         
         Kernel();
         Kernel(const Kernel& _Other){};
@@ -61,6 +63,8 @@ namespace Pxf {
         
         void RegisterGraphicsDevice(Graphics::GraphicsDevice* _Device);
         Graphics::GraphicsDevice* GetGraphicsDevice();
+        
+        Resource::ResourceManager* GetResourceManager();
         
         //void RegisterPhysicsEngine(PhysicsEngine* _Engine);
         //PhysicsEngine* GetPhysicsEngine();
