@@ -53,13 +53,14 @@ int main()
     spec.Fullscreen = false;
     spec.Resizeable = false;
     spec.VerticalSync = false;
+    /*
     Graphics::Window* win = video->OpenWindow(&spec);
     
     while(win->IsOpen())
     {
         win->Swap();
     }
-    
+    */
     delete kernel;
 
     return 0;

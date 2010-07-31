@@ -15,8 +15,6 @@ char *StringDuplicate(const char *str);
 char* StringDuplicateF(const char *format, ...);
 char *StringSub(const char *str, int start, int length);
 char *StringConcat(const char *str1, const char *str2);
-char **StringSplit(const char *str, const char *split_at);
-char *StringJoin(char **strs, const char *join_with);
 char *DuplicateReplaceChar(const char *str, const char find, const char replace);
 char *DuplicateReplaceString(const char *str, const char *find, const char *replace);
 

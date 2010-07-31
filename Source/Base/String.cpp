@@ -1,5 +1,6 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
+#include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
 #include <cstdlib>
@@ -129,106 +130,6 @@ char *Pxf::StringConcat(const char *str1, const char *str2)
 	StringCopy(ret, str1, len_str1);
 	StringCopy(ret+len_str1, str2, len_str2);
 	ret[len] = 0;
-	return ret;
-}
-
-char **Pxf::StringSplit(const char *str, const char *split_at)
-{
-	/*
-		in-memory format (on a 32-bit system):
-		str1|str2|str3 ->
-		  4b    4b    4b    4b   null-terminated char*'s  
-		[ptr1][ptr2][ptr3][NULL][str1][str2][str3]
-	*/
-	char *ret      = 0;
-	int len_splits = StringLength(split_at);
-	int len_str    = StringLength(str);
-	int num_splits = 0;
-
-	int ptr_index = 0;
-	int str_index = 0;
-	int str_base  = 0;
-
-	int n, m, *temp = 0;
-
-	/* Precalculate number of parts */
-	for (n=0; n < len_splits; n++)
-	{
-		for(m=0; m < len_str; m++)
-		{
-			if (str[m] == split_at[n])
-				num_splits++;
-		}
-	}
-
-	/*  Offset to strings */
-	str_base = (num_splits+2) * sizeof(int);
-
-	/*  Allocate memory chunk */
-	ret = (char *)MemoryAllocate(str_base + (len_str+1)*sizeof(char));
-	if (!ret) return 0; 
-	
-	MemoryCopy(ret+str_base, str, len_str+1);	
-	/*  use a temporary integer pointer to write a pointer size zero-terminator */
-	temp = (int*)ret;
-
-	for(n=0; n < len_str+1; n++)
-	{
-		for (m=0; m < len_splits; m++)
-		{
-			if (str[n] == split_at[m] || str[n] == 0)
-			{
-				ret[str_base+n] = 0x0;
-				temp[ptr_index++] = (int)(ret+str_base+str_index);
-				str_index = n+1;
-			}
-		}
-	}
-
-	temp[num_splits+1] = 0x0;
-
-	return (char**) ret;
-}
-
-char *Pxf::StringJoin(char **strs, const char *join_with)
-{
-	char *ret;
-
-	int len_ret  = 0;
-	int len_join = StringLength(join_with);
-	int num_strs = 0;
-	int pos = 0;
-
-	/*  Calculate size of destination string */
-	char **p = 0;
-	for(p=strs; *p; p++)
-	{
-		len_ret += StringLength(*p);
-		num_strs++;
-	}
-	num_strs--;
-	len_ret += num_strs * len_join;
-
-	/*  Allocate memory */
-	ret = (char *)MemoryAllocate((len_ret+1) * sizeof(char));
-	if (!ret) return 0; 
-
-	/*  Copy data */
-	for(p=strs; *p; p++)
-	{
-		int len = strlen(*p);
-		StringCopy(ret+pos, *p, len);
-		pos += len;
-
-		if (!num_strs) break;
-
-		/*  Add join_with */
-		StringCopy(ret+pos, join_with, len_join);
-		pos += len_join;
-		num_strs--;
-	}
-	ret[pos] = 0;
-
 	return ret;
 }
 

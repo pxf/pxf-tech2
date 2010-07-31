@@ -103,34 +103,29 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     // If the file is missing extention, add one that's appropriate for the platform.
     const char* suffix = get_full_module_ext();
     char FilePath[256] = {0};
-    unsigned len = Pxf::StringLength(_FilePath);
+    unsigned len = StringLength(_FilePath);
     unsigned offset = 0;
     
-// Also add prefixing ./ on unix
+// TODO: Redo this
 #if defined(CONF_PLATFORM_MACOSX)
     if (!Pxf::IsPrefix(_FilePath, "./"))
     {
         offset = 5;
-        FilePath[0] = '.';
-        FilePath[1] = '/';
-        FilePath[2] = 'l';
-        FilePath[3] = 'i';
-        FilePath[4] = 'b';
+        StringCopy(FilePath, "./lib", 5);
     }
 #elif defined(CONF_FAMILY_UNIX)
     if (!Pxf::IsPrefix(_FilePath, "./"))
     {
         offset = 2;
-        FilePath[0] = '.';
-        FilePath[1] = '/';
+        StringCopy(FilePath, "./", 5);
     }
 #endif
     
     
-    strncpy(FilePath+offset, _FilePath, len);
+    StringCopy(FilePath+offset, _FilePath, len);
     if (!Pxf::IsSuffix(_FilePath, get_module_ext()))
     {
-        unsigned slen = strlen(suffix);
+        unsigned slen = StringLength(suffix);
         for(int i = len; i < len+slen; i++)
         {
             FilePath[i+offset] = suffix[i-len];
@@ -164,7 +159,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     bool replaced = false;
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
-        if (strcmp(m_AvailableModules[i]->module->GetIdentifier(), module->GetIdentifier()) == 0)
+        if (StringCompare(m_AvailableModules[i]->module->GetIdentifier(), module->GetIdentifier()) == 0)
         {
             if (!_OverrideBuiltin)
             {
@@ -238,7 +233,7 @@ bool Pxf::Kernel::RegisterSystem(const char* _ModuleID, Pxf::System::SystemType 
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
         Pxf::Module* mod = m_AvailableModules[i]->module;
-        if (strcmp(mod->GetIdentifier(), _ModuleID) == 0)
+        if (StringCompare(mod->GetIdentifier(), _ModuleID) == 0)
         {
             return mod->RegisterSystem(this, _SystemType, _Identifier);
         }

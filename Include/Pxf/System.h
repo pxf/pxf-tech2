@@ -18,8 +18,8 @@ namespace Pxf
     
         enum SystemType
         {
-            SYSTEM_TYPE_AUDIODEVICE = 2,
-            SYSTEM_TYPE_GRAPHICS = 1,
+            SYSTEM_TYPE_AUDIODEVICE = 1,
+            SYSTEM_TYPE_GRAPHICS = 2,
             SYSTEM_TYPE_PHYSICS = 4,
             SYSTEM_TYPE_RESOURCE_LOADER = 8,
             SYSTEM_TYPE_SCRIPTLANG = 16
