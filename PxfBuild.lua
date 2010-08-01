@@ -22,7 +22,7 @@ function unlockglobalenvironment()
 end
 
 function Intermediate_Output(settings, input)
-    basepath = Path(PathJoin(path_prefix, "Build/Object"))
+    local basepath = Path(PathJoin(path_prefix, "Build/Object"))
     MakeDirectory(Path(basepath .. "/" .. PathDir(input)))
     print(input)
     return Path(basepath .. "/" .. PathJoin(PathDir(input), PathBase(PathFilename(input)) .. settings.config_name))
@@ -31,6 +31,11 @@ end
 function LoadLibrary(name)
      Import(path_prefix .. "/Libraries/" .. name .. "/" .. name .. ".lua")
      return library;
+end
+
+function LoadModule(name)
+    Import(path_prefix .. "/Modules/" .. name .. "/" .. name .. ".lua")
+    return module
 end
 
 function NewLibrary(name)
@@ -134,12 +139,12 @@ function NewModule(name)
        
         if not baked_exe then
             -- SharedLibrary needs to link with self.required_libs
-            libs = {}
+            local libs = {}
             for i, l in ipairs(self.required_libraries) do
                 if not project.built_list[l] then
-                    library = LoadLibrary(l)
+                    local library = LoadLibrary(l)
                     module_settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
-                    lib = library:Build(self, module_settings)
+                    local lib = library:Build(self, module_settings)
                     table.insert(libs, lib)
                     table.insert(project.built_libs, lib)
                     project.built_list[l] = lib
@@ -147,11 +152,10 @@ function NewModule(name)
                     -- TODO: Else what?
                     module_settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
                     table.insert(libs, project.built_list[l])
-                    library = LoadLibrary(l) -- Load it so we can get the system libraries below...
+                    local library = LoadLibrary(l) -- Load it so we can get the system libraries below...
                 end
                 
                 for i, l in ipairs(library.system_libraries) do
-                    print("Adding " .. l .. " to " .. module_settings.config_name)
                     module_settings.dll.libs:Add(l)
                 end
                 
@@ -265,13 +269,13 @@ function NewProject(name)
            
             -- Collect modules
             for i,m in ipairs(self.required_modules) do
-                Import(path_prefix .. "/Modules/" .. m .. "/" .. m .. ".lua")
+                local module = LoadModule(m)
                 dep_modules[module.name] = module
                 for j, incdir in ipairs(module.include_directories) do
                     settings.cc.includes:Add(incdir)
                 end
                 for j, lib in ipairs(module.required_libraries) do
-                    library = LoadLibrary(lib)
+                    local library = LoadLibrary(lib)
                     
                     for j, incdir in ipairs(library.include_directories) do
                         settings.cc.includes:Add(incdir)
@@ -296,12 +300,12 @@ function NewProject(name)
                 settings.link.libs:Add("pthread")
             end
             
-            pxf_objs = Compile(framework_settings, pxf_source_files)
+            local pxf_objs = Compile(framework_settings, pxf_source_files)
             
             -- Build modules
             for i, m in ipairs(self.required_modules) do
                 settings.cc.defines:Add("CONF_WITH_MODULE_"..string.upper(dep_modules[m].name))
-                module = dep_modules[m]:Build(self, settings, pxf_objs, baked_exe)
+                local module = dep_modules[m]:Build(self, settings, pxf_objs, baked_exe)
                 -- Build with embedded modules
                 if baked_exe == true then
                     table.insert(self.built_mods, module)
@@ -316,11 +320,11 @@ function NewProject(name)
             end
             
             for l, i in pairs(req_libraries) do
-                library = LoadLibrary(l)
+                local library = LoadLibrary(l)
   
                 if not self.built_list[l] then
                     settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
-                    lib = library:Build(self, settings)
+                    local lib = library:Build(self, settings)
                     table.insert(self.built_libs, lib)
                     self.built_list[l] = lib
                 end
