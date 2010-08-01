@@ -1,5 +1,26 @@
 path_prefix = PathDir(ModuleFilename())
 
+function lockglobalenvironment()
+    local function _n(t, i, k) 
+        error("writing to new global variables is disabled.", 2);
+    end
+
+    local function _i(t, i)
+        error("reading to new global variables is disabled.", 2);
+    end
+
+    -- work with the global variable table ('_G')
+    local mt = { __newindex = _n, __index = _i };
+    setmetatable(_G, mt);
+end
+
+-- this reverts the global variable lock.
+function unlockglobalenvironment()
+    local mt = getmetatable(_G);
+    mt.__index = nil;
+    mt.__newindex = nil;
+end
+
 function Intermediate_Output(settings, input)
     basepath = Path(PathJoin(path_prefix, "Build/Object"))
     MakeDirectory(Path(basepath .. "/" .. PathDir(input)))
@@ -115,12 +136,16 @@ function NewModule(name)
             -- SharedLibrary needs to link with self.required_libs
             libs = {}
             for i, l in ipairs(self.required_libraries) do
-                library = LoadLibrary(l)
-                module_settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
-                lib = library:Build(self, module_settings)
-                table.insert(libs, lib)
-                table.insert(project.built_libs, lib)
-                project.built_list[l] = l
+                if not project.built_list[l] then
+                    library = LoadLibrary(l)
+                    module_settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
+                    lib = library:Build(self, module_settings)
+                    table.insert(libs, lib)
+                    table.insert(project.built_libs, lib)
+                    project.built_list[l] = true
+                else
+                    -- TODO: Else what?
+                end
                 
                 for i, l in ipairs(library.system_libraries) do
                     module_settings.dll.libs:Add(l)
@@ -172,15 +197,11 @@ function NewProject(name)
         local settings = NewSettings()
         local source_files = {}
         
-        print("Preparing to build...")
-        
         for i,m in ipairs(self.include_directories) do
-            print("Include directory: ", m)
             settings.cc.includes:Add(m)
         end
         
         for i,m in ipairs(self.source_directories) do
-            print("Source directory: ", m)
             table.insert(source_files, CollectRecursive(m))
         end
         
@@ -219,8 +240,13 @@ function NewProject(name)
             local dep_modules = {}
             local req_libraries = {}
             
+            self.built_libs = {}
+            self.built_mods = {}
+            self.built_dlls = {}
+            self.built_list = {}
+            
             for i,l in ipairs(self.required_libraries) do
-                table.insert(req_libraries, l)
+                req_libraries[l] = true
             end
             
             if baked_exe == false then
@@ -253,16 +279,13 @@ function NewProject(name)
                 end
             end
             
-            self.built_libs = {}
-            self.built_mods = {}
-            self.built_dlls = {}
-            self.built_list = {}
-            
             -- Build framework
             -- Pxf source files
             framework_settings = settings:Copy()
             pxf_source_files = Collect(PathJoin(path_prefix, "Source/*.cpp")
-                                      ,PathJoin(path_prefix, "Source/Base/*.cpp"))
+                                      ,PathJoin(path_prefix, "Source/Base/*.cpp")
+                                      ,PathJoin(path_prefix, "Source/Graphics/*.cpp")
+                                      ,PathJoin(path_prefix, "Source/Resource/*.cpp"))
         
             if family == "unix" then
                 settings.link.libs:Add("dl")
@@ -270,7 +293,6 @@ function NewProject(name)
             end
             
             pxf_objs = Compile(framework_settings, pxf_source_files)
-            
             
             -- Build modules
             for i, m in ipairs(self.required_modules) do
@@ -281,9 +303,7 @@ function NewProject(name)
                     table.insert(self.built_mods, module)
                     -- Add required libraries if they aren't already wanted
                     for j, l in ipairs(dep_modules[m].required_libraries) do
-                        if req_libraries[l] == nil then
-                            table.insert(req_libraries, l)
-                        end
+                        req_libraries[l] = true
                     end
                 -- Build with dynamic modules
                 else
@@ -291,12 +311,13 @@ function NewProject(name)
                 end
             end
             
-            for i, l in ipairs(req_libraries) do
+            for l, i in pairs(req_libraries) do
                 library = LoadLibrary(l)
   
-                if self.built_list[l] == nil then
+                if not self.built_list[l] then
                     settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
                     table.insert(self.built_libs, library:Build(self, settings))
+                    self.built_list[l] = true
                 end
                 
                 -- Add system libraries

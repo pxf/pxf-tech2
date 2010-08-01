@@ -34,6 +34,7 @@ int main()
                                  , Pxf::RandFP64(), Pxf::RandFP32());
     
     kernel->RegisterModule("pri", true);
+    kernel->RegisterModule("img", true);
     kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS);
     kernel->DumpAvailableModules();
     

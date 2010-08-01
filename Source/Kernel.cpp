@@ -7,6 +7,7 @@
 #include <Pxf/Audio/NullAudioDevice.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/ResourceLoader.h>
 
 #include <Pxf/Base/String.h>
 
@@ -56,6 +57,12 @@ Pxf::Graphics::GraphicsDevice* Pxf::Kernel::GetGraphicsDevice()
     //if (!m_GraphicsDevice)
     //    m_GraphicsDevice = new Pxf::Graphics::NullGraphicsDevice(this);
     return m_GraphicsDevice;
+}
+
+void Pxf::Kernel::RegisterResourceLoader(Resource::ResourceLoader* _ResourceLoader)
+{
+    Resource::ResourceManager* mgr = GetResourceManager();
+    mgr->RegisterResourceLoader(_ResourceLoader);
 }
 
 Pxf::Resource::ResourceManager* Pxf::Kernel::GetResourceManager()
