@@ -4,17 +4,18 @@
 #include <cstdio>
 #include <cstring>
 
-void *Pxf::MemoryAllocate(size_t len)
+
+void *Pxf::MemoryAllocate(unsigned len)
 {
 	return malloc(len);
 }
 
-void *Pxf::MemoryAllocateArray(size_t n, size_t len)
+void *Pxf::MemoryAllocateArray(unsigned n, unsigned len)
 {
 	return calloc(n, len);
 }
 
-void *Pxf::ReAllocate(void *p, size_t size)
+void *Pxf::ReAllocate(void *p, unsigned size)
 {
 	return realloc(p, size);
 }

@@ -6,11 +6,11 @@ namespace Pxf {
 /* Memory functions */
 
 /* Allocate a buffer of size len */
-void *MemoryAllocate(size_t len);      
+void *MemoryAllocate(unsigned len);      
 /* Alloate a buffer with n items of size len */
-void *MemoryAllocateArray(size_t n, size_t len);  
+void *MemoryAllocateArray(unsigned n, unsigned len);  
 /* Re-allocate buffer p with size 'size' */
-void *ReAllocate(void *p, size_t size);     
+void *ReAllocate(void *p, unsigned size);     
 /* Free memory at p */
 void MemoryFree(void *p);
 /**/
