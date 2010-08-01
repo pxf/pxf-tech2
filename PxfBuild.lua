@@ -142,12 +142,16 @@ function NewModule(name)
                     lib = library:Build(self, module_settings)
                     table.insert(libs, lib)
                     table.insert(project.built_libs, lib)
-                    project.built_list[l] = true
+                    project.built_list[l] = lib
                 else
                     -- TODO: Else what?
+                    module_settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
+                    table.insert(libs, project.built_list[l])
+                    library = LoadLibrary(l) -- Load it so we can get the system libraries below...
                 end
                 
                 for i, l in ipairs(library.system_libraries) do
+                    print("Adding " .. l .. " to " .. module_settings.config_name)
                     module_settings.dll.libs:Add(l)
                 end
                 
@@ -316,8 +320,9 @@ function NewProject(name)
   
                 if not self.built_list[l] then
                     settings.cc.defines:Add("CONF_WITH_LIBRARY_"..string.upper(library.name))
-                    table.insert(self.built_libs, library:Build(self, settings))
-                    self.built_list[l] = true
+                    lib = library:Build(self, settings)
+                    table.insert(self.built_libs, lib)
+                    self.built_list[l] = lib
                 end
                 
                 -- Add system libraries

@@ -6,20 +6,24 @@
 namespace Pxf {
 namespace Resource {
 
-	class Image : public ResourceBase
+	class Image : protected ResourceBase
 	{
-	private:
+	protected:
 		int m_Width;
 		int m_Height;
 		int m_Channels;
 		unsigned char* m_ImageData;
 
-		virtual bool Build();
-
-
 	public:
-		Image(Chunk* _Chunk, const char* _Source);
-		~Image();
+		Image(Chunk* _Chunk)
+            : ResourceBase(_Chunk)
+            , m_Channels(0)
+            , m_Height(0)
+            , m_Width(0)
+            , m_ImageData(NULL)
+        {}
+		virtual ~Image()
+        {}
 
 		const int Width() const
 		{

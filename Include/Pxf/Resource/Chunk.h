@@ -11,11 +11,13 @@ namespace Resource {
     public:
         char* data;
         unsigned size;
+        const char* source;
         bool is_static;
         
         Chunk()
             : data(0)
             , size(0)
+            , source(0)
             , is_static(false) 
         {}
         

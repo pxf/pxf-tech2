@@ -28,6 +28,7 @@ Resource::Chunk* Resource::LoadFile(const char* _FilePath)
 			Message("Chunk::ReadFile", "Creating chunk (0x%x) from '%s' (read %d of %d bytes)", chunk, _FilePath, read, size);
 			chunk->data = data;
 			chunk->size = size;
+            chunk->source = _FilePath;
             chunk->is_static = false;
 			file.Close();
 			return chunk;

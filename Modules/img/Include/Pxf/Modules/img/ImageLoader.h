@@ -1,15 +1,33 @@
-#ifndef _PXF_RESOURCE_GENERICIMAGELOADER_H_
-#define _PXF_RESOURCE_GENERICIMAGELOADER_H_
+#ifndef _PXF_RESOURCE_IMAGELOADER_H_
+#define _PXF_RESOURCE_IMAGELOADER_H_
 
 #include <Pxf/Kernel.h>
 #include <Pxf/Resource/ResourceLoader.h>
+#include <Pxf/Resource/Image.h>
 
 
 namespace Pxf{
-    namespace Resource
-    { class Chunk; }
+namespace Resource
+{
+    class Chunk;
+}
     
 namespace Modules {
+
+    class SOILImage : protected Resource::Image
+    {
+    protected:
+        virtual bool Build();
+    public:
+        SOILImage(Resource::Chunk* _Chunk)
+            : Resource::Image(_Chunk)
+        {
+            Build();
+        }
+        
+        virtual ~SOILImage();
+    };
+
     class GenericImageLoader : public Resource::ResourceLoader
     {
     private:
@@ -23,4 +41,4 @@ namespace Modules {
 } // Graphics
 } // Pxf
 
-#endif //_PXF_RESOURCE_GENERICIMAGELOADER_H_
+#endif //_PXF_RESOURCE_IMAGELOADER_H_
