@@ -35,6 +35,11 @@ namespace Pxf
         virtual ~System()
         {}
         
+        Kernel* GetKernel() const
+        {
+            return m_Kernel;
+        }
+        
         unsigned GetSystemType() const
         {
             return m_SystemType;

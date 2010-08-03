@@ -8,19 +8,27 @@
 
 namespace Pxf {
 namespace Resource {
+    class ResourceManager;
+    class ResourceLoader;
     class ResourceBase : public Util::Noncopyable
     {
     protected:
         Chunk* m_Chunk;
         unsigned m_References;
+        ResourceLoader* m_Loader;
         virtual bool Build() pure;
-
+        friend class ResourceManager;
     public:
-        ResourceBase(Chunk* _Chunk)
+        ResourceBase(Chunk* _Chunk, ResourceLoader* _Loader)
             : m_Chunk(_Chunk)
+            , m_Loader(_Loader)
             , m_References(0)
         {}
-        virtual ~ResourceBase() {};
+        virtual ~ResourceBase()
+        {
+            if (m_Chunk)
+                delete m_Chunk;
+        };
 
         virtual const bool IsReady() const pure;
 

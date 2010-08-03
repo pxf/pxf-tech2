@@ -59,10 +59,10 @@ Pxf::Graphics::GraphicsDevice* Pxf::Kernel::GetGraphicsDevice()
     return m_GraphicsDevice;
 }
 
-void Pxf::Kernel::RegisterResourceLoader(Resource::ResourceLoader* _ResourceLoader)
+void Pxf::Kernel::RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader)
 {
     Resource::ResourceManager* mgr = GetResourceManager();
-    mgr->RegisterResourceLoader(_ResourceLoader);
+    mgr->RegisterResourceLoader(_Ext, _ResourceLoader);
 }
 
 Pxf::Resource::ResourceManager* Pxf::Kernel::GetResourceManager()

@@ -65,7 +65,7 @@ namespace Pxf {
         void RegisterGraphicsDevice(Graphics::GraphicsDevice* _Device);
         Graphics::GraphicsDevice* GetGraphicsDevice();
         
-        void RegisterResourceLoader(Resource::ResourceLoader* _ResourceLoader);
+        void RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader);
         Resource::ResourceManager* GetResourceManager();
         
         //void RegisterPhysicsEngine(PhysicsEngine* _Engine);

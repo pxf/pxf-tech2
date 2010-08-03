@@ -7,40 +7,40 @@ using namespace Pxf;
 
 Resource::Chunk* Resource::LoadFile(const char* _FilePath)
 {
-	FileStream file;
-	if (file.OpenReadBinary(_FilePath))
-	{
-		uint size = file.GetSize();
-		char* data = new char[size];
+    FileStream file;
+    if (file.OpenReadBinary(_FilePath))
+    {
+        uint size = file.GetSize();
+        char* data = new char[size];
 
-		if (!data)
-		{
-			Message("Chunk::ReadFile", "Could not create chunk, out of memory");
-			file.Close();
-			return NULL;
-		}
+        if (!data)
+        {
+            Message("Chunk::ReadFile", "Could not create chunk, out of memory");
+            file.Close();
+            return NULL;
+        }
 
-		Resource::Chunk* chunk = new Resource::Chunk();
+        Resource::Chunk* chunk = new Resource::Chunk();
 
-		int read = 0;
-		if((read = file.Read(data, size)) > 0)
-		{
-			Message("Chunk::ReadFile", "Creating chunk (0x%x) from '%s' (read %d of %d bytes)", chunk, _FilePath, read, size);
-			chunk->data = data;
-			chunk->size = size;
+        int read = 0;
+        if((read = file.Read(data, size)) > 0)
+        {
+            //Message("Chunk::ReadFile", "Creating chunk (0x%x) from '%s' (read %d of %d bytes)", chunk, _FilePath, read, size);
+            chunk->data = data;
+            chunk->size = size;
             chunk->source = _FilePath;
             chunk->is_static = false;
-			file.Close();
-			return chunk;
-		}
+            file.Close();
+            return chunk;
+        }
 
-		file.Close();
-		SafeDeleteArray(data);
-		SafeDelete(chunk);
-		Message("Chunk::ReadFile", "Failed to read from '%s'", _FilePath);
-		return NULL;
-	}
-	
-	Message("Chunk::ReadFile", "Failed to open '%s'", _FilePath);
-	return NULL;
+        file.Close();
+        SafeDeleteArray(data);
+        SafeDelete(chunk);
+        Message("Chunk::ReadFile", "Failed to read from '%s'", _FilePath);
+        return NULL;
+    }
+
+    Message("Chunk::ReadFile", "Failed to open '%s'", _FilePath);
+    return NULL;
 }

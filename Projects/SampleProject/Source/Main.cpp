@@ -15,6 +15,9 @@
 #include <Pxf/Base/Memory.h>
 #include <Pxf/Base/Random.h>
 
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/Image.h>
+
 #include <ctime>
 
 using namespace Pxf;
@@ -36,12 +39,18 @@ int main()
     kernel->RegisterModule("pri", true);
     kernel->RegisterModule("img", true);
     kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS);
+    kernel->RegisterSystem("GenericImageImporter", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER);
     kernel->DumpAvailableModules();
     
     Pxf::Audio::AudioDevice* audio = kernel->GetAudioDevice();
     audio->Play(2);
     
     Pxf::Graphics::GraphicsDevice* video = kernel->GetGraphicsDevice();
+    
+    
+    Pxf::Resource::ResourceManager* res = kernel->GetResourceManager();
+    Resource::Image* img = res->Acquire<Resource::Image>("test.png", 0);
+    res->Release(img);
     
     Graphics::WindowSpecifications spec;
     spec.Width = 800;

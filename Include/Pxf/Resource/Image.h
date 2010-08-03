@@ -5,8 +5,7 @@
 
 namespace Pxf {
 namespace Resource {
-
-	class Image : protected ResourceBase
+	class Image : public ResourceBase
 	{
 	protected:
 		int m_Width;
@@ -15,8 +14,8 @@ namespace Resource {
 		unsigned char* m_ImageData;
 
 	public:
-		Image(Chunk* _Chunk)
-            : ResourceBase(_Chunk)
+		Image(Chunk* _Chunk, ResourceLoader* _Loader)
+            : ResourceBase(_Chunk, _Loader)
             , m_Channels(0)
             , m_Height(0)
             , m_Width(0)

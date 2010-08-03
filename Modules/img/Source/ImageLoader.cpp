@@ -1,6 +1,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Modules/img/ImageLoader.h>
+#include <Pxf/Resource/Chunk.h>
 
 #include <SOIL.h>
 
@@ -27,22 +28,24 @@ Modules::SOILImage::~SOILImage()
 {
     if(m_ImageData)
         SOIL_free_image_data(m_ImageData);
-    
-    SafeDelete(m_Chunk);
 }
 
 Modules::GenericImageLoader::GenericImageLoader(Pxf::Kernel* _Kernel)
     : ResourceLoader(_Kernel, "Generic Image Loader")
 {
-
 }
 
 Modules::GenericImageLoader::~GenericImageLoader()
 {
-
 }
 
-void* Modules::GenericImageLoader::Load(Resource::Chunk* _Chunk)
+void* Modules::GenericImageLoader::Load(const char* _FilePath)
 {
-    return (void*) new SOILImage(_Chunk);
+    Resource::Chunk* chunk = Resource::LoadFile(_FilePath);                   
+    if (!chunk)
+    {
+        Message("ImageLoader", "Unable to create chunk from file '%s'", _FilePath);
+        return NULL;
+    }
+    return (void*) new SOILImage(chunk, this);
 }

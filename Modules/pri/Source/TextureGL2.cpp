@@ -3,6 +3,10 @@
 #include <Pxf/Modules/pri/TextureGL2.h>
 #include <Pxf/Base/Debug.h>
 
+#include <Pxf/Kernel.h>
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/Image.h>
+
 #include <SOIL.h>
 #include <GL/glfw.h>
 
@@ -109,11 +113,30 @@ void TextureGL2::Unload()
 
 void TextureGL2::Reload()
 {
-	if (m_TextureID != 0)
-	{
-		Unload();
-	}
+    if (m_TextureID != 0)
+    {
+        Unload();
+    }
 
+    Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
+    Resource::Image* img = res->Acquire<Resource::Image>(m_Filepath.c_str(), 0);
+    
+    if (!img)
+    {
+        Message(LOCAL_MSG, "Failed to load file '%s'", m_Filepath.c_str());
+    }
+    
+    m_TextureID = SOIL_create_OGL_texture(
+        img->Ptr(),
+        img->Width(), img->Height(), img->Channels(),
+        SOIL_CREATE_NEW_ID,
+        NULL);
+        
+    res->Release(img);
+    
+    if (m_TextureID == 0)
+        Message(LOCAL_MSG, "Failed to create texture for '%s'", m_Filepath.c_str());
+/*
 	unsigned char* t_data = SOIL_load_image(m_Filepath.c_str(), &m_Width, &m_Height, &m_Channels, 0);
 	if( t_data == 0)
 	{
@@ -135,6 +158,7 @@ void TextureGL2::Reload()
 		Message(LOCAL_MSG, "SOIL loading error for file '%s': '%s';", m_Filepath.c_str(), SOIL_last_result() );
 		return;
 	}
+*/
 }
 
 int TextureGL2::GetWidth()

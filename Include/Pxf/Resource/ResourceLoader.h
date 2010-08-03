@@ -7,6 +7,7 @@ namespace Pxf {
 namespace Resource
 {
     class Chunk;
+    class ResourceBase;
     
     class ResourceLoader : public Pxf::System
     {
@@ -17,7 +18,8 @@ namespace Resource
             : Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, _Identifier)
         {}
 
-        virtual void* Load(Pxf::Resource::Chunk* _Chunk) = 0;
+        virtual void* Load(const char* _FilePath) = 0;
+        virtual void Destroy(ResourceBase* _Resource) = 0;
     };
 } // Resource
 } // Pxf

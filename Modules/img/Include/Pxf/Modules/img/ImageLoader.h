@@ -19,8 +19,8 @@ namespace Modules {
     protected:
         virtual bool Build();
     public:
-        SOILImage(Resource::Chunk* _Chunk)
-            : Resource::Image(_Chunk)
+        SOILImage(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+            : Resource::Image(_Chunk, _Loader)
         {
             Build();
         }
@@ -35,7 +35,12 @@ namespace Modules {
     public:
         GenericImageLoader(Pxf::Kernel* _Kernel);
         ~GenericImageLoader();
-        virtual void* Load(Resource::Chunk* _Chunk);
+        virtual void* Load(const char* _FilePath);
+        virtual void Destroy(Resource::ResourceBase* _Resource)
+        {
+            if (_Resource)
+                delete _Resource;
+        }
     };
 
 } // Graphics
