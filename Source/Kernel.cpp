@@ -19,6 +19,8 @@ Pxf::Kernel::Kernel()
     , m_GraphicsDevice(0)
     , m_ResourceManager(0)
 {
+    // We need to make sure that the resource manager is created in this address space.
+    Resource::ResourceManager* mgr = GetResourceManager();
 }
 
 Pxf::Kernel::~Kernel()
@@ -32,8 +34,8 @@ Pxf::Kernel::~Kernel()
         delete m_AvailableModules[i];
     }
 
-    //if (m_ResourceManager)
-    //    delete m_ResourceManager;
+    if (m_ResourceManager)
+        delete m_ResourceManager;
     
 }
 

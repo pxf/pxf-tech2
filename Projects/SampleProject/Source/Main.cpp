@@ -37,7 +37,7 @@ int main()
                                  , Pxf::RandFP64(), Pxf::RandFP32());
     
     kernel->RegisterModule("pri", true);
-    kernel->RegisterModule("img", true);
+    kernel->RegisterModule("img", true); // comment out to make it work
     kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS);
     kernel->RegisterSystem("GenericImageImporter", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER);
     kernel->DumpAvailableModules();
@@ -49,8 +49,8 @@ int main()
     
     
     Pxf::Resource::ResourceManager* res = kernel->GetResourceManager();
-    Resource::Image* img = res->Acquire<Resource::Image>("test.png", 0);
-    res->Release(img);
+    //Resource::Image* img = res->Acquire<Resource::Image>("test.png", 0);
+    //res->Release(img);
     
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
