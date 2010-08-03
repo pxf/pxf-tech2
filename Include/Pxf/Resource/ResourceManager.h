@@ -14,7 +14,6 @@ namespace Resource
     class ResourceManager
     {
     private:
-        // Todo, need to use String-class, since map.find uses ==
         Pxf::Util::Map<Util::String, ResourceLoader*> m_ResourceLoaders;
         Pxf::Util::Map<Util::String, ResourceBase*> m_LoadedResources;
     public:
@@ -76,10 +75,26 @@ namespace Resource
         }
         
         template <typename ResourceType>
-        void Release(ResourceType* _Resource)
+        void Release(ResourceType* _Resource, bool _Purge = false)
         {
-            //delete _Resource;
-            _Resource->m_Loader->Destroy(_Resource);
+            if (_Resource)
+            {
+                _Resource->m_References--;
+
+                if (_Resource->m_References <= 0 || _Purge)
+                {
+                    Util::Map<Util::String, ResourceBase*>::iterator iter = m_LoadedResources.find(_Resource->GetSource());
+                    if (iter != m_LoadedResources.end())
+                    {
+                        Message("ResourceManager", "Purging resource holding '%s' (%s)", _Resource->GetSource(), _Purge? "Forced":"No more refs");
+                        m_LoadedResources.erase(iter);
+                    }
+
+                    _Resource->m_Loader->Destroy(_Resource);
+                }
+                else
+                    Message("ResourceManager", "Releasing resource holding '%s' [refs = %d]", _Resource->GetSource(), _Resource->m_References);
+            }
         }
         
     };

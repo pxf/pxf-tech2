@@ -19,7 +19,7 @@ namespace Resource
         {}
 
         virtual void* Load(const char* _FilePath) = 0;
-        virtual void Destroy(ResourceBase* _Resource) = 0;
+        virtual void Destroy(void* _Resource) = 0;
     };
 } // Resource
 } // Pxf

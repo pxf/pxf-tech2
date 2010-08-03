@@ -31,6 +31,10 @@ Pxf::Kernel::~Kernel()
             delete m_AvailableModules[i]->dynlib;
         delete m_AvailableModules[i];
     }
+
+    //if (m_ResourceManager)
+    //    delete m_ResourceManager;
+    
 }
 
 void Pxf::Kernel::RegisterAudioDevice(Pxf::Audio::AudioDevice* _Device)

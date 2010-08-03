@@ -36,7 +36,7 @@ namespace Modules {
         GenericImageLoader(Pxf::Kernel* _Kernel);
         ~GenericImageLoader();
         virtual void* Load(const char* _FilePath);
-        virtual void Destroy(Resource::ResourceBase* _Resource)
+        virtual void Destroy(void* _Resource)
         {
             if (_Resource)
                 delete _Resource;
