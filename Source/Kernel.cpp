@@ -25,6 +25,9 @@ Pxf::Kernel::Kernel()
 
 Pxf::Kernel::~Kernel()
 {
+    if (m_ResourceManager)
+        delete m_ResourceManager;
+ 
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
         Pxf::Module* m = m_AvailableModules[i]->module;
@@ -33,10 +36,6 @@ Pxf::Kernel::~Kernel()
             delete m_AvailableModules[i]->dynlib;
         delete m_AvailableModules[i];
     }
-
-    if (m_ResourceManager)
-        delete m_ResourceManager;
-    
 }
 
 void Pxf::Kernel::RegisterAudioDevice(Pxf::Audio::AudioDevice* _Device)

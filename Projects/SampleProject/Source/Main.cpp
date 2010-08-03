@@ -37,7 +37,7 @@ int main()
                                  , Pxf::RandFP64(), Pxf::RandFP32());
     
     kernel->RegisterModule("pri", true);
-    kernel->RegisterModule("img", true); // comment out to make it work
+    kernel->RegisterModule("img", true);
     kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS);
     kernel->RegisterSystem("GenericImageImporter", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER);
     kernel->DumpAvailableModules();
@@ -48,9 +48,12 @@ int main()
     Pxf::Graphics::GraphicsDevice* video = kernel->GetGraphicsDevice();
     
     
+    // can't delete resource manager? aoeuaoe
+    
     Pxf::Resource::ResourceManager* res = kernel->GetResourceManager();
-    //Resource::Image* img = res->Acquire<Resource::Image>("test.png", 0);
-    //res->Release(img);
+	Message("Main", "0x%x", res);
+    Resource::Image* img = res->Acquire<Resource::Image>("test.png", 0);
+    res->Release(img);
     
     Graphics::WindowSpecifications spec;
     spec.Width = 800;

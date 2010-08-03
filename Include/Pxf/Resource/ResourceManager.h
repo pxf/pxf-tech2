@@ -14,8 +14,8 @@ namespace Resource
     class ResourceManager
     {
     private:
-        Pxf::Util::Map<Util::String, ResourceLoader*> m_ResourceLoaders;
-        Pxf::Util::Map<Util::String, ResourceBase*> m_LoadedResources;
+        Pxf::Util::Map<Util::String, ResourceLoader*>* m_ResourceLoaders;
+        Pxf::Util::Map<Util::String, ResourceBase*>* m_LoadedResources;
     public:
         ResourceManager();
         ~ResourceManager();
@@ -29,15 +29,15 @@ namespace Resource
             const char* fileext = PathExt(_FilePath);
             
             Pxf::Util::Map<Util::String, ResourceBase*>::iterator
-                resit = m_LoadedResources.find(_FilePath);
+                resit = m_LoadedResources->find(_FilePath);
             
-            if (resit == m_LoadedResources.end())
+            if (resit == m_LoadedResources->end())
             {
                 // Not found
                 Pxf::Util::Map<Util::String, ResourceLoader*>::iterator
-                loaderit = m_ResourceLoaders.find(fileext);
+                loaderit = m_ResourceLoaders->find(fileext);
                 
-                if (loaderit != m_ResourceLoaders.end())
+                if (loaderit != m_ResourceLoaders->end())
                 {
                     resource = (ResourceType*)loaderit->second->Load(_FilePath);
                     if (!resource)
@@ -60,18 +60,6 @@ namespace Resource
             
             resource->m_References++;
             return (ResourceType*)resource;
-            
-        /*
-            if resource in loaded_resources:
-                return loaded_resources[resource]
-            else
-                ext = get_file_ext(_FilePath)
-                foreach loader in loaders:
-                    if loader.HasSupportFor(ext)
-                        chunk = create_chunk(_FilePath)
-                        return (ResourceType*)loader->Load(chunk);
-                        break
-        */
         }
         
         template <typename ResourceType>
@@ -83,11 +71,11 @@ namespace Resource
 
                 if (_Resource->m_References <= 0 || _Purge)
                 {
-                    Util::Map<Util::String, ResourceBase*>::iterator iter = m_LoadedResources.find(_Resource->GetSource());
-                    if (iter != m_LoadedResources.end())
+                    Util::Map<Util::String, ResourceBase*>::iterator iter = m_LoadedResources->find(_Resource->GetSource());
+                    if (iter != m_LoadedResources->end())
                     {
                         Message("ResourceManager", "Purging resource holding '%s' (%s)", _Resource->GetSource(), _Purge? "Forced":"No more refs");
-                        m_LoadedResources.erase(iter);
+                        m_LoadedResources->erase(iter);
                     }
 
                     _Resource->m_Loader->Destroy(_Resource);
