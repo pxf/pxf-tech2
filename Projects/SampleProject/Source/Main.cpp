@@ -24,22 +24,13 @@ using namespace Pxf;
 
 int main()
 {
+	Pxf::RandSetSeed(time(NULL));
     Pxf::Kernel* kernel = Pxf::Kernel::GetInstance();
-    Pxf::Message("Main", "Using kernel %x, %d", kernel, Pxf::HashPtr(kernel));
-    Pxf::Message("Main", "Test: %d", Pxf::Hash("Heyo", 4));
-    
-    const char* str = "HEy mang!";
-    if (!Pxf::IsPrefix(str, "Hey") && Pxf::IsPrefixI(str, "HEY"))
-        Pxf::Message("Main", "Heyo!");
-        
-    Pxf::RandSetSeed(time(NULL));
-    Message("Main", "%u %d %f %f", Pxf::RandUI32(), Pxf::RandI32()
-                                 , Pxf::RandFP64(), Pxf::RandFP32());
-    
+
     kernel->RegisterModule("pri", true);
+	kernel->RegisterSystem("pri", Pxf::System::SYSTEM_TYPE_GRAPHICS);
     kernel->RegisterModule("img", true);
-    kernel->RegisterSystem("PortableRendererInput", Pxf::System::SYSTEM_TYPE_GRAPHICS);
-    kernel->RegisterSystem("GenericImageImporter", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER);
+    kernel->RegisterSystem("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER);
     kernel->DumpAvailableModules();
     
     Pxf::Audio::AudioDevice* audio = kernel->GetAudioDevice();
@@ -47,14 +38,16 @@ int main()
     
     Pxf::Graphics::GraphicsDevice* video = kernel->GetGraphicsDevice();
     
-    
-    // can't delete resource manager? aoeuaoe
-    
     Pxf::Resource::ResourceManager* res = kernel->GetResourceManager();
-	Message("Main", "0x%x", res);
     Resource::Image* img = res->Acquire<Resource::Image>("test.png", 0);
-    res->Release(img);
     
+	/*
+	// Resource::BinaryFile to complement?
+	Resource::TextFile* shadersrc = res->Acquire<Resource::TextFile>("fiddle.glsl");
+	Graphics::Shader* shader = video->CreateShader(Resource::TextFile* _source);
+	shader->SetBlahBlah();
+	*/
+
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
     spec.Height = 600;
@@ -74,7 +67,8 @@ int main()
         win->Swap();
     }
     */
-    delete kernel;
 
+	res->Release(img);
+    delete kernel;
     return 0;
 }

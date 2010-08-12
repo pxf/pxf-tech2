@@ -14,7 +14,7 @@ namespace Resource
     
 namespace Modules {
 
-    class SOILImage : protected Resource::Image
+    class SOILImage : public Resource::Image
     {
     protected:
         virtual bool Build();
@@ -35,7 +35,7 @@ namespace Modules {
     public:
         GenericImageLoader(Pxf::Kernel* _Kernel);
         ~GenericImageLoader();
-        virtual void* Load(const char* _FilePath);
+        virtual Resource::Image* Load(const char* _FilePath);
         virtual void Destroy(void* _Resource)
         {
             if (_Resource)

@@ -13,16 +13,19 @@ Resource::ResourceManager::ResourceManager()
 Resource::ResourceManager::~ResourceManager()
 {
     // clean up resource loaders
+	// several extensions might share resource loader, but they are located together.
+	// we use prev to make sure to only delete a pointer once.
+	ResourceLoader* prev = 0;
     if (m_ResourceLoaders->size() > 0)
     {
         Util::Map<Util::String, ResourceLoader*>::iterator iter;
         for(iter = m_ResourceLoaders->begin(); iter != m_ResourceLoaders->end(); ++iter)
         {
-			if (iter->second)
+			if (iter->second && iter->second != prev)
 			{
-				// TODO: several extentions might share loaders, make sure not to delete multiple times
-				// iter->second->Destroy(iter->second);
+				iter->second->Destroy(iter->second);
 			}
+			prev = iter->second;
         }
     }
     // clean up loaded resources

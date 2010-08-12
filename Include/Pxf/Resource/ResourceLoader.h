@@ -18,7 +18,7 @@ namespace Resource
             : Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, _Identifier)
         {}
 
-        virtual void* Load(const char* _FilePath) = 0;
+        virtual ResourceBase* Load(const char* _FilePath) = 0;
         virtual void Destroy(void* _Resource) = 0;
     };
 } // Resource

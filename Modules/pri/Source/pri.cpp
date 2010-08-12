@@ -12,13 +12,13 @@ static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
 using Pxf::Modules::PortableRendererInput;
-REGISTER_MODULE(PortableRendererInput, Module_Kernel_Version, Module_Api_Version);
+REGISTER_MODULE(PortableRendererInput, "pri", Module_Kernel_Version, Module_Api_Version);
 
 namespace PortableRenderInput_
 {
     PXFEXPORT Pxf::Module* CreateInstance()
     {
-        Pxf::Modules::PortableRendererInput *m = new Pxf::Modules::PortableRendererInput("PortableRendererInput", Module_Kernel_Version, Module_Api_Version);
+        Pxf::Modules::PortableRendererInput *m = new Pxf::Modules::PortableRendererInput("pri", Module_Kernel_Version, Module_Api_Version);
         return m;
     }
 

@@ -1,7 +1,7 @@
 #ifndef _PXF_MODULE_H_
 #define _PXF_MODULE_H_
 
-#define REGISTER_MODULE(MODULE, KERNELV, MODULEV) \
+#define REGISTER_MODULE(MODULE, MODULEIDENT, KERNELV, MODULEV) \
                                 class RegisterModule##MODULE                               \
                                 {                                                          \
                                 private:                                                   \
@@ -10,7 +10,7 @@
                                     RegisterModule##MODULE() : m_Module(0)                 \
                                     {                                                      \
                                         Pxf::Kernel* k = Pxf::Kernel::GetInstance();       \
-                                        m_Module = new MODULE(#MODULE, KERNELV, MODULEV);  \
+                                        m_Module = new MODULE(MODULEIDENT, KERNELV, MODULEV);  \
                                         k->RegisterModule(m_Module);                       \
                                     }                                                      \
                                 };                                                         \

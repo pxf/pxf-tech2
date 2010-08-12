@@ -12,13 +12,13 @@ static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
 using Pxf::Modules::GenericImageImporter;
-REGISTER_MODULE(GenericImageImporter, Module_Kernel_Version, Module_Api_Version);
+REGISTER_MODULE(GenericImageImporter, "img", Module_Kernel_Version, Module_Api_Version);
 
 namespace GenericImageLoader_
 {
     PXFEXPORT Pxf::Module* CreateInstance()
     {
-        Pxf::Modules::GenericImageImporter *m = new Pxf::Modules::GenericImageImporter("GenericImageImporter", Module_Kernel_Version, Module_Api_Version);
+        Pxf::Modules::GenericImageImporter *m = new Pxf::Modules::GenericImageImporter("img", Module_Kernel_Version, Module_Api_Version);
         return m;
     }
 

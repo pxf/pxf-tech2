@@ -39,7 +39,7 @@ Modules::GenericImageLoader::~GenericImageLoader()
 {
 }
 
-void* Modules::GenericImageLoader::Load(const char* _FilePath)
+Resource::Image* Modules::GenericImageLoader::Load(const char* _FilePath)
 {
     Resource::Chunk* chunk = Resource::LoadFile(_FilePath);                   
     if (!chunk)
@@ -47,5 +47,5 @@ void* Modules::GenericImageLoader::Load(const char* _FilePath)
         Message("ImageLoader", "Unable to create chunk from file '%s'", _FilePath);
         return NULL;
     }
-    return (void*) new SOILImage(chunk, this);
+    return new SOILImage(chunk, this);
 }
