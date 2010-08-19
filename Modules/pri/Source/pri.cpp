@@ -31,9 +31,9 @@ namespace PortableRenderInput_
     }
 }
 
-bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier)
+bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
-    Message("PortableRendererInput", "Checking module for system type %d, identifier = %d", _SystemType, _Identifier);
+    Message("PortableRendererInput", "Checking module for system type %d", _SystemType);
     
     if (_SystemType == Pxf::System::SYSTEM_TYPE_GRAPHICS)
     {

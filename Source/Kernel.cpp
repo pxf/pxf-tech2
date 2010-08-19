@@ -111,7 +111,7 @@ static const char* get_module_ext()
     return MODULE_EXT;
 }
 
-bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
+bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _OverrideBuiltin)
 {
     // If the file is missing extention, add one that's appropriate for the platform.
     const char* suffix = get_full_module_ext();
@@ -226,6 +226,8 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, bool _OverrideBuiltin)
     if (!replaced)
         m_AvailableModules.push_back(new ModuleEntry_t(lib, module, DestroyInstance));
 
+	module->RegisterSystem(this, _Filter);
+
     return true;
 }
 
@@ -239,19 +241,6 @@ bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
 {
     m_AvailableModules.push_back(new ModuleEntry_t(_Module, DestroyBuiltInInstance));
     return true;
-}
-
-bool Pxf::Kernel::RegisterSystem(const char* _ModuleID, Pxf::System::SystemType _SystemType, unsigned _Identifier)
-{
-    for(int i = 0; i < m_AvailableModules.size(); i++)
-    {
-        Pxf::Module* mod = m_AvailableModules[i]->module;
-        if (StringCompare(mod->GetIdentifier(), _ModuleID) == 0)
-        {
-            return mod->RegisterSystem(this, _SystemType, _Identifier);
-        }
-    }
-    return false;
 }
 
 void Pxf::Kernel::DumpAvailableModules()

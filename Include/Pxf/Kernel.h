@@ -80,9 +80,8 @@ namespace Pxf {
             return KERNEL_VERSION;
         }
         
-        bool RegisterModule(const char* _FilePath, bool _OverrideBuiltin = false);
+        bool RegisterModule(const char* _FilePath, unsigned _Filter, bool _OverrideBuiltin = false);
         bool RegisterModule(Pxf::Module* _Module);
-        bool RegisterSystem(const char* _ModuleID, Pxf::System::SystemType _SystemType, unsigned _Identifier = 0);
         void DumpAvailableModules();
     }; // class Kernel
     

@@ -36,7 +36,7 @@ namespace Pxf {
             , m_ApiVersion(_ApiVersion)
         {}
 
-        virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier = 0) = 0;
+        virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType) = 0;
 
         static void DestroySystem(Pxf::System* _System)
         {

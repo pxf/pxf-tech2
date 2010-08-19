@@ -31,7 +31,7 @@ namespace GenericImageLoader_
     }
 }
 
-bool Pxf::Modules::GenericImageImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier)
+bool Pxf::Modules::GenericImageImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
     if (_SystemType == Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
     {

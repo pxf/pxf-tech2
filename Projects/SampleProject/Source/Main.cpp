@@ -30,11 +30,8 @@ int main()
 	Pxf::RandSetSeed(time(NULL));
 	auto kernel = Pxf::Kernel::GetInstance();
 
-    kernel->RegisterModule("pri", true);
-	// RegisterSystem(const char* ao, unsigned filter) <<---- sätta filter på register module?
-	kernel->RegisterSystem("pri", Pxf::System::SYSTEM_TYPE_GRAPHICS);
-    kernel->RegisterModule("img", true);
-    kernel->RegisterSystem("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER);
+    kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICS, true);
+    kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
     auto gfx = kernel->GetGraphicsDevice();
@@ -67,14 +64,14 @@ int main()
     spec.Fullscreen = false;
     spec.Resizeable = false;
     spec.VerticalSync = false;
-    /*
+    
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
     while(win->IsOpen())
     {
         win->Swap();
     }
-    */
+    
 
 	res->Release(img);
     delete kernel;
