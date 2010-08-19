@@ -16,7 +16,7 @@ namespace Pxf
         virtual bool Init() = 0;
     public:
     
-        enum SystemType : unsigned char
+        enum SystemType
         {
             SYSTEM_TYPE_AUDIODEVICE = 1,
             SYSTEM_TYPE_GRAPHICS = 2,

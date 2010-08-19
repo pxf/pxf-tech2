@@ -1,6 +1,7 @@
 #ifndef _PXF_RESOURCE_RESOURCEMANAGER_H_
 #define _PXF_RESOURCE_RESOURCEMANAGER_H_
 
+#include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Path.h>
 #include <Pxf/Util/Map.h>
 #include <Pxf/Resource/ResourceLoader.h>
@@ -55,7 +56,7 @@ namespace Resource
                     resource = (ResourceType*)loaderit->second->Load(_FilePath);
                     if (!resource)
                     {
-                        Message("ResourceManager", "Failed to load resource '%s'", _FilePath);
+                        Pxf::Message("ResourceManager", "Failed to load resource '%s'", _FilePath);
                         return NULL;
                     }
 					m_LoadedResources->insert(std::make_pair(_FilePath, resource));
@@ -89,7 +90,7 @@ namespace Resource
                     Util::Map<Util::String, ResourceBase*>::iterator iter = m_LoadedResources->find(_Resource->GetSource());
                     if (iter != m_LoadedResources->end())
                     {
-                        Message("ResourceManager", "Purging resource holding '%s' (%s)", _Resource->GetSource(), _Purge? "Forced":"No more refs");
+                        Pxf::Message("ResourceManager", "Purging resource holding '%s' (%s)", _Resource->GetSource(), _Purge? "Forced":"No more refs");
                         m_LoadedResources->erase(iter);
                     }
 

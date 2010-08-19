@@ -130,7 +130,7 @@ void TextureGL2::Reload()
         img->Ptr(),
         img->Width(), img->Height(), img->Channels(),
         SOIL_CREATE_NEW_ID,
-        NULL);
+        0);
         
     res->Release(img);
     

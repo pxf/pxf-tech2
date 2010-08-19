@@ -40,7 +40,7 @@ namespace Modules {
         virtual void Destroy(void* _Resource)
         {
             if (_Resource)
-                delete _Resource;
+                delete (Resource::Image*)_Resource;
         }
     };
 
