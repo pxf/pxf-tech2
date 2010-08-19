@@ -26,7 +26,7 @@ namespace Resource {
             if (!is_static)
             {
                 if (data)
-                    delete [] data;
+                    delete [] (char*)data;
                 data = 0;
                 size = 0;
             }

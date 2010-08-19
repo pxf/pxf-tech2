@@ -5,6 +5,7 @@
 #include <Pxf/Base/Path.h>
 #include <Pxf/Util/Map.h>
 #include <Pxf/Resource/ResourceLoader.h>
+#include <Pxf/Resource/ResourceBase.h>
 #include <Pxf/Resource/Chunk.h>
 #include <Pxf/Util/String.h>
 
