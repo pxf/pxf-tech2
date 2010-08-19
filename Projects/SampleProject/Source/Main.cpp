@@ -39,9 +39,11 @@ int main()
     auto res = kernel->GetResourceManager();
     auto img = res->Acquire<Resource::Image>("test.png");
 
+	res->DumpResourceLoaders();
+
 	snd->Play(2);
 
-	auto loader = res->FindResourceLoader<Resource::BlobLoader>(".blob");
+	auto loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
 	auto blob = loader->CreateFrom("aoeu", 5);
 
 

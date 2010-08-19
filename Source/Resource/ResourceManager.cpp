@@ -13,8 +13,8 @@ Resource::ResourceManager::ResourceManager()
 	m_ResourceLoaders = new Pxf::Util::Map<Util::String, ResourceLoader*>();
 	m_LoadedResources = new Pxf::Util::Map<Util::String, ResourceBase*>();
 
-	RegisterResourceLoader(".blob", new Resource::BlobLoader(Pxf::Kernel::GetInstance()));
-	RegisterResourceLoader(".txt", new Resource::TextLoader(Pxf::Kernel::GetInstance()));
+	RegisterResourceLoader("blob", new Resource::BlobLoader(Pxf::Kernel::GetInstance()));
+	RegisterResourceLoader("txt", new Resource::TextLoader(Pxf::Kernel::GetInstance()));
 }
 
 Resource::ResourceManager::~ResourceManager()
@@ -51,4 +51,13 @@ Resource::ResourceManager::~ResourceManager()
 void Resource::ResourceManager::RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader)
 {
     m_ResourceLoaders->insert(std::make_pair(_Ext, _ResourceLoader));
+}
+
+void Resource::ResourceManager::DumpResourceLoaders()
+{
+	Message("ResourceManager", "Enumerating resource loaders...");
+	for(Util::Map<Util::String, ResourceLoader*>::iterator it = m_ResourceLoaders->begin(); it != m_ResourceLoaders->end(); ++it)
+	{
+		Message("ResourceManager", ".%s -> %s", it->first.c_str(), it->second->GetIdentifier());
+	}
 }

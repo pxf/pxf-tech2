@@ -22,6 +22,8 @@ namespace Resource
         
         void RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader);
 
+		void DumpResourceLoaders();
+
 		template <typename T>
 		T* FindResourceLoader(const char* _Ext)
 		{
