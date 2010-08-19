@@ -21,7 +21,18 @@ namespace Resource
         ~ResourceManager();
         
         void RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader);
-    
+
+		template <typename T>
+		T* FindResourceLoader(const char* _Ext)
+		{
+			Pxf::Util::Map<Util::String, ResourceLoader*>::iterator
+				loaderit = m_ResourceLoaders->find(_Ext);
+			if (loaderit != m_ResourceLoaders->end())
+				return (T*)loaderit->second;
+			else
+				return NULL;
+		}
+
         template <typename ResourceType>
         ResourceType* Acquire(const char* _FilePath, unsigned _Options)
         {
@@ -45,6 +56,7 @@ namespace Resource
                         Message("ResourceManager", "Failed to load resource '%s'", _FilePath);
                         return NULL;
                     }
+					m_LoadedResources->insert(std::make_pair(_FilePath, resource));
                 }
                 else
                 {
@@ -62,6 +74,7 @@ namespace Resource
             return (ResourceType*)resource;
         }
         
+		// TODO: just use ResourceBase* _Resource...
         template <typename ResourceType>
         void Release(ResourceType* _Resource, bool _Purge = false)
         {

@@ -19,6 +19,7 @@ namespace Resource
         {}
 
         virtual ResourceBase* Load(const char* _FilePath) = 0;
+		virtual ResourceBase* CreateFrom(const void* _DataPtr, unsigned _DataLen) = 0;
         virtual void Destroy(void* _Resource) = 0;
     };
 } // Resource

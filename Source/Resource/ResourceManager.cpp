@@ -2,12 +2,19 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Resource/ResourceBase.h>
 
+#include <Pxf/Kernel.h>
+#include <Pxf/Resource/Blob.h>
+#include <Pxf/Resource/Text.h>
+
 using namespace Pxf;
 
 Resource::ResourceManager::ResourceManager()
 {
 	m_ResourceLoaders = new Pxf::Util::Map<Util::String, ResourceLoader*>();
 	m_LoadedResources = new Pxf::Util::Map<Util::String, ResourceBase*>();
+
+	RegisterResourceLoader(".blob", new Resource::BlobLoader(Pxf::Kernel::GetInstance()));
+	RegisterResourceLoader(".txt", new Resource::TextLoader(Pxf::Kernel::GetInstance()));
 }
 
 Resource::ResourceManager::~ResourceManager()

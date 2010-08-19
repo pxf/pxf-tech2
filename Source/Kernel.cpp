@@ -20,6 +20,7 @@ Pxf::Kernel::Kernel()
     , m_ResourceManager(0)
 {
     // We need to make sure that the resource manager is created in this address space.
+	s_Kernel = this;
     Resource::ResourceManager* mgr = GetResourceManager();
 }
 

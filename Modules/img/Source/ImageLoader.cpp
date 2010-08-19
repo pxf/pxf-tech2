@@ -49,3 +49,12 @@ Resource::Image* Modules::GenericImageLoader::Load(const char* _FilePath)
     }
     return new SOILImage(chunk, this);
 }
+
+Resource::Image* Modules::GenericImageLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
+{
+	Resource::Chunk* chunk = new Resource::Chunk();
+	chunk->data = (void*) _DataPtr;
+	chunk->size = _DataLen;
+	chunk->is_static = true;
+	return new SOILImage(chunk, this);
+}

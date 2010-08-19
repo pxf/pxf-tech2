@@ -24,7 +24,7 @@ bool FileStream::Close()
 {
 	PXF_ASSERT(IsValid(), "FileStream::Close: Invalid filehandle");
 	bool Ret = fclose((FILE*)m_Handle) >= 0;
-	m_Handle = NULL; // Make sure it's nullified.
+	m_Handle = NULL;
 	return Ret;
 }
 

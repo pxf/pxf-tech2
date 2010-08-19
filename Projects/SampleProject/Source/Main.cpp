@@ -16,33 +16,41 @@
 #include <Pxf/Base/Random.h>
 
 #include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
+#include <Pxf/Resource/Blob.h>
 
 #include <ctime>
 
 using namespace Pxf;
 
+
 int main()
 {
 	Pxf::RandSetSeed(time(NULL));
-    Pxf::Kernel* kernel = Pxf::Kernel::GetInstance();
+	auto kernel = Pxf::Kernel::GetInstance();
 
     kernel->RegisterModule("pri", true);
+	// RegisterSystem(const char* ao, unsigned filter) <<---- sätta filter på register module?
 	kernel->RegisterSystem("pri", Pxf::System::SYSTEM_TYPE_GRAPHICS);
     kernel->RegisterModule("img", true);
     kernel->RegisterSystem("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER);
     kernel->DumpAvailableModules();
-    
-    Pxf::Audio::AudioDevice* audio = kernel->GetAudioDevice();
-    audio->Play(2);
-    
-    Pxf::Graphics::GraphicsDevice* video = kernel->GetGraphicsDevice();
-    
-    Pxf::Resource::ResourceManager* res = kernel->GetResourceManager();
-    Resource::Image* img = res->Acquire<Resource::Image>("test.png", 0);
-    
+
+    auto gfx = kernel->GetGraphicsDevice();
+	auto snd = kernel->GetAudioDevice();
+    auto res = kernel->GetResourceManager();
+    auto img = res->Acquire<Resource::Image>("test.png", 0);
+
+	snd->Play(2);
+
+	auto loader = res->FindResourceLoader<Resource::BlobLoader>(".blob");
+	auto blob = loader->CreateFrom("aoeu", 5);
+
+
+
 	/*
-	// Resource::BinaryFile to complement?
+	// Resource::BinaryFile to complement? Resource::Blob, binary large object
 	Resource::TextFile* shadersrc = res->Acquire<Resource::TextFile>("fiddle.glsl");
 	Graphics::Shader* shader = video->CreateShader(Resource::TextFile* _source);
 	shader->SetBlahBlah();
@@ -60,7 +68,7 @@ int main()
     spec.Resizeable = false;
     spec.VerticalSync = false;
     /*
-    Graphics::Window* win = video->OpenWindow(&spec);
+    Graphics::Window* win = gfx->OpenWindow(&spec);
     
     while(win->IsOpen())
     {

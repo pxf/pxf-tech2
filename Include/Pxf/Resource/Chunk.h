@@ -9,7 +9,7 @@ namespace Resource {
     class Chunk : public Util::Noncopyable
     {
     public:
-        char* data;
+        void* data;
         unsigned size;
         const char* source;
         bool is_static;
