@@ -34,7 +34,7 @@ namespace Resource
 		}
 
         template <typename ResourceType>
-        ResourceType* Acquire(const char* _FilePath, unsigned _Options)
+        ResourceType* Acquire(const char* _FilePath)
         {
             ResourceBase* resource = NULL;
             const char* fileext = PathExt(_FilePath);

@@ -40,7 +40,7 @@ int main()
     auto gfx = kernel->GetGraphicsDevice();
 	auto snd = kernel->GetAudioDevice();
     auto res = kernel->GetResourceManager();
-    auto img = res->Acquire<Resource::Image>("test.png", 0);
+    auto img = res->Acquire<Resource::Image>("test.png");
 
 	snd->Play(2);
 

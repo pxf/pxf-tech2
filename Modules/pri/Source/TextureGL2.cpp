@@ -119,7 +119,7 @@ void TextureGL2::Reload()
     }
 
     Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
-    Resource::Image* img = res->Acquire<Resource::Image>(m_Filepath.c_str(), 0);
+    Resource::Image* img = res->Acquire<Resource::Image>(m_Filepath.c_str());
     
     if (!img)
     {
