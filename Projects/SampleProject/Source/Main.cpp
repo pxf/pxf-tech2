@@ -6,6 +6,10 @@
 #include <Pxf/Base/Utils.h>
 
 #include <Pxf/Audio/AudioDevice.h>
+
+#include <Pxf/Input/InputDevice.h>
+#include <Pxf/Input/InputDefs.h>
+
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
@@ -32,7 +36,7 @@ int main()
     Pxf::RandSetSeed(time(NULL));
     Kernel* kernel = Pxf::Kernel::GetInstance();
 
-    kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, true);
+	kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
@@ -70,8 +74,14 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
-    while(win->IsOpen())
+    while(win->IsOpen() && !inp->IsKeyDown(Input::ESC))
     {
+		inp->Update();
+
+		int x, y;
+		inp->GetMousePos(&x, &y);
+		Message("Main", "Mouse at %dx%d", x, y);
+
         win->Swap();
     }
     

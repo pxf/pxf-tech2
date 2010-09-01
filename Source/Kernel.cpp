@@ -42,29 +42,36 @@ Pxf::Kernel::~Kernel()
     }
 }
 
+
 void Pxf::Kernel::RegisterAudioDevice(Pxf::Audio::AudioDevice* _Device)
 {
-    Pxf::Message("Kernel", "Registering audio device '%s'", _Device->GetIdentifier());
-    m_AudioDevice = _Device;
+	if (_Device == 0)
+		m_AudioDevice = new Pxf::Audio::NullAudioDevice(this);
+	else
+		m_AudioDevice = _Device;
+    Pxf::Message("Kernel", "Registered audio device '%s'", m_AudioDevice->GetIdentifier());
 }
 
 Pxf::Audio::AudioDevice* Pxf::Kernel::GetAudioDevice()
 {
     if (!m_AudioDevice)
-        m_AudioDevice = new Pxf::Audio::NullAudioDevice(this);
+        RegisterAudioDevice(0);
     return m_AudioDevice;
 }
 
 void Pxf::Kernel::RegisterInputDevice(Pxf::Input::InputDevice* _Device)
 {
-    Pxf::Message("Kernel", "Registering input device '%s'", _Device->GetIdentifier());
-    m_InputDevice = _Device;
+	if (_Device == 0)
+		m_InputDevice = new Pxf::Input::NullInputDevice(this);
+	else
+		m_InputDevice = _Device;
+    Pxf::Message("Kernel", "Registered input device '%s'", m_InputDevice->GetIdentifier());
 }
 
 Pxf::Input::InputDevice* Pxf::Kernel::GetInputDevice()
 {
     if (!m_InputDevice)
-        m_InputDevice = new Pxf::Input::NullInputDevice(this);
+		RegisterInputDevice(0);
     return m_InputDevice;
 }
         
@@ -253,9 +260,14 @@ static void DestroyBuiltInInstance(Pxf::Module* _Module)
         delete _Module;
 }
 
+// FIXME: Currently disabled, it should be used by the global initializers when compiling statically
+// However, only dynamically compiled libraries seems to be calling... sup?
 bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
 {
-    m_AvailableModules.push_back(new ModuleEntry_t(_Module, DestroyBuiltInInstance));
+//    m_AvailableModules.push_back(new ModuleEntry_t(_Module, DestroyBuiltInInstance));
+	
+	// TODO: Need to be able to specify which parts of the built-ins to use...
+//	_Module->RegisterSystem(this, 0xFFFFFFFF);
     return true;
 }
 
