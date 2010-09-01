@@ -42,29 +42,36 @@ Pxf::Kernel::~Kernel()
     }
 }
 
+
 void Pxf::Kernel::RegisterAudioDevice(Pxf::Audio::AudioDevice* _Device)
 {
-    Pxf::Message("Kernel", "Registering audio device '%s'", _Device->GetIdentifier());
-    m_AudioDevice = _Device;
+	if (_Device == 0)
+		m_AudioDevice = new Pxf::Audio::NullAudioDevice(this);
+	else
+		m_AudioDevice = _Device;
+    Pxf::Message("Kernel", "Registered audio device '%s'", m_AudioDevice->GetIdentifier());
 }
 
 Pxf::Audio::AudioDevice* Pxf::Kernel::GetAudioDevice()
 {
     if (!m_AudioDevice)
-        m_AudioDevice = new Pxf::Audio::NullAudioDevice(this);
+        RegisterAudioDevice(0);
     return m_AudioDevice;
 }
 
 void Pxf::Kernel::RegisterInputDevice(Pxf::Input::InputDevice* _Device)
 {
-    Pxf::Message("Kernel", "Registering input device '%s'", _Device->GetIdentifier());
-    m_InputDevice = _Device;
+	if (_Device == 0)
+		m_InputDevice = new Pxf::Input::NullInputDevice(this);
+	else
+		m_InputDevice = _Device;
+    Pxf::Message("Kernel", "Registered input device '%s'", m_InputDevice->GetIdentifier());
 }
 
 Pxf::Input::InputDevice* Pxf::Kernel::GetInputDevice()
 {
     if (!m_InputDevice)
-        m_InputDevice = new Pxf::Input::NullInputDevice(this);
+		RegisterInputDevice(0);
     return m_InputDevice;
 }
         

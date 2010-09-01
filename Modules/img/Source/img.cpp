@@ -33,7 +33,7 @@ namespace GenericImageLoader_
 
 bool Pxf::Modules::GenericImageImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
-    if (_SystemType == Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
+    if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
     {
         Pxf::Modules::GenericImageLoader* loader = new Pxf::Modules::GenericImageLoader(_Kernel);
         _Kernel->RegisterResourceLoader("png", loader);
