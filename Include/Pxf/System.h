@@ -19,10 +19,11 @@ namespace Pxf
         enum SystemType
         {
             SYSTEM_TYPE_AUDIODEVICE = 1,
-            SYSTEM_TYPE_GRAPHICS = 2,
-            SYSTEM_TYPE_PHYSICS = 4,
-            SYSTEM_TYPE_RESOURCE_LOADER = 8,
-            SYSTEM_TYPE_SCRIPTLANG = 16
+            SYSTEM_TYPE_INPUTDEVICE = 2,
+            SYSTEM_TYPE_GRAPHICSDEVICE = 4,
+            SYSTEM_TYPE_PHYSICSENGINE = 8,
+            SYSTEM_TYPE_RESOURCE_LOADER = 16,
+            SYSTEM_TYPE_SCRIPTLANG = 32
         };
     
         System(Kernel* _Kernel, unsigned _SystemType, const char* _Identifier)

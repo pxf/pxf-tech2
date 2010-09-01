@@ -35,7 +35,7 @@ bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, u
 {
     Message("PortableRendererInput", "Checking module for system type %d", _SystemType);
     
-    if (_SystemType == Pxf::System::SYSTEM_TYPE_GRAPHICS)
+    if (_SystemType == Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE)
     {
         _Kernel->RegisterGraphicsDevice(new Pxf::Modules::DeviceGL2(_Kernel));
         return true;

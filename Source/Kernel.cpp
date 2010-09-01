@@ -5,6 +5,8 @@
 #include <Pxf/Base/Utils.h>
 
 #include <Pxf/Audio/NullAudioDevice.h>
+#include <Pxf/Input/NullInputDevice.h>
+
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
@@ -16,6 +18,7 @@ const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
 
 Pxf::Kernel::Kernel()
     : m_AudioDevice(0)
+    , m_InputDevice(0)
     , m_GraphicsDevice(0)
     , m_ResourceManager(0)
 {
@@ -50,6 +53,19 @@ Pxf::Audio::AudioDevice* Pxf::Kernel::GetAudioDevice()
     if (!m_AudioDevice)
         m_AudioDevice = new Pxf::Audio::NullAudioDevice(this);
     return m_AudioDevice;
+}
+
+void Pxf::Kernel::RegisterInputDevice(Pxf::Input::InputDevice* _Device)
+{
+    Pxf::Message("Kernel", "Registering input device '%s'", _Device->GetIdentifier());
+    m_InputDevice = _Device;
+}
+
+Pxf::Input::InputDevice* Pxf::Kernel::GetInputDevice()
+{
+    if (!m_InputDevice)
+        m_InputDevice = new Pxf::Input::NullInputDevice(this);
+    return m_InputDevice;
 }
         
 void Pxf::Kernel::RegisterGraphicsDevice(Pxf::Graphics::GraphicsDevice* _Device)

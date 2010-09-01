@@ -32,12 +32,13 @@ int main()
     Pxf::RandSetSeed(time(NULL));
     Kernel* kernel = Pxf::Kernel::GetInstance();
 
-    kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICS, true);
+    kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
     Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
     Audio::AudioDevice* snd = kernel->GetAudioDevice();
+    Input::InputDevice* inp = kernel->GetInputDevice();
     Resource::ResourceManager* res = kernel->GetResourceManager();
     Resource::Image* img = res->Acquire<Resource::Image>("test.png");
 

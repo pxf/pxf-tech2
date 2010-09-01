@@ -6,6 +6,7 @@
 
 namespace Pxf {
     namespace Audio { class AudioDevice; }
+    namespace Input { class InputDevice; }
     namespace Graphics { class GraphicsDevice; }
     namespace Resource { class ResourceManager; 
                          class ResourceLoader; }
@@ -41,6 +42,7 @@ namespace Pxf {
         Pxf::Util::Array<ModuleEntry_t*> m_AvailableModules;
         
         Audio::AudioDevice* m_AudioDevice;
+        Input::InputDevice* m_InputDevice;
         Graphics::GraphicsDevice* m_GraphicsDevice;
         Resource::ResourceManager* m_ResourceManager;
         
@@ -61,6 +63,9 @@ namespace Pxf {
         
         void RegisterAudioDevice(Audio::AudioDevice* _Device);
         Audio::AudioDevice* GetAudioDevice();
+
+        void RegisterInputDevice(Input::InputDevice* _Device);
+        Input::InputDevice* GetInputDevice();
         
         void RegisterGraphicsDevice(Graphics::GraphicsDevice* _Device);
         Graphics::GraphicsDevice* GetGraphicsDevice();
