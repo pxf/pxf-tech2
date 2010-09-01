@@ -39,7 +39,6 @@ namespace DERPEditor
 		
 	private:
         Pxf::Graphics::VertexBuffer *m_VertexBuffer;
-        QuadVertex* m_pVertBuf;
         int m_VertBufSize;
         
         int m_CurrentVert;

@@ -22,7 +22,6 @@ QuadBatch::QuadBatch(int _size)
 	m_VertexBuffer->SetData(VB_COLOR_DATA, 2*sizeof(Vec3f), 4);
 	m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_QUADS);
     
-    m_pVertBuf = (QuadVertex*)m_VertexBuffer->MapData(VB_ACCESS_WRITE_ONLY);
     Reset();
 }
 
@@ -40,7 +39,6 @@ void QuadBatch::Reset()
 
 void QuadBatch::Draw()
 {
-    m_VertexBuffer->UnmapData();
     Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DrawBuffer(m_VertexBuffer, m_CurrentVert);
 }
 
@@ -48,21 +46,25 @@ void QuadBatch::AddCentered(float x, float y, float w, float h)
 {
     float w2 = w / 2.0f;
     float h2 = h / 2.0f;
-    m_pVertBuf[m_CurrentVert].position = Vec3f(x-w2,y-h2,m_CurrentDepth);
-    m_pVertBuf[m_CurrentVert].coord = m_CurrentCoords[0];
-    m_pVertBuf[m_CurrentVert].color = m_CurrentColor;
+	QuadVertex* pVertBuf = (QuadVertex*)m_VertexBuffer->MapData(VB_ACCESS_WRITE_ONLY);
+
+    pVertBuf[m_CurrentVert].position = Vec3f(x-w2,y-h2,m_CurrentDepth);
+    pVertBuf[m_CurrentVert].coord = m_CurrentCoords[0];
+    pVertBuf[m_CurrentVert].color = m_CurrentColor;
     
-    m_pVertBuf[m_CurrentVert+1].position = Vec3f(x+w2,y-h2,m_CurrentDepth);
-    m_pVertBuf[m_CurrentVert+1].coord = m_CurrentCoords[1];
-    m_pVertBuf[m_CurrentVert+1].color = m_CurrentColor;
+    pVertBuf[m_CurrentVert+1].position = Vec3f(x+w2,y-h2,m_CurrentDepth);
+    pVertBuf[m_CurrentVert+1].coord = m_CurrentCoords[1];
+    pVertBuf[m_CurrentVert+1].color = m_CurrentColor;
     
-    m_pVertBuf[m_CurrentVert+2].position = Vec3f(x+w2,y+h2,m_CurrentDepth);
-    m_pVertBuf[m_CurrentVert+2].coord = m_CurrentCoords[2];
-    m_pVertBuf[m_CurrentVert+2].color = m_CurrentColor;
+    pVertBuf[m_CurrentVert+2].position = Vec3f(x+w2,y+h2,m_CurrentDepth);
+    pVertBuf[m_CurrentVert+2].coord = m_CurrentCoords[2];
+    pVertBuf[m_CurrentVert+2].color = m_CurrentColor;
     
-    m_pVertBuf[m_CurrentVert+3].position = Vec3f(x-w2,y+h2,m_CurrentDepth);
-    m_pVertBuf[m_CurrentVert+3].coord = m_CurrentCoords[3];
-    m_pVertBuf[m_CurrentVert+3].color = m_CurrentColor;
+    pVertBuf[m_CurrentVert+3].position = Vec3f(x-w2,y+h2,m_CurrentDepth);
+    pVertBuf[m_CurrentVert+3].coord = m_CurrentCoords[3];
+    pVertBuf[m_CurrentVert+3].color = m_CurrentColor;
+
+	m_VertexBuffer->UnmapData();
     
     m_CurrentVert = m_CurrentVert + 4;
 }

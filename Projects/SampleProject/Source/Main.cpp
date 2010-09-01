@@ -24,6 +24,8 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 
+#include <Pxf/Modules/pri/OpenGL.h>
+
 #include <enet/enet.h>
 
 #include <ctime>
