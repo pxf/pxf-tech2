@@ -21,6 +21,11 @@ namespace Pxf
             virtual bool Init()
             {   return true;    }
         public:
+
+		static void char_callback(int _Char, int _Action);
+		static void key_callback(int _Key, int _Action);
+		static void mouse_callback(int _Button, int _Action);
+
         InputDeviceGLFW(Pxf::Kernel* _Kernel);
 
         virtual void Update();

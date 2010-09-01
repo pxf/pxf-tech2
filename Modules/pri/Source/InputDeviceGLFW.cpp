@@ -16,19 +16,22 @@ using namespace Pxf::Graphics;
 using Util::String;
 
 // -- GLFW callbacks
-static void char_callback(int _Char, int _Action)
+void InputDeviceGLFW::char_callback(int _Char, int _Action)
 {
+	Message("Input", "Char callback!");
 	if (_Action == GLFW_PRESS)
 		((InputDeviceGLFW*)Instance)->last_char = _Char;
 }
 
-static void key_callback(int _Key, int _Action)
+void InputDeviceGLFW::key_callback(int _Key, int _Action)
 {
+	Message("Input", "Key callback!");
 	if (_Action == GLFW_PRESS)
 		((InputDeviceGLFW*)Instance)->last_key = _Key;
 }
-static void mouse_callback(int _Button, int _Action)
+void InputDeviceGLFW::mouse_callback(int _Button, int _Action)
 {
+	Message("Input", "Mouse callback!");
 	if (_Action == GLFW_PRESS)
 	{
 		((InputDeviceGLFW*)Instance)->last_button = _Button + MOUSE_1;
@@ -59,6 +62,10 @@ InputDeviceGLFW::InputDeviceGLFW(Pxf::Kernel* _Kernel)
 	mouse_y = 0;
 	mouse_scroll = 0;
 	mouse_mode = MODE_ABSOLUTE;
+	mouse_buttons = 0;
+
+	glfwEnable(GLFW_KEY_REPEAT);
+	glfwDisable(GLFW_SYSTEM_KEYS);
 
 	// Setup GLFW callbacks
 	glfwSetCharCallback(char_callback);

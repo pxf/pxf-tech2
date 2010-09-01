@@ -74,12 +74,13 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
-    while(win->IsOpen())
+    while(win->IsOpen() && !inp->IsKeyDown(Input::ESC))
     {
 		inp->Update();
 
-		if (inp->IsKeyDown(Input::ESC))
-			break;
+		int x, y;
+		inp->GetMousePos(&x, &y);
+		Message("Main", "Mouse at %dx%d", x, y);
 
         win->Swap();
     }

@@ -260,9 +260,14 @@ static void DestroyBuiltInInstance(Pxf::Module* _Module)
         delete _Module;
 }
 
+// FIXME: Currently disabled, it should be used by the global initializers when compiling statically
+// However, only dynamically compiled libraries seems to be calling... sup?
 bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
 {
-    m_AvailableModules.push_back(new ModuleEntry_t(_Module, DestroyBuiltInInstance));
+//    m_AvailableModules.push_back(new ModuleEntry_t(_Module, DestroyBuiltInInstance));
+	
+	// TODO: Need to be able to specify which parts of the built-ins to use...
+//	_Module->RegisterSystem(this, 0xFFFFFFFF);
     return true;
 }
 
