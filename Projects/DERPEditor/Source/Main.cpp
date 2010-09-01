@@ -77,7 +77,7 @@ int main()
     
     while(win->IsOpen())
     {
-        qb->Draw();
+        //qb->Draw();
         win->Swap();
     }
     

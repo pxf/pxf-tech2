@@ -13,11 +13,14 @@ using namespace Pxf::Math;
 
 QuadBatch::QuadBatch(int _size)
 {
+    printf("wut?\n");
     m_VertBufSize = _size;
     m_VertexBuffer = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
+    printf("wut? m_VertexBuffer: %i\n", m_VertexBuffer);
     m_VertexBuffer->CreateNewBuffer(_size, sizeof(QuadVertex) ); // pos = 3, tex coords = 2, colors = 4
+    printf("wut?\n");
     m_pVertBuf = (QuadVertex*)m_VertexBuffer->MapData(VB_ACCESS_WRITE_ONLY);
-    
+    printf("wut?\n");
     Reset();
 }
 
@@ -42,20 +45,20 @@ void QuadBatch::AddCentered(float x, float y, float w, float h)
 {
     float w2 = w / 2.0f;
     float h2 = h / 2.0f;
-    m_pVertBuf[m_CurrentVert].position = Vec3(x-w2,y-h2,m_CurrentDepth);
-    m_pVertBuf[m_CurrentVert].coords = m_CurrentCoords[0];
+    m_pVertBuf[m_CurrentVert].position = Vec3f(x-w2,y-h2,m_CurrentDepth);
+    m_pVertBuf[m_CurrentVert].coord = m_CurrentCoords[0];
     m_pVertBuf[m_CurrentVert].color = m_CurrentColor;
     
-    m_pVertBuf[m_CurrentVert+1].position = Vec3(x+w2,y-h2,m_CurrentDepth);
-    m_pVertBuf[m_CurrentVert+1].coords = m_CurrentCoords[1];
+    m_pVertBuf[m_CurrentVert+1].position = Vec3f(x+w2,y-h2,m_CurrentDepth);
+    m_pVertBuf[m_CurrentVert+1].coord = m_CurrentCoords[1];
     m_pVertBuf[m_CurrentVert+1].color = m_CurrentColor;
     
-    m_pVertBuf[m_CurrentVert+2].position = Vec3(x+w2,y+h2,m_CurrentDepth);
-    m_pVertBuf[m_CurrentVert+2].coords = m_CurrentCoords[2];
+    m_pVertBuf[m_CurrentVert+2].position = Vec3f(x+w2,y+h2,m_CurrentDepth);
+    m_pVertBuf[m_CurrentVert+2].coord = m_CurrentCoords[2];
     m_pVertBuf[m_CurrentVert+2].color = m_CurrentColor;
     
-    m_pVertBuf[m_CurrentVert+3].position = Vec3(x-w2,y+h2,m_CurrentDepth);
-    m_pVertBuf[m_CurrentVert+3].coords = m_CurrentCoords[3];
+    m_pVertBuf[m_CurrentVert+3].position = Vec3f(x-w2,y+h2,m_CurrentDepth);
+    m_pVertBuf[m_CurrentVert+3].coord = m_CurrentCoords[3];
     m_pVertBuf[m_CurrentVert+3].color = m_CurrentColor;
     
     m_CurrentVert = m_CurrentVert + 4;
