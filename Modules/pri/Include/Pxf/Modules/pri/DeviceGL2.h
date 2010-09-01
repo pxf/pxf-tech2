@@ -39,7 +39,7 @@ namespace Pxf{
 
 			Graphics::VertexBuffer* CreateVertexBuffer(Graphics::VertexBufferLocation _VertexBufferLocation, Graphics::VertexBufferUsageFlag _VertexBufferUsageFlag);
 			void DestroyVertexBuffer(Graphics::VertexBuffer* _pVertexBuffer);
-			void DrawBuffer(Graphics::VertexBuffer* _pVertexBuffer);
+			void DrawBuffer(Graphics::VertexBuffer* _pVertexBuffer, unsigned _VertexCount = 0);
 		private:
             bool Init(){ return true; };
 			Graphics::Window* m_Window;

@@ -52,7 +52,7 @@ namespace Pxf
             
 			virtual VertexBuffer* CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag) = 0;
 			virtual void DestroyVertexBuffer(VertexBuffer* _pVertexBuffer) = 0;
-			virtual void DrawBuffer(VertexBuffer* _pVertexBuffer) = 0;
+			virtual void DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount) = 0;
 
 			
 			bool Ready() { return m_Ready; }
