@@ -255,6 +255,12 @@ function NewProject(name)
             
             for i,l in ipairs(self.required_libraries) do
                 req_libraries[l] = true
+                
+                -- Add the include directories of added libraries
+                local lib = LoadLibrary(l)
+                for j, inc in ipairs(lib.include_directories) do
+                    settings.cc.includes:Add(inc)
+                end
             end
             
             if baked_exe == false then
