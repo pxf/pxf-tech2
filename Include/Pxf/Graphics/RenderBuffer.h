@@ -12,11 +12,6 @@ namespace Pxf
 		class RenderBuffer : public DeviceResource
 		{
 		public:
-			// unable to compile without this empty constructor
-			RenderBuffer() 
-				: DeviceResource(0)
-			{ }
-
 			RenderBuffer(GraphicsDevice* _Device, unsigned _Width, unsigned _Height)
 				: DeviceResource(_Device)
 				, m_Width(_Width)

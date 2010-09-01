@@ -29,7 +29,7 @@ namespace Pxf
 			bool GetUseDepthAttachment() { return m_UseDepthAttachment; }
 		private:
 			RenderBuffer* m_ColorAttachments;
-			RenderBuffer m_DepthAttachment;
+			RenderBuffer* m_DepthAttachment;
 			//RenderBuffer m_StencilAttachment; // future implementation
 
 			int m_MaxColorAttachments;	// upper bound on attachments, vendor specific
