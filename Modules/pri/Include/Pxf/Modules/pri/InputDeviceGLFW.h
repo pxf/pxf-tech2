@@ -55,6 +55,7 @@ namespace Pxf
 		Input::MouseMode mouse_mode;
 		int mouse_x, mouse_y, mouse_scroll;
 		unsigned int mouse_buttons; /* store status for mouse button, bit #0 = button 1. 1 = pressed */ 
+		bool initialized;
         };
     }
 }
