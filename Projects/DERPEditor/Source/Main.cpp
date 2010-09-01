@@ -24,8 +24,10 @@
 
 #include <ctime>
 
-using namespace Pxf;
+#include "QuadBatch.h"
 
+using namespace Pxf;
+using namespace DERPEditor;
 
 int main()
 {
@@ -70,10 +72,16 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
+    QuadBatch* qb = new QuadBatch(1024);
+    qb->AddCentered(0, 0, 1, 1);
+    
     while(win->IsOpen())
     {
+        qb->Draw();
         win->Swap();
     }
+    
+    delete qb;
     
 
     res->Release(img);
