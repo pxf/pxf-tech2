@@ -8,40 +8,41 @@
 #include <Pxf/Modules/pri/WindowGL2.h>
 
 namespace Pxf{
-	namespace Graphics {
-
+    namespace Graphics
+    {
 		class QuadBatch;
 		class VertexBuffer;
 		class RenderTarget;
-
-		class DeviceGL2 : public GraphicsDevice
+    }
+	namespace Modules {
+		class DeviceGL2 : public Graphics::GraphicsDevice
 		{
 		public:
 			DeviceGL2(Pxf::Kernel* _Kernel);
 			virtual ~DeviceGL2();
 
-			Window* OpenWindow(WindowSpecifications* _pWindowSpecs);
+			Graphics::Window* OpenWindow(Graphics::WindowSpecifications* _pWindowSpecs);
 			void CloseWindow();
 
-			DeviceType GetDeviceType() { return EOpenGL2; }
+			Graphics::DeviceType GetDeviceType() { return Graphics::EOpenGL2; }
 
 			void SetViewport(int _x, int _y, int _w, int _h);
 			void SetProjection(Math::Mat4 *_matrix);
 			void SwapBuffers();
 			void Translate(Math::Vec3f _translate);
 
-			Texture* CreateEmptyTexture(int _Width,int _Height, TextureFormatStorage _Format = TEX_FORMAT_RGBA);
-			Texture* CreateTexture(const char* _filepath);
-			Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels);
-			void BindTexture(Texture* _texture);
-			void BindTexture(Texture* _texture, unsigned int _texture_unit);
+			Graphics::Texture* CreateEmptyTexture(int _Width,int _Height, Graphics::TextureFormatStorage _Format = Graphics::TEX_FORMAT_RGBA);
+			Graphics::Texture* CreateTexture(const char* _filepath);
+			Graphics::Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels);
+			void BindTexture(Graphics::Texture* _texture);
+			void BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
 
-			VertexBuffer* CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag);
-			void DestroyVertexBuffer(VertexBuffer* _pVertexBuffer);
-			void DrawBuffer(VertexBuffer* _pVertexBuffer);
+			Graphics::VertexBuffer* CreateVertexBuffer(Graphics::VertexBufferLocation _VertexBufferLocation, Graphics::VertexBufferUsageFlag _VertexBufferUsageFlag);
+			void DestroyVertexBuffer(Graphics::VertexBuffer* _pVertexBuffer);
+			void DrawBuffer(Graphics::VertexBuffer* _pVertexBuffer);
 		private:
             bool Init(){ return true; };
-			Window* m_Window;
+			Graphics::Window* m_Window;
 		};
 
 	} // Graphics

@@ -10,10 +10,11 @@
 #include <Pxf/Modules/pri/OpenGLUtils.h>
 
 
-#define LOCAL_MSG "DeviceGL2"
+#define LOCAL_MSG "Device"
 
 using namespace Pxf;
 using namespace Pxf::Graphics;
+using namespace Pxf::Modules;
 using Util::String;
 
 DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)

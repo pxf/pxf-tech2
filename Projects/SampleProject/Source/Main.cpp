@@ -20,6 +20,8 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 
+#include <enet/enet.h>
+
 #include <ctime>
 
 using namespace Pxf;
@@ -27,33 +29,31 @@ using namespace Pxf;
 
 int main()
 {
-	Pxf::RandSetSeed(time(NULL));
-	auto kernel = Pxf::Kernel::GetInstance();
+    Pxf::RandSetSeed(time(NULL));
+    Kernel* kernel = Pxf::Kernel::GetInstance();
 
     kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICS, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
-    auto gfx = kernel->GetGraphicsDevice();
-	auto snd = kernel->GetAudioDevice();
-    auto res = kernel->GetResourceManager();
-    auto img = res->Acquire<Resource::Image>("test.png");
+    Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
+    Audio::AudioDevice* snd = kernel->GetAudioDevice();
+    Resource::ResourceManager* res = kernel->GetResourceManager();
+    Resource::Image* img = res->Acquire<Resource::Image>("test.png");
 
-	res->DumpResourceLoaders();
+    res->DumpResourceLoaders();
 
-	snd->Play(2);
+    snd->Play(2);
 
-	auto loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
-	auto blob = loader->CreateFrom("aoeu", 5);
+    Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
+    Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
 
-
-
-	/*
-	// Resource::BinaryFile to complement? Resource::Blob, binary large object
-	Resource::TextFile* shadersrc = res->Acquire<Resource::TextFile>("fiddle.glsl");
-	Graphics::Shader* shader = video->CreateShader(Resource::TextFile* _source);
-	shader->SetBlahBlah();
-	*/
+    /*
+    // Resource::BinaryFile to complement? Resource::Blob, binary large object
+    Resource::TextFile* shadersrc = res->Acquire<Resource::TextFile>("fiddle.glsl");
+    Graphics::Shader* shader = video->CreateShader(Resource::TextFile* _source);
+    shader->SetBlahBlah();
+    */
 
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
@@ -75,7 +75,7 @@ int main()
     }
     
 
-	res->Release(img);
+    res->Release(img);
     delete kernel;
     return 0;
 }
