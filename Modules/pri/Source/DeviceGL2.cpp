@@ -149,12 +149,16 @@ static unsigned LookupPrimitiveType(VertexBufferPrimitiveType _PrimitiveType)
 	return 0;
 }
 
-void DeviceGL2::DrawBuffer(VertexBuffer* _pVertexBuffer)
+void DeviceGL2::DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount)
 {
-	_pVertexBuffer->_PreDraw();
-	GLuint primitive = LookupPrimitiveType(_pVertexBuffer->GetPrimitive());
-	glDrawArrays(primitive, 0, _pVertexBuffer->GetVertexCount());
-	_pVertexBuffer->_PostDraw();
+    PXF_ASSERT(_VertexCount <= _pVertexBuffer->GetVertexCount(), "Attempting to draw too many vertices");
+    _pVertexBuffer->_PreDraw();
+    GLuint primitive = LookupPrimitiveType(_pVertexBuffer->GetPrimitive());
+    unsigned vertex_count = _pVertexBuffer->GetVertexCount();
+    if (_VertexCount > 0)
+        vertex_count = _VertexCount;
+    glDrawArrays(primitive, 0, vertex_count);
+    _pVertexBuffer->_PostDraw();
 }
 
 
