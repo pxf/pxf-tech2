@@ -40,6 +40,7 @@ void QuadBatch::Reset()
 
 void QuadBatch::Draw()
 {
+    m_VertexBuffer->UnmapData();
     Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DrawBuffer(m_VertexBuffer, m_CurrentVert);
 }
 
@@ -47,12 +48,10 @@ void QuadBatch::AddCentered(float x, float y, float w, float h)
 {
     float w2 = w / 2.0f;
     float h2 = h / 2.0f;
-    printf("wat\n");
     m_pVertBuf[m_CurrentVert].position = Vec3f(x-w2,y-h2,m_CurrentDepth);
     m_pVertBuf[m_CurrentVert].coord = m_CurrentCoords[0];
     m_pVertBuf[m_CurrentVert].color = m_CurrentColor;
     
-    printf("wat\n");
     m_pVertBuf[m_CurrentVert+1].position = Vec3f(x+w2,y-h2,m_CurrentDepth);
     m_pVertBuf[m_CurrentVert+1].coord = m_CurrentCoords[1];
     m_pVertBuf[m_CurrentVert+1].color = m_CurrentColor;
