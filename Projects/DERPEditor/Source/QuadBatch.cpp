@@ -13,14 +13,10 @@ using namespace Pxf::Math;
 
 QuadBatch::QuadBatch(int _size)
 {
-    printf("wut?\n");
     m_VertBufSize = _size;
-    m_VertexBuffer = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
-    printf("wut? m_VertexBuffer: %i\n", m_VertexBuffer);
+    m_VertexBuffer = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateVertexBuffer(VB_LOCATION_SYS, VB_USAGE_DYNAMIC_DRAW);
     m_VertexBuffer->CreateNewBuffer(_size, sizeof(QuadVertex) ); // pos = 3, tex coords = 2, colors = 4
-    printf("wut?\n");
     m_pVertBuf = (QuadVertex*)m_VertexBuffer->MapData(VB_ACCESS_WRITE_ONLY);
-    printf("wut?\n");
     Reset();
 }
 

@@ -25,6 +25,7 @@
 #include <ctime>
 
 #include "QuadBatch.h"
+#include <Pxf/Modules/pri/OpenGL.h>
 
 using namespace Pxf;
 using namespace DERPEditor;
@@ -77,7 +78,8 @@ int main()
     
     while(win->IsOpen())
     {
-        //qb->Draw();
+        glClear(GL_COLOR_BUFFER_BIT);
+        qb->Draw();
         win->Swap();
     }
     

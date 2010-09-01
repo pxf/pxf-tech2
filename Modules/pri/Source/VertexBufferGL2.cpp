@@ -161,7 +161,7 @@ void VertexBufferGL2::CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize)
 		GLuint usage = LookupUsageFlag(m_VertexBufferUsageFlag);
 		glGenBuffers(1, (GLuint*)&m_BufferObjectId);
 		glBindBuffer(GL_ARRAY_BUFFER, (GLuint) m_BufferObjectId);
-		glBufferData(GL_ARRAY_BUFFER_ARB, _NumVertices * _VertexSize, 0, usage);
+		glBufferData(GL_ARRAY_BUFFER, _NumVertices * _VertexSize, 0, usage);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	else
@@ -184,7 +184,7 @@ void VertexBufferGL2::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32
 		// Copy to gpu memory
 		GLuint usage = LookupUsageFlag(m_VertexBufferUsageFlag);
 		glBindBuffer(GL_ARRAY_BUFFER, (GLuint) m_BufferObjectId);
-		glBufferData(GL_ARRAY_BUFFER_ARB, _NumVertices * _VertexSize, _Buffer, usage);
+		glBufferData(GL_ARRAY_BUFFER, _NumVertices * _VertexSize, _Buffer, usage);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	else
