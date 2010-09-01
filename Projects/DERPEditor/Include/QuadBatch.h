@@ -1,6 +1,7 @@
 #ifndef __DERPEDITOR_QUADBATCH_H__
 #define __DERPEDITOR_QUADBATCH_H__
 
+#include <Pxf/Math/Vector.h>
 #include <Pxf/Graphics/VertexBuffer.h>
 
 namespace DERPEditor
@@ -11,9 +12,9 @@ namespace DERPEditor
         
         struct QuadVertex
         {
-            Vec3f position;
-            Vec2f coord;
-            Vec4f color;
+            Pxf::Math::Vec3f position;
+            Pxf::Math::Vec2f coord;
+            Pxf::Math::Vec4f color;
         };
         
         QuadBatch(int _size);
@@ -44,8 +45,8 @@ namespace DERPEditor
         int m_CurrentVert;
         
         float m_CurrentDepth;
-        Vec2f m_CurrentCoords[4];
-        Vec4f m_CurrentColor;
+        Pxf::Math::Vec2f m_CurrentCoords[4];
+        Pxf::Math::Vec4f m_CurrentColor;
     };
 } /* DERPEditor */
 

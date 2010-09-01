@@ -20,8 +20,6 @@ namespace Pxf
 		class WindowSpecifications;
 		class VertexBuffer;
 		class NonInterleavedVertexBuffer;
-
-		class QuadBatch;
 		
 		class Texture;
 		
