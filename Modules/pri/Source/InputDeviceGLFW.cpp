@@ -18,20 +18,17 @@ using Util::String;
 // -- GLFW callbacks
 void InputDeviceGLFW::char_callback(int _Char, int _Action)
 {
-	Message("Input", "Char callback!");
 	if (_Action == GLFW_PRESS)
 		((InputDeviceGLFW*)Instance)->last_char = _Char;
 }
 
 void InputDeviceGLFW::key_callback(int _Key, int _Action)
 {
-	Message("Input", "Key callback!");
 	if (_Action == GLFW_PRESS)
 		((InputDeviceGLFW*)Instance)->last_key = _Key;
 }
 void InputDeviceGLFW::mouse_callback(int _Button, int _Action)
 {
-	Message("Input", "Mouse callback!");
 	if (_Action == GLFW_PRESS)
 	{
 		((InputDeviceGLFW*)Instance)->last_button = _Button + MOUSE_1;
@@ -64,17 +61,25 @@ InputDeviceGLFW::InputDeviceGLFW(Pxf::Kernel* _Kernel)
 	mouse_mode = MODE_ABSOLUTE;
 	mouse_buttons = 0;
 
-	glfwEnable(GLFW_KEY_REPEAT);
-	glfwDisable(GLFW_SYSTEM_KEYS);
-
-	// Setup GLFW callbacks
-	glfwSetCharCallback(char_callback);
-	glfwSetKeyCallback(key_callback);
-	glfwSetMouseButtonCallback(mouse_callback);
+	initialized = false;
 }
 
 void InputDeviceGLFW::Update()
 {
+	// Quick fix to make sure this is run after a window has been opened
+	// FIXME.
+	if (!initialized)
+	{
+		glfwEnable(GLFW_KEY_REPEAT);
+		glfwDisable(GLFW_SYSTEM_KEYS);
+
+		// Setup GLFW callbacks
+		glfwSetCharCallback(char_callback);
+		glfwSetKeyCallback(key_callback);
+		glfwSetMouseButtonCallback(mouse_callback);
+		initialized = true;
+	}
+
 	glfwPollEvents();
 }
 
