@@ -70,7 +70,7 @@ void VertexBufferGL2::_PreDraw()
 	unsigned int BufferOffset = 0;
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, (GLuint) m_BufferObjectId);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
 	}
 	else
 	{
@@ -117,7 +117,7 @@ void VertexBufferGL2::_PostDraw()
 {
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -159,10 +159,10 @@ void VertexBufferGL2::CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize)
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
 		GLuint usage = LookupUsageFlag(m_VertexBufferUsageFlag);
-		glGenBuffers(1, (GLuint*)&m_BufferObjectId);
-		glBindBuffer(GL_ARRAY_BUFFER, (GLuint) m_BufferObjectId);
-		glBufferData(GL_ARRAY_BUFFER, _NumVertices * _VertexSize, 0, usage);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glGenBuffersARB(1, (GLuint*)&m_BufferObjectId);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
+		glBufferDataARB(GL_ARRAY_BUFFER_ARB, _NumVertices * _VertexSize, 0, usage);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 	else
 	{
@@ -183,9 +183,9 @@ void VertexBufferGL2::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32
 	{
 		// Copy to gpu memory
 		GLuint usage = LookupUsageFlag(m_VertexBufferUsageFlag);
-		glBindBuffer(GL_ARRAY_BUFFER, (GLuint) m_BufferObjectId);
-		glBufferData(GL_ARRAY_BUFFER, _NumVertices * _VertexSize, _Buffer, usage);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
+		glBufferDataARB(GL_ARRAY_BUFFER_ARB, _NumVertices * _VertexSize, _Buffer, usage);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 	else
 	{
@@ -220,9 +220,9 @@ void* VertexBufferGL2::MapData(VertexBufferAccessFlag _AccessFlag)
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{
 		GLuint access = LookupAccessFlag(_AccessFlag);
-		glBindBuffer(GL_ARRAY_BUFFER, (GLuint) m_BufferObjectId);
-		void* data = glMapBuffer(GL_ARRAY_BUFFER, access);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
+		void* data = glMapBufferARB(GL_ARRAY_BUFFER_ARB, access);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 		return data;
 	}
 	else if (m_VertexBufferLocation == VB_LOCATION_SYS && m_InterleavedData != 0)
@@ -239,9 +239,9 @@ void VertexBufferGL2::UnmapData()
 
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, (GLuint) m_BufferObjectId);
-		glUnmapBuffer(GL_ARRAY_BUFFER);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
+		glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 		m_IsMapped = false;
 	}
 	
