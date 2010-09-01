@@ -8,6 +8,7 @@
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
+#include <Pxf/Graphics/RenderBuffer.h>
 
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/String.h>
@@ -18,6 +19,8 @@
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
+
+
 
 #include <enet/enet.h>
 
@@ -48,13 +51,6 @@ int main()
     Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
     Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
 
-    /*
-    // Resource::BinaryFile to complement? Resource::Blob, binary large object
-    Resource::TextFile* shadersrc = res->Acquire<Resource::TextFile>("fiddle.glsl");
-    Graphics::Shader* shader = video->CreateShader(Resource::TextFile* _source);
-    shader->SetBlahBlah();
-    */
-
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
     spec.Height = 600;
@@ -77,6 +73,7 @@ int main()
 
     res->Release(img);
     delete kernel;
+
     return 0;
 }
 

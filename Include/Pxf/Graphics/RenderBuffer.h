@@ -2,17 +2,21 @@
 #define _PXF_GRAPHICS_RENDERBUFFER_H_
 
 #include <Pxf/Graphics/DeviceResource.h>
+#include <Pxf/Graphics/GraphicsDevice.h>
 
 namespace Pxf
 {
 	namespace Graphics
 	{
-        class GraphicsDevice;
-		
 		//! Abstract render buffer class
 		class RenderBuffer : public DeviceResource
 		{
 		public:
+			// unable to compile without this empty constructor
+			RenderBuffer() 
+				: DeviceResource(0)
+			{ }
+
 			RenderBuffer(GraphicsDevice* _Device, unsigned _Width, unsigned _Height)
 				: DeviceResource(_Device)
 				, m_Width(_Width)

@@ -22,6 +22,8 @@ namespace Pxf
 		class NonInterleavedVertexBuffer;
 		
 		class Texture;
+		class RenderBuffer;
+		class FrameBufferObject;
 		
 		class GraphicsDevice : public System
 		{
@@ -53,7 +55,9 @@ namespace Pxf
 			virtual VertexBuffer* CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag) = 0;
 			virtual void DestroyVertexBuffer(VertexBuffer* _pVertexBuffer) = 0;
 			virtual void DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount) = 0;
-
+			
+			virtual RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height) = 0;
+			virtual FrameBufferObject* CreateFrameBufferObject() = 0;
 			
 			bool Ready() { return m_Ready; }
 		private:

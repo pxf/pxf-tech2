@@ -3,6 +3,8 @@
 #include <Pxf/Modules/pri/DeviceGL2.h>
 #include <Pxf/Modules/pri/VertexBufferGL2.h>
 #include <Pxf/Modules/pri/TextureGL2.h>
+#include <Pxf/Modules/pri/RenderBufferGL2.h>
+#include <Pxf/Modules/pri/FrameBufferObjectGL2.h>
 //#include <Pxf/Input/OpenGL/InputGL2.h>
 #include <Pxf/Base/Debug.h>
 
@@ -161,5 +163,14 @@ void DeviceGL2::DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount)
     _pVertexBuffer->_PostDraw();
 }
 
+RenderBuffer* DeviceGL2::CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height)
+{
+	RenderBufferGL2* pBuf = new RenderBufferGL2(this,_Format,_Width,_Height);
+	return pBuf;
+}
 
-
+FrameBufferObject* DeviceGL2::CreateFrameBufferObject()
+{
+	FrameBufferObjectGL2* pBuf = new FrameBufferObjectGL2(this);
+	return pBuf;
+}

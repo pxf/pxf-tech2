@@ -2,14 +2,13 @@
 #define _PXF_GRAPHICS_FRAMEBUFFEROBJECT_H_
 
 #include <Pxf/Graphics/DeviceResource.h>
+#include <Pxf/Graphics/RenderBuffer.h>
+#include <Pxf/Graphics/GraphicsDevice.h>
 
 namespace Pxf
 {
 	namespace Graphics
 	{	
-		class RenderBuffer;
-		class GraphicsDevice;
-
 		//! Abstract frame buffer object class
 		class FrameBufferObject : public DeviceResource
 		{
@@ -18,8 +17,13 @@ namespace Pxf
 				: DeviceResource(_Device)
 			{ }
 
-			void AddColorAttachment(RenderBuffer* _Attachment);
-			void AddDepthAttachment(RenderBuffer* _Depth);
+			//virtual ~FrameBufferObject();
+
+			virtual void AddColorAttachment(RenderBuffer* _Attachment) = 0;
+			virtual void AddDepthAttachment(RenderBuffer* _Depth) = 0;
+
+			virtual void DetachColor(unsigned _ID) = 0;
+			virtual void DetachDepth(unsigned _ID) = 0;
 
 			int GetNumColorAttachment() { return m_NumColorAttachment; }
 			bool GetUseDepthAttachment() { return m_UseDepthAttachment; }
@@ -30,7 +34,7 @@ namespace Pxf
 
 			int m_MaxColorAttachments;	// upper bound on attachments, vendor specific
 			int m_NumColorAttachment;
-			bool m_UseDepthAttachment;
+			bool m_UseDepthAttachment;	
 		};
 	} // Graphics
 } // Pxf

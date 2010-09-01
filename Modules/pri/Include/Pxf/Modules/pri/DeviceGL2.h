@@ -13,6 +13,8 @@ namespace Pxf{
 		class QuadBatch;
 		class VertexBuffer;
 		class RenderTarget;
+		class RenderBuffer;
+		class FrameBufferObject;
     }
 	namespace Modules {
 		class DeviceGL2 : public Graphics::GraphicsDevice
@@ -40,6 +42,10 @@ namespace Pxf{
 			Graphics::VertexBuffer* CreateVertexBuffer(Graphics::VertexBufferLocation _VertexBufferLocation, Graphics::VertexBufferUsageFlag _VertexBufferUsageFlag);
 			void DestroyVertexBuffer(Graphics::VertexBuffer* _pVertexBuffer);
 			void DrawBuffer(Graphics::VertexBuffer* _pVertexBuffer, unsigned _VertexCount = 0);
+
+			Graphics::RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height);
+			Graphics::FrameBufferObject* CreateFrameBufferObject();
+
 		private:
             bool Init(){ return true; };
 			Graphics::Window* m_Window;

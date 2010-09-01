@@ -9,6 +9,7 @@
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
+#include <Pxf/Graphics/RenderBuffer.h>
 
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/String.h>
@@ -44,6 +45,8 @@ int main()
     Input::InputDevice* inp = kernel->GetInputDevice();
     Resource::ResourceManager* res = kernel->GetResourceManager();
     Resource::Image* img = res->Acquire<Resource::Image>("test.png");
+
+	Graphics::RenderBuffer* pBuf = gfx->CreateRenderBuffer(0,0,0);
 
     res->DumpResourceLoaders();
 
