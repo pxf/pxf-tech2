@@ -11,7 +11,7 @@ using namespace Pxf;
 using namespace Pxf::Graphics;
 using namespace Pxf::Modules;
 
-unsigned ColorAttachmentLookup(unsigned _ID);
+unsigned TranslateAttachment(unsigned _ID);
 bool CheckFBO(GLenum _status);
 
 FrameBufferObjectGL2::~FrameBufferObjectGL2()
@@ -82,43 +82,133 @@ bool CheckFBO(GLenum _status)
 	return false;
 }
 
-void FrameBufferObjectGL2::AddColorAttachment(Texture* _Texture, unsigned _ID,  const bool _GenMipmaps = false)
+// Lut for id -> opengl 
+unsigned TranslateAttachment(unsigned _ID)
+{
+	switch(_ID)
+	{
+	case GL_COLOR_ATTACHMENT0_EXT: return 0; break;
+	case GL_COLOR_ATTACHMENT1_EXT: return 1; break;
+	case GL_COLOR_ATTACHMENT2_EXT: return 2; break;
+	case GL_COLOR_ATTACHMENT3_EXT: return 3; break;
+	case GL_COLOR_ATTACHMENT4_EXT: return 4; break;
+	case GL_COLOR_ATTACHMENT5_EXT: return 5; break;
+	case GL_COLOR_ATTACHMENT6_EXT: return 6; break;
+	case GL_COLOR_ATTACHMENT7_EXT: return 7; break;
+	case GL_COLOR_ATTACHMENT8_EXT: return 8; break;
+	case GL_COLOR_ATTACHMENT9_EXT: return 9; break;
+	case GL_COLOR_ATTACHMENT10_EXT: return 10; break;
+	case GL_COLOR_ATTACHMENT11_EXT: return 11; break;
+	case GL_COLOR_ATTACHMENT12_EXT: return 12; break;
+	case GL_COLOR_ATTACHMENT13_EXT: return 13; break;
+	case GL_COLOR_ATTACHMENT14_EXT: return 14; break;
+	case GL_COLOR_ATTACHMENT15_EXT: return 15; break;
+	default: break;
+	}
+}
+
+void FrameBufferObjectGL2::Detach(const unsigned _Attachment)
+{
+	if(_Attachment == GL_DEPTH_ATTACHMENT_EXT)
+	{
+		if(!m_UseDepthAttachment)
+		{
+			Message(LOCAL_MSG,"Unable to detach depth buffer, no such buffer attached");
+			return;
+		}
+
+		m_UseDepthAttachment = false;
+	}
+	else if(_Attachment == GL_STENCIL_ATTACHMENT_EXT)
+	{
+		if(!m_UseStencilAttachment)
+		{
+			Message(LOCAL_MSG,"Unable to detach stencil buffer, no such buffer attached");
+			return;
+		}
+
+		m_UseStencilAttachment = false;
+	}
+	else if(_Attachment >= GL_COLOR_ATTACHMENT0 && _Attachment <= GL_COLOR_ATTACHMENT15)
+	{
+		short unsigned _ID = TranslateAttachment(_Attachment);
+		unsigned short _Result = m_AttachmentMask & (_ID+1);
+
+		if(!_Result)
+		{
+			// attachment is not attached
+			Message(LOCAL_MSG,"Unable to detach unattached attachment");
+			return;
+		}	
+
+		m_NumColorAttachment--;
+		m_AttachmentMask ^= _ID+1;
+
+	}
+	else
+	{
+		Message(LOCAL_MSG,"Unable to detach an invalid attachment");
+		return;
+	}
+
+	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _Attachment, GL_TEXTURE_2D, 0, 0);
+	m_pDevice->BindFrameBufferObject(_CurrentFBO);
+
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_Complete = CheckFBO(status);
+}
+
+void FrameBufferObjectGL2::Attach(Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps)
 {
 	if(!_Texture)
 	{
-		Message(LOCAL_MSG,"Invalid color attachment passed to framebuffer");
+		Message(LOCAL_MSG,"Unable to attach with invalid texture");
 		return;
 	}
 
-	// bounds check
-	if(m_NumColorAttachment >= m_MaxColorAttachments)
+	if(_Attachment == GL_DEPTH_ATTACHMENT_EXT) 
 	{
-		Message(LOCAL_MSG,"Capacity reached, unable to attach");
+		if(m_UseDepthAttachment)
+			Detach(_Attachment);
+
+		m_UseDepthAttachment = true;
+	}
+
+	else if(_Attachment == GL_STENCIL_ATTACHMENT_EXT)
+	{
+		if(m_UseStencilAttachment)
+			Detach(_Attachment);
+
+		m_UseStencilAttachment = true;
+	}
+
+	else if(_Attachment >= GL_COLOR_ATTACHMENT0 && _Attachment <= GL_COLOR_ATTACHMENT15)
+	{
+		short unsigned _ID = TranslateAttachment(_Attachment);
+		short unsigned _Result = (m_AttachmentMask & (_ID+1)) / (_ID + 1);
+
+		if(_Result)
+		{
+			// already attached, detach first!
+			Detach(_Attachment);
+			Message(LOCAL_MSG,"Already attached, reattaching with new ID");
+		}	
+
+		m_NumColorAttachment++;
+		m_AttachmentMask ^= _ID+1;
+	}
+	else
+	{
+		Message(LOCAL_MSG,"Unable to attach with invalid ID");
 		return;
 	}
 
-	if(_ID > m_MaxColorAttachments-1)
-	{
-		Message(LOCAL_MSG,"Unable to add color attachment with ID %i", _ID);
-		return;
-	}
-
-	// check if _ID is already attached
-	short unsigned _Result = (m_AttachmentMask & (_ID+1)) / (_ID + 1);
-
-	if(_Result)
-	{
-		// already attached, detach first!
-		DetachColor(_ID);
-		Message(LOCAL_MSG,"Already attached, reattaching with new ID");
-	}	
-
-	// everything OK, attach
+	// everything OK, attach it
 	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
-	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
-	
+
 	m_pDevice->BindTexture(_Texture);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_TEXTURE_2D, ((TextureGL2*) _Texture)->GetTextureID(), 0);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _Attachment, GL_TEXTURE_2D, ((TextureGL2*) _Texture)->GetTextureID(), 0);
 
 	if (_GenMipmaps)
 		glGenerateMipmapEXT(GL_TEXTURE_2D);
@@ -127,130 +217,70 @@ void FrameBufferObjectGL2::AddColorAttachment(Texture* _Texture, unsigned _ID,  
 
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	m_Complete = CheckFBO(status);
-
-	m_NumColorAttachment++;
-
-	m_AttachmentMask ^= _ID+1;
 }
 
-// Lut for id -> opengl 
-unsigned ColorAttachmentLookup(unsigned _ID)
+void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachment)
 {
-	switch(_ID)
+	if(!_Buffer)
 	{
-	case 0: return GL_COLOR_ATTACHMENT0_EXT; break;
-	case 1: return GL_COLOR_ATTACHMENT1_EXT; break;
-	case 2: return GL_COLOR_ATTACHMENT2_EXT; break;
-	case 3: return GL_COLOR_ATTACHMENT3_EXT; break;
-	case 4: return GL_COLOR_ATTACHMENT4_EXT; break;
-	case 5: return GL_COLOR_ATTACHMENT5_EXT; break;
-	case 6: return GL_COLOR_ATTACHMENT6_EXT; break;
-	case 7: return GL_COLOR_ATTACHMENT7_EXT; break;
-	case 8: return GL_COLOR_ATTACHMENT8_EXT; break;
-	case 9: return GL_COLOR_ATTACHMENT9_EXT; break;
-	case 10: return GL_COLOR_ATTACHMENT10_EXT; break;
-	case 11: return GL_COLOR_ATTACHMENT11_EXT; break;
-	case 12: return GL_COLOR_ATTACHMENT12_EXT; break;
-	case 13: return GL_COLOR_ATTACHMENT13_EXT; break;
-	case 14: return GL_COLOR_ATTACHMENT14_EXT; break;
-	case 15: return GL_COLOR_ATTACHMENT15_EXT; break;
-	default: break;
-	}
-}
-
-void FrameBufferObjectGL2::AddDepthAttachment(Graphics::RenderBuffer* _Depth)
-{
-	if(!_Depth)
-	{
-		Message(LOCAL_MSG,"Invalid depth attachment passed to framebuffer");
+		Message(LOCAL_MSG,"Invalid renderbuffer passed to attach function");
 		return;
 	}
 
-	if(!_Depth->Ready())
+	if(!_Buffer->Ready())
 	{
-		Message(LOCAL_MSG,"Unable to add depth attachment, attachment is not ready");
+		Message(LOCAL_MSG,"Unable to add attachment, attachment is not ready");
 		return;
 	}
 
-	if(m_UseDepthAttachment)
-		DetachDepth();
+	if(_Attachment == GL_DEPTH_ATTACHMENT_EXT) 
+	{
+		if(m_UseDepthAttachment)
+		{
+			Detach(_Attachment);
+			Message(LOCAL_MSG,"Depth buffer already attached, reattaching with new ID");
+		}
+
+		m_UseDepthAttachment = true;
+	}
+
+	else if(_Attachment == GL_STENCIL_ATTACHMENT_EXT)
+	{
+		if(m_UseStencilAttachment)
+		{
+			Detach(_Attachment);
+			Message(LOCAL_MSG,"Stencil buffer already attached, reattaching with new ID");
+		}
+
+		m_UseStencilAttachment = true;
+	}
+
+	else if(_Attachment >= GL_COLOR_ATTACHMENT0 && _Attachment <= GL_COLOR_ATTACHMENT15)
+	{
+		short unsigned _ID = TranslateAttachment(_Attachment);
+		short unsigned _Result = (m_AttachmentMask & (_ID+1)) / (_ID + 1);
+
+		if(_Result)
+		{
+			// already attached, detach first!
+			Detach(_Attachment);
+			Message(LOCAL_MSG,"Already attached, reattaching with new ID");
+		}	
+
+		m_NumColorAttachment++;
+		m_AttachmentMask ^= _ID+1;
+	}
+	else
+	{
+		Message(LOCAL_MSG,"Unable to attach with invalid ID");
+		return;
+	}
+
+	FrameBufferObject* _OldFBO = m_pDevice->BindFrameBufferObject(this);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, _Attachment,
+                             GL_RENDERBUFFER_EXT, ((RenderBufferGL2*) _Buffer)->GetHandle());
+	m_pDevice->BindFrameBufferObject(_OldFBO);
 
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	m_Complete = CheckFBO(status);
-
-	m_UseDepthAttachment = true;
 }
-
-void FrameBufferObjectGL2::DetachColor(unsigned _ID)
-{
-	if(_ID > m_MaxColorAttachments-1)
-	{
-		Message(LOCAL_MSG, "Unable to detach color attachment with ID %u",_ID);
-		return;
-	}
-
-	unsigned short _Result = m_AttachmentMask & (_ID+1);
-
-	if(!_Result)
-	{
-		Message(LOCAL_MSG,"Trying to detach unattached attachment");
-		return;
-	}
-
-	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
-
-	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_TEXTURE_2D, 0, 0);
-	m_pDevice->BindFrameBufferObject(_CurrentFBO);
-
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	m_Complete = CheckFBO(status);
-
-	m_NumColorAttachment--;
-	m_AttachmentMask ^= _ID + 1;
-}
-
-void FrameBufferObjectGL2::DetachDepth()
-{
-	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, 0, 0);
-	m_pDevice->BindFrameBufferObject(_CurrentFBO);
-
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	m_Complete = CheckFBO(status);
-
-	m_UseDepthAttachment = false;
-}
-
-void FrameBufferObjectGL2::AttachStencil(Graphics::RenderBuffer* _Stencil)
-{
-	if(!_Stencil)
-	{
-		Message(LOCAL_MSG,"Invalid depth attachment passed to framebuffer");
-		return;
-	}
-
-	if(!_Stencil->Ready())
-	{
-		Message(LOCAL_MSG,"Unable to add depth attachment, attachment is not ready");
-		return;
-	}
-
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	m_Complete = CheckFBO(status);
-
-	m_UseStencilAttachment = true;
-}
-
-void FrameBufferObjectGL2::DetachStencil()
-{
-	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_TEXTURE_2D, 0, 0);
-	m_pDevice->BindFrameBufferObject(_CurrentFBO);
-
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	m_Complete = CheckFBO(status);
-
-	m_UseStencilAttachment = false;
-}
-

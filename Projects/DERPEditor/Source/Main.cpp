@@ -79,13 +79,17 @@ int main()
 
     // FBO tests
 	Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
-	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
+	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(GL_DEPTH_COMPONENT,spec.Width,spec.Height);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
 	
-	pFBO->AddColorAttachment(tex0,0,true);
-	pFBO->AddColorAttachment(tex0,0,true);
-
-	pFBO->AddDepthAttachment(pBuf0);
+	pFBO->Attach(tex0,GL_COLOR_ATTACHMENT0,true);
+	pFBO->Attach(pBuf0,GL_DEPTH_ATTACHMENT);
+	pFBO->Attach(pBuf0,GL_DEPTH_ATTACHMENT);
+	pFBO->Detach(GL_DEPTH_ATTACHMENT);
+	pFBO->Detach(GL_DEPTH_ATTACHMENT);
+	pFBO->Detach(GL_COLOR_ATTACHMENT0);
+	pFBO->Detach(GL_COLOR_ATTACHMENT1);
+	pFBO->Detach(GL_STENCIL_ATTACHMENT);
 
 	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
 	
@@ -115,14 +119,11 @@ int main()
 
     while(win->IsOpen())
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-
 		gfx->BindFrameBufferObject(pFBO);
         qb->Draw();
 		gfx->UnbindFrameBufferObject();
 
 		gfx->BindTexture(tex0);
-
 		testFBO->Draw();
 
         win->Swap();
