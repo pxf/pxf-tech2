@@ -129,7 +129,7 @@ namespace Pxf
 					GLenum t = 0;
 					if (target == GL_ARRAY_BUFFER)
 						t = GL_ARRAY_BUFFER_ARB;
-					return glMapBuffer(t, access);
+					return glMapBufferARB(t, access);
 				}
 				return 0;
 			}

@@ -63,7 +63,7 @@ namespace Pxf
 
 			virtual FrameBufferObject* CreateFrameBufferObject() = 0;
 			virtual void DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
-			virtual void BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
+			virtual Graphics::FrameBufferObject* BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
 			virtual void UnbindFrameBufferObject() = 0;
 			
 			bool Ready() { return m_Ready; }
