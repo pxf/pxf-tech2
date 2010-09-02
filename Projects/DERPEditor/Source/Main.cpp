@@ -77,7 +77,12 @@ int main()
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
     QuadBatch* qb = new QuadBatch(1024);
+    qb->Begin();
+    qb->SetColor(0.0f, 1.0f, 0.0f);
     qb->AddCentered(0, 0, 1, 1);
+    qb->SetColor(1.0f, 0.0f, 0.0f);
+    qb->AddCentered(-0.5f, -0.5f, 0.2f, 0.2f);
+    qb->End();
     
     while(win->IsOpen())
     {
