@@ -48,14 +48,15 @@ static GLuint LookupAccessFlag(VertexBufferAccessFlag _BufferAccessFlag)
 VertexBufferGL2::VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
 	: VertexBuffer(_pDevice, _VertexBufferLocation, _VertexBufferUsageFlag)
 	, m_BufferObjectId(0)
-{}
+{
+}
 
 VertexBufferGL2::~VertexBufferGL2()
 {
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
 		if (m_BufferObjectId)
-			glDeleteBuffers(1, (GLuint*) &m_BufferObjectId);
+			GL::DeleteBuffers(1, (GLuint*) &m_BufferObjectId);
 	}
 	else
 	{
@@ -70,7 +71,7 @@ void VertexBufferGL2::_PreDraw()
 	unsigned int BufferOffset = 0;
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
+		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
 	}
 	else
 	{
@@ -117,7 +118,7 @@ void VertexBufferGL2::_PostDraw()
 {
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -159,10 +160,10 @@ void VertexBufferGL2::CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize)
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
 		GLuint usage = LookupUsageFlag(m_VertexBufferUsageFlag);
-		glGenBuffersARB(1, (GLuint*)&m_BufferObjectId);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, _NumVertices * _VertexSize, 0, usage);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		GL::GenBuffers(1, (GLuint*)&m_BufferObjectId);
+		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
+		GL::BufferData(GL::ARRAY_BUFFER, _NumVertices * _VertexSize, 0, usage);
+		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
 	}
 	else
 	{
@@ -183,9 +184,9 @@ void VertexBufferGL2::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32
 	{
 		// Copy to gpu memory
 		GLuint usage = LookupUsageFlag(m_VertexBufferUsageFlag);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, _NumVertices * _VertexSize, _Buffer, usage);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
+		GL::BufferData(GL::ARRAY_BUFFER, _NumVertices * _VertexSize, _Buffer, usage);
+		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
 	}
 	else
 	{
@@ -203,9 +204,9 @@ void VertexBufferGL2::UpdateData(void* _Buffer, uint32 _Count, uint32 _Offset)
 {
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, (GLuint) m_BufferObjectId);
-		glBufferSubData(GL_ARRAY_BUFFER, _Offset, _Count, _Buffer);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
+		GL::BufferSubData(GL::ARRAY_BUFFER, _Offset, _Count, _Buffer);
+		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
 	}
 	else if (m_VertexBufferLocation == VB_LOCATION_SYS && m_InterleavedData != 0)
 	{
@@ -220,9 +221,9 @@ void* VertexBufferGL2::MapData(VertexBufferAccessFlag _AccessFlag)
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{
 		GLuint access = LookupAccessFlag(_AccessFlag);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
-		void* data = glMapBufferARB(GL_ARRAY_BUFFER_ARB, access);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
+		void* data = GL::MapBuffer(GL::ARRAY_BUFFER, access);
+		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
 		return data;
 	}
 	else if (m_VertexBufferLocation == VB_LOCATION_SYS && m_InterleavedData != 0)
@@ -239,9 +240,9 @@ void VertexBufferGL2::UnmapData()
 
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, (GLuint) m_BufferObjectId);
-		glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
+		GL::UnmapBuffer(GL::ARRAY_BUFFER);
+		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
 		m_IsMapped = false;
 	}
 	
