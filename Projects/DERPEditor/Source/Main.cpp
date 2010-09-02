@@ -74,18 +74,25 @@ int main()
     spec.VerticalSync = false;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
-    
+   
+
     // FBO tests
+	Graphics::Texture* tex0 = gfx->CreateEmptyTexture(512,512);
 	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
+	
+	pFBO->AddColorAttachment(tex0,0,true);
+	pFBO->AddColorAttachment(tex0,0,true);
 	pFBO->AddDepthAttachment(pBuf0);
 
-	//pFBO->DetachColor(0);
+	pFBO->DetachColor(0);
+	pFBO->DetachColor(0);
 
 	printf("%i\n",pFBO->GetNumColorAttachment());
 	
 	// QuadBatch tests
 	glEnable( GL_TEXTURE_2D );
+
     Math::Mat4 transform = Math::Mat4::Identity;
     TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "data/test.png");
     

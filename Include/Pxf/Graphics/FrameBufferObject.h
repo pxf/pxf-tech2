@@ -21,6 +21,7 @@ namespace Pxf
 				, m_MaxColorAttachments(0)
 				, m_UseStencilAttachment(false)
 				, m_UseDepthAttachment(false)
+				, m_AttachmentMask(0)
 			{ }
 
 			//virtual void AddColorAttachment(RenderBuffer* _Attachment, unsigned _ID) = 0;
@@ -41,6 +42,8 @@ namespace Pxf
 		protected:
 			int m_MaxColorAttachments;	// upper bound on attachments, vendor specific
 			int m_NumColorAttachment;
+
+			short unsigned m_AttachmentMask;
 			
 			bool m_UseDepthAttachment;	
 			bool m_UseStencilAttachment;

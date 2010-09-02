@@ -52,7 +52,6 @@ bool CheckFBO(GLenum _status)
 	switch(_status)
 	{
 	case GL_FRAMEBUFFER_COMPLETE_EXT:
-		Message("FrameBuffer::Attach", "GL_FRAMEBUFFER_COMPLETE_EXT");
 		return true;
 		break;
 	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
@@ -83,7 +82,7 @@ bool CheckFBO(GLenum _status)
 	return false;
 }
 
-void FrameBufferObjectGL2::AddColorAttachment(Texture* _Texture, unsigned _ID,  const bool _GenMipmaps)
+void FrameBufferObjectGL2::AddColorAttachment(Texture* _Texture, unsigned _ID,  const bool _GenMipmaps = false)
 {
 	if(!_Texture)
 	{
@@ -91,6 +90,7 @@ void FrameBufferObjectGL2::AddColorAttachment(Texture* _Texture, unsigned _ID,  
 		return;
 	}
 
+	// bounds check
 	if(m_NumColorAttachment >= m_MaxColorAttachments)
 	{
 		Message(LOCAL_MSG,"Capacity reached, unable to attach");
@@ -103,12 +103,20 @@ void FrameBufferObjectGL2::AddColorAttachment(Texture* _Texture, unsigned _ID,  
 		return;
 	}
 
+	// check if _ID is already attached
+	short unsigned _Result = (m_AttachmentMask & (_ID+1)) / (_ID + 1);
+
+	if(_Result)
+	{
+		// already attached, detach first!
+		DetachColor(_ID);
+		Message(LOCAL_MSG,"Already attached, reattaching with new ID");
+	}	
+
 	// everything OK, attach
 	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
-	
 	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
-
-	//Texture* old_tex = m_pDevice->BindTexture(_Texture);
+	
 	m_pDevice->BindTexture(_Texture);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_TEXTURE_2D, ((TextureGL2*) _Texture)->GetTextureID(), 0);
 
@@ -121,6 +129,8 @@ void FrameBufferObjectGL2::AddColorAttachment(Texture* _Texture, unsigned _ID,  
 	m_Complete = CheckFBO(status);
 
 	m_NumColorAttachment++;
+
+	m_AttachmentMask ^= _ID+1;
 }
 
 // Lut for id -> opengl 
@@ -162,6 +172,9 @@ void FrameBufferObjectGL2::AddDepthAttachment(Graphics::RenderBuffer* _Depth)
 		return;
 	}
 
+	if(m_UseDepthAttachment)
+		DetachDepth();
+
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	m_Complete = CheckFBO(status);
 
@@ -176,6 +189,14 @@ void FrameBufferObjectGL2::DetachColor(unsigned _ID)
 		return;
 	}
 
+	unsigned short _Result = m_AttachmentMask & (_ID+1);
+
+	if(!_Result)
+	{
+		Message(LOCAL_MSG,"Trying to detach unattached attachment");
+		return;
+	}
+
 	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
 
 	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
@@ -186,6 +207,7 @@ void FrameBufferObjectGL2::DetachColor(unsigned _ID)
 	m_Complete = CheckFBO(status);
 
 	m_NumColorAttachment--;
+	m_AttachmentMask ^= _ID + 1;
 }
 
 void FrameBufferObjectGL2::DetachDepth()
