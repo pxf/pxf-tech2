@@ -78,7 +78,11 @@ int main()
     // FBO tests
 	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
-	pFBO->AddColorAttachment(pBuf0,0);
+	pFBO->AddDepthAttachment(pBuf0);
+
+	//pFBO->DetachColor(0);
+
+	printf("%i\n",pFBO->GetNumColorAttachment());
 	
 	// QuadBatch tests
     Math::Mat4 transform = Math::Mat4::Identity;
@@ -97,7 +101,10 @@ int main()
     while(win->IsOpen())
     {
         glClear(GL_COLOR_BUFFER_BIT);
+
+
         qb->Draw();
+
         win->Swap();
     }
     

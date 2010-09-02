@@ -4,6 +4,7 @@
 #include <Pxf/Graphics/DeviceResource.h>
 #include <Pxf/Graphics/RenderBuffer.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Graphics/Texture.h>
 #include <vector>
 
 namespace Pxf
@@ -18,13 +19,18 @@ namespace Pxf
 				: DeviceResource(_Device)
 				, m_NumColorAttachment(0)
 				, m_MaxColorAttachments(0)
+				, m_UseStencilAttachment(false)
+				, m_UseDepthAttachment(false)
 			{ }
 
-			virtual void AddColorAttachment(RenderBuffer* _Attachment, unsigned _ID) = 0;
+			//virtual void AddColorAttachment(RenderBuffer* _Attachment, unsigned _ID) = 0;
+			virtual void AddColorAttachment(Texture* _Texture, unsigned _ID,  const bool _GenMipmaps) = 0;
 			virtual void AddDepthAttachment(RenderBuffer* _Depth) = 0;
+			virtual void AttachStencil(RenderBuffer* _Stencil) = 0;
 
 			virtual void DetachColor(unsigned _ID) = 0;
 			virtual void DetachDepth() = 0;
+			virtual void DetachStencil() = 0;
 
 			virtual void DetachAll() = 0;
 
@@ -37,6 +43,7 @@ namespace Pxf
 			int m_NumColorAttachment;
 			
 			bool m_UseDepthAttachment;	
+			bool m_UseStencilAttachment;
 			bool m_Complete;
 		};
 	} // Graphics
