@@ -284,3 +284,75 @@ Shader* DeviceGL2::BindShader(Shader* _Shader)
 
 	return previous;
 }
+
+void DeviceGL2::SetUniformi(Graphics::Shader* _Shader, const char* _name, int _value)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	glUniform1iARB(loc, _value);
+	BindShader(old_shader); 
+}
+
+void DeviceGL2::SetUniformf(Graphics::Shader* _Shader, const char* _name, float _value)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	glUniform1fARB(loc, _value);
+	BindShader(old_shader); 
+}
+
+void DeviceGL2::SetUniformVec2(Graphics::Shader* _Shader, const char* _name, const Math::Vec2f* _value)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	glUniform2fvARB(loc, 1, (const float*)_value);
+	BindShader(old_shader); 
+}
+
+void DeviceGL2::SetUniformVec3(Graphics::Shader* _Shader, const char* _name, const Math::Vec3f* _value)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	glUniform3fvARB(loc, 1, (const float*)_value);
+	BindShader(old_shader);
+}
+
+void DeviceGL2::SetUniformVec3v(Graphics::Shader* _Shader, const char* _name, unsigned count, const Math::Vec3f* _value)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	glUniform3fvARB(loc, count, (const float*)_value);
+	BindShader(old_shader);
+}
+
+void DeviceGL2::SetUniformVec4(Graphics::Shader* _Shader, const char* _name, const Math::Vec4f* _value)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	glUniform4fvARB(loc, 1, (const float*)_value);
+	BindShader(old_shader);
+}
+
+void DeviceGL2::SetUniformVec4v(Graphics::Shader* _Shader, const char* _name, unsigned count, const Math::Vec4f* _value)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	glUniform4fvARB(loc, count, (const float*)_value);
+	BindShader(old_shader);
+}
+
+void DeviceGL2::SetUniformMat4(Graphics::Shader* _Shader, const char* _name, const Math::Mat4* _value)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	glUniformMatrix4fvARB(loc, 1, 0, _value->m);
+	BindShader(old_shader);
+}
