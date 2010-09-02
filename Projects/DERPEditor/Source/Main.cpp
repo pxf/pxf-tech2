@@ -26,6 +26,7 @@
 
 #include <ctime>
 
+#include "QuadBatch.h"
 #include "TexturedQuadBatch.h"
 #include <Pxf/Modules/pri/OpenGL.h>
 
@@ -77,21 +78,25 @@ int main()
    
 
     // FBO tests
-	Graphics::Texture* tex0 = gfx->CreateEmptyTexture(512,512);
+	Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
 	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
 	
 	pFBO->AddColorAttachment(tex0,0,true);
 	pFBO->AddColorAttachment(tex0,0,true);
+
 	pFBO->AddDepthAttachment(pBuf0);
 
-	pFBO->DetachColor(0);
-	pFBO->DetachColor(0);
-
-	printf("%i\n",pFBO->GetNumColorAttachment());
+	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
 	
 	// QuadBatch tests
 	glEnable( GL_TEXTURE_2D );
+
+	QuadBatch* testFBO = new QuadBatch(4);
+	testFBO->Begin();
+	testFBO->AddTopLeft(0, 0, spec.Width, spec.Height);
+	testFBO->SetColor(0.0f,1.0f,0.0f);
+	testFBO->End();
 
     Math::Mat4 transform = Math::Mat4::Identity;
     TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "data/test.png");
@@ -112,8 +117,13 @@ int main()
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-
+		gfx->BindFrameBufferObject(pFBO);
         qb->Draw();
+		gfx->UnbindFrameBufferObject();
+
+		gfx->BindTexture(tex0);
+
+		testFBO->Draw();
 
         win->Swap();
     }
