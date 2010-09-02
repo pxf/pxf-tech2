@@ -24,9 +24,14 @@ void FrameBufferObjectGL2::_Configure()
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_Attachments);
 
 	if(_Attachments == GL_INVALID_ENUM)
+	{
 		Message(LOCAL_MSG,"Invalid enum");
+		_Attachments = 0;
+	}
 
-	//printf("%d\n",_Attachments);
+	m_MaxColorAttachments = _Attachments;
+
+	m_
 }
 
 void FrameBufferObjectGL2::AddColorAttachment(Graphics::RenderBuffer* _Attachment)
