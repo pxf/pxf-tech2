@@ -25,6 +25,8 @@
 
 #include <enet/enet.h>
 
+#include <openctm.h>
+
 #include <ctime>
 
 #include "QuadBatch.h"
@@ -98,6 +100,25 @@ int main()
 
 	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
 	
+	// mesh test
+	CTMcontext	context;
+	CTMuint		vertCount, triCount;
+	const CTMuint* indices;
+	const CTMfloat*	vertices;
+
+	/*
+	ctmLoad(context, "data/test.ctm");
+	if(ctmGetError(context) == CTM_NONE)
+	{
+		vertCount = ctmGetInteger(context, CTM_VERTEX_COUNT);
+		vertices = ctmGetFloatArray(context, CTM_VERTICES);
+		triCount = ctmGetInteger(context, CTM_TRIANGLE_COUNT);
+		indices = ctmGetIntegerArray(context, CTM_INDICES);
+	}
+
+	ctmFreeContext(context);
+	*/
+
 	// QuadBatch tests
 	glEnable( GL_TEXTURE_2D );
 	glEnable (GL_DEPTH_TEST);

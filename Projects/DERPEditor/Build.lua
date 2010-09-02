@@ -6,6 +6,7 @@ project = NewProject("DERPEditor")
 --project.settings.static = True
 project:RequireLibrary("enet")
 project:RequireLibrary("glfw")
+project:RequireLibrary("openctm")
 project:RequireModule("pri")
 project:RequireModule("img")
 project:AddIncludeDirectory("Include/")
