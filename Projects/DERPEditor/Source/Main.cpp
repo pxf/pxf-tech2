@@ -95,18 +95,12 @@ int main()
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
 	
 	pFBO->Attach(tex0,GL_COLOR_ATTACHMENT0,true);
-	pFBO->Attach(pBuf0,GL_DEPTH_ATTACHMENT);
-	pFBO->Attach(pBuf0,GL_DEPTH_ATTACHMENT);
-	pFBO->Detach(GL_DEPTH_ATTACHMENT);
-	pFBO->Detach(GL_DEPTH_ATTACHMENT);
-	pFBO->Detach(GL_COLOR_ATTACHMENT0);
-	pFBO->Detach(GL_COLOR_ATTACHMENT1);
-	pFBO->Detach(GL_STENCIL_ATTACHMENT);
 
 	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
 	
 	// QuadBatch tests
 	glEnable( GL_TEXTURE_2D );
+	glEnable (GL_DEPTH_TEST);
 
 	QuadBatch* testFBO = new QuadBatch(4);
 	testFBO->Begin();
