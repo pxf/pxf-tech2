@@ -22,6 +22,9 @@ Resource::ResourceManager::~ResourceManager()
     // clean up resource loaders
 	// several extensions might share resource loader, but they are located together.
 	// we use prev to make sure to only delete a pointer once.
+
+	Message("ResourceManager", "Destroying resource manager");
+
 	ResourceLoader* prev = 0;
     if (m_ResourceLoaders->size() > 0)
     {

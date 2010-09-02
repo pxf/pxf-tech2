@@ -15,6 +15,11 @@ namespace Graphics {
 		{
 			m_pDevice = _pDevice;
 		}
+
+		GraphicsDevice* GetDevice() const
+		{
+			return m_pDevice;
+		}
 	};
 
 }}

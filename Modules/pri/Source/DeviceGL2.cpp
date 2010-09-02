@@ -32,6 +32,10 @@ DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
 
 	Message(LOCAL_MSG, "Device initiated.");
 	
+	// Clear BindTexture history
+	for(int i = 0; i < 16; ++i)
+        m_BindHistory[i] = NULL;
+	
 }
 
 DeviceGL2::~DeviceGL2()
@@ -108,19 +112,35 @@ Texture* DeviceGL2::CreateTextureFromData(const unsigned char* _datachunk, int _
 	return _tex;
 }
 
-void DeviceGL2::BindTexture(Texture* _texture)
+Texture* DeviceGL2::BindTexture(Texture* _texture)
 {
-	glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
+    Texture* ret = m_BindHistory[0];
+    m_BindHistory[0] = _texture;
+    if (_texture == NULL)
+    {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
+    }
+    return ret;
 }
 
 static GLuint _texture_units_array[16] = {GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2, GL_TEXTURE3, GL_TEXTURE4,
 										GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9,
 										GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12, GL_TEXTURE13, GL_TEXTURE14,
 										GL_TEXTURE15};
-void DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
+Texture* DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
 {
+    Texture* ret = m_BindHistory[_texture_unit];
+    m_BindHistory[_texture_unit] = _texture;
 	glActiveTextureARB(_texture_units_array[_texture_unit]);
-	glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
+    if (_texture == NULL)
+    {
+    	glBindTexture(GL_TEXTURE_2D, 0);
+    } else {
+    	glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
+    }
+    return ret;
 }
 
 VertexBuffer* DeviceGL2::CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)

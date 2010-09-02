@@ -118,7 +118,7 @@ void TextureGL2::Reload()
         Unload();
     }
 
-    Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
+    Resource::ResourceManager* res = GetDevice()->GetKernel()->GetResourceManager();
     Resource::Image* img = res->Acquire<Resource::Image>(m_Filepath.c_str());
     
     if (!img)
