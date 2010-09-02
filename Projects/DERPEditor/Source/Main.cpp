@@ -11,6 +11,7 @@
 #include <Pxf/Graphics/WindowSpecifications.h>
 #include <Pxf/Graphics/RenderBuffer.h>
 #include <Pxf/Graphics/FrameBufferObject.h>
+#include <Pxf/Graphics/Shader.h>
 
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/String.h>
@@ -76,6 +77,17 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
    
+	// Shader test
+	const char* vertex_program = "void main(void)\
+	{                                            \
+		gl_Position = ftransform();              \
+	}";
+	const char* fragment_program = "void main(void)\
+	{                                            \
+	gl_FragColor = vec4(0, 1, 0, 1); \
+	}";
+	Graphics::Shader* test_shader = gfx->CreateShader("test_shader", vertex_program, fragment_program);
+
 
     // FBO tests
 	Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
@@ -120,7 +132,9 @@ int main()
     while(win->IsOpen())
     {
 		gfx->BindFrameBufferObject(pFBO);
+		//Graphics::Shader* prev = gfx->BindShader(test_shader);
         qb->Draw();
+		//gfx->BindShader(prev);
 		gfx->UnbindFrameBufferObject();
 
 		gfx->BindTexture(tex0);

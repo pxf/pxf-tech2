@@ -1,35 +1,23 @@
-#ifndef __PXF_GRAPHICS_SHADER_H__
-#define __PXF_GRAPHICS_SHADER_H__
+#ifndef _PXF_GRAPHICS_SHADER_H_
+#define _PXF_GRAPHICS_SHADER_H_
 
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Graphics/DeviceResource.h>
 
 namespace Pxf {
-	namespace Resource {
-		class DeviceResource;
-	}
-
 	namespace Graphics {
 		
-		class Shader : Resource::DeviceResource
+		class Shader : Graphics::DeviceResource
 		{
-		private:
-			static unsigned _ID;
-			bool m_IsValid;
-			bool Compile();
-
+		protected:
+			bool m_Valid;
 		public:
-			Shader() : Resource::DeviceResource(..)
-			{
-
-			}
-
-			virtual void Bind() = 0;
-			virtual void Unbind() = 0;
+			Shader(GraphicsDevice* _pDevice)
+				: Graphics::DeviceResource(_pDevice)
+				, m_Valid(false)
+			{}
 			
-			inline bool IsValid()
-			{
-				return m_IsValid;
-			}
+			bool IsValid() const { return m_Valid; }
 		};
 	}
 }
