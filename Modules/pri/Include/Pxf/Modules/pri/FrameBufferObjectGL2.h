@@ -19,14 +19,9 @@ namespace Pxf{
 			{ _Configure(); }
 			~FrameBufferObjectGL2();
 
-			//void AddColorAttachment(Graphics::RenderBuffer* _Attachment, unsigned _ID);
-			void AddColorAttachment(Graphics::Texture* _Texture, unsigned _ID,  const bool _GenMipmaps);
-			void AddDepthAttachment(Graphics::RenderBuffer* _Depth);
-			void AttachStencil(Graphics::RenderBuffer* _Stencil);
-
-			void DetachColor(unsigned _ID);
-			void DetachDepth();
-			void DetachStencil();		
+			void Attach(Graphics::Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps);
+			void Attach(Graphics::RenderBuffer* _Buffer, const unsigned _Attachment);
+			void Detach(const unsigned _Attachment);	
 
 			void DetachAll();
 

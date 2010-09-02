@@ -228,6 +228,9 @@ void DeviceGL2::DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 
 Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 {
+	// prepare drawing
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 	if(_pFrameBufferObject)
 	{
 		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;

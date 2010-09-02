@@ -92,18 +92,16 @@ int main()
 
     // FBO tests
 	Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
-	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
+	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(GL_DEPTH_COMPONENT,spec.Width,spec.Height);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
 	
-	pFBO->AddColorAttachment(tex0,0,true);
-	pFBO->AddColorAttachment(tex0,0,true);
-
-	pFBO->AddDepthAttachment(pBuf0);
+	pFBO->Attach(tex0,GL_COLOR_ATTACHMENT0,true);
 
 	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
 	
 	// QuadBatch tests
 	glEnable( GL_TEXTURE_2D );
+	glEnable (GL_DEPTH_TEST);
 
 	QuadBatch* testFBO = new QuadBatch(4);
 	testFBO->Begin();
@@ -131,8 +129,6 @@ int main()
 
     while(win->IsOpen())
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-
 		gfx->BindFrameBufferObject(pFBO);
 		//Graphics::Shader* prev = gfx->BindShader(test_shader);
         qb->Draw();
@@ -140,7 +136,6 @@ int main()
 		gfx->UnbindFrameBufferObject();
 
 		gfx->BindTexture(tex0);
-
 		testFBO->Draw();
 
         win->Swap();
