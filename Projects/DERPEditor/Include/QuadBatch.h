@@ -17,7 +17,7 @@ namespace DERPEditor
             Pxf::Math::Vec2f coord;
         };
         
-        QuadBatch(int _size);
+        QuadBatch(int _size, Pxf::Math::Mat4* _transformmatrix = NULL);
         ~QuadBatch();
         
         void SetColor(float r, float g, float b) { m_CurrentColor = Pxf::Math::Vec4f(r, g, b, m_CurrentColor.a); };
@@ -44,6 +44,9 @@ namespace DERPEditor
         int m_VertBufSize;
         
         int m_CurrentVert;
+        
+        // transformation
+        Pxf::Math::Mat4* m_Transformation;
         
         // per quad states
         float m_CurrentDepth;

@@ -12,6 +12,10 @@ namespace Pxf
 		class RenderBuffer : public DeviceResource
 		{
 		public:
+			RenderBuffer()
+				: DeviceResource(0)
+			{ }
+
 			RenderBuffer(GraphicsDevice* _Device, unsigned _Width, unsigned _Height)
 				: DeviceResource(_Device)
 				, m_Width(_Width)
@@ -21,9 +25,12 @@ namespace Pxf
 			int GetWidth() { return m_Width; }
 			int GetHeight() { return m_Height; }
 
-		private:
+			bool Ready() { return m_Ready; }
+
+		protected:
 			unsigned m_Width;
 			unsigned m_Height;
+			bool m_Ready;
 		};
 	} // Graphics
 } // Pxf

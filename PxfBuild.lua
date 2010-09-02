@@ -297,6 +297,7 @@ function NewProject(name)
             -- Pxf source files
             framework_settings = settings:Copy()
             pxf_source_files = Collect(PathJoin(path_prefix, "Source/*.cpp")
+                                      ,PathJoin(path_prefix, "Source/Math/*.cpp")
                                       ,PathJoin(path_prefix, "Source/Base/*.cpp")
                                       ,PathJoin(path_prefix, "Source/Graphics/*.cpp")
                                       ,PathJoin(path_prefix, "Source/Resource/*.cpp"))

@@ -4,6 +4,7 @@
 #include <Pxf/Graphics/DeviceResource.h>
 #include <Pxf/Graphics/RenderBuffer.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
+#include <vector>
 
 namespace Pxf
 {
@@ -15,29 +16,26 @@ namespace Pxf
 		public:
 			FrameBufferObject(GraphicsDevice* _Device)
 				: DeviceResource(_Device)
+				, m_NumColorAttachment(0)
+				, m_MaxColorAttachments(0)
 			{ }
 
-			//virtual ~FrameBufferObject();
-
-			virtual void AddColorAttachment(RenderBuffer* _Attachment) = 0;
+			virtual void AddColorAttachment(RenderBuffer* _Attachment, unsigned _ID) = 0;
 			virtual void AddDepthAttachment(RenderBuffer* _Depth) = 0;
 
 			virtual void DetachColor(unsigned _ID) = 0;
-			virtual void DetachDepth(unsigned _ID) = 0;
+			virtual void DetachDepth() = 0;
 
 			virtual void DetachAll() = 0;
 
 			int GetNumColorAttachment() { return m_NumColorAttachment; }
 			bool GetUseDepthAttachment() { return m_UseDepthAttachment; }
+
 			bool IsComplete() { return m_Complete; }
 		protected:
-			RenderBuffer* m_ColorAttachments;
-			RenderBuffer* m_DepthAttachment;
 			int m_MaxColorAttachments;	// upper bound on attachments, vendor specific
-		private:
-			//RenderBuffer m_StencilAttachment; // future implementation
-
 			int m_NumColorAttachment;
+			
 			bool m_UseDepthAttachment;	
 			bool m_Complete;
 		};
