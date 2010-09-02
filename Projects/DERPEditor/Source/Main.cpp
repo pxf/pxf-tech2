@@ -47,11 +47,6 @@ int main()
     Resource::ResourceManager* res = kernel->GetResourceManager();
     Resource::Image* img = res->Acquire<Resource::Image>("test.png");
 
-	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
-	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
-	
-	pFBO->AddColorAttachment(pBuf0);
-
     res->DumpResourceLoaders();
 
     snd->Play(2);
@@ -79,6 +74,11 @@ int main()
     spec.VerticalSync = false;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
+    
+    Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
+	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
+	
+	pFBO->AddColorAttachment(pBuf0);
     
     QuadBatch* qb = new QuadBatch(1024);
     qb->Begin();
