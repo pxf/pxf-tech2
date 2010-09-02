@@ -46,10 +46,14 @@ namespace Pxf{
 			Graphics::RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height);
 			void DestroyRenderBuffer(Graphics::RenderBuffer* _pRenderBuffer);
 			
+			void BindRenderBuffer(Graphics::RenderBuffer* _pRenderBuffer);
+			void UnbindRenderBuffer();
+
 			Graphics::FrameBufferObject* CreateFrameBufferObject();
 			void DestroyFrameBufferObject(Graphics::FrameBufferObject* _pFrameBufferObject);
-			
-			void BindFrameBuffer(Graphics::FrameBufferObject* _FrameBuffer);
+
+			void BindFrameBufferObject(Graphics::FrameBufferObject* _pFrameBufferObject);
+			void UnbindFrameBufferObject();
 
 		private:
             bool Init(){ return true; };

@@ -27,7 +27,7 @@ namespace Pxf
 
 			bool Ready() { return m_Ready; }
 
-		private:
+		protected:
 			unsigned m_Width;
 			unsigned m_Height;
 			bool m_Ready;
