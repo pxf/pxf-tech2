@@ -36,8 +36,8 @@ namespace Pxf{
 			Graphics::Texture* CreateEmptyTexture(int _Width,int _Height, Graphics::TextureFormatStorage _Format = Graphics::TEX_FORMAT_RGBA);
 			Graphics::Texture* CreateTexture(const char* _filepath);
 			Graphics::Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels);
-			void BindTexture(Graphics::Texture* _texture);
-			void BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
+			Graphics::Texture* BindTexture(Graphics::Texture* _texture);
+			Graphics::Texture* BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
 
 			Graphics::VertexBuffer* CreateVertexBuffer(Graphics::VertexBufferLocation _VertexBufferLocation, Graphics::VertexBufferUsageFlag _VertexBufferUsageFlag);
 			void DestroyVertexBuffer(Graphics::VertexBuffer* _pVertexBuffer);
@@ -61,6 +61,8 @@ namespace Pxf{
             bool Init(){ return true; };
 			Graphics::Window* m_Window;
 			Graphics::FrameBufferObject* m_CurrentFrameBufferObject;
+			
+            Graphics::Texture* m_BindHistory[16];
 		};
 
 	} // Graphics
