@@ -75,16 +75,20 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
+    // FBO tests
 	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
-	
 	pFBO->AddColorAttachment(pBuf0,0);
-
-    QuadBatch* qb = new QuadBatch(1024);
+	
+	// QuadBatch tests
+    Math::Mat4 transform = Math::Mat4::Identity;
+    QuadBatch* qb = new QuadBatch(1024, &transform);
+    
     qb->Begin();
     qb->SetColor(0.0f, 1.0f, 0.0f);
     qb->AddCentered(0, 0, 1, 1);
     qb->SetColor(1.0f, 0.0f, 0.0f);
+    transform.Translate(0.5f, 0.5f, 0.0f);
     qb->AddCentered(-0.5f, -0.5f, 0.2f, 0.2f);
     qb->End();
     
