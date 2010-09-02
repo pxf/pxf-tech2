@@ -12,7 +12,9 @@ static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
 using Pxf::Modules::GenericImageImporter;
+#ifndef CONF_MODULAR
 REGISTER_MODULE(GenericImageImporter, "img", Module_Kernel_Version, Module_Api_Version);
+#endif
 
 namespace GenericImageLoader_
 {
