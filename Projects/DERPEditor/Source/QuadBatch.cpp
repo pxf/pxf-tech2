@@ -11,7 +11,7 @@ using namespace DERPEditor;
 using namespace Pxf::Graphics;
 using namespace Pxf::Math;
 
-QuadBatch::QuadBatch(int _size, Mat4* _transformmatrix)
+QuadBatch::QuadBatch(unsigned int _size, Mat4* _transformmatrix)
 {
     m_VertBufSize = _size;
     m_Transformation = _transformmatrix;
@@ -38,6 +38,23 @@ void QuadBatch::Reset()
     
     m_CurrentColor = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
     m_CurrentDepth = 0.0f;
+    
+    SetTextureSubset(0.f,0.f,1.f,1.f);
+}
+
+void QuadBatch::SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v)
+{
+    m_CurrentCoords[0].u = tl_u;
+	m_CurrentCoords[0].v = tl_v;
+
+	m_CurrentCoords[1].u = br_u;
+	m_CurrentCoords[1].v = tl_v;
+             
+	m_CurrentCoords[2].u = br_u;
+	m_CurrentCoords[2].v = br_v;
+             
+	m_CurrentCoords[3].u = tl_u;
+	m_CurrentCoords[3].v = br_v;
 }
 
 void QuadBatch::Begin()

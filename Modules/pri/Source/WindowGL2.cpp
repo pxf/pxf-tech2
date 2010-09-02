@@ -76,6 +76,7 @@ bool WindowGL2::Open()
 #endif
 		
 		GLenum err = glewInit();
+		glewExperimental = true;
 		if (err != GLEW_OK)
 		{
 			Message("Window", "Could not initiate glew.");

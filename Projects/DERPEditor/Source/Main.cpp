@@ -26,7 +26,7 @@
 
 #include <ctime>
 
-#include "QuadBatch.h"
+#include "TexturedQuadBatch.h"
 #include <Pxf/Modules/pri/OpenGL.h>
 
 using namespace Pxf;
@@ -45,7 +45,7 @@ int main()
     Audio::AudioDevice* snd = kernel->GetAudioDevice();
     Input::InputDevice* inp = kernel->GetInputDevice();
     Resource::ResourceManager* res = kernel->GetResourceManager();
-    Resource::Image* img = res->Acquire<Resource::Image>("test.png");
+    //Resource::Image* img = res->Acquire<Resource::Image>("test.png");
 
     res->DumpResourceLoaders();
 
@@ -85,18 +85,21 @@ int main()
 	printf("%i\n",pFBO->GetNumColorAttachment());
 	
 	// QuadBatch tests
+	glEnable( GL_TEXTURE_2D );
     Math::Mat4 transform = Math::Mat4::Identity;
-    QuadBatch* qb = new QuadBatch(1024, &transform);
+    TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "data/test.png");
     
     qb->Begin();
-    qb->SetColor(0.0f, 1.0f, 0.0f);
-    qb->AddCentered(0, 0, 1, 1);
+    qb->AddCentered(400, 400, 100, 100);
     qb->SetColor(1.0f, 0.0f, 0.0f);
-    transform.Translate(0.5f, 0.5f, 0.0f);
-    qb->AddCentered(-0.5f, -0.5f, 0.2f, 0.2f);
+    transform.Translate(-200.0f, 0.0f, 0.0f);
+    qb->AddCentered(400, 400, 50, 50);
     qb->End();
     
-	glGetIntegerv(0, 0);
+    // Setup viewport and matrises
+    gfx->SetViewport(0, 0, 800, 600);
+    Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
+    gfx->SetProjection(&prjmat);
 
     while(win->IsOpen())
     {
@@ -111,7 +114,7 @@ int main()
     delete qb;
     
 
-    res->Release(img);
+    //res->Release(img);
     delete kernel;
     return 0;
 }
