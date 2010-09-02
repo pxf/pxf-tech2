@@ -24,6 +24,7 @@ namespace Pxf
 		class Texture;
 		class RenderBuffer;
 		class FrameBufferObject;
+		class Shader;
 		
 		class GraphicsDevice : public System
 		{
@@ -66,6 +67,18 @@ namespace Pxf
 			virtual Graphics::FrameBufferObject* BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
 			virtual void UnbindFrameBufferObject() = 0;
 			
+			virtual Shader* CreateShader(const char* _Ident, const char* _VertexShader, const char* _FragmentShader) = 0;
+			virtual void DestroyShader(Shader* _Shader) = 0;
+			virtual Shader* BindShader(Shader* _Shader) = 0;
+			virtual void SetUniformi(Shader* _Shader, const char* _name, int _value) = 0;
+			virtual void SetUniformf(Shader* _Shader, const char* _name, float _value) = 0;
+			virtual void SetUniformVec2(Shader* _Shader, const char* _name, const Math::Vec2f* _value) = 0;
+			virtual void SetUniformVec3(Shader* _Shader, const char* _name, const Math::Vec3f* _value) = 0;
+			virtual void SetUniformVec3v(Shader* _Shader, const char* _name, unsigned count, const Math::Vec3f* _value) = 0;
+			virtual void SetUniformVec4(Shader* _Shader, const char* _name, const Math::Vec4f* _value) = 0;
+			virtual void SetUniformVec4v(Shader* _Shader, const char* _name, unsigned count, const Math::Vec4f* _value) = 0;
+			virtual void SetUniformMat4(Shader* _Shader, const char* _name, const Math::Mat4* _value) = 0;
+
 			bool Ready() { return m_Ready; }
 		private:
 			bool m_Ready;
