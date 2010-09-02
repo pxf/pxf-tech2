@@ -16,7 +16,7 @@ QuadBatch::QuadBatch(unsigned int _size, Mat4* _transformmatrix)
     m_VertBufSize = _size;
     m_Transformation = _transformmatrix;
     
-    m_VertexBuffer = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateVertexBuffer(VB_LOCATION_SYS, VB_USAGE_DYNAMIC_DRAW);
+    m_VertexBuffer = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
     m_VertexBuffer->CreateNewBuffer(_size, sizeof(QuadVertex) ); // pos = 3, tex coords = 2, colors = 4
     
     m_VertexBuffer->SetData(VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
