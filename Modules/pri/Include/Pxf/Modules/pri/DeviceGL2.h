@@ -44,7 +44,10 @@ namespace Pxf{
 			void DrawBuffer(Graphics::VertexBuffer* _pVertexBuffer, unsigned _VertexCount = 0);
 
 			Graphics::RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height);
+			void DestroyRenderBuffer(Graphics::RenderBuffer* _pRenderBuffer);
+			
 			Graphics::FrameBufferObject* CreateFrameBufferObject();
+			void DestroyFrameBufferObject(Graphics::FrameBufferObject* _pFrameBufferObject);
 
 		private:
             bool Init(){ return true; };

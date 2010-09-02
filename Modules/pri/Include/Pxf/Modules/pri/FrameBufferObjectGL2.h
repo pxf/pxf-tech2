@@ -16,7 +16,7 @@ namespace Pxf{
 		public:
 			FrameBufferObjectGL2(Graphics::GraphicsDevice* _Device)
 				: FrameBufferObject(_Device)
-			{}
+			{ _Configure(); }
 			~FrameBufferObjectGL2();
 
 			void AddColorAttachment(Graphics::RenderBuffer* _Attachment);
@@ -24,9 +24,10 @@ namespace Pxf{
 
 			void DetachColor(unsigned _ID);
 			void DetachDepth(unsigned _ID);
-		private:
-			void _DetachAll();
 
+			void DetachAll();
+		private:
+			void _Configure();	// check max attachments 
 		};
 	} // Graphics
 } // Pxf

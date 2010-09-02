@@ -29,14 +29,17 @@ namespace Pxf
 
 			int GetNumColorAttachment() { return m_NumColorAttachment; }
 			bool GetUseDepthAttachment() { return m_UseDepthAttachment; }
-		private:
+			bool IsComplete() { return m_Complete; }
+		protected:
 			RenderBuffer* m_ColorAttachments;
 			RenderBuffer* m_DepthAttachment;
+			int m_MaxColorAttachments;	// upper bound on attachments, vendor specific
+		private:
 			//RenderBuffer m_StencilAttachment; // future implementation
 
-			int m_MaxColorAttachments;	// upper bound on attachments, vendor specific
 			int m_NumColorAttachment;
 			bool m_UseDepthAttachment;	
+			bool m_Complete;
 		};
 	} // Graphics
 } // Pxf

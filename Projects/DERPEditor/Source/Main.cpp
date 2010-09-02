@@ -10,6 +10,7 @@
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
 #include <Pxf/Graphics/RenderBuffer.h>
+#include <Pxf/Graphics/FrameBufferObject.h>
 
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/String.h>
@@ -46,7 +47,10 @@ int main()
     Resource::ResourceManager* res = kernel->GetResourceManager();
     Resource::Image* img = res->Acquire<Resource::Image>("test.png");
 
-	Graphics::RenderBuffer* pBuf = gfx->CreateRenderBuffer(0,0,0);
+	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
+	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
+	
+	pFBO->AddColorAttachment(pBuf0);
 
     res->DumpResourceLoaders();
 

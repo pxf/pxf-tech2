@@ -174,3 +174,15 @@ FrameBufferObject* DeviceGL2::CreateFrameBufferObject()
 	FrameBufferObjectGL2* pBuf = new FrameBufferObjectGL2(this);
 	return pBuf;
 }
+
+void DeviceGL2::DestroyRenderBuffer(RenderBuffer* _pRenderBuffer)
+{
+	if(_pRenderBuffer)
+		delete _pRenderBuffer;
+}
+
+void DeviceGL2::DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
+{
+	if(_pFrameBufferObject)
+		delete _pFrameBufferObject;
+}

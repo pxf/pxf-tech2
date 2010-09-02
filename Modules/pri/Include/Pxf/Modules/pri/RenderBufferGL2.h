@@ -22,6 +22,7 @@ namespace Pxf{
 			unsigned GetFormat() { return m_Format; }
 
 			void ReleaseBuffer();
+
 		private:
 			void _InitBuffer();
 

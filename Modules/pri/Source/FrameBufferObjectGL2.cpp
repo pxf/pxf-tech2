@@ -1,4 +1,7 @@
 #include <Pxf/Modules/pri/FrameBufferObjectGL2.h>
+#include <Pxf/Modules/pri/OpenGL.h>
+
+#include <stdio.h>
 
 #define LOCAL_MSG "FrameBufferObject"
 
@@ -8,11 +11,22 @@ using namespace Pxf::Modules;
 
 FrameBufferObjectGL2::~FrameBufferObjectGL2()
 {
-	_DetachAll();
+	DetachAll();
 }
 
-void FrameBufferObjectGL2::_DetachAll()
+void FrameBufferObjectGL2::DetachAll()
 {
+}
+
+void FrameBufferObjectGL2::_Configure()
+{
+	int _Attachments = 0;
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_Attachments);
+
+	if(_Attachments == GL_INVALID_ENUM)
+		Message(LOCAL_MSG,"Invalid enum");
+
+	//printf("%d\n",_Attachments);
 }
 
 void FrameBufferObjectGL2::AddColorAttachment(Graphics::RenderBuffer* _Attachment)
