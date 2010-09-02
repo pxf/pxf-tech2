@@ -1,5 +1,6 @@
 #include <Pxf/Modules/pri/FrameBufferObjectGL2.h>
 #include <Pxf/Modules/pri/RenderBufferGL2.h>
+#include <Pxf/Modules/pri/TextureGL2.h>
 #include <Pxf/Modules/pri/OpenGL.h>
 
 #include <stdio.h>
@@ -11,6 +12,7 @@ using namespace Pxf::Graphics;
 using namespace Pxf::Modules;
 
 unsigned ColorAttachmentLookup(unsigned _ID);
+bool CheckFBO(GLenum _status);
 
 FrameBufferObjectGL2::~FrameBufferObjectGL2()
 {
@@ -40,22 +42,55 @@ void FrameBufferObjectGL2::_Configure()
 	// create FBO handle
 
 	glGenFramebuffersEXT(1, &m_Handle);
+
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_Complete = CheckFBO(status);
 }
 
-void FrameBufferObjectGL2::AddColorAttachment(Graphics::RenderBuffer* _Attachment, unsigned _ID)
+bool CheckFBO(GLenum _status)
 {
-	if(!_Attachment)
+	switch(_status)
+	{
+	case GL_FRAMEBUFFER_COMPLETE_EXT:
+		return true;
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+		Message("Framebuffer::Attach", "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+		Message("Framebuffer::Attach", "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+		Message("Framebuffer::Attach", "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+		Message("Framebuffer::Attach", "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+		Message("Framebuffer::Attach", "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+		Message("Framebuffer::Attach", "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT");
+		break;
+	case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+		Message("Framebuffer::Attach", "GL_FRAMEBUFFER_UNSUPPORTED_EXT");
+		break;
+	default:
+		Message("Framebuffer::Attach", "Unknown error. (0x%X)", _status);
+		break;
+	}
+	return false;
+}
+
+void FrameBufferObjectGL2::AddColorAttachment(Texture* _Texture, unsigned _ID,  const bool _GenMipmaps = false)
+{
+	if(!_Texture)
 	{
 		Message(LOCAL_MSG,"Invalid color attachment passed to framebuffer");
 		return;
 	}
 
-	if(!_Attachment->Ready())
-	{
-		Message(LOCAL_MSG,"Unable to add color attachment, attachment is not complete");
-		return;
-	}
-
+	// bounds check
 	if(m_NumColorAttachment >= m_MaxColorAttachments)
 	{
 		Message(LOCAL_MSG,"Capacity reached, unable to attach");
@@ -68,17 +103,34 @@ void FrameBufferObjectGL2::AddColorAttachment(Graphics::RenderBuffer* _Attachmen
 		return;
 	}
 
+	// check if _ID is already attached
+	short unsigned _Result = (m_AttachmentMask & (_ID+1)) / (_ID + 1);
+
+	if(_Result)
+	{
+		// already attached, detach first!
+		DetachColor(_ID);
+		Message(LOCAL_MSG,"Already attached, reattaching with new ID");
+	}	
+
 	// everything OK, attach
 	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
-	m_pDevice->BindRenderBuffer(_Attachment);
-
 	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
-	unsigned _Handle = ((RenderBufferGL2*) _Attachment)->GetHandle();
+	
+	m_pDevice->BindTexture(_Texture);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_TEXTURE_2D, ((TextureGL2*) _Texture)->GetTextureID(), 0);
 
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_RENDERBUFFER_EXT, _Handle);
+	if (_GenMipmaps)
+		glGenerateMipmapEXT(GL_TEXTURE_2D);
+
 	m_pDevice->BindFrameBufferObject(_CurrentFBO);
 
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_Complete = CheckFBO(status);
+
 	m_NumColorAttachment++;
+
+	m_AttachmentMask ^= _ID+1;
 }
 
 // Lut for id -> opengl 
@@ -120,6 +172,12 @@ void FrameBufferObjectGL2::AddDepthAttachment(Graphics::RenderBuffer* _Depth)
 		return;
 	}
 
+	if(m_UseDepthAttachment)
+		DetachDepth();
+
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_Complete = CheckFBO(status);
+
 	m_UseDepthAttachment = true;
 }
 
@@ -131,18 +189,68 @@ void FrameBufferObjectGL2::DetachColor(unsigned _ID)
 		return;
 	}
 
+	unsigned short _Result = m_AttachmentMask & (_ID+1);
+
+	if(!_Result)
+	{
+		Message(LOCAL_MSG,"Trying to detach unattached attachment");
+		return;
+	}
+
 	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
 
 	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_TEXTURE_2D, 0, 0);
 	m_pDevice->BindFrameBufferObject(_CurrentFBO);
 
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_Complete = CheckFBO(status);
+
 	m_NumColorAttachment--;
+	m_AttachmentMask ^= _ID + 1;
 }
 
 void FrameBufferObjectGL2::DetachDepth()
 {
+	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, 0, 0);
+	m_pDevice->BindFrameBufferObject(_CurrentFBO);
+
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_Complete = CheckFBO(status);
 
 	m_UseDepthAttachment = false;
+}
+
+void FrameBufferObjectGL2::AttachStencil(Graphics::RenderBuffer* _Stencil)
+{
+	if(!_Stencil)
+	{
+		Message(LOCAL_MSG,"Invalid depth attachment passed to framebuffer");
+		return;
+	}
+
+	if(!_Stencil->Ready())
+	{
+		Message(LOCAL_MSG,"Unable to add depth attachment, attachment is not ready");
+		return;
+	}
+
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_Complete = CheckFBO(status);
+
+	m_UseStencilAttachment = true;
+}
+
+void FrameBufferObjectGL2::DetachStencil()
+{
+	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_TEXTURE_2D, 0, 0);
+	m_pDevice->BindFrameBufferObject(_CurrentFBO);
+
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_Complete = CheckFBO(status);
+
+	m_UseStencilAttachment = false;
 }
 
