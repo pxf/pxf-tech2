@@ -7,7 +7,7 @@
 #include <Pxf/Modules/pri/pri.h>
 
 #include <Pxf/Modules/pri/DeviceGL2.h>
-#include <Pxf/Modules/Pri/InputDeviceGLFW.h>
+#include <Pxf/Modules/pri/InputDeviceGLFW.h>
 
 static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
