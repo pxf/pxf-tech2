@@ -45,7 +45,7 @@ int main()
     Audio::AudioDevice* snd = kernel->GetAudioDevice();
     Input::InputDevice* inp = kernel->GetInputDevice();
     Resource::ResourceManager* res = kernel->GetResourceManager();
-    Resource::Image* img = res->Acquire<Resource::Image>("test.png");
+    //Resource::Image* img = res->Acquire<Resource::Image>("test.png");
 
     res->DumpResourceLoaders();
 
@@ -82,7 +82,7 @@ int main()
 	
 	// QuadBatch tests
     Math::Mat4 transform = Math::Mat4::Identity;
-    TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "test.png");
+    TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "data/test.png");
     
     qb->Begin();
     qb->SetColor(0.0f, 1.0f, 0.0f);
@@ -102,7 +102,7 @@ int main()
     delete qb;
     
 
-    res->Release(img);
+    //res->Release(img);
     delete kernel;
     return 0;
 }

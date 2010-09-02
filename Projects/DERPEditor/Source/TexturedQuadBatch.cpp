@@ -26,22 +26,22 @@ TexturedQuadBatch::~TexturedQuadBatch()
 
 void TexturedQuadBatch::Reset()
 {
-    
+    QuadBatch::Reset();
 }
 
 void TexturedQuadBatch::Begin()
 {
-    
+    QuadBatch::Begin();
 }
 
 void TexturedQuadBatch::End()
 {
-    
+    QuadBatch::End();
 }
 
 void TexturedQuadBatch::Draw()
 {
     Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(m_Texture);
-    ((QuadBatch*)this)->Draw();
+    QuadBatch::Draw();
     Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(0);
 }
