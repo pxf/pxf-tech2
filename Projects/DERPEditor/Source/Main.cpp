@@ -88,7 +88,7 @@ int main()
     qb->Begin();
     qb->AddCentered(400, 400, 100, 100);
     qb->SetColor(1.0f, 0.0f, 0.0f);
-    transform.Translate(0.5f, 0.5f, 0.0f);
+    transform.Translate(-200.0f, 0.0f, 0.0f);
     qb->AddCentered(400, 400, 50, 50);
     qb->End();
     
