@@ -30,9 +30,9 @@
 #include <sys/poll.h>
 #endif
 
-#ifndef _SOCKLEN_T
+//#ifndef _SOCKLEN_T // LOL
 typedef int socklen_t;
-#endif
+//#endif
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
