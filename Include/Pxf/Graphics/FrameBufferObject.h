@@ -24,19 +24,16 @@ namespace Pxf
 				, m_AttachmentMask(0)
 			{ }
 
-			//virtual void AddColorAttachment(RenderBuffer* _Attachment, unsigned _ID) = 0;
-			virtual void AddColorAttachment(Texture* _Texture, unsigned _ID,  const bool _GenMipmaps) = 0;
-			virtual void AddDepthAttachment(RenderBuffer* _Depth) = 0;
-			virtual void AttachStencil(RenderBuffer* _Stencil) = 0;
 
-			virtual void DetachColor(unsigned _ID) = 0;
-			virtual void DetachDepth() = 0;
-			virtual void DetachStencil() = 0;
+			virtual void Attach(Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps) = 0;
+			virtual void Attach(RenderBuffer* _Buffer, const unsigned _Attachment) = 0;
+			virtual void Detach(const unsigned _Attachment) = 0;
 
 			virtual void DetachAll() = 0;
 
 			int GetNumColorAttachment() { return m_NumColorAttachment; }
 			bool GetUseDepthAttachment() { return m_UseDepthAttachment; }
+			bool GetUseStencilAttachment() { return m_UseStencilAttachment; }
 
 			bool IsComplete() { return m_Complete; }
 		protected:
