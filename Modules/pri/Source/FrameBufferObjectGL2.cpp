@@ -22,7 +22,7 @@ void FrameBufferObjectGL2::DetachAll()
 
 void FrameBufferObjectGL2::_Configure()
 {
-	int _Attachments = 0;
+	GLint _Attachments = 0;
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_Attachments);
 
 	if(_Attachments == GL_INVALID_ENUM)
@@ -30,8 +30,9 @@ void FrameBufferObjectGL2::_Configure()
 		Message(LOCAL_MSG,"Invalid enum");
 		_Attachments = 0;
 	}
-
+	
 	m_MaxColorAttachments = _Attachments;
+
 
 	// create FBO handle
 
