@@ -28,6 +28,7 @@
 
 #include "QuadBatch.h"
 #include "TexturedQuadBatch.h"
+#include "LuaApp.h"
 #include <Pxf/Modules/pri/OpenGL.h>
 
 using namespace Pxf;
@@ -75,7 +76,6 @@ int main()
     spec.VerticalSync = false;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
-   
 
     // FBO tests
 	Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
@@ -112,12 +112,16 @@ int main()
     gfx->SetViewport(0, 0, 800, 600);
     Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
     gfx->SetProjection(&prjmat);
+    
+    // Setup lua application
+    LuaApp* app = new LuaApp("data/editor.lua");
 
     while(win->IsOpen())
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
 		gfx->BindFrameBufferObject(pFBO);
+		
         qb->Draw();
 		gfx->UnbindFrameBufferObject();
 
@@ -128,6 +132,7 @@ int main()
         win->Swap();
     }
     
+    delete app;
     delete qb;
     
 
