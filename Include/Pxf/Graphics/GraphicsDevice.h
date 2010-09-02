@@ -24,6 +24,7 @@ namespace Pxf
 		class Texture;
 		class RenderBuffer;
 		class FrameBufferObject;
+		class Shader;
 		
 		class GraphicsDevice : public System
 		{
@@ -66,6 +67,10 @@ namespace Pxf
 			virtual Graphics::FrameBufferObject* BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
 			virtual void UnbindFrameBufferObject() = 0;
 			
+			virtual Shader* CreateShader(const char* _Ident, const char* _VertexShader, const char* _FragmentShader) = 0;
+			virtual void DestroyShader(Shader* _Shader) = 0;
+			virtual Shader* BindShader(Shader* _Shader) = 0;
+
 			bool Ready() { return m_Ready; }
 		private:
 			bool m_Ready;

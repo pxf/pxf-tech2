@@ -40,6 +40,20 @@ ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const 
 		Message("Shader", "Shader '%s' was compiled and linked successfully", _Identifier);
 }
 
+ShaderGLSL::~ShaderGLSL()
+{
+	// Detach shaders from program
+	glDetachShader(m_ProgramHandle, m_VertexShaderHandle);
+	glDetachShader(m_ProgramHandle, m_FragmentShaderHandle);
+
+	// Delete shaders
+	glDeleteShader(m_VertexShaderHandle);
+	glDeleteShader(m_FragmentShaderHandle);
+
+	// Delete program
+	glDeleteProgram(m_ProgramHandle);
+}
+
 
 bool ShaderGLSL::CheckForCompilationErrors(unsigned _ShaderHandle)
 {

@@ -5,6 +5,7 @@
 #include <Pxf/Modules/pri/TextureGL2.h>
 #include <Pxf/Modules/pri/RenderBufferGL2.h>
 #include <Pxf/Modules/pri/FrameBufferObjectGL2.h>
+#include <Pxf/Modules/pri/ShaderGLSL.h>
 //#include <Pxf/Input/OpenGL/InputGL2.h>
 #include <Pxf/Base/Debug.h>
 
@@ -22,6 +23,7 @@ using Util::String;
 DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
     : GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
 	, m_CurrentFrameBufferObject(0)
+	, m_CurrentShader(0)
 {
 	// Initialize GLFW
 	if (glfwInit() != GL_TRUE)
@@ -248,4 +250,37 @@ void DeviceGL2::UnbindFrameBufferObject()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	m_CurrentFrameBufferObject = 0;
+}
+
+
+Shader* DeviceGL2::CreateShader(const char* _Ident, const char* _VertexShader, const char* _FragmentShader)
+{
+	if (_Ident && _VertexShader && _FragmentShader)
+	{
+		return new ShaderGLSL(this, _Ident, _VertexShader, _FragmentShader);
+	}
+	return NULL;
+}
+
+void DeviceGL2::DestroyShader(Shader* _Shader)
+{
+	if (_Shader)
+		delete _Shader;
+}
+
+Shader* DeviceGL2::BindShader(Shader* _Shader)
+{
+	Shader *previous = m_CurrentShader;
+	if (_Shader)
+	{
+		m_CurrentShader = _Shader;
+		glUseProgram(((ShaderGLSL*)_Shader)->GetProgramHandle());
+	}
+	else 
+	{
+		m_CurrentShader = NULL;
+		glUseProgram(0);
+	}
+
+	return previous;
 }

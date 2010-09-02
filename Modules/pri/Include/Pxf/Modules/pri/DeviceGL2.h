@@ -15,6 +15,7 @@ namespace Pxf{
 		class RenderTarget;
 		class RenderBuffer;
 		class FrameBufferObject;
+		class Shader;
     }
 	namespace Modules {
 		class DeviceGL2 : public Graphics::GraphicsDevice
@@ -57,10 +58,15 @@ namespace Pxf{
 
 			Graphics::FrameBufferObject* GetCurrentFrameBufferObject() { return m_CurrentFrameBufferObject; }
 
+			Graphics::Shader* CreateShader(const char* _Ident, const char* _VertexShader, const char* _FragmentShader);
+			void DestroyShader(Graphics::Shader* _Shader);
+			Graphics::Shader* BindShader(Graphics::Shader* _Shader);
+
 		private:
             bool Init(){ return true; };
 			Graphics::Window* m_Window;
 			Graphics::FrameBufferObject* m_CurrentFrameBufferObject;
+			Graphics::Shader* m_CurrentShader;
 			
             Graphics::Texture* m_BindHistory[16];
 		};
