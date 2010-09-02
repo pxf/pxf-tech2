@@ -52,12 +52,15 @@ namespace Pxf{
 			Graphics::FrameBufferObject* CreateFrameBufferObject();
 			void DestroyFrameBufferObject(Graphics::FrameBufferObject* _pFrameBufferObject);
 
-			void BindFrameBufferObject(Graphics::FrameBufferObject* _pFrameBufferObject);
+			Graphics::FrameBufferObject* BindFrameBufferObject(Graphics::FrameBufferObject* _pFrameBufferObject);
 			void UnbindFrameBufferObject();
+
+			Graphics::FrameBufferObject* GetCurrentFrameBufferObject() { return m_CurrentFrameBufferObject; }
 
 		private:
             bool Init(){ return true; };
 			Graphics::Window* m_Window;
+			Graphics::FrameBufferObject* m_CurrentFrameBufferObject;
 		};
 
 	} // Graphics
