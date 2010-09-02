@@ -81,11 +81,11 @@ int main()
 	pFBO->AddColorAttachment(pBuf0,0);
 	
 	// QuadBatch tests
+	glEnable( GL_TEXTURE_2D );
     Math::Mat4 transform = Math::Mat4::Identity;
     TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "data/test.png");
     
     qb->Begin();
-    qb->SetColor(0.0f, 1.0f, 0.0f);
     qb->AddCentered(0, 0, 1, 1);
     qb->SetColor(1.0f, 0.0f, 0.0f);
     transform.Translate(0.5f, 0.5f, 0.0f);

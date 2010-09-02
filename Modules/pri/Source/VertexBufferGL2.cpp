@@ -56,9 +56,9 @@ VertexBufferGL2::VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation 
 		Message("VertexBuffer", "Can use OpenGL 1.5!");
 	}
 	/* OpenGL 1.4 with VBO support as extension */
-	else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+	else if (glewIsSupported("ARB_vertex_buffer_object"))
 	{
-		Message("VertexBuffer", "Can use OpenGL 1.4 with VBO support as extension");
+		Message("VertexBuffer", "Can use VBO support as extension");
 	}
 }
 

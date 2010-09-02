@@ -41,7 +41,7 @@ void TexturedQuadBatch::End()
 
 void TexturedQuadBatch::Draw()
 {
-    Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(m_Texture);
+    //Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(m_Texture);
     QuadBatch::Draw();
-    Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(0);
+    //Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(0);
 }
