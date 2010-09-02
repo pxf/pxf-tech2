@@ -69,17 +69,16 @@ void FrameBufferObjectGL2::AddColorAttachment(Graphics::RenderBuffer* _Attachmen
 	}
 
 	// everything OK, attach
-	m_pDevice->BindFrameBufferObject(this);
+	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
 	m_pDevice->BindRenderBuffer(_Attachment);
 
 	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
 	unsigned _Handle = ((RenderBufferGL2*) _Attachment)->GetHandle();
 
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_RENDERBUFFER_EXT, _Handle);
+	m_pDevice->BindFrameBufferObject(_CurrentFBO);
 
 	m_NumColorAttachment++;
-
-	m_pDevice->UnbindFrameBufferObject();
 }
 
 // Lut for id -> opengl 
@@ -90,6 +89,19 @@ unsigned ColorAttachmentLookup(unsigned _ID)
 	case 0: return GL_COLOR_ATTACHMENT0_EXT; break;
 	case 1: return GL_COLOR_ATTACHMENT1_EXT; break;
 	case 2: return GL_COLOR_ATTACHMENT2_EXT; break;
+	case 3: return GL_COLOR_ATTACHMENT3_EXT; break;
+	case 4: return GL_COLOR_ATTACHMENT4_EXT; break;
+	case 5: return GL_COLOR_ATTACHMENT5_EXT; break;
+	case 6: return GL_COLOR_ATTACHMENT6_EXT; break;
+	case 7: return GL_COLOR_ATTACHMENT7_EXT; break;
+	case 8: return GL_COLOR_ATTACHMENT8_EXT; break;
+	case 9: return GL_COLOR_ATTACHMENT9_EXT; break;
+	case 10: return GL_COLOR_ATTACHMENT10_EXT; break;
+	case 11: return GL_COLOR_ATTACHMENT11_EXT; break;
+	case 12: return GL_COLOR_ATTACHMENT12_EXT; break;
+	case 13: return GL_COLOR_ATTACHMENT13_EXT; break;
+	case 14: return GL_COLOR_ATTACHMENT14_EXT; break;
+	case 15: return GL_COLOR_ATTACHMENT15_EXT; break;
 	default: break;
 	}
 }
@@ -113,7 +125,17 @@ void FrameBufferObjectGL2::AddDepthAttachment(Graphics::RenderBuffer* _Depth)
 
 void FrameBufferObjectGL2::DetachColor(unsigned _ID)
 {
+	if(_ID > m_MaxColorAttachments-1)
+	{
+		Message(LOCAL_MSG, "Unable to detach color attachment with ID %u",_ID);
+		return;
+	}
 
+	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
+
+	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_TEXTURE_2D, 0, 0);
+	m_pDevice->BindFrameBufferObject(_CurrentFBO);
 
 	m_NumColorAttachment--;
 }

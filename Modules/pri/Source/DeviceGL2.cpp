@@ -21,6 +21,7 @@ using Util::String;
 
 DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
     : GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
+	, m_CurrentFrameBufferObject(0)
 {
 	// Initialize GLFW
 	if (glfwInit() != GL_TRUE)
@@ -191,6 +192,7 @@ void DeviceGL2::BindRenderBuffer(RenderBuffer* _pRenderBuffer)
 
 void DeviceGL2::UnbindRenderBuffer()
 {
+	// ehm .. aoeu
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 }
 
@@ -202,13 +204,28 @@ void DeviceGL2::DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 		delete _pFrameBufferObject;
 }
 
-void DeviceGL2::BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
+Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 {
 	if(_pFrameBufferObject)
+	{
+		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetHandle());
+		m_CurrentFrameBufferObject = _pFrameBufferObject;
+
+		return _OldFBO;
+	}
+	else
+	{
+		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		m_CurrentFrameBufferObject = 0;
+
+		return _OldFBO;
+	}
 }
 
 void DeviceGL2::UnbindFrameBufferObject()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	m_CurrentFrameBufferObject = 0;
 }
