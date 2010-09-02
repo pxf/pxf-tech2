@@ -35,7 +35,9 @@ namespace Pxf
 				ARRAY_BUFFER = GL_ARRAY_BUFFER,
 			};
 
+			//
 			// Buffer functions
+			//
 
 			void DeleteBuffers(GLsizei n, const GLuint* buffers)
 			{
@@ -152,15 +154,87 @@ namespace Pxf
 				return false;
 			}
 
+
+
+
+
+			//
+			// Shaders
+			//
+			
+			GLuint CreateProgram()
+			{
+				return 0;
+			}
+
+			GLuint CreateShader(GLenum shaderType)
+			{
+				return 0;
+			}
+
+			void ShaderSource(GLuint shader, GLsizei count, const GLchar** string, const GLint* length)
+			{
+				
+			}
+
+			void CompileShader(GLuint shader)
+			{
+
+			}
+
+			void AttachShader(GLuint program, GLuint shader)
+			{
+
+			}
+
+			void LinkProgram(GLuint program)
+			{
+
+			}
+
+			void glUseProgram(GLuint program)
+			{
+
+			}
+
+			void DetachShader(GLuint program, GLuint shader)
+			{
+
+			}
+
+			void DeleteShader(GLuint shader)
+			{
+
+			}
+
+			void DeleteProgram(GLuint program)
+			{
+
+			}
+
+			void GetShaderiv(GLuint shader, GLenum pname, GLint* params)
+			{
+
+			}
+
+			void glGetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog)
+			{
+
+			}
+
+			/* also, uniforms etc... */
+
+
+
 			inline void CheckError(const char* _Source)
 			{
 				int error = GL_NO_ERROR;
 				while((error = glGetError()) != GL_NO_ERROR)
 				{
 					Message(_Source, "GL error %d => '%s'", error, gluErrorString(error));
-#if defined(CONF_FAMILY_WINDOWS )&& defined(CONF_COMPILER_MSVC)
-					__asm int 3;
-#endif
+					#if defined(CONF_FAMILY_WINDOWS )&& defined(CONF_COMPILER_MSVC)
+						__asm int 3;
+					#endif
 				}
 			}
 
