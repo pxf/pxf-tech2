@@ -60,6 +60,11 @@ VertexBufferGL2::VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation 
 	{
 		Message("VertexBuffer", "Can use VBO support as extension");
 	}
+	else
+	{
+		Message("VertexBuffer", "Can not use GPU memory (?)");
+		m_VertexBufferLocation = VB_LOCATION_SYS;
+	}
 }
 
 VertexBufferGL2::~VertexBufferGL2()
