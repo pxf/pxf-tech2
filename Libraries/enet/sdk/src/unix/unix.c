@@ -31,7 +31,7 @@
 #endif
 
 //#ifndef _SOCKLEN_T // LOL
-typedef int socklen_t;
+//typedef int socklen_t;
 //#endif
 
 #ifndef MSG_NOSIGNAL
