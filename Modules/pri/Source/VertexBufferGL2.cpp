@@ -49,21 +49,27 @@ VertexBufferGL2::VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation 
 	: VertexBuffer(_pDevice, _VertexBufferLocation, _VertexBufferUsageFlag)
 	, m_BufferObjectId(0)
 {
-
-	/* OpenGL 1.5 */
-	if (GLEW_VERSION_1_5)
+	if (_VertexBufferLocation == VB_LOCATION_GPU)
 	{
-		Message("VertexBuffer", "Can use OpenGL 1.5!");
-	}
-	/* OpenGL 1.4 with VBO support as extension */
-	else if (glewIsSupported("ARB_vertex_buffer_object"))
-	{
-		Message("VertexBuffer", "Can use VBO support as extension");
-	}
-	else
-	{
-		Message("VertexBuffer", "Can not use GPU memory (?)");
-		m_VertexBufferLocation = VB_LOCATION_SYS;
+		/* OpenGL 1.5 */
+		if (GLEW_VERSION_1_5)
+		{
+			Message("VertexBuffer", "Can use OpenGL 1.5!");
+		}
+		/* OpenGL 1.4 with VBO support as extension */
+		else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+		{
+			Message("VertexBuffer", "Can use OpenGL 1.4 with VBO support as extension");
+		}
+		else if (glBindBufferARB != 0)
+		{
+			Message("VertexBuffer", "VBO support might work");
+		}
+		else
+		{
+			Message("VertexBuffer", "Can not use GPU memory (?)");
+			m_VertexBufferLocation = VB_LOCATION_SYS;
+		}
 	}
 }
 

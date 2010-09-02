@@ -45,7 +45,7 @@ namespace Pxf
 					glDeleteBuffers(n, buffers);
 				}
 				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
 				{
 					glDeleteBuffersARB(n, buffers);
 				}
@@ -59,7 +59,7 @@ namespace Pxf
 					glBindBuffer(target, buffer);
 				}
 				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
 				{
 					GLenum t = 0;
 					if (target == GL_ARRAY_BUFFER)
@@ -76,7 +76,7 @@ namespace Pxf
 					glGenBuffers(n, buffers);
 				}
 				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
 				{
 					glGenBuffersARB(n, buffers);
 				}
@@ -90,7 +90,7 @@ namespace Pxf
 					glBufferData(target, size, data, usage);
 				}
 				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
 				{
 					GLenum t = 0;
 					if (target == GL_ARRAY_BUFFER)
@@ -107,7 +107,7 @@ namespace Pxf
 					glBufferSubData(target, offset, size, data);
 				}
 				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
 				{
 					GLenum t = 0;
 					if (target == GL_ARRAY_BUFFER)
@@ -124,7 +124,7 @@ namespace Pxf
 					return glMapBuffer(target, access);
 				}
 				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
 				{
 					GLenum t = 0;
 					if (target == GL_ARRAY_BUFFER)
@@ -142,7 +142,7 @@ namespace Pxf
 					return glUnmapBuffer(target);
 				}
 				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object"))
+				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
 				{
 					GLenum t = 0;
 					if (target == GL_ARRAY_BUFFER)
