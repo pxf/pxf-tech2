@@ -79,8 +79,8 @@ int main()
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
 	
 	pFBO->AddColorAttachment(pBuf0);
-
-    QuadBatch* qb = new QuadBatch(1024);
+    Math::Mat4 transform = Math::Mat4::Identity;
+    QuadBatch* qb = new QuadBatch(1024, &transform);
     qb->Begin();
     qb->SetColor(0.0f, 1.0f, 0.0f);
     qb->AddCentered(0, 0, 1, 1);
