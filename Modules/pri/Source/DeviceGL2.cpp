@@ -177,18 +177,38 @@ FrameBufferObject* DeviceGL2::CreateFrameBufferObject()
 
 void DeviceGL2::DestroyRenderBuffer(RenderBuffer* _pRenderBuffer)
 {
+	unsigned _Handle = ((RenderBufferGL2*) _pRenderBuffer)->GetHandle();
+	glDeleteRenderbuffersEXT(1, &_Handle);
 	if(_pRenderBuffer)
 		delete _pRenderBuffer;
 }
 
+void DeviceGL2::BindRenderBuffer(RenderBuffer* _pRenderBuffer)
+{
+	if(_pRenderBuffer)
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, ((RenderBufferGL2*) _pRenderBuffer)->GetHandle());
+}
+
+void DeviceGL2::UnbindRenderBuffer()
+{
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+}
+
 void DeviceGL2::DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 {
+	unsigned _Handle = ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetHandle();
+	glDeleteFramebuffersEXT(1, &_Handle);
 	if(_pFrameBufferObject)
 		delete _pFrameBufferObject;
 }
 
-void DeviceGL2::BindFrameBuffer(FrameBufferObject* _FrameBuffer)
+void DeviceGL2::BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _FrameBuffer)->GetHandle());
+	if(_pFrameBufferObject)
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetHandle());
+}
 
+void DeviceGL2::UnbindFrameBufferObject()
+{
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }

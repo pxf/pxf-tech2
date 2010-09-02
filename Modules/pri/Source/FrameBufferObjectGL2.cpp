@@ -1,4 +1,5 @@
 #include <Pxf/Modules/pri/FrameBufferObjectGL2.h>
+#include <Pxf/Modules/pri/RenderBufferGL2.h>
 #include <Pxf/Modules/pri/OpenGL.h>
 
 #include <stdio.h>
@@ -8,6 +9,8 @@
 using namespace Pxf;
 using namespace Pxf::Graphics;
 using namespace Pxf::Modules;
+
+unsigned ColorAttachmentLookup(unsigned _ID);
 
 FrameBufferObjectGL2::~FrameBufferObjectGL2()
 {
@@ -66,10 +69,29 @@ void FrameBufferObjectGL2::AddColorAttachment(Graphics::RenderBuffer* _Attachmen
 	}
 
 	// everything OK, attach
-	// glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_Handle);
-	m_pDevice->BindFrameBuffer(this);
+	m_pDevice->BindFrameBufferObject(this);
+	m_pDevice->BindRenderBuffer(_Attachment);
+
+	unsigned _AttachmentTranslation = ColorAttachmentLookup(_ID);
+	unsigned _Handle = ((RenderBufferGL2*) _Attachment)->GetHandle();
+
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, _AttachmentTranslation, GL_RENDERBUFFER_EXT, _Handle);
 
 	m_NumColorAttachment++;
+
+	m_pDevice->UnbindFrameBufferObject();
+}
+
+// Lut for id -> opengl 
+unsigned ColorAttachmentLookup(unsigned _ID)
+{
+	switch(_ID)
+	{
+	case 0: return GL_COLOR_ATTACHMENT0_EXT; break;
+	case 1: return GL_COLOR_ATTACHMENT1_EXT; break;
+	case 2: return GL_COLOR_ATTACHMENT2_EXT; break;
+	default: break;
+	}
 }
 
 void FrameBufferObjectGL2::AddDepthAttachment(Graphics::RenderBuffer* _Depth)

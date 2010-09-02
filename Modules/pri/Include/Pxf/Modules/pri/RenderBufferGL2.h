@@ -18,7 +18,7 @@ namespace Pxf{
 				, m_Format(_Format)
 			{ _InitBuffer(); }
 
-			unsigned GetID() { return m_ID; }
+			unsigned GetHandle() { return m_Handle; }
 			unsigned GetFormat() { return m_Format; }
 
 			void ReleaseBuffer();
@@ -26,7 +26,7 @@ namespace Pxf{
 		private:
 			void _InitBuffer();
 
-			unsigned m_ID;
+			unsigned m_Handle;
 			unsigned m_Format;
 		};
 

@@ -58,11 +58,13 @@ namespace Pxf
 			
 			virtual RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height) = 0;
 			virtual void DestroyRenderBuffer(RenderBuffer* _pRenderBuffer) = 0;
+			virtual void BindRenderBuffer(RenderBuffer* _pRenderBuffer) = 0;
+			virtual void UnbindRenderBuffer() = 0;
 
 			virtual FrameBufferObject* CreateFrameBufferObject() = 0;
 			virtual void DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
-
-			virtual void BindFrameBuffer(FrameBufferObject* _FrameBuffer) = 0;
+			virtual void BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
+			virtual void UnbindFrameBufferObject() = 0;
 			
 			bool Ready() { return m_Ready; }
 		private:
