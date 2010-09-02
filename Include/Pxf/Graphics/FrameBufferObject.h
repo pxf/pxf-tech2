@@ -25,11 +25,13 @@ namespace Pxf
 			virtual void DetachColor(unsigned _ID) = 0;
 			virtual void DetachDepth(unsigned _ID) = 0;
 
+			virtual void DetachAll() = 0;
+
 			int GetNumColorAttachment() { return m_NumColorAttachment; }
 			bool GetUseDepthAttachment() { return m_UseDepthAttachment; }
 		private:
 			RenderBuffer* m_ColorAttachments;
-			RenderBuffer m_DepthAttachment;
+			RenderBuffer* m_DepthAttachment;
 			//RenderBuffer m_StencilAttachment; // future implementation
 
 			int m_MaxColorAttachments;	// upper bound on attachments, vendor specific

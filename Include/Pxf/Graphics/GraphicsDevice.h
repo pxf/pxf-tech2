@@ -57,7 +57,10 @@ namespace Pxf
 			virtual void DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount) = 0;
 			
 			virtual RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height) = 0;
+			virtual void DestroyRenderBuffer(RenderBuffer* _pRenderBuffer) = 0;
+
 			virtual FrameBufferObject* CreateFrameBufferObject() = 0;
+			virtual void DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
 			
 			bool Ready() { return m_Ready; }
 		private:
