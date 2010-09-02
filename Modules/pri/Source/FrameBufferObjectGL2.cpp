@@ -156,6 +156,8 @@ unsigned ColorAttachmentLookup(unsigned _ID)
 	case 15: return GL_COLOR_ATTACHMENT15_EXT; break;
 	default: break;
 	}
+	Message(LOCAL_MSG, "Invalid look-up id: %d", _ID);
+	return 0xFFFFFFFF;
 }
 
 void FrameBufferObjectGL2::AddDepthAttachment(Graphics::RenderBuffer* _Depth)
