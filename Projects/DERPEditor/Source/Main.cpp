@@ -86,11 +86,16 @@ int main()
     TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "data/test.png");
     
     qb->Begin();
-    qb->AddCentered(0, 0, 1, 1);
+    qb->AddCentered(400, 400, 100, 100);
     qb->SetColor(1.0f, 0.0f, 0.0f);
     transform.Translate(0.5f, 0.5f, 0.0f);
-    qb->AddCentered(-0.5f, -0.5f, 0.2f, 0.2f);
+    qb->AddCentered(400, 400, 50, 50);
     qb->End();
+    
+    // Setup viewport and matrises
+    gfx->SetViewport(0, 0, 800, 600);
+    Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
+    gfx->SetProjection(&prjmat);
 
     while(win->IsOpen())
     {
