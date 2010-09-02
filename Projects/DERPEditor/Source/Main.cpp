@@ -75,11 +75,11 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
-    Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
+	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
 	
 	pFBO->AddColorAttachment(pBuf0);
-    
+
     QuadBatch* qb = new QuadBatch(1024);
     qb->Begin();
     qb->SetColor(0.0f, 1.0f, 0.0f);
@@ -88,6 +88,8 @@ int main()
     qb->AddCentered(-0.5f, -0.5f, 0.2f, 0.2f);
     qb->End();
     
+	glGetIntegerv(0, 0);
+
     while(win->IsOpen())
     {
         glClear(GL_COLOR_BUFFER_BIT);
