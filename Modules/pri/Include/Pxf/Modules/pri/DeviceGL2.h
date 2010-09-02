@@ -48,6 +48,8 @@ namespace Pxf{
 			
 			Graphics::FrameBufferObject* CreateFrameBufferObject();
 			void DestroyFrameBufferObject(Graphics::FrameBufferObject* _pFrameBufferObject);
+			
+			void BindFrameBuffer(Graphics::FrameBufferObject* _FrameBuffer);
 
 		private:
             bool Init(){ return true; };

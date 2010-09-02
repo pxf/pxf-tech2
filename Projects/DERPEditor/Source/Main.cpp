@@ -78,7 +78,7 @@ int main()
 	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
 	
-	pFBO->AddColorAttachment(pBuf0);
+	pFBO->AddColorAttachment(pBuf0,0);
 
     QuadBatch* qb = new QuadBatch(1024);
     qb->Begin();

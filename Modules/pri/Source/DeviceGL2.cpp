@@ -186,3 +186,9 @@ void DeviceGL2::DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 	if(_pFrameBufferObject)
 		delete _pFrameBufferObject;
 }
+
+void DeviceGL2::BindFrameBuffer(FrameBufferObject* _FrameBuffer)
+{
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _FrameBuffer)->GetHandle());
+
+}
