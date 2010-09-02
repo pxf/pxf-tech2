@@ -124,6 +124,7 @@ void TextureGL2::Reload()
     if (!img)
     {
         Message(LOCAL_MSG, "Failed to load file '%s'", m_Filepath.c_str());
+		return;
     }
     
     m_TextureID = SOIL_create_OGL_texture(
@@ -136,29 +137,6 @@ void TextureGL2::Reload()
     
     if (m_TextureID == 0)
         Message(LOCAL_MSG, "Failed to create texture for '%s'", m_Filepath.c_str());
-/*
-	unsigned char* t_data = SOIL_load_image(m_Filepath.c_str(), &m_Width, &m_Height, &m_Channels, 0);
-	if( t_data == 0)
-	{
-		Message(LOCAL_MSG, "SOIL data loading error for file '%s': '%s';", m_Filepath.c_str(), SOIL_last_result() );
-		return;
-	}
-
-	m_TextureID = SOIL_create_OGL_texture(
-		t_data,
-		m_Width, m_Height, m_Channels,
-		SOIL_CREATE_NEW_ID,
-		NULL
-		);
-
-	SOIL_free_image_data(t_data);
-
-	if( m_TextureID == 0)
-	{
-		Message(LOCAL_MSG, "SOIL loading error for file '%s': '%s';", m_Filepath.c_str(), SOIL_last_result() );
-		return;
-	}
-*/
 }
 
 int TextureGL2::GetWidth()
