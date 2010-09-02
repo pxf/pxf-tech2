@@ -6,11 +6,13 @@
 #include <Pxf/Base/Utils.h>
 
 #include <Pxf/Audio/AudioDevice.h>
+
+#include <Pxf/Input/InputDevice.h>
+#include <Pxf/Input/InputDefs.h>
+
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
-#include <Pxf/Graphics/RenderBuffer.h>
-#include <Pxf/Graphics/FrameBufferObject.h>
 
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/String.h>
@@ -22,22 +24,21 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 
+#include <Pxf/Modules/pri/OpenGL.h>
+
 #include <enet/enet.h>
 
 #include <ctime>
 
-#include "QuadBatch.h"
-#include <Pxf/Modules/pri/OpenGL.h>
-
 using namespace Pxf;
-using namespace DERPEditor;
+
 
 int main()
 {
     Pxf::RandSetSeed(time(NULL));
     Kernel* kernel = Pxf::Kernel::GetInstance();
 
-    kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, true);
+	 kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
@@ -75,37 +76,19 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
-    // FBO tests
-	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(0,512,512);
-	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
-	pFBO->AddColorAttachment(pBuf0,0);
-	
-	// QuadBatch tests
-    Math::Mat4 transform = Math::Mat4::Identity;
-    QuadBatch* qb = new QuadBatch(1024, &transform);
-    
-    qb->Begin();
-    qb->SetColor(0.0f, 1.0f, 0.0f);
-    qb->AddCentered(0, 0, 1, 1);
-    qb->SetColor(1.0f, 0.0f, 0.0f);
-    transform.Translate(0.5f, 0.5f, 0.0f);
-    qb->AddCentered(-0.5f, -0.5f, 0.2f, 0.2f);
-    qb->End();
-    
-	glGetIntegerv(0, 0);
-
-    while(win->IsOpen())
+    while(win->IsOpen() && !inp->IsKeyDown(Input::ESC))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-        qb->Draw();
+		inp->Update();
+
+		int x, y;
+		inp->GetMousePos(&x, &y);
+		Message("Main", "Mouse at %dx%d", x, y);
+
         win->Swap();
     }
-    
-    delete qb;
     
 
     res->Release(img);
     delete kernel;
     return 0;
 }
-

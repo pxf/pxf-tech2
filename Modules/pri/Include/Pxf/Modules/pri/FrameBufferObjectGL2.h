@@ -19,15 +19,18 @@ namespace Pxf{
 			{ _Configure(); }
 			~FrameBufferObjectGL2();
 
-			void AddColorAttachment(Graphics::RenderBuffer* _Attachment);
+			void AddColorAttachment(Graphics::RenderBuffer* _Attachment, unsigned _ID);
 			void AddDepthAttachment(Graphics::RenderBuffer* _Depth);
 
 			void DetachColor(unsigned _ID);
-			void DetachDepth(unsigned _ID);
+			void DetachDepth();
 
 			void DetachAll();
+
+			unsigned GetHandle() { return m_Handle; }
 		private:
 			void _Configure();	// check max attachments 
+			unsigned m_Handle;
 		};
 	} // Graphics
 } // Pxf
