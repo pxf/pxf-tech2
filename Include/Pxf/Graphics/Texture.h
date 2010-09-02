@@ -23,6 +23,8 @@ namespace Pxf
 			virtual void LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels) = 0;
 			virtual void Unload() = 0;
 			virtual void Reload() = 0;
+			
+			//virtual const unsigned char* GetData();
 
 			virtual int GetWidth() = 0;
 			virtual int GetHeight() = 0;

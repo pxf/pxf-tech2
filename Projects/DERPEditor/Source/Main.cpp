@@ -26,7 +26,7 @@
 
 #include <ctime>
 
-#include "QuadBatch.h"
+#include "TexturedQuadBatch.h"
 #include <Pxf/Modules/pri/OpenGL.h>
 
 using namespace Pxf;
@@ -82,7 +82,7 @@ int main()
 	
 	// QuadBatch tests
     Math::Mat4 transform = Math::Mat4::Identity;
-    QuadBatch* qb = new QuadBatch(1024, &transform);
+    TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "test.png");
     
     qb->Begin();
     qb->SetColor(0.0f, 1.0f, 0.0f);
@@ -91,8 +91,6 @@ int main()
     transform.Translate(0.5f, 0.5f, 0.0f);
     qb->AddCentered(-0.5f, -0.5f, 0.2f, 0.2f);
     qb->End();
-    
-	glGetIntegerv(0, 0);
 
     while(win->IsOpen())
     {

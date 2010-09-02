@@ -11,7 +11,7 @@ using namespace DERPEditor;
 using namespace Pxf::Graphics;
 using namespace Pxf::Math;
 
-QuadBatch::QuadBatch(int _size, Mat4* _transformmatrix)
+QuadBatch::QuadBatch(unsigned int _size, Mat4* _transformmatrix)
 {
     m_VertBufSize = _size;
     m_Transformation = _transformmatrix;
