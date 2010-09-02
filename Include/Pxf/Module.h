@@ -1,7 +1,7 @@
 #ifndef _PXF_MODULE_H_
 #define _PXF_MODULE_H_
 
-#define REGISTER_MODULE(MODULE, MODULEIDENT, KERNELV, MODULEV) \
+#define REGISTER_MODULE(MODULE, MODULEIDENT, KERNELV, MODULEV)                             \
                                 class RegisterModule##MODULE                               \
                                 {                                                          \
                                 private:                                                   \
@@ -14,7 +14,7 @@
                                         k->RegisterModule(m_Module);                       \
                                     }                                                      \
                                 };                                                         \
-                                static RegisterModule##MODULE g_GlobalInitializer##MODULE;
+                                static RegisterModule##MODULE g_GlobalInitializer##MODULE; \
 
 #include <Pxf/System.h>
 

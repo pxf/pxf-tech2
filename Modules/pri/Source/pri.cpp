@@ -13,7 +13,9 @@ static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
 using Pxf::Modules::PortableRendererInput;
+#ifndef CONF_MODULAR
 REGISTER_MODULE(PortableRendererInput, "pri", Module_Kernel_Version, Module_Api_Version);
+#endif
 
 namespace PortableRenderInput_
 {
