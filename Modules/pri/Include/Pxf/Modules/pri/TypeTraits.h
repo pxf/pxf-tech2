@@ -31,9 +31,6 @@ namespace Pxf
 				return (GLvoid*)( ((char*)NULL) + ptr );
 			};
 
-			// Constants
-			extern GLenum ARRAY_BUFFER;
-
 			//
 			// Buffer functions
 			//
@@ -41,6 +38,7 @@ namespace Pxf
 			void SetupExtensions();
 
 			// Buffer
+			extern unsigned int ARRAY_BUFFER;
 			extern PFNGLDELETEBUFFERSPROC DeleteBuffers;
 			extern PFNGLBINDBUFFERPROC BindBuffer;
 			extern PFNGLGENBUFFERSPROC GenBuffers;
@@ -50,6 +48,11 @@ namespace Pxf
 			extern PFNGLUNMAPBUFFERPROC UnmapBuffer;
 
 			// Shader
+			extern unsigned int COMPILE_STATUS;
+			extern unsigned int LINK_STATUS;
+			extern unsigned int VERTEX_SHADER;
+			extern unsigned int FRAGMENT_SHADER;
+
 			extern PFNGLCREATEPROGRAMPROC CreateProgram;
 			extern PFNGLCREATESHADERPROC CreateShader;
 			extern PFNGLSHADERSOURCEPROC ShaderSource;
@@ -60,21 +63,16 @@ namespace Pxf
 			extern PFNGLDETACHSHADERPROC DetachShader;
 			extern PFNGLDELETESHADERPROC DeleteShader;
 			extern PFNGLDELETEPROGRAMPROC DeleteProgram;
+			extern PFNGLGETSHADERIVPROC GetShaderiv;
+			extern PFNGLGETPROGRAMIVPROC GetProgramiv;
+			extern PFNGLGETSHADERINFOLOGPROC GetShaderInfoLog;
+			extern PFNGLGETPROGRAMINFOLOGPROC GetProgramInfoLog;
 
 			//
 			// Shaders
 			//
 			/*
 
-			void GetShaderiv(GLuint shader, GLenum pname, GLint* params)
-			{
-
-			}
-
-			void GetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog)
-			{
-
-			}
 
 			GLint GetUniformLocation(GLuint program, const GLchar* name)
 			{
