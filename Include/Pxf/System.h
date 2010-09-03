@@ -23,7 +23,8 @@ namespace Pxf
             SYSTEM_TYPE_GRAPHICSDEVICE = 4,
             SYSTEM_TYPE_PHYSICSENGINE = 8,
             SYSTEM_TYPE_RESOURCE_LOADER = 16,
-            SYSTEM_TYPE_SCRIPTLANG = 32
+            SYSTEM_TYPE_SCRIPTLANG = 32,
+			SYSTEM_TYPE_NETWORKDEVICE = 64
         };
     
         System(Kernel* _Kernel, unsigned _SystemType, const char* _Identifier)
