@@ -1,6 +1,8 @@
 #ifndef _PXF_GRAPHICS_OPENGL_UTILS_H_
 #define _PXF_GRAPHICS_OPENGL_UTILS__H_
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <Pxf/Math/Vector.h>
+#include <Pxf/Math/Matrix.h>
 
 
 #define OPENGL_TRAIT(Type, GLType, GLSize)\
@@ -217,12 +219,63 @@ namespace Pxf
 
 			}
 
-			void glGetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog)
+			void GetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog)
 			{
 
 			}
 
-			/* also, uniforms etc... */
+			GLint GetUniformLocation(GLuint program, const GLchar* name)
+			{
+				return 0;
+			}
+
+			void SetUniformValue(GLint location, int v)
+			{
+			
+			}
+
+			void SetUniformValue(GLint location, float v)
+			{
+			
+			}
+
+			void SetUniformValue(GLint location, Math::Vec2f* v)
+			{
+			
+			}
+
+			void SetUniformValue(GLint location, Math::Vec3f* v)
+			{
+			
+			}
+
+			void SetUniformValue(GLint location, Math::Vec4f* v)
+			{
+			
+			}
+
+			void SetUniformVector(GLint location, unsigned count, Math::Vec2f* v)
+			{
+			
+			}
+
+			void SetUniformVector(GLint location, unsigned count, Math::Vec3f* v)
+			{
+			
+			}
+
+			void SetUniformVector(GLint location, unsigned count, Math::Vec4f* v)
+			{
+			
+			}
+
+			void SetUniformMatrix(GLint location, unsigned count, Math::Mat4* v)
+			{
+			
+			}
+
+			/* etc... */
+
 
 
 
