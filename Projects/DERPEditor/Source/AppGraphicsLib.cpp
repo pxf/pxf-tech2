@@ -4,6 +4,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
+#include <Pxf/Modules/pri/OpenGL.h>
 
 int DERPEditor::gfx_redrawneeded (lua_State *L) {
   // gxf.redrawneeded(x,y,w,h) -- x,y,h,w optional, otherwise = full redraw
@@ -95,6 +96,19 @@ int DERPEditor::gfx_setcolor (lua_State *L) {
   return 0;
 }
 
+int DERPEditor::gfx_setclearcolor (lua_State *L) {
+  // gfx.setclearcolor(r,g,b)
+  if (lua_gettop(L) == 3)
+  {
+    glClearColor(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), 1.0f);
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to setclearcolor function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int DERPEditor::gfx_drawcentered (lua_State *L) {
   // gfx.drawcentered(x,y,w,h)
   if (lua_gettop(L) == 4)
@@ -133,6 +147,7 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
     {"translate",   gfx_translate},
     {"getcolor",   gfx_getcolor},
     {"setcolor",   gfx_setcolor},
+    {"setclearcolor",   gfx_setclearcolor},
     
     {"drawcentered",   gfx_drawcentered},
     {NULL, NULL}

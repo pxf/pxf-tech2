@@ -18,6 +18,7 @@ namespace DERPEditor
     int gfx_translate(lua_State *L);
     int gfx_getcolor(lua_State *L);
     int gfx_setcolor(lua_State *L);
+    int gfx_setclearcolor(lua_State *L);
     
     // draw calls
     int gfx_drawcentered(lua_State *L);
