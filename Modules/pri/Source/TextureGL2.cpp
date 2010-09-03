@@ -29,7 +29,6 @@ TextureGL2::~TextureGL2()
 
 Math::Vec4f TextureGL2::CreateTextureSubset(float _x1, float _y1, float _x2, float _y2)
 {
-
 	float xdelta, ydelta;
 	xdelta = 1.0f / (float)m_Width;
 	ydelta = 1.0f / (float)m_Height;
@@ -132,6 +131,10 @@ void TextureGL2::Reload()
         img->Width(), img->Height(), img->Channels(),
         SOIL_CREATE_NEW_ID,
         0);
+    
+    m_Width = img->Width();
+    m_Height = img->Height();
+    m_Channels = img->Channels();
         
     res->Release(img);
     

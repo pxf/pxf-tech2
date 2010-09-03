@@ -39,12 +39,18 @@ void QuadBatch::Reset()
     m_CurrentColor = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
     m_CurrentDepth = 0.0f;
     
-    SetTextureSubset(0.f,0.f,1.f,1.f);
+    //SetTextureSubset(0.f,0.f,1.f,1.f);
+    ResetTextureSubset();
+}
+
+void QuadBatch::ResetTextureSubset()
+{
+  QuadBatch::SetTextureSubset(0.f,0.f,1.f,1.f);
 }
 
 void QuadBatch::SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v)
 {
-    m_CurrentCoords[0].u = tl_u;
+  m_CurrentCoords[0].u = tl_u;
 	m_CurrentCoords[0].v = tl_v;
 
 	m_CurrentCoords[1].u = br_u;

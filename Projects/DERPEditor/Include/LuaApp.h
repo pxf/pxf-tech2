@@ -31,6 +31,7 @@ namespace DERPEditor
         ~LuaApp();
         
         void CleanUp();
+        void Init();
         bool Boot();
         bool Reboot();
         

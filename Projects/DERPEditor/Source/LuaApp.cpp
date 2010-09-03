@@ -51,6 +51,18 @@ LuaApp::~LuaApp()
     delete m_AppErrorQB;
 }
 
+void LuaApp::Init()
+{
+  // Init GL settings
+  Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
+  m_gfx->SetProjection(&prjmat);
+  
+  glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
+  
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+}
+
 void LuaApp::CleanUp()
 {
     // reset states
@@ -73,6 +85,9 @@ void LuaApp::CleanUp()
 
 bool LuaApp::Boot()
 {
+  // Init ourselves
+  Init();
+  
   // Init lua state
   L = lua_open();
   
@@ -139,7 +154,7 @@ bool LuaApp::Update()
 {
     if (m_Running)
     {
-      CallScriptFunc("update");
+      CallScriptFunc("_update");
     } else {
       // A application error has occurred, see if the user wants to reboot or quit
       int mx,my;
@@ -209,7 +224,7 @@ void LuaApp::Draw()
           m_QuadBatches[i]->Reset();
         }
         
-        CallScriptFunc("draw");
+        CallScriptFunc("_draw");
         
         
         // Close last used QB
@@ -231,10 +246,6 @@ void LuaApp::Draw()
         m_TransformMatrix = Math::Mat4::Identity;
       }  
     } else {
-      Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
-      m_gfx->SetProjection(&prjmat);
-      
-      glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
       
       // Display application error
@@ -269,11 +280,9 @@ bool LuaApp::HandleErrors(int _error)
       if (s) {
         Message(LOCAL_MSG, "Error when calling runtime errror handler! %s", lua_tostring(L, -1));
         lua_pop(L, 1);
+        m_Running = false;
       }
       
-      //CallScriptFunc("_runtimeerror", 1);
-      //Message(LOCAL_MSG, "%s", lua_tostring(L, -1));
-  		//lua_pop(L, 1); // remove error message
 		} else {
 		  if (_error == LUA_ERRMEM)
 			  Message(LOCAL_MSG, "-- Script memory allocation error: --");

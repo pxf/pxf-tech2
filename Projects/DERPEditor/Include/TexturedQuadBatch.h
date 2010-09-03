@@ -11,6 +11,7 @@ namespace DERPEditor
         TexturedQuadBatch(unsigned int _size, Pxf::Math::Mat4* _transformmatrix, const char* _texture_filepath);
         ~TexturedQuadBatch();
         
+        void SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v);
         void Reset();
         void Begin();
         void End();

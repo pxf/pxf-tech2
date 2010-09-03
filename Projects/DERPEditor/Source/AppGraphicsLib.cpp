@@ -24,7 +24,8 @@ int DERPEditor::gfx_loadtexture (lua_State *L) {
     inst->m_QuadBatchCount++;
     return 1;
   } else {
-    // error?!!!!!!!
+    lua_pushstring(L, "Invalid argument passed to loadtexture function!");
+    lua_error(L);
   }
   return 0;
 }
@@ -36,7 +37,8 @@ int DERPEditor::gfx_bindtexture (lua_State *L) {
     LuaApp::GetInstance()->ChangeActiveQB(lua_tointeger(L, 1));
     
   } else {
-    // error?!!!!!!!
+    lua_pushstring(L, "Invalid argument passed to bindtexture function!");
+    lua_error(L);
   }
   return 0;
 }
@@ -48,11 +50,24 @@ int DERPEditor::gfx_drawcentered (lua_State *L) {
     QuadBatch* qb = LuaApp::GetInstance()->GetActiveQB();
     if (qb != NULL)
     {
+      qb->ResetTextureSubset();
+      qb->AddCentered(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4));
+    }
+    
+  }
+  // texture = gfx.drawcentered(x, y, w, h, s0, t0, s1, t1)
+  else if (lua_gettop(L) == 8)
+  {
+    QuadBatch* qb = LuaApp::GetInstance()->GetActiveQB();
+    if (qb != NULL)
+    {
+      qb->SetTextureSubset(lua_tonumber(L, 5), lua_tonumber(L, 6), lua_tonumber(L, 7), lua_tonumber(L, 8));
       qb->AddCentered(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4));
     }
     
   } else {
-    // error?!!!!!!!
+    lua_pushstring(L, "Invalid argument passed to drawcentered function!");
+    lua_error(L);
   }
   return 0;
 }

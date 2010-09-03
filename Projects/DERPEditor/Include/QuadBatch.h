@@ -22,7 +22,8 @@ namespace DERPEditor
         
         void SetColor(float r, float g, float b) { m_CurrentColor = Pxf::Math::Vec4f(r, g, b, m_CurrentColor.a); };
         void SetAlpha(float a) { m_CurrentColor = Pxf::Math::Vec4f(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, a); };
-		void SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v);
+		    virtual void SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v);
+		    void ResetTextureSubset();
 		/*void SetRotation(float angle); // Rotate following quad around its own axis
 		void Rotate(float angle); // Rotate coord system
         void Translate(float x, float y); // Translate coord system
