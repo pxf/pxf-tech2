@@ -12,6 +12,7 @@ function draw()
   --gfx.drawcentered(300,300,256,128)
   gfx.setcolor(1, 0, 0)
   draw_text("Welcome to ^1D^2E^1R^2P^9 Editor!", 200, 200)
+  draw = nil
 end
 
 
