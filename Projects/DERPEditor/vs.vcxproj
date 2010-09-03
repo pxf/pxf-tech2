@@ -177,6 +177,9 @@
     <ClInclude Include="Include\QuadBatch.h" />
     <ClInclude Include="Include\TexturedQuadBatch.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="data\test.ctm" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -68,7 +68,7 @@ int main()
     shader->SetBlahBlah();
     */
 
-	Resource::Model* model01 = res->Acquire<Resource::Model>("test.ctm");
+	Resource::Model* model01 = res->Acquire<Resource::Model>("data/test.ctm");
 
     Graphics::WindowSpecifications spec;
     spec.Width = 800;

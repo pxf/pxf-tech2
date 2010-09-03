@@ -9,6 +9,13 @@ namespace Resource {
 	class Model : public ResourceBase
 	{
 	protected:
+		bool m_HasNormals;
+		int m_VertexCount;
+		int m_TriangleCount;
+
+		float* m_Vertices;
+		float* m_Normals;
+		unsigned int* m_Indices;
 
 	public:
 		Model(Chunk* _Chunk, ResourceLoader* _Loader)

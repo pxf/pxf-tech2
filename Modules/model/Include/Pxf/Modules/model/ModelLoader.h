@@ -4,7 +4,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Model.h>
-
+#include <openctm.h>
 
 namespace Pxf{
 namespace Resource
@@ -16,6 +16,8 @@ namespace Modules {
 
 	class OpenCTMModel : public Resource::Model
 	{
+	protected:
+        virtual bool Build();
 	public:
 		OpenCTMModel(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
 			: Resource::Model(_Chunk,_Loader)
@@ -27,7 +29,9 @@ namespace Modules {
 	class GenericModelLoader : public Resource::ResourceLoader
     {
     private:
-        bool Init(){ return true; }
+		CTMcontext m_Context;
+
+        bool Init();
     public:
         GenericModelLoader(Pxf::Kernel* _Kernel);
         ~GenericModelLoader();
