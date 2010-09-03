@@ -22,7 +22,10 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_Filepath = _filepath;
     m_win = _win;
     
-    m_AppErrorQB = new TexturedQuadBatch(4, NULL, "data/apperror.png");
+    m_CurrentDepth = 0.0f;
+    m_CurrentColor = Math::Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    m_AppErrorQB = new TexturedQuadBatch(4, "data/apperror.png", &m_CurrentDepth, &m_CurrentColor, NULL);
     m_AppErrorQB->Begin();
     m_AppErrorQB->AddCentered(0, 0, 512, 256);
     m_AppErrorQB->End();

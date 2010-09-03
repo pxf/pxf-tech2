@@ -54,6 +54,8 @@ namespace DERPEditor
         
         // Public Lua states
         bool m_RedrawNeeded;
+        float m_CurrentDepth;
+        Pxf::Math::Vec4f m_CurrentColor;
         
         // Error handling
         bool HandleErrors(int _error);

@@ -8,7 +8,7 @@ namespace DERPEditor
     class TexturedQuadBatch : public QuadBatch
     {
     public:
-        TexturedQuadBatch(unsigned int _size, Pxf::Math::Mat4* _transformmatrix, const char* _texture_filepath);
+        TexturedQuadBatch(unsigned int _size, const char* _texture_filepath, float* _currentdepth, Pxf::Math::Vec4f* _currentcolor, Pxf::Math::Mat4* _transformmatrix = NULL);
         ~TexturedQuadBatch();
         
         void SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v);

@@ -23,7 +23,8 @@ end
 function draw_text(str, x, y)
   
   gfx.bindtexture(font)
-  --pxf.graphics.setcolor(1, 1, 1) -- TODO: Should use some kind of getcolor before drawing, so it can be restored here
+  local r,g,b = gfx.getcolor()
+  gfx.setcolor(1, 1, 1)
   gfx.translate(x, y)
 	local strlen = #str
 	local char_w = 8
@@ -31,6 +32,7 @@ function draw_text(str, x, y)
 	local color_indicator = "^"
 	local change_color = false
 	local char_counter = 0
+	local rr,rg,rb
 	
 	for i=1,strlen do
 	  -- calculate tex coords
@@ -45,20 +47,25 @@ function draw_text(str, x, y)
     else
       if change_color then
         
-        --[[ Color indexes
-        if string.char(tostring(string.byte(str, i))) == "0" then
-          pxf.graphics.setcolor(0, 0, 0)
-        elseif string.char(tostring(string.byte(str, i))) == "1" then
-          pxf.graphics.setcolor(1, 0, 0)
-        elseif string.char(tostring(string.byte(str, i))) == "2" then
-          pxf.graphics.setcolor(0, 1, 0)
-        elseif string.char(tostring(string.byte(str, i))) == "3" then
-          pxf.graphics.setcolor(0, 0, 1)
-        elseif string.char(tostring(string.byte(str, i))) == "4" then
-          pxf.graphics.setcolor(1.0, 0.3, 0.3)
+        -- Color indexes
+        if string.char(tostring(string.byte(str, i))) == "r" then
+          gfx.setcolor(rr,rg,rb)
         else
-          pxf.graphics.setcolor(1, 1, 1)
-        end]]
+          rr,rg,rb = gfx.getcolor()
+          if string.char(tostring(string.byte(str, i))) == "0" then
+            gfx.setcolor(0, 0, 0)
+          elseif string.char(tostring(string.byte(str, i))) == "1" then
+            gfx.setcolor(1, 0, 0)
+          elseif string.char(tostring(string.byte(str, i))) == "2" then
+            gfx.setcolor(0, 1, 0)
+          elseif string.char(tostring(string.byte(str, i))) == "3" then
+            gfx.setcolor(0, 0, 1)
+          elseif string.char(tostring(string.byte(str, i))) == "4" then
+            gfx.setcolor(1.0, 0.3, 0.3)
+          else
+            gfx.setcolor(1, 1, 1)
+          end
+        end
         
         change_color = false
       else
@@ -70,7 +77,7 @@ function draw_text(str, x, y)
 	end
 	
 	gfx.translate(-x, -y)
-	--pxf.graphics.setcolor(1, 1, 1) -- TODO: Should use some kind of getcolor before drawing, so it can be restored here
+	gfx.setcolor(r,g,b)
 end
 
 -- basic callfunctions
