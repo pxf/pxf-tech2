@@ -15,7 +15,7 @@ using namespace Pxf;
 using namespace Pxf::Graphics;
 
 static LuaApp* DERPEditor::_appinstance;
-static LuaApp* LuaApp::GetInstance()
+LuaApp* LuaApp::GetInstance()
 {
     return _appinstance;
 }
@@ -160,6 +160,8 @@ void LuaApp::Draw()
     {
         Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
         m_gfx->SetProjection(&prjmat);
+        glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         
         // TODO: Call application draw method etc
     } else {

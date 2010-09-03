@@ -34,7 +34,8 @@ namespace DERPEditor
         
         // "snigelton" honk honk
         static LuaApp* GetInstance();
-const char* m_Filepath;
+        const char* m_Filepath;
+        
     private:
         
         
