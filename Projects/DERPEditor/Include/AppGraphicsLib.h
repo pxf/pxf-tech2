@@ -15,6 +15,7 @@ namespace DERPEditor
     int gfx_redrawneeded(lua_State *L);
     int gfx_loadtexture(lua_State *L);
     int gfx_bindtexture(lua_State *L);
+    int gfx_translate(lua_State *L);
     
     // draw calls
     int gfx_drawcentered(lua_State *L);

@@ -1,5 +1,9 @@
 #include "AppGraphicsLib.h"
 
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Debug.h>
+#include <Pxf/Base/Utils.h>
+
 
 int DERPEditor::gfx_redrawneeded (lua_State *L) {
   // gxf.redrawneeded(x,y,w,h) -- x,y,h,w optional, otherwise = full redraw
@@ -43,6 +47,22 @@ int DERPEditor::gfx_bindtexture (lua_State *L) {
   return 0;
 }
 
+int DERPEditor::gfx_translate (lua_State *L) {
+  // texture = gfx.translate(x,y)
+  if (lua_gettop(L) == 2)
+  {
+    Pxf::Math::Mat4 t_translatematrix = Pxf::Math::Mat4::Identity;
+    t_translatematrix.Translate(lua_tonumber(L, 1), lua_tonumber(L, 2), 0.0f);
+    
+    LuaApp::GetInstance()->m_TransformMatrix = LuaApp::GetInstance()->m_TransformMatrix * t_translatematrix;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to translate function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int DERPEditor::gfx_drawcentered (lua_State *L) {
   // texture = gfx.drawcentered(x,y,w,h)
   if (lua_gettop(L) == 4)
@@ -78,6 +98,7 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
     {"redrawneeded",   gfx_redrawneeded},
     {"loadtexture",   gfx_loadtexture},
     {"bindtexture",   gfx_bindtexture},
+    {"translate",   gfx_translate},
     {"drawcentered",   gfx_drawcentered},
     {NULL, NULL}
     };

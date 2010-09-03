@@ -24,7 +24,7 @@ function draw_text(str, x, y)
   
   gfx.bindtexture(font)
   --pxf.graphics.setcolor(1, 1, 1) -- TODO: Should use some kind of getcolor before drawing, so it can be restored here
-  --pxf.graphics.translate(x, y)
+  gfx.translate(x, y)
 	local strlen = #str
 	local char_w = 8
 	
@@ -69,7 +69,7 @@ function draw_text(str, x, y)
     end
 	end
 	
-	--pxf.graphics.translate(-x, -y)
+	gfx.translate(-x, -y)
 	--pxf.graphics.setcolor(1, 1, 1) -- TODO: Should use some kind of getcolor before drawing, so it can be restored here
 end
 

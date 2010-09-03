@@ -10,7 +10,7 @@ function draw()
   --gfx.bindtexture(test_texture)
   --gfx.drawcentered(300,300,256,128, 0, 0, 256, 128)
   --gfx.drawcentered(300,300,256,128)
-  draw_text("DERP Editor", 200, 200)
+  draw_text("Welcome to DERP Editor!", 200, 200)
 end
 
 
