@@ -11,6 +11,7 @@
 
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <Pxf/Modules/pri/OpenGLUtils.h>
+#include <Pxf/Modules/pri/TypeTraits.h>
 
 
 #define LOCAL_MSG "Device"
@@ -277,12 +278,12 @@ Shader* DeviceGL2::BindShader(Shader* _Shader)
 	if (_Shader)
 	{
 		m_CurrentShader = _Shader;
-		glUseProgram(((ShaderGLSL*)_Shader)->GetProgramHandle());
+		GL::UseProgram(((ShaderGLSL*)_Shader)->GetProgramHandle());
 	}
 	else 
 	{
 		m_CurrentShader = NULL;
-		glUseProgram(0);
+		GL::UseProgram(0);
 	}
 
 	return previous;
