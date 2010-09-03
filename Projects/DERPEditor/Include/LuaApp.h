@@ -21,6 +21,10 @@ extern "C" {
 
 #define LUAAPP_TABLE "app"
 
+#define LUAAPP_MAXQB 8
+#define LUAAPP_QBSIZE 1024
+#define LUAAPP_DEPTH_STEP (-1.0f / (LUAAPP_QBSIZE * LUAAPP_MAXQB))
+
 
 namespace DERPEditor
 {
@@ -43,11 +47,13 @@ namespace DERPEditor
         
         // QuadBatches
         unsigned int m_QuadBatchCount;
-        TexturedQuadBatch* m_QuadBatches[8];
+        TexturedQuadBatch* m_QuadBatches[LUAAPP_MAXQB];
         
         // QuadBatch control
         void ChangeActiveQB(unsigned int _id);
         QuadBatch* GetActiveQB();
+        void IncDepth();
+        void ResetDepth();
         
         // Matrises
         Pxf::Math::Mat4 m_TransformMatrix;
