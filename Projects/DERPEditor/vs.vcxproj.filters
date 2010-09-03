@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Renderer">
-      <UniqueIdentifier>{c839c897-8bdb-47a8-8973-4cc9de1df29c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Framework">
       <UniqueIdentifier>{0cb66f1f-0a22-4021-95c4-4eaad01711ef}</UniqueIdentifier>
     </Filter>
@@ -51,14 +48,20 @@
     <Filter Include="Framework\Header Files\Pxf\Input">
       <UniqueIdentifier>{1fda36b9-94bb-41e7-a7cf-38552c66421f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderer\Include">
-      <UniqueIdentifier>{53ec8dbc-c9ae-4ae2-b817-b4c52d0ee776}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderer\Source">
-      <UniqueIdentifier>{8c13e436-055c-4ee5-afa5-ee22dd4ff33f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Modules\model">
       <UniqueIdentifier>{b12fcffe-acfb-4bbf-8a44-22add1572ded}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{c839c897-8bdb-47a8-8973-4cc9de1df29c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Include">
+      <UniqueIdentifier>{53ec8dbc-c9ae-4ae2-b817-b4c52d0ee776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Source">
+      <UniqueIdentifier>{8c13e436-055c-4ee5-afa5-ee22dd4ff33f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Data">
+      <UniqueIdentifier>{10afb47c-f224-4624-8964-cf13fca1b878}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -144,13 +147,13 @@
       <Filter>Modules\pri</Filter>
     </ClCompile>
     <ClCompile Include="Source\QuadBatch.cpp">
-      <Filter>Renderer\Source</Filter>
+      <Filter>Editor\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\TexturedQuadBatch.cpp">
-      <Filter>Renderer\Source</Filter>
+      <Filter>Editor\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Main.cpp">
-      <Filter>Renderer\Source</Filter>
+      <Filter>Editor\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Modules\model\Source\model.cpp">
       <Filter>Modules\model</Filter>
@@ -329,10 +332,10 @@
       <Filter>Modules\pri</Filter>
     </ClInclude>
     <ClInclude Include="Include\TexturedQuadBatch.h">
-      <Filter>Renderer\Include</Filter>
+      <Filter>Editor\Include</Filter>
     </ClInclude>
     <ClInclude Include="Include\QuadBatch.h">
-      <Filter>Renderer\Include</Filter>
+      <Filter>Editor\Include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\Pxf\Resource\Model.h">
       <Filter>Framework\Header Files\Pxf\Resource</Filter>
@@ -343,5 +346,10 @@
     <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\model.h">
       <Filter>Modules\model</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\test.ctm">
+      <Filter>Editor\Data</Filter>
+    </None>
   </ItemGroup>
 </Project>
