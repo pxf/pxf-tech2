@@ -81,6 +81,8 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Modules\model\Source\model.cpp" />
+    <ClCompile Include="..\..\Modules\model\Source\ModelLoader.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\FrameBufferObjectGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\RenderBufferGL2.cpp" />
@@ -122,6 +124,7 @@
     <ClInclude Include="..\..\Include\Pxf\Module.h" />
     <ClInclude Include="..\..\Include\Pxf\Pxf.h" />
     <ClInclude Include="..\..\Include\Pxf\Resource\Blob.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\Model.h" />
     <ClInclude Include="..\..\Include\Pxf\Resource\Text.h" />
     <ClInclude Include="..\..\Include\Pxf\System.h" />
     <ClInclude Include="..\..\Include\Pxf\Base\Config.h" />
@@ -158,6 +161,8 @@
     <ClInclude Include="..\..\Include\Pxf\Util\String.h" />
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\ImageLoader.h" />
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\img.h" />
+    <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\model.h" />
+    <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\ModelLoader.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\FrameBufferObjectGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\InputDeviceGLFW.h" />
