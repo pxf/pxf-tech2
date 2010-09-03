@@ -27,6 +27,7 @@ namespace Modules {
 	class GenericModelLoader : public Resource::ResourceLoader
     {
     private:
+        bool Init(){ return true; }
     public:
         GenericModelLoader(Pxf::Kernel* _Kernel);
         ~GenericModelLoader();

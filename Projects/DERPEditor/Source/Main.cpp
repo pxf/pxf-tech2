@@ -21,6 +21,7 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
+#include <Pxf/Resource/Model.h>
 #include <Pxf/Resource/Blob.h>
 
 #include <enet/enet.h>
@@ -44,6 +45,7 @@ int main()
 
     kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
+	kernel->RegisterModule("model", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
     Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
@@ -65,6 +67,8 @@ int main()
     Graphics::Shader* shader = video->CreateShader(Resource::TextFile* _source);
     shader->SetBlahBlah();
     */
+
+	Resource::Model* model01 = res->Acquire<Resource::Model>("test.ctm");
 
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
