@@ -10,7 +10,7 @@ using namespace DERPEditor;
 using namespace Pxf;
 using namespace Pxf::Graphics;
 
-static LuaApp* DERPEditor::_appinstance;
+static LuaApp* _appinstance;
 LuaApp* LuaApp::GetInstance()
 {
     return _appinstance;

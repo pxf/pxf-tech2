@@ -105,6 +105,8 @@ unsigned TranslateAttachment(unsigned _ID)
 	case GL_COLOR_ATTACHMENT15_EXT: return 15; break;
 	default: break;
 	}
+
+	return 0;
 }
 
 void FrameBufferObjectGL2::Detach(const unsigned _Attachment)

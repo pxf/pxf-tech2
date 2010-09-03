@@ -102,14 +102,13 @@ int main()
 	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
 	*/
 	
+	/*
 	// mesh test
-	/*CTMcontext	context;
+	CTMcontext	context;
 	CTMuint		vertCount, triCount;
 	const CTMuint* indices;
 	const CTMfloat*	vertices;
-	*/
 
-	/*
 	ctmLoad(context, "data/test.ctm");
 	if(ctmGetError(context) == CTM_NONE)
 	{
@@ -120,6 +119,7 @@ int main()
 	}
 
 	ctmFreeContext(context);
+
 	*/
 
 	// QuadBatch tests
