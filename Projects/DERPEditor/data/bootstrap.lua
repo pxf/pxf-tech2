@@ -10,12 +10,20 @@ end
 
 -- load standard textures
 font = gfx.loadtexture("data/consolefont.png")
+runtimeerror_tex = gfx.loadtexture("data/runtimeerror.png")
 
 -- error handling
 error_stop = false
 function _runtimeerror(str)
   print(" -- Runtime Error -- \n" .. str)
   error_stop = true
+end
+
+function draw_runtimeerror()
+  gfx.bindtexture(runtimeerror_tex)
+  --gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
+  gfx.setcolor(1,1,1)
+  gfx.drawcentered(400,300,512,256)
 end
 
 -- font system
@@ -88,6 +96,8 @@ end
 function _draw()
   if (not error_stop) then
     draw()
+  else
+    draw_runtimeerror()
   end
 end
 
