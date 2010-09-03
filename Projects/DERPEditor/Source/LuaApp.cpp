@@ -57,7 +57,7 @@ LuaApp::~LuaApp()
 void LuaApp::Init()
 {
   // Init GL settings
-  Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
+  Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
   m_gfx->SetProjection(&prjmat);
   
   glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
@@ -215,9 +215,6 @@ void LuaApp::Draw()
     {
       if (m_RedrawNeeded)
       {
-        Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
-        m_gfx->SetProjection(&prjmat);
-        glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
         
@@ -249,6 +246,9 @@ void LuaApp::Draw()
         m_TransformMatrix = Math::Mat4::Identity;
       }  
     } else {
+      Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
+      m_gfx->SetProjection(&prjmat);
+      glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
       
       // Display application error

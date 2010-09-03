@@ -1,5 +1,6 @@
 #include <Pxf/Modules/pri/ShaderGLSL.h>
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <Pxf/Modules/pri/TypeTraits.h>
 
 #include <Pxf/Base/Debug.h>
 
@@ -12,26 +13,26 @@ ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const 
 	if (_VertexShader && _FragmentShader)
 	{
 		m_Valid = true;
-		m_ProgramHandle = glCreateProgram();
+		m_ProgramHandle = GL::CreateProgram();
 
 		// Create vertex shader
-		m_VertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(m_VertexShaderHandle, 1, (const char**)&_VertexShader, NULL);
-		glCompileShader(m_VertexShaderHandle);
+		m_VertexShaderHandle = GL::CreateShader(GL_VERTEX_SHADER);
+		GL::ShaderSource(m_VertexShaderHandle, 1, (const char**)&_VertexShader, NULL);
+		GL::CompileShader(m_VertexShaderHandle);
 		CheckForCompilationErrors(m_VertexShaderHandle);
 
 		// Create fragment shader
-		m_FragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(m_FragmentShaderHandle, 1, (const char**)&_FragmentShader, NULL);
-		glCompileShader(m_FragmentShaderHandle);
+		m_FragmentShaderHandle = GL::CreateShader(GL_FRAGMENT_SHADER);
+		GL::ShaderSource(m_FragmentShaderHandle, 1, (const char**)&_FragmentShader, NULL);
+		GL::CompileShader(m_FragmentShaderHandle);
 		if (!CheckForCompilationErrors(m_FragmentShaderHandle))
 			m_Valid = false;
 
 		// Attach vertex and fragment shader
-		glAttachShader(m_ProgramHandle, m_VertexShaderHandle);
-		glAttachShader(m_ProgramHandle, m_FragmentShaderHandle);
+		GL::AttachShader(m_ProgramHandle, m_VertexShaderHandle);
+		GL::AttachShader(m_ProgramHandle, m_FragmentShaderHandle);
 
-		glLinkProgram(m_ProgramHandle);
+		GL::LinkProgram(m_ProgramHandle);
 		if (!CheckForLinkerErrors(m_ProgramHandle))
 			m_Valid = false;
 	}
@@ -43,27 +44,27 @@ ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const 
 ShaderGLSL::~ShaderGLSL()
 {
 	// Detach shaders from program
-	glDetachShader(m_ProgramHandle, m_VertexShaderHandle);
-	glDetachShader(m_ProgramHandle, m_FragmentShaderHandle);
+	GL::DetachShader(m_ProgramHandle, m_VertexShaderHandle);
+	GL::DetachShader(m_ProgramHandle, m_FragmentShaderHandle);
 
 	// Delete shaders
-	glDeleteShader(m_VertexShaderHandle);
-	glDeleteShader(m_FragmentShaderHandle);
+	GL::DeleteShader(m_VertexShaderHandle);
+	GL::DeleteShader(m_FragmentShaderHandle);
 
 	// Delete program
-	glDeleteProgram(m_ProgramHandle);
+	GL::DeleteProgram(m_ProgramHandle);
 }
 
 
 bool ShaderGLSL::CheckForCompilationErrors(unsigned _ShaderHandle)
 {
 	GLint res;
-	glGetShaderiv(_ShaderHandle, GL_COMPILE_STATUS, &res);
+	GL::GetShaderiv(_ShaderHandle, GL::COMPILE_STATUS, &res);
 	if (res == GL_FALSE)
 	{
 		char buff[4096];
 		GLsizei len = 0;
-		glGetShaderInfoLog(_ShaderHandle, 4095, &len, buff);
+		GL::GetShaderInfoLog(_ShaderHandle, 4095, &len, buff);
 		buff[len] = 0;
 
 		Message("Shader", "Failed to compile shader.");
@@ -78,12 +79,12 @@ bool ShaderGLSL::CheckForCompilationErrors(unsigned _ShaderHandle)
 bool ShaderGLSL::CheckForLinkerErrors(unsigned _ProgramHandle)
 {
 	GLint res;
-	glGetProgramiv(_ProgramHandle, GL_LINK_STATUS, &res);
+	GL::GetProgramiv(_ProgramHandle, GL::LINK_STATUS, &res);
 	if (res == GL_FALSE)
 	{
 		char buff[4096];
 		GLsizei len = 0;
-		glGetProgramInfoLog(_ProgramHandle, 4095, &len, buff);
+		GL::GetProgramInfoLog(_ProgramHandle, 4095, &len, buff);
 		buff[len] = 0;
 
 		Message("Shader", "Failed to link shader.");
