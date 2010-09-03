@@ -63,6 +63,12 @@
     <Filter Include="Editor\Data">
       <UniqueIdentifier>{10afb47c-f224-4624-8964-cf13fca1b878}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Modules\pri\include">
+      <UniqueIdentifier>{01738577-28a6-4979-9439-2650a683239e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\pri\source">
+      <UniqueIdentifier>{38e99c2a-c476-4da4-b3ee-9c0ab9da6214}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Kernel.cpp">
@@ -116,35 +122,11 @@
     <ClCompile Include="..\..\Modules\img\Source\img.cpp">
       <Filter>Modules\img</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Modules\pri\Source\DeviceGL2.cpp">
-      <Filter>Modules\pri</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\pri\Source\pri.cpp">
-      <Filter>Modules\pri</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\pri\Source\TextureGL2.cpp">
-      <Filter>Modules\pri</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp">
-      <Filter>Modules\pri</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp">
-      <Filter>Modules\pri</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Resource\Blob.cpp">
       <Filter>Framework\Source Files\Resource</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Resource\Text.cpp">
       <Filter>Framework\Source Files\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp">
-      <Filter>Modules\pri</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\pri\Source\RenderBufferGL2.cpp">
-      <Filter>Modules\pri</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\pri\Source\FrameBufferObjectGL2.cpp">
-      <Filter>Modules\pri</Filter>
     </ClCompile>
     <ClCompile Include="Source\QuadBatch.cpp">
       <Filter>Editor\Source</Filter>
@@ -160,6 +142,36 @@
     </ClCompile>
     <ClCompile Include="..\..\Modules\model\Source\ModelLoader.cpp">
       <Filter>Modules\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\DeviceGL2.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\FrameBufferObjectGL2.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\pri.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\RenderBufferGL2.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\ShaderGLSL.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\TextureGL2.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\TypeTraits.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp">
+      <Filter>Modules\pri\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -277,38 +289,11 @@
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\img.h">
       <Filter>Modules\img</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\OpenGL.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\OpenGLUtils.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\pri.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TextureGL2.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TypeTraits.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Include\Pxf\Resource\Blob.h">
       <Filter>Framework\Header Files\Pxf\Resource</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\Pxf\Resource\Text.h">
       <Filter>Framework\Header Files\Pxf\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\InputDeviceGLFW.h">
-      <Filter>Modules\pri</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\Pxf\Input\InputDefs.h">
       <Filter>Framework\Header Files\Pxf\Input</Filter>
@@ -325,12 +310,6 @@
     <ClInclude Include="..\..\Include\Pxf\Graphics\FrameBufferObject.h">
       <Filter>Framework\Header Files\Pxf\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\RenderBufferGL2.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\FrameBufferObjectGL2.h">
-      <Filter>Modules\pri</Filter>
-    </ClInclude>
     <ClInclude Include="Include\TexturedQuadBatch.h">
       <Filter>Editor\Include</Filter>
     </ClInclude>
@@ -345,6 +324,42 @@
     </ClInclude>
     <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\model.h">
       <Filter>Modules\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\FrameBufferObjectGL2.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\InputDeviceGLFW.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\OpenGL.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\OpenGLUtils.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\pri.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\RenderBufferGL2.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\ShaderGLSL.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TextureGL2.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TypeTraits.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h">
+      <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h">
+      <Filter>Modules\pri\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

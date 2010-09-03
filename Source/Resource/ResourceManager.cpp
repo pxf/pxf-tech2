@@ -25,6 +25,18 @@ Resource::ResourceManager::~ResourceManager()
 
 	Message("ResourceManager", "Destroying resource manager");
 
+	// clean up loaded resources
+    if (m_LoadedResources->size() > 0)
+    {
+        Message("ResourceManager", "Cleaning up unreleased resources");
+        Util::Map<Util::String, ResourceBase*>::iterator iter;
+        for(iter = m_LoadedResources->begin(); iter != m_LoadedResources->end(); ++iter)
+        {
+            Message("ResourceManager", "Deleting resource '%s' [refs = %d]", iter->second->GetSource(), iter->second->m_References);
+            iter->second->m_Loader->Destroy(iter->second);
+        }
+    }
+
 	ResourceLoader* prev = 0;
     if (m_ResourceLoaders->size() > 0)
     {
@@ -36,17 +48,6 @@ Resource::ResourceManager::~ResourceManager()
 				iter->second->Destroy(iter->second);
 			}
 			prev = iter->second;
-        }
-    }
-    // clean up loaded resources
-    if (m_LoadedResources->size() > 0)
-    {
-        Message("ResourceManager", "Cleaning up unreleased resources");
-        Util::Map<Util::String, ResourceBase*>::iterator iter;
-        for(iter = m_LoadedResources->begin(); iter != m_LoadedResources->end(); ++iter)
-        {
-            Message("ResourceManager", "Deleting resource '%s' [refs = %d]", iter->second->GetSource(), iter->second->m_References);
-            iter->second->m_Loader->Destroy(iter->second);
         }
     }
 }
