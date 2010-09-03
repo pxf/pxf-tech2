@@ -7,6 +7,7 @@ project = NewProject("DERPEditor")
 project:RequireLibrary("openctm");
 project:RequireLibrary("enet")
 project:RequireLibrary("glfw")
+project:RequireLibrary("lua")
 project:RequireLibrary("openctm")
 project:RequireModule("pri")
 project:RequireModule("img")
