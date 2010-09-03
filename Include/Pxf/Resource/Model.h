@@ -8,26 +8,38 @@ namespace Resource {
 
 	class Model : public ResourceBase
 	{
+	public:
+		struct model_descriptor 
+		{
+			bool has_normals;
+			int vertex_count;
+			int triangle_count;
+
+			float* vertices;
+			float* normals;
+			unsigned int* indices;
+		};
+
 	protected:
-		bool m_HasNormals;
-		int m_VertexCount;
-		int m_TriangleCount;
-
-		float* m_Vertices;
-		float* m_Normals;
-		unsigned int* m_Indices;
-
+		model_descriptor m_ModelData;
 	public:
 		Model(Chunk* _Chunk, ResourceLoader* _Loader)
             : ResourceBase(_Chunk, _Loader)
-        {}
+        {
+			m_ModelData.has_normals = false;
+			m_ModelData.vertex_count = 0;
+			m_ModelData.triangle_count = 0;
+			m_ModelData.vertices = 0;
+			m_ModelData.normals = 0;
+			m_ModelData.indices= 0;
+		}
 
 		virtual ~Model()
         {}
 
 		virtual const bool IsReady() const
 		{
-			return true;
+			return true; // m_Vertices && !(m_HasNormals ^ (m_Normals == 0)) && m_Indices;
 		}
 	};
 
