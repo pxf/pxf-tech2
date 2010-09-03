@@ -87,7 +87,7 @@ void GL::SetupExtensions()
 		GetProgramInfoLog = glGetProgramInfoLog;
 	}
 	/* ARB support for shaders */
-	else if (glewIsSupported("ARB_vertex_program ARB_fragment_program"))
+	else if (glewIsSupported("ARB_vertex_program ARB_fragment_program") || glCreateProgramObjectARB != 0)
 	{
 		COMPILE_STATUS = GL_OBJECT_COMPILE_STATUS_ARB;
 		LINK_STATUS = GL_OBJECT_LINK_STATUS_ARB;
