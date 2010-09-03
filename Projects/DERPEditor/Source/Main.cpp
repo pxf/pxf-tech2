@@ -85,7 +85,7 @@ int main()
     Graphics::Window* win = gfx->OpenWindow(&spec);
    
 	// Shader test
-	/*const char* vertex_program = "void main(void)\
+	const char* vertex_program = "void main(void)\
 	{                                            \
 		gl_Position = ftransform();              \
 	}";
@@ -93,7 +93,7 @@ int main()
 	{                                            \
 	gl_FragColor = vec4(0, 1, 0, 1); \
 	}";
-	Graphics::Shader* test_shader = gfx->CreateShader("test_shader", vertex_program, fragment_program);*/
+	Graphics::Shader* test_shader = gfx->CreateShader("test_shader", vertex_program, fragment_program);
 
 
     // FBO tests

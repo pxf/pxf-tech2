@@ -21,8 +21,7 @@ end
 
 function draw_runtimeerror()
   gfx.bindtexture(runtimeerror_tex)
-  --gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
-  gfx.setclearcolor(1,0,0)
+  gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
   gfx.setcolor(1,1,1)
   gfx.drawcentered(400,300,512,256)
 end
