@@ -14,6 +14,12 @@ using namespace DERPEditor;
 using namespace Pxf;
 using namespace Pxf::Graphics;
 
+static LuaApp* DERPEditor::_appinstance;
+static LuaApp* LuaApp::GetInstance()
+{
+    return _appinstance;
+}
+
 LuaApp::LuaApp(const char* _filepath)
 {
     m_Filepath = _filepath;
@@ -30,6 +36,9 @@ LuaApp::LuaApp(const char* _filepath)
     // get engine system pointers for easy access later on
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
     m_inp = Kernel::GetInstance()->GetInputDevice();
+    
+    // Set "snigelton"
+    _appinstance = this;
 }
 
 LuaApp::~LuaApp()
@@ -126,16 +135,12 @@ bool LuaApp::Update()
                 // reboot button
                 if (mx > 400 - 105 &&
                     mx < 400 + 22)
-                {
                     Reboot();
-                }
                 
                 // quit button
                 if (mx > 400 + 52 &&
                     mx < 400 + 108)
-                {
                     m_Shutdown = true;
-                }
                 
             }
         }

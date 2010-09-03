@@ -13,9 +13,10 @@ namespace DERPEditor
 {
     // lib functions
     int gfx_test(lua_State *L);
+    int gfx_loadtexture(lua_State *L);
 
     // Register lib
-    int luaopen_appgraphics (lua_State *L);
+    int luaopen_appgraphics(lua_State *L);
     
     
 } /* DERPEditor */

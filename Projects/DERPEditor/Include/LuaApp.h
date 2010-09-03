@@ -31,9 +31,12 @@ namespace DERPEditor
         
         bool Update();
         void Draw();
-
+        
+        // "snigelton" honk honk
+        static LuaApp* GetInstance();
+const char* m_Filepath;
     private:
-        const char* m_Filepath;
+        
         
         // Pointers to engine systems
         Pxf::Graphics::GraphicsDevice* m_gfx;
