@@ -40,6 +40,7 @@ namespace Pxf
 
 			void SetupExtensions();
 
+			// Buffer
 			extern PFNGLDELETEBUFFERSPROC DeleteBuffers;
 			extern PFNGLBINDBUFFERPROC BindBuffer;
 			extern PFNGLGENBUFFERSPROC GenBuffers;
@@ -48,59 +49,22 @@ namespace Pxf
 			extern PFNGLMAPBUFFERPROC MapBuffer;
 			extern PFNGLUNMAPBUFFERPROC UnmapBuffer;
 
+			// Shader
+			extern PFNGLCREATEPROGRAMPROC CreateProgram;
+			extern PFNGLCREATESHADERPROC CreateShader;
+			extern PFNGLSHADERSOURCEPROC ShaderSource;
+			extern PFNGLCOMPILESHADERPROC CompileShader;
+			extern PFNGLATTACHSHADERPROC AttachShader;
+			extern PFNGLLINKPROGRAMPROC LinkProgram;
+			extern PFNGLUSEPROGRAMPROC UseProgram;
+			extern PFNGLDETACHSHADERPROC DetachShader;
+			extern PFNGLDELETESHADERPROC DeleteShader;
+			extern PFNGLDELETEPROGRAMPROC DeleteProgram;
+
 			//
 			// Shaders
 			//
 			/*
-			GLuint CreateProgram()
-			{
-				return 0;
-			}
-
-			GLuint CreateShader(GLenum shaderType)
-			{
-				return 0;
-			}
-
-			void ShaderSource(GLuint shader, GLsizei count, const GLchar** string, const GLint* length)
-			{
-				
-			}
-
-			void CompileShader(GLuint shader)
-			{
-
-			}
-
-			void AttachShader(GLuint program, GLuint shader)
-			{
-
-			}
-
-			void LinkProgram(GLuint program)
-			{
-
-			}
-
-			void glUseProgram(GLuint program)
-			{
-
-			}
-
-			void DetachShader(GLuint program, GLuint shader)
-			{
-
-			}
-
-			void DeleteShader(GLuint shader)
-			{
-
-			}
-
-			void DeleteProgram(GLuint program)
-			{
-
-			}
 
 			void GetShaderiv(GLuint shader, GLenum pname, GLint* params)
 			{
