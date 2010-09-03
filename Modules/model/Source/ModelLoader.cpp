@@ -53,7 +53,8 @@ Resource::Model* GenericModelLoader::Load(const char* _FilePath)
 		// no errors found
 		CTMuint			_VertCount, _TriCount;
 		const CTMuint*	_Indices;
-		const CTMfloat* _Vertices, _Normals;
+		const CTMfloat* _Vertices;
+		const CTMfloat* _Normals;
 		bool _HasNormals = false;
 
 		_VertCount = ctmGetInteger(m_Context, CTM_VERTEX_COUNT);
