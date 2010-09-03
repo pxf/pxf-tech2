@@ -17,18 +17,19 @@ namespace DERPEditor
             Pxf::Math::Vec2f coord;
         };
         
-        QuadBatch(unsigned int _size, Pxf::Math::Mat4* _transformmatrix = NULL);
+        QuadBatch(unsigned int _size, float* _currentdepth, Pxf::Math::Vec4f* _currentcolor, Pxf::Math::Mat4* _transformmatrix = NULL);
         ~QuadBatch();
         
-        void SetColor(float r, float g, float b) { m_CurrentColor = Pxf::Math::Vec4f(r, g, b, m_CurrentColor.a); };
-        void SetAlpha(float a) { m_CurrentColor = Pxf::Math::Vec4f(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, a); };
-		void SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v);
+        //void SetColor(float r, float g, float b) { m_CurrentColor = Pxf::Math::Vec4f(r, g, b, m_CurrentColor.a); };
+        //void SetAlpha(float a) { m_CurrentColor = Pxf::Math::Vec4f(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, a); };
+		    virtual void SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v);
+		    void ResetTextureSubset();
 		/*void SetRotation(float angle); // Rotate following quad around its own axis
 		void Rotate(float angle); // Rotate coord system
         void Translate(float x, float y); // Translate coord system
         void LoadIdentity(); // Reset coord system
         */
-        void SetDepth(float d) { m_CurrentDepth = d; };
+        //void SetDepth(float d) { m_CurrentDepth = d; };
 		
 		virtual void Reset();
         virtual void Begin();
@@ -49,9 +50,9 @@ namespace DERPEditor
         Pxf::Math::Mat4* m_Transformation;
         
         // per quad states
-        float m_CurrentDepth;
+        float* m_CurrentDepth;
         Pxf::Math::Vec2f m_CurrentCoords[4];
-        Pxf::Math::Vec4f m_CurrentColor;
+        Pxf::Math::Vec4f* m_CurrentColor;
     };
 } /* DERPEditor */
 

@@ -31,6 +31,7 @@ namespace DERPEditor
         ~LuaApp();
         
         void CleanUp();
+        void Init();
         bool Boot();
         bool Reboot();
         
@@ -53,6 +54,12 @@ namespace DERPEditor
         
         // Public Lua states
         bool m_RedrawNeeded;
+        float m_CurrentDepth;
+        Pxf::Math::Vec4f m_CurrentColor;
+        
+        // Error handling
+        bool HandleErrors(int _error);
+        bool CallScriptFunc(const char* _funcname, int nargs = 0);
         
     private:
         const char* m_Filepath;

@@ -2,6 +2,7 @@
 
 #include <Pxf/Modules/pri/OpenGL.h>
 
+#include "AppCoreLib.h"
 #include "AppGraphicsLib.h"
 
 #define LOCAL_MSG "LuaApp"
@@ -21,7 +22,10 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_Filepath = _filepath;
     m_win = _win;
     
-    m_AppErrorQB = new TexturedQuadBatch(4, NULL, "data/apperror.png");
+    m_CurrentDepth = 0.0f;
+    m_CurrentColor = Math::Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    m_AppErrorQB = new TexturedQuadBatch(4, "data/apperror.png", &m_CurrentDepth, &m_CurrentColor, NULL);
     m_AppErrorQB->Begin();
     m_AppErrorQB->AddCentered(0, 0, 512, 256);
     m_AppErrorQB->End();
@@ -50,6 +54,18 @@ LuaApp::~LuaApp()
     delete m_AppErrorQB;
 }
 
+void LuaApp::Init()
+{
+  // Init GL settings
+  Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
+  m_gfx->SetProjection(&prjmat);
+  
+  glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
+  
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+}
+
 void LuaApp::CleanUp()
 {
     // reset states
@@ -72,64 +88,68 @@ void LuaApp::CleanUp()
 
 bool LuaApp::Boot()
 {
-    // Init lua state
-    L = lua_open();
-    
-    // Register lua libs
-    _register_lua_libs_callbacks();
-    
-    // Register own callbacks
-    _register_own_callbacks();
-    
-    ////////////////////////////////
-    // Load bootstrap script
-    int s = luaL_loadfile(L, "data/bootstrap.lua");
-    
-    if (!s)
+  // Init ourselves
+  Init();
+  
+  // Init lua state
+  L = lua_open();
+  
+  // Register lua libs
+  _register_lua_libs_callbacks();
+  
+  // Register own callbacks
+  _register_own_callbacks();
+  
+  ////////////////////////////////
+  // Load bootstrap script
+  int s = luaL_loadfile(L, "data/bootstrap.lua");
+  
+  if (!s)
 	{
 		s = lua_pcall(L, 0, LUA_MULTRET, 0);
 		if ( s ) {
 			Message(LOCAL_MSG, " [Error while running bootstrap.lua] -- %s", lua_tostring(L, -1));
 			lua_pop(L, 1); // remove error message
 		} else {
+      // Set app.instance to this class instance!
+      // Instance will later be used to call correct app instance.
+      /*lua_getglobal(L, LUAAPP_TABLE);
+      lua_pushlightuserdata(L, this);
+      lua_setfield(L, -2, "instance");
+      lua_pop(L, 1);*/
 		    
-		    // Set app.instance to this class instance!
-		    // Instance will later be used to call correct app instance.
-            lua_getglobal(L, LUAAPP_TABLE);
-            lua_pushlightuserdata(L, this);
-            lua_setfield(L, -2, "instance");
-            lua_pop(L, 1);
-		    
-		    //////////////////////////
-			// Load main app script   
-            s = luaL_loadfile(L, m_Filepath);
-        	if (!s)
-        	{
-        		s = lua_pcall(L, 0, LUA_MULTRET, 0);
+      //////////////////////////
+      // Load main app script   
+      s = luaL_loadfile(L, m_Filepath);
+    	if (!s)
+    	{
+    		s = lua_pcall(L, 0, LUA_MULTRET, 0);
 
-        		if ( s ) {
-        			Message(LOCAL_MSG, "[Error while running %s] -- %s", m_Filepath, lua_tostring(L, -1));
-        			lua_pop(L, 1);
-        		} else {
-                    m_Running = true;
-        		}
+    		if ( s ) {
+    			Message(LOCAL_MSG, "[Error while running %s] -- %s", m_Filepath, lua_tostring(L, -1));
+    			lua_pop(L, 1);
+    		} else {
+          m_Running = true;
+    		}
 
-        	} else {
-        		Message(LOCAL_MSG, "[Error while loading %s] -- %s", m_Filepath, lua_tostring(L,-1));
-        	}
+    	} else {
+    		Message(LOCAL_MSG, "[Error while loading %s] -- %s", m_Filepath, lua_tostring(L,-1));
+    		lua_pop(L, 1);
+    	}
 		}
 
 	} else {
-		Message(LOCAL_MSG, "[Error while loading bootstrap.lua] -- %s",lua_tostring(L,-1));
+		Message(LOCAL_MSG, "[Error while loading bootstrap.lua] -- %s", lua_tostring(L,-1));
+		lua_pop(L, 1);
 	}
     
-    return false;
+  return false;
 }
 
 bool LuaApp::Reboot()
 {
-    CleanUp();
-    return Boot();
+  CleanUp();
+  return Boot();
 }
 
 
@@ -137,34 +157,29 @@ bool LuaApp::Update()
 {
     if (m_Running)
     {
-        // TODO: Call application update method
-        lua_getglobal(L, "debug");
-      	lua_getfield(L, -1, "traceback");
-      	lua_remove(L, -2);
-        lua_getglobal(L, "update");
-        lua_pcall(L, 0, 0, -2);
+      CallScriptFunc("_update");
     } else {
-        // A application error has occurred, see if the user wants to reboot or quit
-        int mx,my;
-        m_inp->GetMousePos(&mx, &my);
-        
-        if (m_inp->IsButtonDown(Input::MOUSE_LEFT))
+      // A application error has occurred, see if the user wants to reboot or quit
+      int mx,my;
+      m_inp->GetMousePos(&mx, &my);
+      
+      if (m_inp->IsButtonDown(Input::MOUSE_LEFT))
+      {
+        if (my > 300 + 34 &&
+            my < 300 + 34 + 26)
         {
-            if (my > 300 + 34 &&
-                my < 300 + 34 + 26)
-            {
-                // reboot button
-                if (mx > 400 - 105 &&
-                    mx < 400 + 22)
-                    Reboot();
-                
-                // quit button
-                if (mx > 400 + 52 &&
-                    mx < 400 + 108)
-                    m_Shutdown = true;
-                
-            }
+          // reboot button
+          if (mx > 400 - 105 &&
+              mx < 400 + 22)
+              Reboot();
+        
+          // quit button
+          if (mx > 400 + 52 &&
+              mx < 400 + 108)
+              m_Shutdown = true;
+          
         }
+      }
         
     }
     
@@ -211,13 +226,8 @@ void LuaApp::Draw()
         {
           m_QuadBatches[i]->Reset();
         }
-          
-        // TODO: Call application draw method etc
-        lua_getglobal(L, "debug");
-      	lua_getfield(L, -1, "traceback");
-      	lua_remove(L, -2);
-        lua_getglobal(L, "draw");
-        lua_pcall(L, 0, 0, -2);
+        
+        CallScriptFunc("_draw");
         
         
         // Close last used QB
@@ -239,17 +249,74 @@ void LuaApp::Draw()
         m_TransformMatrix = Math::Mat4::Identity;
       }  
     } else {
-        Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
-        m_gfx->SetProjection(&prjmat);
-        
-        glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        // Display application error
-        m_AppErrorQB->Draw();
-        
-        m_win->Swap();
+      glClear(GL_COLOR_BUFFER_BIT);
+      
+      // Display application error
+      m_AppErrorQB->Draw();
+      
+      m_win->Swap();
     }
+}
+
+bool LuaApp::HandleErrors(int _error)
+{
+  if (_error != 0)
+	{
+		if (_error == LUA_ERRRUN)
+		{
+		  // Call error function in bootstrap.lua
+      const char* _errmsg = lua_tostring(L, -1);
+      
+			// Push error handling function
+      lua_getglobal(L, "debug");
+    	lua_getfield(L, -1, "traceback");
+    	lua_remove(L, -2);
+
+    	// set function name to be called
+      lua_getglobal(L, "_runtimeerror");
+      
+      // push error msg
+      lua_pushstring(L, _errmsg);
+
+      // Call function and wrap with error handler
+      int s = lua_pcall(L, 1, 0, -3);
+      if (s) {
+        Message(LOCAL_MSG, "Error when calling runtime errror handler! %s", lua_tostring(L, -1));
+        lua_pop(L, 1);
+        m_Running = false;
+      }
+      
+		} else {
+		  if (_error == LUA_ERRMEM)
+			  Message(LOCAL_MSG, "-- Script memory allocation error: --");
+		  else
+			  Message(LOCAL_MSG, "-- Fatal script error: --");
+			  
+		  Message(LOCAL_MSG, "%s", lua_tostring(L, -1));
+  		lua_pop(L, 1); // remove error message
+  		m_Running = false;
+	  }
+		return false;
+	}
+	return true;
+}
+
+bool LuaApp::CallScriptFunc(const char* _funcname, int nargs)
+{ 
+  // Push error handling function
+  lua_getglobal(L, "app");
+	lua_getfield(L, -1, "traceback");
+	lua_remove(L, -2);
+	if (nargs > 0)
+    lua_insert(L, -nargs);
+	
+	// set function name to be called
+  lua_getglobal(L, _funcname);
+  if (nargs > 0)
+    lua_insert(L, -nargs);
+  
+  // Call function and wrap with error handler
+  return HandleErrors(lua_pcall(L, nargs, 0, -2-nargs));
 }
 
 
@@ -289,6 +356,7 @@ void LuaApp::_register_own_callbacks()
         
     // Register subsystems
     luaopen_appgraphics(L);
+    luaopen_appcore(L);
 	/*Vec2::RegisterClass(L);
     GraphicsSubsystem::RegisterClass(L);
     ResourcesSubsystem::RegisterClass(L);
