@@ -143,7 +143,7 @@ int main()
     qb->End();*/
     
     // Setup lua application
-    LuaApp* app = new LuaApp("data/editor.lua");
+    LuaApp* app = new LuaApp(win, "data/editor.lua");
     app->Boot();
     bool running = true;
 
@@ -160,7 +160,7 @@ int main()
 		//gfx->BindTexture(tex0);
 		//testFBO->Draw();
 
-        win->Swap();
+        
     }
     
     delete app;

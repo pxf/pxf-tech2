@@ -1,9 +1,5 @@
 #include "LuaApp.h"
 
-#include <Pxf/Kernel.h>
-#include <Pxf/Base/Debug.h>
-#include <Pxf/Base/Utils.h>
-
 #include <Pxf/Modules/pri/OpenGL.h>
 
 #include "AppGraphicsLib.h"
@@ -20,18 +16,24 @@ LuaApp* LuaApp::GetInstance()
     return _appinstance;
 }
 
-LuaApp::LuaApp(const char* _filepath)
+LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
 {
     m_Filepath = _filepath;
+    m_win = _win;
     
     m_AppErrorQB = new TexturedQuadBatch(4, NULL, "data/apperror.png");
     m_AppErrorQB->Begin();
     m_AppErrorQB->AddCentered(0, 0, 512, 256);
     m_AppErrorQB->End();
     
+    m_RedrawNeeded = false;
     m_Started = false;
     m_Running = false;
     m_Shutdown = false;
+    m_QuadBatchCurrent = -1;
+    m_QuadBatchCount = 0;
+    
+    m_TransformMatrix = Math::Mat4::Identity;
     
     // get engine system pointers for easy access later on
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
@@ -50,8 +52,22 @@ LuaApp::~LuaApp()
 
 void LuaApp::CleanUp()
 {
+    // reset states
     m_Started = false;
     m_Running = false;
+    
+    if (m_QuadBatchCount > 0)
+    {
+      for(int i = 0; i < m_QuadBatchCount; ++i)
+      {
+        delete m_QuadBatches[i];
+      }
+    }
+    m_QuadBatchCount = 0;
+    m_QuadBatchCurrent = -1;
+    
+    // reset transform matrix
+    m_TransformMatrix = Math::Mat4::Identity;
 }
 
 bool LuaApp::Boot()
@@ -122,6 +138,11 @@ bool LuaApp::Update()
     if (m_Running)
     {
         // TODO: Call application update method
+        lua_getglobal(L, "debug");
+      	lua_getfield(L, -1, "traceback");
+      	lua_remove(L, -2);
+        lua_getglobal(L, "update");
+        lua_pcall(L, 0, 0, -2);
     } else {
         // A application error has occurred, see if the user wants to reboot or quit
         int mx,my;
@@ -150,6 +171,25 @@ bool LuaApp::Update()
     return !m_Shutdown;
 }
 
+void LuaApp::ChangeActiveQB(unsigned int _id)
+{
+  if (m_QuadBatchCurrent >= 0)
+  {
+    m_QuadBatches[m_QuadBatchCurrent]->End();
+  }
+  
+  m_QuadBatchCurrent = _id;
+  m_QuadBatches[m_QuadBatchCurrent]->Begin();
+}
+
+QuadBatch* LuaApp::GetActiveQB()
+{
+  if (m_QuadBatchCurrent < 0)
+    return NULL;
+  
+  return m_QuadBatches[m_QuadBatchCurrent];
+}
+
 void LuaApp::Draw()
 {
     // Setup viewport and matrises
@@ -158,12 +198,46 @@ void LuaApp::Draw()
     
     if (m_Running)
     {
+      if (m_RedrawNeeded)
+      {
         Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
         m_gfx->SetProjection(&prjmat);
         glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
+        
+        // Reset all quadbatches
+        for(int i = 0; i < m_QuadBatchCount; ++i)
+        {
+          m_QuadBatches[i]->Reset();
+        }
+          
         // TODO: Call application draw method etc
+        lua_getglobal(L, "debug");
+      	lua_getfield(L, -1, "traceback");
+      	lua_remove(L, -2);
+        lua_getglobal(L, "draw");
+        lua_pcall(L, 0, 0, -2);
+        
+        
+        // Close last used QB
+        if (m_QuadBatchCurrent >= 0)
+        {
+          m_QuadBatches[m_QuadBatchCurrent]->End();
+        }
+        
+        // Draw all quadbatches
+        for(int i = 0; i < m_QuadBatchCount; ++i)
+        {
+          m_QuadBatches[i]->Draw();
+        }
+        
+        m_win->Swap();
+        
+        m_RedrawNeeded = false;
+        m_QuadBatchCurrent = -1;
+        m_TransformMatrix = Math::Mat4::Identity;
+      }  
     } else {
         Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
         m_gfx->SetProjection(&prjmat);
@@ -173,6 +247,8 @@ void LuaApp::Draw()
         
         // Display application error
         m_AppErrorQB->Draw();
+        
+        m_win->Swap();
     }
 }
 
