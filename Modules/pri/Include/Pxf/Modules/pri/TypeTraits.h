@@ -68,6 +68,17 @@ namespace Pxf
 			extern PFNGLGETSHADERINFOLOGPROC GetShaderInfoLog;
 			extern PFNGLGETPROGRAMINFOLOGPROC GetProgramInfoLog;
 
+			extern PFNGLUNIFORM1FPROC Uniform1f;
+			extern PFNGLUNIFORM2FPROC Uniform2f;
+			extern PFNGLUNIFORM3FPROC Uniform3f;
+			extern PFNGLUNIFORM4FPROC Uniform4f;
+
+			extern PFNGLUNIFORM1VFPROC Uniform1fv;
+			extern PFNGLUNIFORM2VFPROC Uniform2fv;
+			extern PFNGLUNIFORM3VFPROC Uniform3fv;
+			extern PFNGLUNIFORM4VFPROC Uniform4fv;
+
+
 			//
 			// Shaders
 			//
