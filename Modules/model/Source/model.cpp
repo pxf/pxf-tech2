@@ -15,12 +15,11 @@ using Pxf::Modules::GenericModelImporter;
 REGISTER_MODULE(GenericModelImporter, "model", Module_Kernel_Version, Module_Api_Version);
 #endif
 
-namespace GenericImageLoader_
+namespace GenericModelLoader_
 {
-	/*
     PXFEXPORT Pxf::Module* CreateInstance()
     {
-        Pxf::Modules::GenericImageImporter *m = new Pxf::Modules::GenericImageImporter("img", Module_Kernel_Version, Module_Api_Version);
+        Pxf::Modules::GenericModelImporter *m = new Pxf::Modules::GenericModelImporter("model", Module_Kernel_Version, Module_Api_Version);
         return m;
     }
 
@@ -31,20 +30,16 @@ namespace GenericImageLoader_
             delete _module;
         }
     }
-	*/
 }
 
-/*
-bool Pxf::Modules::GenericImageImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
+bool Pxf::Modules::GenericModelImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
     if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
     {
-        Pxf::Modules::GenericImageLoader* loader = new Pxf::Modules::GenericImageLoader(_Kernel);
-        _Kernel->RegisterResourceLoader("png", loader);
-        _Kernel->RegisterResourceLoader("jpg", loader);
-        _Kernel->RegisterResourceLoader("jpeg", loader);
+        Pxf::Modules::GenericModelLoader* loader = new Pxf::Modules::GenericModelLoader(_Kernel);
+        _Kernel->RegisterResourceLoader("ctm", loader);
         return true;
     }
     
     return false;
-} */
+}
