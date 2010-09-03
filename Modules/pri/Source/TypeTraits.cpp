@@ -35,6 +35,16 @@ PFNGLGETPROGRAMIVPROC GL::GetProgramiv = 0;
 PFNGLGETSHADERINFOLOGPROC GL::GetShaderInfoLog = 0;
 PFNGLGETPROGRAMINFOLOGPROC GL::GetProgramInfoLog = 0;
 
+PFNGLUNIFORM1FPROC GL::Uniform1f;
+PFNGLUNIFORM2FPROC GL::Uniform2f;
+PFNGLUNIFORM3FPROC GL::Uniform3f;
+PFNGLUNIFORM4FPROC GL::Uniform4f;
+
+PFNGLUNIFORM1FVPROC GL::Uniform1fv;
+PFNGLUNIFORM2FVPROC GL::Uniform2fv;
+PFNGLUNIFORM3FVPROC GL::Uniform3fv;
+PFNGLUNIFORM4FVPROC GL::Uniform4fv;
+
 void GL::SetupExtensions()
 {
 	/* OpenGL 1.5 */
@@ -85,6 +95,14 @@ void GL::SetupExtensions()
 		GetProgramiv = glGetProgramiv;
 		GetShaderInfoLog = glGetShaderInfoLog;
 		GetProgramInfoLog = glGetProgramInfoLog;
+		Uniform1f = glUniform1f;
+		Uniform2f = glUniform2f;
+		Uniform3f = glUniform3f;
+		Uniform4f = glUniform4f;
+		Uniform1fv = glUniform1fv;
+		Uniform2fv = glUniform2fv;
+		Uniform3fv = glUniform3fv;
+		Uniform4fv = glUniform4fv;
 	}
 	/* ARB support for shaders */
 	else if (glewIsSupported("ARB_vertex_program ARB_fragment_program") || glCreateProgramObjectARB != 0)
@@ -108,5 +126,13 @@ void GL::SetupExtensions()
 		GetProgramiv = glGetObjectParameterivARB;
 		GetShaderInfoLog = glGetInfoLogARB;
 		GetProgramInfoLog = glGetInfoLogARB;
+		Uniform1f = glUniform1fARB;
+		Uniform2f = glUniform2fARB;
+		Uniform3f = glUniform3fARB;
+		Uniform4f = glUniform4fARB;
+		Uniform1fv = glUniform1fvARB;
+		Uniform2fv = glUniform2fvARB;
+		Uniform3fv = glUniform3fvARB;
+		Uniform4fv = glUniform4fvARB;
 	}
 }
