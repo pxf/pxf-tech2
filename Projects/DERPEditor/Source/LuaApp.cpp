@@ -4,23 +4,39 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
+#include <Pxf/Modules/pri/OpenGL.h>
+
+#include "AppGraphicsLib.h"
+
 #define LOCAL_MSG "LuaApp"
 
 using namespace DERPEditor;
 using namespace Pxf;
+using namespace Pxf::Graphics;
 
 LuaApp::LuaApp(const char* _filepath)
 {
     m_Filepath = _filepath;
     
+    m_AppErrorQB = new TexturedQuadBatch(4, NULL, "data/apperror.png");
+    m_AppErrorQB->Begin();
+    m_AppErrorQB->AddCentered(0, 0, 512, 256);
+    m_AppErrorQB->End();
+    
     m_Started = false;
     m_Running = false;
-    Load();
+    m_Shutdown = false;
+    
+    // get engine system pointers for easy access later on
+    m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
+    m_inp = Kernel::GetInstance()->GetInputDevice();
 }
 
 LuaApp::~LuaApp()
 {
     CleanUp();
+    
+    delete m_AppErrorQB;
 }
 
 void LuaApp::CleanUp()
@@ -29,7 +45,7 @@ void LuaApp::CleanUp()
     m_Running = false;
 }
 
-bool LuaApp::Load()
+bool LuaApp::Boot()
 {
     // Init lua state
     L = lua_open();
@@ -85,10 +101,72 @@ bool LuaApp::Load()
     return false;
 }
 
-bool LuaApp::Reload()
+bool LuaApp::Reboot()
 {
     CleanUp();
-    return Load();
+    return Boot();
+}
+
+
+bool LuaApp::Update()
+{
+    if (m_Running)
+    {
+        // TODO: Call application update method
+    } else {
+        // A application error has occurred, see if the user wants to reboot or quit
+        int mx,my;
+        m_inp->GetMousePos(&mx, &my);
+        
+        if (m_inp->IsButtonDown(Input::MOUSE_LEFT))
+        {
+            if (my > 300 + 34 &&
+                my < 300 + 34 + 26)
+            {
+                // reboot button
+                if (mx > 400 - 105 &&
+                    mx < 400 + 22)
+                {
+                    Reboot();
+                }
+                
+                // quit button
+                if (mx > 400 + 52 &&
+                    mx < 400 + 108)
+                {
+                    m_Shutdown = true;
+                }
+                
+            }
+        }
+        
+    }
+    
+    return !m_Shutdown;
+}
+
+void LuaApp::Draw()
+{
+    // Setup viewport and matrises
+    // TODO: get window dimensions dynamically
+    m_gfx->SetViewport(0, 0, 800, 600);
+    
+    if (m_Running)
+    {
+        Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
+        m_gfx->SetProjection(&prjmat);
+        
+        // TODO: Call application draw method etc
+    } else {
+        Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
+        m_gfx->SetProjection(&prjmat);
+        
+        glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // Display application error
+        m_AppErrorQB->Draw();
+    }
 }
 
 
@@ -127,6 +205,7 @@ void LuaApp::_register_own_callbacks()
     lua_setglobal (L, LUAAPP_TABLE);
         
     // Register subsystems
+    luaopen_appgraphics(L);
 	/*Vec2::RegisterClass(L);
     GraphicsSubsystem::RegisterClass(L);
     ResourcesSubsystem::RegisterClass(L);

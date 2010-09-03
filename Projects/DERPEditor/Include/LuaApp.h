@@ -1,6 +1,11 @@
 #ifndef __DERPEDITOR_LUAAPP_H__
 #define __DERPEDITOR_LUAAPP_H__
 
+#include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Input/InputDevice.h>
+
+#include "TexturedQuadBatch.h"
+
 // Lua includes
 extern "C" {
     #include <lua.h>
@@ -21,16 +26,27 @@ namespace DERPEditor
         ~LuaApp();
         
         void CleanUp();
-        bool Load();
-        bool Reload();
+        bool Boot();
+        bool Reboot();
+        
+        bool Update();
+        void Draw();
 
     private:
         const char* m_Filepath;
+        
+        // Pointers to engine systems
+        Pxf::Graphics::GraphicsDevice* m_gfx;
+        Pxf::Input::InputDevice* m_inp;
+        
+        // Graceful application fail
+        TexturedQuadBatch* m_AppErrorQB;
         
         // Lua states
         lua_State* L;
         bool m_Running;
         bool m_Started;
+        bool m_Shutdown;
         
         // Register lua libs and callbacks
         void _register_lua_libs_callbacks();

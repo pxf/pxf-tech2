@@ -25,7 +25,7 @@
 
 #include <enet/enet.h>
 
-#include <openctm.h>
+//#include <openctm.h>
 
 #include <ctime>
 
@@ -42,22 +42,22 @@ int main()
     Pxf::RandSetSeed(time(NULL));
     Kernel* kernel = Pxf::Kernel::GetInstance();
 
-    kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, true);
+    kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
     Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
-    Audio::AudioDevice* snd = kernel->GetAudioDevice();
+    //Audio::AudioDevice* snd = kernel->GetAudioDevice();
     Input::InputDevice* inp = kernel->GetInputDevice();
     Resource::ResourceManager* res = kernel->GetResourceManager();
     //Resource::Image* img = res->Acquire<Resource::Image>("test.png");
 
     res->DumpResourceLoaders();
 
-    snd->Play(2);
+    //snd->Play(2);
 
-    Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
-    Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
+    //Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
+    //Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
 
     /*
     // Resource::BinaryFile to complement? Resource::Blob, binary large object
@@ -93,19 +93,21 @@ int main()
 
 
     // FBO tests
-	Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
+	/*Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
 	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(GL_DEPTH_COMPONENT,spec.Width,spec.Height);
 	Graphics::FrameBufferObject* pFBO = gfx->CreateFrameBufferObject();
 	
 	pFBO->Attach(tex0,GL_COLOR_ATTACHMENT0,true);
 
 	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
+	*/
 	
 	// mesh test
-	CTMcontext	context;
+	/*CTMcontext	context;
 	CTMuint		vertCount, triCount;
 	const CTMuint* indices;
 	const CTMfloat*	vertices;
+	*/
 
 	/*
 	ctmLoad(context, "data/test.ctm");
@@ -122,15 +124,15 @@ int main()
 
 	// QuadBatch tests
 	glEnable( GL_TEXTURE_2D );
-	glEnable (GL_DEPTH_TEST);
+	/*glEnable (GL_DEPTH_TEST);
 
 	QuadBatch* testFBO = new QuadBatch(4);
 	testFBO->Begin();
 	testFBO->AddTopLeft(0, 0, spec.Width, spec.Height);
 	testFBO->SetColor(0.0f,1.0f,0.0f);
-	testFBO->End();
+	testFBO->End();*/
 
-    Math::Mat4 transform = Math::Mat4::Identity;
+    /*Math::Mat4 transform = Math::Mat4::Identity;
     TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "data/test.png");
     
     qb->Begin();
@@ -138,32 +140,31 @@ int main()
     qb->SetColor(1.0f, 0.0f, 0.0f);
     transform.Translate(-200.0f, 0.0f, 0.0f);
     qb->AddCentered(400, 400, 50, 50);
-    qb->End();
-    
-    // Setup viewport and matrises
-    gfx->SetViewport(0, 0, 800, 600);
-    Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, -1000.0f, 1000.0f);
-    gfx->SetProjection(&prjmat);
+    qb->End();*/
     
     // Setup lua application
     LuaApp* app = new LuaApp("data/editor.lua");
+    app->Boot();
+    bool running = true;
 
-    while(win->IsOpen())
+    while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
-		gfx->BindFrameBufferObject(pFBO);
+        inp->Update();
+		//gfx->BindFrameBufferObject(pFBO);
 		//Graphics::Shader* prev = gfx->BindShader(test_shader);
-        qb->Draw();
+        running = app->Update();
+        app->Draw();
 		//gfx->BindShader(prev);
-		gfx->UnbindFrameBufferObject();
+		//gfx->UnbindFrameBufferObject();
 
-		gfx->BindTexture(tex0);
-		testFBO->Draw();
+		//gfx->BindTexture(tex0);
+		//testFBO->Draw();
 
         win->Swap();
     }
     
     delete app;
-    delete qb;
+    //delete qb;
     
 
     //res->Release(img);
