@@ -155,6 +155,10 @@ function NewModule(name)
                     local library = LoadLibrary(l) -- Load it so we can get the system libraries below...
                 end
                 
+                for i, l in ipairs(library.defines) do
+                    module_settings.cc.defines:Add(l)
+                end
+                
                 for i, l in ipairs(library.system_libraries) do
                     module_settings.dll.libs:Add(l)
                 end
@@ -334,6 +338,11 @@ function NewProject(name)
                     local lib = library:Build(self, settings)
                     table.insert(self.built_libs, lib)
                     self.built_list[l] = lib
+                end
+                
+                -- Add defines
+                for i,d in ipairs(library.defines) do
+                    settings.cc.defines:Add(d)
                 end
                 
                 -- Add system libraries
