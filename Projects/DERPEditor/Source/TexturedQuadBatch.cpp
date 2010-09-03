@@ -4,14 +4,15 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
+#include <Pxf/Graphics/Texture.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 
 using namespace DERPEditor;
 using namespace Pxf::Graphics;
 using namespace Pxf::Math;
 
-TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, Mat4* _transformmatrix, const char* _texture_filepath) :
-    QuadBatch(_size, _transformmatrix)
+TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, const char* _texture_filepath, float* _currentdepth, Pxf::Math::Vec4f* _currentcolor, Pxf::Math::Mat4* _transformmatrix) :
+    QuadBatch(_size, _currentdepth, _currentcolor, _transformmatrix)
 {
     m_TextureFilepath = _texture_filepath;
     
@@ -22,6 +23,12 @@ TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, Mat4* _transformmatrix,
 TexturedQuadBatch::~TexturedQuadBatch()
 {
     
+}
+
+void TexturedQuadBatch::SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v)
+{
+  Vec4f coords = m_Texture->CreateTextureSubset(tl_u, tl_v, br_u, br_v);
+  QuadBatch::SetTextureSubset(coords.x, coords.y, coords.z, coords.w);
 }
 
 void TexturedQuadBatch::Reset()
