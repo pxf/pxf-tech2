@@ -32,138 +32,26 @@ namespace Pxf
 			};
 
 			// Constants
-			enum OpenGL_Constant
-			{
-				ARRAY_BUFFER = GL_ARRAY_BUFFER,
-			};
+			extern GLenum ARRAY_BUFFER;
 
 			//
 			// Buffer functions
 			//
 
-			void DeleteBuffers(GLsizei n, const GLuint* buffers)
-			{
-				/* OpenGL 1.5 */
-				if (GLEW_VERSION_1_5)
-				{
-					glDeleteBuffers(n, buffers);
-				}
-				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
-				{
-					glDeleteBuffersARB(n, buffers);
-				}
-			}
+			void SetupExtensions();
 
-			void BindBuffer(GLenum target, GLuint buffer)
-			{
-				/* OpenGL 1.5 */
-				if (GLEW_VERSION_1_5)
-				{
-					glBindBuffer(target, buffer);
-				}
-				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
-				{
-					GLenum t = 0;
-					if (target == GL_ARRAY_BUFFER)
-						t = GL_ARRAY_BUFFER_ARB;
-					glBindBufferARB(t, buffer);
-				}
-			}
-
-			void GenBuffers(GLsizei n, GLuint* buffers)
-			{
-				/* OpenGL 1.5 */
-				if (GLEW_VERSION_1_5)
-				{
-					glGenBuffers(n, buffers);
-				}
-				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
-				{
-					glGenBuffersARB(n, buffers);
-				}
-			}
-
-			void BufferData(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage)
-			{
-				/* OpenGL 1.5 */
-				if (GLEW_VERSION_1_5)
-				{
-					glBufferData(target, size, data, usage);
-				}
-				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
-				{
-					GLenum t = 0;
-					if (target == GL_ARRAY_BUFFER)
-						t = GL_ARRAY_BUFFER_ARB;
-					glBufferDataARB(t, size, data, usage);
-				}
-			}
-
-			void BufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data)
-			{
-				/* OpenGL 1.5 */
-				if (GLEW_VERSION_1_5)
-				{
-					glBufferSubData(target, offset, size, data);
-				}
-				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
-				{
-					GLenum t = 0;
-					if (target == GL_ARRAY_BUFFER)
-						t = GL_ARRAY_BUFFER_ARB;
-					glBufferSubDataARB(t, offset, size, data);
-				}
-			}
-
-			void* MapBuffer(GLenum target, GLenum access)
-			{
-				/* OpenGL 1.5 */
-				if (GLEW_VERSION_1_5)
-				{
-					return glMapBuffer(target, access);
-				}
-				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
-				{
-					GLenum t = 0;
-					if (target == GL_ARRAY_BUFFER)
-						t = GL_ARRAY_BUFFER_ARB;
-					return glMapBufferARB(t, access);
-				}
-				return 0;
-			}
-
-			GLboolean UnmapBuffer(GLenum target)
-			{
-				/* OpenGL 1.5 */
-				if (GLEW_VERSION_1_5)
-				{
-					return glUnmapBuffer(target);
-				}
-				/* OpenGL 1.4 with VBO support as extension */
-				else if (glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object") || glBindBufferARB != 0)
-				{
-					GLenum t = 0;
-					if (target == GL_ARRAY_BUFFER)
-						t = GL_ARRAY_BUFFER_ARB;
-					return glUnmapBufferARB(t);
-				}
-				return false;
-			}
-
-
-
-
+			extern PFNGLDELETEBUFFERSPROC DeleteBuffers;
+			extern PFNGLBINDBUFFERPROC BindBuffer;
+			extern PFNGLGENBUFFERSPROC GenBuffers;
+			extern PFNGLBUFFERDATAPROC BufferData;
+			extern PFNGLBUFFERSUBDATAPROC BufferSubData;
+			extern PFNGLMAPBUFFERPROC MapBuffer;
+			extern PFNGLUNMAPBUFFERPROC UnmapBuffer;
 
 			//
 			// Shaders
 			//
-			
+			/*
 			GLuint CreateProgram()
 			{
 				return 0;
@@ -273,10 +161,8 @@ namespace Pxf
 			{
 			
 			}
-
+*/
 			/* etc... */
-
-
 
 
 			inline void CheckError(const char* _Source)

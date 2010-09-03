@@ -7,6 +7,7 @@
 #include <Carbon/Carbon.h>
 #endif
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <Pxf/Modules/pri/TypeTraits.h>
 
 using namespace Pxf;
 using namespace Pxf::Graphics;
@@ -81,6 +82,8 @@ bool WindowGL2::Open()
 		{
 			Message("Window", "Could not initiate glew.");
 		}
+
+		Pxf::Graphics::GL::SetupExtensions();
 
 		Message("Window", "Opened window of %dx%d@%d (r: %d g: %d b: %d a: %d d: %d s: %d)", m_width, m_height, m_bits_color*3+m_bits_alpha, m_bits_color, m_bits_color, m_bits_color, m_bits_alpha, m_bits_depth, m_bits_stencil);
 

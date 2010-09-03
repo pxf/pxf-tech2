@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_static|Win32">
+      <Configuration>Debug_static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>Framework</ProjectName>
+    <ProjectGuid>{87C65B1E-02E8-4E3F-A405-44A6F66F81E7}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">runbam debug_dll</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">runbam debug</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">runbam debug_dll</NMakeReBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">runbam debug</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">runbam debug_dll -c</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">runbam debug -c</NMakeCleanCommandLine>
+    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DERPEditor_ddyn.exe</NMakeOutput>
+    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">SampleProject_ddyn.exe</NMakeOutput>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../../Modules/pri/Include;../../Include; ../../Source, ../../Libraries/glfw/sdk/include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">../../Modules/pri/Include;../../Include; ../../Source, ../../Libraries/glfw/sdk/include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
+    <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
+    <NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+    <NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">runbam release</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">runbam release</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">runbam release -c</NMakeCleanCommandLine>
+    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pxf</NMakeOutput>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../../Include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
+    <NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Modules\model\Source\model.cpp" />
+    <ClCompile Include="..\..\Modules\model\Source\ModelLoader.cpp" />
+    <ClCompile Include="..\..\Modules\pri\Source\FrameBufferObjectGL2.cpp" />
+    <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp" />
+    <ClCompile Include="..\..\Modules\pri\Source\RenderBufferGL2.cpp" />
+    <ClCompile Include="..\..\Source\Resource\Blob.cpp" />
+    <ClCompile Include="..\..\Source\Resource\Text.cpp" />
+    <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="..\..\Source\Kernel.cpp" />
+    <ClCompile Include="..\..\Source\Module.cpp" />
+    <ClCompile Include="..\..\Source\Graphics\DeviceType.cpp" />
+    <ClCompile Include="..\..\Source\Base\Debug.cpp" />
+    <ClCompile Include="..\..\Source\Base\Hash.cpp" />
+    <ClCompile Include="..\..\Source\Base\Memory.cpp" />
+    <ClCompile Include="..\..\Source\Base\Path.cpp" />
+    <ClCompile Include="..\..\Source\Base\Random.cpp" />
+    <ClCompile Include="..\..\Source\Base\SharedLibraryPosix.cpp" />
+    <ClCompile Include="..\..\Source\Base\SharedLibraryWin32.cpp" />
+    <ClCompile Include="..\..\Source\Base\StreamPosix.cpp" />
+    <ClCompile Include="..\..\Source\Base\String.cpp" />
+    <ClCompile Include="..\..\Source\Base\Utils.cpp" />
+    <ClCompile Include="..\..\Source\Resource\Chunk.cpp" />
+    <ClCompile Include="..\..\Source\Resource\ResourceManager.cpp" />
+    <ClCompile Include="..\..\Modules\img\Source\ImageLoader.cpp" />
+    <ClCompile Include="..\..\Modules\img\Source\img.cpp" />
+    <ClCompile Include="..\..\Modules\pri\Source\DeviceGL2.cpp" />
+    <ClCompile Include="..\..\Modules\pri\Source\pri.cpp" />
+    <ClCompile Include="..\..\Modules\pri\Source\TextureGL2.cpp" />
+    <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp" />
+    <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp" />
+    <ClCompile Include="Source\QuadBatch.cpp" />
+    <ClCompile Include="Source\TexturedQuadBatch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\FrameBufferObject.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\RenderBuffer.h" />
+    <ClInclude Include="..\..\Include\Pxf\Input\InputDefs.h" />
+    <ClInclude Include="..\..\Include\Pxf\Input\InputDevice.h" />
+    <ClInclude Include="..\..\Include\Pxf\Input\NullInputDevice.h" />
+    <ClInclude Include="..\..\Include\Pxf\Kernel.h" />
+    <ClInclude Include="..\..\Include\Pxf\Module.h" />
+    <ClInclude Include="..\..\Include\Pxf\Pxf.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\Blob.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\Model.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\Text.h" />
+    <ClInclude Include="..\..\Include\Pxf\System.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Config.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Debug.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Hash.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Memory.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Path.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Random.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\SharedLibrary.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Stream.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\String.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Types.h" />
+    <ClInclude Include="..\..\Include\Pxf\Base\Utils.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\DeviceDefs.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\DeviceResource.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\DeviceType.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\GraphicsDevice.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\Shader.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\Texture.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\TextureDefs.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\VertexBuffer.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\VertexBufferDefs.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\Window.h" />
+    <ClInclude Include="..\..\Include\Pxf\Graphics\WindowSpecifications.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\Chunk.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\Image.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\ResourceBase.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\ResourceLoader.h" />
+    <ClInclude Include="..\..\Include\Pxf\Resource\ResourceManager.h" />
+    <ClInclude Include="..\..\Include\Pxf\Util\Array.h" />
+    <ClInclude Include="..\..\Include\Pxf\Util\List.h" />
+    <ClInclude Include="..\..\Include\Pxf\Util\Map.h" />
+    <ClInclude Include="..\..\Include\Pxf\Util\Noncopyable.h" />
+    <ClInclude Include="..\..\Include\Pxf\Util\String.h" />
+    <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\ImageLoader.h" />
+    <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\img.h" />
+    <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\model.h" />
+    <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\ModelLoader.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\FrameBufferObjectGL2.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\InputDeviceGLFW.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\OpenGL.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\OpenGLUtils.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\pri.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\RenderBufferGL2.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TextureGL2.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TypeTraits.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h" />
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
+    <ClInclude Include="Include\QuadBatch.h" />
+    <ClInclude Include="Include\TexturedQuadBatch.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
