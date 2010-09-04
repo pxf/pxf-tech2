@@ -3,7 +3,7 @@
 
 #include <Pxf/Kernel.h>
 #include <Pxf/Resource/ResourceLoader.h>
-#include <Pxf/Resource/Model.h>
+#include <Pxf/Resource/Mesh.h>
 #include <openctm.h>
 
 namespace Pxf{
@@ -14,33 +14,35 @@ namespace Resource
     
 namespace Modules {
 
-	class OpenCTMModel : public Resource::Model
+	class OpenCTMMesh : public Resource::Mesh
 	{
 	protected:
         virtual bool Build();
 	public:
-		OpenCTMModel(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Model(_Chunk,_Loader)
+		OpenCTMMesh(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Mesh(_Chunk,_Loader)
 		{ }
 		
-		virtual ~OpenCTMModel() { }
+		virtual ~OpenCTMMesh() { }
+
+		virtual void SetData(unsigned int _VertCount, unsigned int _TriCount,const float* _Vertices, const unsigned int* _Indices,const float* _Normals);
 	};
 
-	class GenericModelLoader : public Resource::ResourceLoader
+	class GenericMeshLoader : public Resource::ResourceLoader
     {
     private:
 		CTMcontext m_Context;
 
         bool Init();
     public:
-        GenericModelLoader(Pxf::Kernel* _Kernel);
-        ~GenericModelLoader();
-        virtual Resource::Model* Load(const char* _FilePath);
-		virtual Resource::Model* CreateFrom(const void* _DataPtr, unsigned _DataLen);
+        GenericMeshLoader(Pxf::Kernel* _Kernel);
+        ~GenericMeshLoader();
+        virtual Resource::Mesh* Load(const char* _FilePath);
+		virtual Resource::Mesh* CreateFrom(const void* _DataPtr, unsigned _DataLen);
         virtual void Destroy(void* _Resource)
         {
             if (_Resource)
-                delete (Resource::Model*)_Resource;
+                delete (Resource::Mesh*)_Resource;
         }
     };
 
