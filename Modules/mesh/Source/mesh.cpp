@@ -10,16 +10,16 @@
 static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
-using Pxf::Modules::GenericMeshImporter;
+using Pxf::Modules::CtmMeshImporter;
 #ifndef CONF_MODULAR
-REGISTER_MODULE(GenericMeshImporter, "mesh", Module_Kernel_Version, Module_Api_Version);
+REGISTER_MODULE(CtmMeshImporter, "mesh", Module_Kernel_Version, Module_Api_Version);
 #endif
 
-namespace GenericMeshLoader_
+namespace CtmMeshLoader_
 {
     PXFEXPORT Pxf::Module* CreateInstance()
     {
-        Pxf::Modules::GenericMeshImporter *m = new Pxf::Modules::GenericMeshImporter("mesh", Module_Kernel_Version, Module_Api_Version);
+        Pxf::Modules::CtmMeshImporter *m = new Pxf::Modules::CtmMeshImporter("mesh", Module_Kernel_Version, Module_Api_Version);
         return m;
     }
 
@@ -32,11 +32,11 @@ namespace GenericMeshLoader_
     }
 }
 
-bool Pxf::Modules::GenericMeshImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
+bool Pxf::Modules::CtmMeshImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
     if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
     {
-        Pxf::Modules::GenericMeshLoader* loader = new Pxf::Modules::GenericMeshLoader(_Kernel);
+        Pxf::Modules::CtmMeshLoader* loader = new Pxf::Modules::CtmMeshLoader(_Kernel);
         _Kernel->RegisterResourceLoader("ctm", loader);
         return true;
     }

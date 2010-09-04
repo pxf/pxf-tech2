@@ -28,15 +28,15 @@ namespace Modules {
 		virtual void SetData(unsigned int _VertCount, unsigned int _TriCount,const float* _Vertices, const unsigned int* _Indices,const float* _Normals);
 	};
 
-	class GenericMeshLoader : public Resource::ResourceLoader
+	class CtmMeshLoader : public Resource::ResourceLoader
     {
     private:
 		CTMcontext m_Context;
 
         bool Init();
     public:
-        GenericMeshLoader(Pxf::Kernel* _Kernel);
-        ~GenericMeshLoader();
+        CtmMeshLoader(Pxf::Kernel* _Kernel);
+        ~CtmMeshLoader();
         virtual Resource::Mesh* Load(const char* _FilePath);
 		virtual Resource::Mesh* CreateFrom(const void* _DataPtr, unsigned _DataLen);
         virtual void Destroy(void* _Resource)

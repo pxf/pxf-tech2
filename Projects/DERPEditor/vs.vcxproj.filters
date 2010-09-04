@@ -167,6 +167,12 @@
     <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp">
       <Filter>Modules\pri\source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Modules\mesh\Source\MeshLoader.cpp">
+      <Filter>Modules\mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\mesh\Source\mesh.cpp">
+      <Filter>Modules\mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">

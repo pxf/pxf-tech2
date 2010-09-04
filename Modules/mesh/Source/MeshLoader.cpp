@@ -25,13 +25,13 @@ void OpenCTMMesh::SetData(unsigned int _VertCount, unsigned int _TriCount,const 
 		m_MeshData.has_normals = true;
 }
 
-GenericMeshLoader::GenericMeshLoader(Pxf::Kernel* _Kernel)
-	: ResourceLoader(_Kernel, "Generic Mesh Loader")
+CtmMeshLoader::CtmMeshLoader(Pxf::Kernel* _Kernel)
+	: ResourceLoader(_Kernel, "Ctm Mesh Loader")
 {
 	Init();
 }
 
-bool GenericMeshLoader::Init()
+bool CtmMeshLoader::Init()
 {
 	m_Context = ctmNewContext(CTM_IMPORT);
 
@@ -47,7 +47,7 @@ bool GenericMeshLoader::Init()
 	}
 }
 
-Resource::Mesh* GenericMeshLoader::Load(const char* _FilePath)
+Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 {
 	ctmLoad(m_Context, _FilePath);
 	Resource::Chunk* _Chunk = Resource::LoadFile(_FilePath);   
@@ -95,13 +95,13 @@ Resource::Mesh* GenericMeshLoader::Load(const char* _FilePath)
 	}
 }
 
-Resource::Mesh* GenericMeshLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
+Resource::Mesh* CtmMeshLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
 {
 	// LOL DUN NO !!!
 	return 0;
 }
 
-GenericMeshLoader::~GenericMeshLoader()
+CtmMeshLoader::~CtmMeshLoader()
 {
 	ctmFreeContext(m_Context);
 }

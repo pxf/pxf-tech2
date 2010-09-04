@@ -8,11 +8,11 @@
 namespace Pxf {
 namespace Modules
 {
-    class GenericMeshImporter : public Pxf::Module
+    class CtmMeshImporter : public Pxf::Module
     {
         private:
         public:
-        GenericMeshImporter(const char* _Identifier, unsigned _KernelVersion, unsigned _ApiVersion)
+        CtmMeshImporter(const char* _Identifier, unsigned _KernelVersion, unsigned _ApiVersion)
             : Module(_Identifier, _KernelVersion, _ApiVersion)
         {}
         

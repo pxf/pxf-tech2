@@ -81,6 +81,8 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Modules\mesh\Source\mesh.cpp" />
+    <ClCompile Include="..\..\Modules\mesh\Source\MeshLoader.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\DeviceGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\FrameBufferObjectGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp" />
