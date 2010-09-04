@@ -38,7 +38,8 @@ error_text = ""
 error_lines = {}
 function _runtimeerror(str)
   error_text = str
-  error_lines = split(str, '\n+')
+  local fancy = string.gsub(str, "(%d+)", "^4%1^r")
+  error_lines = split(fancy, '\n+')
   print(" -- Runtime Error -- \n" .. str)
   error_stop = true
 end
@@ -48,7 +49,7 @@ function draw_runtimeerror()
   gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
   gfx.setcolor(1,1,1)
   gfx.drawcentered(400,300,512,256)
-  draw_text_box(error_lines, 400, 400, 100, 100, 0, 0)
+  draw_text_box(error_lines, 400 - 230, 300 - 42, 500, 100, 0, 0)
 end
 
 -- font system
@@ -115,8 +116,9 @@ end
 function draw_text_box(strs, x, y, w, h, sx, sy) -- sx, sy = scrollx, scrolly
   local ylines = 0
   for k,v in pairs(strs) do
-    draw_text(v:sub(sx), x, y+ylines)
-    ylines = ylines + 8
+    local l = v:sub(sx, w / 8)
+    draw_text(l, x, y+ylines)
+    ylines = ylines + 12
   end
 end
 
