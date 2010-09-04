@@ -161,6 +161,8 @@
     <ClInclude Include="..\..\Include\Pxf\Util\String.h" />
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\ImageLoader.h" />
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\img.h" />
+    <ClInclude Include="..\..\Modules\mesh\Include\Pxf\Modules\mesh\mesh.h" />
+    <ClInclude Include="..\..\Modules\mesh\Include\Pxf\Modules\mesh\MeshLoader.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\FrameBufferObjectGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\InputDeviceGLFW.h" />

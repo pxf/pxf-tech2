@@ -349,6 +349,12 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h">
       <Filter>Modules\pri\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Modules\mesh\Include\Pxf\Modules\mesh\mesh.h">
+      <Filter>Modules\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\mesh\Include\Pxf\Modules\mesh\MeshLoader.h">
+      <Filter>Modules\mesh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\test.ctm">
