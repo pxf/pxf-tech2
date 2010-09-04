@@ -21,7 +21,7 @@ bool g_ShouldCloseWindow = false;
 int GLFWCALL on_window_close()
 {
 	g_ShouldCloseWindow = true;
-	return true;
+	return false;
 }
 
 WindowGL2::WindowGL2(WindowSpecifications *_window_spec)
