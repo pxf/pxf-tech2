@@ -293,8 +293,8 @@ void DeviceGL2::SetUniformi(Graphics::Shader* _Shader, const char* _name, int _v
 {
 	Shader* old_shader = m_CurrentShader;
 	BindShader(_Shader);
-	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
-	glUniform1iARB(loc, _value);
+	int loc = GL::GetUniformLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	GL::Uniform1i(loc, _value);
 	BindShader(old_shader); 
 }
 
@@ -302,8 +302,8 @@ void DeviceGL2::SetUniformf(Graphics::Shader* _Shader, const char* _name, float 
 {
 	Shader* old_shader = m_CurrentShader;
 	BindShader(_Shader);
-	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
-	glUniform1fARB(loc, _value);
+	int loc = GL::GetUniformLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	GL::Uniform1f(loc, _value);
 	BindShader(old_shader); 
 }
 
@@ -311,8 +311,8 @@ void DeviceGL2::SetUniformVec2(Graphics::Shader* _Shader, const char* _name, con
 {
 	Shader* old_shader = m_CurrentShader;
 	BindShader(_Shader);
-	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
-	glUniform2fvARB(loc, 1, (const float*)_value);
+	int loc = GL::GetUniformLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	GL::Uniform2fv(loc, 1, (const float*)_value);
 	BindShader(old_shader); 
 }
 
@@ -320,8 +320,8 @@ void DeviceGL2::SetUniformVec3(Graphics::Shader* _Shader, const char* _name, con
 {
 	Shader* old_shader = m_CurrentShader;
 	BindShader(_Shader);
-	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
-	glUniform3fvARB(loc, 1, (const float*)_value);
+	int loc = GL::GetUniformLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	GL::Uniform3fv(loc, 1, (const float*)_value);
 	BindShader(old_shader);
 }
 
@@ -329,8 +329,8 @@ void DeviceGL2::SetUniformVec3v(Graphics::Shader* _Shader, const char* _name, un
 {
 	Shader* old_shader = m_CurrentShader;
 	BindShader(_Shader);
-	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
-	glUniform3fvARB(loc, count, (const float*)_value);
+	int loc = GL::GetUniformLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	GL::Uniform3fv(loc, count, (const float*)_value);
 	BindShader(old_shader);
 }
 
@@ -338,8 +338,8 @@ void DeviceGL2::SetUniformVec4(Graphics::Shader* _Shader, const char* _name, con
 {
 	Shader* old_shader = m_CurrentShader;
 	BindShader(_Shader);
-	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
-	glUniform4fvARB(loc, 1, (const float*)_value);
+	int loc = GL::GetUniformLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	GL::Uniform4fv(loc, 1, (const float*)_value);
 	BindShader(old_shader);
 }
 
@@ -347,8 +347,8 @@ void DeviceGL2::SetUniformVec4v(Graphics::Shader* _Shader, const char* _name, un
 {
 	Shader* old_shader = m_CurrentShader;
 	BindShader(_Shader);
-	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
-	glUniform4fvARB(loc, count, (const float*)_value);
+	int loc = GL::GetUniformLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	GL::Uniform4fv(loc, count, (const float*)_value);
 	BindShader(old_shader);
 }
 
@@ -356,7 +356,7 @@ void DeviceGL2::SetUniformMat4(Graphics::Shader* _Shader, const char* _name, con
 {
 	Shader* old_shader = m_CurrentShader;
 	BindShader(_Shader);
-	int loc = glGetUniformLocationARB(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
-	glUniformMatrix4fvARB(loc, 1, 0, _value->m);
+	int loc = GL::GetUniformLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _name);
+	GL::UniformMatrix4fv(loc, 1, 0, _value->m);
 	BindShader(old_shader);
 }

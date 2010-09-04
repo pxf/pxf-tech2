@@ -67,76 +67,37 @@ namespace Pxf
 			extern PFNGLGETPROGRAMIVPROC GetProgramiv;
 			extern PFNGLGETSHADERINFOLOGPROC GetShaderInfoLog;
 			extern PFNGLGETPROGRAMINFOLOGPROC GetProgramInfoLog;
+			extern PFNGLGETUNIFORMLOCATIONPROC GetUniformLocation;
 
 			
+			// Uniform (float, float vectors)
 			extern PFNGLUNIFORM1FPROC Uniform1f;
 			extern PFNGLUNIFORM2FPROC Uniform2f;
 			extern PFNGLUNIFORM3FPROC Uniform3f;
 			extern PFNGLUNIFORM4FPROC Uniform4f;
-
 			extern PFNGLUNIFORM1FVPROC Uniform1fv;
 			extern PFNGLUNIFORM2FVPROC Uniform2fv;
 			extern PFNGLUNIFORM3FVPROC Uniform3fv;
 			extern PFNGLUNIFORM4FVPROC Uniform4fv;
 
+			// Uniform (integer, integer vectors)
+			extern PFNGLUNIFORM1IPROC Uniform1i;
+			extern PFNGLUNIFORM2IPROC Uniform2i;
+			extern PFNGLUNIFORM3IPROC Uniform3i;
+			extern PFNGLUNIFORM4IPROC Uniform4i;
+			extern PFNGLUNIFORM1IVPROC Uniform1iv;
+			extern PFNGLUNIFORM2IVPROC Uniform2iv;
+			extern PFNGLUNIFORM3IVPROC Uniform3iv;
+			extern PFNGLUNIFORM4IVPROC Uniform4iv;
 
-			//
-			// Shaders
-			//
-			/*
+			// Uniform (matrices)
+			extern PFNGLUNIFORMMATRIX2FVPROC UniformMatrix2fv;
+			extern PFNGLUNIFORMMATRIX3FVPROC UniformMatrix3fv;
+			extern PFNGLUNIFORMMATRIX4FVPROC UniformMatrix4fv;
 
-
-			GLint GetUniformLocation(GLuint program, const GLchar* name)
-			{
-				return 0;
-			}
-
-			void SetUniformValue(GLint location, int v)
-			{
-			
-			}
-
-			void SetUniformValue(GLint location, float v)
-			{
-			
-			}
-
-			void SetUniformValue(GLint location, Math::Vec2f* v)
-			{
-			
-			}
-
-			void SetUniformValue(GLint location, Math::Vec3f* v)
-			{
-			
-			}
-
-			void SetUniformValue(GLint location, Math::Vec4f* v)
-			{
-			
-			}
-
-			void SetUniformVector(GLint location, unsigned count, Math::Vec2f* v)
-			{
-			
-			}
-
-			void SetUniformVector(GLint location, unsigned count, Math::Vec3f* v)
-			{
-			
-			}
-
-			void SetUniformVector(GLint location, unsigned count, Math::Vec4f* v)
-			{
-			
-			}
-
-			void SetUniformMatrix(GLint location, unsigned count, Math::Mat4* v)
-			{
-			
-			}
-*/
-			/* etc... */
+			/* Todo: OpenGL 3.0 */
+			//void BindFragDataLocation(int _Index, const char* _Name);
+			//void BindAttribLocation(int _Index, const char* _Name);
 
 
 			inline void CheckError(const char* _Source)
@@ -145,7 +106,7 @@ namespace Pxf
 				while((error = glGetError()) != GL_NO_ERROR)
 				{
 					Message(_Source, "GL error %d => '%s'", error, gluErrorString(error));
-					#if defined(CONF_FAMILY_WINDOWS )&& defined(CONF_COMPILER_MSVC)
+					#if defined(CONF_FAMILY_WINDOWS) && defined(CONF_COMPILER_MSVC)
 						__asm int 3;
 					#endif
 				}
