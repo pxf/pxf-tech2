@@ -21,7 +21,7 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
-#include <Pxf/Resource/Model.h>
+#include <Pxf/Resource/Mesh.h>
 #include <Pxf/Resource/Blob.h>
 
 #include <enet/enet.h>
@@ -68,7 +68,7 @@ int main()
     shader->SetBlahBlah();
     */
 
-	Resource::Model* model01 = res->Acquire<Resource::Model>("data/test.ctm");
+	Resource::Mesh* model01 = res->Acquire<Resource::Mesh>("data/test.ctm");
 
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
