@@ -4,22 +4,22 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/System.h>
 #include <Pxf/Module.h>
-#include <Pxf/Modules/model/model.h>
-#include <Pxf/Modules/model/ModelLoader.h>
+#include <Pxf/Modules/mesh/mesh.h>
+#include <Pxf/Modules/mesh/MeshLoader.h>
 
 static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
 
-using Pxf::Modules::GenericModelImporter;
+using Pxf::Modules::GenericMeshImporter;
 #ifndef CONF_MODULAR
-REGISTER_MODULE(GenericModelImporter, "model", Module_Kernel_Version, Module_Api_Version);
+REGISTER_MODULE(GenericMeshImporter, "mesh", Module_Kernel_Version, Module_Api_Version);
 #endif
 
-namespace GenericModelLoader_
+namespace GenericMeshLoader_
 {
     PXFEXPORT Pxf::Module* CreateInstance()
     {
-        Pxf::Modules::GenericModelImporter *m = new Pxf::Modules::GenericModelImporter("model", Module_Kernel_Version, Module_Api_Version);
+        Pxf::Modules::GenericMeshImporter *m = new Pxf::Modules::GenericMeshImporter("mesh", Module_Kernel_Version, Module_Api_Version);
         return m;
     }
 
@@ -32,11 +32,11 @@ namespace GenericModelLoader_
     }
 }
 
-bool Pxf::Modules::GenericModelImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
+bool Pxf::Modules::GenericMeshImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
     if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
     {
-        Pxf::Modules::GenericModelLoader* loader = new Pxf::Modules::GenericModelLoader(_Kernel);
+        Pxf::Modules::GenericMeshLoader* loader = new Pxf::Modules::GenericMeshLoader(_Kernel);
         _Kernel->RegisterResourceLoader("ctm", loader);
         return true;
     }

@@ -81,8 +81,6 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Modules\model\Source\model.cpp" />
-    <ClCompile Include="..\..\Modules\model\Source\ModelLoader.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\DeviceGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\FrameBufferObjectGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp" />
@@ -163,8 +161,6 @@
     <ClInclude Include="..\..\Include\Pxf\Util\String.h" />
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\ImageLoader.h" />
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\img.h" />
-    <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\model.h" />
-    <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\ModelLoader.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\FrameBufferObjectGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\InputDeviceGLFW.h" />

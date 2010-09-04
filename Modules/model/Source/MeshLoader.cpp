@@ -1,6 +1,6 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
-#include <Pxf/Modules/model/MeshLoader.h>
+#include <Pxf/Modules/mesh/MeshLoader.h>
 
 #define LOCAL_MSG "MeshLoader"
 

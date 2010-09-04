@@ -48,9 +48,6 @@
     <Filter Include="Framework\Header Files\Pxf\Input">
       <UniqueIdentifier>{1fda36b9-94bb-41e7-a7cf-38552c66421f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Modules\model">
-      <UniqueIdentifier>{b12fcffe-acfb-4bbf-8a44-22add1572ded}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Editor">
       <UniqueIdentifier>{c839c897-8bdb-47a8-8973-4cc9de1df29c}</UniqueIdentifier>
     </Filter>
@@ -68,6 +65,9 @@
     </Filter>
     <Filter Include="Modules\pri\source">
       <UniqueIdentifier>{38e99c2a-c476-4da4-b3ee-9c0ab9da6214}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\mesh">
+      <UniqueIdentifier>{b12fcffe-acfb-4bbf-8a44-22add1572ded}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -136,12 +136,6 @@
     </ClCompile>
     <ClCompile Include="Source\Main.cpp">
       <Filter>Editor\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\model\Source\model.cpp">
-      <Filter>Modules\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Modules\model\Source\ModelLoader.cpp">
-      <Filter>Modules\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Modules\pri\Source\DeviceGL2.cpp">
       <Filter>Modules\pri\source</Filter>
@@ -318,12 +312,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Include\Pxf\Resource\Model.h">
       <Filter>Framework\Header Files\Pxf\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\ModelLoader.h">
-      <Filter>Modules\model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Modules\model\Include\Pxf\Modules\model\model.h">
-      <Filter>Modules\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h">
       <Filter>Modules\pri\include</Filter>
