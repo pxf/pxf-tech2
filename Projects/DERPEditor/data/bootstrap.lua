@@ -8,13 +8,38 @@ for k,v in pairs(gfx) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
 end
 
+function split(str, pat)
+   local t = {}  -- NOTE: use {n = 0} in Lua-5.0
+   local fpat = "(.-)" .. pat
+   local last_end = 1
+   local s, e, cap = str:find(fpat, 1)
+   while s do
+      if s ~= 1 or cap ~= "" then
+	 table.insert(t,cap)
+      end
+      last_end = e+1
+      s, e, cap = str:find(fpat, last_end)
+   end
+   if last_end <= #str then
+      cap = str:sub(last_end)
+      table.insert(t, cap)
+   end
+   return t
+end
+
+
 -- load standard textures
 font = gfx.loadtexture("data/consolefont.png")
 runtimeerror_tex = gfx.loadtexture("data/runtimeerror.png")
 
 -- error handling
 error_stop = false
+error_text = ""
+error_lines = {}
 function _runtimeerror(str)
+  error_text = str
+  local fancy = string.gsub(str, "(%d+)", "^4%1^r")
+  error_lines = split(fancy, '\n+')
   print(" -- Runtime Error -- \n" .. str)
   error_stop = true
 end
@@ -24,10 +49,10 @@ function draw_runtimeerror()
   gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
   gfx.setcolor(1,1,1)
   gfx.drawcentered(400,300,512,256)
+  draw_text_box(error_lines, 400 - 230, 300 - 42, 500, 100, 0, 0)
 end
 
 -- font system
--- Font/text (using charmap) rendering
 function draw_text(str, x, y)
   
   gfx.bindtexture(font)
@@ -86,6 +111,15 @@ function draw_text(str, x, y)
 	
 	gfx.translate(-x, -y)
 	gfx.setcolor(r,g,b)
+end
+
+function draw_text_box(strs, x, y, w, h, sx, sy) -- sx, sy = scrollx, scrolly
+  local ylines = 0
+  for k,v in pairs(strs) do
+    local l = v:sub(sx, w / 8)
+    draw_text(l, x, y+ylines)
+    ylines = ylines + 12
+  end
 end
 
 -- basic callfunctions

@@ -82,7 +82,6 @@ void QuadBatch::Draw()
 
 void QuadBatch::AddFreeform(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3)
 {
-    
     Vec3f p0,p1,p2,p3;
     if (m_Transformation != NULL) {
         Vec4f p0_,p1_,p2_,p3_;

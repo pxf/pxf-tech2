@@ -22,7 +22,7 @@ int DERPEditor::gfx_loadtexture (lua_State *L) {
   if (lua_gettop(L) == 1)
   {
     LuaApp* inst = LuaApp::GetInstance();
-    inst->m_QuadBatches[inst->m_QuadBatchCount] = new TexturedQuadBatch(1024,
+    inst->m_QuadBatches[inst->m_QuadBatchCount] = new TexturedQuadBatch(LUAAPP_QBSIZE,
                                                                         lua_tostring(L, 1),
                                                                         &(inst->m_CurrentDepth),
                                                                         &(inst->m_CurrentColor),
@@ -118,6 +118,7 @@ int DERPEditor::gfx_drawcentered (lua_State *L) {
     {
       qb->ResetTextureSubset();
       qb->AddCentered(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4));
+      LuaApp::GetInstance()->IncDepth();
     }
     
   }
@@ -129,6 +130,7 @@ int DERPEditor::gfx_drawcentered (lua_State *L) {
     {
       qb->SetTextureSubset(lua_tonumber(L, 5), lua_tonumber(L, 6), lua_tonumber(L, 7), lua_tonumber(L, 8));
       qb->AddCentered(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4));
+      LuaApp::GetInstance()->IncDepth();
     }
     
   } else {

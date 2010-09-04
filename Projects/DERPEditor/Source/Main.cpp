@@ -75,7 +75,7 @@ int main()
     spec.Height = 600;
     spec.ColorBits = 24;
     spec.AlphaBits = 8;
-    spec.DepthBits = 8;
+    spec.DepthBits = 24;
     spec.StencilBits = 0;
     spec.FSAASamples = 0;
     spec.Fullscreen = false;

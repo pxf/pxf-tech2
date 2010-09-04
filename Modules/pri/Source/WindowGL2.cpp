@@ -17,6 +17,13 @@ int WindowGL2::GetWidth() { return m_width; }
 int WindowGL2::GetHeight() {return m_height; }
 float WindowGL2::GetAspectRatio() { return ((float)m_width / (float)m_height); }
 
+bool g_ShouldCloseWindow = false;
+int GLFWCALL on_window_close()
+{
+	g_ShouldCloseWindow = true;
+	return true;
+}
+
 WindowGL2::WindowGL2(WindowSpecifications *_window_spec)
 {
 	// Window settings
@@ -83,7 +90,11 @@ bool WindowGL2::Open()
 			Message("Window", "Could not initiate glew.");
 		}
 
+		// Map gl-functionality
 		Pxf::Graphics::GL::SetupExtensions();
+
+		// Handle window-close gracefully.
+		glfwSetWindowCloseCallback(on_window_close);
 
 		Message("Window", "Opened window of %dx%d@%d (r: %d g: %d b: %d a: %d d: %d s: %d)", m_width, m_height, m_bits_color*3+m_bits_alpha, m_bits_color, m_bits_color, m_bits_color, m_bits_alpha, m_bits_depth, m_bits_stencil);
 
@@ -125,7 +136,7 @@ void WindowGL2::Swap()
 
 bool WindowGL2::IsOpen()
 {
-	if (glfwGetWindowParam(GLFW_OPENED) == GL_TRUE)
+	if (glfwGetWindowParam(GLFW_OPENED) == GL_TRUE && !g_ShouldCloseWindow)
 		return true;
 	else
 		return false;

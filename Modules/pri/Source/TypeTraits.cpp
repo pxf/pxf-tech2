@@ -34,16 +34,32 @@ PFNGLGETSHADERIVPROC GL::GetShaderiv = 0;
 PFNGLGETPROGRAMIVPROC GL::GetProgramiv = 0;
 PFNGLGETSHADERINFOLOGPROC GL::GetShaderInfoLog = 0;
 PFNGLGETPROGRAMINFOLOGPROC GL::GetProgramInfoLog = 0;
+PFNGLGETUNIFORMLOCATIONPROC GL::GetUniformLocation = 0;
 
-PFNGLUNIFORM1FPROC GL::Uniform1f;
-PFNGLUNIFORM2FPROC GL::Uniform2f;
-PFNGLUNIFORM3FPROC GL::Uniform3f;
-PFNGLUNIFORM4FPROC GL::Uniform4f;
+// Uniform (float, float vectors)
+PFNGLUNIFORM1FPROC GL::Uniform1f = 0;
+PFNGLUNIFORM2FPROC GL::Uniform2f = 0;
+PFNGLUNIFORM3FPROC GL::Uniform3f = 0;
+PFNGLUNIFORM4FPROC GL::Uniform4f = 0;
+PFNGLUNIFORM1FVPROC GL::Uniform1fv = 0;
+PFNGLUNIFORM2FVPROC GL::Uniform2fv = 0;
+PFNGLUNIFORM3FVPROC GL::Uniform3fv = 0;
+PFNGLUNIFORM4FVPROC GL::Uniform4fv = 0;
 
-PFNGLUNIFORM1FVPROC GL::Uniform1fv;
-PFNGLUNIFORM2FVPROC GL::Uniform2fv;
-PFNGLUNIFORM3FVPROC GL::Uniform3fv;
-PFNGLUNIFORM4FVPROC GL::Uniform4fv;
+// Unifom (integer, integer vectors)
+PFNGLUNIFORM1IPROC GL::Uniform1i = 0;
+PFNGLUNIFORM2IPROC GL::Uniform2i = 0;
+PFNGLUNIFORM3IPROC GL::Uniform3i = 0;
+PFNGLUNIFORM4IPROC GL::Uniform4i = 0;
+PFNGLUNIFORM1IVPROC GL::Uniform1iv = 0;
+PFNGLUNIFORM2IVPROC GL::Uniform2iv = 0;
+PFNGLUNIFORM3IVPROC GL::Uniform3iv = 0;
+PFNGLUNIFORM4IVPROC GL::Uniform4iv = 0;
+
+// Uniform (matrices)
+PFNGLUNIFORMMATRIX2FVPROC GL::UniformMatrix2fv = 0;
+PFNGLUNIFORMMATRIX3FVPROC GL::UniformMatrix3fv = 0;
+PFNGLUNIFORMMATRIX4FVPROC GL::UniformMatrix4fv = 0;
 
 void GL::SetupExtensions()
 {
@@ -95,6 +111,8 @@ void GL::SetupExtensions()
 		GetProgramiv = glGetProgramiv;
 		GetShaderInfoLog = glGetShaderInfoLog;
 		GetProgramInfoLog = glGetProgramInfoLog;
+		GetUniformLocation = glGetUniformLocation;
+
 		Uniform1f = glUniform1f;
 		Uniform2f = glUniform2f;
 		Uniform3f = glUniform3f;
@@ -103,6 +121,19 @@ void GL::SetupExtensions()
 		Uniform2fv = glUniform2fv;
 		Uniform3fv = glUniform3fv;
 		Uniform4fv = glUniform4fv;
+
+		Uniform1i = glUniform1i;
+		Uniform2i = glUniform2i;
+		Uniform3i = glUniform3i;
+		Uniform4i = glUniform4i;
+		Uniform1iv = glUniform1iv;
+		Uniform2iv = glUniform2iv;
+		Uniform3iv = glUniform3iv;
+		Uniform4iv = glUniform4iv;
+
+		UniformMatrix2fv = glUniformMatrix2fv;
+		UniformMatrix3fv = glUniformMatrix3fv;
+		UniformMatrix4fv = glUniformMatrix4fv;
 	}
 	/* ARB support for shaders */
 	else if (glewIsSupported("ARB_vertex_program ARB_fragment_program") || glCreateProgramObjectARB != 0)
@@ -126,6 +157,8 @@ void GL::SetupExtensions()
 		GetProgramiv = glGetObjectParameterivARB;
 		GetShaderInfoLog = glGetInfoLogARB;
 		GetProgramInfoLog = glGetInfoLogARB;
+		GetUniformLocation = glGetUniformLocationARB;
+
 		Uniform1f = glUniform1fARB;
 		Uniform2f = glUniform2fARB;
 		Uniform3f = glUniform3fARB;
@@ -134,5 +167,18 @@ void GL::SetupExtensions()
 		Uniform2fv = glUniform2fvARB;
 		Uniform3fv = glUniform3fvARB;
 		Uniform4fv = glUniform4fvARB;
+
+		Uniform1i = glUniform1iARB;
+		Uniform2i = glUniform2iARB;
+		Uniform3i = glUniform3iARB;
+		Uniform4i = glUniform4iARB;
+		Uniform1iv = glUniform1ivARB;
+		Uniform2iv = glUniform2ivARB;
+		Uniform3iv = glUniform3ivARB;
+		Uniform4iv = glUniform4ivARB;
+
+		UniformMatrix2fv = glUniformMatrix2fvARB;
+		UniformMatrix3fv = glUniformMatrix3fvARB;
+		UniformMatrix4fv = glUniformMatrix4fvARB;
 	}
 }

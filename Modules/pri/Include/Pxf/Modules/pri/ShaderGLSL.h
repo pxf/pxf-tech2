@@ -19,14 +19,6 @@ namespace Pxf
 			ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const char* _VertexShader, const char* _FragmentShader);
 			~ShaderGLSL();
 
-			/*
-			// glBindFragDataLocation(_program, 0, "out_color0");
-			// glBindAttribLocation(_program, 2, "texcoord");
-			//void BindFragDataLocation(int _Index, const char* _Name);
-			//void BindAttribLocation(int _Index, const char* _Name);
-			// bool Complete();
-			*/
-
 			unsigned GetProgramHandle() const
 			{
 				return m_ProgramHandle;
