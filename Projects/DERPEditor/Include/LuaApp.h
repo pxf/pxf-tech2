@@ -41,6 +41,7 @@ namespace DERPEditor
         void Init();
         bool Boot();
         bool Reboot();
+        void Shutdown();
         
         bool Update();
         void Draw();
@@ -70,13 +71,13 @@ namespace DERPEditor
         bool HandleErrors(int _error);
         bool CallScriptFunc(const char* _funcname, int nargs = 0);
         
-    private:
-        const char* m_Filepath;
-        
         // Pointers to engine systems
         Pxf::Graphics::GraphicsDevice* m_gfx;
         Pxf::Input::InputDevice* m_inp;
         Pxf::Graphics::Window* m_win;
+        
+    private:
+        const char* m_Filepath;
         
         // Graceful application fail
         TexturedQuadBatch* m_AppErrorQB;
