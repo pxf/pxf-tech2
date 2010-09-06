@@ -12,6 +12,7 @@
 #include <Pxf/Graphics/RenderBuffer.h>
 #include <Pxf/Graphics/FrameBufferObject.h>
 #include <Pxf/Graphics/Shader.h>
+#include <Pxf/Graphics/Model.h>
 
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/String.h>
@@ -168,7 +169,7 @@ int main()
 		//gfx->BindTexture(tex0);
 		//testFBO->Draw();
 
-        
+        //test_model->Draw();
     }
     
     delete app;
