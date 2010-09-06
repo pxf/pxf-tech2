@@ -16,6 +16,7 @@
                                 };                                                         \
                                 static RegisterModule##MODULE g_GlobalInitializer##MODULE; \
 
+#include <Pxf/Base/Platform.h>
 #include <Pxf/System.h>
 
 namespace Pxf {
@@ -34,7 +35,9 @@ namespace Pxf {
             : m_Identifier(_Identifier)
             , m_KernelVersion(_KernelVersion)
             , m_ApiVersion(_ApiVersion)
-        {}
+        {
+			Platform platform; // initialize platform for timers etc.
+		}
 
         virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType) = 0;
 

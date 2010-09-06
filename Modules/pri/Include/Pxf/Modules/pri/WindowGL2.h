@@ -34,7 +34,8 @@ namespace Pxf{
 			bool m_fullscreen, m_resizeable, m_vsync;
 
 			// Bit settings
-			int m_bits_color, m_bits_alpha, m_bits_depth, m_bits_stencil;
+			int m_bits_r, m_bits_g, m_bits_b;
+			int m_bits_alpha, m_bits_depth, m_bits_stencil;
 
 			// FSAA
 			int m_fsaa_samples;
