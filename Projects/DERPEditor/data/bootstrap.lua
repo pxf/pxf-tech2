@@ -29,7 +29,7 @@ end
 
 
 -- load standard textures
-font = gfx.loadtexture("data/consolefont.png")
+font = gfx.loadtexture("data/consolefont2.png")
 runtimeerror_tex = gfx.loadtexture("data/runtimeerror.png")
 
 -- error handling
@@ -38,10 +38,11 @@ error_text = ""
 error_lines = {}
 function _runtimeerror(str)
   error_text = str
+  str = "aoeae åäö ÅÄÖ ".. str
   local fancy = string.gsub(str, "(%d+)", "^4%1^r")
   fancy = string.gsub(fancy, "(\t)", "    ")
   error_lines = split(fancy, '\n+')
-  print(" -- Runtime Error -- \n" .. str)
+  print(" -- Runtime Error-- \n" .. str)
   error_stop = true
 end
 
@@ -67,46 +68,57 @@ function draw_text(str, x, y)
 	local change_color = false
 	local char_counter = 0
 	local rr,rg,rb
+	local euro_next = false
 	
 	for i=1,strlen do
 	  -- calculate tex coords
 	  local index = string.byte(str, i)
-	  
-	  local s = math.fmod(index, 16) * 16
-	  local t = math.floor(index / 16) * 16
-	  
-	  -- change color?
-	  if index == string.byte(color_indicator, 1) then
-	    change_color = true
-    else
-      if change_color then
-        
-        -- Color indexes
-        if string.char(tostring(string.byte(str, i))) == "r" then
-          gfx.setcolor(rr,rg,rb)
-        else
-          rr,rg,rb = gfx.getcolor()
-          if string.char(tostring(string.byte(str, i))) == "0" then
-            gfx.setcolor(0, 0, 0)
-          elseif string.char(tostring(string.byte(str, i))) == "1" then
-            gfx.setcolor(1, 0, 0)
-          elseif string.char(tostring(string.byte(str, i))) == "2" then
-            gfx.setcolor(0, 1, 0)
-          elseif string.char(tostring(string.byte(str, i))) == "3" then
-            gfx.setcolor(0, 0, 1)
-          elseif string.char(tostring(string.byte(str, i))) == "4" then
-            gfx.setcolor(1.0, 0.3, 0.3)
-          else
-            gfx.setcolor(1, 1, 1)
-          end
-        end
-        
-        change_color = false
+	  if (index == 195) then
+	    -- found special char
+	    euro_next = true
+    else	  
+  	  -- change color?
+  	  if index == string.byte(color_indicator, 1) then
+  	    change_color = true
       else
-  	    -- draw quad
-  	    gfx.drawcentered((char_counter)*char_w, 0, 16, 16, s, t, 16, 16)
-  	    char_counter = char_counter + 1
-	    end
+        if change_color then
+        
+          -- Color indexes
+          if string.char(tostring(string.byte(str, i))) == "r" then
+            gfx.setcolor(rr,rg,rb)
+          else
+            rr,rg,rb = gfx.getcolor()
+            if string.char(tostring(string.byte(str, i))) == "0" then
+              gfx.setcolor(0, 0, 0)
+            elseif string.char(tostring(string.byte(str, i))) == "1" then
+              gfx.setcolor(1, 0, 0)
+            elseif string.char(tostring(string.byte(str, i))) == "2" then
+              gfx.setcolor(0, 1, 0)
+            elseif string.char(tostring(string.byte(str, i))) == "3" then
+              gfx.setcolor(0, 0, 1)
+            elseif string.char(tostring(string.byte(str, i))) == "4" then
+              gfx.setcolor(1.0, 0.3, 0.3)
+            else
+              gfx.setcolor(1, 1, 1)
+            end
+          end
+        
+          change_color = false
+        else
+    	    -- draw quad
+    	    if (euro_next) then
+    	      euro_next = false
+    	      index = index + 32
+  	      else
+  	        index = index - 32
+  	      end
+      	  local s = math.fmod(index, 16) * 16
+      	  local t = math.floor(index / 16) * 16
+    	    gfx.drawcentered((char_counter)*char_w, 0, 16, 16, s, t, 16, 16)
+    	    char_counter = char_counter + 1
+  	    end
+      end
+    
     end
 	end
 	

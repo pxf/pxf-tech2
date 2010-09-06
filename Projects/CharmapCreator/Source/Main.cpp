@@ -34,6 +34,80 @@
 
 using namespace Pxf;
 
+extern int new_BakeFontBitmap(const unsigned char *data, int offset,  // font location (use offset=0 for plain .ttf)
+                                float pixel_height,                     // height of font in pixels
+                                int pixel_blocksize,
+                                unsigned char *pixels, int pw, int ph,  // bitmap to be filled in
+                                int first_char, int num_chars,          // characters to bake
+                                stbtt_bakedchar *chardata)
+{
+   float scale;
+   int x,y,bottom_y, i;
+   stbtt_fontinfo f;
+   stbtt_InitFont(&f, data, offset);
+   STBTT_memset(pixels, 0, pw*ph); // background of 0 around pixels
+   x=y=0;
+   
+
+   scale = stbtt_ScaleForPixelHeight(&f, pixel_height);
+
+   for (i=0; i < num_chars; ++i) {
+      int advance, lsb, x0,y0,x1,y1,gw,gh;
+      int g = stbtt_FindGlyphIndex(&f, first_char + i);
+      stbtt_GetGlyphHMetrics(&f, g, &advance, &lsb);
+      stbtt_GetGlyphBitmapBox(&f, g, scale,scale, &x0,&y0,&x1,&y1);
+      /*gw = x1-x0;
+      gh = y1-y0;*/
+      float w2,h2;
+      w2 = pixel_blocksize / 2.0f;//(x1-x0) / 2.0f;
+      h2 = pixel_blocksize / 2.0f;//(y1-y0) / 2.0f;
+      gw = pixel_blocksize;// - w2;
+      gh = pixel_blocksize;// - h2;
+      float glw,glh;
+      glw = pixel_blocksize / 4.0f;
+      glh = y0;
+      if (x >= pw / pixel_blocksize)
+      {
+        x = 0;
+        y += 1;
+      }
+      /*if (x + gw >= pw)
+         y = bottom_y, x = 0; // advance to next row
+         */
+      if (y >= ph / pixel_blocksize) // check if it fits vertically AFTER potentially moving to next row
+         return -i;
+      STBTT_assert(x+gw < pw);
+      STBTT_assert(y+gh < ph);
+      stbtt_MakeGlyphBitmap(&f, pixels+(unsigned char)(w2 + x*pixel_blocksize - glw)+(unsigned char)(h2 + y*pixel_blocksize - glh)*pw, gw,gh,pw, scale,scale, g);
+      chardata[i].x0 = (stbtt_int16) w2 + x*pixel_blocksize - glw;
+      chardata[i].y0 = (stbtt_int16) h2 + y*pixel_blocksize - glh;
+      chardata[i].x1 = (stbtt_int16) (w2 + x*pixel_blocksize + gw - glw);
+      chardata[i].y1 = (stbtt_int16) (h2 + y*pixel_blocksize + gh - glh);
+      chardata[i].xadvance = pixel_blocksize;//scale * advance;
+      chardata[i].xoff     = 0;//(float) x0;
+      chardata[i].yoff     = (float) y0;
+      /*x = x + gw + 2;
+      if (y+gh+2 > bottom_y)
+         bottom_y = y+gh+2;*/
+      x += 1;
+   }
+   return bottom_y;
+}
+
+void gen_bitmapdata(unsigned char* _outdata, int _texsize, float _fontsize, float _blocksize, const char* _fontpath)
+{
+  unsigned char ttf_buffer[1<<20];
+
+  uint char_range[2];
+  char_range[0] = 32;
+  char_range[1] = 256;
+
+  stbtt_bakedchar cdata[char_range[1] - char_range[0]]; // ASCII 32..126 is 95 glyphs
+
+  fread(ttf_buffer, 1, 1<<20, fopen(_fontpath, "rb"));
+  new_BakeFontBitmap(ttf_buffer,0, _fontsize, _blocksize, _outdata, _texsize, _texsize, char_range[0],char_range[1] - char_range[0], cdata); // no guarantee this fits!
+}
+
 int main(int argc, char** argv)
 {
     Pxf::RandSetSeed(time(NULL));
@@ -90,31 +164,15 @@ int main(int argc, char** argv)
   	//qb->AddTopLeft(20, 20, 50, 50);
   	//qb->End();
 
-  	// QuadBatch tests
+  	// OGL setups
   	glEnable( GL_TEXTURE_2D );
-	  /*glEnable (GL_DEPTH_TEST);
-
-  	QuadBatch* testFBO = new QuadBatch(4);
-  	testFBO->Begin();
-  	testFBO->AddTopLeft(0, 0, spec.Width, spec.Height);
-  	testFBO->SetColor(0.0f,1.0f,0.0f);
-  	testFBO->End();*/
-
-    /*Math::Mat4 transform = Math::Mat4::Identity;
-    TexturedQuadBatch* qb = new TexturedQuadBatch(1024, &transform, "data/test.png");
-    
-    qb->Begin();
-    qb->AddCentered(400, 400, 100, 100);
-    qb->SetColor(1.0f, 0.0f, 0.0f);
-    transform.Translate(-200.0f, 0.0f, 0.0f);
-    qb->AddCentered(400, 400, 50, 50);
-    qb->End();*/
     
     gfx->SetViewport(0, 0, texsize, texsize);
     Math::Mat4 prjmat = Math::Mat4::Ortho(0, texsize, texsize, 0, 1.0f, -1.0f);
     gfx->SetProjection(&prjmat);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
 
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -122,25 +180,17 @@ int main(int argc, char** argv)
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER,0.1f);
     
-    unsigned char ttf_buffer[1<<20];
-    unsigned char temp_bitmap[texsize*4*texsize];
-
-    uint char_range[2];
-    char_range[0] = 0;
-    char_range[1] = 256;
-
-    stbtt_bakedchar cdata[char_range[1] - char_range[0]]; // ASCII 32..126 is 95 glyphs
-    GLuint ftex;
     
-     fread(ttf_buffer, 1, 1<<20, fopen(argv[4], "rb"));
-     stbtt_BakeFontBitmap(ttf_buffer,0, fontsize, temp_bitmap,texsize*2,texsize*2, char_range[0],char_range[1] - char_range[0], cdata); // no guarantee this fits!
-     // can free ttf_buffer at this point
-     glGenTextures(1, &ftex);
-     glBindTexture(GL_TEXTURE_2D, ftex);
-     glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texsize*2,texsize*2, 0, GL_ALPHA, GL_UNSIGNED_BYTE, temp_bitmap);
-     // can free temp_bitmap at this point
-     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // generate font
+    unsigned char temp_bitmap[texsize*texsize];
+    gen_bitmapdata(temp_bitmap, texsize, fontsize, blocksize, argv[4]);
+    GLuint ftex;
+    glGenTextures(1, &ftex);
+    glBindTexture(GL_TEXTURE_2D, ftex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texsize,texsize, 0, GL_ALPHA, GL_UNSIGNED_BYTE, temp_bitmap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+/*
 
      float x = blocksize / 2.0f;
      float y = blocksize / 2.0f;
@@ -156,16 +206,12 @@ int main(int argc, char** argv)
       {
             stbtt_aligned_quad q;
             float tx = 0, ty = 0;
-            stbtt_GetBakedQuad(cdata, texsize*2,texsize*2, i, &tx,&ty,&q,1);
+            stbtt_GetBakedQuad(cdata, texsize,texsize, i, &tx,&ty,&q,1);
             float w,h;
             w = q.x1 - q.x0;
             h = q.y1 - q.y0;
             
             qb->SetTextureSubset(q.s0,q.t0,q.s1,q.t1);
-            /*qb->AddFreeform(q.x0,q.y0,
-                            q.x1,q.y0,
-                            q.x1,q.y1,
-                            q.x0,q.y1);*/
             qb->AddCentered((int)x,(int)y,(int)w,(int)h);
                             
             x += posstep;
@@ -176,7 +222,7 @@ int main(int argc, char** argv)
             }
       }
       qb->End();
-    
+    */
 
     while(win->IsOpen())
     {
@@ -189,9 +235,10 @@ int main(int argc, char** argv)
 		
       glClear(GL_COLOR_BUFFER_BIT);
   		//gfx->BindTexture(tex0);
-  		//outFBO->Draw();
   		glBindTexture(GL_TEXTURE_2D, ftex);
-  		qb->Draw();
+  		outFBO->Draw();
+  		//glBindTexture(GL_TEXTURE_2D, ftex);
+  		//qb->Draw();
       win->Swap();
     }
     
