@@ -3,15 +3,17 @@
 
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Graphics/DeviceResource.h>
+#include <Pxf/Graphics/VertexBuffer.h>
 
 namespace Pxf {
 	namespace Graphics {
-		class VertexBuffer;
 
 		class Model : public Graphics::DeviceResource
 		{
 		protected:
 			VertexBuffer* m_VertexBuffer;
+			
+			virtual bool Init() { return true; }
 		public:
 			Model(GraphicsDevice* _pDevice)
 				: Graphics::DeviceResource(_pDevice)
@@ -21,6 +23,7 @@ namespace Pxf {
 			//virtual void LoadData(Chunk* _Data) = 0;
 
 			virtual bool Unload() = 0;
+			virtual void Draw() = 0;
 		};
 	}
 }

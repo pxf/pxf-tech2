@@ -27,18 +27,25 @@ bool ModelGL2::Load(const char* _FilePath)
 		return false;
 	}
 
-	/*
-	if(m_VertexBuffer)
-		delete m_VertexBuffer;
-		*/
-	//VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag);
-	//m_VertexBuffer = new Graphics::VertexBufferGL2(m_pDevice,??,??);
+	Resource::Mesh::mesh_descriptor md = (*mesh->GetData());
+
+	m_VertexBuffer = GetDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
+	m_VertexBuffer->CreateFromBuffer((void*) md.vertices,md.vertex_count,3);
 
 	return true;
 }
 
 bool ModelGL2::Unload()
 {
-
+	m_VertexCount = 0;
+	Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DestroyVertexBuffer(m_VertexBuffer);
 	return true;
+}
+
+void ModelGL2::Draw()
+{
+	if(m_VertexCount <= 0)
+		return;
+
+	Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DrawBuffer(m_VertexBuffer, m_VertexCount);
 }

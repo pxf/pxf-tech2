@@ -24,8 +24,6 @@ namespace Modules {
 		{ }
 		
 		virtual ~OpenCTMMesh() { }
-
-		virtual void SetData(unsigned int _VertCount, unsigned int _TriCount,const float* _Vertices, const unsigned int* _Indices,const float* _Normals);
 	};
 
 	class CtmMeshLoader : public Resource::ResourceLoader

@@ -97,8 +97,6 @@ int main()
 	}";
 	Graphics::Shader* test_shader = gfx->CreateShader("test_shader", vertex_program, fragment_program);
 
-	Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
-
     // FBO tests
 	/*Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
 	Graphics::RenderBuffer* pBuf0 = gfx->CreateRenderBuffer(GL_DEPTH_COMPONENT,spec.Width,spec.Height);
@@ -153,6 +151,8 @@ int main()
     LuaApp* app = new LuaApp(win, "data/editor.lua");
     app->Boot();
     bool running = true;
+
+	Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
 
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
