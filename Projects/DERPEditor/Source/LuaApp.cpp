@@ -3,6 +3,7 @@
 #include <Pxf/Modules/pri/OpenGL.h>
 
 #include "AppCoreLib.h"
+#include "AppInputLib.h"
 #include "AppGraphicsLib.h"
 
 #define LOCAL_MSG "LuaApp"
@@ -375,8 +376,9 @@ void LuaApp::_register_own_callbacks()
     lua_setglobal (L, LUAAPP_TABLE);
         
     // Register subsystems
-    luaopen_appgraphics(L);
     luaopen_appcore(L);
+    luaopen_appinput(L);
+    luaopen_appgraphics(L);
 	/*Vec2::RegisterClass(L);
     GraphicsSubsystem::RegisterClass(L);
     ResourcesSubsystem::RegisterClass(L);

@@ -8,6 +8,11 @@ for k,v in pairs(gfx) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
 end
 
+print("inp has:")
+for k,v in pairs(inp) do
+  print("        " .. tostring(k) .. " : " .. tostring(v))
+end
+
 function split(str, pat)
    local t = {}  -- NOTE: use {n = 0} in Lua-5.0
    local fpat = "(.-)" .. pat
@@ -39,7 +44,7 @@ error_lines = {}
 function _runtimeerror(str)
   error_text = str
   str = "aoeae åäö ÅÄÖ ".. str
-  local fancy = string.gsub(str, "(%d+)", "^4%1^r")
+  local fancy = str--string.gsub(str, "(%d+)", "^4%1^r")
   fancy = string.gsub(fancy, "(\t)", "    ")
   error_lines = split(fancy, '\n+')
   print(" -- Runtime Error-- \n" .. str)
@@ -51,11 +56,12 @@ function draw_runtimeerror()
   gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
   gfx.setcolor(1,1,1)
   gfx.drawcentered(400,300,512,256)
-  draw_text_box(error_lines, 400 - 230, 300 - 42, 500, 100, 2, 1)
+  panic.text_box(error_lines, 400 - 230, 300 - 42, 500, 100, 4, 1)
 end
 
--- font system
-function draw_text(str, x, y)
+-- debug text drawing system
+panic = {}
+function panic.text(str, x, y)
   
   gfx.bindtexture(font)
   local r,g,b = gfx.getcolor()
@@ -126,11 +132,13 @@ function draw_text(str, x, y)
 	gfx.setcolor(r,g,b)
 end
 
-function draw_text_box(strs, x, y, w, h, sx, sy) -- sx, sy = scrollx, scrolly
+function panic.text_box(strs, x, y, w, h, sx, sy) -- sx, sy = scrollx, scrolly
   local ylines = 0
+  local max_len = math.floor(w / 8)
   for k,v in pairs(strs) do
-    local l = v:sub(sx, w / 8)
-    draw_text(l, x, y+ylines)
+    local l = v:sub(sx)
+    l = l:sub(1, max_len)
+    panic.text(l, x, y+ylines)
     ylines = ylines + 12
   end
 end
