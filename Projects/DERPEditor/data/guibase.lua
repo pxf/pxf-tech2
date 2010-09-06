@@ -71,6 +71,20 @@ function gui:create_testwidget(x,y,w,h)
                      self.hitbox.w, self.hitbox.h)
   end
   
+  function wid:mousepush(mx,my)
+    
+  end
+  
+  function wid:mouserelease(mx,my)
+    print("clicked on this awesome widget")
+  end
+  
+  function wid:mousedrag(dx,dy)
+    if (not (dx == 0)) or (not (dy == 0)) then
+      print("draging!! " .. tostring(dx) .. " " .. tostring(dy) )
+    end
+  end
+  
   return wid
 end
 
@@ -98,14 +112,32 @@ function gui:update()
     if (not self.mouse.pushed) then
       --self.activewidget
       self.activewidget = self.widgets:find_mousehit(mx,my)
-      --self.activewidget:mouse_push(mx,my)
+      
+      if (self.activewidget.mousepush) then
+        self.activewidget:mousepush(mx,my)
+      end
+      
       print("new active widget: " .. tostring(self.activewidget))
+    else
+      -- we might have a drag operation on our hands!
+      
+      if (self.activewidget.mousedrag) then
+        self.activewidget:mousedrag(mx-self.mouse.lastpos.x, my-self.mouse.lastpos.y)
+      end
     end
     
+    self.mouse.lastpos.x = mx
+    self.mouse.lastpos.y = my
     self.mouse.pushed = true
   else
     -- if mouse button was released
     if (self.mouse.pushed) then
+      
+      if (self.activewidget) then
+        if (self.activewidget.mouserelease) then
+          self.activewidget:mouserelease(mx,my)
+        end
+      end
       
       self.activewidget = nil
       -- TODO: No more active widget... aoeaoe
