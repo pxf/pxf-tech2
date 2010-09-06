@@ -71,17 +71,19 @@ function gui:create_testwidget(x,y,w,h)
                      self.hitbox.w, self.hitbox.h)
   end
   
-  function wid:mousepush(mx,my)
+  function wid:mousepush(mx,my,button)
     
   end
   
-  function wid:mouserelease(mx,my)
+  function wid:mouserelease(mx,my,button)
     print("clicked on this awesome widget")
   end
   
-  function wid:mousedrag(dx,dy)
-    if (not (dx == 0)) or (not (dy == 0)) then
-      print("draging!! " .. tostring(dx) .. " " .. tostring(dy) )
+  function wid:mousedrag(dx,dy,button)
+    if (button == inp.MOUSE_MIDDLE) then
+      if (not (dx == 0)) or (not (dy == 0)) then
+        print("draging!! " .. tostring(dx) .. " " .. tostring(dy) )
+      end
     end
   end
   
@@ -93,7 +95,7 @@ end
 
 function gui:init()
   self.themetex = gfx.loadtexture("data/consolefont.png")
-  self.mouse = {pushed = false, lastpos = {x=0,y=0}}
+  self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
   self.activewidget = nil
   
@@ -105,8 +107,22 @@ end
 function gui:update()
   -- this should be called each app update
   
+  -- mouse operations on widgets
   local mx,my = inp.getmousepos()
-  if (inp.isbuttondown(inp.MOUSE_LEFT)) then
+  if (inp.isbuttondown(inp.MOUSE_LEFT) or
+      inp.isbuttondown(inp.MOUSE_RIGHT) or
+      inp.isbuttondown(inp.MOUSE_MIDDLE)) then
+    
+    -- different button than before?
+    if (self.buttonid) then
+      if inp.isbuttondown(inp.MOUSE_LEFT) then
+        self.buttonid = inp.MOUSE_LEFT
+      elseif inp.isbuttondown(inp.MOUSE_RIGHT) then
+        self.buttonid = inp.MOUSE_RIGHT
+      else
+        self.buttonid = inp.MOUSE_MIDDLE
+      end
+    end
     
     -- if we weren't pushing before, find new active widget
     if (not self.mouse.pushed) then
@@ -114,7 +130,7 @@ function gui:update()
       self.activewidget = self.widgets:find_mousehit(mx,my)
       
       if (self.activewidget.mousepush) then
-        self.activewidget:mousepush(mx,my)
+        self.activewidget:mousepush(mx,my,self.buttonid)
       end
       
       print("new active widget: " .. tostring(self.activewidget))
@@ -122,7 +138,7 @@ function gui:update()
       -- we might have a drag operation on our hands!
       
       if (self.activewidget.mousedrag) then
-        self.activewidget:mousedrag(mx-self.mouse.lastpos.x, my-self.mouse.lastpos.y)
+        self.activewidget:mousedrag(mx-self.mouse.lastpos.x, my-self.mouse.lastpos.y,self.buttonid)
       end
     end
     
@@ -135,7 +151,7 @@ function gui:update()
       
       if (self.activewidget) then
         if (self.activewidget.mouserelease) then
-          self.activewidget:mouserelease(mx,my)
+          self.activewidget:mouserelease(mx,my,self.buttonid)
         end
       end
       
@@ -143,6 +159,7 @@ function gui:update()
       -- TODO: No more active widget... aoeaoe
       
       self.mouse.pushed = false
+      self.buttonid = nil
     end
     
   end
