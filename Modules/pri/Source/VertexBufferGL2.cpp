@@ -206,6 +206,7 @@ void VertexBufferGL2::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32
 	{
 		// Copy to gpu memory
 		GLuint usage = LookupUsageFlag(m_VertexBufferUsageFlag);
+		GL::GenBuffers(1, (GLuint*)&m_BufferObjectId);
 		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
 		GL::BufferData(GL::ARRAY_BUFFER, _NumVertices * _VertexSize, _Buffer, usage);
 		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
@@ -246,6 +247,7 @@ void* VertexBufferGL2::MapData(VertexBufferAccessFlag _AccessFlag)
 		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
 		void* data = GL::MapBuffer(GL::ARRAY_BUFFER, access);
 		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
+		m_IsMapped = true;
 		return data;
 	}
 	else if (m_VertexBufferLocation == VB_LOCATION_SYS && m_InterleavedData != 0)
