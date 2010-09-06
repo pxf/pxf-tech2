@@ -35,17 +35,14 @@ int main()
     kernel->RegisterModule("pri", 0xFFFF, true);
     kernel->RegisterModule("img", 0xFFFF, true);
 	kernel->RegisterModule("mesh", 0xFFFF, true);
+	kernel->RegisterModule("snd", 0xFFFF, true);
     kernel->DumpAvailableModules();
 
     Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
     Audio::AudioDevice* snd = kernel->GetAudioDevice();
     Input::InputDevice* inp = kernel->GetInputDevice();
     Resource::ResourceManager* res = kernel->GetResourceManager();
-
-
     res->DumpResourceLoaders();
-
-    snd->Play(2);
 
     Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
     Resource::Blob* blob = loader->CreateFrom("aoeu", 5);

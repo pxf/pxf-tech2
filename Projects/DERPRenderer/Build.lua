@@ -6,6 +6,8 @@ project = NewProject("DERPRenderer")
 --project.settings.static = True
 project:RequireModule("pri")
 project:RequireModule("img")
+project:RequireModule("mesh")
+project:RequireModule("snd")
 project:AddIncludeDirectory("Include/")
 project:AddSourceDirectory("Source/*.cpp")
 project:Build()
