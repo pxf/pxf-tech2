@@ -7,6 +7,11 @@
 namespace Pxf
 {
     class Kernel;
+	namespace Resource
+	{
+		class Sound;
+	}
+
     namespace Audio
     {
         class AudioDevice : public Pxf::System
@@ -16,7 +21,14 @@ namespace Pxf
             : Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_AUDIODEVICE, _Identifier)
         {}
         
-        //unsigned RegisterSound(const Resource::Sound* _Sound) = 0;
+        virtual int RegisterSound(const Resource::Sound* _Sound) = 0;
+		virtual int GetSoundID(const Resource::Sound* _Sound) = 0;
+		virtual void UnregisterSound(int _Id) = 0;
+		inline void UnregisterSound(const Resource::Sound* _Sound)
+		{
+			UnregisterSound(GetSoundID(_Sound));
+		}
+
         virtual void Play(unsigned int _SoundID) = 0;
         virtual void Stop(unsigned int _SoundID) = 0;
         virtual void StopAll() = 0;
