@@ -114,7 +114,7 @@ function gui:update()
       inp.isbuttondown(inp.MOUSE_MIDDLE)) then
     
     -- different button than before?
-    if (self.buttonid) then
+    if (self.buttonid == nil) then
       if inp.isbuttondown(inp.MOUSE_LEFT) then
         self.buttonid = inp.MOUSE_LEFT
       elseif inp.isbuttondown(inp.MOUSE_RIGHT) then
