@@ -18,6 +18,7 @@ namespace Pxf
 			{ if(!Init()) Message("ModelGL2","Unable to initialize model"); }
 
 			bool Load(const char* _FilePath);
+			bool ModelGL2::Unload();
 		};
 	}
 }

@@ -8,7 +8,7 @@ namespace Pxf {
 	namespace Graphics {
 		class VertexBuffer;
 
-		class Model : Graphics::DeviceResource
+		class Model : public Graphics::DeviceResource
 		{
 		protected:
 			VertexBuffer* m_VertexBuffer;
@@ -19,6 +19,8 @@ namespace Pxf {
 
 			virtual bool Load(const char* _FilePath) = 0;
 			//virtual void LoadData(Chunk* _Data) = 0;
+
+			virtual bool Unload() = 0;
 		};
 	}
 }

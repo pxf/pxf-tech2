@@ -68,7 +68,9 @@ int main()
     shader->SetBlahBlah();
     */
 
-	Resource::Mesh* mesh01 = res->Acquire<Resource::Mesh>("data/test.ctm");
+	//Resource::Mesh* mesh01 = res->Acquire<Resource::Mesh>("data/test.ctm");
+
+
 
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
@@ -95,6 +97,7 @@ int main()
 	}";
 	Graphics::Shader* test_shader = gfx->CreateShader("test_shader", vertex_program, fragment_program);
 
+	Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
 
     // FBO tests
 	/*Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
