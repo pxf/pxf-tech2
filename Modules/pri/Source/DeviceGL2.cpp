@@ -6,6 +6,7 @@
 #include <Pxf/Modules/pri/RenderBufferGL2.h>
 #include <Pxf/Modules/pri/FrameBufferObjectGL2.h>
 #include <Pxf/Modules/pri/ShaderGLSL.h>
+#include <Pxf/Modules/pri/ModelGL2.h>
 //#include <Pxf/Input/OpenGL/InputGL2.h>
 #include <Pxf/Base/Debug.h>
 
@@ -144,6 +145,13 @@ Texture* DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
     	glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
     }
     return ret;
+}
+
+Model* DeviceGL2::CreateModel(const char* _FilePath)
+{
+	ModelGL2* _NewModel = new ModelGL2(this);
+	_NewModel->Load(_FilePath);
+	return _NewModel;
 }
 
 VertexBuffer* DeviceGL2::CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)

@@ -173,6 +173,9 @@
     <ClCompile Include="..\..\Modules\mesh\Source\mesh.cpp">
       <Filter>Modules\mesh</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\ModelGL2.cpp">
+      <Filter>Modules\pri\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">
@@ -316,9 +319,6 @@
     <ClInclude Include="Include\QuadBatch.h">
       <Filter>Editor\Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\Pxf\Resource\Model.h">
-      <Filter>Framework\Header Files\Pxf\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h">
       <Filter>Modules\pri\include</Filter>
     </ClInclude>
@@ -360,6 +360,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Modules\mesh\Include\Pxf\Modules\mesh\MeshLoader.h">
       <Filter>Modules\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Resource\Mesh.h">
+      <Filter>Framework\Header Files\Pxf\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\ModelGL2.h">
+      <Filter>Modules\pri\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

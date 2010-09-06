@@ -25,6 +25,7 @@ namespace Pxf
 		class RenderBuffer;
 		class FrameBufferObject;
 		class Shader;
+		class Model;
 		
 		class GraphicsDevice : public System
 		{
@@ -57,6 +58,10 @@ namespace Pxf
 			virtual void DestroyVertexBuffer(VertexBuffer* _pVertexBuffer) = 0;
 			virtual void DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount) = 0;
 			
+			// Model
+			virtual Model* CreateModel(const char* _FilePath) = 0;
+
+			// Buffers
 			virtual RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height) = 0;
 			virtual void DestroyRenderBuffer(RenderBuffer* _pRenderBuffer) = 0;
 			virtual void BindRenderBuffer(RenderBuffer* _pRenderBuffer) = 0;

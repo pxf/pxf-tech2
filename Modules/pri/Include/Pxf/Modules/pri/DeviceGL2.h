@@ -16,6 +16,7 @@ namespace Pxf{
 		class RenderBuffer;
 		class FrameBufferObject;
 		class Shader;
+		class Model;
     }
 	namespace Modules {
 		class DeviceGL2 : public Graphics::GraphicsDevice
@@ -39,6 +40,8 @@ namespace Pxf{
 			Graphics::Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
+
+			Graphics::Model* CreateModel(const char* _FilePath);
 
 			Graphics::VertexBuffer* CreateVertexBuffer(Graphics::VertexBufferLocation _VertexBufferLocation, Graphics::VertexBufferUsageFlag _VertexBufferUsageFlag);
 			void DestroyVertexBuffer(Graphics::VertexBuffer* _pVertexBuffer);
