@@ -17,7 +17,22 @@ namespace Pxf
         NullAudioDevice(Pxf::Kernel* _Kernel)
             : Pxf::Audio::AudioDevice(_Kernel, "Null Audio Device")
         {}
-        
+
+		virtual int RegisterSound(const Resource::Sound* _Sound)
+		{
+			return -1;
+		}
+
+		virtual int GetSoundID(const Resource::Sound* _Sound)
+		{
+			return -1;
+		}
+
+		virtual void UnregisterSound(int _Id)
+		{
+
+		}
+
         virtual void Play(unsigned int _SoundID)
         {}
         virtual void Stop(unsigned int _SoundID)
