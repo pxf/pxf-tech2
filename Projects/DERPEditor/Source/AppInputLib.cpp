@@ -60,7 +60,7 @@ int DERPEditor::inp_isbuttonup(lua_State *L) {
   if (lua_gettop(L) == 1)
   {
     Pxf::Input::InputDevice* inp = Pxf::Kernel::GetInstance()->GetInputDevice();
-    lua_pushboolean(L, inp->IsButtonUp(lua_tonumber(L, 1)));
+    lua_pushboolean(L, !(inp->IsButtonDown(lua_tonumber(L, 1))));
     return 1;
     
   } else {
