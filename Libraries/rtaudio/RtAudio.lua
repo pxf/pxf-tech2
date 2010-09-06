@@ -7,6 +7,7 @@ if family == "unix" then
         library:AddSystemFramework("AudioToolbox")
         library:AddSystemFramework("CoreAudio")
         library:AddSystemFramework("AudioUnit")
+        library:AddSystemFramework("Carbon")
         library:AddDefine("__MACOSX_CORE__")
     else
         library:AddSystemLibrary("asound")
