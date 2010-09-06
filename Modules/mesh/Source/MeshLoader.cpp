@@ -13,6 +13,7 @@ bool OpenCTMMesh::Build()
 	return true;
 }
 
+/*
 void OpenCTMMesh::SetData(unsigned int _VertCount, unsigned int _TriCount,const float* _Vertices,const unsigned int* _Indices,const float* _Normals)
 {
 	m_MeshData.vertex_count = _VertCount;
@@ -23,7 +24,7 @@ void OpenCTMMesh::SetData(unsigned int _VertCount, unsigned int _TriCount,const 
 
 	if(_Normals)
 		m_MeshData.has_normals = true;
-}
+}*/
 
 CtmMeshLoader::CtmMeshLoader(Pxf::Kernel* _Kernel)
 	: ResourceLoader(_Kernel, "Ctm Mesh Loader")
@@ -65,6 +66,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		// no errors found
 		CTMuint _VertCount			= 0;
 		CTMuint	_TriCount			= 0;
+		int	_UVMapCount				= 0;
 		const CTMuint*	_Indices	= 0;
 		const CTMfloat* _Vertices	= 0;
 		const CTMfloat* _Normals	= 0;
@@ -74,6 +76,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		_Vertices = ctmGetFloatArray(m_Context, CTM_VERTICES);
 		_TriCount = ctmGetInteger(m_Context, CTM_TRIANGLE_COUNT);
 		_Indices = ctmGetIntegerArray(m_Context, CTM_INDICES);
+		_UVMapCount = ctmGetInteger(m_Context, CTM_UV_MAP_COUNT);
 
 		if(ctmGetInteger(m_Context, CTM_HAS_NORMALS) == CTM_TRUE)
 		{
@@ -82,7 +85,17 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		}
 
 		OpenCTMMesh* _NewMesh = new OpenCTMMesh(_Chunk,this);
-		_NewMesh->SetData(_VertCount,_TriCount,_Vertices,_Indices,_Normals);
+
+		Resource::Mesh::mesh_descriptor _Data;
+		_Data.has_normals = _HasNormals;
+		_Data.has_normals = false;
+		_Data.vertex_count = _VertCount;
+		_Data.triangle_count = _TriCount;
+		_Data.vertices = _Vertices;
+		_Data.normals = _Normals;
+		_Data.indices= _Indices;
+
+		_NewMesh->SetData(_Data);
 		Message(LOCAL_MSG,"Finished loading model %s", _FilePath);
 
 		return _NewMesh;

@@ -10,7 +10,16 @@ namespace Pxf
 	{
 		class ModelGL2 : public Graphics::Model
 		{
+		public:
+			struct ModelGL2Vertex
+			{
+
+
+			};
+
 		private:
+			unsigned m_VertexCount;
+
 			bool Init();
 		public:
 			ModelGL2(Graphics::GraphicsDevice* _pDevice)
@@ -18,6 +27,9 @@ namespace Pxf
 			{ if(!Init()) Message("ModelGL2","Unable to initialize model"); }
 
 			bool Load(const char* _FilePath);
+			bool Unload();
+
+			void Draw();
 		};
 	}
 }

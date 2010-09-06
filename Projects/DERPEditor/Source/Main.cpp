@@ -12,6 +12,7 @@
 #include <Pxf/Graphics/RenderBuffer.h>
 #include <Pxf/Graphics/FrameBufferObject.h>
 #include <Pxf/Graphics/Shader.h>
+#include <Pxf/Graphics/Model.h>
 
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/String.h>
@@ -68,7 +69,9 @@ int main()
     shader->SetBlahBlah();
     */
 
-	Resource::Mesh* mesh01 = res->Acquire<Resource::Mesh>("data/test.ctm");
+	//Resource::Mesh* mesh01 = res->Acquire<Resource::Mesh>("data/test.ctm");
+
+
 
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
@@ -94,7 +97,6 @@ int main()
 	gl_FragColor = vec4(0, 1, 0, 1); \
 	}";
 	Graphics::Shader* test_shader = gfx->CreateShader("test_shader", vertex_program, fragment_program);
-
 
     // FBO tests
 	/*Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
@@ -151,6 +153,8 @@ int main()
     app->Boot();
     bool running = true;
 
+	Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
+
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
         inp->Update();
@@ -165,7 +169,7 @@ int main()
 		//gfx->BindTexture(tex0);
 		//testFBO->Draw();
 
-        
+        //test_model->Draw();
     }
     
     delete app;

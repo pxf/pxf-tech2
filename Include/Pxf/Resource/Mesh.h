@@ -11,6 +11,17 @@ namespace Resource {
 	public:
 		struct mesh_descriptor 
 		{
+			mesh_descriptor() { }
+			mesh_descriptor(const mesh_descriptor &cpy) 
+			{
+				has_normals = cpy.has_normals;
+				vertex_count = cpy.vertex_count;
+				triangle_count = cpy.triangle_count;
+				vertices = cpy.vertices;
+				normals = cpy.normals;
+				indices = cpy.indices;
+			}
+
 			bool has_normals;
 			int vertex_count;
 			int triangle_count;
@@ -41,6 +52,9 @@ namespace Resource {
 		{
 			return m_MeshData.vertices && !(m_MeshData.has_normals ^ (m_MeshData.normals == 0)) && m_MeshData.indices;
 		}
+
+		mesh_descriptor* GetData() { return &m_MeshData; }
+		void SetData(const mesh_descriptor &_Data) { m_MeshData = _Data; }
 	};
 
 } // Resource
