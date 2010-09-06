@@ -68,7 +68,7 @@ int main()
     shader->SetBlahBlah();
     */
 
-	Resource::Mesh* model01 = res->Acquire<Resource::Mesh>("data/test.ctm");
+	Resource::Mesh* mesh01 = res->Acquire<Resource::Mesh>("data/test.ctm");
 
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
