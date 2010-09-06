@@ -162,6 +162,11 @@ bool LuaApp::Reboot()
   return Boot();
 }
 
+void LuaApp::Shutdown()
+{
+  m_Shutdown = true;
+}
+
 
 bool LuaApp::Update()
 {

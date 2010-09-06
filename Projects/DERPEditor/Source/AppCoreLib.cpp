@@ -1,5 +1,53 @@
 #include "AppCoreLib.h"
 
+
+int DERPEditor::app_getwindimensions(lua_State *L)
+{
+  // w,h = app.getwindimensions() -- w,h = width and height of window
+  if (lua_gettop(L) == 0)
+  {
+    Pxf::Graphics::Window* wnd = LuaApp::GetInstance()->m_win;
+    lua_pushnumber(L, wnd->GetWidth());
+    lua_pushnumber(L, wnd->GetHeight());
+    return 2;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to getwindimensions function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::app_reboot(lua_State *L)
+{
+  // app.reboot() -- reboots the application
+  if (lua_gettop(L) == 0)
+  {
+    LuaApp::GetInstance()->Reboot();
+    return 0;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to reboot function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::app_quit(lua_State *L)
+{
+  // app.quit() -- quits the application
+  if (lua_gettop(L) == 0)
+  {
+    LuaApp::GetInstance()->Shutdown();
+    return 0;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to quit function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 /*
  * Below is a modified version of the debug.traceback function shipped with Lua.
  */
@@ -73,7 +121,10 @@ int DERPEditor::app_traceback(lua_State *L) {
 
 int DERPEditor::luaopen_appcore (lua_State *L) {
   const luaL_reg appcorelib[] = {
+    {"reboot",   app_reboot},
+    {"quit",   app_quit},
     {"traceback",   app_traceback},
+    {"getwindimensions",   app_getwindimensions},
     {NULL, NULL}
     };
   

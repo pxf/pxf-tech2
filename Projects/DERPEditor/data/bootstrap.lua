@@ -13,6 +13,9 @@ for k,v in pairs(inp) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
 end
 
+-- store window dimensions for later use
+app.width, app.height = app.getwindimensions()
+
 function split(str, pat)
    local t = {}  -- NOTE: use {n = 0} in Lua-5.0
    local fpat = "(.-)" .. pat
@@ -30,6 +33,20 @@ function split(str, pat)
       table.insert(t, cap)
    end
    return t
+end
+
+function point_hittest(px,py, x0,y0, x1,y1 )
+  if px < x0 then
+    return false
+  elseif px > x1 then
+    return false
+  elseif py < y0 then
+    return false
+  elseif py > y1 then
+    return false
+  end
+  
+  return true
 end
 
 
@@ -149,6 +166,35 @@ function _update()
     update()
   else
     gfx.redrawneeded()
+    
+    -- check hit test on buttons
+    if (inp.isbuttondown(inp.MOUSE_LEFT)) then
+      -- button table
+      local runtimebuttons = {cont = {hb = {app.width/2-225, app.height/2+80, 72, 26},
+                                      action = function ()
+                                                 error_stop = false
+                                               end
+                                     },
+                              reboot = {hb = {app.width/2-144, app.height/2+80, 128, 26},
+                                      action = function ()
+                                                  app.reboot()
+                                               end
+                                     },
+                              quit = {hb = {app.width/2+171, app.height/2+80, 56, 26},
+                                      action = function ()
+                                                  app.quit()
+                                               end
+                                  }
+                             }
+    
+      -- loop buttons and perform hittest
+      local mx,my = inp.getmousepos()
+      for k,v in pairs(runtimebuttons) do
+        if (point_hittest(mx,my, v.hb[1], v.hb[2], v.hb[1] + v.hb[3], v.hb[2] + v.hb[4])) then
+          v.action()
+        end
+      end
+    end
   end
 end
 
