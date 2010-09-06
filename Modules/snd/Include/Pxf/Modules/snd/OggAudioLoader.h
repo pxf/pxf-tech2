@@ -35,9 +35,9 @@ namespace Modules {
     public:
         OggAudioLoader(Pxf::Kernel* _Kernel);
         ~OggAudioLoader();
-        virtual Resource::Sound* Load(const char* _FilePath);
-		virtual Resource::Sound* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        virtual void Destroy(void* _Resource)
+        Resource::Sound* Load(const char* _FilePath);
+		Resource::Sound* CreateFrom(const void* _DataPtr, unsigned _DataLen);
+        void Destroy(void* _Resource)
         {
             if (_Resource)
                 delete (Resource::Sound*)_Resource;

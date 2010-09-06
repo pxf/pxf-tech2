@@ -37,17 +37,13 @@ Resource::ResourceManager::~ResourceManager()
         }
     }
 
-	ResourceLoader* prev = 0;
     if (m_ResourceLoaders->size() > 0)
     {
         Util::Map<Util::String, ResourceLoader*>::iterator iter;
         for(iter = m_ResourceLoaders->begin(); iter != m_ResourceLoaders->end(); ++iter)
         {
-			if (iter->second && iter->second != prev)
-			{
+			if (iter->second)
 				iter->second->Destroy(iter->second);
-			}
-			prev = iter->second;
         }
     }
 }

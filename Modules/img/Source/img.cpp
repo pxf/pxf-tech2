@@ -37,10 +37,10 @@ bool Pxf::Modules::GenericImageImporter::RegisterSystem(Pxf::Kernel* _Kernel, un
 {
     if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
     {
-        Pxf::Modules::GenericImageLoader* loader = new Pxf::Modules::GenericImageLoader(_Kernel);
-        _Kernel->RegisterResourceLoader("png", loader);
-        _Kernel->RegisterResourceLoader("jpg", loader);
-        _Kernel->RegisterResourceLoader("jpeg", loader);
+        Pxf::Modules::GenericImageLoader* png_loader = new Pxf::Modules::GenericImageLoader(_Kernel);
+		Pxf::Modules::GenericImageLoader* jpg_loader = new Pxf::Modules::GenericImageLoader(_Kernel);
+        _Kernel->RegisterResourceLoader("png", png_loader);
+        _Kernel->RegisterResourceLoader("jpg", jpg_loader);
         return true;
     }
     
