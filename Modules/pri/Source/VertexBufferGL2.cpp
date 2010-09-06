@@ -202,7 +202,7 @@ void VertexBufferGL2::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32
 	if (m_InterleavedData != 0 && m_BufferObjectId != 0)
 		return;
 
-	if (m_VertexBufferUsageFlag == VB_LOCATION_GPU)
+	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
 		// Copy to gpu memory
 		GLuint usage = LookupUsageFlag(m_VertexBufferUsageFlag);
