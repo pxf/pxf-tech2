@@ -37,7 +37,6 @@ namespace PortableRenderInput_
 bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
 	bool retval = false;
-    Message("PortableRendererInput", "Checking module for system type %d", _SystemType);
     
     if (_SystemType & Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE)
     {

@@ -5,6 +5,7 @@
 #include <Pxf/Base/Utils.h>
 
 #include <Pxf/Audio/AudioDevice.h>
+#include <Pxf/Input/InputDevice.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
@@ -20,10 +21,6 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 
-
-
-#include <enet/enet.h>
-
 #include <ctime>
 
 using namespace Pxf;
@@ -34,15 +31,17 @@ int main()
     Pxf::RandSetSeed(time(NULL));
     Kernel* kernel = Pxf::Kernel::GetInstance();
 
-    kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, true);
-    kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
+	// Just load everything
+    kernel->RegisterModule("pri", 0xFFFF, true);
+    kernel->RegisterModule("img", 0xFFFF, true);
+	kernel->RegisterModule("mesh", 0xFFFF, true);
     kernel->DumpAvailableModules();
 
     Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
     Audio::AudioDevice* snd = kernel->GetAudioDevice();
     Input::InputDevice* inp = kernel->GetInputDevice();
     Resource::ResourceManager* res = kernel->GetResourceManager();
-    Resource::Image* img = res->Acquire<Resource::Image>("test.png");
+
 
     res->DumpResourceLoaders();
 
@@ -65,15 +64,18 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
-    while(win->IsOpen())
+	while(win->IsOpen() && inp->GetLastKey() != Input::ESC)
     {
+		char title[512];
+		Format(title, "Renderer (fps: %d)", win->GetFPS());
+		win->SetTitle(title);
         win->Swap();
+		inp->ClearLastKey();
+		inp->Update();
     }
     
 
-    res->Release(img);
     delete kernel;
-
     return 0;
 }
 

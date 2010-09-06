@@ -1,4 +1,5 @@
 #include <Pxf/Pxf.h>
+#include <Pxf/Base/Platform.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Modules/pri/WindowGL2.h>
 #include <Pxf/Base/Debug.h>
@@ -34,8 +35,24 @@ WindowGL2::WindowGL2(WindowSpecifications *_window_spec)
 	m_vsync = _window_spec->VerticalSync;
 	m_fsaa_samples = _window_spec->FSAASamples;
 
-	// Buffer bits settings
-	m_bits_color = _window_spec->ColorBits;
+	// Colorbits
+	switch (_window_spec->ColorBits)
+	{
+	case 16:
+		m_bits_r = 5;
+		m_bits_g = 6;
+		m_bits_b = 5;
+		break;
+	case 24:
+		m_bits_r = 8;
+		m_bits_g = 8;
+		m_bits_b = 8;
+		break;
+	default:
+		Message("Window", "Could not initiate widow, invalid number of colorbits (%d)", _window_spec->ColorBits);
+	}
+
+	// Other buffer bits settings
 	m_bits_alpha = _window_spec->AlphaBits;
 	m_bits_depth = _window_spec->DepthBits;
 	m_bits_stencil = _window_spec->StencilBits;
@@ -43,7 +60,7 @@ WindowGL2::WindowGL2(WindowSpecifications *_window_spec)
 	// FPS
 	m_fps = 0;
 	m_fps_count = 0;
-	m_fps_laststamp = 0; //Platform::GetTime();
+	m_fps_laststamp = Platform::GetTime();
 }
 
 WindowGL2::~WindowGL2()
@@ -72,8 +89,22 @@ bool WindowGL2::Open()
 	
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, m_resizeable ? GL_FALSE : GL_TRUE);
 
-	if (GL_TRUE == glfwOpenWindow(m_width, m_height, m_bits_color, m_bits_color, m_bits_color, m_bits_alpha, m_bits_depth, m_bits_stencil, t_params))
+	if (GL_TRUE == glfwOpenWindow(m_width, m_height, m_bits_r, m_bits_g, m_bits_b, m_bits_alpha, m_bits_depth, m_bits_stencil, t_params))
 	{
+
+		// If we are a window, set title, and position us in the center of the screen
+		if (!m_fullscreen)
+		{
+			SetTitle("OpenGL");
+
+			GLFWvidmode m;
+			glfwGetDesktopMode(&m);
+
+			int nx = 0, ny = 0;
+			nx = (m.Width / 2) - (m_width / 2);
+			ny = (m.Height / 2) - (m_height / 2);
+			glfwSetWindowPos(nx, ny);
+		}
 
 #ifdef CONF_PLATFORM_MACOSX
 		/* HACK - Get events without bundle */
@@ -96,7 +127,12 @@ bool WindowGL2::Open()
 		// Handle window-close gracefully.
 		glfwSetWindowCloseCallback(on_window_close);
 
-		Message("Window", "Opened window of %dx%d@%d (r: %d g: %d b: %d a: %d d: %d s: %d)", m_width, m_height, m_bits_color*3+m_bits_alpha, m_bits_color, m_bits_color, m_bits_color, m_bits_alpha, m_bits_depth, m_bits_stencil);
+		Message("Window", "Opened window of %dx%d@%d (r: %d g: %d b: %d a: %d d: %d s: %d)", m_width, m_height, m_bits_r+m_bits_g+m_bits_b+m_bits_alpha, m_bits_r, m_bits_g, m_bits_b, m_bits_alpha, m_bits_depth, m_bits_stencil);
+
+		Message("Window", "OpenGL Vendor  : %s", (const char*)glGetString(GL_VENDOR));
+		Message("Window", "OpenGL Renderer: %s", (const char*)glGetString(GL_RENDERER));
+		Message("Window", "OpenGL Version : %s", (const char*)glGetString(GL_VERSION));
+		Message("Window", "GLSL Version   : %s", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 		return true;
 	}
@@ -119,9 +155,8 @@ void WindowGL2::Swap()
 {
 	if (IsOpen())
 	{
-		int64 diff;
-		int64 t_current_time = 0;//Platform::GetTime();
-		diff = t_current_time - m_fps_laststamp;
+		int64 t_current_time = Platform::GetTime();
+		int64 diff = t_current_time - m_fps_laststamp;
 		if (diff >= 1000)
 		{
 			m_fps = m_fps_count;
