@@ -7,6 +7,7 @@ if family == "unix" then
         library:AddSystemFramework("AudioToolbox")
         library:AddSystemFramework("CoreAudio")
         library:AddSystemFramework("AudioUnit")
+        library:AddSystemFramework("Carbon")
         library:AddDefine("__MACOSX_CORE__")
     else
         library:AddSystemLibrary("asound")
@@ -16,9 +17,11 @@ if family == "unix" then
 elseif family == "windows" then
         library:AddSystemLibrary("dsound")
         library:AddSystemLibrary("user32")
+        library:AddSystemLibrary("ole32")
         library:AddDefine("__WINDOWS_DS__")
 end
 
 library:AddIncludeDirectory("sdk/")
 library:AddIncludeDirectory("sdk/include")
 library:AddSourceDirectory("sdk/*.cpp")
+library:AddSourceDirectory("sdk/include/*.cpp")
