@@ -32,6 +32,9 @@ Pxf::Kernel::~Kernel()
     if (m_ResourceManager)
         delete m_ResourceManager;
  
+	if (m_AudioDevice)
+		delete m_AudioDevice;
+
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
         Pxf::Module* m = m_AvailableModules[i]->module;

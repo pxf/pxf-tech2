@@ -8,21 +8,23 @@ namespace Resource {
 	class Sound : public ResourceBase
 	{
 	protected:
-		unsigned int m_Length;
-		unsigned int m_Channels;
-		unsigned char* m_SoundData;
+		float m_Length;
+		int m_Channels;
+		short* m_SoundData;
+		unsigned m_SoundDataLen;
 
 	public:
 		Sound(Chunk* _Chunk, ResourceLoader* _Loader)
             : ResourceBase(_Chunk, _Loader)
-            , m_Length(0)
+            , m_Length(0.f)
             , m_Channels(0)
             , m_SoundData(NULL)
+			, m_SoundDataLen(0)
         {}
 		virtual ~Sound()
         {}
 
-		const unsigned int Length() const
+		const float Length() const
 		{
 			return m_Length;
 		} 
@@ -32,9 +34,14 @@ namespace Resource {
 			return m_Channels;
 		} 
 		
-		unsigned char* Ptr() const
+		short* DataPtr() const
 		{
 			return m_SoundData;
+		}
+
+		unsigned DataLen() const
+		{
+			return m_SoundDataLen;
 		}
 
 		virtual const bool IsReady() const

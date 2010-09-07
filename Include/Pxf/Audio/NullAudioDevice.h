@@ -35,7 +35,7 @@ namespace Pxf
 
 		}
 
-        virtual void Play(unsigned int _SoundID)
+        virtual void Play(unsigned int _SoundID, bool _Loop)
         {}
         virtual void Stop(unsigned int _SoundID)
         {}

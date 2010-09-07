@@ -20,6 +20,7 @@
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
+#include <Pxf/Resource/Sound.h>
 
 #include <ctime>
 
@@ -56,6 +57,12 @@ int main()
     Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
     Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
 
+	Resource::Sound* sndclip = res->Acquire<Resource::Sound>("data/semisnare.ogg");
+	Resource::Sound* sndclip2 = res->Acquire<Resource::Sound>("data/crash.ogg");
+	int id = snd->RegisterSound(sndclip);
+	int id2 = snd->RegisterSound(sndclip2);
+
+
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
     spec.Height = 600;
@@ -72,12 +79,19 @@ int main()
     
 	while(win->IsOpen() && inp->GetLastKey() != Input::ESC)
     {
+		inp->Update();
 		char title[512];
 		Format(title, "Renderer (fps: %d)", win->GetFPS());
 		win->SetTitle(title);
+
+		if (inp->GetLastButton() == Input::MOUSE_LEFT)
+			snd->Play(id);
+		else if (inp->GetLastButton() == Input::MOUSE_RIGHT)
+			snd->Play(id2);
+
         win->Swap();
 		inp->ClearLastKey();
-		inp->Update();
+		inp->ClearLastButton();
     }
     
 
