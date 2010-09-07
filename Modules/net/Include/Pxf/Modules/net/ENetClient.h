@@ -4,6 +4,8 @@
 #include <Pxf/Network/NetworkDevice.h>
 #include <Pxf/Base/Debug.h>
 
+#include <enet/enet.h>
+
 namespace Pxf 
 {
 	namespace Network
@@ -16,7 +18,12 @@ namespace Pxf
 		class ENetClient : public Pxf::Network::NetworkDevice
 		{
 		private:
-			virtual bool Init();
+			virtual bool Init()
+				{ return true; }
+
+			ENetHost *Client;
+			ENetPeer *Peer;
+			ENetAddress Address;
 		public:
 			ENetClient(Pxf::Kernel* _Kernel);
 
@@ -25,7 +32,8 @@ namespace Pxf
 			virtual bool Send(const char* _Buf, const int _Length);
 
 			/* server */
-			virtual bool Bind(const char* _Host, const int _Port);
+			virtual bool Bind(const int _Port)
+				{ return false; }
 
 			/* client */
 			virtual bool Connect(const char* _Host, const int _Port);

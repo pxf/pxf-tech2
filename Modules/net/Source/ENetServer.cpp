@@ -14,6 +14,30 @@ bool ENetServer::Recv(char* _Buf)
 {
 	ENetEvent event;
 
+	while (enet_host_service(Server, &event, 1000) >= 0)
+	{
+		switch (event.type)
+		{
+			case ENET_EVENT_TYPE_RECEIVE:
+				Message("ENetServer", "Packet.");
+				break;
+
+			case ENET_EVENT_TYPE_CONNECT:
+				Message("ENetServer", "Client connected: %x:%u.", event.peer->address.host, event.peer->address.port);
+				break;
+			
+			case ENET_EVENT_TYPE_DISCONNECT:
+				Message("ENetServer", "Client DISconnected: %s.", event.peer->data);
+				break;
+
+			case ENET_EVENT_TYPE_NONE:
+				Message("ENetServer", "Timeout.");
+				break;
+		}
+	}
+
+	Message("ENetServer", "Couldn't fetch event.");
+	return false;
 }
 
 bool ENetServer::Send(const char* _Buf, const int _Length)

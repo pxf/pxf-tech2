@@ -19,7 +19,7 @@ namespace Network
 		virtual bool Send(const char* _Buf, const int _Length) = 0;
 
 		/* server */
-		virtual bool Bind(const char* _Host, const int _Port) = 0;
+		virtual bool Bind(const int _Port) = 0;
 
 		/* client */
 		virtual bool Connect(const char* _Host, const int _Port) = 0;

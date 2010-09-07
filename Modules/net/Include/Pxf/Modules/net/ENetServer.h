@@ -19,7 +19,7 @@ namespace Pxf
 		{
 		private:
 			virtual bool Init()
-				{ return false; }
+				{ return true; }
 
 			ENetAddress Address;
 			ENetHost *Server;
