@@ -5,7 +5,9 @@ gui = {}
 
 function gui:create_basewidget(x,y,w,h)
   local wid = {
-    hitbox = {x = x, y = y, w = w, h = h, parent = nil}
+    hitbox = {x = x, y = y, w = w, h = h},
+    drawbox = {x = x, y = y, w = w, h = h},
+    parent = nil
   }
   
   -- child widget control
@@ -16,9 +18,11 @@ function gui:create_basewidget(x,y,w,h)
   end
   
   function wid:draw()
+    gfx.translate(self.drawbox.x, self.drawbox.y)
     for k,v in pairs(self.childwidgets) do
       v:draw()
     end
+    gfx.translate(-self.drawbox.x, -self.drawbox.y)
   end
   
   function wid:hittest(x0,y0,x1,y1)
@@ -39,7 +43,7 @@ function gui:create_basewidget(x,y,w,h)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
       for k,v in pairs(self.childwidgets) do
-        thit = v:find_mousehit(mx,my)
+        thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
         
         if not (thit == nil) then
           -- we hit a child widget, return this one instead
@@ -94,14 +98,14 @@ end
 -- core and setup of GUI
 
 function gui:init()
-  self.themetex = gfx.loadtexture("data/consolefont.png")
+  self.themetex = gfx.loadtexture("data/guitheme.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
   self.activewidget = nil
   
   -- tree of widgets
   self.widgets = gui:create_root()
-  self.widgets:addwidget(gui:create_testwidget(300,300,300,400))
+  --self.widgets:addwidget(gui:create_testwidget(300,300,300,400))
 end
 
 function gui:update()

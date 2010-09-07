@@ -22,7 +22,7 @@ extern "C" {
 #define LUAAPP_TABLE "app"
 
 #define LUAAPP_MAXQB 8
-#define LUAAPP_QBSIZE 1024
+#define LUAAPP_QBSIZE 1024*2
 #define LUAAPP_DEPTH_RANGE 2.0f
 #define LUAAPP_DEPTH_FAR -1.0f
 #define LUAAPP_DEPTH_NEAR 1.0f

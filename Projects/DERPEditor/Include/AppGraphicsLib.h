@@ -22,6 +22,8 @@ namespace DERPEditor
     
     // draw calls
     int gfx_drawcentered(lua_State *L);
+    int gfx_drawquad(lua_State *L);
+    int gfx_drawtopleft(lua_State *L);
 
     // Register lib
     int luaopen_appgraphics(lua_State *L);

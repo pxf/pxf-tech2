@@ -140,6 +140,70 @@ int DERPEditor::gfx_drawcentered (lua_State *L) {
   return 0;
 }
 
+int DERPEditor::gfx_drawquad (lua_State *L) {
+  // gfx.drawquad(x0,y0, x1,y1, x2,y2, x3,y3)
+  if (lua_gettop(L) == 8)
+  {
+    QuadBatch* qb = LuaApp::GetInstance()->GetActiveQB();
+    if (qb != NULL)
+    {
+      qb->ResetTextureSubset();
+      qb->AddFreeform(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4),
+                      lua_tonumber(L, 5), lua_tonumber(L, 6), lua_tonumber(L, 7), lua_tonumber(L, 8));
+      LuaApp::GetInstance()->IncDepth();
+    }
+    
+  }
+  // gfx.drawquad(x0,y0, x1,y1, x2,y2, x3,y3, s0, t0, s1, t1)
+  else if (lua_gettop(L) == 12)
+  {
+    QuadBatch* qb = LuaApp::GetInstance()->GetActiveQB();
+    if (qb != NULL)
+    {
+      qb->SetTextureSubset(lua_tonumber(L, 9), lua_tonumber(L, 10), lua_tonumber(L, 11), lua_tonumber(L, 12));
+      qb->AddFreeform(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4),
+                      lua_tonumber(L, 5), lua_tonumber(L, 6), lua_tonumber(L, 7), lua_tonumber(L, 8));
+      LuaApp::GetInstance()->IncDepth();
+    }
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to drawquad function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::gfx_drawtopleft (lua_State *L) {
+  // gfx.drawtopleft(x,y,w,h)
+  if (lua_gettop(L) == 4)
+  {
+    QuadBatch* qb = LuaApp::GetInstance()->GetActiveQB();
+    if (qb != NULL)
+    {
+      qb->ResetTextureSubset();
+      qb->AddTopLeft(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4));
+      LuaApp::GetInstance()->IncDepth();
+    }
+    
+  }
+  // gfx.drawtopleft(x, y, w, h, s0, t0, s1, t1)
+  else if (lua_gettop(L) == 8)
+  {
+    QuadBatch* qb = LuaApp::GetInstance()->GetActiveQB();
+    if (qb != NULL)
+    {
+      qb->SetTextureSubset(lua_tonumber(L, 5), lua_tonumber(L, 6), lua_tonumber(L, 7), lua_tonumber(L, 8));
+      qb->AddTopLeft(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4));
+      LuaApp::GetInstance()->IncDepth();
+    }
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to drawcentered function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 
 int DERPEditor::luaopen_appgraphics (lua_State *L) {
   const luaL_reg appgraphicslib[] = {
@@ -152,6 +216,8 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
     {"setclearcolor",   gfx_setclearcolor},
     
     {"drawcentered",   gfx_drawcentered},
+    {"drawquad",   gfx_drawquad},
+    {"drawtopleft",   gfx_drawtopleft},
     {NULL, NULL}
     };
   
