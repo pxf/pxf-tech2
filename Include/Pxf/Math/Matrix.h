@@ -208,6 +208,15 @@ public:
 
 		return *this;
 	}
+
+	const Mat4& Scale(float x,float y, float z)
+	{
+		m[0] = m[0] * x;
+		m[5] = m[5] * y;
+		m[10] = m[10] * z;
+
+		return *this;
+	}
 	
 	/*
 	const Mat4& Translate(float x, float y, float z)

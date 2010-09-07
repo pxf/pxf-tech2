@@ -16,6 +16,7 @@ namespace DERPEditor
     int gfx_loadtexture(lua_State *L);
     int gfx_bindtexture(lua_State *L);
     int gfx_translate(lua_State *L);
+	int gfx_scale(lua_State *L);
 	int gfx_rotate(lua_State *L);
     int gfx_getcolor(lua_State *L);
     int gfx_setcolor(lua_State *L);

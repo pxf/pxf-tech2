@@ -85,6 +85,23 @@ int DERPEditor::gfx_rotate (lua_State *L) {
   return 0;
 }
 
+int DERPEditor::gfx_scale (lua_State *L) {
+  // gfx.scale(multiplier)
+  if (lua_gettop(L) == 1)
+  {
+	float _Multiplier = lua_tonumber(L, 1);
+	Pxf::Math::Mat4 t_scalematrix = Pxf::Math::Mat4::Identity;
+    t_scalematrix.Scale(_Multiplier,_Multiplier,_Multiplier);
+    
+    LuaApp::GetInstance()->m_TransformMatrix = LuaApp::GetInstance()->m_TransformMatrix * t_scalematrix;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to translate function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int DERPEditor::gfx_getcolor (lua_State *L) {
   // r,g,b = gfx.getcolor()
   if (lua_gettop(L) == 0)
@@ -229,6 +246,7 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
     {"loadtexture",   gfx_loadtexture},
     {"bindtexture",   gfx_bindtexture},
     {"translate",   gfx_translate},
+	{"scale",   gfx_scale},
 	{"rotate",   gfx_rotate},
     {"getcolor",   gfx_getcolor},
     {"setcolor",   gfx_setcolor},

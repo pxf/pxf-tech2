@@ -40,6 +40,7 @@ function update()
 end
 
 function draw()
+	gfx.scale(1.0)
   --gfx.bindtexture(test_texture)
   --gfx.drawcentered(300,300,256,128, 0, 0, 256, 128)
   --gfx.drawcentered(300,300,256,128)
