@@ -25,7 +25,9 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 
-#include <Pxf/Modules/pri/OpenGL.h>
+//#include <Pxf/Network/NetworkDevice.h>
+
+#include <Pxf/Modules/net/ENetServer.h>
 
 #include <enet/enet.h>
 
