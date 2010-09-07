@@ -57,10 +57,8 @@ int main()
     Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
     Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
 
-	Resource::Sound* sndclip = res->Acquire<Resource::Sound>("data/semisnare.ogg");
-	Resource::Sound* sndclip2 = res->Acquire<Resource::Sound>("data/crash.ogg");
-	int id = snd->RegisterSound(sndclip);
-	int id2 = snd->RegisterSound(sndclip2);
+	Resource::Sound* sndclip = res->Acquire<Resource::Sound>("data/tick.ogg");
+	int tick_id = snd->RegisterSound(sndclip);
 
 
     Graphics::WindowSpecifications spec;
@@ -77,17 +75,18 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
-	while(win->IsOpen() && inp->GetLastKey() != Input::ESC)
+	while(win->IsOpen())
     {
 		inp->Update();
+		if (inp->GetLastKey() == Input::ESC)
+			break;
+
 		char title[512];
 		Format(title, "Renderer (fps: %d)", win->GetFPS());
 		win->SetTitle(title);
 
 		if (inp->GetLastButton() == Input::MOUSE_LEFT)
-			snd->Play(id);
-		else if (inp->GetLastButton() == Input::MOUSE_RIGHT)
-			snd->Play(id2);
+			snd->Play(tick_id);
 
         win->Swap();
 		inp->ClearLastKey();
