@@ -60,7 +60,6 @@ error_text = ""
 error_lines = {}
 function _runtimeerror(str)
   error_text = str
-  str = "aoeae åäö ÅÄÖ ".. str
   local fancy = str--string.gsub(str, "(%d+)", "^4%1^r")
   fancy = string.gsub(fancy, "(\t)", "    ")
   error_lines = split(fancy, '\n+')
@@ -80,7 +79,7 @@ end
 panic = {}
 function panic.text(str, x, y)
   
-  gfx.bindtexture(font)
+  local oldtex = gfx.bindtexture(font)
   local r,g,b = gfx.getcolor()
   gfx.setcolor(1, 1, 1)
   gfx.translate(x, y)
@@ -147,6 +146,7 @@ function panic.text(str, x, y)
 	
 	gfx.translate(-x, -y)
 	gfx.setcolor(r,g,b)
+	gfx.bindtexture(oldtex)
 end
 
 function panic.text_box(strs, x, y, w, h, sx, sy) -- sx, sy = scrollx, scrolly

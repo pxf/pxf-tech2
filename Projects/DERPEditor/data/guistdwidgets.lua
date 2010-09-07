@@ -1,3 +1,4 @@
+-- creates scrollable panel (scrollable in all directions)
 function gui:create_panel(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
   
@@ -23,13 +24,14 @@ function gui:create_panel(x,y,w,h)
   return wid
 end
 
+-- scrollable panel
 function gui:create_horisontalpanel(x,y,w,h,max)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.offset = 0
   wid.max = max
   
   function wid:mousedrag(dx,dy,button)
-    if (button == inp.MOUSE_MIDDLE) then
+    if (button == inp.MOUSE_RIGHT) then -- TODO: change this to MOUSE_MIDDLE
       self.offset = self.offset + dx
       if (self.offset < -self.max) then
         self.offset = -self.max
@@ -75,9 +77,93 @@ function gui:create_horisontalpanel(x,y,w,h,max)
   return wid
 end
 
+-- creates a widget stack that displays all widgets as a "stack"
+function gui:create_verticalstack(x,y,w,h)
+  local wid = gui:create_basewidget(x,y,w,h)
+  
+  function wid:draw()
+    --local numwidgets = #self.childwidgets
+    gfx.translate(self.drawbox.x, self.drawbox.y)
+    local total_offset = 0
+    for k,v in pairs(self.childwidgets) do
+      v:draw()
+      gfx.translate(0, v.drawbox.h)
+      total_offset = total_offset + v.drawbox.h
+    end
+    self.hitbox.h = total_offset
+    self.drawbox.h = total_offset
+    gfx.translate(-self.drawbox.x, -(self.drawbox.y + total_offset))
+  end
+  
+  function wid:find_mousehit(mx,my)
+    if (self:hittest(mx,my,mx,my)) then
+      local thit = nil
+      local total_offset = 0
+      for k,v in pairs(self.childwidgets) do
+        thit = v:find_mousehit(mx - self.hitbox.x, my - (self.hitbox.y + total_offset))
+        total_offset = total_offset + v.drawbox.h
+        
+        if not (thit == nil) then
+          -- we hit a child widget, return this one instead
+          return thit
+        end
+      end
+      
+      return self
+    end
+    
+    return nil
+  end
+  
+  return wid
+end
+
+-- simple console output
+function gui:create_console(x,y,w,h,visible)
+  local wid = gui:create_basewidget(x,y,w,h)
+  wid.visible = visible
+  wid.stdheight = h
+  wid.consolelines = {}
+  
+  function wid:addline(str)
+    table.insert(self.consolelines, str)
+  end
+  
+  function wid:draw()
+    gfx.translate(self.drawbox.x, self.drawbox.y)
+    local r,g,b = gfx.getcolor()
+    gfx.setcolor(26/256,26/256,26/256)
+    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,17,1,1,1)
+    gfx.setcolor(r,g,b)
+    if (self.visible) then
+      for k,v in pairs(self.consolelines) do
+        panic.text(v, 16, 16*k)
+      end
+    else
+      -- TODO: Draw something special when hidden?
+    end
+    gfx.translate(-self.drawbox.x, -self.drawbox.y)
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      self.visible = not self.visible
+      
+      if (self.visible) then
+        self.drawbox.h = self.stdheight
+        self.hitbox.h = self.stdheight
+      else
+        self.drawbox.h = 10
+        self.hitbox.h = 10
+      end
+    end
+  end
+  
+  return wid
+end
 
 
-
+-- simple button aoeu
 function gui:create_simplebutton(x,y,w,h,action)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.action = action
