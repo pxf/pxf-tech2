@@ -21,7 +21,7 @@ namespace Pxf
             : Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_AUDIODEVICE, _Identifier)
         {}
 
-		virtual ~AudioDevice() = 0;
+		virtual ~AudioDevice(){};
         
         virtual int RegisterSound(const Resource::Sound* _Sound) = 0;
 		virtual int GetSoundID(const Resource::Sound* _Sound) = 0;
