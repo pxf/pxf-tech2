@@ -7,8 +7,8 @@ require("data/guistdwidgets")
 gui:init()
 
 -- add some cool widgets
-local rebootbutton = gui:create_simplebuttons(12,12,100,30, function () app.reboot() end)
-local quitbutton = gui:create_simplebuttons(app.width - 78,12,60,30, function () app.quit() end)
+local rebootbutton = gui:create_simplebutton(12,12,100,30, function () app.reboot() end)
+local quitbutton = gui:create_simplebutton(app.width - 78,12,60,30, function () app.quit() end)
 local toolbar = gui:create_horisontalpanel(0,0,app.width,50)
 toolbar:addwidget(rebootbutton)
 toolbar:addwidget(quitbutton)

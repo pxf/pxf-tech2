@@ -25,22 +25,38 @@ end
 
 function gui:create_horisontalpanel(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
+  wid.offset = 0
   
   function wid:mousedrag(dx,dy,button)
     if (button == inp.MOUSE_MIDDLE) then
-      self.drawbox.x = self.drawbox.x + dx
+      --[[self.drawbox.x = self.drawbox.x + dx
+      self.hitbox.x = self.hitbox.x + dx]]
+      self.offset = self.offset + dx
       self.hitbox.x = self.hitbox.x + dx
     end
   end
   
   wid.superdraw = wid.draw
-  function wid:draw()
+  --[[function wid:draw()
     local r,g,b = gfx.getcolor()
     gfx.setcolor(46/256,46/256,46/256)
     gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
                     17,0,1,1)
     gfx.setcolor(r,g,b)
     self:superdraw()
+  end]]
+  function wid:draw()
+    local r,g,b = gfx.getcolor()
+    gfx.setcolor(46/256,46/256,46/256)
+    gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
+                    17,0,1,1)
+    gfx.setcolor(r,g,b)
+    
+    gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
+    for k,v in pairs(self.childwidgets) do
+      v:draw()
+    end
+    gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
   end
     
   return wid
@@ -49,7 +65,7 @@ end
 
 
 
-function gui:create_simplebuttons(x,y,w,h,action)
+function gui:create_simplebutton(x,y,w,h,action)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.action = action
   
