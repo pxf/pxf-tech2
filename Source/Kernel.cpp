@@ -279,6 +279,6 @@ void Pxf::Kernel::DumpAvailableModules()
 		const char* path = "built-in";
 		if (m_AvailableModules[i]->dynlib)
 			path = m_AvailableModules[i]->dynlib->GetFilePath();
-        Message("Kernel", "%d. \t%s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
+        Message("Kernel", "| %d. \t%s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
     }
 }

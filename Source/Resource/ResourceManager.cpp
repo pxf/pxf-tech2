@@ -58,6 +58,6 @@ void Resource::ResourceManager::DumpResourceLoaders()
 	Message("ResourceManager", "Enumerating resource loaders...");
 	for(Util::Map<Util::String, ResourceLoader*>::iterator it = m_ResourceLoaders->begin(); it != m_ResourceLoaders->end(); ++it)
 	{
-		Message("ResourceManager", ".%s -> %s", it->first.c_str(), it->second->GetIdentifier());
+		Message("Loader", "| .%s -> %s", it->first.c_str(), it->second->GetIdentifier());
 	}
 }
