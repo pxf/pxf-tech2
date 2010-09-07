@@ -1,4 +1,4 @@
-#include <Pxf/Modules/Pri/ModelGL2.h>
+#include <Pxf/Modules/pri/ModelGL2.h>
 //#include <Pxf/Modules/mesh/
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Mesh.h>
