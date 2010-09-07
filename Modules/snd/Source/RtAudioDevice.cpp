@@ -117,7 +117,7 @@ RtAudioDevice::~RtAudioDevice()
 {
 	try
 	{
-		m_DAC->stopStream();
+		m_DAC->abortStream();
 	}
 	catch (RtError& e)
 	{

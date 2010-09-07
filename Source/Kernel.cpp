@@ -29,11 +29,12 @@ Pxf::Kernel::Kernel()
 
 Pxf::Kernel::~Kernel()
 {
-    if (m_ResourceManager)
-        delete m_ResourceManager;
- 
+
 	if (m_AudioDevice)
 		delete m_AudioDevice;
+
+    if (m_ResourceManager)
+        delete m_ResourceManager;
 
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
