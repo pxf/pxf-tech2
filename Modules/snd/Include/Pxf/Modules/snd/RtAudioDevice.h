@@ -4,7 +4,7 @@
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Base/Debug.h>
 
-#include <RtAudio.h>
+class RtAudio;
 
 namespace Pxf
 {
@@ -13,47 +13,28 @@ namespace Pxf
         class RtAudioDevice : public Pxf::Audio::AudioDevice
         {
         private:
-            virtual bool Init()
-            {
-				RtAudio dac;
-				Message("Audio", "Number of output devices: %d", dac.getDeviceCount());
-				return true;
-			}
+			RtAudio* m_DAC;
+
+			unsigned int m_Channels;
+
+            virtual bool Init();
         public:
         RtAudioDevice(Pxf::Kernel* _Kernel)
             : Pxf::Audio::AudioDevice(_Kernel, "Rt Audio Device")
         {
 			Init();
 		}
-		virtual int RegisterSound(const Resource::Sound* _Sound)
-		{
-			return -1;
-		}
 
-		virtual int GetSoundID(const Resource::Sound* _Sound)
-		{
-			return -1;
-		}
+		virtual ~RtAudioDevice();
 
-		virtual void UnregisterSound(int _Id)
-		{
-
-		}
-
-        virtual void Play(unsigned int _SoundID)
-        {}
-
-        virtual void Stop(unsigned int _SoundID)
-        {}
-
-        virtual void StopAll()
-        {}
-
-        virtual void Pause(unsigned int _SoundID)
-        {}
-
-        virtual void PauseAll()
-        {}
+		virtual int RegisterSound(const Resource::Sound* _Sound);
+		virtual int GetSoundID(const Resource::Sound* _Sound);
+		virtual void UnregisterSound(int _Id);
+        virtual void Play(unsigned int _SoundID);
+        virtual void Stop(unsigned int _SoundID);
+        virtual void StopAll();
+        virtual void Pause(unsigned int _SoundID);
+        virtual void PauseAll();
 
         };
     }
