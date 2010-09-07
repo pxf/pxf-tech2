@@ -23,28 +23,23 @@ function gui:create_panel(x,y,w,h)
   return wid
 end
 
-function gui:create_horisontalpanel(x,y,w,h)
+function gui:create_horisontalpanel(x,y,w,h,max)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.offset = 0
+  wid.max = max
   
   function wid:mousedrag(dx,dy,button)
     if (button == inp.MOUSE_MIDDLE) then
-      --[[self.drawbox.x = self.drawbox.x + dx
-      self.hitbox.x = self.hitbox.x + dx]]
       self.offset = self.offset + dx
-      self.hitbox.x = self.hitbox.x + dx
+      if (self.offset < -self.max) then
+        self.offset = -self.max
+      elseif (self.offset > 0) then
+        self.offset = 0
+      end
     end
   end
   
   wid.superdraw = wid.draw
-  --[[function wid:draw()
-    local r,g,b = gfx.getcolor()
-    gfx.setcolor(46/256,46/256,46/256)
-    gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
-                    17,0,1,1)
-    gfx.setcolor(r,g,b)
-    self:superdraw()
-  end]]
   function wid:draw()
     local r,g,b = gfx.getcolor()
     gfx.setcolor(46/256,46/256,46/256)
@@ -57,6 +52,24 @@ function gui:create_horisontalpanel(x,y,w,h)
       v:draw()
     end
     gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
+  end
+  
+  function wid:find_mousehit(mx,my)
+    if (self:hittest(mx,my,mx,my)) then
+      local thit = nil
+      for k,v in pairs(self.childwidgets) do
+        thit = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
+        
+        if not (thit == nil) then
+          -- we hit a child widget, return this one instead
+          return thit
+        end
+      end
+      
+      return self
+    end
+    
+    return nil
   end
     
   return wid

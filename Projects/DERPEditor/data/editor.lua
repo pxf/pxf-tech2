@@ -9,7 +9,7 @@ gui:init()
 -- add some cool widgets
 local rebootbutton = gui:create_simplebutton(12,12,100,30, function () app.reboot() end)
 local quitbutton = gui:create_simplebutton(app.width - 78,12,60,30, function () app.quit() end)
-local toolbar = gui:create_horisontalpanel(0,0,app.width,50)
+local toolbar = gui:create_horisontalpanel(0,0,app.width,50, app.width)
 toolbar:addwidget(rebootbutton)
 toolbar:addwidget(quitbutton)
 gui.widgets:addwidget(toolbar)
