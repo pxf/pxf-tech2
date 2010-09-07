@@ -42,7 +42,9 @@ int DERPEditor::gfx_bindtexture (lua_State *L) {
   // gfx.bindtexture(textureid)
   if (lua_gettop(L) == 1)
   {
-    LuaApp::GetInstance()->ChangeActiveQB(lua_tointeger(L, 1));
+    int old = LuaApp::GetInstance()->ChangeActiveQB(lua_tointeger(L, 1));
+    lua_pushinteger(L, old);
+    return 1;
     
   } else {
     lua_pushstring(L, "Invalid argument passed to bindtexture function!");

@@ -54,7 +54,7 @@ namespace DERPEditor
         TexturedQuadBatch* m_QuadBatches[LUAAPP_MAXQB];
         
         // QuadBatch control
-        void ChangeActiveQB(unsigned int _id);
+        int ChangeActiveQB(unsigned int _id);
         QuadBatch* GetActiveQB();
         void IncDepth();
         void ResetDepth();

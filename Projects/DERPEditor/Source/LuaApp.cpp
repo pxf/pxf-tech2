@@ -201,15 +201,18 @@ bool LuaApp::Update()
     return !m_Shutdown;
 }
 
-void LuaApp::ChangeActiveQB(unsigned int _id)
+int LuaApp::ChangeActiveQB(unsigned int _id)
 {
+  int old = 0;
   if (m_QuadBatchCurrent >= 0)
   {
+    old = m_QuadBatchCurrent;
     m_QuadBatches[m_QuadBatchCurrent]->End();
   }
   
   m_QuadBatchCurrent = _id;
   m_QuadBatches[m_QuadBatchCurrent]->Begin();
+  return old;
 }
 
 QuadBatch* LuaApp::GetActiveQB()
