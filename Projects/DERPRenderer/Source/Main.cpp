@@ -23,11 +23,20 @@
 
 #include <ctime>
 
-using namespace Pxf;
+#include <json/json.h>
 
+using namespace Pxf;
 
 int main()
 {
+	
+	/* TODO: Make a resource loader for json */
+	Json::Value root;
+	Json::Reader reader;
+	bool success = reader.parse("{\"honk\": 42}", root);
+	if (success)
+		Message("json", "%d", root.get("honk", 88).asInt());
+
     Pxf::RandSetSeed(time(NULL));
     Kernel* kernel = Pxf::Kernel::GetInstance();
 
