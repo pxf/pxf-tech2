@@ -31,8 +31,13 @@ gfx.setclearcolor(113/256, 113/256, 113/256)
 
 --test_texture = gfx.loadtexture("data/apperror.png")
 
+
+gfx.redrawneeded(nil, nil, nil, nil)
+
 function update()
-  gfx.redrawneeded()
+  --gfx.redrawneeded()
+  --local mx, my = inp.getmousepos()
+  --gfx.redrawneeded(mx,my,50,50)
   gui:update()
 end
 
@@ -41,7 +46,7 @@ function draw()
   --gfx.drawcentered(300,300,256,128, 0, 0, 256, 128)
   --gfx.drawcentered(300,300,256,128)
   --gfx.setcolor(1, 0, 0)
-  panic.text("Welcome to ^1D^2E^1R^2P^9 Editor!", 200, 200)
+  --panic.text("Welcome to ^1D^2E^1R^2P^9 Editor!", 200, 200)
   --poooooooooop()
   
   gui:draw()

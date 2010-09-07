@@ -31,7 +31,10 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_AppErrorQB->AddCentered(0, 0, 512, 256);
     m_AppErrorQB->End();
     
+    m_StencilQB = new QuadBatch(32, &m_CurrentDepth, &m_CurrentColor);
+    
     m_RedrawNeeded = false;
+    m_RedrawStencil = false;
     m_Started = false;
     m_Running = false;
     m_Shutdown = false;
@@ -73,6 +76,7 @@ void LuaApp::Init()
   glDepthFunc(GL_GEQUAL);
   glClearDepth(LUAAPP_DEPTH_FAR);
   
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
 }
 
@@ -91,6 +95,7 @@ void LuaApp::CleanUp()
     }
     m_QuadBatchCount = 0;
     m_QuadBatchCurrent = -1;
+    m_RedrawStencil = false;
     
     // reset transform matrix
     m_TransformMatrix = Math::Mat4::Identity;
@@ -233,6 +238,23 @@ void LuaApp::ResetDepth()
   m_CurrentDepth = LUAAPP_DEPTH_FAR;
 }
 
+void LuaApp::Redraw()
+{
+  m_RedrawNeeded = true;
+  m_RedrawStencil = false;
+}
+
+void LuaApp::Redraw(int x, int y, int w, int h)
+{
+  m_RedrawNeeded = true;
+  m_RedrawStencil = true;
+  
+  m_StencilQB->Begin();
+  m_StencilQB->AddTopLeft(x,y,w,h);
+  m_StencilQB->End();
+  
+}
+
 void LuaApp::Draw()
 {
     // Setup viewport and matrises
@@ -243,8 +265,33 @@ void LuaApp::Draw()
     {
       if (m_RedrawNeeded)
       {
+        
+        if (m_RedrawStencil)
+        {
+          glEnable(GL_STENCIL_TEST);
+          glDisable(GL_DEPTH_TEST);
+          glClear(GL_STENCIL_BUFFER_BIT);
+          glClearStencil(0x0);
+          
+          glStencilFunc(GL_ALWAYS, 0x1, 0x1);
+          glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+          
+          m_StencilQB->Draw();
+          m_StencilQB->Reset();
+          m_RedrawStencil = false;
+          
+          glStencilFunc(GL_EQUAL, 0x1, 0x1);
+          //glStencilFunc (GL_NOTEQUAL, 0x1, 0x1);
+          glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+          
+        } else {
+          glDisable(GL_STENCIL_TEST);
+        }
+        glEnable(GL_DEPTH_TEST);
+        
         ResetDepth();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT);
         
         
         // Reset all quadbatches

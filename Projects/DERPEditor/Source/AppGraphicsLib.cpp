@@ -6,13 +6,13 @@
 
 #include <Pxf/Modules/pri/OpenGL.h>
 
-int DERPEditor::gfx_redrawneeded (lua_State *L) {
+int DERPEditor::gfx__redrawneeded (lua_State *L) {
   // gxf.redrawneeded(x,y,w,h) -- x,y,h,w optional, otherwise = full redraw
   if (lua_gettop(L) == 4)
   {
-    // TODO: implement sub screen redraw
+    LuaApp::GetInstance()->Redraw(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4));
   } else {
-    LuaApp::GetInstance()->m_RedrawNeeded = true;
+    LuaApp::GetInstance()->Redraw();
   }
   return 0;
 }
@@ -209,7 +209,7 @@ int DERPEditor::gfx_drawtopleft (lua_State *L) {
 
 int DERPEditor::luaopen_appgraphics (lua_State *L) {
   const luaL_reg appgraphicslib[] = {
-    {"redrawneeded",   gfx_redrawneeded},
+    {"_redrawneeded",   gfx__redrawneeded},
     {"loadtexture",   gfx_loadtexture},
     {"bindtexture",   gfx_bindtexture},
     {"translate",   gfx_translate},

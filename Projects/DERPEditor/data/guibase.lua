@@ -7,7 +7,8 @@ function gui:create_basewidget(x,y,w,h)
   local wid = {
     hitbox = {x = x, y = y, w = w, h = h},
     drawbox = {x = x, y = y, w = w, h = h},
-    parent = nil
+    parent = nil,
+    redraw_needed = false
   }
   
   -- child widget control
@@ -16,6 +17,43 @@ function gui:create_basewidget(x,y,w,h)
     cwid.parent = self
     table.insert(self.childwidgets, cwid)
   end
+  
+  -----------------------------------
+  -- redraw functions
+  function wid:needsredraw()
+    local x,y = self:find_abspos()
+    gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
+    self.redraw_needed = true
+    
+    -- notify parent
+    if not (self.parent == nil) then
+      self.parent:childisredrawn()
+    end
+  end
+  function wid:childisredrawn()
+    -- do nothing as standard
+  end
+  function wid:resetredraw()
+    self.redraw_needed = false
+    for k,v in pairs(self.childwidgets) do
+      v:resetredraw()
+    end
+  end
+  function wid:find_abspos()
+    local x,y
+    x = self.drawbox.x
+    y = self.drawbox.y
+    
+    if not (self.parent == nil) then
+      local tx,ty = self.parent:find_abspos()
+      x = x + tx
+      y = y + ty
+    end
+    
+    return x,y
+  end
+  -- end of redraw functions
+  ----------------------------------
   
   function wid:draw()
     gfx.translate(self.drawbox.x, self.drawbox.y)
@@ -26,13 +64,27 @@ function gui:create_basewidget(x,y,w,h)
   end
   
   function wid:hittest(x0,y0,x1,y1)
-    if (x0 < self.hitbox.x) then
+    if (x1 < self.hitbox.x) then
       return false
-    elseif (x1 > self.hitbox.x + self.hitbox.w) then
+    elseif (x0 > self.hitbox.x + self.hitbox.w) then
       return false
-    elseif (y0 < self.hitbox.y) then
+    elseif (y1 < self.hitbox.y) then
       return false
-    elseif (y1 > self.hitbox.y + self.hitbox.h) then
+    elseif (y0 > self.hitbox.y + self.hitbox.h) then
+      return false
+    end
+      
+    return true
+  end
+  
+  function wid:hittest_d(x0,y0,x1,y1) -- drawbox hittest
+    if (x1 < self.drawbox.x) then
+      return false
+    elseif (x0 > self.drawbox.x + self.drawbox.w) then
+      return false
+    elseif (y1 < self.drawbox.y) then
+      return false
+    elseif (y0 > self.drawbox.y + self.drawbox.h) then
       return false
     end
       
@@ -57,45 +109,48 @@ function gui:create_basewidget(x,y,w,h)
     return nil
   end
   
-  return wid
-end
-
-function gui:create_root()
-  local rootwid = self:create_basewidget(0, 0, app.width, app.height)
-  
-  return rootwid
-end
-
-function gui:create_testwidget(x,y,w,h)
-  local wid = self:create_basewidget(x,y,w,h)
-  
-  function wid:draw()
-    gfx.setcolor(1, 0, 0)
-    gfx.drawcentered(self.hitbox.x + self.hitbox.w / 2, self.hitbox.y + self.hitbox.h / 2,
-                     self.hitbox.w, self.hitbox.h)
-  end
-  
-  function wid:mousepush(mx,my,button)
+  function wid:find_redrawhit(rx0,ry0,rx1,ry1)
+    -- should we redraw?
+    if (self:hittest_d(rx0,ry0,rx1,ry1)) then
+      self.redraw_needed = true
+    end
     
-  end
-  
-  function wid:mouserelease(mx,my,button)
-    print("clicked on this awesome widget")
-  end
-  
-  function wid:mousedrag(dx,dy,button)
-    if (button == inp.MOUSE_MIDDLE) then
-      if (not (dx == 0)) or (not (dy == 0)) then
-        print("draging!! " .. tostring(dx) .. " " .. tostring(dy) )
-      end
+    -- should any of our childs redraw?    
+    for k,v in pairs(self.childwidgets) do
+      v:find_redrawhit(rx0 - self.drawbox.x, ry0 - self.drawbox.y, rx1 - self.drawbox.x, ry1 - self.drawbox.y)
     end
   end
   
   return wid
 end
 
+function gui:create_root()
+  local rootwid = self:create_basewidget(0, 0, app.width, app.height)
+  
+  function rootwid:draw()
+    local r,g,b = gfx.getcolor()
+    gfx.setcolor(46/255,46/255,46/255)
+    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,17,1,1,1)
+    gfx.setcolor(r,g,b)
+    
+    gfx.translate(self.drawbox.x, self.drawbox.y)
+    for k,v in pairs(self.childwidgets) do
+      v:draw()
+    end
+    gfx.translate(-self.drawbox.x, -self.drawbox.y)
+  end
+  
+  return rootwid
+end
+
 ----------------------------------------------
 -- core and setup of GUI
+
+function gui:redraw(x,y,w,h)
+  print("should redraw at: " .. tostring(x) .. " " .. tostring(y) .. " " .. tostring(w) .. " " .. tostring(h))
+  self.widgets:find_redrawhit(x,y,x+w,y+h)
+  gfx.redrawneeded(x,y,w,h)
+end
 
 function gui:init()
   self.themetex = gfx.loadtexture("data/guitheme.png")
@@ -110,9 +165,15 @@ end
 
 function gui:update()
   -- this should be called each app update
+  local mx,my = inp.getmousepos()
+  
+  -- reset redraws
+  self.widgets:resetredraw()
+  
+  -- test
+  --gui:redraw(mx,my,32,32)
   
   -- mouse operations on widgets
-  local mx,my = inp.getmousepos()
   if (inp.isbuttondown(inp.MOUSE_LEFT) or
       inp.isbuttondown(inp.MOUSE_RIGHT) or
       inp.isbuttondown(inp.MOUSE_MIDDLE)) then

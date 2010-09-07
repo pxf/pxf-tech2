@@ -12,7 +12,7 @@
 namespace DERPEditor
 {
     // lib functions
-    int gfx_redrawneeded(lua_State *L);
+    int gfx__redrawneeded(lua_State *L);
     int gfx_loadtexture(lua_State *L);
     int gfx_bindtexture(lua_State *L);
     int gfx_translate(lua_State *L);

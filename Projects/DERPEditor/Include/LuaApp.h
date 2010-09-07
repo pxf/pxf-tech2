@@ -59,11 +59,17 @@ namespace DERPEditor
         void IncDepth();
         void ResetDepth();
         
+        // Redraw control
+        void Redraw(); // redraws full screen (no stencil test)
+        void Redraw(int x, int y, int w, int h); // adds a redraw region (adds stencil test)
+        bool m_RedrawNeeded;
+        bool m_RedrawStencil;
+        QuadBatch* m_StencilQB;
+        
         // Matrises
         Pxf::Math::Mat4 m_TransformMatrix;
         
         // Public Lua states
-        bool m_RedrawNeeded;
         float m_CurrentDepth;
         Pxf::Math::Vec4f m_CurrentColor;
         

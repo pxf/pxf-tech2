@@ -49,6 +49,13 @@ function point_hittest(px,py, x0,y0, x1,y1 )
   return true
 end
 
+function gfx.redrawneeded(x,y,w,h)
+  if (x == nil) then
+    gfx._redrawneeded()
+  else
+    gfx._redrawneeded(x,y,w,h)
+  end
+end
 
 -- load standard textures
 font = gfx.loadtexture("data/consolefont2.png")

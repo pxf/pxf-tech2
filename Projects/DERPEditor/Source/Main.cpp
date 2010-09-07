@@ -79,7 +79,7 @@ int main()
     spec.ColorBits = 24;
     spec.AlphaBits = 8;
     spec.DepthBits = 24;
-    spec.StencilBits = 0;
+    spec.StencilBits = 8;
     spec.FSAASamples = 0;
     spec.Fullscreen = false;
     spec.Resizeable = false;
