@@ -2,9 +2,11 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Modules/snd/OggAudioLoader.h>
 #include <Pxf/Resource/Chunk.h>
-#include <Pxf/Base/Memory.h>
 
 #include <stb_vorbis.h>
+
+#include <cstdlib>
+#include <cstdio>
 
 using namespace Pxf;
 
