@@ -52,6 +52,42 @@ function gui:create_basewidget(x,y,w,h)
     
     return x,y
   end
+  function wid:move_relative(x,y)
+    self.hitbox.x = self.hitbox.x + x
+    self.hitbox.y = self.hitbox.y + y
+    self.drawbox.x = self.drawbox.x + x
+    self.drawbox.y = self.drawbox.y + y
+  end
+  function wid:move_abs(x,y)
+    self.hitbox.x = x
+    self.hitbox.y = y
+    self.drawbox.x = x
+    self.drawbox.y = y
+  end
+  function wid:resize_relative(w,h)
+    self.hitbox.w = self.hitbox.w + w
+    self.hitbox.h = self.hitbox.h + h
+    self.drawbox.w = self.drawbox.w + w
+    self.drawbox.h = self.drawbox.h + h
+    
+    -- notify parent
+    if not (self.parent == nil) then
+      self.parent:child_resized(self)
+    end
+  end
+  function wid:resize_abs(w,h)
+    self.hitbox.w = w
+    self.hitbox.h = h
+    self.drawbox.w = w
+    self.drawbox.h = h
+    -- notify parent
+    if not (self.parent == nil) then
+      self.parent:child_resized(self)
+    end
+  end
+  function wid:child_resized(cwid)
+    -- do nothing ?
+  end
   -- end of redraw functions
   ----------------------------------
   
@@ -146,9 +182,12 @@ end
 ----------------------------------------------
 -- core and setup of GUI
 
+gui.redrawrects = {}
 function gui:redraw(x,y,w,h)
   self.widgets:find_redrawhit(x,y,x+w,y+h)
   gfx.redrawneeded(x,y,w,h)
+  --print("redraw area: " .. tostring(x) .." " .. tostring(y) .. " " .. tostring(w) .." " .. tostring(h))
+  table.insert(gui.redrawrects, 1, {x,y,w,h})
 end
 
 function gui:init()
@@ -163,6 +202,7 @@ function gui:init()
 end
 
 function gui:update()
+  gui.redrawrects = {}
   -- this should be called each app update
   local mx,my = inp.getmousepos()
   
@@ -248,5 +288,11 @@ function gui:draw(force)
   
   local oldtex = gfx.bindtexture(self.themetex)
   self.widgets:draw(force)
+  
+  --[[for k,v in pairs(gui.redrawrects) do
+    gfx.setcolor((k % 3) *30, (k % 2) *30, (k % 1) *30)
+    gfx.drawtopleft(v[1], v[2], v[3], v[4], 17, 1, 1, 1)
+  end]]
+  
   gfx.bindtexture(oldtex)
 end
