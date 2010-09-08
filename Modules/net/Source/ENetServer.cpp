@@ -1,3 +1,4 @@
+/*
 #include <Pxf/Modules/net/ENetServer.h>
 
 using namespace Pxf::Modules;
@@ -59,4 +60,5 @@ bool ENetServer::Bind(const int _Port)
 
 	return true;
 }
+*/
 
