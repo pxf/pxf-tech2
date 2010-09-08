@@ -4,6 +4,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Timer.h>
 
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
@@ -101,6 +102,10 @@ namespace DERPEditor
         bool m_Started;
         bool m_Shutdown;
         int m_QuadBatchCurrent;
+        
+        // Timers
+        Pxf::Timer m_TimerUpdate;
+        Pxf::Timer m_TimerDraw;
         
         // Register lua libs and callbacks
         void _register_lua_libs_callbacks();
