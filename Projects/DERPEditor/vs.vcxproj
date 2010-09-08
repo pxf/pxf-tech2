@@ -186,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="data\editor.lua" />
+    <None Include="data\guibase.lua" />
     <None Include="data\guistdwidgets.lua" />
     <None Include="data\test.ctm" />
   </ItemGroup>
