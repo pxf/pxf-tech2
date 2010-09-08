@@ -7,7 +7,7 @@ namespace Pxf
 {
 namespace Network
 {
-	class NetworkDevice : Pxf::System
+	class NetworkDevice : public Pxf::System
 	{
 	public:
 		NetworkDevice(Kernel* _Kernel, const char* _Identifier)

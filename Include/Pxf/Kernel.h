@@ -10,6 +10,7 @@ namespace Pxf {
     namespace Graphics { class GraphicsDevice; }
     namespace Resource { class ResourceManager; 
                          class ResourceLoader; }
+	namespace Network { class NetworkDevice; }
     
     class SharedLibrary;
     class Module;
@@ -45,6 +46,7 @@ namespace Pxf {
         Input::InputDevice* m_InputDevice;
         Graphics::GraphicsDevice* m_GraphicsDevice;
         Resource::ResourceManager* m_ResourceManager;
+		Network::NetworkDevice* m_NetworkDevice;
         
         Kernel();
         Kernel(const Kernel& _Other){};
@@ -72,6 +74,9 @@ namespace Pxf {
         
         void RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader);
         Resource::ResourceManager* GetResourceManager();
+
+		void RegisterNetworkDevice(Network::NetworkDevice* _Device);
+		Network::NetworkDevice* GetNetworkDevice();
         
         //void RegisterPhysicsEngine(PhysicsEngine* _Engine);
         //PhysicsEngine* GetPhysicsEngine();
