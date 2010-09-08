@@ -30,17 +30,18 @@ end]]
 -- scrollable panel
 function gui:create_horisontalpanel(x,y,w,h,max)
   local wid = gui:create_basewidget(x,y,w,h)
-  --wid.offset = 0
-  --wid.max = max
+  wid.offset = 0
+  wid.max = max
   
   function wid:mousedrag(dx,dy,button)
     if (button == inp.MOUSE_RIGHT) then -- TODO: change this to MOUSE_MIDDLE
-      self.drawbox.x = self.drawbox.x + dx
-      --[[if (self.offset < -self.max) then
+      --self.drawbox.x = self.drawbox.x + dx
+      self.offset = self.offset + dx
+      if (self.offset < -self.max) then
         self.offset = -self.max
       elseif (self.offset > 0) then
         self.offset = 0
-      end]]
+      end
       self:needsredraw()
     end
   end
@@ -54,18 +55,18 @@ function gui:create_horisontalpanel(x,y,w,h,max)
                       17,0,1,1)
       gfx.setcolor(r,g,b)
     end
-    gfx.translate(self.drawbox.x, self.drawbox.y)
+    gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
     for k,v in pairs(self.childwidgets) do
       v:draw(force)
     end
-    gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
   end
   
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
       for k,v in pairs(self.childwidgets) do
-        thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+        thit = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
         
         if not (thit == nil) then
           -- we hit a child widget, return this one instead
@@ -93,6 +94,8 @@ function gui:create_verticalstack(x,y,w,h)
       offsety = offsety + v.drawbox.h
     end
     cwid:move_abs(0, offsety)
+    offsety = offsety + cwid.drawbox.h
+    self:resize_abs(self.drawbox.w, offsety)
     table.insert(self.childwidgets, cwid)
   end
   
@@ -102,10 +105,8 @@ function gui:create_verticalstack(x,y,w,h)
       v:move_abs(v.drawbox.x, offsety)
       offsety = offsety + v.drawbox.h
     end
-    if offsety > self.drawbox.h then
-      self:resize_abs(self.drawbox.w, offsety)
-    end
     self:needsredraw()
+    self:resize_abs(self.drawbox.w, offsety)
   end
   
   function wid:childisredrawn()

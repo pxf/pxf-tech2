@@ -165,7 +165,7 @@ function gui:create_root()
   
   function rootwid:draw(force)
     local r,g,b = gfx.getcolor()
-    gfx.setcolor(46/255,46/255,46/255)
+    gfx.setcolor(86/255,86/255,86/255)
     gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,17,1,1,1)
     gfx.setcolor(r,g,b)
     

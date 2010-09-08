@@ -64,7 +64,8 @@ void LuaApp::Init()
   Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, LUAAPP_DEPTH_FAR, LUAAPP_DEPTH_NEAR);
   m_gfx->SetProjection(&prjmat);
   
-  glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
+  //glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
+  glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
   
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
@@ -292,7 +293,7 @@ void LuaApp::Draw()
         
         
         ResetDepth();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT);
         
         
         // Reset all quadbatches
