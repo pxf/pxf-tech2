@@ -10,34 +10,23 @@ namespace Pxf
 {
 	namespace Network
 	{
-		class NetworkDevice;
+//		class NetworkDevice;
+		class Client;
 	}
 
 	namespace Modules
 	{
-		class ENetClient : public Pxf::Network::NetworkDevice
+		class ENetClient
 		{
-		private:
-			virtual bool Init()
-				{ return true; }
-
-			ENetHost *Client;
-			ENetPeer *Peer;
-			ENetAddress Address;
 		public:
-			ENetClient(Pxf::Kernel* _Kernel);
+			ENetClient();
 
-			virtual bool Connected();
-			virtual bool Recv(char* _Buf);
-			virtual bool Send(const char* _Buf, const int _Length);
+			virtual bool Connect() = 0;
+			virtual bool Disconnect() = 0;
+			virtual bool Connected() = 0;
 
-			/* server */
-			virtual bool Bind(const int _Port)
-				{ return false; }
-
-			/* client */
-			virtual bool Connect(const char* _Host, const int _Port);
-			virtual bool Disconnect();
+			virtual int Recv(char* _Buf) = 0;
+			virtual bool Send(const char* _Buf, const int _Length) = 0;
 		};
 	}
 }

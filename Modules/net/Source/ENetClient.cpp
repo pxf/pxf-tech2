@@ -1,4 +1,4 @@
-#include <Pxf/Modules/net/ENetClient.h>
+/*#include <Pxf/Modules/net/ENetClient.h>
 
 using namespace Pxf::Modules;
 
@@ -72,4 +72,4 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 bool ENetClient::Disconnect()
 {
 	return false;
-}
+}*/
