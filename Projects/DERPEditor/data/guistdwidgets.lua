@@ -30,17 +30,18 @@ end]]
 -- scrollable panel
 function gui:create_horisontalpanel(x,y,w,h,max)
   local wid = gui:create_basewidget(x,y,w,h)
-  --wid.offset = 0
-  --wid.max = max
+  wid.offset = 0
+  wid.max = max
   
   function wid:mousedrag(dx,dy,button)
     if (button == inp.MOUSE_RIGHT) then -- TODO: change this to MOUSE_MIDDLE
-      self.drawbox.x = self.drawbox.x + dx
-      --[[if (self.offset < -self.max) then
+      --self.drawbox.x = self.drawbox.x + dx
+      self.offset = self.offset + dx
+      if (self.offset < -self.max) then
         self.offset = -self.max
       elseif (self.offset > 0) then
         self.offset = 0
-      end]]
+      end
       self:needsredraw()
     end
   end
@@ -54,18 +55,18 @@ function gui:create_horisontalpanel(x,y,w,h,max)
                       17,0,1,1)
       gfx.setcolor(r,g,b)
     end
-    gfx.translate(self.drawbox.x, self.drawbox.y)
+    gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
     for k,v in pairs(self.childwidgets) do
       v:draw(force)
     end
-    gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
   end
   
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
       for k,v in pairs(self.childwidgets) do
-        thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+        thit = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
         
         if not (thit == nil) then
           -- we hit a child widget, return this one instead
@@ -86,33 +87,35 @@ end
 function gui:create_verticalstack(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
   
-  function wid:draw(force)
-    --local numwidgets = #self.childwidgets
-    gfx.translate(self.drawbox.x, self.drawbox.y)
-    local total_offset = 0
+  function wid:addwidget(cwid)
+    cwid.parent = self
+    local offsety = 0
     for k,v in pairs(self.childwidgets) do
-      v:draw(force)
-      gfx.translate(0, v.drawbox.h)
-      total_offset = total_offset + v.drawbox.h
+      offsety = offsety + v.drawbox.h
     end
-    self.hitbox.h = total_offset
-    self.drawbox.h = total_offset
-    gfx.translate(-self.drawbox.x, -(self.drawbox.y + total_offset))
+    cwid:move_abs(0, offsety)
+    offsety = offsety + cwid.drawbox.h
+    self:resize_abs(self.drawbox.w, offsety)
+    table.insert(self.childwidgets, cwid)
+  end
+  
+  function wid:child_resized(cwid)
+    local offsety = 0
+    for k,v in pairs(self.childwidgets) do
+      v:move_abs(v.drawbox.x, offsety)
+      offsety = offsety + v.drawbox.h
+    end
+    self:needsredraw()
+    self:resize_abs(self.drawbox.w, offsety)
   end
   
   function wid:childisredrawn()
-    local total_offset = 0
-    for k,v in pairs(self.childwidgets) do
-      total_offset = total_offset + v.drawbox.h
-    end
-    self.hitbox.h = total_offset
-    self.drawbox.h = total_offset
     --if not self.redraw_needed then
       self:needsredraw()
     --end
   end
   
-  function wid:find_mousehit(mx,my)
+  --[[function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
       local total_offset = 0
@@ -130,7 +133,7 @@ function gui:create_verticalstack(x,y,w,h)
     end
     
     return nil
-  end
+  end]]
   
   return wid
 end
@@ -172,11 +175,13 @@ function gui:create_console(x,y,w,h,visible)
       self.visible = not self.visible
       
       if (self.visible) then
-        self.drawbox.h = self.stdheight
-        self.hitbox.h = self.stdheight
+        --self.drawbox.h = self.stdheight
+        --self.hitbox.h = self.stdheight
+        self:resize_abs(self.drawbox.w, self.stdheight)
       else
-        self.drawbox.h = 10
-        self.hitbox.h = 10
+        --self.drawbox.h = 10
+        --self.hitbox.h = 10
+        self:resize_abs(self.drawbox.w, 10)
       end
       
       self:needsredraw()
