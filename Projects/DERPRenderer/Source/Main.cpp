@@ -21,10 +21,7 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 #include <Pxf/Resource/Sound.h>
-
 #include <ctime>
-
-#include <json/json.h>
 
 using namespace Pxf;
 
@@ -39,6 +36,7 @@ int main()
 	kernel->RegisterModule("mesh", 0xFFFF, true);
 	kernel->RegisterModule("snd", 0xFFFF, true);
 	kernel->RegisterModule("json", 0xFFFF, true);
+	kernel->RegisterModule("net", 0xFFFF, true);
     kernel->DumpAvailableModules();
 
     Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
