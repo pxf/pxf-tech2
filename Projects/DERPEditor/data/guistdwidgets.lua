@@ -191,6 +191,223 @@ function gui:create_console(x,y,w,h,visible)
   return wid
 end
 
+function gui:create_container(x,y,w,h)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+
+	return base_widget
+end
+
+function gui:create_labelpanel(x,y,w,h,text)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+
+	base_widget.superdraw = base_widget.draw
+
+	function base_widget:draw()
+		gfx.translate(self.drawbox.x,self.drawbox.y)
+
+		panic.text(text, x, y)
+
+		gfx.translate(-self.drawbox.x,-self.drawbox.y)
+
+		base_widget:superdraw()
+	end
+
+	return base_widget
+end
+
+function gui:create_movablewindow(x,y,w,h)
+	local base_window = gui:create_movablepanel(x,y,w,h)
+	local minimize_button = gui:create_staticpanel(w-20,0,20,20)
+	local window_label = gui:create_labelpanel(6,6,0,0,"SUKEEEH")
+	local minimize_label_arrow = gui:create_labelpanel(0,0,0,0,">")
+
+	minimize_label_arrow.super_draw = minimize_label_arrow.draw
+
+	local top_container = gui:create_container(0,0,w,20)
+
+	minimize_button:addwidget(minimize_label_arrow)
+	top_container:addwidget(window_label)
+	top_container:addwidget(minimize_button)
+
+	local window_state = { maximized = 0, minimized = 1 }
+
+	base_window.state = window_state.maximized
+	base_window.height = h
+	base_window:addwidget(top_container)
+
+	base_window.superdraw = base_window.draw
+	
+	function minimize_label_arrow:draw()
+		local move_offset = {x = 11, y = -11}
+		if (base_window.state == window_state.maximized) then
+			gfx.rotate(math.pi * 0.5)
+			gfx.translate(move_offset.x + 1,move_offset.y)
+		end
+		
+		if (base_window.state == window_state.minimized) then
+			gfx.rotate(-math.pi * 0.5)
+			gfx.translate(-move_offset.x + 1,-move_offset.y)
+		end
+
+		minimize_label_arrow:super_draw()
+		--gfx.rotate(-math.pi * 0.5)
+	end
+
+	function base_window:minimize()
+		self.drawbox.h = 20
+		self.state = window_state.minimized
+	end
+
+	function base_window:maximize()
+		self.drawbox.h = self.height
+		self.state = window_state.maximized
+	end
+
+	--[[
+	minimize_button.super_draw = minimize_button.draw
+	function minimize_button:draw()
+		
+
+		self:super_draw()
+	end ]]
+
+	function minimize_button:mouserelease(mx,my,button)
+		if (button == inp.MOUSE_LEFT) then
+			if (base_window.state == window_state.minimized) then
+				base_window:maximize()
+			else
+				base_window:minimize()
+			end
+		end
+	end
+
+	function base_window:draw()
+		self:superdraw()
+
+		gfx.translate(self.hitbox.x,self.hitbox.y)
+	
+		for k,v in pairs(self.childwidgets) do
+			v:draw()
+		end
+
+		gfx.translate(-self.hitbox.x,-self.hitbox.y)
+	end
+
+	return base_window
+end
+
+function gui:create_staticpanel(x,y,w,h)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+
+	base_widget.superdraw = base_widget.draw
+
+	function base_widget:draw()
+		gfx.translate(self.drawbox.x,self.drawbox.y)
+
+		-- bg
+		gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
+						511,1,1,255)
+                    
+		-- topleft
+		gfx.drawtopleft(0, 0, 5, 5,
+						0,0,5,5)
+    
+		-- topright
+		gfx.drawtopleft(self.drawbox.w-5, 0, 5, 5,
+						9,0,5,5)
+                    
+		-- top
+		gfx.drawtopleft(5, 0, self.drawbox.w-10, 5,
+						5,0,1,5)
+                    
+
+		-- bottomleft
+		gfx.drawtopleft(0, self.drawbox.h-5, 5, 5,
+						0,9,5,5)
+
+		-- bottomright
+		gfx.drawtopleft(self.drawbox.w-5, self.drawbox.h-5, 5, 5,
+						9,9,5,5)
+                    
+		-- top
+		gfx.drawtopleft(5, self.drawbox.h-5, self.drawbox.w-10, 5,
+						5,9,1,5)
+                    
+		-- left
+		gfx.drawtopleft(0, 5, 5, self.drawbox.h-10,
+						0,5,5,1)
+                    
+		-- right
+		gfx.drawtopleft(self.drawbox.w-5, 5, 5, self.drawbox.h-10,
+						9,5,5,1)
+
+		gfx.translate(-self.drawbox.x,-self.drawbox.y)
+
+		self:superdraw()
+	end
+
+	return base_widget
+end
+
+function gui:create_movablepanel(x,y,w,h)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+	base_widget.offset = { dx = 0, dy = 0 }
+
+	function base_widget:mousedrag(dx,dy,button)
+		if (button == inp.MOUSE_LEFT) then
+			self.offset.dx = self.offset.dx + dx
+			self.offset.dy = self.offset.dy + dy
+
+			self.hitbox.x = self.hitbox.x + dx
+			self.hitbox.y = self.hitbox.y + dy
+		end
+	end
+
+	function base_widget:draw()
+		gfx.translate(self.drawbox.x + self.offset.dx,self.drawbox.y + self.offset.dy)
+
+		-- bg
+		gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
+						511,1,1,255)
+                    
+		-- topleft
+		gfx.drawtopleft(0, 0, 5, 5,
+						0,0,5,5)
+    
+		-- topright
+		gfx.drawtopleft(self.drawbox.w-5, 0, 5, 5,
+						9,0,5,5)
+                    
+		-- top
+		gfx.drawtopleft(5, 0, self.drawbox.w-10, 5,
+						5,0,1,5)
+                    
+
+		-- bottomleft
+		gfx.drawtopleft(0, self.drawbox.h-5, 5, 5,
+						0,9,5,5)
+
+		-- bottomright
+		gfx.drawtopleft(self.drawbox.w-5, self.drawbox.h-5, 5, 5,
+						9,9,5,5)
+                    
+		-- top
+		gfx.drawtopleft(5, self.drawbox.h-5, self.drawbox.w-10, 5,
+						5,9,1,5)
+                    
+		-- left
+		gfx.drawtopleft(0, 5, 5, self.drawbox.h-10,
+						0,5,5,1)
+                    
+		-- right
+		gfx.drawtopleft(self.drawbox.w-5, 5, 5, self.drawbox.h-10,
+						9,5,5,1)
+
+		gfx.translate(-(self.drawbox.x + self.offset.dx),-(self.drawbox.y + self.offset.dy))
+	end
+	
+	return base_widget
+end
 
 -- simple button aoeu
 function gui:create_simplebutton(x,y,w,h,action)

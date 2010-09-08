@@ -96,6 +96,7 @@
     <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp" />
     <ClCompile Include="..\..\Source\Resource\Blob.cpp" />
     <ClCompile Include="..\..\Source\Resource\Text.cpp" />
+    <ClCompile Include="Source\AppGraphicsLib.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="..\..\Source\Kernel.cpp" />
     <ClCompile Include="..\..\Source\Module.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TypeTraits.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
+    <ClInclude Include="Include\AppGraphicsLib.h" />
     <ClInclude Include="Include\QuadBatch.h" />
     <ClInclude Include="Include\TexturedQuadBatch.h" />
   </ItemGroup>

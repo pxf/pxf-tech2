@@ -169,7 +169,7 @@ int main()
 		//gfx->BindTexture(tex0);
 		//testFBO->Draw();
 
-        //test_model->Draw();
+        test_model->Draw();
     }
     
     delete app;

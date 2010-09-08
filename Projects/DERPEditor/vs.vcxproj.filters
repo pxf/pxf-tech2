@@ -176,6 +176,9 @@
     <ClCompile Include="..\..\Modules\pri\Source\ModelGL2.cpp">
       <Filter>Modules\pri\source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\AppGraphicsLib.cpp">
+      <Filter>Editor\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">
@@ -366,6 +369,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\ModelGL2.h">
       <Filter>Modules\pri\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\AppGraphicsLib.h">
+      <Filter>Editor\Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
