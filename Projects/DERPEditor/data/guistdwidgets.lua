@@ -46,8 +46,8 @@ function gui:create_horisontalpanel(x,y,w,h,max)
   end
   
   --wid.superdraw = wid.draw
-  function wid:draw()
-    if (self.redraw_needed) then
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
       local r,g,b = gfx.getcolor()
       gfx.setcolor(46/256,46/256,46/256)
       gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
@@ -56,7 +56,7 @@ function gui:create_horisontalpanel(x,y,w,h,max)
     end
     gfx.translate(self.drawbox.x, self.drawbox.y)
     for k,v in pairs(self.childwidgets) do
-      v:draw()
+      v:draw(force)
     end
     gfx.translate(-self.drawbox.x, -self.drawbox.y)
   end
@@ -86,12 +86,12 @@ end
 function gui:create_verticalstack(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
   
-  function wid:draw()
+  function wid:draw(force)
     --local numwidgets = #self.childwidgets
     gfx.translate(self.drawbox.x, self.drawbox.y)
     local total_offset = 0
     for k,v in pairs(self.childwidgets) do
-      v:draw()
+      v:draw(force)
       gfx.translate(0, v.drawbox.h)
       total_offset = total_offset + v.drawbox.h
     end
@@ -146,16 +146,17 @@ function gui:create_console(x,y,w,h,visible)
     table.insert(self.consolelines, str)
   end
   
-  function wid:draw()
+  function wid:draw(force)
     gfx.translate(self.drawbox.x, self.drawbox.y)
-    if (self.redraw_needed) then
+    if (self.redraw_needed or force) then
+      --panic.text("wut", 16, 16)
       local r,g,b = gfx.getcolor()
       gfx.setcolor(26/256,26/256,26/256)
       gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,17,1,1,1)
       gfx.setcolor(r,g,b)
       
       if (self.visible) then
-        print("heaoe?")
+        
         for k,v in pairs(self.consolelines) do
           panic.text(v, 16, 16*k)
         end
@@ -197,8 +198,8 @@ function gui:create_simplebutton(x,y,w,h,action)
     end
   end
   
-  function wid:draw()
-    if (self.redraw_needed) then
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
       gfx.translate(self.drawbox.x, self.drawbox.y)
     
       -- bg

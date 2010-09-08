@@ -55,10 +55,10 @@ function gui:create_basewidget(x,y,w,h)
   -- end of redraw functions
   ----------------------------------
   
-  function wid:draw()
+  function wid:draw(force)
     gfx.translate(self.drawbox.x, self.drawbox.y)
     for k,v in pairs(self.childwidgets) do
-      v:draw()
+      v:draw(force)
     end
     gfx.translate(-self.drawbox.x, -self.drawbox.y)
   end
@@ -127,7 +127,7 @@ end
 function gui:create_root()
   local rootwid = self:create_basewidget(0, 0, app.width, app.height)
   
-  function rootwid:draw()
+  function rootwid:draw(force)
     local r,g,b = gfx.getcolor()
     gfx.setcolor(46/255,46/255,46/255)
     gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,17,1,1,1)
@@ -135,7 +135,7 @@ function gui:create_root()
     
     gfx.translate(self.drawbox.x, self.drawbox.y)
     for k,v in pairs(self.childwidgets) do
-      v:draw()
+      v:draw(force)
     end
     gfx.translate(-self.drawbox.x, -self.drawbox.y)
   end
@@ -147,7 +147,6 @@ end
 -- core and setup of GUI
 
 function gui:redraw(x,y,w,h)
-  print("should redraw at: " .. tostring(x) .. " " .. tostring(y) .. " " .. tostring(w) .. " " .. tostring(h))
   self.widgets:find_redrawhit(x,y,x+w,y+h)
   gfx.redrawneeded(x,y,w,h)
 end
@@ -242,11 +241,12 @@ function gui:update()
   end]]
 end
 
-function gui:draw()
+function gui:draw(force)
   -- redraw gui
   -- NOTE: for efficiency, redrawneeded(...) should be called beforehand
   --       to minimize fill
   
-  gfx.bindtexture(self.themetex)
-  self.widgets:draw()
+  local oldtex = gfx.bindtexture(self.themetex)
+  self.widgets:draw(force)
+  gfx.bindtexture(oldtex)
 end

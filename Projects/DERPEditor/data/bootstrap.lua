@@ -49,9 +49,11 @@ function point_hittest(px,py, x0,y0, x1,y1 )
   return true
 end
 
+gfx.forceredraw = true
 function gfx.redrawneeded(x,y,w,h)
   if (x == nil) then
     gfx._redrawneeded()
+    gfx.forceredraw = true
   else
     gfx._redrawneeded(x,y,w,h)
   end
@@ -76,7 +78,7 @@ end
 
 function draw_runtimeerror()
   gfx.bindtexture(runtimeerror_tex)
-  gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
+  --gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
   gfx.setcolor(1,1,1)
   gfx.drawcentered(400,300,512,256)
   panic.text_box(error_lines, 400 - 230, 300 - 42, 500, 100, 4, 1)
@@ -207,10 +209,11 @@ end
 
 function _draw()
   if (not error_stop) then
-    draw()
+    draw(gfx.forceredraw)
   else
     draw_runtimeerror()
   end
+  gfx.forceredraw = false
 end
 
 --print("gfx.test() -> " .. tostring(gfx.test()))

@@ -61,7 +61,7 @@ LuaApp::~LuaApp()
 void LuaApp::Init()
 {
   // Init GL settings
-  Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, LUAAPP_DEPTH_NEAR, LUAAPP_DEPTH_FAR);
+  Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, LUAAPP_DEPTH_FAR, LUAAPP_DEPTH_NEAR);
   m_gfx->SetProjection(&prjmat);
   
   glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
@@ -73,10 +73,13 @@ void LuaApp::Init()
   glAlphaFunc(GL_GREATER,0.1f);
   
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_GEQUAL);
-  glClearDepth(LUAAPP_DEPTH_FAR);
+  glDepthMask(GL_TRUE);
+  glDepthFunc(GL_LEQUAL);
+
+  glClearStencil(0x0);
   
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
 }
 
@@ -230,7 +233,7 @@ QuadBatch* LuaApp::GetActiveQB()
 
 void LuaApp::IncDepth()
 {
-  m_CurrentDepth += LUAAPP_DEPTH_STEP;
+  m_CurrentDepth = m_CurrentDepth - LUAAPP_DEPTH_STEP;
 }
 
 void LuaApp::ResetDepth()
@@ -265,13 +268,12 @@ void LuaApp::Draw()
     {
       if (m_RedrawNeeded)
       {
-        
+        //glClear(GL_DEPTH_BUFFER_BIT);
         if (m_RedrawStencil)
         {
           glEnable(GL_STENCIL_TEST);
           glDisable(GL_DEPTH_TEST);
           glClear(GL_STENCIL_BUFFER_BIT);
-          glClearStencil(0x0);
           
           glStencilFunc(GL_ALWAYS, 0x1, 0x1);
           glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
@@ -281,17 +283,16 @@ void LuaApp::Draw()
           m_RedrawStencil = false;
           
           glStencilFunc(GL_EQUAL, 0x1, 0x1);
-          //glStencilFunc (GL_NOTEQUAL, 0x1, 0x1);
-          glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+          glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
           
+          glEnable(GL_DEPTH_TEST);
         } else {
           glDisable(GL_STENCIL_TEST);
         }
-        glEnable(GL_DEPTH_TEST);
+        
         
         ResetDepth();
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         
         // Reset all quadbatches
