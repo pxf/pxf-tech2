@@ -48,6 +48,36 @@ int DERPEditor::app_quit(lua_State *L)
   return 0;
 }
 
+int DERPEditor::app__setrenderoption(lua_State *L)
+{
+  // app.setrenderoption(render_mode) -- changes render option
+  if (lua_gettop(L) == 1)
+  {
+    LuaApp::GetInstance()->m_RedrawMode = lua_tointeger(L, 1);
+    return 0;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to setrenderoption function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::app__getrenderoption(lua_State *L)
+{
+  // render_mode = app.getrenderoption() -- get render option
+  if (lua_gettop(L) == 0)
+  {
+    lua_pushnumber(L, LuaApp::GetInstance()->m_RedrawMode);
+    return 1;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to getrenderoption function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 /*
  * Below is a modified version of the debug.traceback function shipped with Lua.
  */
@@ -125,10 +155,19 @@ int DERPEditor::luaopen_appcore (lua_State *L) {
     {"quit",   app_quit},
     {"traceback",   app_traceback},
     {"getwindimensions",   app_getwindimensions},
+    
+    {"_setrenderoption",   app__setrenderoption},
+    {"_getrenderoption",   app__getrenderoption},
     {NULL, NULL}
     };
   
   luaL_register(L, LUA_APPCORENAME, appcorelib);
+  lua_pushinteger(L, LUAAPP_REDRAWMODE_FULL);
+  lua_setfield(L, -2, "REDRAWMODE_FULL");
+  lua_pushinteger(L, LUAAPP_REDRAWMODE_NORMAL);
+  lua_setfield(L, -2, "REDRAWMODE_NORMAL");
+  lua_pushinteger(L, LUAAPP_REDRAWMODE_STENCIL);
+  lua_setfield(L, -2, "REDRAWMODE_STENCIL");
   /*lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
   lua_pushnumber(L, HUGE_VAL);

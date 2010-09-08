@@ -14,6 +14,7 @@ console:addline("what are you? a HOMO?")
 console:addline("you mad? 8)")
 local rebootbutton = gui:create_simplebutton(12,12,100,30, function () app.reboot() end)
 local quitbutton = gui:create_simplebutton(app.width - 78,12,60,30, function (self) self.parent:destroy() end)--app.quit() end)
+local testbutton = gui:create_simplebutton(app.width - 140,12,60,30, function (self) app.setrenderoption(app.REDRAWMODE_NORMAL) end)--app.quit() end)
 local toolbar = gui:create_horisontalpanel(0,0,app.width,50, app.width)
 --local movable_panel = gui:create_movablepanel(200, 200,100,100)
 local movable_window = gui:create_movablewindow(200,200,100,100)
@@ -21,6 +22,7 @@ local movable_window = gui:create_movablewindow(200,200,100,100)
 -- add buttons to toolbar
 toolbar:addwidget(rebootbutton)
 toolbar:addwidget(quitbutton)
+toolbar:addwidget(testbutton)
 
 -- add toolbar and console to topstack
 topstack:addwidget(console)
@@ -47,7 +49,7 @@ function update()
   --gfx.redrawneeded(200, 200, 200, 200)
   --gfx.redrawneeded()
   --a = a + 0.005
-  gfx.redrawneeded()
+  --gfx.redrawneeded()
 end
 
 
