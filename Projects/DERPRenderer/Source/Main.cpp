@@ -21,23 +21,12 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 #include <Pxf/Resource/Sound.h>
-
 #include <ctime>
-
-#include <json/json.h>
 
 using namespace Pxf;
 
 int main()
 {
-	
-	/* TODO: Make a resource loader for json */
-	Json::Value root;
-	Json::Reader reader;
-	bool success = reader.parse("{\"honk\": 42}", root);
-	if (success)
-		Message("json", "%d", root.get("honk", 88).asInt());
-
     Pxf::RandSetSeed(time(NULL));
     Kernel* kernel = Pxf::Kernel::GetInstance();
 
@@ -46,6 +35,8 @@ int main()
     kernel->RegisterModule("img", 0xFFFF, true);
 	kernel->RegisterModule("mesh", 0xFFFF, true);
 	kernel->RegisterModule("snd", 0xFFFF, true);
+	kernel->RegisterModule("json", 0xFFFF, true);
+	kernel->RegisterModule("net", 0xFFFF, true);
     kernel->DumpAvailableModules();
 
     Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();

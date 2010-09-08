@@ -1,5 +1,5 @@
-#ifndef _PXF_MODULES_NET_ENETSERVER_H_
-#define _PXF_MODULES_NET_ENETSERVER_H_
+#ifndef _PXF_NETWORK_SERVER_H_
+#define _PXF_NETWORK_SERVER_H_
 
 namespace Pxf
 {
@@ -18,4 +18,4 @@ namespace Pxf
 	}
 }
 
-#endif /* _PXF_MODULES_NET_ENETSERVER_H_ */
+#endif /* _PXF_NETWORK_SERVER_H_ */

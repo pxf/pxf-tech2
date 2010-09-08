@@ -70,7 +70,7 @@ VertexBufferGL2::~VertexBufferGL2()
 	else
 	{
 		if (m_InterleavedData)
-			delete [] m_InterleavedData;
+			delete [] (char*)m_InterleavedData;
 	}
 }
 
