@@ -3,6 +3,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Audio/AudioDevice.h>
 
 int DERPEditor::snd_playsound(lua_State *L) 
 {
@@ -15,7 +16,8 @@ int DERPEditor::snd_newsound(lua_State *L)
 	// snd.newsound(path)
 	if(lua_gettop(L) == 1)
 	{
-
+		int _NewID = LuaApp::GetInstance()->m_snd->RegisterSound(lua_tostring(L, 1));
+		lua_pushnumber(L, _NewID); // push qb index as result
 		return 1;
 	}
 	else

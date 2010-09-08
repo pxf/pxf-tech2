@@ -20,6 +20,7 @@ LuaApp* LuaApp::GetInstance()
 }
 
 LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
+	: m_snd(0)
 {
     m_Filepath = _filepath;
     m_win = _win;
@@ -50,6 +51,7 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     // get engine system pointers for easy access later on
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
     m_inp = Kernel::GetInstance()->GetInputDevice();
+	m_snd = Kernel::GetInstance()->GetAudioDevice();
     
     // Set "snigelton"
     _appinstance = this;

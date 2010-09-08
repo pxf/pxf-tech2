@@ -391,6 +391,9 @@
     <ClInclude Include="Include\AppSoundLib.h">
       <Filter>Editor\Include</Filter>
     </ClInclude>
+    <ClInclude Include="Include\LuaApp.h">
+      <Filter>Editor\Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\test.ctm">
@@ -403,6 +406,9 @@
       <Filter>Editor\Data</Filter>
     </None>
     <None Include="data\guibase.lua">
+      <Filter>Editor\Data</Filter>
+    </None>
+    <None Include="data\tick.ogg">
       <Filter>Editor\Data</Filter>
     </None>
   </ItemGroup>

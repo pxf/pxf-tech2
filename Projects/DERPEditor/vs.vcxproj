@@ -186,6 +186,7 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
     <ClInclude Include="Include\AppGraphicsLib.h" />
     <ClInclude Include="Include\AppSoundLib.h" />
+    <ClInclude Include="Include\LuaApp.h" />
     <ClInclude Include="Include\QuadBatch.h" />
     <ClInclude Include="Include\TexturedQuadBatch.h" />
   </ItemGroup>
@@ -194,6 +195,7 @@
     <None Include="data\guibase.lua" />
     <None Include="data\guistdwidgets.lua" />
     <None Include="data\test.ctm" />
+    <None Include="data\tick.ogg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -273,12 +273,14 @@ function gui:create_movablewindow(x,y,w,h)
 	function base_window:minimize()
 	  self:needsredraw()
 		self.drawbox.h = 20
+		self.hitbox.h = 20
 		self.state = window_state.minimized
 		self:needsredraw()
 	end
 
 	function base_window:maximize()
 	  self:needsredraw()
+		self.drawbox.h = self.height
 		self.drawbox.h = self.height
 		self.state = window_state.maximized
 		self:needsredraw()
@@ -296,7 +298,7 @@ function gui:create_movablewindow(x,y,w,h)
 
 	function close_button:mouserelease(mx,my,button)
 		if (button == inp.MOUSE_LEFT) then
-			close_button:destroy()
+			base_window:destroy()
 		end
 	end
 
