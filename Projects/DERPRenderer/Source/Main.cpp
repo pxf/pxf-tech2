@@ -57,8 +57,7 @@ int main()
     Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
     Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
 
-	Resource::Sound* sndclip = res->Acquire<Resource::Sound>("data/tick.ogg");
-	int tick_id = snd->RegisterSound(sndclip);
+	int tick_id = snd->RegisterSound("data/tick.ogg");
 
 
     Graphics::WindowSpecifications spec;
@@ -87,6 +86,8 @@ int main()
 
 		if (inp->GetLastButton() == Input::MOUSE_LEFT)
 			snd->Play(tick_id);
+		if (inp->GetLastButton() == Input::MOUSE_RIGHT)
+			snd->Pause(tick_id);
 
         win->Swap();
 		inp->ClearLastKey();

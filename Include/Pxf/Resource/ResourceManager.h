@@ -95,7 +95,7 @@ namespace Resource
                         m_LoadedResources->erase(iter);
                     }
 
-                    _Resource->m_Loader->Destroy(_Resource);
+                    _Resource->m_Loader->Destroy((ResourceType*)_Resource);
                 }
                 else
                     Message("ResourceManager", "Releasing resource holding '%s' [refs = %d]", _Resource->GetSource(), _Resource->m_References);

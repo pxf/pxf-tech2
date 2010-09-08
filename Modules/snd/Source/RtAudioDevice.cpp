@@ -1,14 +1,16 @@
 #include <Pxf/Modules/snd/RtAudioDevice.h>
+#include <Pxf/Kernel.h>
 #include <RtAudio.h>
 #include <Pxf/Math/Math.h>
 
 #include <Pxf/Resource/Sound.h>
+#include <Pxf/Resource/ResourceManager.h>
 
 using namespace Pxf;
 using namespace Pxf::Modules;
 
-#define MAX_REGISTERED_SOUNDS 16
-#define MAX_PLAYING_SOUNDS 5
+#define MAX_REGISTERED_SOUNDS 128
+#define MAX_NUM_VOICES 16
 
 const Resource::Sound* g_Clip;
 unsigned pos = 0;
@@ -23,7 +25,7 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 	
 	RtAudioDevice* device = (RtAudioDevice*)_device;
 	short* out = (short*)_outbuff;
-	Util::Array<RtAudioDevice::SoundEntry*>* soundbank = device->GetSoundEntries();
+	Util::Array<RtAudioDevice::SoundEntry>* voices = device->GetVoices();
 	
 	RtAudioDevice::SoundEntry* entry;
 	for(unsigned int i = 0; i < _num_frames*2; i += 2)
@@ -31,18 +33,17 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 		out[i] = 0;
 		out[i+1] = 0;
 		
-		for (int j = 0; j < MAX_REGISTERED_SOUNDS; j++)
+		for (int j = 0; j < MAX_NUM_VOICES; j++)
 		{
-			entry = soundbank->at(j);
-			if (entry && entry->active)
+			entry = &voices->at(j);
+			if (entry->clip && entry->active)
 			{
 				if (entry->current_frame >= entry->clip->DataLen())
 				{
-					if (entry->loop)
-						entry->current_frame = 0;
-					else
+					entry->current_frame = 0;
+					if (!entry->loop)
 					{
-						entry->active = false;
+						entry->clip = 0;
 						continue;
 					}
 				}
@@ -63,7 +64,8 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 
 bool RtAudioDevice::Init()
 {
-	m_SoundEntries.resize(MAX_REGISTERED_SOUNDS);
+	m_SoundBank.resize(MAX_REGISTERED_SOUNDS);
+	m_ActiveVoices.resize(MAX_NUM_VOICES);
 
 	m_DAC = new RtAudio();
 
@@ -123,22 +125,30 @@ RtAudioDevice::~RtAudioDevice()
 	{
 		Message("Audio", "Fatal error trying to stop stream: %s", e.getMessage());
 	}
-
-	if (m_DAC->isStreamOpen())
-	{
-		m_DAC->closeStream();
-	}
 }
 
-int RtAudioDevice::RegisterSound(const Resource::Sound* _Sound)
+int RtAudioDevice::RegisterSound(const char* _Filename)
 {
+	Resource::Sound* snd = GetKernel()->GetResourceManager()->Acquire<Resource::Sound>(_Filename);
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
-		if (m_SoundEntries[i] == NULL)
+		if (m_SoundBank[i] == NULL)
 		{
-			RtAudioDevice::SoundEntry* entry
-				= new RtAudioDevice::SoundEntry(_Sound, 0, false, false);
-			m_SoundEntries[i] = entry;
+			m_SoundBank[i] = snd;
+			return i;
+		}
+	}
+	return -1;
+}
+
+int RtAudioDevice::RegisterSound(Resource::Sound* _Sound)
+{
+	_Sound->_AddRef();
+	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
+	{
+		if (m_SoundBank[i] == NULL)
+		{
+			m_SoundBank[i] = _Sound;
 			return i;
 		}
 	}
@@ -147,40 +157,116 @@ int RtAudioDevice::RegisterSound(const Resource::Sound* _Sound)
 
 int RtAudioDevice::GetSoundID(const Resource::Sound* _Sound)
 {
-	return -2;
+	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
+	{
+		if (m_SoundBank[i] == _Sound)
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 void RtAudioDevice::UnregisterSound(int _Id)
 {
-
+	if(m_SoundBank[_Id])
+	{
+		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
+		{
+			if (m_ActiveVoices[i].clip == m_SoundBank[_Id])
+				m_ActiveVoices[i].clip = 0;
+		}
+		m_SoundBank[_Id]->_DeRef();
+		GetKernel()->GetResourceManager()->Release(m_SoundBank[_Id]);
+		m_SoundBank[_Id] = 0;
+	}
 }
 
 void RtAudioDevice::Play(unsigned int _SoundID, bool _Loop)
 {
-	if (m_SoundEntries[_SoundID])
+	if (m_SoundBank[_SoundID])
 	{
-		m_SoundEntries[_SoundID]->active = true;
-		m_SoundEntries[_SoundID]->loop = _Loop;
-		m_SoundEntries[_SoundID]->current_frame = 0;
+		unsigned free_slot = -1;
+		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
+		{
+			// Resume paused sound
+			if (m_ActiveVoices[i].clip == m_SoundBank[_SoundID]
+				&& m_ActiveVoices[i].active == false)
+			{
+				m_ActiveVoices[i].active = true;
+				return;
+			}
+			// id of free slot
+			else if (m_ActiveVoices[i].clip == 0)
+				free_slot = i;
+		}
+
+		// No sound with it was paused, and there is a voice available
+		if (free_slot != -1)
+		{
+			m_ActiveVoices[free_slot].clip = m_SoundBank[_SoundID];
+			m_ActiveVoices[free_slot].current_frame = 0;
+			m_ActiveVoices[free_slot].active = true;
+			m_ActiveVoices[free_slot].loop = _Loop;
+			return;
+		}
 	}
 }
 
 void RtAudioDevice::Stop(unsigned int _SoundID)
 {
-
+	if (m_SoundBank[_SoundID])
+	{
+		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
+		{
+			if (m_ActiveVoices[i].clip == m_SoundBank[_SoundID])
+			{
+				m_ActiveVoices[i].clip = 0;
+				m_ActiveVoices[i].current_frame = 0;
+				m_ActiveVoices[i].active = false;
+				return;
+			}
+		}
+	}
 }
 
 void RtAudioDevice::StopAll()
 {
-
+	for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
+	{
+		if (m_ActiveVoices[i].clip)
+		{
+			m_ActiveVoices[i].clip = 0;
+			m_ActiveVoices[i].current_frame = 0;
+			m_ActiveVoices[i].active = false;
+			return;
+		}
+	}
 }
 
 void RtAudioDevice::Pause(unsigned int _SoundID)
 {
-
+	if (m_SoundBank[_SoundID])
+	{
+		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
+		{
+			if (m_ActiveVoices[i].clip == m_SoundBank[_SoundID])
+			{
+				m_ActiveVoices[i].active = false;
+				return;
+			}
+		}
+	}
 }
 
 void RtAudioDevice::PauseAll()
 {
-
+	for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
+	{
+		if (m_ActiveVoices[i].clip)
+		{
+			m_ActiveVoices[i].active = false;
+			return;
+		}
+	}
 }
