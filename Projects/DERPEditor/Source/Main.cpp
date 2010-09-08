@@ -22,7 +22,6 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
-#include <Pxf/Resource/Mesh.h>
 #include <Pxf/Resource/Blob.h>
 
 #include <enet/enet.h>
@@ -46,7 +45,7 @@ int main()
 
     kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
-	  kernel->RegisterModule("mesh", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
+	  //kernel->RegisterModule("mesh", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
     Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
@@ -88,7 +87,7 @@ int main()
     Graphics::Window* win = gfx->OpenWindow(&spec);
    
 	// Shader test
-	const char* vertex_program = "void main(void)\
+	/*const char* vertex_program = "void main(void)\
 	{                                            \
 		gl_Position = ftransform();              \
 	}";
@@ -97,6 +96,7 @@ int main()
 	gl_FragColor = vec4(0, 1, 0, 1); \
 	}";
 	Graphics::Shader* test_shader = gfx->CreateShader("test_shader", vertex_program, fragment_program);
+	*/
 
     // FBO tests
 	/*Graphics::Texture* tex0 = gfx->CreateEmptyTexture(spec.Width, spec.Height);
@@ -153,7 +153,7 @@ int main()
     app->Boot();
     bool running = true;
 
-	Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
+	//Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
 
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
@@ -169,7 +169,7 @@ int main()
 		//gfx->BindTexture(tex0);
 		//testFBO->Draw();
 
-        test_model->Draw();
+        //test_model->Draw();
     }
     
     delete app;

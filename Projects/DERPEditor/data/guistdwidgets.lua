@@ -18,7 +18,7 @@
       local r,g,b = gfx.getcolor()
       gfx.setcolor(46/256,46/256,46/256)
       gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
-                      17,0,1,1)
+                      18,2,1,1)
       gfx.setcolor(r,g,b)
     end
     self:superdraw()
@@ -52,7 +52,7 @@ function gui:create_horisontalpanel(x,y,w,h,max)
       local r,g,b = gfx.getcolor()
       gfx.setcolor(46/256,46/256,46/256)
       gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
-                      17,0,1,1)
+                      18,2,1,1)
       gfx.setcolor(r,g,b)
     end
     gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
@@ -155,7 +155,7 @@ function gui:create_console(x,y,w,h,visible)
       --panic.text("wut", 16, 16)
       local r,g,b = gfx.getcolor()
       gfx.setcolor(26/256,26/256,26/256)
-      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,17,1,1,1)
+      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,18,2,1,1)
       gfx.setcolor(r,g,b)
       
       if (self.visible) then
@@ -306,7 +306,7 @@ function gui:create_staticpanel(x,y,w,h)
 
 		-- bg
 		gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
-						511,1,1,255)
+						512,1,1,254)
                     
 		-- topleft
 		gfx.drawtopleft(0, 0, 5, 5,
@@ -368,7 +368,7 @@ function gui:create_movablepanel(x,y,w,h)
 
 		-- bg
 		gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
-						511,1,1,255)
+						512,1,1,254)
                     
 		-- topleft
 		gfx.drawtopleft(0, 0, 5, 5,
@@ -426,7 +426,7 @@ function gui:create_simplebutton(x,y,w,h,action)
     
       -- bg
       gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
-                      511,1,1,255)
+                      512,1,1,254)
                     
       -- topleft
       gfx.drawtopleft(0, 0, 5, 5,
