@@ -16,6 +16,9 @@ namespace DERPEditor
     int app_quit(lua_State *L);
     int app_traceback(lua_State *L);
     int app_getwindimensions(lua_State *L);
+    
+    int app_setrenderoption(lua_State *L);
+    int app_getrenderoption(lua_State *L);
 
     // Register lib
     int luaopen_appcore (lua_State *L);

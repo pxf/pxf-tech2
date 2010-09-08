@@ -11,6 +11,22 @@ function gui:create_basewidget(x,y,w,h)
     redraw_needed = false
   }
   
+  function wid:destroy()
+    if self.parent then
+      local deletek = nil
+      for k,v in pairs(self.parent.childwidgets) do
+        if v == self then
+          deletek = k
+          break
+        end
+      end
+      
+      if deletek then
+        self.parent.childwidgets[deletek] = nil
+      end
+    end
+  end
+  
   -- child widget control
   wid.childwidgets = {}
   function wid:addwidget(cwid)
