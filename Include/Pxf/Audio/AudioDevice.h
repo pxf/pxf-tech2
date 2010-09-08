@@ -20,6 +20,8 @@ namespace Pxf
         AudioDevice(Kernel* _Kernel, const char* _Identifier)
             : Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_AUDIODEVICE, _Identifier)
         {}
+
+		virtual ~AudioDevice(){};
         
         virtual int RegisterSound(const Resource::Sound* _Sound) = 0;
 		virtual int GetSoundID(const Resource::Sound* _Sound) = 0;
@@ -29,7 +31,7 @@ namespace Pxf
 			UnregisterSound(GetSoundID(_Sound));
 		}
 
-        virtual void Play(unsigned int _SoundID) = 0;
+        virtual void Play(unsigned int _SoundID, bool _Loop = false) = 0;
         virtual void Stop(unsigned int _SoundID) = 0;
         virtual void StopAll() = 0;
         virtual void Pause(unsigned int _SoundID) = 0;

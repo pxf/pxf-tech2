@@ -3,18 +3,20 @@
 #include <Pxf/Modules/snd/OggAudioLoader.h>
 #include <Pxf/Resource/Chunk.h>
 
-#include <SOIL.h>
+#include <stb_vorbis.h>
 
 using namespace Pxf;
 
 bool Modules::OggSound::Build()
 {
-
+	m_SoundDataLen = stb_vorbis_decode_memory((unsigned char*)m_Chunk->data, m_Chunk->size, &m_Channels, &m_SoundData);
+	m_SoundDataLen *= m_Channels;
     return true;
 }
 Modules::OggSound::~OggSound()
 {
-
+	if (m_SoundData)
+		free(m_SoundData);
 }
 
 Modules::OggAudioLoader::OggAudioLoader(Pxf::Kernel* _Kernel)

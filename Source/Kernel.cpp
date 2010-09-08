@@ -29,9 +29,13 @@ Pxf::Kernel::Kernel()
 
 Pxf::Kernel::~Kernel()
 {
+
+	if (m_AudioDevice)
+		delete m_AudioDevice;
+
     if (m_ResourceManager)
         delete m_ResourceManager;
- 
+
     for(int i = 0; i < m_AvailableModules.size(); i++)
     {
         Pxf::Module* m = m_AvailableModules[i]->module;
@@ -279,6 +283,6 @@ void Pxf::Kernel::DumpAvailableModules()
 		const char* path = "built-in";
 		if (m_AvailableModules[i]->dynlib)
 			path = m_AvailableModules[i]->dynlib->GetFilePath();
-        Message("Kernel", "%d. \t%s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
+        Message("Kernel", "| %d. \t%s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
     }
 }

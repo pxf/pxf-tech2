@@ -3,8 +3,9 @@
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Util/Array.h>
 
-#include <RtAudio.h>
+class RtAudio;
 
 namespace Pxf
 {
@@ -12,48 +13,58 @@ namespace Pxf
     {
         class RtAudioDevice : public Pxf::Audio::AudioDevice
         {
+		public:
+			struct SoundEntry
+			{
+				const Resource::Sound* clip;
+				unsigned int current_frame;
+				bool active;
+				bool loop;
+				SoundEntry(const Resource::Sound* _clip, unsigned int _current_frame, bool _active, bool _loop)
+				{
+					clip = _clip;
+					current_frame = _current_frame;
+					active = _active;
+					loop = _loop;
+				}
+			};
+
         private:
-            virtual bool Init()
-            {
-				RtAudio dac;
-				Message("Audio", "Number of output devices: %d", dac.getDeviceCount());
-				return true;
-			}
+			RtAudio* m_DAC;
+			Util::Array<SoundEntry*> m_SoundEntries;
+			unsigned int m_Channels;
+			bool m_Active;
+
+            virtual bool Init();
         public:
         RtAudioDevice(Pxf::Kernel* _Kernel)
             : Pxf::Audio::AudioDevice(_Kernel, "Rt Audio Device")
+			, m_Active(false)
+			, m_Channels(2)
         {
 			Init();
 		}
-		virtual int RegisterSound(const Resource::Sound* _Sound)
+
+		virtual ~RtAudioDevice();
+
+		virtual int RegisterSound(const Resource::Sound* _Sound);
+		virtual int GetSoundID(const Resource::Sound* _Sound);
+		virtual void UnregisterSound(int _Id);
+        virtual void Play(unsigned int _SoundID, bool _Loop);
+        virtual void Stop(unsigned int _SoundID);
+        virtual void StopAll();
+        virtual void Pause(unsigned int _SoundID);
+        virtual void PauseAll();
+
+		Util::Array<SoundEntry*>* GetSoundEntries()
 		{
-			return -1;
+			return &m_SoundEntries;
 		}
-
-		virtual int GetSoundID(const Resource::Sound* _Sound)
+		
+		bool IsActive() const
 		{
-			return -1;
+			return m_Active;
 		}
-
-		virtual void UnregisterSound(int _Id)
-		{
-
-		}
-
-        virtual void Play(unsigned int _SoundID)
-        {}
-
-        virtual void Stop(unsigned int _SoundID)
-        {}
-
-        virtual void StopAll()
-        {}
-
-        virtual void Pause(unsigned int _SoundID)
-        {}
-
-        virtual void PauseAll()
-        {}
 
         };
     }
