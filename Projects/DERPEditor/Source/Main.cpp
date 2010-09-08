@@ -81,7 +81,7 @@ int main()
     spec.StencilBits = 8;
     spec.FSAASamples = 0;
     spec.Fullscreen = false;
-    spec.Resizeable = false;
+    spec.Resizeable = true;
     spec.VerticalSync = false;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);

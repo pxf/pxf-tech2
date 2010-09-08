@@ -5,6 +5,7 @@
 #include "AppCoreLib.h"
 #include "AppInputLib.h"
 #include "AppGraphicsLib.h"
+#include "AppSoundLib.h"
 
 #define LOCAL_MSG "LuaApp"
 
@@ -436,6 +437,7 @@ void LuaApp::_register_own_callbacks()
     luaopen_appcore(L);
     luaopen_appinput(L);
     luaopen_appgraphics(L);
+	luaopen_appsound(L);
 	/*Vec2::RegisterClass(L);
     GraphicsSubsystem::RegisterClass(L);
     ResourcesSubsystem::RegisterClass(L);

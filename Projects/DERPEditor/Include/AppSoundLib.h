@@ -7,12 +7,13 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#define LUA_APPGRAPHICSLIBNAME "snd"
+#define LUA_APPSOUNDLIBNAME "snd"
 
 namespace DERPEditor
 {
     // lib functions
     int snd_playsound(lua_State *L);
+	int snd_newsound(lua_State *L);
 
     // Register lib
     int luaopen_appsound(lua_State *L);

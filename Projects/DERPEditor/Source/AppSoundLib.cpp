@@ -4,10 +4,40 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
-int DERPEditor::snd_playsound(lua_state *L) 
+int DERPEditor::snd_playsound(lua_State *L) 
 {
+	// snd.playsound(id)
+	return 0;
+}
+
+int DERPEditor::snd_newsound(lua_State *L) 
+{
+	// snd.newsound(path)
+	if(lua_gettop(L) == 1)
+	{
+
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to loadtexture function!");
+		lua_error(L);
+	}
 
 	return 0;
+}
+
+int DERPEditor::luaopen_appsound(lua_State *L)
+{
+	const luaL_reg appsoundlib[] = {
+		{"playsound",   snd_playsound},
+		{"newsound",   snd_newsound},
+		{NULL, NULL}
+    };
+  
+	luaL_register(L, LUA_APPSOUNDLIBNAME, appsoundlib);
+
+	return 1;
 }
 
 /*

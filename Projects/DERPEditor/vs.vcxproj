@@ -97,6 +97,7 @@
     <ClCompile Include="..\..\Source\Resource\Blob.cpp" />
     <ClCompile Include="..\..\Source\Resource\Text.cpp" />
     <ClCompile Include="Source\AppGraphicsLib.cpp" />
+    <ClCompile Include="Source\AppSoundLib.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="..\..\Source\Kernel.cpp" />
     <ClCompile Include="..\..\Source\Module.cpp" />
@@ -119,6 +120,8 @@
     <ClCompile Include="Source\TexturedQuadBatch.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\Pxf\Audio\AudioDevice.h" />
+    <ClInclude Include="..\..\Include\Pxf\Audio\NullAudioDevice.h" />
     <ClInclude Include="..\..\Include\Pxf\Graphics\FrameBufferObject.h" />
     <ClInclude Include="..\..\Include\Pxf\Graphics\RenderBuffer.h" />
     <ClInclude Include="..\..\Include\Pxf\Input\InputDefs.h" />
@@ -181,6 +184,7 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
     <ClInclude Include="Include\AppGraphicsLib.h" />
+    <ClInclude Include="Include\AppSoundLib.h" />
     <ClInclude Include="Include\QuadBatch.h" />
     <ClInclude Include="Include\TexturedQuadBatch.h" />
   </ItemGroup>
