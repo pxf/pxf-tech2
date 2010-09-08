@@ -63,6 +63,7 @@ namespace DERPEditor
         void Redraw(); // redraws full screen (no stencil test)
         void Redraw(int x, int y, int w, int h); // adds a redraw region (adds stencil test)
         bool m_RedrawNeeded;
+        bool m_RedrawFull;
         bool m_RedrawStencil;
         QuadBatch* m_StencilQB;
         

@@ -35,6 +35,7 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     
     m_RedrawNeeded = false;
     m_RedrawStencil = false;
+    m_RedrawFull = false;
     m_Started = false;
     m_Running = false;
     m_Shutdown = false;
@@ -100,6 +101,7 @@ void LuaApp::CleanUp()
     m_QuadBatchCount = 0;
     m_QuadBatchCurrent = -1;
     m_RedrawStencil = false;
+    m_RedrawFull = false;
     
     // reset transform matrix
     m_TransformMatrix = Math::Mat4::Identity;
@@ -245,18 +247,21 @@ void LuaApp::ResetDepth()
 void LuaApp::Redraw()
 {
   m_RedrawNeeded = true;
+  m_RedrawFull = true;
   m_RedrawStencil = false;
 }
 
 void LuaApp::Redraw(int x, int y, int w, int h)
 {
-  m_RedrawNeeded = true;
-  m_RedrawStencil = true;
+  if (!m_RedrawFull)
+  {
+    m_RedrawNeeded = true;
+    m_RedrawStencil = true;
   
-  m_StencilQB->Begin();
-  m_StencilQB->AddTopLeft(x,y,w,h);
-  m_StencilQB->End();
-  
+    m_StencilQB->Begin();
+    m_StencilQB->AddTopLeft(x,y,w,h);
+    m_StencilQB->End();
+  }
 }
 
 void LuaApp::Draw()
@@ -270,7 +275,7 @@ void LuaApp::Draw()
       if (m_RedrawNeeded)
       {
         //glClear(GL_DEPTH_BUFFER_BIT);
-        if (m_RedrawStencil)
+        if (m_RedrawStencil && !m_RedrawFull)
         {
           glEnable(GL_STENCIL_TEST);
           glDisable(GL_DEPTH_TEST);
@@ -319,6 +324,7 @@ void LuaApp::Draw()
         
         m_win->Swap();
         
+        m_RedrawFull = false;
         m_RedrawNeeded = false;
         m_QuadBatchCurrent = -1;
         m_TransformMatrix = Math::Mat4::Identity;

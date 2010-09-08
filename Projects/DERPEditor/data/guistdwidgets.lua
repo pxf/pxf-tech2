@@ -258,13 +258,17 @@ function gui:create_movablewindow(x,y,w,h)
 	end
 
 	function base_window:minimize()
+	  self:needsredraw()
 		self.drawbox.h = 20
 		self.state = window_state.minimized
+		self:needsredraw()
 	end
 
 	function base_window:maximize()
+	  self:needsredraw()
 		self.drawbox.h = self.height
 		self.state = window_state.maximized
+		self:needsredraw()
 	end
 
 	--[[
@@ -359,11 +363,13 @@ function gui:create_movablepanel(x,y,w,h)
 
 	function base_widget:mousedrag(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
+		  self:needsredraw()
 			self.offset.dx = self.offset.dx + dx
 			self.offset.dy = self.offset.dy + dy
 
 			self.hitbox.x = self.hitbox.x + dx
 			self.hitbox.y = self.hitbox.y + dy
+			self:needsredraw()
 		end
 	end
 
