@@ -191,6 +191,7 @@ function gui:create_console(x,y,w,h,visible)
   return wid
 end
 
+-- aoeu
 function gui:create_container(x,y,w,h)
 	local base_widget = gui:create_basewidget(x,y,w,h)
 

@@ -185,6 +185,8 @@
     <ClInclude Include="Include\TexturedQuadBatch.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="data\editor.lua" />
+    <None Include="data\guistdwidgets.lua" />
     <None Include="data\test.ctm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
