@@ -190,10 +190,10 @@ void RtAudioDevice::Play(unsigned int _SoundID, bool _Loop)
 		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
 		{
 			// Resume paused sound
-			if (m_ActiveVoices[i].clip == m_SoundBank[_SoundID]
-				&& m_ActiveVoices[i].active == false)
+			if (m_ActiveVoices[i].clip == m_SoundBank[_SoundID])
 			{
-				m_ActiveVoices[i].active = true;
+				if (m_ActiveVoices[i].active == false)
+					m_ActiveVoices[i].active = true;
 				return;
 			}
 			// id of free slot
