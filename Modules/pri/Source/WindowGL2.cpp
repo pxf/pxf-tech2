@@ -211,7 +211,7 @@ int WindowGL2::GetFPS()
 	return m_fps;
 }
 
-char* WindowGL2::GetContextTypeName()
+const char* WindowGL2::GetContextTypeName()
 {
 	return "OpenGL";
 }

@@ -37,8 +37,6 @@ namespace Pxf
         virtual void StopAll() = 0;
         virtual void Pause(unsigned int _SoundID) = 0;
         virtual void PauseAll() = 0;
-        
-        private:
         };
     } // Audio
 } // Pxf

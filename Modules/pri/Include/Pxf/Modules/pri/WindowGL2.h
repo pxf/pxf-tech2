@@ -24,7 +24,7 @@ namespace Pxf{
 			int GetWidth();
 			int GetHeight();
 			float GetAspectRatio();
-			char* GetContextTypeName();
+			const char* GetContextTypeName();
 
 			bool IsOpen();
 			bool IsActive();

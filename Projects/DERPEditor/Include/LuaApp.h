@@ -28,6 +28,10 @@ extern "C" {
 #define LUAAPP_DEPTH_NEAR -100.0f
 #define LUAAPP_DEPTH_STEP (LUAAPP_DEPTH_RANGE / (LUAAPP_QBSIZE * LUAAPP_MAXQB))
 
+#define LUAAPP_REDRAWMODE_FULL 0
+#define LUAAPP_REDRAWMODE_NORMAL 1
+#define LUAAPP_REDRAWMODE_STENCIL 2
+
 
 namespace DERPEditor
 {
@@ -65,6 +69,7 @@ namespace DERPEditor
         bool m_RedrawNeeded;
         bool m_RedrawFull;
         bool m_RedrawStencil;
+        bool m_RedrawMode;
         QuadBatch* m_StencilQB;
         
         // Matrises

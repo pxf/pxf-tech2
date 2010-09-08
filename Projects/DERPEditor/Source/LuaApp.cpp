@@ -37,6 +37,8 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_RedrawNeeded = false;
     m_RedrawStencil = false;
     m_RedrawFull = false;
+    m_RedrawMode = LUAAPP_REDRAWMODE_FULL;
+    
     m_Started = false;
     m_Running = false;
     m_Shutdown = false;
@@ -62,6 +64,8 @@ LuaApp::~LuaApp()
 
 void LuaApp::Init()
 {
+  m_RedrawMode = LUAAPP_REDRAWMODE_FULL;
+  
   // Init GL settings
   Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, LUAAPP_DEPTH_FAR, LUAAPP_DEPTH_NEAR);
   m_gfx->SetProjection(&prjmat);
@@ -254,9 +258,13 @@ void LuaApp::Redraw()
 
 void LuaApp::Redraw(int x, int y, int w, int h)
 {
+  m_RedrawNeeded = true;
+  
+  if (m_RedrawMode == LUAAPP_REDRAWMODE_FULL)
+    m_RedrawMode = true;
+  
   if (!m_RedrawFull)
   {
-    m_RedrawNeeded = true;
     m_RedrawStencil = true;
   
     m_StencilQB->Begin();

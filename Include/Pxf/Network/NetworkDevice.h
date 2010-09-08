@@ -3,10 +3,15 @@
 
 #include <Pxf/System.h>
 
+#include <Pxf/Network/Server.h>
+
 namespace Pxf 
 {
 namespace Network
 {
+	class Server;
+	class Client;
+
 	class NetworkDevice : public Pxf::System
 	{
 	public:
@@ -14,16 +19,14 @@ namespace Network
 			: Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_NETWORKDEVICE, _Identifier)
 		{}
 
-		virtual bool Connected() = 0;
-		virtual bool Recv(char* _Buf) = 0;
-		virtual bool Send(const char* _Buf, const int _Length) = 0;
+		virtual Server* CreateServer(const int _Port) = 0;
+		virtual Client* CreateClient(const char* _Host, const int _Port) = 0;
 
-		/* server */
-		virtual bool Bind(const int _Port) = 0;
+		virtual Server* GetServer(const int _ServerIdent) = 0;
+		virtual Client* GetClient(const int _ClientIdent) = 0;
 
-		/* client */
-		virtual bool Connect(const char* _Host, const int _Port) = 0;
-		virtual bool Disconnect() = 0;
+		virtual void KillServer(const int _ServerIdent) = 0;
+		virtual void KillClient(const int _ClientIdent) = 0;
 	};
 }
 }
