@@ -185,6 +185,9 @@
     <ClCompile Include="Source\AppSoundLib.cpp">
       <Filter>Editor\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\LuaApp.cpp">
+      <Filter>Editor\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">

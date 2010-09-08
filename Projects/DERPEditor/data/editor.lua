@@ -16,7 +16,7 @@ local rebootbutton = gui:create_simplebutton(12,12,100,30, function () app.reboo
 local quitbutton = gui:create_simplebutton(app.width - 78,12,60,30, function () app.quit() end)
 local toolbar = gui:create_horisontalpanel(0,0,app.width,50, app.width)
 --local movable_panel = gui:create_movablepanel(200, 200,100,100)
-local movable_window = gui:create_movablewindow(200,200,100,100)
+local movable_window = gui:create_movablewindow(200,200,140,100)
 
 -- add buttons to toolbar
 toolbar:addwidget(rebootbutton)
@@ -28,7 +28,7 @@ topstack:addwidget(toolbar)
 
 -- add topstack to root
 gui.widgets:addwidget(topstack)
---gui.widgets:addwidget(movable_window)
+gui.widgets:addwidget(movable_window)
 
 --gfx.setclearcolor(113/256, 113/256, 113/256)
 
