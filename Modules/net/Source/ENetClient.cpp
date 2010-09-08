@@ -1,3 +1,37 @@
+#include <Pxf/Modules/net/ENetClient.h>
+
+using namespace Pxf::Modules;
+
+ENetClient::ENetClient()
+{
+	return;
+}
+
+bool ENetClient::Connect()
+{
+	return true;
+}
+
+bool ENetClient::Disconnect()
+{
+	return true;
+}
+
+bool ENetClient::Connected()
+{
+	return true;
+}
+
+int ENetClient::Recv(char* _Buf)
+{
+	return 0;
+}
+
+bool ENetClient::Send(const char* _Buf, const int _Length)
+{
+	return true;
+}
+
 /*#include <Pxf/Modules/net/ENetClient.h>
 
 using namespace Pxf::Modules;

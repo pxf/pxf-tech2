@@ -263,7 +263,9 @@ void LuaApp::Redraw(int x, int y, int w, int h)
   m_RedrawNeeded = true;
   
   if (m_RedrawMode == LUAAPP_REDRAWMODE_FULL)
-    m_RedrawMode = true;
+  {
+    m_RedrawFull = true;
+  }
   
   if (!m_RedrawFull)
   {
@@ -303,6 +305,7 @@ void LuaApp::Draw()
           glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
           
           glEnable(GL_DEPTH_TEST);
+          printf("stengil\n");
         } else {
           glDisable(GL_STENCIL_TEST);
         }

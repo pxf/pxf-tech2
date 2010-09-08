@@ -1,3 +1,33 @@
+#include <Pxf/Modules/net/ENetServer.h>
+
+using namespace Pxf::Modules;
+
+ENetServer::ENetServer()
+{
+}
+
+bool ENetServer::Bind()
+{
+	return false;
+}
+bool ENetServer::Shutdown()
+{
+	return false;
+}
+
+int ENetServer::Recv(char* _Buf)
+{
+	return false;
+}
+bool ENetServer::Send(const int _Client, const char* _Buf, const int _Length)
+{
+	return false;
+}
+bool ENetServer::SendAll(const char* _Buf, const int _Length)
+{
+	return false;
+}
+
 /*
 #include <Pxf/Modules/net/ENetServer.h>
 

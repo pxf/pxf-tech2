@@ -69,7 +69,7 @@ namespace DERPEditor
         bool m_RedrawNeeded;
         bool m_RedrawFull;
         bool m_RedrawStencil;
-        bool m_RedrawMode;
+        unsigned int m_RedrawMode;
         QuadBatch* m_StencilQB;
         
         // Matrises
