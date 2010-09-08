@@ -5,9 +5,16 @@ namespace Pxf
 {
 	namespace Network
 	{
-		class Server
+		class Server;
+	}
+
+	namespace Modules
+	{
+		class ENetServer
 		{
 		public:
+			ENetServer();
+
 			virtual bool Bind() = 0;
 			virtual bool Shutdown() = 0;
 
