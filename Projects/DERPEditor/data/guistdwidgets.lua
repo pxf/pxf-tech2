@@ -240,18 +240,21 @@ function gui:create_movablewindow(x,y,w,h)
 	
 	function minimize_label_arrow:draw()
 		local move_offset = {x = 11, y = -11}
+		local move_dir = 0
+
 		if (base_window.state == window_state.maximized) then
 			gfx.rotate(math.pi * 0.5)
 			gfx.translate(move_offset.x + 1,move_offset.y)
+			minimize_label_arrow:super_draw()
+			gfx.rotate(-math.pi * 0.5)
 		end
 		
 		if (base_window.state == window_state.minimized) then
 			gfx.rotate(-math.pi * 0.5)
 			gfx.translate(-move_offset.x + 1,-move_offset.y)
+			minimize_label_arrow:super_draw()
+			gfx.rotate(math.pi * 0.5)
 		end
-
-		minimize_label_arrow:super_draw()
-		--gfx.rotate(-math.pi * 0.5)
 	end
 
 	function base_window:minimize()

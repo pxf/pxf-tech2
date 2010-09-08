@@ -28,7 +28,7 @@ topstack:addwidget(toolbar)
 
 -- add topstack to root
 gui.widgets:addwidget(topstack)
-gui.widgets:addwidget(movable_window)
+--gui.widgets:addwidget(movable_window)
 
 --gfx.setclearcolor(113/256, 113/256, 113/256)
 
