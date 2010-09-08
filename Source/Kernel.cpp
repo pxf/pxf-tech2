@@ -8,6 +8,7 @@
 #include <Pxf/Input/NullInputDevice.h>
 
 #include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Network/NetworkDevice.h>
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 
@@ -21,6 +22,7 @@ Pxf::Kernel::Kernel()
     , m_InputDevice(0)
     , m_GraphicsDevice(0)
     , m_ResourceManager(0)
+	, m_NetworkDevice(0)
 {
     // We need to make sure that the resource manager is created in this address space.
 	s_Kernel = this;
@@ -90,6 +92,19 @@ Pxf::Graphics::GraphicsDevice* Pxf::Kernel::GetGraphicsDevice()
     //if (!m_GraphicsDevice)
     //    m_GraphicsDevice = new Pxf::Graphics::NullGraphicsDevice(this);
     return m_GraphicsDevice;
+}
+
+void Pxf::Kernel::RegisterNetworkDevice(Pxf::Network::NetworkDevice* _Device)
+{
+	Pxf::Message("Kernel", "Registering network device '%s'", _Device->GetIdentifier());
+	m_NetworkDevice = _Device;
+}
+
+Pxf::Network::NetworkDevice* Pxf::Kernel::GetNetworkDevice()
+{
+	//if (!m_GraphicsDevice)
+	//    m_GraphicsDevice = new Pxf::Graphics::NullGraphicsDevice(this);
+	return m_NetworkDevice;
 }
 
 void Pxf::Kernel::RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader)
