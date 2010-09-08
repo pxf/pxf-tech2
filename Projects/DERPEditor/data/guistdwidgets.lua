@@ -1,9 +1,10 @@
 -- creates scrollable panel (scrollable in all directions)
-function gui:create_panel(x,y,w,h)
+--[[function gui:create_panel(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
   
   function wid:mousedrag(dx,dy,button)
     if (button == inp.MOUSE_MIDDLE) then
+      self:needsredraw()
       self.drawbox.x = self.drawbox.x + dx
       self.drawbox.y = self.drawbox.y + dy
       self.hitbox.x = self.hitbox.x + dx
@@ -13,54 +14,58 @@ function gui:create_panel(x,y,w,h)
   
   wid.superdraw = wid.draw
   function wid:draw()
-    local r,g,b = gfx.getcolor()
-    gfx.setcolor(46/256,46/256,46/256)
-    gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
-                    17,0,1,1)
-    gfx.setcolor(r,g,b)
+    if (self.redraw_needed) then
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(46/256,46/256,46/256)
+      gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
+                      17,0,1,1)
+      gfx.setcolor(r,g,b)
+    end
     self:superdraw()
   end
     
   return wid
-end
+end]]
 
 -- scrollable panel
 function gui:create_horisontalpanel(x,y,w,h,max)
   local wid = gui:create_basewidget(x,y,w,h)
-  wid.offset = 0
-  wid.max = max
+  --wid.offset = 0
+  --wid.max = max
   
   function wid:mousedrag(dx,dy,button)
     if (button == inp.MOUSE_RIGHT) then -- TODO: change this to MOUSE_MIDDLE
-      self.offset = self.offset + dx
-      if (self.offset < -self.max) then
+      self.drawbox.x = self.drawbox.x + dx
+      --[[if (self.offset < -self.max) then
         self.offset = -self.max
       elseif (self.offset > 0) then
         self.offset = 0
-      end
+      end]]
+      self:needsredraw()
     end
   end
   
-  wid.superdraw = wid.draw
-  function wid:draw()
-    local r,g,b = gfx.getcolor()
-    gfx.setcolor(46/256,46/256,46/256)
-    gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
-                    17,0,1,1)
-    gfx.setcolor(r,g,b)
-    
-    gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
-    for k,v in pairs(self.childwidgets) do
-      v:draw()
+  --wid.superdraw = wid.draw
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(46/256,46/256,46/256)
+      gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
+                      17,0,1,1)
+      gfx.setcolor(r,g,b)
     end
-    gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
+    gfx.translate(self.drawbox.x, self.drawbox.y)
+    for k,v in pairs(self.childwidgets) do
+      v:draw(force)
+    end
+    gfx.translate(-self.drawbox.x, -self.drawbox.y)
   end
   
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
       for k,v in pairs(self.childwidgets) do
-        thit = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
+        thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
         
         if not (thit == nil) then
           -- we hit a child widget, return this one instead
@@ -81,18 +86,30 @@ end
 function gui:create_verticalstack(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
   
-  function wid:draw()
+  function wid:draw(force)
     --local numwidgets = #self.childwidgets
     gfx.translate(self.drawbox.x, self.drawbox.y)
     local total_offset = 0
     for k,v in pairs(self.childwidgets) do
-      v:draw()
+      v:draw(force)
       gfx.translate(0, v.drawbox.h)
       total_offset = total_offset + v.drawbox.h
     end
     self.hitbox.h = total_offset
     self.drawbox.h = total_offset
     gfx.translate(-self.drawbox.x, -(self.drawbox.y + total_offset))
+  end
+  
+  function wid:childisredrawn()
+    local total_offset = 0
+    for k,v in pairs(self.childwidgets) do
+      total_offset = total_offset + v.drawbox.h
+    end
+    self.hitbox.h = total_offset
+    self.drawbox.h = total_offset
+    --if not self.redraw_needed then
+      self:needsredraw()
+    --end
   end
   
   function wid:find_mousehit(mx,my)
@@ -129,18 +146,23 @@ function gui:create_console(x,y,w,h,visible)
     table.insert(self.consolelines, str)
   end
   
-  function wid:draw()
+  function wid:draw(force)
     gfx.translate(self.drawbox.x, self.drawbox.y)
-    local r,g,b = gfx.getcolor()
-    gfx.setcolor(26/256,26/256,26/256)
-    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,17,1,1,1)
-    gfx.setcolor(r,g,b)
-    if (self.visible) then
-      for k,v in pairs(self.consolelines) do
-        panic.text(v, 16, 16*k)
+    if (self.redraw_needed or force) then
+      --panic.text("wut", 16, 16)
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(26/256,26/256,26/256)
+      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,17,1,1,1)
+      gfx.setcolor(r,g,b)
+      
+      if (self.visible) then
+        
+        for k,v in pairs(self.consolelines) do
+          panic.text(v, 16, 16*k)
+        end
+      else
+        -- TODO: Draw something special when hidden?
       end
-    else
-      -- TODO: Draw something special when hidden?
     end
     gfx.translate(-self.drawbox.x, -self.drawbox.y)
   end
@@ -156,6 +178,8 @@ function gui:create_console(x,y,w,h,visible)
         self.drawbox.h = 10
         self.hitbox.h = 10
       end
+      
+      self:needsredraw()
     end
   end
   
@@ -391,48 +415,51 @@ function gui:create_simplebutton(x,y,w,h,action)
     end
   end
   
-  function wid:draw()
-    gfx.translate(self.drawbox.x, self.drawbox.y)
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
     
-    -- bg
-    gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
-                    511,1,1,255)
+      -- bg
+      gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
+                      511,1,1,255)
                     
-    -- topleft
-    gfx.drawtopleft(0, 0, 5, 5,
-                    0,0,5,5)
+      -- topleft
+      gfx.drawtopleft(0, 0, 5, 5,
+                      0,0,5,5)
     
-    -- topright
-    gfx.drawtopleft(self.drawbox.w-5, 0, 5, 5,
-                    9,0,5,5)
+      -- topright
+      gfx.drawtopleft(self.drawbox.w-5, 0, 5, 5,
+                      9,0,5,5)
                     
-    -- top
-    gfx.drawtopleft(5, 0, self.drawbox.w-10, 5,
-                    5,0,1,5)
+      -- top
+      gfx.drawtopleft(5, 0, self.drawbox.w-10, 5,
+                      5,0,1,5)
                     
 
-    -- bottomleft
-    gfx.drawtopleft(0, self.drawbox.h-5, 5, 5,
-                    0,9,5,5)
+      -- bottomleft
+      gfx.drawtopleft(0, self.drawbox.h-5, 5, 5,
+                      0,9,5,5)
 
-    -- bottomright
-    gfx.drawtopleft(self.drawbox.w-5, self.drawbox.h-5, 5, 5,
-                    9,9,5,5)
+      -- bottomright
+      gfx.drawtopleft(self.drawbox.w-5, self.drawbox.h-5, 5, 5,
+                      9,9,5,5)
                     
-    -- top
-    gfx.drawtopleft(5, self.drawbox.h-5, self.drawbox.w-10, 5,
-                    5,9,1,5)
+      -- top
+      gfx.drawtopleft(5, self.drawbox.h-5, self.drawbox.w-10, 5,
+                      5,9,1,5)
                     
-    -- left
-    gfx.drawtopleft(0, 5, 5, self.drawbox.h-10,
-                    0,5,5,1)
+      -- left
+      gfx.drawtopleft(0, 5, 5, self.drawbox.h-10,
+                      0,5,5,1)
                     
-    -- right
-    gfx.drawtopleft(self.drawbox.w-5, 5, 5, self.drawbox.h-10,
-                    9,5,5,1)
+      -- right
+      gfx.drawtopleft(self.drawbox.w-5, 5, 5, self.drawbox.h-10,
+                      9,5,5,1)
     
     
-    gfx.translate(-self.drawbox.x, -self.drawbox.y)
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+    end
   end
   
   return wid

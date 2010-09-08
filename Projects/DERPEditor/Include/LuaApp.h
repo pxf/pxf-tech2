@@ -22,10 +22,10 @@ extern "C" {
 #define LUAAPP_TABLE "app"
 
 #define LUAAPP_MAXQB 8
-#define LUAAPP_QBSIZE 1024*2
-#define LUAAPP_DEPTH_RANGE 2.0f
-#define LUAAPP_DEPTH_FAR -1.0f
-#define LUAAPP_DEPTH_NEAR 1.0f
+#define LUAAPP_QBSIZE 2048
+#define LUAAPP_DEPTH_RANGE 200.0f
+#define LUAAPP_DEPTH_FAR 100.0f
+#define LUAAPP_DEPTH_NEAR -100.0f
 #define LUAAPP_DEPTH_STEP (LUAAPP_DEPTH_RANGE / (LUAAPP_QBSIZE * LUAAPP_MAXQB))
 
 
@@ -59,11 +59,17 @@ namespace DERPEditor
         void IncDepth();
         void ResetDepth();
         
+        // Redraw control
+        void Redraw(); // redraws full screen (no stencil test)
+        void Redraw(int x, int y, int w, int h); // adds a redraw region (adds stencil test)
+        bool m_RedrawNeeded;
+        bool m_RedrawStencil;
+        QuadBatch* m_StencilQB;
+        
         // Matrises
         Pxf::Math::Mat4 m_TransformMatrix;
         
         // Public Lua states
-        bool m_RedrawNeeded;
         float m_CurrentDepth;
         Pxf::Math::Vec4f m_CurrentColor;
         

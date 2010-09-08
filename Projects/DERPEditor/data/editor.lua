@@ -30,23 +30,41 @@ topstack:addwidget(toolbar)
 gui.widgets:addwidget(topstack)
 gui.widgets:addwidget(movable_window)
 
-gfx.setclearcolor(113/256, 113/256, 113/256)
+--gfx.setclearcolor(113/256, 113/256, 113/256)
 
 --test_texture = gfx.loadtexture("data/apperror.png")
 
+gfx.redrawneeded()
+
+--a = 0
+--gfx.redrawneeded()
+
 function update()
-  gfx.redrawneeded()
+  --gfx.redrawneeded()
+  --local mx, my = inp.getmousepos()
+  --gfx.redrawneeded(mx,my,50,50)
   gui:update()
+  --gfx.redrawneeded(200, 200, 200, 200)
+  --gfx.redrawneeded()
+  --a = a + 0.005
 end
 
-function draw()
-	gfx.scale(1.0)
-  --gfx.bindtexture(test_texture)
-  --gfx.drawcentered(300,300,256,128, 0, 0, 256, 128)
+
+
+function draw(force)
+  --[[gfx.bindtexture(test_texture)
+  gfx.drawcentered(350,300,256,128, 0, 0, 256, 128)
+  
+  gfx.bindtexture(font)
+  gfx.drawcentered(200,300,350,128, 0, 0, 64, 64)
+  
+  gfx.bindtexture(test_texture)
+  gfx.drawcentered(300+math.cos(a)*100,300+math.sin(a)*100,256,128, 0, 0, 256, 128)]]
+
   --gfx.drawcentered(300,300,256,128)
   --gfx.setcolor(1, 0, 0)
-  panic.text("Welcome to ^1D^2E^1R^2P^9 Editor!", 200, 200)
+  --panic.text("Welcome to ^1D^2E^1R^2P^9 Editor!", 200, 200)
   --poooooooooop()
   
-  gui:draw()
+  gui:draw(force)
 end

@@ -20,6 +20,7 @@
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
+#include <Pxf/Resource/Sound.h>
 
 #include <ctime>
 
@@ -56,6 +57,10 @@ int main()
     Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
     Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
 
+	Resource::Sound* sndclip = res->Acquire<Resource::Sound>("data/tick.ogg");
+	int tick_id = snd->RegisterSound(sndclip);
+
+
     Graphics::WindowSpecifications spec;
     spec.Width = 800;
     spec.Height = 600;
@@ -70,14 +75,22 @@ int main()
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
     
-	while(win->IsOpen() && inp->GetLastKey() != Input::ESC)
+	while(win->IsOpen())
     {
+		inp->Update();
+		if (inp->GetLastKey() == Input::ESC)
+			break;
+
 		char title[512];
 		Format(title, "Renderer (fps: %d)", win->GetFPS());
 		win->SetTitle(title);
+
+		if (inp->GetLastButton() == Input::MOUSE_LEFT)
+			snd->Play(tick_id);
+
         win->Swap();
 		inp->ClearLastKey();
-		inp->Update();
+		inp->ClearLastButton();
     }
     
 
