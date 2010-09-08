@@ -378,5 +378,11 @@
     <None Include="data\test.ctm">
       <Filter>Editor\Data</Filter>
     </None>
+    <None Include="data\editor.lua">
+      <Filter>Editor\Data</Filter>
+    </None>
+    <None Include="data\guistdwidgets.lua">
+      <Filter>Editor\Data</Filter>
+    </None>
   </ItemGroup>
 </Project>
