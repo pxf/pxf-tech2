@@ -429,7 +429,7 @@ function gui:create_simplebutton(x,y,w,h,action)
       gfx.translate(self.drawbox.x, self.drawbox.y)
     
       -- bg
-      gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
+      gfx.drawtopleft(3, 3, self.drawbox.w-5, self.drawbox.h-5,
                       512,1,1,254)
                     
       -- topleft
