@@ -20,7 +20,12 @@ namespace Pxf
 
 		virtual ~NullAudioDevice(){};
 
-		virtual int RegisterSound(const Resource::Sound* _Sound)
+		virtual int RegisterSound(const char* _Filename)
+		{
+			return -1;
+		}
+
+		virtual int RegisterSound(Resource::Sound* _Sound)
 		{
 			return -1;
 		}

@@ -36,6 +36,17 @@ namespace Resource {
         {
             return m_Chunk->source;
         }
+
+		void _AddRef()
+		{
+			m_References++;
+		}
+
+		void _DeRef()
+		{
+			m_References--;
+		}
+
     };
 
 } // Resource

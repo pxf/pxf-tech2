@@ -23,7 +23,8 @@ namespace Pxf
 
 		virtual ~AudioDevice(){};
         
-        virtual int RegisterSound(const Resource::Sound* _Sound) = 0;
+		virtual int RegisterSound(const char* _Filename) = 0;
+        virtual int RegisterSound(Resource::Sound* _Sound) = 0;
 		virtual int GetSoundID(const Resource::Sound* _Sound) = 0;
 		virtual void UnregisterSound(int _Id) = 0;
 		inline void UnregisterSound(const Resource::Sound* _Sound)
