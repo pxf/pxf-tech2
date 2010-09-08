@@ -430,7 +430,7 @@ function gui:create_simplebutton(x,y,w,h,action)
                     
       -- topleft
       gfx.drawtopleft(0, 0, 5, 5,
-                      0,0,5,5)
+                      1,1,5,5)
     
       -- topright
       gfx.drawtopleft(self.drawbox.w-5, 0, 5, 5,
