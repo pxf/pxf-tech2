@@ -281,7 +281,7 @@ function gui:update()
   end]]
 end
 
-function gui:draw(force)
+function gui:draw(force,show_redraw)
   -- redraw gui
   -- NOTE: for efficiency, redrawneeded(...) should be called beforehand
   --       to minimize fill
@@ -289,10 +289,18 @@ function gui:draw(force)
   local oldtex = gfx.bindtexture(self.themetex)
   self.widgets:draw(force)
   
-  --[[for k,v in pairs(gui.redrawrects) do
-    gfx.setcolor((k % 3) *30, (k % 2) *30, (k % 1) *30)
-    gfx.drawtopleft(v[1], v[2], v[3], v[4], 17, 1, 1, 1)
-  end]]
+  -- show redraw regions
+  if (show_redraw) then
+    for k,v in pairs(gui.redrawrects) do
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor((k % 3) *30, (k % 2) *30, (k % 1) *30)
+      gfx.drawtopleft(v[1], v[2], v[3], 1, 17, 1, 1, 1) -- top
+      gfx.drawtopleft(v[1], v[2] + v[4]-1, v[3], 1, 17, 1, 1, 1) -- top
+      gfx.drawtopleft(v[1] + v[3]-1, v[2], 1, v[4], 17, 1, 1, 1) -- right
+      gfx.drawtopleft(v[1], v[2], 1, v[4], 17, 1, 1, 1) -- left
+      gfx.setcolor(r,g,b)
+    end
+  end
   
   gfx.bindtexture(oldtex)
 end
