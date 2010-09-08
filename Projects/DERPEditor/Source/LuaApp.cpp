@@ -187,6 +187,14 @@ bool LuaApp::Update()
 {
     if (m_Running)
     {
+	  if (m_RedrawMode != LUAAPP_REDRAWMODE_FULL)
+      {
+        //printf("pdate\n");
+		//glfwDisable(GLFW_AUTO_POLL_EVENTS);
+		glfwSleep(0.01);
+        //glfwPollEvents();
+        glfwWaitEvents();
+	  }
       CallScriptFunc("_update");
     } else {
       // A application error has occurred, see if the user wants to reboot or quit
