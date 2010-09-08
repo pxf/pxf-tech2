@@ -5,6 +5,9 @@
 
 #include <stb_vorbis.h>
 
+#include <cstdlib>
+#include <cstdio>
+
 using namespace Pxf;
 
 bool Modules::OggSound::Build()

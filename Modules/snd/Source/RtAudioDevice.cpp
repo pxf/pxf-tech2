@@ -110,7 +110,7 @@ bool RtAudioDevice::Init()
 	}
 	catch (RtError& e)
 	{
-		Message("Audio", "Fatal error: %s", e.getMessage());
+		Message("Audio", "Fatal error: %s", e.getMessage().c_str());
 	}
 	return true;
 }
@@ -123,7 +123,7 @@ RtAudioDevice::~RtAudioDevice()
 	}
 	catch (RtError& e)
 	{
-		Message("Audio", "Fatal error trying to stop stream: %s", e.getMessage());
+		Message("Audio", "Fatal error trying to stop stream: %s", e.getMessage().c_str());
 	}
 }
 
