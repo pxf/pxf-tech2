@@ -5,6 +5,7 @@
 #include "AppCoreLib.h"
 #include "AppInputLib.h"
 #include "AppGraphicsLib.h"
+#include "AppSoundLib.h"
 
 #define LOCAL_MSG "LuaApp"
 
@@ -19,6 +20,7 @@ LuaApp* LuaApp::GetInstance()
 }
 
 LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
+	: m_snd(0)
 {
     m_Filepath = _filepath;
     m_win = _win;
@@ -49,6 +51,7 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     // get engine system pointers for easy access later on
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
     m_inp = Kernel::GetInstance()->GetInputDevice();
+	m_snd = Kernel::GetInstance()->GetAudioDevice();
     
     // Set "snigelton"
     _appinstance = this;
@@ -185,7 +188,7 @@ void LuaApp::Shutdown()
 
 bool LuaApp::Update()
 {
-  m_TimerUpdate.Start();
+	m_TimerUpdate.Start();
     if (m_Running)
     {
 	  if (m_RedrawMode != LUAAPP_REDRAWMODE_FULL)
@@ -222,7 +225,7 @@ bool LuaApp::Update()
         
     }
     m_TimerUpdate.Stop();
-    Message(LOCAL_MSG, "update() : %ims", m_TimerUpdate.Interval());
+    //Message(LOCAL_MSG, "update() : %ims", m_TimerUpdate.Interval());
     
     return !m_Shutdown;
 }
@@ -287,7 +290,7 @@ void LuaApp::Redraw(int x, int y, int w, int h)
 
 void LuaApp::Draw()
 {
-  m_TimerDraw.Start();
+	m_TimerDraw.Start();
     // Setup viewport and matrises
     // TODO: get window dimensions dynamically
     m_gfx->SetViewport(0, 0, 800, 600);
@@ -365,7 +368,7 @@ void LuaApp::Draw()
     }
     
     m_TimerDraw.Stop();
-    Message(LOCAL_MSG, "draw() : %ims", m_TimerDraw.Interval());
+    //Message(LOCAL_MSG, "draw() : %ims", m_TimerDraw.Interval());
 }
 
 bool LuaApp::HandleErrors(int _error)
@@ -468,6 +471,7 @@ void LuaApp::_register_own_callbacks()
     luaopen_appcore(L);
     luaopen_appinput(L);
     luaopen_appgraphics(L);
+	luaopen_appsound(L);
 	/*Vec2::RegisterClass(L);
     GraphicsSubsystem::RegisterClass(L);
     ResourcesSubsystem::RegisterClass(L);

@@ -218,17 +218,28 @@ end
 
 function gui:create_movablewindow(x,y,w,h)
 	local base_window = gui:create_movablepanel(x,y,w,h)
-	local minimize_button = gui:create_staticpanel(w-20,0,20,20)
+	local minimize_button = gui:create_staticpanel(w-40,0,20,20)
+	local close_button = gui:create_staticpanel(w-20,0,20,20)
 	local window_label = gui:create_labelpanel(6,6,0,0,"SUKEEEH")
 	local minimize_label_arrow = gui:create_labelpanel(0,0,0,0,">")
+	local close_label_icon = gui:create_labelpanel(6,5,0,0,"x")
+
+	function base_window:destroy_self()
+		self = nil
+	end
 
 	minimize_label_arrow.super_draw = minimize_label_arrow.draw
+	close_label_icon.super_draw = close_label_icon.draw
 
 	local top_container = gui:create_container(0,0,w,20)
 
+	close_button:addwidget(close_label_icon)
 	minimize_button:addwidget(minimize_label_arrow)
+
 	top_container:addwidget(window_label)
+	top_container:addwidget(close_button)
 	top_container:addwidget(minimize_button)
+	
 
 	local window_state = { maximized = 0, minimized = 1 }
 
@@ -247,6 +258,7 @@ function gui:create_movablewindow(x,y,w,h)
 			gfx.translate(move_offset.x + 1,move_offset.y)
 			minimize_label_arrow:super_draw()
 			gfx.rotate(-math.pi * 0.5)
+			gfx.translate(- (move_offset.x + 1),-move_offset.y)
 		end
 		
 		if (base_window.state == window_state.minimized) then
@@ -254,30 +266,27 @@ function gui:create_movablewindow(x,y,w,h)
 			gfx.translate(-move_offset.x + 1,-move_offset.y)
 			minimize_label_arrow:super_draw()
 			gfx.rotate(math.pi * 0.5)
+			gfx.translate(move_offset.x - 1,move_offset.y)
 		end
 	end
 
 	function base_window:minimize()
 	  self:needsredraw()
 		self.drawbox.h = 20
+		self.hitbox.h = 20
 		self.state = window_state.minimized
 		self:needsredraw()
+		snd.stopsound(balls_id)
 	end
 
 	function base_window:maximize()
 	  self:needsredraw()
 		self.drawbox.h = self.height
+		self.drawbox.h = self.height
 		self.state = window_state.maximized
 		self:needsredraw()
+		snd.playsound(balls_id,true)
 	end
-
-	--[[
-	minimize_button.super_draw = minimize_button.draw
-	function minimize_button:draw()
-		
-
-		self:super_draw()
-	end ]]
 
 	function minimize_button:mouserelease(mx,my,button)
 		if (button == inp.MOUSE_LEFT) then
@@ -286,6 +295,12 @@ function gui:create_movablewindow(x,y,w,h)
 			else
 				base_window:minimize()
 			end
+		end
+	end
+
+	function close_button:mouserelease(mx,my,button)
+		if (button == inp.MOUSE_LEFT) then
+			base_window:destroy()
 		end
 	end
 
