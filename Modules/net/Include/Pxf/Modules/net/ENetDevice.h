@@ -7,6 +7,8 @@
 
 #include <enet/enet.h>
 
+#define MAX_PACKET_SIZE 65000
+
 namespace Pxf 
 {
 	namespace Network
@@ -26,6 +28,7 @@ namespace Pxf
 
 		public:
 			ENetDevice(Pxf::Kernel* _Kernel);
+			~ENetDevice();
 
 			virtual Network::Server* CreateServer(const int _Port);
 			virtual Network::Client* CreateClient(const char* _Host, const int _Port);

@@ -2,18 +2,50 @@
 
 using namespace Pxf::Modules;
 
-ENetClient::ENetClient()
+ENetClient::ENetClient(const char* _Host, const int _Port)
 {
-	return;
+	enet_address_set_host(&Address, _Host);
+	Address.port = _Port;
 }
 
 bool ENetClient::Connect()
 {
-	return true;
+	ENetEvent event;
+
+	Client = enet_host_create(NULL, 1, 2, 0, 0);
+
+	if (Client == NULL)
+	{
+		Message("ENetClient", "No available peers for an ENet connection.");
+		return false;
+	}
+
+	Peer = enet_host_connect(Client, &Address, 2, 0);
+
+	if (Peer == NULL)
+	{
+		Message("ENetClient", "Unable to connect to server.");
+		return false;
+	}
+
+	if (enet_host_service(Client, &event, 5000) > 0 &&
+		event.type == ENET_EVENT_TYPE_CONNECT)
+	{
+		Message("ENetClient", "Connection established.");
+		return true;
+	}
+	else
+	{
+		Message("ENetClient", "Unable to connect.");
+		return false;
+	}
 }
 
 bool ENetClient::Disconnect()
 {
+	/* TODO: Tell the server we've decided to quit. UDP biatch. */
+	enet_host_destroy(Client);
+
 	return true;
 }
 
@@ -27,8 +59,19 @@ int ENetClient::Recv(char* _Buf)
 	return 0;
 }
 
+// TODO: Add support for different priorities.
+// TODO: Add support for use of different channels.
 bool ENetClient::Send(const char* _Buf, const int _Length)
 {
+	ENetPacket *packet;
+
+	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
+
+	// Send over channel 0.
+	enet_peer_send(Peer, 0, packet);
+
+	enet_host_flush(Client);
+
 	return true;
 }
 
