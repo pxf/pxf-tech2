@@ -40,6 +40,7 @@ namespace Pxf{
 			Graphics::Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
+      void DestroyTexture(Graphics::Texture* _texture);
 
 			Graphics::Model* CreateModel(const char* _FilePath);
 
