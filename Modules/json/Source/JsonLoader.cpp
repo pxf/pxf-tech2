@@ -33,13 +33,22 @@ bool JsonLoader::Init()
 
 Resource::Json* JsonLoader::Load(const char* _FilePath)
 {
-	return NULL;
+	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);                   
+	if (!chunk)
+	{
+		Message("JsonLoader", "Unable to create chunk from file '%s'", _FilePath);
+		return NULL;
+	}
+	return new JsonCpp(chunk, this);
 }
 
 Resource::Json* JsonLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
 {
-
-	return 0;
+	Resource::Chunk* chunk = new Resource::Chunk();
+	chunk->data = (void*) _DataPtr;
+	chunk->size = _DataLen;
+	chunk->is_static = true;
+	return new JsonCpp(chunk, this);
 }
 
 JsonLoader::~JsonLoader()

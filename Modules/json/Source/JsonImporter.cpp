@@ -4,8 +4,9 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/System.h>
 #include <Pxf/Module.h>
-#include <Pxf/Modules/json/json.h>
+#include <Pxf/Modules/json/JsonImporter.h>
 #include <Pxf/Modules/json/JsonLoader.h>
+#include <Pxf/Resource/Chunk.h>
 
 static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
