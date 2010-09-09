@@ -45,7 +45,7 @@ namespace DERPEditor
         void CleanUp();
         void Init();
         bool Boot();
-        bool Reboot();
+        void Reboot();
         void Shutdown();
         
         bool Update();
@@ -101,6 +101,7 @@ namespace DERPEditor
         bool m_Running;
         bool m_Started;
         bool m_Shutdown;
+        bool m_Reboot;
         int m_QuadBatchCurrent;
         
         // Timers
