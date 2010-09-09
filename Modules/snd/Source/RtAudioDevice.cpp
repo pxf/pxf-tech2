@@ -176,7 +176,7 @@ void RtAudioDevice::UnregisterSound(int _Id)
 			if (m_ActiveVoices[i].clip == m_SoundBank[_Id])
 				m_ActiveVoices[i].clip = 0;
 		}
-		m_SoundBank[_Id]->_DeRef();
+
 		GetKernel()->GetResourceManager()->Release(m_SoundBank[_Id]);
 		m_SoundBank[_Id] = 0;
 	}
