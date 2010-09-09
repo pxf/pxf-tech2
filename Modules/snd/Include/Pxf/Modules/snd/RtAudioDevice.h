@@ -59,10 +59,10 @@ namespace Pxf
 		virtual int RegisterSound(Resource::Sound* _Sound);
 		virtual int GetSoundID(const Resource::Sound* _Sound);
 		virtual void UnregisterSound(int _Id);
-        virtual void Play(unsigned int _SoundID, bool _Loop);
-        virtual void Stop(unsigned int _SoundID);
+        virtual void Play(int _SoundID, bool _Loop);
+        virtual void Stop(int _SoundID);
         virtual void StopAll();
-        virtual void Pause(unsigned int _SoundID);
+        virtual void Pause(int _SoundID);
         virtual void PauseAll();
 
 		Util::Array<Resource::Sound*>* GetSoundBank()

@@ -32,10 +32,10 @@ namespace Pxf
 			UnregisterSound(GetSoundID(_Sound));
 		}
 
-        virtual void Play(unsigned int _SoundID, bool _Loop = false) = 0;
-        virtual void Stop(unsigned int _SoundID) = 0;
+        virtual void Play(int _SoundID, bool _Loop = false) = 0;
+        virtual void Stop(int _SoundID) = 0;
         virtual void StopAll() = 0;
-        virtual void Pause(unsigned int _SoundID) = 0;
+        virtual void Pause(int _SoundID) = 0;
         virtual void PauseAll() = 0;
         };
     } // Audio

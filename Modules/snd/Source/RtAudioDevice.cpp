@@ -177,7 +177,7 @@ void RtAudioDevice::UnregisterSound(int _Id)
 	}
 }
 
-void RtAudioDevice::Play(unsigned int _SoundID, bool _Loop)
+void RtAudioDevice::Play(int _SoundID, bool _Loop)
 {
 	if (m_SoundBank[_SoundID])
 	{
@@ -209,7 +209,7 @@ void RtAudioDevice::Play(unsigned int _SoundID, bool _Loop)
 	}
 }
 
-void RtAudioDevice::Stop(unsigned int _SoundID)
+void RtAudioDevice::Stop(int _SoundID)
 {
 	if (m_SoundBank[_SoundID])
 	{
@@ -240,7 +240,7 @@ void RtAudioDevice::StopAll()
 	}
 }
 
-void RtAudioDevice::Pause(unsigned int _SoundID)
+void RtAudioDevice::Pause(int _SoundID)
 {
 	if (m_SoundBank[_SoundID])
 	{
