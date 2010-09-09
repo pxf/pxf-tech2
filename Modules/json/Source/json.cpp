@@ -15,7 +15,7 @@ using Pxf::Modules::JsonImporter;
 REGISTER_MODULE(JsonImporter, "json", Module_Kernel_Version, Module_Api_Version);
 #endif
 
-namespace CtmMeshLoader_
+namespace JsonImporter_
 {
     PXFEXPORT Pxf::Module* CreateInstance()
     {
