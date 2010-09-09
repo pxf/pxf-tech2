@@ -18,7 +18,7 @@ namespace DERPEditor
         };
         
         QuadBatch(unsigned int _size, float* _currentdepth, Pxf::Math::Vec4f* _currentcolor, Pxf::Math::Mat4* _transformmatrix = NULL);
-        ~QuadBatch();
+        virtual ~QuadBatch();
         
         //void SetColor(float r, float g, float b) { m_CurrentColor = Pxf::Math::Vec4f(r, g, b, m_CurrentColor.a); };
         //void SetAlpha(float a) { m_CurrentColor = Pxf::Math::Vec4f(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, a); };

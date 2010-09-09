@@ -19,6 +19,8 @@ namespace Pxf
 				: DeviceResource(_pDevice)
 			{}
 
+			virtual ~Texture(){};
+
 			virtual void Load(const char* _filepath) = 0;
 			virtual void LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels) = 0;
 			virtual void Unload() = 0;

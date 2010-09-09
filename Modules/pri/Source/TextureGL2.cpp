@@ -44,7 +44,7 @@ Math::Vec4f TextureGL2::CreateTextureSubset(float _x1, float _y1, float _x2, flo
 	coords.w = coords.y + _y2 * ydelta;
 	return coords;
 }
-
+ 
 void TextureGL2::Load(const char* _filepath)
 {
 	m_Filepath = _filepath;
@@ -55,6 +55,10 @@ void TextureGL2::Load(const char* _filepath)
 
 void TextureGL2::LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels)
 {
+
+	if (m_TextureID)
+		Unload();
+
 	m_Width = _width;
 	m_Height = _height;
 	m_Channels = _channels;
