@@ -9,6 +9,9 @@
 using namespace Pxf;
 using namespace Modules;
 
+/*
+	JsonCpp
+*/
 bool JsonCpp::Build()
 {
 	/* TODO: Make a resource loader for json */
@@ -19,6 +22,58 @@ bool JsonCpp::Build()
 		Message("json", "%d", root.get("honk", 88).asInt());
 	return true;
 }
+
+Resource::Json::Value* JsonCpp::Get(const char* _String, const char* _DefaultValue)
+{
+	return 0;
+}
+
+Resource::Json::Value* JsonCpp::Get(const Util::String _String, const Util::String _DefaultValue)
+{
+	return 0;
+}
+Resource::Json::Value* JsonCpp::Get(int _Value, int _DefaultValue)
+{
+	return 0;
+}
+Resource::Json::Value* JsonCpp::Get(bool _Value, bool _DefaultValue)
+{
+	return 0;
+}
+
+/*
+	JsonCppValue
+*/
+
+int JsonCpp::JsonCppValue::asInt()
+{
+	return 0;
+}
+bool JsonCpp::JsonCppValue::asBool()
+{
+	return 0;
+}
+
+Util::String JsonCpp::JsonCppValue::asString()
+{
+	return 0;
+}
+
+Util::Array<Resource::Json::Value*> JsonCpp::JsonCppValue::asArray()
+{
+	Util::Array<Resource::Json::Value*> ret;
+	return ret;
+}
+
+Util::Map<Resource::Json::Value*, Resource::Json::Value*> JsonCpp::JsonCppValue::asMap()
+{
+	Util::Map<Resource::Json::Value*, Resource::Json::Value*> ret;
+	return ret;
+}
+
+/*
+	JsonLoader
+*/
 
 JsonLoader::JsonLoader(Pxf::Kernel* _Kernel)
 	: ResourceLoader(_Kernel, "Json Loader")
