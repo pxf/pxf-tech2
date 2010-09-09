@@ -144,6 +144,10 @@ int main()
 		//Graphics::Shader* prev = gfx->BindShader(test_shader);
         running = app->Update();
         app->Draw();
+        //app->Reboot();
+        //running = app->Update();
+        //app->Draw();
+        //break;
 		//gfx->BindShader(prev);
 		//gfx->UnbindFrameBufferObject();
 		

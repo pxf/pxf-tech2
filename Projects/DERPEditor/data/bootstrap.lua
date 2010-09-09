@@ -20,6 +20,7 @@ for k,v in pairs(inp) do
 end
 
 print("Render mode: " .. tostring(app._getrenderoption()))
+print("abc")
 
 -- store window dimensions for later use
 app.width, app.height = app.getwindimensions()

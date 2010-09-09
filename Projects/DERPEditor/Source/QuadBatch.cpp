@@ -31,7 +31,7 @@ QuadBatch::QuadBatch(unsigned int _size, float* _currentdepth, Vec4f* _currentco
 
 QuadBatch::~QuadBatch()
 {
-    Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DestroyVertexBuffer(m_VertexBuffer);
+    Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DestroyVertexBuffer(m_VertexBuffer);    
 }
 
 void QuadBatch::Reset()

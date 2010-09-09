@@ -51,10 +51,12 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     // get engine system pointers for easy access later on
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
     m_inp = Kernel::GetInstance()->GetInputDevice();
-	m_snd = Kernel::GetInstance()->GetAudioDevice();
+    m_snd = Kernel::GetInstance()->GetAudioDevice();
     
     // Set "snigelton"
     _appinstance = this;
+    
+    L = NULL;
 }
 
 LuaApp::~LuaApp()
@@ -62,11 +64,15 @@ LuaApp::~LuaApp()
     CleanUp();
     
     delete m_AppErrorQB;
+    delete m_StencilQB;
 }
 
 void LuaApp::Init()
 {
   m_RedrawMode = LUAAPP_REDRAWMODE_FULL;
+  
+  m_QuadBatches[m_QuadBatchCount] = new QuadBatch(LUAAPP_QBSIZE, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
+  m_QuadBatchCount++;
   
   // Init GL settings
   Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, LUAAPP_DEPTH_FAR, LUAAPP_DEPTH_NEAR);
@@ -94,14 +100,25 @@ void LuaApp::Init()
 
 void LuaApp::CleanUp()
 {
+    // Close lua state
+    printf("before lua_close()\n");
+    if (L != NULL)
+    {
+      lua_close(L);
+      L = NULL;
+    }
+    printf("after lua_close()\n");
+  
     // reset states
     m_Started = false;
     m_Running = false;
+    m_Reboot = false;
     
     if (m_QuadBatchCount > 0)
     {
       for(int i = 0; i < m_QuadBatchCount; ++i)
       {
+        printf("deleted qb\n");
         delete m_QuadBatches[i];
       }
     }
@@ -109,6 +126,7 @@ void LuaApp::CleanUp()
     m_QuadBatchCurrent = -1;
     m_RedrawStencil = false;
     m_RedrawFull = false;
+    
     
     // reset transform matrix
     m_TransformMatrix = Math::Mat4::Identity;
@@ -120,7 +138,7 @@ bool LuaApp::Boot()
   Init();
   
   // Init lua state
-  L = lua_open();
+  L = luaL_newstate();
   
   // Register lua libs
   _register_lua_libs_callbacks();
@@ -171,13 +189,14 @@ bool LuaApp::Boot()
 		lua_pop(L, 1);
 	}
     
-  return false;
+  return m_Running;
 }
 
-bool LuaApp::Reboot()
+void LuaApp::Reboot()
 {
-  CleanUp();
-  return Boot();
+  //CleanUp();
+  //return Boot();
+  m_Reboot = true;
 }
 
 void LuaApp::Shutdown()
@@ -188,7 +207,13 @@ void LuaApp::Shutdown()
 
 bool LuaApp::Update()
 {
-	m_TimerUpdate.Start();
+  if (m_Reboot)
+  {
+    CleanUp();
+    return Boot();
+  }
+  
+  m_TimerUpdate.Start();
     if (m_Running)
     {
 	  if (m_RedrawMode != LUAAPP_REDRAWMODE_FULL)
@@ -317,7 +342,6 @@ void LuaApp::Draw()
           glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
           
           glEnable(GL_DEPTH_TEST);
-          printf("stengil\n");
         } else {
           glDisable(GL_STENCIL_TEST);
         }
@@ -417,7 +441,7 @@ bool LuaApp::HandleErrors(int _error)
 bool LuaApp::CallScriptFunc(const char* _funcname, int nargs)
 { 
   // Push error handling function
-  lua_getglobal(L, "app");
+  lua_getglobal(L, "debug");
 	lua_getfield(L, -1, "traceback");
 	lua_remove(L, -2);
 	if (nargs > 0)
@@ -439,7 +463,7 @@ bool LuaApp::CallScriptFunc(const char* _funcname, int nargs)
 void LuaApp::_register_lua_libs_callbacks()
 {
 	// Lua libs
-	static const luaL_Reg lualibs[] = {
+	/*static const luaL_Reg lualibs[] = {
 		{"", luaopen_base},
 		{LUA_LOADLIBNAME, luaopen_package},
 		{LUA_TABLIBNAME, luaopen_table},
@@ -455,7 +479,8 @@ void LuaApp::_register_lua_libs_callbacks()
 		lua_pushcfunction(L, lib->func);
 		lua_pushstring(L, lib->name);
 		lua_call(L, 1, 0);
-	}
+	}*/
+  luaL_openlibs(L);
 }
 
 void LuaApp::_register_own_callbacks()
