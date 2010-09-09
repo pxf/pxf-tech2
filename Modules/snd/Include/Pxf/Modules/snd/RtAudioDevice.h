@@ -5,8 +5,6 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Util/Array.h>
 
-#define __WINDOWS_DS__
-
 class RtAudio;
 
 namespace Pxf
