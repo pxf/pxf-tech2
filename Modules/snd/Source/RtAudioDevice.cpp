@@ -12,9 +12,6 @@ using namespace Pxf::Modules;
 #define MAX_REGISTERED_SOUNDS 128
 #define MAX_NUM_VOICES 16
 
-const Resource::Sound* g_Clip;
-unsigned pos = 0;
-
 int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 		double _time, RtAudioStreamStatus _status, void *_device)
 {
@@ -49,12 +46,14 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 					}
 				}
 				dataptr = entry->clip->DataPtr();
-				out[i+0] += dataptr[entry->current_frame + 0];
+				out[i] += dataptr[entry->current_frame];
 				out[i+1] += dataptr[entry->current_frame + 1];
 				entry->current_frame += 2;
 			}
 		}
 	}
+
+	// Continue if active, else abort stream.
 	return device->IsActive() ? 0 : 2;
 }
 
