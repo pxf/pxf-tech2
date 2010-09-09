@@ -33,7 +33,7 @@ bool ENetServer::Shutdown()
 /* Recv()
 ** Fills _Buf with the fetched packet.
 ** Returns length of the packet. 0 means error.
-**/
+*/
 int ENetServer::Recv(char* _Buf)
 {
 	ENetEvent event;

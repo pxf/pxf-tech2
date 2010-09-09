@@ -10,7 +10,6 @@ namespace Pxf
 {
 	namespace Network
 	{
-//		class NetworkDevice;
 		class Client;
 	}
 
@@ -18,8 +17,13 @@ namespace Pxf
 	{
 		class ENetClient
 		{
+		private:
+			ENetAddress Address;
+			ENetHost *Client;
+			ENetPeer *Peer;
+
 		public:
-			ENetClient();
+			ENetClient(const char* _Host, const int _Port);
 
 			virtual bool Connect();
 			virtual bool Disconnect();
