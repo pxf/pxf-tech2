@@ -56,7 +56,7 @@ namespace DERPEditor
         
         // QuadBatches
         unsigned int m_QuadBatchCount;
-        TexturedQuadBatch* m_QuadBatches[LUAAPP_MAXQB];
+        QuadBatch* m_QuadBatches[LUAAPP_MAXQB];
         
         // QuadBatch control
         int ChangeActiveQB(unsigned int _id);
@@ -88,6 +88,7 @@ namespace DERPEditor
         Pxf::Graphics::GraphicsDevice* m_gfx;
         Pxf::Input::InputDevice* m_inp;
         Pxf::Graphics::Window* m_win;
+		    Pxf::Audio::AudioDevice* m_snd;
         
     private:
         const char* m_Filepath;

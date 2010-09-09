@@ -12,9 +12,6 @@ using namespace Pxf::Modules;
 #define MAX_REGISTERED_SOUNDS 128
 #define MAX_NUM_VOICES 16
 
-const Resource::Sound* g_Clip;
-unsigned pos = 0;
-
 int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 		double _time, RtAudioStreamStatus _status, void *_device)
 {
@@ -28,6 +25,7 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 	Util::Array<RtAudioDevice::SoundEntry>* voices = device->GetVoices();
 	
 	RtAudioDevice::SoundEntry* entry;
+	short* dataptr = 0;
 	for(unsigned int i = 0; i < _num_frames*2; i += 2)
 	{
 		out[i] = 0;
@@ -47,18 +45,15 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 						continue;
 					}
 				}
-				out[i+0] += entry->clip->DataPtr()[entry->current_frame + 0];
-				out[i+1] += entry->clip->DataPtr()[entry->current_frame + 1];
+				dataptr = entry->clip->DataPtr();
+				out[i] += dataptr[entry->current_frame];
+				out[i+1] += dataptr[entry->current_frame + 1];
 				entry->current_frame += 2;
 			}
-			else
-			{
-				out[i+0] += 0;
-				out[i+1] += 0;
-			}
-		
 		}
 	}
+
+	// Continue if active, else abort stream.
 	return device->IsActive() ? 0 : 2;
 }
 
@@ -176,7 +171,7 @@ void RtAudioDevice::UnregisterSound(int _Id)
 			if (m_ActiveVoices[i].clip == m_SoundBank[_Id])
 				m_ActiveVoices[i].clip = 0;
 		}
-		m_SoundBank[_Id]->_DeRef();
+
 		GetKernel()->GetResourceManager()->Release(m_SoundBank[_Id]);
 		m_SoundBank[_Id] = 0;
 	}
@@ -189,11 +184,12 @@ void RtAudioDevice::Play(unsigned int _SoundID, bool _Loop)
 		unsigned free_slot = -1;
 		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
 		{
-			// Resume paused sound
+			// Restart playback or resume paused sound
 			if (m_ActiveVoices[i].clip == m_SoundBank[_SoundID])
 			{
-				if (m_ActiveVoices[i].active == false)
-					m_ActiveVoices[i].active = true;
+				if (m_ActiveVoices[i].active)
+					m_ActiveVoices[i].current_frame = 0;
+				m_ActiveVoices[i].active = true;
 				return;
 			}
 			// id of free slot

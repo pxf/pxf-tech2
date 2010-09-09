@@ -200,11 +200,11 @@ end
 
 gui.redrawrects = {}
 function gui:redraw(x,y,w,h)
-  --[[self.widgets:find_redrawhit(x,y,x+w,y+h)
+  --self.widgets:find_redrawhit(x,y,x+w,y+h)
   gfx.redrawneeded(x,y,w,h)
   --print("redraw area: " .. tostring(x) .." " .. tostring(y) .. " " .. tostring(w) .." " .. tostring(h))
-  table.insert(gui.redrawrects, 1, {x,y,w,h})]]
-  gfx.redrawneeded()
+  table.insert(gui.redrawrects, 1, {x,y,w,h})
+  --gfx.redrawneeded()
 end
 
 function gui:init()

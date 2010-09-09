@@ -5,6 +5,7 @@
 #include "AppCoreLib.h"
 #include "AppInputLib.h"
 #include "AppGraphicsLib.h"
+#include "AppSoundLib.h"
 
 #define LOCAL_MSG "LuaApp"
 
@@ -19,6 +20,7 @@ LuaApp* LuaApp::GetInstance()
 }
 
 LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
+	: m_snd(0)
 {
     m_Filepath = _filepath;
     m_win = _win;
@@ -49,6 +51,7 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     // get engine system pointers for easy access later on
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
     m_inp = Kernel::GetInstance()->GetInputDevice();
+    m_snd = Kernel::GetInstance()->GetAudioDevice();
     
     // Set "snigelton"
     _appinstance = this;
@@ -67,6 +70,9 @@ LuaApp::~LuaApp()
 void LuaApp::Init()
 {
   m_RedrawMode = LUAAPP_REDRAWMODE_FULL;
+  
+  m_QuadBatches[m_QuadBatchCount] = new QuadBatch(LUAAPP_QBSIZE, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
+  m_QuadBatchCount++;
   
   // Init GL settings
   Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, LUAAPP_DEPTH_FAR, LUAAPP_DEPTH_NEAR);
@@ -112,6 +118,7 @@ void LuaApp::CleanUp()
     {
       for(int i = 0; i < m_QuadBatchCount; ++i)
       {
+        printf("deleted qb\n");
         delete m_QuadBatches[i];
       }
     }
@@ -209,6 +216,14 @@ bool LuaApp::Update()
   m_TimerUpdate.Start();
     if (m_Running)
     {
+	  if (m_RedrawMode != LUAAPP_REDRAWMODE_FULL)
+      {
+        //printf("pdate\n");
+		//glfwDisable(GLFW_AUTO_POLL_EVENTS);
+		glfwSleep(0.01);
+        //glfwPollEvents();
+        glfwWaitEvents();
+	  }
       CallScriptFunc("_update");
     } else {
       // A application error has occurred, see if the user wants to reboot or quit
@@ -300,7 +315,7 @@ void LuaApp::Redraw(int x, int y, int w, int h)
 
 void LuaApp::Draw()
 {
-  m_TimerDraw.Start();
+	m_TimerDraw.Start();
     // Setup viewport and matrises
     // TODO: get window dimensions dynamically
     m_gfx->SetViewport(0, 0, 800, 600);
@@ -327,7 +342,6 @@ void LuaApp::Draw()
           glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
           
           glEnable(GL_DEPTH_TEST);
-          printf("stengil\n");
         } else {
           glDisable(GL_STENCIL_TEST);
         }
@@ -482,6 +496,7 @@ void LuaApp::_register_own_callbacks()
     luaopen_appcore(L);
     luaopen_appinput(L);
     luaopen_appgraphics(L);
+	luaopen_appsound(L);
 	/*Vec2::RegisterClass(L);
     GraphicsSubsystem::RegisterClass(L);
     ResourcesSubsystem::RegisterClass(L);

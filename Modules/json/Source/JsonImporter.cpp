@@ -4,8 +4,9 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/System.h>
 #include <Pxf/Module.h>
-#include <Pxf/Modules/json/json.h>
+#include <Pxf/Modules/json/JsonImporter.h>
 #include <Pxf/Modules/json/JsonLoader.h>
+#include <Pxf/Resource/Chunk.h>
 
 static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
@@ -15,7 +16,7 @@ using Pxf::Modules::JsonImporter;
 REGISTER_MODULE(JsonImporter, "json", Module_Kernel_Version, Module_Api_Version);
 #endif
 
-namespace CtmMeshLoader_
+namespace JsonImporter_
 {
     PXFEXPORT Pxf::Module* CreateInstance()
     {

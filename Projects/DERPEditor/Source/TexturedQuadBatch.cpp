@@ -25,7 +25,7 @@ TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, const char* _texture_fi
 
 TexturedQuadBatch::~TexturedQuadBatch()
 {
-    
+  delete m_Texture;
 }
 
 void TexturedQuadBatch::SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v)
