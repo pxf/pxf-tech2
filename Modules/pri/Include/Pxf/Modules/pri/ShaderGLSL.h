@@ -17,7 +17,7 @@ namespace Pxf
 			bool CheckForLinkerErrors(unsigned _ProgramHandle);
 		public:
 			ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const char* _VertexShader, const char* _FragmentShader);
-			~ShaderGLSL();
+			virtual ~ShaderGLSL();
 
 			unsigned GetProgramHandle() const
 			{
