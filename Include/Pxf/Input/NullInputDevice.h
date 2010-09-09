@@ -17,6 +17,8 @@ namespace Pxf
         NullInputDevice(Pxf::Kernel* _Kernel)
             : Pxf::Input::InputDevice(_Kernel, "Null Input Device")
         {}
+
+		virtual ~NullInputDevice(){};
         
         virtual void Update()
         {}
