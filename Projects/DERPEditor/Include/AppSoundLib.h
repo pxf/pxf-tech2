@@ -13,6 +13,7 @@ namespace DERPEditor
 {
     // lib functions
     int snd_playsound(lua_State *L);
+	int snd_stopsound(lua_State *L);
 	int snd_newsound(lua_State *L);
 
     // Register lib

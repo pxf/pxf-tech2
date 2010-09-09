@@ -5,9 +5,42 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Audio/AudioDevice.h>
 
+int DERPEditor::snd_stopsound(lua_State *L)
+{
+	// snd.stopsound(id)
+	if(lua_gettop(L) == 1)
+	{
+		LuaApp::GetInstance()->m_snd->Stop(lua_tointeger(L,1));
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to stopsound function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
 int DERPEditor::snd_playsound(lua_State *L) 
 {
 	// snd.playsound(id)
+	if(lua_gettop(L) == 1)
+	{
+		LuaApp::GetInstance()->m_snd->Play(lua_tointeger(L, 1), false);
+		return 0;
+	}
+	// snd.playsound(id,loop)
+	else if(lua_gettop(L) == 2)
+	{
+		LuaApp::GetInstance()->m_snd->Play(lua_tointeger(L,1),lua_toboolean(L,2));
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to playsound function!");
+		lua_error(L);
+	}
+
 	return 0;
 }
 
@@ -33,6 +66,7 @@ int DERPEditor::luaopen_appsound(lua_State *L)
 {
 	const luaL_reg appsoundlib[] = {
 		{"playsound",   snd_playsound},
+		{"stopsound",   snd_stopsound},
 		{"newsound",   snd_newsound},
 		{NULL, NULL}
     };

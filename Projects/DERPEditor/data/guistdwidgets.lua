@@ -276,6 +276,7 @@ function gui:create_movablewindow(x,y,w,h)
 		self.hitbox.h = 20
 		self.state = window_state.minimized
 		self:needsredraw()
+		snd.stopsound(balls_id)
 	end
 
 	function base_window:maximize()
@@ -284,6 +285,7 @@ function gui:create_movablewindow(x,y,w,h)
 		self.drawbox.h = self.height
 		self.state = window_state.maximized
 		self:needsredraw()
+		snd.playsound(balls_id,true)
 	end
 
 	function minimize_button:mouserelease(mx,my,button)

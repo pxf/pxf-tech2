@@ -69,9 +69,6 @@
     <Filter Include="Modules\mesh">
       <UniqueIdentifier>{b12fcffe-acfb-4bbf-8a44-22add1572ded}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Framework\Header Files\Pxf\Audio">
-      <UniqueIdentifier>{0f6f3e08-9995-4c37-96a7-9c274f74dc55}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Kernel.cpp">
@@ -182,10 +179,10 @@
     <ClCompile Include="Source\AppGraphicsLib.cpp">
       <Filter>Editor\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AppSoundLib.cpp">
+    <ClCompile Include="Source\LuaApp.cpp">
       <Filter>Editor\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\LuaApp.cpp">
+    <ClCompile Include="Source\AppSoundLib.cpp">
       <Filter>Editor\Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -382,16 +379,7 @@
     <ClInclude Include="Include\AppGraphicsLib.h">
       <Filter>Editor\Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\Pxf\Audio\AudioDevice.h">
-      <Filter>Framework\Header Files\Pxf\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\Pxf\Audio\NullAudioDevice.h">
-      <Filter>Framework\Header Files\Pxf\Audio</Filter>
-    </ClInclude>
     <ClInclude Include="Include\AppSoundLib.h">
-      <Filter>Editor\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\LuaApp.h">
       <Filter>Editor\Include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -403,12 +391,6 @@
       <Filter>Editor\Data</Filter>
     </None>
     <None Include="data\guistdwidgets.lua">
-      <Filter>Editor\Data</Filter>
-    </None>
-    <None Include="data\guibase.lua">
-      <Filter>Editor\Data</Filter>
-    </None>
-    <None Include="data\tick.ogg">
       <Filter>Editor\Data</Filter>
     </None>
   </ItemGroup>

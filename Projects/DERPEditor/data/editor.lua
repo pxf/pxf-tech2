@@ -40,7 +40,7 @@ balls_id = snd.newsound("data/tick.ogg")
 
 print(balls_id)
 
-snd.playsound(balls_id)
+--snd.playsound(balls_id,true)
 
 gfx.redrawneeded()
 
