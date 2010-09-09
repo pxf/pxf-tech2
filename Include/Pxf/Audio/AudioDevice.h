@@ -22,6 +22,8 @@ namespace Pxf
         {}
 
 		virtual ~AudioDevice(){};
+
+		virtual bool Initialize(){ return false; };
         
 		virtual int RegisterSound(const char* _Filename) = 0;
         virtual int RegisterSound(Resource::Sound* _Sound) = 0;
@@ -37,6 +39,7 @@ namespace Pxf
         virtual void StopAll() = 0;
         virtual void Pause(int _SoundID) = 0;
         virtual void PauseAll() = 0;
+		virtual void DumpInfo() = 0;
         };
     } // Audio
 } // Pxf

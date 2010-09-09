@@ -42,6 +42,7 @@ namespace Pxf
 			Util::Array<SoundEntry> m_ActiveVoices;
 			unsigned int m_Channels;
 			bool m_Active;
+			bool m_Initialized;
 
             virtual bool Init();
         public:
@@ -49,8 +50,16 @@ namespace Pxf
             : Pxf::Audio::AudioDevice(_Kernel, "Rt Audio Device")
 			, m_Active(false)
 			, m_Channels(2)
+			, m_Initialized(false)
         {
-			Init();
+		}
+
+		virtual bool Initialize()
+		{
+			bool s = Init();
+			if (s)
+				m_Initialized = true;
+			return s;
 		}
 
 		virtual ~RtAudioDevice();
@@ -64,6 +73,7 @@ namespace Pxf
         virtual void StopAll();
         virtual void Pause(int _SoundID);
         virtual void PauseAll();
+		virtual void DumpInfo();
 
 		Util::Array<Resource::Sound*>* GetSoundBank()
 		{

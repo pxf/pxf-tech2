@@ -1,10 +1,11 @@
 #include <Pxf/Modules/snd/RtAudioDevice.h>
 #include <Pxf/Kernel.h>
-#include <RtAudio.h>
 #include <Pxf/Math/Math.h>
 
 #include <Pxf/Resource/Sound.h>
 #include <Pxf/Resource/ResourceManager.h>
+
+#include <RtAudio.h>
 
 using namespace Pxf;
 using namespace Pxf::Modules;
@@ -64,21 +65,7 @@ bool RtAudioDevice::Init()
 
 	m_DAC = new RtAudio();
 
-	/* Enumerate audio devices */
-
 	unsigned num_devices = m_DAC->getDeviceCount();
-	Message("Audio", "Available output devices: %d", num_devices);
-
-	RtAudio::DeviceInfo info;
-	for(int i = 0; i < num_devices; i++)
-	{
-		info = m_DAC->getDeviceInfo(i);
-		if (info.probed)
-		{
-			Message("Audio", " | %d%s %s (cout: %d; cin: %d)", i, info.isDefaultOutput ? " >" : ".", info.name.c_str()
-				   , info.outputChannels, info.inputChannels);
-		}
-	}
 
 	/* Initialize audio stream */
 	if (num_devices == 0)
@@ -124,6 +111,10 @@ RtAudioDevice::~RtAudioDevice()
 
 int RtAudioDevice::RegisterSound(const char* _Filename)
 {
+
+	if (!m_Initialized)
+		Initialize();
+
 	Resource::Sound* snd = GetKernel()->GetResourceManager()->Acquire<Resource::Sound>(_Filename);
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
@@ -263,6 +254,25 @@ void RtAudioDevice::PauseAll()
 		{
 			m_ActiveVoices[i].active = false;
 			return;
+		}
+	}
+}
+
+void RtAudioDevice::DumpInfo()
+{
+	/* Enumerate audio devices */
+
+	unsigned num_devices = m_DAC->getDeviceCount();
+	Message("Audio", "Available output devices: %d", num_devices);
+
+	RtAudio::DeviceInfo info;
+	for(int i = 0; i < num_devices; i++)
+	{
+		info = m_DAC->getDeviceInfo(i);
+		if (info.probed)
+		{
+			Message("Audio", " | %d%s %s (cout: %d; cin: %d)", i, info.isDefaultOutput ? " >" : ".", info.name.c_str()
+				   , info.outputChannels, info.inputChannels);
 		}
 	}
 }
