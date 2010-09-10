@@ -4,6 +4,7 @@ project = NewProject("DERPRenderer")
 
 --project.settings.debug = True
 --project.settings.static = True
+project:RequireLibrary("glfw")
 project:RequireModule("pri")
 project:RequireModule("img")
 project:RequireModule("mesh")
