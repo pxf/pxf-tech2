@@ -37,8 +37,10 @@ gui.widgets:addwidget(movable_window)
 --test_texture = gfx.loadtexture("data/apperror.png")
 
 balls_id = snd.newsound("data/tick.ogg")
+snd.playsound(balls_id)
+snd.stopall()
 
-print(balls_id)
+--print(balls_id)
 
 --snd.playsound(balls_id,true)
 
