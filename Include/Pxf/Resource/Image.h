@@ -15,8 +15,8 @@ namespace Resource {
 		unsigned char* m_ImageData;
 
 	public:
-		Image(Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Chunk, _Loader)
+		Image(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
+            : ResourceBase(_Kernel, _Chunk, _Loader)
             , m_Channels(0)
             , m_Height(0)
             , m_Width(0)

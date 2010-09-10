@@ -25,8 +25,8 @@ namespace Resource {
 			virtual Util::Map<Value*, Value*> asMap() = 0;
 		};
 
-		Json(Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Chunk, _Loader)
+		Json(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
+            : ResourceBase(_Kernel, _Chunk, _Loader)
         {}
 		virtual ~Json()
         {}

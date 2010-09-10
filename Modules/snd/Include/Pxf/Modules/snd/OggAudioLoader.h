@@ -19,8 +19,8 @@ namespace Modules {
     protected:
         virtual bool Build();
     public:
-        OggSound(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-            : Resource::Sound(_Chunk, _Loader)
+        OggSound(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+            : Resource::Sound(_Kernel, _Chunk, _Loader)
         {
             Build();
         }

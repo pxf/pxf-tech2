@@ -19,8 +19,8 @@ namespace Modules {
     protected:
         virtual bool Build();
     public:
-        SOILImage(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-            : Resource::Image(_Chunk, _Loader)
+        SOILImage(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+            : Resource::Image(_Kernel, _Chunk, _Loader)
         {
             Build();
         }

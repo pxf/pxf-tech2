@@ -19,8 +19,8 @@ namespace Modules {
 	protected:
         virtual bool Build();
 	public:
-		OpenCTMMesh(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Mesh(_Chunk,_Loader)
+		OpenCTMMesh(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Mesh(_Kernel, _Chunk,_Loader)
 		{ }
 		
 		virtual ~OpenCTMMesh() { }

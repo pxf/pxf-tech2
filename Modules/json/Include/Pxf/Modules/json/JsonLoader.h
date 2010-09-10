@@ -26,8 +26,8 @@ namespace Modules {
 	protected:
         virtual bool Build();
 	public:
-		JsonCpp(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Json(_Chunk,_Loader)
+		JsonCpp(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Json(_Kernel, _Chunk,_Loader)
 		{ }
 		
 		virtual Value* Get(const char* _String, const char* _DefaultValue);
