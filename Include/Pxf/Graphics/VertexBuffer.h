@@ -67,6 +67,8 @@ namespace Pxf
 				, m_ByteCount(0)
 				, m_IsMapped(false)
 			{}
+			
+			virtual ~VertexBuffer(){};
 
 			// TODO: Combine into Draw() and move glDrawArrays() from Device to the implementation.
 			virtual void _PreDraw() = 0;

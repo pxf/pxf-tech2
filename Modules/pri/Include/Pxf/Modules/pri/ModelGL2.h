@@ -25,6 +25,7 @@ namespace Pxf
 			ModelGL2(Graphics::GraphicsDevice* _pDevice)
 				: Graphics::Model(_pDevice)
 			{ if(!Init()) Message("ModelGL2","Unable to initialize model"); }
+			virtual ~ModelGL2();
 
 			bool Load(const char* _FilePath);
 			bool Unload();

@@ -27,6 +27,7 @@ namespace Pxf
 		static void mouse_callback(int _Button, int _Action);
 
         InputDeviceGLFW(Pxf::Kernel* _Kernel);
+		virtual ~InputDeviceGLFW(){};
 
         virtual void Update();
 

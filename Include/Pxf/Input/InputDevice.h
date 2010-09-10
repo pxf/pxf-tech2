@@ -15,6 +15,8 @@ namespace Input
     InputDevice(Kernel* _Kernel, const char* _Identifier)
     : Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_INPUTDEVICE, _Identifier)
     {}
+
+	virtual ~InputDevice(){};
     
     virtual void Update() = 0;
 

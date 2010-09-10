@@ -45,6 +45,7 @@ int main()
 
     kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
+	kernel->RegisterModule("snd", 0xFFFF, true);
 	  //kernel->RegisterModule("mesh", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
@@ -81,7 +82,7 @@ int main()
     spec.StencilBits = 8;
     spec.FSAASamples = 0;
     spec.Fullscreen = false;
-    spec.Resizeable = false;
+    spec.Resizeable = true;
     spec.VerticalSync = false;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
@@ -108,25 +109,6 @@ int main()
 	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
 	*/
 	
-	/*
-	// mesh test
-	CTMcontext	context;
-	CTMuint		vertCount, triCount;
-	const CTMuint* indices;
-	const CTMfloat*	vertices;
-
-	ctmLoad(context, "data/test.ctm");
-	if(ctmGetError(context) == CTM_NONE)
-	{
-		vertCount = ctmGetInteger(context, CTM_VERTEX_COUNT);
-		vertices = ctmGetFloatArray(context, CTM_VERTICES);
-		triCount = ctmGetInteger(context, CTM_TRIANGLE_COUNT);
-		indices = ctmGetIntegerArray(context, CTM_INDICES);
-	}
-
-	ctmFreeContext(context);
-
-	*/
 
 	// QuadBatch tests
 	glEnable( GL_TEXTURE_2D );
@@ -162,6 +144,10 @@ int main()
 		//Graphics::Shader* prev = gfx->BindShader(test_shader);
         running = app->Update();
         app->Draw();
+        //app->Reboot();
+        //running = app->Update();
+        //app->Draw();
+        //break;
 		//gfx->BindShader(prev);
 		//gfx->UnbindFrameBufferObject();
 		

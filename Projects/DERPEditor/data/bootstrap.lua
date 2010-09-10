@@ -9,12 +9,18 @@ for k,v in pairs(gfx) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
 end
 
+print("snd has:")
+for k,v in pairs(snd) do
+  print("        " .. tostring(k) .. " : " .. tostring(v))
+end
+
 print("inp has:")
 for k,v in pairs(inp) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
 end
 
 print("Render mode: " .. tostring(app._getrenderoption()))
+print("abc")
 
 -- store window dimensions for later use
 app.width, app.height = app.getwindimensions()

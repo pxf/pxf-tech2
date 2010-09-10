@@ -22,6 +22,8 @@ namespace Pxf
         {}
 
 		virtual ~AudioDevice(){};
+
+		virtual bool Initialize(){ return false; };
         
 		virtual int RegisterSound(const char* _Filename) = 0;
         virtual int RegisterSound(Resource::Sound* _Sound) = 0;
@@ -32,11 +34,12 @@ namespace Pxf
 			UnregisterSound(GetSoundID(_Sound));
 		}
 
-        virtual void Play(unsigned int _SoundID, bool _Loop = false) = 0;
-        virtual void Stop(unsigned int _SoundID) = 0;
+        virtual void Play(int _SoundID, bool _Loop = false) = 0;
+        virtual void Stop(int _SoundID) = 0;
         virtual void StopAll() = 0;
-        virtual void Pause(unsigned int _SoundID) = 0;
+        virtual void Pause(int _SoundID) = 0;
         virtual void PauseAll() = 0;
+		virtual void DumpInfo() = 0;
         };
     } // Audio
 } // Pxf

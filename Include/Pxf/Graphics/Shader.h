@@ -16,6 +16,8 @@ namespace Pxf {
 				: Graphics::DeviceResource(_pDevice)
 				, m_Valid(false)
 			{}
+
+			virtual ~Shader(){};
 			
 			bool IsValid() const { return m_Valid; }
 		};

@@ -147,6 +147,12 @@ Texture* DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
     return ret;
 }
 
+void DeviceGL2::DestroyTexture(Graphics::Texture* _texture)
+{
+  if (_texture)
+    delete _texture;
+}
+
 Model* DeviceGL2::CreateModel(const char* _FilePath)
 {
 	ModelGL2* _NewModel = new ModelGL2(this);

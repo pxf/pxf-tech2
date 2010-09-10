@@ -20,6 +20,8 @@ namespace Pxf
 
 		virtual ~NullAudioDevice(){};
 
+		virtual bool Initialize(){ return true; };
+
 		virtual int RegisterSound(const char* _Filename)
 		{
 			return -1;
@@ -40,16 +42,21 @@ namespace Pxf
 
 		}
 
-        virtual void Play(unsigned int _SoundID, bool _Loop)
+        virtual void Play(int _SoundID, bool _Loop)
         {}
-        virtual void Stop(unsigned int _SoundID)
+        virtual void Stop(int _SoundID)
         {}
         virtual void StopAll()
         {}
-        virtual void Pause(unsigned int _SoundID)
+        virtual void Pause(int _SoundID)
         {}
         virtual void PauseAll()
         {}
+
+		virtual void DumpInfo()
+		{
+			Message("Audio", "Using dummy audio device");
+		}
         };
     }
 }

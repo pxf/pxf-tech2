@@ -1,19 +1,17 @@
 #include <Pxf/Modules/snd/RtAudioDevice.h>
 #include <Pxf/Kernel.h>
-#include <RtAudio.h>
 #include <Pxf/Math/Math.h>
 
 #include <Pxf/Resource/Sound.h>
 #include <Pxf/Resource/ResourceManager.h>
+
+#include <RtAudio.h>
 
 using namespace Pxf;
 using namespace Pxf::Modules;
 
 #define MAX_REGISTERED_SOUNDS 128
 #define MAX_NUM_VOICES 16
-
-const Resource::Sound* g_Clip;
-unsigned pos = 0;
 
 int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 		double _time, RtAudioStreamStatus _status, void *_device)
@@ -28,6 +26,7 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 	Util::Array<RtAudioDevice::SoundEntry>* voices = device->GetVoices();
 	
 	RtAudioDevice::SoundEntry* entry;
+	short* dataptr = 0;
 	for(unsigned int i = 0; i < _num_frames*2; i += 2)
 	{
 		out[i] = 0;
@@ -47,18 +46,15 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 						continue;
 					}
 				}
-				out[i+0] += entry->clip->DataPtr()[entry->current_frame + 0];
-				out[i+1] += entry->clip->DataPtr()[entry->current_frame + 1];
+				dataptr = entry->clip->DataPtr();
+				out[i] += dataptr[entry->current_frame];
+				out[i+1] += dataptr[entry->current_frame + 1];
 				entry->current_frame += 2;
 			}
-			else
-			{
-				out[i+0] += 0;
-				out[i+1] += 0;
-			}
-		
 		}
 	}
+
+	// Continue if active, else abort stream.
 	return device->IsActive() ? 0 : 2;
 }
 
@@ -69,21 +65,7 @@ bool RtAudioDevice::Init()
 
 	m_DAC = new RtAudio();
 
-	/* Enumerate audio devices */
-
 	unsigned num_devices = m_DAC->getDeviceCount();
-	Message("Audio", "Available output devices: %d", num_devices);
-
-	RtAudio::DeviceInfo info;
-	for(int i = 0; i < num_devices; i++)
-	{
-		info = m_DAC->getDeviceInfo(i);
-		if (info.probed)
-		{
-			Message("Audio", " | %d%s %s (cout: %d; cin: %d)", i, info.isDefaultOutput ? " >" : ".", info.name.c_str()
-				   , info.outputChannels, info.inputChannels);
-		}
-	}
 
 	/* Initialize audio stream */
 	if (num_devices == 0)
@@ -129,6 +111,10 @@ RtAudioDevice::~RtAudioDevice()
 
 int RtAudioDevice::RegisterSound(const char* _Filename)
 {
+
+	if (!m_Initialized)
+		Initialize();
+
 	Resource::Sound* snd = GetKernel()->GetResourceManager()->Acquire<Resource::Sound>(_Filename);
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
@@ -176,24 +162,25 @@ void RtAudioDevice::UnregisterSound(int _Id)
 			if (m_ActiveVoices[i].clip == m_SoundBank[_Id])
 				m_ActiveVoices[i].clip = 0;
 		}
-		m_SoundBank[_Id]->_DeRef();
+
 		GetKernel()->GetResourceManager()->Release(m_SoundBank[_Id]);
 		m_SoundBank[_Id] = 0;
 	}
 }
 
-void RtAudioDevice::Play(unsigned int _SoundID, bool _Loop)
+void RtAudioDevice::Play(int _SoundID, bool _Loop)
 {
 	if (m_SoundBank[_SoundID])
 	{
 		unsigned free_slot = -1;
 		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
 		{
-			// Resume paused sound
+			// Restart playback or resume paused sound
 			if (m_ActiveVoices[i].clip == m_SoundBank[_SoundID])
 			{
-				if (m_ActiveVoices[i].active == false)
-					m_ActiveVoices[i].active = true;
+				if (m_ActiveVoices[i].active)
+					m_ActiveVoices[i].current_frame = 0;
+				m_ActiveVoices[i].active = true;
 				return;
 			}
 			// id of free slot
@@ -213,7 +200,7 @@ void RtAudioDevice::Play(unsigned int _SoundID, bool _Loop)
 	}
 }
 
-void RtAudioDevice::Stop(unsigned int _SoundID)
+void RtAudioDevice::Stop(int _SoundID)
 {
 	if (m_SoundBank[_SoundID])
 	{
@@ -244,7 +231,7 @@ void RtAudioDevice::StopAll()
 	}
 }
 
-void RtAudioDevice::Pause(unsigned int _SoundID)
+void RtAudioDevice::Pause(int _SoundID)
 {
 	if (m_SoundBank[_SoundID])
 	{
@@ -267,6 +254,25 @@ void RtAudioDevice::PauseAll()
 		{
 			m_ActiveVoices[i].active = false;
 			return;
+		}
+	}
+}
+
+void RtAudioDevice::DumpInfo()
+{
+	/* Enumerate audio devices */
+
+	unsigned num_devices = m_DAC->getDeviceCount();
+	Message("Audio", "Available output devices: %d", num_devices);
+
+	RtAudio::DeviceInfo info;
+	for(int i = 0; i < num_devices; i++)
+	{
+		info = m_DAC->getDeviceInfo(i);
+		if (info.probed)
+		{
+			Message("Audio", " | %d%s %s (cout: %d; cin: %d)", i, info.isDefaultOutput ? " >" : ".", info.name.c_str()
+				   , info.outputChannels, info.inputChannels);
 		}
 	}
 }

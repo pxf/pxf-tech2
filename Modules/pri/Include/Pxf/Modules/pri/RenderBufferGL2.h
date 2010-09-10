@@ -18,6 +18,8 @@ namespace Pxf{
 				, m_Format(_Format)
 			{ _InitBuffer(); }
 
+			virtual ~RenderBufferGL2();
+
 			unsigned GetHandle() { return m_Handle; }
 			unsigned GetFormat() { return m_Format; }
 

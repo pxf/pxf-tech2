@@ -21,8 +21,17 @@ void RenderBufferGL2::_InitBuffer()
 	}
 }
 
+RenderBufferGL2::~RenderBufferGL2()
+{
+	if (m_Handle)
+		ReleaseBuffer();
+}
+
 void RenderBufferGL2::ReleaseBuffer()
 {
 	if(m_Handle)
+	{
 		glDeleteRenderbuffersEXT(1, &m_Handle);
+		m_Handle = 0;
+	}
 }

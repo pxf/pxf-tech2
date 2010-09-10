@@ -40,10 +40,17 @@ bool ModelGL2::Load(const char* _FilePath)
 	return true;
 }
 
+ModelGL2::~ModelGL2()
+{
+	if (m_VertexBuffer)
+		Unload();
+}
+
 bool ModelGL2::Unload()
 {
 	m_VertexCount = 0;
 	Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DestroyVertexBuffer(m_VertexBuffer);
+	m_VertexBuffer = 0;
 	return true;
 }
 
