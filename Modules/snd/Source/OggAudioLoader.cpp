@@ -23,7 +23,7 @@ Modules::OggSound::~OggSound()
 }
 
 Modules::OggAudioLoader::OggAudioLoader(Pxf::Kernel* _Kernel)
-    : ResourceLoader(_Kernel, "Ogg Audio Loader")
+    : SoundLoader(_Kernel, "Ogg Audio Loader")
 {
 }
 

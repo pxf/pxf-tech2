@@ -36,7 +36,6 @@ namespace Resource
 		}
     };
 
-
     class BlobLoader : public Resource::ResourceLoader
     {
     private:

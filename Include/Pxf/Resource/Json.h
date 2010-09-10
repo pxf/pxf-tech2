@@ -2,6 +2,7 @@
 #define _PXF_RESOURCE_JSON_H_
 
 #include <Pxf/Resource/ResourceBase.h>
+#include <Pxf/Resource/ResourceLoader.h>
 
 #include <Pxf/Util/Array.h>
 #include <Pxf/Util/Map.h>
@@ -38,6 +39,24 @@ namespace Resource {
 		virtual const bool IsReady() const
 		{
 			return false;
+		}
+	};
+
+	class JsonLoader : public Resource::ResourceLoader
+	{
+	private:
+		bool Init(){ return true; }
+	public:
+		JsonLoader(Pxf::Kernel* _Kernel, const char* _Identifier)
+			: ResourceLoader(_Kernel, _Identifier)
+		{}
+		virtual ~JsonLoader() {};
+		virtual Resource::Json* Load(const char* _FilePath) = 0;
+		virtual Resource::Json* CreateFrom(const void* _DataPtr, unsigned _DataLen) = 0;
+		virtual void Destroy(void* _Resource)
+		{
+			if (_Resource)
+				delete (Resource::Json*)_Resource;
 		}
 	};
 

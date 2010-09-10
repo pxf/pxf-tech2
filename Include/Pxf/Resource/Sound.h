@@ -2,6 +2,7 @@
 #define _PXF_RESOURCE_SOUND_H_
 
 #include <Pxf/Resource/ResourceBase.h>
+#include <Pxf/Resource/ResourceLoader.h>
 
 namespace Pxf {
 namespace Resource {
@@ -47,6 +48,24 @@ namespace Resource {
 		virtual const bool IsReady() const
 		{
 			return m_SoundData != NULL;
+		}
+	};
+
+	class SoundLoader : public Resource::ResourceLoader
+	{
+	private:
+		bool Init(){ return true; }
+	public:
+		SoundLoader(Pxf::Kernel* _Kernel, const char* _Identifier)
+			: ResourceLoader(_Kernel, _Identifier)
+		{}
+		virtual ~SoundLoader() {};
+		virtual Resource::Sound* Load(const char* _FilePath) = 0;
+		virtual Resource::Sound* CreateFrom(const void* _DataPtr, unsigned _DataLen) = 0;
+		virtual void Destroy(void* _Resource)
+		{
+			if (_Resource)
+				delete (Resource::Sound*)_Resource;
 		}
 	};
 

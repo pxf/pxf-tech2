@@ -28,7 +28,7 @@ namespace Modules {
         virtual ~SOILImage();
     };
 
-    class GenericImageLoader : public Resource::ResourceLoader
+    class GenericImageLoader : public Resource::ImageLoader
     {
     private:
         bool Init(){ return true; }
@@ -37,11 +37,6 @@ namespace Modules {
         ~GenericImageLoader();
         virtual Resource::Image* Load(const char* _FilePath);
 		virtual Resource::Image* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        virtual void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Image*)_Resource;
-        }
     };
 
 } // Graphics

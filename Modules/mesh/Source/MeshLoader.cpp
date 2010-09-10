@@ -27,7 +27,7 @@ void OpenCTMMesh::SetData(unsigned int _VertCount, unsigned int _TriCount,const 
 }*/
 
 CtmMeshLoader::CtmMeshLoader(Pxf::Kernel* _Kernel)
-	: ResourceLoader(_Kernel, "Ctm Mesh Loader")
+	: MeshLoader(_Kernel, "Ctm Mesh Loader")
 {
 	Init();
 }

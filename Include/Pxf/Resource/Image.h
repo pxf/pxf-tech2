@@ -2,6 +2,7 @@
 #define _PXF_RESOURCE_IMAGE_H_
 
 #include <Pxf/Resource/ResourceBase.h>
+#include <Pxf/Resource/ResourceLoader.h>
 
 namespace Pxf {
 namespace Resource {
@@ -47,6 +48,24 @@ namespace Resource {
 		virtual const bool IsReady() const
 		{
 			return m_ImageData != NULL;
+		}
+	};
+
+	class ImageLoader : public Resource::ResourceLoader
+	{
+	private:
+		bool Init(){ return true; }
+	public:
+		ImageLoader(Pxf::Kernel* _Kernel, const char* _Identifier)
+			: ResourceLoader(_Kernel, _Identifier)
+		{}
+		virtual ~ImageLoader() {};
+		virtual Resource::Image* Load(const char* _FilePath) = 0;
+		virtual Resource::Image* CreateFrom(const void* _DataPtr, unsigned _DataLen) = 0;
+		virtual void Destroy(void* _Resource)
+		{
+			if (_Resource)
+				delete (Resource::Image*)_Resource;
 		}
 	};
 
