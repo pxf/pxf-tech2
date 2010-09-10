@@ -47,7 +47,7 @@ function gui:create_horisontalpanel(x,y,w,h,max)
   end
 
   function wid:needsredraw()
-    local x,y = self:find_abspos()
+    local x,y = self:find_abspos(self)
     gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
     self.redraw_needed = true
     
@@ -55,6 +55,23 @@ function gui:create_horisontalpanel(x,y,w,h,max)
     if not (self.parent == nil) then
       self.parent:childisredrawn()
     end
+  end
+  
+  function wid:find_abspos(sender)
+    local x,y
+    x = self.drawbox.x
+    if not (sender == self) then
+      x = x + self.offset
+    end
+    y = self.drawbox.y
+    
+    if not (self.parent == nil) then
+      local tx,ty = self.parent:find_abspos(sender)
+      x = x + tx
+      y = y + ty
+    end
+    
+    return x,y
   end
   
   --wid.superdraw = wid.draw
@@ -474,46 +491,46 @@ function gui:create_simplebutton(x,y,w,h,label,action)
     
       -- bg
       if (self.state == 0) then
-        gfx.drawtopleft(3, 3, self.drawbox.w-5, self.drawbox.h-5,
+        gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
                         512,1,1,254)
       else
-        gfx.drawtopleft(3, 3, self.drawbox.w-5, self.drawbox.h-5,
+        gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
                         510,1,0,254)
       end
                     
       -- topleft
-      gfx.drawtopleft(0, 0, 5, 5,
-                      0,0,5,5)
+      gfx.drawtopleft(0, 0, 4, 4,
+                      0,0,4,4)
     
       -- topright
-      gfx.drawtopleft(self.drawbox.w-5, 0, 5, 5,
-                      9,0,5,5)
+      gfx.drawtopleft(self.drawbox.w-4, 0, 4, 4,
+                      10,0,4,4)
                     
       -- top
-      gfx.drawtopleft(5, 0, self.drawbox.w-10, 5,
-                      5,0,1,5)
+      gfx.drawtopleft(4, 0, self.drawbox.w-8, 4,
+                      7,0,1,4)
                     
 
       -- bottomleft
-      gfx.drawtopleft(0, self.drawbox.h-5, 5, 5,
-                      0,9,5,5)
+      gfx.drawtopleft(0, self.drawbox.h-4, 4, 4,
+                      0,10,4,4)
 
       -- bottomright
-      gfx.drawtopleft(self.drawbox.w-5, self.drawbox.h-5, 5, 5,
-                      9,9,5,5)
+      gfx.drawtopleft(self.drawbox.w-4, self.drawbox.h-4, 4, 4,
+                      10,10,4,4)
                     
-      -- top
-      gfx.drawtopleft(5, self.drawbox.h-5, self.drawbox.w-10, 5,
-                      5,9,1,5)
+      -- bottom
+      gfx.drawtopleft(4, self.drawbox.h-4, self.drawbox.w-8, 4,
+                      7,10,1,4)
                     
       -- left
-      gfx.drawtopleft(0, 5, 5, self.drawbox.h-10,
-                      0,5,5,1)
+      gfx.drawtopleft(0, 4, 4, self.drawbox.h-8,
+                      0,7,4,1)
                     
       -- right
-      gfx.drawtopleft(self.drawbox.w-5, 5, 5, self.drawbox.h-10,
-                      9,5,5,1)
-    
+      gfx.drawtopleft(self.drawbox.w-4, 4, 4, self.drawbox.h-8,
+                      10,7,4,1)
+      
       -- label
       if (self.state == 0) then
         gui:drawcenteredfont(self.label, self.drawbox.w / 2, self.drawbox.h / 2)

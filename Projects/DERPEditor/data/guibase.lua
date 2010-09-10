@@ -38,7 +38,7 @@ function gui:create_basewidget(x,y,w,h)
   -----------------------------------
   -- redraw functions
   function wid:needsredraw()
-    local x,y = self:find_abspos()
+    local x,y = self:find_abspos(self)
     gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
     self.redraw_needed = true
     
@@ -56,13 +56,13 @@ function gui:create_basewidget(x,y,w,h)
       v:resetredraw()
     end
   end
-  function wid:find_abspos()
+  function wid:find_abspos(sender)
     local x,y
     x = self.drawbox.x
     y = self.drawbox.y
     
     if not (self.parent == nil) then
-      local tx,ty = self.parent:find_abspos()
+      local tx,ty = self.parent:find_abspos(sender)
       x = x + tx
       y = y + ty
     end
