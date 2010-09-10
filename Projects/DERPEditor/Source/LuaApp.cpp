@@ -324,60 +324,62 @@ void LuaApp::Draw()
     {
       if (m_RedrawNeeded)
       {
-        //glClear(GL_DEPTH_BUFFER_BIT);
-        if (m_RedrawStencil && !m_RedrawFull)
-        {
-          glEnable(GL_STENCIL_TEST);
-          glDisable(GL_DEPTH_TEST);
-          glClear(GL_STENCIL_BUFFER_BIT);
+		ResetDepth();
+		// Reset all quadbatches
+		for(int i = 0; i < m_QuadBatchCount; ++i)
+		{
+			m_QuadBatches[i]->Reset();
+		}
+        
+		CallScriptFunc("_draw");
+        
+        
+		// Close last used QB
+		if (m_QuadBatchCurrent >= 0)
+		{
+			m_QuadBatches[m_QuadBatchCurrent]->End();
+		}
+
+		for (int renderpass = 0; renderpass < 2; ++renderpass)
+		{
+			//glClear(GL_DEPTH_BUFFER_BIT);
+			if (m_RedrawStencil && !m_RedrawFull)
+			{
+			  glEnable(GL_STENCIL_TEST);
+			  glDisable(GL_DEPTH_TEST);
+			  glClear(GL_STENCIL_BUFFER_BIT);
           
-          glStencilFunc(GL_ALWAYS, 0x1, 0x1);
-          glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+			  glStencilFunc(GL_ALWAYS, 0x1, 0x1);
+			  glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
           
-          m_StencilQB->Draw();
-          m_StencilQB->Reset();
-          m_RedrawStencil = false;
+			  m_StencilQB->Draw();
           
-          glStencilFunc(GL_EQUAL, 0x1, 0x1);
-          glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
+			  glStencilFunc(GL_EQUAL, 0x1, 0x1);
+			  glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
           
-          glEnable(GL_DEPTH_TEST);
-        } else {
-          glDisable(GL_STENCIL_TEST);
-        }
+			  glEnable(GL_DEPTH_TEST);
+			} else {
+			  glDisable(GL_STENCIL_TEST);
+			}
+			
+			glClear(GL_DEPTH_BUFFER_BIT);
         
+			// Draw all quadbatches
+			for (int i = 0; i < m_QuadBatchCount; ++i)
+			{
+			  m_QuadBatches[i]->Draw();
+			}
         
-        ResetDepth();
-        glClear(GL_DEPTH_BUFFER_BIT);
-        
-        
-        // Reset all quadbatches
-        for(int i = 0; i < m_QuadBatchCount; ++i)
-        {
-          m_QuadBatches[i]->Reset();
-        }
-        
-        CallScriptFunc("_draw");
-        
-        
-        // Close last used QB
-        if (m_QuadBatchCurrent >= 0)
-        {
-          m_QuadBatches[m_QuadBatchCurrent]->End();
-        }
-        
-        // Draw all quadbatches
-        for(int i = 0; i < m_QuadBatchCount; ++i)
-        {
-          m_QuadBatches[i]->Draw();
-        }
-        
-        m_win->Swap();
-        
+			m_win->Swap();
+		}
+
+        m_QuadBatchCurrent = -1;
+		m_TransformMatrix = Math::Mat4::Identity;
         m_RedrawFull = false;
         m_RedrawNeeded = false;
-        m_QuadBatchCurrent = -1;
-        m_TransformMatrix = Math::Mat4::Identity;
+		m_RedrawStencil = false;
+		m_StencilQB->Reset();
+        
       }  
     } else {
       Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
