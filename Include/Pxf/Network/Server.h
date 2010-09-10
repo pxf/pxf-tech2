@@ -8,6 +8,8 @@ namespace Pxf
 		class Server
 		{
 		public:
+			virtual ~Server(){}
+
 			virtual bool Bind() = 0;
 			virtual bool Shutdown() = 0;
 
