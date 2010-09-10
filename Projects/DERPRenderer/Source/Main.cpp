@@ -21,6 +21,8 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 #include <Pxf/Resource/Sound.h>
+#include <Pxf/Resource/Font.h>
+
 #include <ctime>
 
 using namespace Pxf;
@@ -49,6 +51,8 @@ int main()
     Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
 
 	int tick_id = snd->RegisterSound("data/tick.ogg");
+
+	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
 
 
     Graphics::WindowSpecifications spec;

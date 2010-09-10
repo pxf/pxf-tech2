@@ -72,21 +72,21 @@ Util::Map<Resource::Json::Value*, Resource::Json::Value*> JsonCpp::JsonCppValue:
 }
 
 /*
-	JsonLoader
+	JsonCppLoader
 */
 
-JsonLoader::JsonLoader(Pxf::Kernel* _Kernel)
-	: ResourceLoader(_Kernel, "Json Loader")
+JsonCppLoader::JsonCppLoader(Pxf::Kernel* _Kernel)
+	: JsonLoader(_Kernel, "Json Loader")
 {
 	Init();
 }
 
-bool JsonLoader::Init()
+bool JsonCppLoader::Init()
 {
 	return false;
 }
 
-Resource::Json* JsonLoader::Load(const char* _FilePath)
+Resource::Json* JsonCppLoader::Load(const char* _FilePath)
 {
 	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);                   
 	if (!chunk)
@@ -94,18 +94,18 @@ Resource::Json* JsonLoader::Load(const char* _FilePath)
 		Message("JsonLoader", "Unable to create chunk from file '%s'", _FilePath);
 		return NULL;
 	}
-	return new JsonCpp(chunk, this);
+	return new JsonCpp(m_Kernel, chunk, this);
 }
 
-Resource::Json* JsonLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
+Resource::Json* JsonCppLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
 {
 	Resource::Chunk* chunk = new Resource::Chunk();
 	chunk->data = (void*) _DataPtr;
 	chunk->size = _DataLen;
 	chunk->is_static = true;
-	return new JsonCpp(chunk, this);
+	return new JsonCpp(m_Kernel, chunk, this);
 }
 
-JsonLoader::~JsonLoader()
+JsonCppLoader::~JsonCppLoader()
 {
 }

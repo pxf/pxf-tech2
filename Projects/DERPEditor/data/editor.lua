@@ -7,15 +7,15 @@ require("data/guistdwidgets")
 gui:init()
 
 -- add some cool widgets
-local topstack = gui:create_verticalstack(0,0,app.width,60)
+local topstack = gui:create_verticalstack(0,0,app.width)
 local console = gui:create_console(0,0,app.width,100,true)
 console:addline("hey sup?")
 console:addline("what are you? a HOMO?")
 console:addline("you mad? 8)")
-local rebootbutton = gui:create_simplebutton(12,12,100,30, function () app.reboot() end)
-local quitbutton = gui:create_simplebutton(app.width - 78,12,60,30, function (self) self.parent:destroy() end)--app.quit() end)
-local testbutton = gui:create_simplebutton(app.width - 140,12,60,30, function (self) app.setrenderoption(app.REDRAWMODE_NORMAL) end)--app.quit() end)
-local toolbar = gui:create_horisontalpanel(0,0,app.width,50, app.width)
+local rebootbutton = gui:create_simplebutton(6,6,130,30, "Reboot App", function () app.reboot() end)
+local quitbutton = gui:create_simplebutton(app.width - 68,6,60,30, "Quit", function (self) app.quit() end)
+local testbutton = gui:create_simplebutton(app.width - 154,6,80,30, "Switch", function (self) app.setrenderoption(app.REDRAWMODE_NORMAL) end)--app.quit() end)
+local toolbar = gui:create_horisontalpanel(0,0,app.width,44, app.width)
 --local movable_panel = gui:create_movablepanel(200, 200,100,100)
 local movable_window = gui:create_movablewindow(200,200,140,100)
 
@@ -37,8 +37,10 @@ gui.widgets:addwidget(movable_window)
 --test_texture = gfx.loadtexture("data/apperror.png")
 
 balls_id = snd.newsound("data/tick.ogg")
+snd.playsound(balls_id)
+snd.stopall()
 
-print(balls_id)
+--print(balls_id)
 
 --snd.playsound(balls_id,true)
 

@@ -37,7 +37,7 @@ bool Pxf::Modules::JsonImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _
 {
     if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
     {
-        Pxf::Modules::JsonLoader* loader = new Pxf::Modules::JsonLoader(_Kernel);
+        Pxf::Modules::JsonCppLoader* loader = new Pxf::Modules::JsonCppLoader(_Kernel);
         _Kernel->RegisterResourceLoader("json", loader);
         return true;
     }

@@ -64,6 +64,7 @@ bool RtAudioDevice::Init()
 	m_ActiveVoices.resize(MAX_NUM_VOICES);
 
 	m_DAC = new RtAudio();
+	m_DAC->showWarnings(true);
 
 	unsigned num_devices = m_DAC->getDeviceCount();
 
@@ -101,17 +102,20 @@ RtAudioDevice::~RtAudioDevice()
 {
 	try
 	{
-		m_DAC->abortStream();
+		if (m_DAC->isStreamOpen())
+		{
+			m_DAC->closeStream();
+			m_DAC->abortStream();
+		}
 	}
 	catch (RtError& e)
 	{
-		Message("Audio", "Fatal error trying to stop stream: %s", e.getMessage().c_str());
+		//Message("Audio", "Fatal error trying to stop stream: %s", e.getMessage().c_str());
 	}
 }
 
 int RtAudioDevice::RegisterSound(const char* _Filename)
 {
-
 	if (!m_Initialized)
 		Initialize();
 
@@ -129,6 +133,9 @@ int RtAudioDevice::RegisterSound(const char* _Filename)
 
 int RtAudioDevice::RegisterSound(Resource::Sound* _Sound)
 {
+	if (!m_Initialized)
+		Initialize();
+
 	_Sound->_AddRef();
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
@@ -143,6 +150,9 @@ int RtAudioDevice::RegisterSound(Resource::Sound* _Sound)
 
 int RtAudioDevice::GetSoundID(const Resource::Sound* _Sound)
 {
+	if (!m_Initialized)
+		Initialize();
+
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
 		if (m_SoundBank[i] == _Sound)
@@ -155,6 +165,9 @@ int RtAudioDevice::GetSoundID(const Resource::Sound* _Sound)
 
 void RtAudioDevice::UnregisterSound(int _Id)
 {
+	if (!m_Initialized)
+		Initialize();
+
 	if(m_SoundBank[_Id])
 	{
 		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
@@ -170,6 +183,9 @@ void RtAudioDevice::UnregisterSound(int _Id)
 
 void RtAudioDevice::Play(int _SoundID, bool _Loop)
 {
+	if (!m_Initialized)
+		Initialize();
+
 	if (m_SoundBank[_SoundID])
 	{
 		unsigned free_slot = -1;
@@ -202,6 +218,9 @@ void RtAudioDevice::Play(int _SoundID, bool _Loop)
 
 void RtAudioDevice::Stop(int _SoundID)
 {
+	if (!m_Initialized)
+		Initialize();
+
 	if (m_SoundBank[_SoundID])
 	{
 		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
@@ -219,6 +238,9 @@ void RtAudioDevice::Stop(int _SoundID)
 
 void RtAudioDevice::StopAll()
 {
+	if (!m_Initialized)
+		Initialize();
+
 	for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
 	{
 		if (m_ActiveVoices[i].clip)
@@ -233,6 +255,9 @@ void RtAudioDevice::StopAll()
 
 void RtAudioDevice::Pause(int _SoundID)
 {
+	if (!m_Initialized)
+		Initialize();
+
 	if (m_SoundBank[_SoundID])
 	{
 		for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
@@ -248,6 +273,9 @@ void RtAudioDevice::Pause(int _SoundID)
 
 void RtAudioDevice::PauseAll()
 {
+	if (!m_Initialized)
+		Initialize();
+
 	for(unsigned i = 0; i < MAX_NUM_VOICES; i++)
 	{
 		if (m_ActiveVoices[i].clip)
@@ -260,6 +288,9 @@ void RtAudioDevice::PauseAll()
 
 void RtAudioDevice::DumpInfo()
 {
+	if (!m_Initialized)
+		Initialize();
+
 	/* Enumerate audio devices */
 
 	unsigned num_devices = m_DAC->getDeviceCount();

@@ -18,6 +18,13 @@ namespace Pxf{
 		class Shader;
 		class Model;
     }
+
+	namespace Resource
+	{
+		class Image;
+		class Mesh;
+	}
+
 	namespace Modules {
 		class DeviceGL2 : public Graphics::GraphicsDevice
 		{
@@ -37,12 +44,14 @@ namespace Pxf{
 
 			Graphics::Texture* CreateEmptyTexture(int _Width,int _Height, Graphics::TextureFormatStorage _Format = Graphics::TEX_FORMAT_RGBA);
 			Graphics::Texture* CreateTexture(const char* _filepath);
+			Graphics::Texture* CreateTexture(Resource::Image* _Image);
 			Graphics::Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
       void DestroyTexture(Graphics::Texture* _texture);
 
 			Graphics::Model* CreateModel(const char* _FilePath);
+			Graphics::Model* CreateModel(Resource::Mesh* _Mesh);
 
 			Graphics::VertexBuffer* CreateVertexBuffer(Graphics::VertexBufferLocation _VertexBufferLocation, Graphics::VertexBufferUsageFlag _VertexBufferUsageFlag);
 			void DestroyVertexBuffer(Graphics::VertexBuffer* _pVertexBuffer);

@@ -2,6 +2,7 @@
 #define _PXF_RESOURCE_MESH_H_
 
 #include <Pxf/Resource/ResourceBase.h>
+#include <Pxf/Resource/ResourceLoader.h>
 
 namespace Pxf {
 namespace Resource {
@@ -34,8 +35,8 @@ namespace Resource {
 	protected:
 		mesh_descriptor m_MeshData;
 	public:
-		Mesh(Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Chunk, _Loader)
+		Mesh(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
+            : ResourceBase(_Kernel, _Chunk, _Loader)
         {
 			m_MeshData.has_normals = false;
 			m_MeshData.vertex_count = 0;
@@ -55,6 +56,24 @@ namespace Resource {
 
 		mesh_descriptor* GetData() { return &m_MeshData; }
 		void SetData(const mesh_descriptor &_Data) { m_MeshData = _Data; }
+	};
+
+	class MeshLoader : public Resource::ResourceLoader
+	{
+	private:
+		bool Init(){ return true; }
+	public:
+		MeshLoader(Pxf::Kernel* _Kernel, const char* _Identifier)
+			: ResourceLoader(_Kernel, _Identifier)
+		{}
+		virtual ~MeshLoader() {};
+		virtual Resource::Mesh* Load(const char* _FilePath) = 0;
+		virtual Resource::Mesh* CreateFrom(const void* _DataPtr, unsigned _DataLen) = 0;
+		virtual void Destroy(void* _Resource)
+		{
+			if (_Resource)
+				delete (Resource::Mesh*)_Resource;
+		}
 	};
 
 } // Resource

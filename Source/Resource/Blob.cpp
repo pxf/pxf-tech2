@@ -28,7 +28,7 @@ Resource::Blob* Resource::BlobLoader::Load(const char* _FilePath)
         Pxf::Message("BlobLoader", "Unable to create chunk from file '%s'", _FilePath);
         return NULL;
     }
-    return new Resource::Blob(chunk, this);
+    return new Resource::Blob(m_Kernel, chunk, this);
 }
 
 Resource::Blob* Resource::BlobLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
@@ -37,5 +37,5 @@ Resource::Blob* Resource::BlobLoader::CreateFrom(const void* _DataPtr, unsigned 
 	chunk->data = (void*) _DataPtr;
 	chunk->size = _DataLen;
 	chunk->is_static = true;
-	return new Blob(chunk, this);
+	return new Blob(m_Kernel, chunk, this);
 }

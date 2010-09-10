@@ -42,7 +42,7 @@ Resource::Text* Resource::TextLoader::Load(const char* _FilePath)
         Pxf::Message("TextLoader", "Unable to create chunk from file '%s'", _FilePath);
         return NULL;
     }
-    return new Resource::Text(chunk, this);
+    return new Resource::Text(m_Kernel, chunk, this);
 }
 
 Resource::Text* Resource::TextLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
@@ -51,5 +51,5 @@ Resource::Text* Resource::TextLoader::CreateFrom(const void* _DataPtr, unsigned 
 	chunk->data = (void*) _DataPtr;
 	chunk->size = _DataLen;
 	chunk->is_static = true;
-	return new Text(chunk, this);
+	return new Text(m_Kernel, chunk, this);
 }

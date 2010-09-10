@@ -12,8 +12,8 @@ namespace Resource
     protected:
         virtual bool Build();
     public:
-        Blob(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-            : Resource::ResourceBase(_Chunk, _Loader)
+        Blob(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+            : Resource::ResourceBase(_Kernel, _Chunk, _Loader)
         {
             Build();
         }
@@ -35,7 +35,6 @@ namespace Resource
 			return m_Chunk != 0;
 		}
     };
-
 
     class BlobLoader : public Resource::ResourceLoader
     {

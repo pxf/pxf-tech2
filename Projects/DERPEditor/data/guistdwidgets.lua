@@ -34,7 +34,7 @@ function gui:create_horisontalpanel(x,y,w,h,max)
   wid.max = max
   
   function wid:mousedrag(dx,dy,button)
-    if (button == inp.MOUSE_RIGHT) then -- TODO: change this to MOUSE_MIDDLE
+    if (button == inp.MOUSE_MIDDLE) then -- TODO: change this to MOUSE_MIDDLE
       --self.drawbox.x = self.drawbox.x + dx
       self.offset = self.offset + dx
       if (self.offset < -self.max) then
@@ -43,6 +43,17 @@ function gui:create_horisontalpanel(x,y,w,h,max)
         self.offset = 0
       end
       self:needsredraw()
+    end
+  end
+
+  function wid:needsredraw()
+    local x,y = self:find_abspos()
+    gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
+    self.redraw_needed = true
+    
+    -- notify parent
+    if not (self.parent == nil) then
+      self.parent:childisredrawn()
     end
   end
   
@@ -84,8 +95,8 @@ function gui:create_horisontalpanel(x,y,w,h,max)
 end
 
 -- creates a widget stack that displays all widgets as a "stack"
-function gui:create_verticalstack(x,y,w,h)
-  local wid = gui:create_basewidget(x,y,w,h)
+function gui:create_verticalstack(x,y,w)
+  local wid = gui:create_basewidget(x,y,w,10)
   
   function wid:addwidget(cwid)
     cwid.parent = self
@@ -107,12 +118,13 @@ function gui:create_verticalstack(x,y,w,h)
     end
     self:needsredraw()
     self:resize_abs(self.drawbox.w, offsety)
+    self:needsredraw()
   end
   
   function wid:childisredrawn()
-    --if not self.redraw_needed then
+    if not self.redraw_needed then
       self:needsredraw()
-    --end
+    end
   end
   
   --[[function wid:find_mousehit(mx,my)
@@ -206,7 +218,7 @@ function gui:create_labelpanel(x,y,w,h,text)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		panic.text(text, x, y)
+		gui:drawfont(text, x, y)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
@@ -254,18 +266,18 @@ function gui:create_movablewindow(x,y,w,h)
 		local move_dir = 0
 
 		if (base_window.state == window_state.maximized) then
-			gfx.rotate(math.pi * 0.5)
+			--gfx.rotate(math.pi * 0.5)
 			gfx.translate(move_offset.x + 1,move_offset.y)
 			minimize_label_arrow:super_draw()
-			gfx.rotate(-math.pi * 0.5)
+			--gfx.rotate(-math.pi * 0.5)
 			gfx.translate(- (move_offset.x + 1),-move_offset.y)
 		end
 		
 		if (base_window.state == window_state.minimized) then
-			gfx.rotate(-math.pi * 0.5)
+			--gfx.rotate(-math.pi * 0.5)
 			gfx.translate(-move_offset.x + 1,-move_offset.y)
 			minimize_label_arrow:super_draw()
-			gfx.rotate(math.pi * 0.5)
+			--gfx.rotate(math.pi * 0.5)
 			gfx.translate(move_offset.x - 1,move_offset.y)
 		end
 	end
@@ -276,7 +288,7 @@ function gui:create_movablewindow(x,y,w,h)
 		self.hitbox.h = 20
 		self.state = window_state.minimized
 		self:needsredraw()
-		snd.stopsound(balls_id)
+		--snd.stopsound(balls_id)
 	end
 
 	function base_window:maximize()
@@ -285,7 +297,7 @@ function gui:create_movablewindow(x,y,w,h)
 		self.drawbox.h = self.height
 		self.state = window_state.maximized
 		self:needsredraw()
-		snd.playsound(balls_id,true)
+		--snd.playsound(balls_id,true)
 	end
 
 	function minimize_button:mouserelease(mx,my,button)
@@ -435,13 +447,24 @@ function gui:create_movablepanel(x,y,w,h)
 end
 
 -- simple button aoeu
-function gui:create_simplebutton(x,y,w,h,action)
+function gui:create_simplebutton(x,y,w,h,label,action)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.action = action
+  wid.label = label
+  wid.state = 0 -- 0 = up, 1 = down
   
   function wid:mouserelease(mx,my,button)
     if (button == inp.MOUSE_LEFT) then
       self:action(mx,my,button)
+    end
+    self.state = 0
+    self:needsredraw()
+  end
+  
+  function wid:mousepush(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      self.state = 1
+      self:needsredraw()
     end
   end
   
@@ -450,8 +473,13 @@ function gui:create_simplebutton(x,y,w,h,action)
       gfx.translate(self.drawbox.x, self.drawbox.y)
     
       -- bg
-      gfx.drawtopleft(3, 3, self.drawbox.w-5, self.drawbox.h-5,
-                      512,1,1,254)
+      if (self.state == 0) then
+        gfx.drawtopleft(3, 3, self.drawbox.w-5, self.drawbox.h-5,
+                        512,1,1,254)
+      else
+        gfx.drawtopleft(3, 3, self.drawbox.w-5, self.drawbox.h-5,
+                        510,1,0,254)
+      end
                     
       -- topleft
       gfx.drawtopleft(0, 0, 5, 5,
@@ -486,6 +514,12 @@ function gui:create_simplebutton(x,y,w,h,action)
       gfx.drawtopleft(self.drawbox.w-5, 5, 5, self.drawbox.h-10,
                       9,5,5,1)
     
+      -- label
+      if (self.state == 0) then
+        gui:drawcenteredfont(self.label, self.drawbox.w / 2, self.drawbox.h / 2)
+      else
+        gui:drawcenteredfont(self.label, self.drawbox.w / 2 + 1, self.drawbox.h / 2 + 1)
+      end
     
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
     

@@ -12,6 +12,7 @@ function gui:create_basewidget(x,y,w,h)
   }
   
   function wid:destroy()
+    self:needsredraw()
     if self.parent then
       local deletek = nil
       for k,v in pairs(self.parent.childwidgets) do
@@ -200,15 +201,61 @@ end
 
 gui.redrawrects = {}
 function gui:redraw(x,y,w,h)
-  --self.widgets:find_redrawhit(x,y,x+w,y+h)
+  self.widgets:find_redrawhit(x,y,x+w,y+h)
   gfx.redrawneeded(x,y,w,h)
   --print("redraw area: " .. tostring(x) .." " .. tostring(y) .. " " .. tostring(w) .." " .. tostring(h))
   table.insert(gui.redrawrects, 1, {x,y,w,h})
   --gfx.redrawneeded()
 end
 
+function gui:drawcenteredfont(str,x,y)
+  local x2 = x - ((#str-1) * 8) / 2
+  local y2 = y + (4 / 2)
+  gui:drawfont(str, x2, y2)
+end
+
+function gui:drawfont(str,x,y)
+  local oldtex = gfx.bindtexture(self.font)
+  --local r,g,b = gfx.getcolor()
+  --gfx.setcolor(1, 1, 1)
+  gfx.translate(x, y)
+	local strlen = #str
+	local char_w = 8
+	
+	local char_counter = 0
+	local euro_next = false
+	
+	for i=1,strlen do
+	  -- calculate tex coords
+	  local index = string.byte(str, i)
+	  if (index == 195) then
+	    -- found special char
+	    euro_next = true
+    else	  
+  	    -- draw quad
+  	    if (euro_next) then
+  	      euro_next = false
+  	      index = index + 32
+	      else
+	        index = index - 32
+	      end
+    	  local s = math.fmod(index, 16) * 16
+    	  local t = math.floor(index / 16) * 16
+  	    gfx.drawcentered((char_counter)*char_w, 0, 16, 16, s, t, 16, 16)
+  	    char_counter = char_counter + 1
+    
+    end
+	end
+	
+	gfx.translate(-x, -y)
+	--gfx.setcolor(r,g,b)
+	gfx.bindtexture(oldtex)
+  
+end
+
 function gui:init()
   self.themetex = gfx.loadtexture("data/guitheme.png")
+  self.font = gfx.loadtexture("data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
   self.activewidget = nil

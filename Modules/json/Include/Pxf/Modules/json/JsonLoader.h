@@ -26,8 +26,8 @@ namespace Modules {
 	protected:
         virtual bool Build();
 	public:
-		JsonCpp(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Json(_Chunk,_Loader)
+		JsonCpp(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Json(_Kernel, _Chunk,_Loader)
 		{ }
 		
 		virtual Value* Get(const char* _String, const char* _DefaultValue);
@@ -39,20 +39,15 @@ namespace Modules {
 		virtual ~JsonCpp() { }
 	};
 
-	class JsonLoader : public Resource::ResourceLoader
+	class JsonCppLoader : public Resource::JsonLoader
     {
     private:
         bool Init();
     public:
-        JsonLoader(Pxf::Kernel* _Kernel);
-        ~JsonLoader();
+        JsonCppLoader(Pxf::Kernel* _Kernel);
+        virtual ~JsonCppLoader();
         virtual Resource::Json* Load(const char* _FilePath);
 		virtual Resource::Json* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        virtual void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Json*)_Resource;
-        }
     };
 
 } // Graphics

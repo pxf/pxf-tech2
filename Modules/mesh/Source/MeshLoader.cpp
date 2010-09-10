@@ -27,7 +27,7 @@ void OpenCTMMesh::SetData(unsigned int _VertCount, unsigned int _TriCount,const 
 }*/
 
 CtmMeshLoader::CtmMeshLoader(Pxf::Kernel* _Kernel)
-	: ResourceLoader(_Kernel, "Ctm Mesh Loader")
+	: MeshLoader(_Kernel, "Ctm Mesh Loader")
 {
 	Init();
 }
@@ -84,7 +84,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 			_Normals = ctmGetFloatArray(m_Context,CTM_NORMALS);
 		}
 
-		OpenCTMMesh* _NewMesh = new OpenCTMMesh(_Chunk,this);
+		OpenCTMMesh* _NewMesh = new OpenCTMMesh(m_Kernel, _Chunk,this);
 
 		Resource::Mesh::mesh_descriptor _Data;
 		_Data.has_normals = _HasNormals;
