@@ -22,13 +22,12 @@ int main(int argv, char *argc[])
 
 	if (isserver)
 	{
-		char buf[50000];
-
 		Server* server = netdev->CreateServer(5006);
+		Packet* packet;
 		server->Bind();
 		while (1)
 		{
-			server->Recv(buf);
+			packet = server->Recv();
 		}
 		
 		return 1;

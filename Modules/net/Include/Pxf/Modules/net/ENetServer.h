@@ -2,6 +2,7 @@
 #define _PXF_MODULES_NET_ENETSERVER_H_
 
 #include <Pxf/Network/Server.h>
+#include <Pxf/Network/Packet.h>
 
 #include <Pxf/Modules/net/ENetDevice.h>
 #include <Pxf/Modules/net/ENetDefs.h>
@@ -14,6 +15,7 @@ namespace Pxf
 	namespace Network
 	{
 		class Server;
+		class Packet;
 	}
 
 	namespace Modules
@@ -36,7 +38,7 @@ namespace Pxf
 			virtual bool Bind();
 			virtual bool Shutdown();
 
-			virtual int Recv(char* _Buf);
+			virtual Network::Packet* Recv();
 			virtual bool Send(const int _Client, const char* _Buf, const int _Length);
 			virtual bool SendAll(const char* _Buf, const int _Length);
 		};
