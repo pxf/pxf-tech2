@@ -19,7 +19,7 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
-#include <Pxf/Resource/Blob.h>
+#include <Pxf/Resource/Json.h>
 #include <Pxf/Resource/Sound.h>
 #include <Pxf/Resource/Font.h>
 
@@ -47,8 +47,10 @@ int main()
     Resource::ResourceManager* res = kernel->GetResourceManager();
     res->DumpResourceLoaders();
 
-    Resource::BlobLoader* loader = res->FindResourceLoader<Resource::BlobLoader>("blob");
-    Resource::Blob* blob = loader->CreateFrom("aoeu", 5);
+    Resource::JsonLoader* loader = res->FindResourceLoader<Resource::JsonLoader>("json");
+	Resource::Json* json = loader->CreateFrom("{ \"lol\": 5 }", 15);
+	int lol = json->Get("lol", 4)->asInt();
+	Message("LOL", "lol: %d", lol);
 
 	int tick_id = snd->RegisterSound("data/tick.ogg");
 

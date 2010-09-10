@@ -14,31 +14,55 @@ using namespace Modules;
 */
 bool JsonCpp::Build()
 {
+	m_Reader = new ::Json::Reader();
+	m_Root = new ::Json::Value;
+	bool success = m_Reader->parse((char*)m_Chunk->data, *m_Root);
+	return success;
 	/* TODO: Make a resource loader for json */
+	/*
 	::Json::Value root;
 	::Json::Reader reader;
 	bool success = reader.parse("{\"honk\": 42}", root);
 	if (success)
 		Message("json", "%d", root.get("honk", 88).asInt());
 	return true;
+	*/
+}
+
+JsonCpp::~JsonCpp()
+{
+	if (m_Root)
+		delete m_Root;
+	if (m_Reader)
+		delete m_Reader;
 }
 
 Resource::Json::Value* JsonCpp::Get(const char* _String, const char* _DefaultValue)
 {
-	return 0;
+	::Json::Value val = m_Root->get(_String, _DefaultValue);
+	return new JsonCppValue();
 }
 
-Resource::Json::Value* JsonCpp::Get(const Util::String _String, const Util::String _DefaultValue)
+Resource::Json::Value* JsonCpp::Get(const char* _String, int _DefaultValue)
 {
-	return 0;
+	::Json::Value val = m_Root->get(_String, _DefaultValue);
+	return new JsonCppValue();
 }
+Resource::Json::Value* JsonCpp::Get(const char* _String, bool _DefaultValue)
+{
+	::Json::Value val = m_Root->get(_String, _DefaultValue);
+	return new JsonCppValue();
+}
+
 Resource::Json::Value* JsonCpp::Get(int _Value, int _DefaultValue)
 {
-	return 0;
+	::Json::Value val = m_Root->get(_Value, _DefaultValue);
+	return new JsonCppValue();
 }
 Resource::Json::Value* JsonCpp::Get(bool _Value, bool _DefaultValue)
 {
-	return 0;
+	::Json::Value val = m_Root->get(_Value, _DefaultValue);
+	return new JsonCppValue();
 }
 
 /*
@@ -51,12 +75,12 @@ int JsonCpp::JsonCppValue::asInt()
 }
 bool JsonCpp::JsonCppValue::asBool()
 {
-	return 0;
+	return false;
 }
 
 Util::String JsonCpp::JsonCppValue::asString()
 {
-	return 0;
+	return "";
 }
 
 Util::Array<Resource::Json::Value*> JsonCpp::JsonCppValue::asArray()
