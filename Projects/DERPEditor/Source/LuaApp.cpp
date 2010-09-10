@@ -101,13 +101,11 @@ void LuaApp::Init()
 void LuaApp::CleanUp()
 {
     // Close lua state
-    printf("before lua_close()\n");
     if (L != NULL)
     {
       lua_close(L);
       L = NULL;
     }
-    printf("after lua_close()\n");
   
     // reset states
     m_Started = false;
@@ -118,7 +116,6 @@ void LuaApp::CleanUp()
     {
       for(int i = 0; i < m_QuadBatchCount; ++i)
       {
-        printf("deleted qb\n");
         delete m_QuadBatches[i];
       }
     }
