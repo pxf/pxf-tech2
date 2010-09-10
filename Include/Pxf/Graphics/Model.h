@@ -6,6 +6,10 @@
 #include <Pxf/Graphics/VertexBuffer.h>
 
 namespace Pxf {
+	namespace Resource
+	{
+		class Mesh;
+	}
 	namespace Graphics {
 
 		class Model : public Graphics::DeviceResource
@@ -20,7 +24,7 @@ namespace Pxf {
 			{}
 
 			virtual bool Load(const char* _FilePath) = 0;
-			//virtual void LoadData(Chunk* _Data) = 0;
+			virtual bool Load(Resource::Mesh* _Data) = 0;
 
 			virtual bool Unload() = 0;
 			virtual void Draw() = 0;

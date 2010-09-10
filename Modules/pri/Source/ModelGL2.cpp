@@ -27,7 +27,12 @@ bool ModelGL2::Load(const char* _FilePath)
 		return false;
 	}
 
-	Resource::Mesh::mesh_descriptor md = (*mesh->GetData());
+	return Load(mesh);
+}
+
+bool ModelGL2::Load(Resource::Mesh* _Mesh)
+{
+	Resource::Mesh::mesh_descriptor md = (*_Mesh->GetData());
 
 	m_VertexCount = md.vertex_count;
 

@@ -14,6 +14,13 @@
 namespace Pxf
 {
     class Kernel;
+
+	namespace Resource
+	{
+		class Image;
+		class Mesh;
+	}
+
 	namespace Graphics
 	{
 		class Window;
@@ -50,6 +57,7 @@ namespace Pxf
 			// Texture
 			virtual Texture* CreateEmptyTexture(int _Width,int _Height,TextureFormatStorage _Format = TEX_FORMAT_RGBA) = 0;
 			virtual Texture* CreateTexture(const char* _filepath) = 0;
+			virtual Texture* CreateTexture(Resource::Image* _Image) = 0;
 			virtual Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels) = 0;
 			virtual Texture* BindTexture(Texture* _texture) = 0;
 			virtual Texture* BindTexture(Texture* _texture, unsigned int _texture_unit) = 0; // Multi-texturing
@@ -61,6 +69,7 @@ namespace Pxf
 			
 			// Model
 			virtual Model* CreateModel(const char* _FilePath) = 0;
+			virtual Model* CreateModel(Resource::Mesh* _Mesh) = 0;
 
 			// Buffers
 			virtual RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height) = 0;
