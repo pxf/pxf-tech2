@@ -8,6 +8,7 @@
 #include <Pxf/Modules/net/ENetServer.h>
 #include <Pxf/Modules/net/ENetClient.h>
 #include <Pxf/Modules/net/ENetDefs.h>
+#include <Pxf/Modules/net/ENetDataPacket.h>
 
 #include <Pxf/Util/Array.h>
 #include <Pxf/Base/Debug.h>

@@ -26,7 +26,10 @@ int main(int argv, char *argc[])
 
 		Server* server = netdev->CreateServer(5006);
 		server->Bind();
-		server->Recv(buf);
+		while (1)
+		{
+			server->Recv(buf);
+		}
 		
 		return 1;
 	}
