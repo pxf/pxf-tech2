@@ -1,8 +1,10 @@
 #ifndef _PXF_MODULES_NET_ENETCLIENT_H_
 #define _PXF_MODULES_NET_ENETCLIENT_H_
 
-#include <Pxf/Network/NetworkDevice.h>
-#include <Pxf/Base/Debug.h>
+#include <Pxf/Network/Client.h>
+
+#include <Pxf/Modules/net/ENetDevice.h>
+#include <Pxf/Modules/net/ENetDefs.h>
 
 #include <enet/enet.h>
 
@@ -15,7 +17,7 @@ namespace Pxf
 
 	namespace Modules
 	{
-		class ENetClient
+		class ENetClient : public Pxf::Network::Client
 		{
 		private:
 			ENetAddress Address;
