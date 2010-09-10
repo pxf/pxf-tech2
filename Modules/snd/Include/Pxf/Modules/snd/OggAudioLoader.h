@@ -28,7 +28,7 @@ namespace Modules {
         virtual ~OggSound();
     };
 
-    class OggAudioLoader : public Resource::ResourceLoader
+    class OggAudioLoader : public Resource::SoundLoader
     {
     private:
         bool Init(){ return true; }
@@ -37,11 +37,6 @@ namespace Modules {
         ~OggAudioLoader();
         Resource::Sound* Load(const char* _FilePath);
 		Resource::Sound* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Sound*)_Resource;
-        }
     };
 
 } // Graphics

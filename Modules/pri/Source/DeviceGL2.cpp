@@ -14,6 +14,9 @@
 #include <Pxf/Modules/pri/OpenGLUtils.h>
 #include <Pxf/Modules/pri/TypeTraits.h>
 
+#include <Pxf/Resource/Image.h>
+#include <Pxf/Resource/Mesh.h>
+
 
 #define LOCAL_MSG "Device"
 
@@ -109,6 +112,14 @@ Texture* DeviceGL2::CreateTexture(const char* _filepath)
 	return _tex;
 }
 
+Texture* DeviceGL2::CreateTexture(Resource::Image* _Image)
+{
+	_Image->_AddRef();
+	TextureGL2* _tex = new TextureGL2(this);
+	_tex->LoadData(_Image->Ptr(), _Image->Width(), _Image->Height(), _Image->Channels());
+	return _tex;	
+}
+
 Texture* DeviceGL2::CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels)
 {
 	TextureGL2* _tex = new TextureGL2(this);
@@ -158,6 +169,14 @@ Model* DeviceGL2::CreateModel(const char* _FilePath)
 	ModelGL2* _NewModel = new ModelGL2(this);
 	_NewModel->Load(_FilePath);
 	return _NewModel;
+}
+
+Model* DeviceGL2::CreateModel(Resource::Mesh* _Mesh)
+{
+	_Mesh->_AddRef();
+	ModelGL2* _NewModel = new ModelGL2(this);
+	_NewModel->Load((Resource::Mesh*)_Mesh);
+	return _NewModel;	
 }
 
 VertexBuffer* DeviceGL2::CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)

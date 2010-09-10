@@ -31,7 +31,7 @@ Modules::SOILImage::~SOILImage()
 }
 
 Modules::GenericImageLoader::GenericImageLoader(Pxf::Kernel* _Kernel)
-    : ResourceLoader(_Kernel, "Generic Image Loader")
+    : ImageLoader(_Kernel, "Generic Image Loader")
 {
 }
 

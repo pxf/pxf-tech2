@@ -28,6 +28,7 @@ namespace Pxf
 			virtual ~ModelGL2();
 
 			bool Load(const char* _FilePath);
+			bool Load(Resource::Mesh* _Mesh);
 			bool Unload();
 
 			void Draw();

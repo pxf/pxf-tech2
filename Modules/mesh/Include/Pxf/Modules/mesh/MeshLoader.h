@@ -26,7 +26,7 @@ namespace Modules {
 		virtual ~OpenCTMMesh() { }
 	};
 
-	class CtmMeshLoader : public Resource::ResourceLoader
+	class CtmMeshLoader : public Resource::MeshLoader
     {
     private:
 		CTMcontext m_Context;
@@ -34,14 +34,9 @@ namespace Modules {
         bool Init();
     public:
         CtmMeshLoader(Pxf::Kernel* _Kernel);
-        ~CtmMeshLoader();
+        virtual ~CtmMeshLoader();
         virtual Resource::Mesh* Load(const char* _FilePath);
 		virtual Resource::Mesh* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        virtual void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Mesh*)_Resource;
-        }
     };
 
 } // Graphics
