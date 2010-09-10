@@ -8,6 +8,8 @@ namespace Pxf
 		class Client
 		{
 		public:
+			virtual ~Client(){}
+
 			virtual bool Connect() = 0;
 			virtual bool Disconnect() = 0;
 			virtual bool Connected() = 0;

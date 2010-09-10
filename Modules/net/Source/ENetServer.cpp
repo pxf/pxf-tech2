@@ -30,11 +30,7 @@ bool ENetServer::Shutdown()
 	// TODO:
 }
 
-/* Recv()
-** Fills _Buf with the fetched packet.
-** Returns length of the packet. 0 means error.
-*/
-int ENetServer::Recv(char* _Buf)
+Pxf::Network::Packet* ENetServer::Recv()
 {
 	ENetEvent event;
 
@@ -66,8 +62,8 @@ int ENetServer::Recv(char* _Buf)
 				continue;
 			}
 
-			sprintf(_Buf, "%s\0", event.packet->data);
-			sprintf(LPData, "%s\0", event.packet->data); // Unnecessary?
+			//sprintf(_Buf, "%s\0", event.packet->data);
+			//sprintf(LPData, "%s\0", event.packet->data); // Unnecessary?
 
 			LPLength = event.packet->dataLength;
 			LPSource = (int)event.peer->data;
@@ -75,13 +71,16 @@ int ENetServer::Recv(char* _Buf)
 
 			enet_packet_destroy(event.packet);
 
-			return event.packet->dataLength;
+//			return event.packet->dataLength;
+			ENetDataPacket* packet = new ENetDataPacket(NULL, (int)event.peer->data, (int)event.packet->dataLength);
+//			return (Network::Packet*)new ENetDataPacket(event.packet->data, (int)event.peer->data, (int)event.packet->dataLength);
+			return (Network::Packet*)packet;
 			break;
 		}
 	}
 
 	// Error
-	return -1;
+	return NULL;
 }
 
 bool ENetServer::Send(const int _Client, const char* _Buf, const int _Length)

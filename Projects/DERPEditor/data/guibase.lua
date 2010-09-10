@@ -38,7 +38,7 @@ function gui:create_basewidget(x,y,w,h)
   -----------------------------------
   -- redraw functions
   function wid:needsredraw()
-    local x,y = self:find_abspos()
+    local x,y = self:find_abspos(self)
     gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
     self.redraw_needed = true
     
@@ -56,13 +56,13 @@ function gui:create_basewidget(x,y,w,h)
       v:resetredraw()
     end
   end
-  function wid:find_abspos()
+  function wid:find_abspos(sender)
     local x,y
     x = self.drawbox.x
     y = self.drawbox.y
     
     if not (self.parent == nil) then
-      local tx,ty = self.parent:find_abspos()
+      local tx,ty = self.parent:find_abspos(sender)
       x = x + tx
       y = y + ty
     end
@@ -208,18 +208,21 @@ function gui:redraw(x,y,w,h)
   --gfx.redrawneeded()
 end
 
+function gui:drawcenteredfont(str,x,y)
+  local x2 = x - ((#str-1) * 8) / 2
+  local y2 = y + (4 / 2)
+  gui:drawfont(str, x2, y2)
+end
+
 function gui:drawfont(str,x,y)
   local oldtex = gfx.bindtexture(self.font)
-  local r,g,b = gfx.getcolor()
-  gfx.setcolor(1, 1, 1)
+  --local r,g,b = gfx.getcolor()
+  --gfx.setcolor(1, 1, 1)
   gfx.translate(x, y)
 	local strlen = #str
 	local char_w = 8
 	
-	local color_indicator = "^"
-	local change_color = false
 	local char_counter = 0
-	local rr,rg,rb
 	local euro_next = false
 	
 	for i=1,strlen do
@@ -229,53 +232,23 @@ function gui:drawfont(str,x,y)
 	    -- found special char
 	    euro_next = true
     else	  
-  	  -- change color?
-  	  if index == string.byte(color_indicator, 1) then
-  	    change_color = true
-      else
-        if change_color then
-        
-          -- Color indexes
-          if string.char(tostring(string.byte(str, i))) == "r" then
-            gfx.setcolor(rr,rg,rb)
-          else
-            rr,rg,rb = gfx.getcolor()
-            if string.char(tostring(string.byte(str, i))) == "0" then
-              gfx.setcolor(0, 0, 0)
-            elseif string.char(tostring(string.byte(str, i))) == "1" then
-              gfx.setcolor(1, 0, 0)
-            elseif string.char(tostring(string.byte(str, i))) == "2" then
-              gfx.setcolor(0, 1, 0)
-            elseif string.char(tostring(string.byte(str, i))) == "3" then
-              gfx.setcolor(0, 0, 1)
-            elseif string.char(tostring(string.byte(str, i))) == "4" then
-              gfx.setcolor(1.0, 0.3, 0.3)
-            else
-              gfx.setcolor(1, 1, 1)
-            end
-          end
-        
-          change_color = false
-        else
-    	    -- draw quad
-    	    if (euro_next) then
-    	      euro_next = false
-    	      index = index + 32
-  	      else
-  	        index = index - 32
-  	      end
-      	  local s = math.fmod(index, 16) * 16
-      	  local t = math.floor(index / 16) * 16
-    	    gfx.drawcentered((char_counter)*char_w, 0, 16, 16, s, t, 16, 16)
-    	    char_counter = char_counter + 1
-  	    end
-      end
+  	    -- draw quad
+  	    if (euro_next) then
+  	      euro_next = false
+  	      index = index + 32
+	      else
+	        index = index - 32
+	      end
+    	  local s = math.fmod(index, 16) * 16
+    	  local t = math.floor(index / 16) * 16
+  	    gfx.drawcentered((char_counter)*char_w, 0, 16, 16, s, t, 16, 16)
+  	    char_counter = char_counter + 1
     
     end
 	end
 	
 	gfx.translate(-x, -y)
-	gfx.setcolor(r,g,b)
+	--gfx.setcolor(r,g,b)
 	gfx.bindtexture(oldtex)
   
 end
