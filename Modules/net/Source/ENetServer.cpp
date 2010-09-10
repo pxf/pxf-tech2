@@ -30,10 +30,6 @@ bool ENetServer::Shutdown()
 	// TODO:
 }
 
-/* Recv()
-** Fills _Buf with the fetched packet.
-** Returns length of the packet. 0 means error.
-*/
 Pxf::Network::Packet* ENetServer::Recv()
 {
 	ENetEvent event;
@@ -76,8 +72,9 @@ Pxf::Network::Packet* ENetServer::Recv()
 			enet_packet_destroy(event.packet);
 
 //			return event.packet->dataLength;
+			ENetDataPacket* packet = new ENetDataPacket(NULL, (int)event.peer->data, (int)event.packet->dataLength);
 //			return (Network::Packet*)new ENetDataPacket(event.packet->data, (int)event.peer->data, (int)event.packet->dataLength);
-			return NULL;
+			return (Network::Packet*)packet;
 			break;
 		}
 	}

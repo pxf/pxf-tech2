@@ -11,9 +11,9 @@ namespace Pxf
 			virtual ~Packet()
 			{}
 
-			virtual char* Data() = 0;
-			virtual int Sender() = 0;
-			virtual int Length() = 0;
+			virtual char* GetData() = 0;
+			virtual int GetSender() = 0;
+			virtual int GetLength() = 0;
 		};
 	}
 }

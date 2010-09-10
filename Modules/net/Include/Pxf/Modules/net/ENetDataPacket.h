@@ -23,9 +23,9 @@ namespace Pxf
 			ENetDataPacket(char* _Data, const int _Sender, const int _Length);
 			virtual ~ENetDataPacket(){}
 
-			char* GetData();
-			int GetSender();
-			int GetLength();
+			virtual char* GetData();
+			virtual int GetSender();
+			virtual int GetLength();
 		};
 	}
 }
