@@ -14,11 +14,13 @@ namespace Modules {
 	protected:
         virtual bool Build();
 	public:
-		BitmapFont(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Font(_Chunk,_Loader)
-		{ }
+		BitmapFont(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Font(_Kernel, _Chunk, _Loader)
+		{
+			Build();
+		}
 		
-		virtual ~BitmapFont() { }
+		virtual ~BitmapFont();
 	};
 
 	class BitmapFontLoader : public Resource::FontLoader

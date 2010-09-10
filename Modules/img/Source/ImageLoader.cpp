@@ -47,7 +47,7 @@ Resource::Image* Modules::GenericImageLoader::Load(const char* _FilePath)
         Message("ImageLoader", "Unable to create chunk from file '%s'", _FilePath);
         return NULL;
     }
-    return new SOILImage(chunk, this);
+    return new SOILImage(m_Kernel, chunk, this);
 }
 
 Resource::Image* Modules::GenericImageLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
@@ -56,5 +56,5 @@ Resource::Image* Modules::GenericImageLoader::CreateFrom(const void* _DataPtr, u
 	chunk->data = (void*) _DataPtr;
 	chunk->size = _DataLen;
 	chunk->is_static = true;
-	return new SOILImage(chunk, this);
+	return new SOILImage(m_Kernel, chunk, this);
 }

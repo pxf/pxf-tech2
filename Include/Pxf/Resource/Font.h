@@ -35,14 +35,15 @@ namespace Resource {
 		Kerning_t* m_Kernings;
 
 	public:
-		Font(Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Chunk, _Loader)
+		Font(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
+            : ResourceBase(_Kernel, _Chunk, _Loader)
 			, m_LineHeight(0.f)
 			, m_Width(0.f)
 			, m_Height(0.f)
 			, m_NumKernings(0)
 			, m_CharInfo(0)
 			, m_Kernings(0)
+			, m_Image(0)
         {}
 
 		virtual ~Font()

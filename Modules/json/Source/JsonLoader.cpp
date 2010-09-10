@@ -94,7 +94,7 @@ Resource::Json* JsonCppLoader::Load(const char* _FilePath)
 		Message("JsonLoader", "Unable to create chunk from file '%s'", _FilePath);
 		return NULL;
 	}
-	return new JsonCpp(chunk, this);
+	return new JsonCpp(m_Kernel, chunk, this);
 }
 
 Resource::Json* JsonCppLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
@@ -103,7 +103,7 @@ Resource::Json* JsonCppLoader::CreateFrom(const void* _DataPtr, unsigned _DataLe
 	chunk->data = (void*) _DataPtr;
 	chunk->size = _DataLen;
 	chunk->is_static = true;
-	return new JsonCpp(chunk, this);
+	return new JsonCpp(m_Kernel, chunk, this);
 }
 
 JsonCppLoader::~JsonCppLoader()

@@ -12,8 +12,8 @@ namespace Resource
     protected:
         virtual bool Build();
     public:
-        Text(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-            : Resource::ResourceBase(_Chunk, _Loader)
+        Text(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+            : Resource::ResourceBase(_Kernel, _Chunk, _Loader)
         {
             Build();
         }
