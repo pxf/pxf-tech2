@@ -18,6 +18,7 @@ namespace Resource {
 
 		class Value
 		{
+		public:
 			virtual int asInt() = 0;
 			virtual bool asBool() = 0;
 			virtual Util::String asString() = 0;
@@ -25,14 +26,15 @@ namespace Resource {
 			virtual Util::Map<Value*, Value*> asMap() = 0;
 		};
 
-		Json(Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Chunk, _Loader)
+		Json(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
+            : ResourceBase(_Kernel, _Chunk, _Loader)
         {}
 		virtual ~Json()
         {}
 
 		virtual Value* Get(const char* _String, const char* _DefaultValue) = 0;
-		virtual Value* Get(const Util::String _String, const Util::String _DefaultValue) = 0;
+		virtual Value* Get(const char* _String, int _DefaultValue) = 0;
+		virtual Value* Get(const char* _String, bool _DefaultValue) = 0;
 		virtual Value* Get(int _Value, int _DefaultValue) = 0;
 		virtual Value* Get(bool _Value, bool _DefaultValue) = 0;
 

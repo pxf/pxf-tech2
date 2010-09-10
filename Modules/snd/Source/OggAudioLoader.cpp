@@ -39,7 +39,7 @@ Resource::Sound* Modules::OggAudioLoader::Load(const char* _FilePath)
         Message("AudioLoader", "Unable to create chunk from file '%s'", _FilePath);
         return NULL;
     }
-    return new OggSound(chunk, this);
+    return new OggSound(m_Kernel, chunk, this);
 }
 
 Resource::Sound* Modules::OggAudioLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
@@ -49,5 +49,5 @@ Resource::Sound* Modules::OggAudioLoader::CreateFrom(const void* _DataPtr, unsig
 	chunk->data = (void*) _DataPtr;
 	chunk->size = _DataLen;
 	chunk->is_static = true;
-	return new OggSound(chunk, this);
+	return new OggSound(m_Kernel, chunk, this);
 }

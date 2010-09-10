@@ -8,6 +8,7 @@
 
 #include <Pxf/Modules/pri/DeviceGL2.h>
 #include <Pxf/Modules/pri/InputDeviceGLFW.h>
+#include <Pxf/Modules/pri/FontLoader.h>
 
 static const unsigned Module_Kernel_Version = Pxf::Kernel::KERNEL_VERSION;
 static const unsigned Module_Api_Version = Pxf::Module::MODULE_VERSION;
@@ -38,6 +39,12 @@ bool Pxf::Modules::PortableRendererInput::RegisterSystem(Pxf::Kernel* _Kernel, u
 {
 	bool retval = false;
     
+	if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
+	{
+		Pxf::Modules::BitmapFontLoader* loader = new Pxf::Modules::BitmapFontLoader(_Kernel);
+		_Kernel->RegisterResourceLoader("pfnt", loader);
+	}
+
     if (_SystemType & Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE)
     {
         _Kernel->RegisterGraphicsDevice(new Pxf::Modules::DeviceGL2(_Kernel));

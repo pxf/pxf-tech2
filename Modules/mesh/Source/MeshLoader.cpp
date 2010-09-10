@@ -84,7 +84,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 			_Normals = ctmGetFloatArray(m_Context,CTM_NORMALS);
 		}
 
-		OpenCTMMesh* _NewMesh = new OpenCTMMesh(_Chunk,this);
+		OpenCTMMesh* _NewMesh = new OpenCTMMesh(m_Kernel, _Chunk,this);
 
 		Resource::Mesh::mesh_descriptor _Data;
 		_Data.has_normals = _HasNormals;

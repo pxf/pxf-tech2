@@ -35,8 +35,8 @@ namespace Resource {
 	protected:
 		mesh_descriptor m_MeshData;
 	public:
-		Mesh(Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Chunk, _Loader)
+		Mesh(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
+            : ResourceBase(_Kernel, _Chunk, _Loader)
         {
 			m_MeshData.has_normals = false;
 			m_MeshData.vertex_count = 0;

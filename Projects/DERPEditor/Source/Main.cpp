@@ -83,7 +83,7 @@ int main()
     spec.FSAASamples = 0;
     spec.Fullscreen = false;
     spec.Resizeable = true;
-    spec.VerticalSync = false;
+    spec.VerticalSync = true;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
    

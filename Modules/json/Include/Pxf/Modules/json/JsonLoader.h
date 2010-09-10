@@ -4,6 +4,13 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Json.h>
+
+namespace Json
+{
+	class Reader;
+	class Value;
+}
+
 namespace Pxf{
 namespace Resource
 {
@@ -17,6 +24,7 @@ namespace Modules {
 	public:
 		class JsonCppValue : public Resource::Json::Value
 		{
+		public:
 			virtual int asInt();
 			virtual bool asBool();
 			virtual Util::String asString();
@@ -24,19 +32,25 @@ namespace Modules {
 			virtual Util::Map<Value*, Value*> asMap();
 		};
 	protected:
+		::Json::Reader* m_Reader;
+		::Json::Value* m_Root;
         virtual bool Build();
 	public:
-		JsonCpp(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Json(_Chunk,_Loader)
-		{ }
+		JsonCpp(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Json(_Kernel, _Chunk,_Loader)
+			, m_Reader(0)
+			, m_Root(0)
+		{
+			Build();
+		}
+
+		virtual ~JsonCpp();
 		
 		virtual Value* Get(const char* _String, const char* _DefaultValue);
-		virtual Value* Get(const Util::String _String, const Util::String _DefaultValue);
+		virtual Value* Get(const char* _String, int _DefaultValue);
+		virtual Value* Get(const char* _String, bool _DefaultValue);
 		virtual Value* Get(int _Value, int _DefaultValue);
 		virtual Value* Get(bool _Value, bool _DefaultValue);
-
-
-		virtual ~JsonCpp() { }
 	};
 
 	class JsonCppLoader : public Resource::JsonLoader

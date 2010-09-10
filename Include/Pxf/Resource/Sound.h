@@ -15,8 +15,8 @@ namespace Resource {
 		unsigned m_SoundDataLen;
 
 	public:
-		Sound(Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Chunk, _Loader)
+		Sound(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
+            : ResourceBase(_Kernel, _Chunk, _Loader)
             , m_Length(0.f)
             , m_Channels(0)
             , m_SoundData(NULL)
