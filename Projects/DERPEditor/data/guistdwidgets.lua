@@ -403,14 +403,16 @@ end
 
 function gui:create_movablepanel(x,y,w,h)
 	local base_widget = gui:create_basewidget(x,y,w,h)
-	base_widget.offset = { dx = 0, dy = 0 }
+	--base_widget.offset = { dx = 0, dy = 0 }
 
 	function base_widget:mousedrag(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
 		  self:needsredraw()
-			self.offset.dx = self.offset.dx + dx
-			self.offset.dy = self.offset.dy + dy
+			--self.offset.dx = self.offset.dx + dx
+			--self.offset.dy = self.offset.dy + dy
 
+			self.drawbox.x = self.drawbox.x + dx
+			self.drawbox.y = self.drawbox.y + dy
 			self.hitbox.x = self.hitbox.x + dx
 			self.hitbox.y = self.hitbox.y + dy
 			self:needsredraw()
@@ -418,7 +420,7 @@ function gui:create_movablepanel(x,y,w,h)
 	end
 
 	function base_widget:draw()
-		gfx.translate(self.drawbox.x + self.offset.dx,self.drawbox.y + self.offset.dy)
+		gfx.translate(self.drawbox.x,self.drawbox.y)
 
 		-- bg
 		gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
@@ -457,7 +459,7 @@ function gui:create_movablepanel(x,y,w,h)
 		gfx.drawtopleft(self.drawbox.w-5, 5, 5, self.drawbox.h-10,
 						9,5,5,1)
 
-		gfx.translate(-(self.drawbox.x + self.offset.dx),-(self.drawbox.y + self.offset.dy))
+		gfx.translate(-(self.drawbox.x),-(self.drawbox.y))
 	end
 	
 	return base_widget
@@ -533,9 +535,9 @@ function gui:create_simplebutton(x,y,w,h,label,action)
       
       -- label
       if (self.state == 0) then
-        gui:drawcenteredfont(self.label, self.drawbox.w / 2, self.drawbox.h / 2)
+        gui:drawcenteredfont(self.label, self.drawbox.w / 2 - 1, self.drawbox.h / 2)
       else
-        gui:drawcenteredfont(self.label, self.drawbox.w / 2 + 1, self.drawbox.h / 2 + 1)
+        gui:drawcenteredfont(self.label, self.drawbox.w / 2, self.drawbox.h / 2 + 1)
       end
     
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
