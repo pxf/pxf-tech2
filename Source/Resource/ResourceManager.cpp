@@ -32,7 +32,7 @@ Resource::ResourceManager::~ResourceManager()
         Util::Map<Util::String, ResourceBase*>::iterator iter;
         for(iter = m_LoadedResources->begin(); iter != m_LoadedResources->end(); ++iter)
         {
-            Message("ResourceManager", "Deleting resource '%s' [refs = %d]", iter->second->GetSource(), iter->second->m_References);
+			Message("ResourceManager", "Deleting resource '%s' [refs = %d]", iter->first.c_str(), iter->second->m_References);
             iter->second->m_Loader->Destroy(iter->second);
         }
     }

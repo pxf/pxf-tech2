@@ -64,6 +64,7 @@ bool RtAudioDevice::Init()
 	m_ActiveVoices.resize(MAX_NUM_VOICES);
 
 	m_DAC = new RtAudio();
+	m_DAC->showWarnings(true);
 
 	unsigned num_devices = m_DAC->getDeviceCount();
 
@@ -101,11 +102,15 @@ RtAudioDevice::~RtAudioDevice()
 {
 	try
 	{
-		m_DAC->abortStream();
+		if (m_DAC->isStreamOpen())
+		{
+			m_DAC->closeStream();
+			m_DAC->abortStream();
+		}
 	}
 	catch (RtError& e)
 	{
-		Message("Audio", "Fatal error trying to stop stream: %s", e.getMessage().c_str());
+		//Message("Audio", "Fatal error trying to stop stream: %s", e.getMessage().c_str());
 	}
 }
 
