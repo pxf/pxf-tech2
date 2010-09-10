@@ -76,5 +76,5 @@ function draw(force)
   --gfx.setcolor(1, 0, 0)
   --panic.text("Welcome to ^1D^2E^1R^2P^9 Editor!", 200, 200)
   --poooooooooop()
-  gui:draw(force, true)
+  gui:draw(force, false)
 end

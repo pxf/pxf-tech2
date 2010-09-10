@@ -210,7 +210,7 @@ end
 
 function gui:drawcenteredfont(str,x,y)
   local x2 = x - ((#str-1) * 8) / 2
-  local y2 = y + (4 / 2)
+  local y2 = y + (4 / 2) - 1
   gui:drawfont(str, x2, y2)
 end
 
