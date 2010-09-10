@@ -45,6 +45,7 @@ Resource::Sound* Modules::OggAudioLoader::Load(const char* _FilePath)
 Resource::Sound* Modules::OggAudioLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
 {
 	Resource::Chunk* chunk = new Resource::Chunk();
+	chunk->source = "unknown";
 	chunk->data = (void*) _DataPtr;
 	chunk->size = _DataLen;
 	chunk->is_static = true;
