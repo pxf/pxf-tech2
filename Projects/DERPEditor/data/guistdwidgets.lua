@@ -107,12 +107,13 @@ function gui:create_verticalstack(x,y,w,h)
     end
     self:needsredraw()
     self:resize_abs(self.drawbox.w, offsety)
+    self:needsredraw()
   end
   
   function wid:childisredrawn()
-    --if not self.redraw_needed then
+    if not self.redraw_needed then
       self:needsredraw()
-    --end
+    end
   end
   
   --[[function wid:find_mousehit(mx,my)
@@ -206,7 +207,7 @@ function gui:create_labelpanel(x,y,w,h,text)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		panic.text(text, x, y)
+		gui:drawfont(text, x, y)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
