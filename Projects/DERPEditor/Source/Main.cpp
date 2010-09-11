@@ -79,11 +79,11 @@ int main()
     spec.Height = 600;
     spec.ColorBits = 24;
     spec.AlphaBits = 8;
-    spec.DepthBits = 32;
-    spec.StencilBits = 8;
+    spec.DepthBits = 24;
+    spec.StencilBits = 1;
     spec.FSAASamples = 0;
     spec.Fullscreen = false;
-    spec.Resizeable = true;
+    spec.Resizeable = false;
     spec.VerticalSync = true;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
@@ -138,10 +138,15 @@ int main()
 
 	//Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
 	
-	//Timer*
-
+	Pxf::Timer racetimer;
+	
+	glfwDisable(GLFW_AUTO_POLL_EVENTS);
+	//racetimer.Start();
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
+		//racetimer.Stop();
+		//if ()
+		
         inp->Update();
 		//gfx->BindFrameBufferObject(pFBO);
 		//Graphics::Shader* prev = gfx->BindShader(test_shader);
