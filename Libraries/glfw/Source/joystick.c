@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        joystick.c
 // Platform:    Any
-// API version: 2.6
-// WWW:         http://glfw.sourceforge.net
+// API version: 2.7
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -55,10 +55,9 @@ GLFWAPI int GLFWAPIENTRY glfwGetJoystickParam( int joy, int param )
 // glfwGetJoystickPos() - Get joystick axis positions
 //========================================================================
 
-GLFWAPI int GLFWAPIENTRY glfwGetJoystickPos( int joy, float *pos,
-    int numaxes )
+GLFWAPI int GLFWAPIENTRY glfwGetJoystickPos( int joy, float *pos, int numaxes )
 {
-    int       i;
+    int i;
 
     // Is GLFW initialized?
     if( !_glfwInitialized )
@@ -81,9 +80,10 @@ GLFWAPI int GLFWAPIENTRY glfwGetJoystickPos( int joy, float *pos,
 //========================================================================
 
 GLFWAPI int GLFWAPIENTRY glfwGetJoystickButtons( int joy,
-    unsigned char *buttons, int numbuttons )
+                                                 unsigned char *buttons,
+                                                 int numbuttons )
 {
-    int       i;
+    int i;
 
     // Is GLFW initialized?
     if( !_glfwInitialized )
@@ -99,3 +99,4 @@ GLFWAPI int GLFWAPIENTRY glfwGetJoystickButtons( int joy,
 
     return _glfwPlatformGetJoystickButtons( joy, buttons, numbuttons );
 }
+

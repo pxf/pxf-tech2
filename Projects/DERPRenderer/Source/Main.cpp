@@ -86,9 +86,10 @@ int main()
 		if (inp->GetLastButton() == Input::MOUSE_RIGHT)
 			snd->Pause(tick_id);
 
-        win->Swap();
+        
 		inp->ClearLastKey();
 		inp->ClearLastButton();
+		win->Swap();
     }
     
 
