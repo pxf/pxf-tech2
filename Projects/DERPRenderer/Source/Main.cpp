@@ -65,10 +65,9 @@ int main()
     Resource::ResourceManager* res = kernel->GetResourceManager();
     res->DumpResourceLoaders();
 
-    Resource::JsonLoader* loader = res->FindResourceLoader<Resource::JsonLoader>("json");
-	Resource::Json* json = loader->CreateFrom("{ \"lol\": 5 }", 15);
-	int lol = json->Get("lol", 4)->asInt();
-	Message("LOL", "lol: %d", lol);
+	Resource::Json* jdoc = res->Acquire<Resource::Json>("data/test.json");
+	Message("json", "test1: %d", jdoc->GetRoot().get("test1", 9001).asInt());
+	Message("json", "test2: %s", jdoc->GetRoot()["test2"].get("wut", "honk").asCString());
 
 	int tick_id = snd->RegisterSound("data/tick.ogg");
 

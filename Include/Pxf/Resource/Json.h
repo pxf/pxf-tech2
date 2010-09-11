@@ -1,6 +1,10 @@
 #ifndef _PXF_RESOURCE_JSON_H_
 #define _PXF_RESOURCE_JSON_H_
 
+#ifdef CONF_WITH_LIBRARY_JSONCPP
+
+#include <json/json.h>
+
 #include <Pxf/Resource/ResourceBase.h>
 #include <Pxf/Resource/ResourceLoader.h>
 
@@ -16,27 +20,13 @@ namespace Resource {
 	{
 	public:
 
-		class Value
-		{
-		public:
-			virtual int asInt() = 0;
-			virtual bool asBool() = 0;
-			virtual Util::String asString() = 0;
-			virtual Util::Array<Value*> asArray() = 0;
-			virtual Util::Map<Value*, Value*> asMap() = 0;
-		};
-
 		Json(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
             : ResourceBase(_Kernel, _Chunk, _Loader)
         {}
 		virtual ~Json()
         {}
 
-		virtual Value* Get(const char* _String, const char* _DefaultValue) = 0;
-		virtual Value* Get(const char* _String, int _DefaultValue) = 0;
-		virtual Value* Get(const char* _String, bool _DefaultValue) = 0;
-		virtual Value* Get(int _Value, int _DefaultValue) = 0;
-		virtual Value* Get(bool _Value, bool _DefaultValue) = 0;
+		virtual ::Json::Value& GetRoot() = 0;
 
 		virtual const bool IsReady() const
 		{
@@ -65,5 +55,7 @@ namespace Resource {
 } // Resource
 } // Pxf
 
+
+#endif // CONF_WITH_LIBRARY_JSONCPP
 #endif //_PXF_RESOURCE_JSON_H_
 
