@@ -84,6 +84,12 @@ void DeviceGL2::SetProjection(Math::Mat4 *_matrix)
 	glMatrixMode (GL_MODELVIEW);
 }
 
+void DeviceGL2::SetModelView(Math::Mat4 *_matrix)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf((GLfloat*)(_matrix->m));
+}
+
 void DeviceGL2::SwapBuffers()
 {
 	if (m_Window)

@@ -95,8 +95,36 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		_Data.normals = _Normals;
 		_Data.indices= _Indices;
 
-		_NewMesh->SetData(_Data);
 		Message(LOCAL_MSG,"Finished loading model %s", _FilePath);
+
+		//float _Vertbuf[3*_TriCount * 3];
+
+		int bufSize = 3*_TriCount*3;
+		float* _Vertbuf = new float[bufSize];
+
+		for(int i = 0; i < _TriCount; i++)
+		{
+			for(int j = 0; j < 3; j++)
+			{
+				for(int k = 0; k < 3; k++)
+				{	
+					int index = _Indices[i];
+					_Vertbuf[i*9 + j*3 + k] = _Vertices[index + k];
+				}
+			}
+		}
+
+		_Data.vertices = _Vertbuf;
+		_NewMesh->SetData(_Data);
+
+		/*
+		const float* p = _Vertbuf;
+
+		for(int i = 0; i < bufSize; i++)
+		{
+			printf("%f\n",(*p));
+			p++;
+		}*/
 
 		return _NewMesh;
 	}

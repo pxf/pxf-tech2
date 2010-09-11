@@ -39,6 +39,7 @@ namespace Pxf{
 
 			void SetViewport(int _x, int _y, int _w, int _h);
 			void SetProjection(Math::Mat4 *_matrix);
+			void SetModelView(Math::Mat4 *_matrix);
 			void SwapBuffers();
 			void Translate(Math::Vec3f _translate);
 
@@ -48,7 +49,7 @@ namespace Pxf{
 			Graphics::Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
-      void DestroyTexture(Graphics::Texture* _texture);
+			void DestroyTexture(Graphics::Texture* _texture);
 
 			Graphics::Model* CreateModel(const char* _FilePath);
 			Graphics::Model* CreateModel(Resource::Mesh* _Mesh);
