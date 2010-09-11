@@ -3,6 +3,8 @@
 
 #include <Pxf/Network/Packet.h>
 
+#include <Pxf/Modules/net/ENetDevice.h>
+
 namespace Pxf
 {
 	namespace Network
@@ -19,9 +21,11 @@ namespace Pxf
 			int Sender;
 			int Length;
 
+			ENetPacket* Packet;
+
 		public:
 			ENetDataPacket(char* _Data, const int _Sender, const int _Length);
-			virtual ~ENetDataPacket(){}
+			virtual ~ENetDataPacket();
 
 			virtual char* GetData();
 			virtual int GetSender();

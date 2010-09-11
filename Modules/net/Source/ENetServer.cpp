@@ -66,7 +66,10 @@ Pxf::Network::Packet* ENetServer::Recv()
 			LPSource = (int)event.peer->data;
 			LPChannel = (int)event.channelID;
 
-			ENetDataPacket* packet = new ENetDataPacket((char*)event.packet->data, (int)event.peer->data, (int)event.packet->dataLength);
+			ENetDataPacket* packet = new ENetDataPacket(
+				(char*)event.packet->data
+				, (int)event.peer->data
+				, (int)event.packet->dataLength);
 
 			enet_packet_destroy(event.packet);
 

@@ -5,6 +5,9 @@
 
 #include <Pxf/Network/NetworkDevice.h>
 
+#include <Pxf/Base/Debug.h>
+
+
 using namespace Pxf;
 using namespace Pxf::Network;
 
@@ -28,7 +31,7 @@ int main(int argv, char *argc[])
 		while (1)
 		{
 			packet = server->Recv();
-			server->SendAll("hejsan", strlen("hejsan"));
+			Message("Main", "Got packet %s", packet->GetData());
 		}
 		
 		return 1;
@@ -39,6 +42,7 @@ int main(int argv, char *argc[])
 		client->Connect();
 		client->Send("Lol", 3);
 		client->Send("Lol, packet 2", strlen("Lol, packet 2"));
+//		client->Disconnect();
 
 		return 1;
 	}

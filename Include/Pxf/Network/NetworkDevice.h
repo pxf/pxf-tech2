@@ -5,6 +5,7 @@
 
 #include <Pxf/Network/Server.h>
 #include <Pxf/Network/Client.h>
+#include <Pxf/Network/Packet.h>
 
 namespace Pxf 
 {
