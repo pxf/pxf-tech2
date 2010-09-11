@@ -11,7 +11,7 @@ using namespace Pxf;
 using namespace Pxf::Modules;
 
 #define MAX_REGISTERED_SOUNDS 128
-#define MAX_NUM_VOICES 16
+#define MAX_NUM_VOICES 8
 
 int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 		double _time, RtAudioStreamStatus _status, void *_device)
