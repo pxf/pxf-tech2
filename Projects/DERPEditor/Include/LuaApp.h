@@ -33,6 +33,10 @@ extern "C" {
 #define LUAAPP_REDRAWMODE_NORMAL 1
 #define LUAAPP_REDRAWMODE_STENCIL 2
 
+// TODO: Fix setting for doublepass
+#define LUAAPP_DOUBLEPASS_OFF 2
+#define LUAAPP_DOUBLEPASS_ON 1
+
 
 namespace DERPEditor
 {

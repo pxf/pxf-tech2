@@ -4,6 +4,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Timer.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
@@ -136,6 +137,8 @@ int main()
     bool running = true;
 
 	//Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
+	
+	//Timer*
 
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
