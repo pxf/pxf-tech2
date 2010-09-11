@@ -7,6 +7,7 @@
 #include <Pxf/Modules/net/ENetDevice.h>
 #include <Pxf/Modules/net/ENetDefs.h>
 
+#include <Pxf/Util/Array.h>
 #include <enet/enet.h>
 #include <stdio.h>
 

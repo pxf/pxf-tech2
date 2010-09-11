@@ -93,7 +93,9 @@ function gui:create_horisontalpanel(x,y,w,h,max)
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
-      for k,v in pairs(self.childwidgets) do
+      --for k,v in pairs(self.childwidgets) do
+      for i = #self.childwidgets, 1, -1 do
+        local v = self.childwidgets[i]
         thit = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
         
         if not (thit == nil) then

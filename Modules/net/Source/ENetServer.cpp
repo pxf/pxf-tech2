@@ -1,6 +1,7 @@
 #include <Pxf/Modules/net/ENetServer.h>
 
 using namespace Pxf::Modules;
+using namespace Pxf::Util;
 
 
 ENetServer::ENetServer(const int _Port)
@@ -62,20 +63,18 @@ Pxf::Network::Packet* ENetServer::Recv()
 				continue;
 			}
 
-			//sprintf(_Buf, "%s\0", event.packet->data);
-			//sprintf(LPData, "%s\0", event.packet->data); // Unnecessary?
-
 			LPLength = event.packet->dataLength;
 			LPSource = (int)event.peer->data;
 			LPChannel = (int)event.channelID;
 
+			ENetDataPacket* packet = new ENetDataPacket(
+				(char*)event.packet->data
+				, (int)event.peer->data
+				, (int)event.packet->dataLength);
+
 			enet_packet_destroy(event.packet);
 
-//			return event.packet->dataLength;
-			ENetDataPacket* packet = new ENetDataPacket(NULL, (int)event.peer->data, (int)event.packet->dataLength);
-//			return (Network::Packet*)new ENetDataPacket(event.packet->data, (int)event.peer->data, (int)event.packet->dataLength);
 			return (Network::Packet*)packet;
-			break;
 		}
 	}
 
@@ -85,75 +84,35 @@ Pxf::Network::Packet* ENetServer::Recv()
 
 bool ENetServer::Send(const int _Client, const char* _Buf, const int _Length)
 {
-	return false;
+	ENetPacket *packet;
+
+	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
+
+	enet_peer_send(&Server->peers[_Client], 0, packet);
+	enet_packet_destroy(packet);
+	enet_host_flush(Server);
+
+	return true;
 }
 
 bool ENetServer::SendAll(const char* _Buf, const int _Length)
 {
-	return false;
-}
+	ENetPacket *packet;
+	ENetPeer *peer;
 
-/*
-#include <Pxf/Modules/net/ENetServer.h>
+	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
 
-using namespace Pxf::Modules;
+	enet_host_broadcast(Server, 0, packet);
 
-ENetServer::ENetServer(Pxf::Kernel* _Kernel)
-	: Pxf::Network::NetworkDevice(_Kernel, "ENetServer Device")
-{
-	if (enet_initialize() != 0)
-		Message("ENetServer", "Unable to initialize enet.");
-	atexit(enet_deinitialize);
-}
-
-bool ENetServer::Recv(char* _Buf)
-{
-	ENetEvent event;
-
-	while (enet_host_service(Server, &event, 1000) >= 0)
+/*	for(int i = 0; i < Server->peerCount; i++)
 	{
-		switch (event.type)
-		{
-			case ENET_EVENT_TYPE_RECEIVE:
-				Message("ENetServer", "Packet.");
-				break;
-
-			case ENET_EVENT_TYPE_CONNECT:
-				Message("ENetServer", "Client connected: %x:%u.", event.peer->address.host, event.peer->address.port);
-				break;
-			
-			case ENET_EVENT_TYPE_DISCONNECT:
-				Message("ENetServer", "Client DISconnected: %s.", event.peer->data);
-				break;
-
-			case ENET_EVENT_TYPE_NONE:
-				Message("ENetServer", "Timeout.");
-				break;
-		}
+		Message("ENetServer", "Sending to %d.", i);
+		enet_peer_send(&Server->peers[i], 0, packet);
 	}
-
-	Message("ENetServer", "Couldn't fetch event.");
-	return false;
-}
-
-bool ENetServer::Send(const char* _Buf, const int _Length)
-{
-	return true;
-}
-
-bool ENetServer::Bind(const int _Port)
-{
-	Address.host = ENET_HOST_ANY; // TODO: Change this to something dynamic.
-	Address.port = _Port;
-
-	Server = enet_host_create(&Address, 5, 2, 0, 0);
-	if (Server == NULL)
-	{
-		Message("ENetServer", "Unable to bind.");
-		return false;
-	}
-
-	return true;
-}
 */
 
+//	enet_packet_destroy(packet);
+//	enet_host_flush(Server);
+
+	return true;
+}

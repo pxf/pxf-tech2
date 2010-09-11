@@ -2,6 +2,7 @@
 #define _PXF_MODULES_NET_ENETCLIENT_H_
 
 #include <Pxf/Network/Client.h>
+#include <Pxf/Network/Packet.h>
 
 #include <Pxf/Modules/net/ENetDevice.h>
 #include <Pxf/Modules/net/ENetDefs.h>
@@ -13,6 +14,7 @@ namespace Pxf
 	namespace Network
 	{
 		class Client;
+		class Packet;
 	}
 
 	namespace Modules
@@ -31,7 +33,7 @@ namespace Pxf
 			virtual bool Disconnect();
 			virtual bool Connected();
 
-			virtual int Recv(char* _Buf);
+			virtual Network::Packet* Recv();
 			virtual bool Send(const char* _Buf, const int _Length);
 		};
 	}

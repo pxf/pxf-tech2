@@ -147,7 +147,9 @@ function gui:create_basewidget(x,y,w,h)
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
-      for k,v in pairs(self.childwidgets) do
+      --for k,v in pairs(self.childwidgets) do
+      for i = #self.childwidgets, 1, -1 do
+        local v = self.childwidgets[i]
         thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
         
         if not (thit == nil) then
