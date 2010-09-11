@@ -1,11 +1,12 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        macosx_thread.c
-// Platform:    Mac OS X
-// API Version: 2.6
-// WWW:         http://glfw.sourceforge.net
+// Platform:    Carbon/AGL/CGL
+// API Version: 2.7
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2003      Keith Bauer
+// Copyright (c) 2003-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages

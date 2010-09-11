@@ -220,9 +220,9 @@ bool LuaApp::Update()
       {
         //printf("pdate\n");
 		//glfwDisable(GLFW_AUTO_POLL_EVENTS);
-		glfwSleep(0.01);
+		//glfwSleep(0.01);
         //glfwPollEvents();
-        glfwWaitEvents();
+        //glfwWaitEvents();
 	  }
       CallScriptFunc("_update");
     } else {

@@ -4,6 +4,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Timer.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
@@ -78,11 +79,11 @@ int main()
     spec.Height = 600;
     spec.ColorBits = 24;
     spec.AlphaBits = 8;
-    spec.DepthBits = 32;
-    spec.StencilBits = 8;
+    spec.DepthBits = 24;
+    spec.StencilBits = 1;
     spec.FSAASamples = 0;
     spec.Fullscreen = false;
-    spec.Resizeable = true;
+    spec.Resizeable = false;
     spec.VerticalSync = true;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
@@ -136,9 +137,28 @@ int main()
     bool running = true;
 
 	//Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
-
+	
+	glfwDisable(GLFW_AUTO_POLL_EVENTS);
+	
+	
+	Pxf::Timer racetimer;
+	uint64 framelength = 1 / 16;
+	uint64 frametotal = 0;
+	
+	racetimer.Start();
+	
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
+		while (frametotal < framelength)
+		{
+			racetimer.Stop();
+			frametotal += racetimer.Interval();
+			racetimer.Start();
+			
+			glfwSleep(0.002);
+		}
+		frametotal = 0;
+		
         inp->Update();
 		//gfx->BindFrameBufferObject(pFBO);
 		//Graphics::Shader* prev = gfx->BindShader(test_shader);
