@@ -15,7 +15,16 @@ console:addline("you mad? 8)")
 local rebootbutton = gui:create_simplebutton(6,6,130,30, "Reboot App", function () app.reboot() end)
 local quitbutton = gui:create_simplebutton(app.width - 66,6,60,30, "Quit", function (self) app.quit() end)
 local testbutton = gui:create_simplebutton(app.width - 150,6,80,30, "Switch", function (self) app.setrenderoption(app.REDRAWMODE_NORMAL) end)--app.quit() end)
+local menubutton = gui:create_simplebutton(app.width - 254,6,100,30, "Test Menu", function (self,mx,my) gui:spawn_menu(mx,my,{{"Copy", "Ctrl-C", function () print("copy!!") end},
+                                                                                                                              {"Paste", "Ctrl-V", function () print("paste!!") end}}) end)
 local toolbar = gui:create_horisontalpanel(0,0,app.width,42, app.width)
+function toolbar:mouserelease(mx,my,button)
+  if (button == inp.MOUSE_RIGHT) then
+    gui:spawn_menu(mx,my,{{"Reboot", nil, function () app.reboot() end},
+                          {"Quit", "Esc", function () app.quit() end},
+                         })
+  end
+end
 --local movable_panel = gui:create_movablepanel(200, 200,100,100)
 local movable_window = gui:create_movablewindow(200,200,140,100)
 
@@ -23,6 +32,7 @@ local movable_window = gui:create_movablewindow(200,200,140,100)
 toolbar:addwidget(rebootbutton)
 toolbar:addwidget(quitbutton)
 toolbar:addwidget(testbutton)
+toolbar:addwidget(menubutton)
 
 -- add toolbar and console to topstack
 topstack:addwidget(console)

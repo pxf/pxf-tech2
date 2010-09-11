@@ -550,3 +550,106 @@ function gui:create_simplebutton(x,y,w,h,label,action)
   return wid
 end
 
+-- spawns a menu in the root of the widget tree
+function gui:spawn_menu(x,y,menu)
+  local wid = gui:create_basewidget(x,y,200,10)
+  wid.stdwith = 200
+  wid.menu = menu
+  
+  -- overflow control
+  if (x + wid.stdwith > app.width) then
+    wid.drawbox.x = app.width - wid.stdwith
+    wid.hitbox.x = wid.drawbox.x
+  end
+  
+  -- set correct height of menu
+  local new_h = 0
+  for k,v in pairs(menu) do
+    new_h = new_h + 24
+  end
+  wid.drawbox.h = new_h
+  wid.hitbox.h = new_h
+  
+  function wid:mouseover(mx,my,button)
+    -- TODO: aoe
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      --self:action(mx,my,button)
+      --self:destroy()
+      
+      -- find correct menu item
+      local dh = my - self.drawbox.y
+      local i = math.ceil((dh / self.drawbox.h) * #self.menu)
+      if (self.menu[i]) then
+        self.menu[i][3]()
+        
+        self:needsredraw()
+      end
+    end
+    
+  end
+  
+  function wid:mousepush(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      self:needsredraw()
+    end
+  end
+  
+  function wid:lostfocus()
+    self:destroy()
+  end
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- bg
+      gfx.drawtopleft(2, 0, self.drawbox.w-4, self.drawbox.h,
+                      40,6,1,1)
+                    
+      gfx.drawtopleft(0, 2, self.drawbox.w, self.drawbox.h-4,
+                      40,6,1,1)
+                      
+      -- topleft
+      gfx.drawtopleft(0, 0, 2, 2,
+                      35,0,2,2)
+      
+      -- topright
+      gfx.drawtopleft(self.drawbox.w-2, 0, 2, 2,
+                      45,0,2,2)
+      
+      -- bottomleft
+      gfx.drawtopleft(0, self.drawbox.h-2, 2, 2,
+                      35,10,2,2)
+
+      -- bottomright
+      gfx.drawtopleft(self.drawbox.w-2, self.drawbox.h-2, 2, 2,
+                      45,10,2,2)
+                      
+      -- loop through all menu items
+      local item_y = 0
+      for k,v in pairs(self.menu) do
+        -- item
+        gui:drawfont(v[1], 10, item_y + 12)
+        
+        -- short
+        if (v[2]) then
+          local r,g,b = gfx.getcolor()
+          gfx.setcolor(0.5, 0.5, 0.5)
+          gui:drawfont(v[2], self.stdwith-(#v[2]*8), item_y + 12)
+          gfx.setcolor(r,g,b)
+        end
+        
+        item_y = item_y + 24
+      end
+    
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+    end
+  end
+  
+  gui.widgets:addwidget(wid)
+end
+

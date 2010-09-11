@@ -33,6 +33,7 @@ function gui:create_basewidget(x,y,w,h)
   function wid:addwidget(cwid)
     cwid.parent = self
     table.insert(self.childwidgets, cwid)
+    cwid:needsredraw()
   end
   
   -----------------------------------
@@ -150,7 +151,9 @@ function gui:create_basewidget(x,y,w,h)
       --for k,v in pairs(self.childwidgets) do
       for i = #self.childwidgets, 1, -1 do
         local v = self.childwidgets[i]
-        thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+        if not (v == nil) then
+          thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+        end
         
         if not (thit == nil) then
           -- we hit a child widget, return this one instead
@@ -182,6 +185,13 @@ end
 function gui:create_root()
   local rootwid = self:create_basewidget(0, 0, app.width, app.height)
   
+  -- child widget control
+  rootwid.super_addwidget = rootwid.addwidget
+  function rootwid:addwidget(cwid)
+    self:super_addwidget(cwid)
+    gui:set_focus(cwid)
+  end
+  
   function rootwid:draw(force)
     local r,g,b = gfx.getcolor()
     gfx.setcolor(86/255,86/255,86/255)
@@ -208,6 +218,19 @@ function gui:redraw(x,y,w,h)
   --print("redraw area: " .. tostring(x) .." " .. tostring(y) .. " " .. tostring(w) .." " .. tostring(h))
   table.insert(gui.redrawrects, 1, {x,y,w,h})
   --gfx.redrawneeded()
+end
+
+function gui:set_focus(wid)
+  
+  if (self.focuswidget) then
+    if not (self.focuswidget == wid) then
+      if (self.focuswidget.lostfocus) then
+        self.focuswidget:lostfocus()
+      end
+    end
+  end
+  self.focuswidget = wid
+  
 end
 
 function gui:drawcenteredfont(str,x,y)
@@ -261,6 +284,7 @@ function gui:init()
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
   self.activewidget = nil
+  self.focuswidget = nil
   
   -- tree of widgets
   self.widgets = gui:create_root()
@@ -298,6 +322,8 @@ function gui:update()
     if (not self.mouse.pushed) then
       --self.activewidget
       self.activewidget = self.widgets:find_mousehit(mx,my)
+      
+      self:set_focus(self.activewidget)
       
       if (self.activewidget.mousepush) then
         self.activewidget:mousepush(mx,my,self.buttonid)
