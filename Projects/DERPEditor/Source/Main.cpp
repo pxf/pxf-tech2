@@ -155,7 +155,7 @@ int main()
 			frametotal += racetimer.Interval();
 			racetimer.Start();
 			
-			glfwSleep(0.002);
+			glfwSleep(0.01);
 		}
 		frametotal = 0;
 		
