@@ -6,6 +6,7 @@
 #include "AppInputLib.h"
 #include "AppGraphicsLib.h"
 #include "AppSoundLib.h"
+#include <Pxf/Audio/AudioDevice.h>
 
 #define LOCAL_MSG "LuaApp"
 
@@ -53,6 +54,8 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_inp = Kernel::GetInstance()->GetInputDevice();
     m_snd = Kernel::GetInstance()->GetAudioDevice();
     
+	m_snd->Initialize();
+
     // Set "snigelton"
     _appinstance = this;
     
