@@ -5,6 +5,8 @@ namespace Pxf
 {
 	namespace Network
 	{
+		class Packet;
+
 		class Client
 		{
 		public:
@@ -14,7 +16,7 @@ namespace Pxf
 			virtual bool Disconnect() = 0;
 			virtual bool Connected() = 0;
 
-			virtual int Recv(char* _Buf) = 0;
+			virtual Packet* Recv() = 0;
 			virtual bool Send(const char* _Buf, const int _Length) = 0;
 		};
 	}

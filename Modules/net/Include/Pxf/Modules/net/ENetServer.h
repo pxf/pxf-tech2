@@ -33,8 +33,6 @@ namespace Pxf
 				, LPSource;
 			char LPData[MAX_PACKET_SIZE+1];
 
-			Util::Array<ENetPeer*> Clients;
-
 		public:
 			ENetServer(const int _Port);
 

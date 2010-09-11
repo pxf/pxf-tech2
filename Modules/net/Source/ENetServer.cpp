@@ -1,6 +1,7 @@
 #include <Pxf/Modules/net/ENetServer.h>
 
 using namespace Pxf::Modules;
+using namespace Pxf::Util;
 
 
 ENetServer::ENetServer(const int _Port)
@@ -87,7 +88,7 @@ bool ENetServer::Send(const int _Client, const char* _Buf, const int _Length)
 
 	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
 
-	enet_peer_send(Clients[_Client], 0, packet);
+	enet_peer_send(&Server->peers[_Client], 0, packet);
 	enet_packet_destroy(packet);
 	enet_host_flush(Server);
 
@@ -101,13 +102,17 @@ bool ENetServer::SendAll(const char* _Buf, const int _Length)
 
 	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
 
-	for(int i = 0; i < Clients.size(); i++)
-	{
-		enet_peer_send(Clients[i], 0, packet);
-	}
+	enet_host_broadcast(Server, 0, packet);
 
-	enet_packet_destroy(packet);
-	enet_host_flush(Server);
+/*	for(int i = 0; i < Server->peerCount; i++)
+	{
+		Message("ENetServer", "Sending to %d.", i);
+		enet_peer_send(&Server->peers[i], 0, packet);
+	}
+*/
+
+//	enet_packet_destroy(packet);
+//	enet_host_flush(Server);
 
 	return true;
 }

@@ -7,6 +7,8 @@
 
 #include <Pxf/Base/Debug.h>
 
+#include <windows.h>
+
 
 using namespace Pxf;
 using namespace Pxf::Network;
@@ -31,7 +33,9 @@ int main(int argv, char *argc[])
 		while (1)
 		{
 			packet = server->Recv();
-			Message("Main", "Got packet %s", packet->GetData());
+			Message("Main Server", "Got packet \"%s\"", packet->GetData());
+//			Sleep(1000);
+			server->SendAll("lol", 3);
 		}
 		
 		return 1;
@@ -40,9 +44,12 @@ int main(int argv, char *argc[])
 	{
 		Client* client = netdev->CreateClient("localhost", 5006);
 		client->Connect();
+//		Sleep(1000);
 		client->Send("Lol", 3);
-		client->Send("Lol, packet 2", strlen("Lol, packet 2"));
-//		client->Disconnect();
+		Packet* packet = client->Recv();
+//		Sleep(1000);
+		//Message("Main Client", "Got packet \"%s\"", packet->GetData());
+		client->Disconnect();
 
 		return 1;
 	}

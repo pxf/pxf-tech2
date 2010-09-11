@@ -74,9 +74,35 @@ bool ENetClient::Connected()
 	return true;
 }
 
-int ENetClient::Recv(char* _Buf)
+Pxf::Network::Packet* ENetClient::Recv()
 {
-	return 0;
+	ENetEvent event;
+	int retcode;
+
+	Message("ENetClient", "Recv()...");
+
+	while ((retcode = enet_host_service(Client, &event, 1000)) >= 0)
+	{
+		switch(event.type)
+		{
+		case ENET_EVENT_TYPE_NONE:
+			Message("ENetClient", "Timeout.");
+			break;
+
+		case ENET_EVENT_TYPE_RECEIVE:
+			Message("ENetClient", "Packet received from %s on channel %u. Length %u."
+				, event.peer->data, event.channelID, event.packet->dataLength);
+			return NULL;
+			break;
+
+		default:
+			Message("ENetClient", "Unhandled.");
+		}
+	}
+
+	Message("ENetClient", "Recv() stop. %d - %d", event.type, retcode);
+
+	return NULL;
 }
 
 // TODO: Add support for different priorities.
@@ -90,8 +116,8 @@ bool ENetClient::Send(const char* _Buf, const int _Length)
 	// Send over channel 0.
 	enet_peer_send(Peer, 0, packet);
 
-	enet_host_flush(Client);
-	enet_packet_destroy(packet);
+//	enet_host_flush(Client);
+//	enet_packet_destroy(packet);
 
 	return true;
 }
