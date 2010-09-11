@@ -142,7 +142,7 @@ int main()
 	
 	
 	Pxf::Timer racetimer;
-	uint64 framelength = 1 / 16;
+	uint64 framelength = 16;
 	uint64 frametotal = 0;
 	
 	racetimer.Start();
@@ -155,7 +155,7 @@ int main()
 			frametotal += racetimer.Interval();
 			racetimer.Start();
 			
-			glfwSleep(0.002);
+			glfwSleep(0.004);
 		}
 		frametotal = 0;
 		
