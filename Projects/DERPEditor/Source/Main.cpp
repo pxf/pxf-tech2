@@ -138,14 +138,26 @@ int main()
 
 	//Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
 	
-	Pxf::Timer racetimer;
-	
 	glfwDisable(GLFW_AUTO_POLL_EVENTS);
-	//racetimer.Start();
+	
+	
+	Pxf::Timer racetimer;
+	uint64 framelength = 1 / 16;
+	uint64 frametotal = 0;
+	
+	racetimer.Start();
+	
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
-		//racetimer.Stop();
-		//if ()
+		while (frametotal < framelength)
+		{
+			racetimer.Stop();
+			frametotal += racetimer.Interval();
+			racetimer.Start();
+			
+			glfwSleep(0.002);
+		}
+		frametotal = 0;
 		
         inp->Update();
 		//gfx->BindFrameBufferObject(pFBO);
