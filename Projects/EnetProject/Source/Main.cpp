@@ -28,6 +28,7 @@ int main(int argv, char *argc[])
 		while (1)
 		{
 			packet = server->Recv();
+			server->SendAll("hejsan", strlen("hejsan"));
 		}
 		
 		return 1;
@@ -37,6 +38,7 @@ int main(int argv, char *argc[])
 		Client* client = netdev->CreateClient("localhost", 5006);
 		client->Connect();
 		client->Send("Lol", 3);
+		client->Send("Lol, packet 2", strlen("Lol, packet 2"));
 
 		return 1;
 	}

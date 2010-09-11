@@ -7,6 +7,7 @@
 #include <Pxf/Modules/net/ENetDevice.h>
 #include <Pxf/Modules/net/ENetDefs.h>
 
+#include <Pxf/Util/Array.h>
 #include <enet/enet.h>
 #include <stdio.h>
 
@@ -31,6 +32,8 @@ namespace Pxf
 				, LPChannel
 				, LPSource;
 			char LPData[MAX_PACKET_SIZE+1];
+
+			Util::Array<ENetPeer*> Clients;
 
 		public:
 			ENetServer(const int _Port);

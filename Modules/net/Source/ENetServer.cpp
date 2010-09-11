@@ -62,20 +62,15 @@ Pxf::Network::Packet* ENetServer::Recv()
 				continue;
 			}
 
-			//sprintf(_Buf, "%s\0", event.packet->data);
-			//sprintf(LPData, "%s\0", event.packet->data); // Unnecessary?
-
 			LPLength = event.packet->dataLength;
 			LPSource = (int)event.peer->data;
 			LPChannel = (int)event.channelID;
 
+			ENetDataPacket* packet = new ENetDataPacket((char*)event.packet->data, (int)event.peer->data, (int)event.packet->dataLength);
+
 			enet_packet_destroy(event.packet);
 
-//			return event.packet->dataLength;
-			ENetDataPacket* packet = new ENetDataPacket(NULL, (int)event.peer->data, (int)event.packet->dataLength);
-//			return (Network::Packet*)new ENetDataPacket(event.packet->data, (int)event.peer->data, (int)event.packet->dataLength);
 			return (Network::Packet*)packet;
-			break;
 		}
 	}
 
@@ -85,12 +80,31 @@ Pxf::Network::Packet* ENetServer::Recv()
 
 bool ENetServer::Send(const int _Client, const char* _Buf, const int _Length)
 {
-	return false;
+	ENetPacket *packet;
+
+	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
+
+//	enet_peer_send(, 0
+
+	return true;
 }
 
 bool ENetServer::SendAll(const char* _Buf, const int _Length)
 {
-	return false;
+	ENetPacket *packet;
+	ENetPeer *peer;
+
+	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
+
+	for(int i = 0; i < Clients.size(); i++)
+	{
+		enet_peer_send(Clients[i], 0, packet);
+	}
+
+	enet_packet_destroy(packet);
+	enet_host_flush(Server);
+
+	return true;
 }
 
 /*

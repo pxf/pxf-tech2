@@ -70,6 +70,7 @@ bool ENetClient::Send(const char* _Buf, const int _Length)
 	// Send over channel 0.
 	enet_peer_send(Peer, 0, packet);
 
+	enet_packet_destroy(packet);
 	enet_host_flush(Client);
 
 	return true;
