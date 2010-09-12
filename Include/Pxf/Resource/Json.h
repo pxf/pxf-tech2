@@ -21,10 +21,10 @@ namespace Resource {
 	public:
 
 		Json(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Kernel, _Chunk, _Loader)
-        {}
+			: ResourceBase(_Kernel, _Chunk, _Loader)
+		{}
 		virtual ~Json()
-        {}
+		{}
 
 		virtual ::Json::Value& GetRoot() = 0;
 		virtual void SetRoot(::Json::Value& _Value) = 0;

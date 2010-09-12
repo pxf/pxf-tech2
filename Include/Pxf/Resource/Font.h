@@ -36,7 +36,7 @@ namespace Resource {
 
 	public:
 		Font(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Kernel, _Chunk, _Loader)
+			: ResourceBase(_Kernel, _Chunk, _Loader)
 			, m_LineHeight(0.f)
 			, m_Width(0.f)
 			, m_Height(0.f)
@@ -44,10 +44,10 @@ namespace Resource {
 			, m_CharInfo(0)
 			, m_Kernings(0)
 			, m_Image(0)
-        {}
+		{}
 
 		virtual ~Font()
-        {}
+		{}
 
 		inline const CharInfo_t* GetInfo(const unsigned char _Char) const
 		{

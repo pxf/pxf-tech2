@@ -6,34 +6,34 @@
 namespace Pxf {
 namespace Resource {
 
-    class Chunk : public Util::Noncopyable
-    {
-    public:
-        void* data;
-        unsigned size;
-        const char* source;
-        bool is_static;
-        
-        Chunk()
-            : data(0)
-            , size(0)
-            , source(0)
-            , is_static(false) 
-        {}
-        
-        ~Chunk()
-        {
-            if (!is_static)
-            {
-                if (data)
-                    delete [] (char*)data;
-                data = 0;
-                size = 0;
-            }
-        };
-    };
-    
-    Chunk* LoadFile(const char* _FilePath);
+	class Chunk : public Util::Noncopyable
+	{
+	public:
+		void* data;
+		unsigned size;
+		const char* source;
+		bool is_static;
+		
+		Chunk()
+			: data(0)
+			, size(0)
+			, source(0)
+			, is_static(false) 
+		{}
+		
+		~Chunk()
+		{
+			if (!is_static)
+			{
+				if (data)
+					delete [] (char*)data;
+				data = 0;
+				size = 0;
+			}
+		};
+	};
+	
+	Chunk* LoadFile(const char* _FilePath);
 
 } // Resource
 } // Pxf
