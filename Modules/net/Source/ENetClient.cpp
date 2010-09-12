@@ -77,6 +77,7 @@ bool ENetClient::Connected()
 Pxf::Network::Packet* ENetClient::Recv()
 {
 	ENetEvent event;
+	ENetDataPacket* packet;
 	int retcode;
 
 	Message("ENetClient", "Recv()...");
@@ -92,7 +93,21 @@ Pxf::Network::Packet* ENetClient::Recv()
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetClient", "Packet received from %s on channel %u. Length %u."
 				, event.peer->data, event.channelID, event.packet->dataLength);
-			return NULL;
+			if (event.packet->dataLength > MAX_PACKET_SIZE)
+			{
+				Message("ENetClient", "Packet too large (%u > %d), throwing."
+					, event.packet->dataLength, MAX_PACKET_SIZE);
+				continue;
+			}
+
+			packet = new ENetDataPacket(
+				(char*)event.packet->data
+				, (int)event.peer->data
+				, (int)event.packet->dataLength);
+			
+			enet_packet_destroy(event.packet);
+
+			return (Network::Packet*)packet;
 			break;
 
 		default:
@@ -116,6 +131,7 @@ bool ENetClient::Send(const char* _Buf, const int _Length)
 	// Send over channel 0.
 	enet_peer_send(Peer, 0, packet);
 
+	// TODO: Need a way of destroying the packets.
 //	enet_host_flush(Client);
 //	enet_packet_destroy(packet);
 

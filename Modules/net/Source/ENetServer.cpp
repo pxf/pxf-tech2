@@ -3,11 +3,17 @@
 using namespace Pxf::Modules;
 using namespace Pxf::Util;
 
-
 ENetServer::ENetServer(const int _Port)
 {
 	Address.host = ENET_HOST_ANY;
 	Address.port = _Port;
+}
+
+int ENetServer::CreateClientID()
+{
+	static int num;
+
+	return num++;
 }
 
 bool ENetServer::Bind()
@@ -51,21 +57,18 @@ Pxf::Network::Packet* ENetServer::Recv()
 		case ENET_EVENT_TYPE_CONNECT:
 			Message("ENetServer", "Client connected: %x:%u."
 				, event.peer->address.host, event.peer->address.port);
+			event.peer->data = (void*)CreateClientID();
 			break;
 
 		case ENET_EVENT_TYPE_RECEIVE:
-			Message("ENetServer", "Packet received from %s on channel %u. Length %u."
-				, event.peer->data, event.channelID, event.packet->dataLength);
+			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
+				, (int)event.peer->data, event.channelID, event.packet->dataLength);
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetServer", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
-
-			LPLength = event.packet->dataLength;
-			LPSource = (int)event.peer->data;
-			LPChannel = (int)event.channelID;
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
