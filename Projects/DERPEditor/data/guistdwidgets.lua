@@ -664,9 +664,23 @@ function gui:create_menu(x,y,menu)
           -- close the whole tree!
           if (self.menu_root) then
             self.menu_root:destroy()
+          else
+            self:destroy() -- we are the root
           end
         
           self:needsredraw()
+        elseif (type(self.menu[i][3]) == "table") then
+
+          local t_menu_root = self.menu_root
+          if (t_menu_root == nil) then
+            t_menu_root = self
+          end
+          gui:spawn_submenu(t_menu_root, -- "menu root"
+                            self, -- "menu parent"
+                            self.drawbox.x+self.drawbox.w, -- x position
+                            self.drawbox.y+(i-1)*self.itemheight+self.itemheight/2, -- y position
+                            self.menu[i][3]) -- menu table
+          
         end
       end
     end
