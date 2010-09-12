@@ -1,6 +1,6 @@
 { "audio": {"buffersize": 512,
-            "max_voices": 8  }
-  "input": {}
+            "max_voices": 8  },
+  "input": {},
   "video": {"width" : 800  ,
             "height": 600  ,
             "vsync" : false}
