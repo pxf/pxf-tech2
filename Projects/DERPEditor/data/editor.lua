@@ -1,5 +1,6 @@
 require("data/guibase")
 require("data/guistdwidgets")
+require("data/specwindows")
 
 -- init GUI
 gui:init()
@@ -18,7 +19,7 @@ local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C"
                                 }
                    }
                   }
-local about_menu = {{"About DERPEditor", {onclick = function () print("TODO: Spawn About window.") end}}
+local about_menu = {{"About DERPEditor", {onclick = function () spawn_aboutwindow() end}}
                    }
 
 -- add some cool widgets

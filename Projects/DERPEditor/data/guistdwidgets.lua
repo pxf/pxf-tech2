@@ -314,6 +314,28 @@ function gui:create_labelpanel(x,y,w,h,text)
 
 		base_widget:superdraw()
 	end
+	
+	function base_widget:find_mousehit(mx,my)
+    if (self:hittest(mx,my,mx,my)) then
+      local thit = nil
+      --for k,v in pairs(self.childwidgets) do
+      for i = #self.childwidgets, 1, -1 do
+        local v = self.childwidgets[i]
+        if not (v == nil) then
+          thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+        end
+        
+        if not (thit == nil) then
+          -- we hit a child widget, return this one instead
+          return thit
+        end
+      end
+      
+      return nil
+    end
+    
+    return nil
+  end
 
 	return base_widget
 end
@@ -652,7 +674,8 @@ function gui:create_menubutton(label,menu)
   
   function wid:mouserelease(mx,my,button)
     if (button == inp.MOUSE_LEFT) then
-      gui:spawn_menu(mx,my,self.menu)
+      local x,y = self:find_abspos()
+      gui:spawn_menu(x,y+self.drawbox.h,self.menu)
     end
     self:needsredraw()
   end
