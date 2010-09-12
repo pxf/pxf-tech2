@@ -36,6 +36,7 @@ int main(int argv, char *argc[])
 			Message("Main Server", "Got packet \"%s\"", packet->GetData());
 //			Sleep(1000);
 			server->SendAll("lol", 3);
+			Message("Main", "SendAll");
 		}
 		
 		return 1;
@@ -48,7 +49,7 @@ int main(int argv, char *argc[])
 		client->Send("Lol", 3);
 		Packet* packet = client->Recv();
 //		Sleep(1000);
-		//Message("Main Client", "Got packet \"%s\"", packet->GetData());
+		Message("Main Client", "Got packet \"%s\"", packet->GetData());
 		client->Disconnect();
 
 		return 1;

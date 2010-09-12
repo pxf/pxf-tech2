@@ -27,11 +27,7 @@ namespace Pxf
 			ENetAddress Address;
 			ENetHost *Server;
 
-			/* Last packet */
-			int LPLength
-				, LPChannel
-				, LPSource;
-			char LPData[MAX_PACKET_SIZE+1];
+			int CreateClientID();
 
 		public:
 			ENetServer(const int _Port);
