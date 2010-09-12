@@ -292,6 +292,12 @@ function gui:toggle_show_redraw()
   return (not self.draw_redraw_rects)
 end
 
+function gui:tooltip(str)
+  if (self.statusbar) then
+    self.statusbar:settext(str)
+  end
+end
+
 function gui:init()
   self.themetex = gfx.loadtexture("data/guitheme.png")
   self.font = gfx.loadtexture("data/charmap_monaco_shadow.png")
@@ -301,6 +307,9 @@ function gui:init()
   self.focuswidget = nil
   
   self.draw_redraw_rects = false
+  
+  -- statusbar widget
+  self.statusbar = nil
   
   -- tree of widgets
   self.widgets = gui:create_root()
