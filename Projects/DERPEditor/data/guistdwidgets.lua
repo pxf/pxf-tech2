@@ -169,6 +169,43 @@ function gui:create_verticalstack(x,y,w)
   return wid
 end
 
+-- creates a widget stack that displays all widgets as a "stack" but sideways
+function gui:create_horisontalstack(x,y,w,h)
+  local wid = gui:create_basewidget(x,y,w,h)
+  
+  function wid:addwidget(cwid)
+    cwid.parent = self
+    local offsetx = 0
+    for k,v in pairs(self.childwidgets) do
+      offsetx = offsetx + v.drawbox.w
+    end
+    cwid:move_abs(offsetx, 0)
+    offsetx = offsetx + cwid.drawbox.w
+    --self:resize_abs(offsetx, self.drawbox.h)
+    table.insert(self.childwidgets, cwid)
+  end
+  
+  function wid:child_resized(cwid)
+    local offsetx = 0
+    for k,v in pairs(self.childwidgets) do
+      v:move_abs(v.drawbox.x, offsetx)
+      offsetx = offsetx + v.drawbox.w
+    end
+    --self:needsredraw()
+    --self:resize_abs(offsetx, self.drawbox.h)
+    self:needsredraw()
+  end
+  
+  function wid:childisredrawn()
+    if not self.redraw_needed then
+      self:needsredraw()
+    end
+  end
+  
+  return wid
+end
+
+
 -- simple console output
 function gui:create_console(x,y,w,h,visible)
   local wid = gui:create_basewidget(x,y,w,h)
@@ -550,6 +587,76 @@ function gui:create_simplebutton(x,y,w,h,label,action)
   return wid
 end
 
+function gui:create_menubar(x,y,w)
+  local wid = gui:create_horisontalstack(x,y,w,25)
+  
+  wid.superdraw = wid.draw
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- bg
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(0.2,0.2,0.2)
+      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+                      20,6,1,1)
+      gfx.setcolor(r,g,b)
+    
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+      self:superdraw(force)
+    end
+  end
+  
+  return wid
+end
+
+function gui:create_menubutton(label,menu)
+  local wid = gui:create_basewidget(0,0,8*#label+20,25)
+  wid.label = label
+  wid.menu = menu
+  
+  function wid:mouserelease(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      gui:spawn_menu(mx,my,self.menu)
+    end
+    self:needsredraw()
+  end
+  
+  function wid:mousepush(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      --self:needsredraw()
+    end
+  end
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- bg
+      --[[if (self.state == 0) then
+        gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+                        512,1,1,254)
+      else
+        gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+                        510,1,0,254)
+      end]]
+      
+      -- label
+      if (self.state == 0) then
+        gui:drawcenteredfont(self.label, self.drawbox.w / 2 - 1, self.drawbox.h / 2)
+      else
+        gui:drawcenteredfont(self.label, self.drawbox.w / 2, self.drawbox.h / 2 + 1)
+      end
+    
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+    end
+  end
+  
+  return wid
+end
+
 -- spawns a menu in the root of the widget tree
 function gui:spawn_menu(x,y,menu)
   local wid = gui:create_menu(x,y,menu)
@@ -741,6 +848,8 @@ function gui:create_menu(x,y,menu)
           gfx.setcolor(0.5, 0.5, 0.5)
           gui:drawfont(v[2], self.stdwith-(#v[2]*8), item_y + 12)
           gfx.setcolor(r,g,b)
+        elseif (type(v[3]) == "table") then
+          gui:drawfont(">", self.stdwith-8, item_y + 12)
         end
         
         item_y = item_y + self.itemheight

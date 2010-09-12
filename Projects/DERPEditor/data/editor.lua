@@ -8,6 +8,12 @@ gui:init()
 
 -- add some cool widgets
 local topstack = gui:create_verticalstack(0,0,app.width)
+local menustack = gui:create_menubar(0,0,app.width)
+menustack:addwidget(gui:create_menubutton("File",{{"Reboot", nil, function () app.reboot() end},
+                                                  {"Quit", "Esc", function () app.quit() end}
+                                                 }))
+menustack:addwidget(gui:create_menubutton("About",{{"About DERPEditor", nil, function () print("TODO: Spawn About window.") end}
+                                                  }))
 local console = gui:create_console(0,0,app.width,100,true)
 console:addline("hey sup?")
 console:addline("what are you? a HOMO?")
@@ -38,6 +44,7 @@ toolbar:addwidget(testbutton)
 toolbar:addwidget(menubutton)
 
 -- add toolbar and console to topstack
+topstack:addwidget(menustack)
 topstack:addwidget(console)
 topstack:addwidget(toolbar)
 
