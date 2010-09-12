@@ -155,7 +155,6 @@ function NewModule(name)
                     module_settings.cc.defines:Add(defname)
 					project:AddDefine(defname)
                     table.insert(libs, project.built_list[l])
-                    local library = LoadLibrary(l) -- Load it so we can get the system libraries below...
                 end
                 
                 for i, l in ipairs(library.defines) do
@@ -170,9 +169,16 @@ function NewModule(name)
                     module_settings.dll.frameworks:Add(l)
                 end
             end
-            local objs = Compile(module_settings, source_files)
+			local objs = Compile(module_settings, source_files)
             return SharedLibrary(module_settings, self.name, objs, frameworkobjs, libs)
         else
+		    for i, l in ipairs(self.required_libraries) do
+				local library = LoadLibrary(l)
+				local defname = "CONF_WITH_LIBRARY_"..string.upper(library.name)
+				module_settings.cc.defines:Add(defname)
+				project:AddDefine(defname)
+			end
+				
             -- Return compiled objects instead of creating a static library.
             local objs = Compile(module_settings, source_files)
             return objs;

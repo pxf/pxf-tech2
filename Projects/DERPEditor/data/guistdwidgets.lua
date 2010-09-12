@@ -169,6 +169,77 @@ function gui:create_verticalstack(x,y,w)
   return wid
 end
 
+-- creates a widget stack that displays all widgets as a "stack" but sideways
+function gui:create_horisontalstack(x,y,w,h)
+  local wid = gui:create_basewidget(x,y,w,h)
+  
+  function wid:addwidget(cwid)
+    cwid.parent = self
+    local offsetx = 0
+    for k,v in pairs(self.childwidgets) do
+      offsetx = offsetx + v.drawbox.w
+    end
+    cwid:move_abs(offsetx, 0)
+    offsetx = offsetx + cwid.drawbox.w
+    --self:resize_abs(offsetx, self.drawbox.h)
+    table.insert(self.childwidgets, cwid)
+  end
+  
+  function wid:child_resized(cwid)
+    local offsetx = 0
+    for k,v in pairs(self.childwidgets) do
+      v:move_abs(v.drawbox.x, offsetx)
+      offsetx = offsetx + v.drawbox.w
+    end
+    --self:needsredraw()
+    --self:resize_abs(offsetx, self.drawbox.h)
+    self:needsredraw()
+  end
+  
+  function wid:childisredrawn()
+    if not self.redraw_needed then
+      self:needsredraw()
+    end
+  end
+  
+  return wid
+end
+
+function gui:create_statusbar(x,y,w,default_text)
+  local wid = gui:create_basewidget(x,y-22,w,22)
+  wid.default_text = default_text
+  wid.text = default_text
+  
+  function wid:settext(text)
+    if (text == nil) then
+      self.text = self.default_text
+    else
+      self.text = text
+    end
+  end
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+      
+      -- bg
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(26/256,26/256,26/256)
+      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,18,2,1,1)
+      
+      -- text
+      gfx.setcolor(0.6,0.6,0.6)
+      gui:drawfont(self.text,12,12)
+      gfx.setcolor(r,g,b)
+
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    end
+  end
+  
+  return wid
+end
+
+
 -- simple console output
 function gui:create_console(x,y,w,h,visible)
   local wid = gui:create_basewidget(x,y,w,h)
@@ -243,15 +314,37 @@ function gui:create_labelpanel(x,y,w,h,text)
 
 		base_widget:superdraw()
 	end
+	
+	function base_widget:find_mousehit(mx,my)
+    if (self:hittest(mx,my,mx,my)) then
+      local thit = nil
+      --for k,v in pairs(self.childwidgets) do
+      for i = #self.childwidgets, 1, -1 do
+        local v = self.childwidgets[i]
+        if not (v == nil) then
+          thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+        end
+        
+        if not (thit == nil) then
+          -- we hit a child widget, return this one instead
+          return thit
+        end
+      end
+      
+      return nil
+    end
+    
+    return nil
+  end
 
 	return base_widget
 end
 
-function gui:create_movablewindow(x,y,w,h)
+function gui:create_movablewindow(x,y,w,h,label)
 	local base_window = gui:create_movablepanel(x,y,w,h)
 	local minimize_button = gui:create_staticpanel(w-40,0,20,20)
 	local close_button = gui:create_staticpanel(w-20,0,20,20)
-	local window_label = gui:create_labelpanel(6,6,0,0,"SUKEEEH")
+	local window_label = gui:create_labelpanel(6,6,0,0,label)
 	local minimize_label_arrow = gui:create_labelpanel(0,0,0,0,">")
 	local close_label_icon = gui:create_labelpanel(6,5,0,0,"x")
 
@@ -281,7 +374,7 @@ function gui:create_movablewindow(x,y,w,h)
 	base_window.superdraw = base_window.draw
 	
 	function minimize_label_arrow:draw()
-		local move_offset = {x = 11, y = -11}
+		local move_offset = {x = 0, y = 0}
 		local move_dir = 0
 
 		if (base_window.state == window_state.maximized) then
@@ -550,6 +643,77 @@ function gui:create_simplebutton(x,y,w,h,label,action)
   return wid
 end
 
+function gui:create_menubar(x,y,w)
+  local wid = gui:create_horisontalstack(x,y,w,25)
+  
+  wid.superdraw = wid.draw
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- bg
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(0.2,0.2,0.2)
+      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+                      20,6,1,1)
+      gfx.setcolor(r,g,b)
+    
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+      self:superdraw(force)
+    end
+  end
+  
+  return wid
+end
+
+function gui:create_menubutton(label,menu)
+  local wid = gui:create_basewidget(0,0,8*#label+20,25)
+  wid.label = label
+  wid.menu = menu
+  
+  function wid:mouserelease(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      local x,y = self:find_abspos()
+      gui:spawn_menu(x,y+self.drawbox.h,self.menu)
+    end
+    self:needsredraw()
+  end
+  
+  function wid:mousepush(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      --self:needsredraw()
+    end
+  end
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- bg
+      --[[if (self.state == 0) then
+        gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+                        512,1,1,254)
+      else
+        gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+                        510,1,0,254)
+      end]]
+      
+      -- label
+      if (self.state == 0) then
+        gui:drawcenteredfont(self.label, self.drawbox.w / 2 - 1, self.drawbox.h / 2)
+      else
+        gui:drawcenteredfont(self.label, self.drawbox.w / 2, self.drawbox.h / 2 + 1)
+      end
+    
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+    end
+  end
+  
+  return wid
+end
+
 -- spawns a menu in the root of the widget tree
 function gui:spawn_menu(x,y,menu)
   local wid = gui:create_menu(x,y,menu)
@@ -602,10 +766,6 @@ function gui:create_menu(x,y,menu)
   
   function wid:mouseover(mx,my)
     
-    -- if we have child menus, close them
-    --[[if (self.menu_child) then
-      self.menu_child:destroy()
-    end]]
     
     -- find correct menu item
     local dh = my - self.drawbox.y
@@ -614,11 +774,19 @@ function gui:create_menu(x,y,menu)
       self.highlightid = i
       self:needsredraw()
       if (self.menu[i]) then
+        
+        -- update statusbar
+        if (self.menu[i][2].tooltip) then
+          gui:tooltip(self.menu[i][2].tooltip)
+        end
+        
+        -- close all submenus
         if (self.menu_child) then
           self.menu_child:destroy()
         end
         
-        if (type(self.menu[i][3]) == "table") then
+        -- if this is a submenu, open it!
+        if not (self.menu[i][2].menu == nil) then
           
           local t_menu_root = self.menu_root
           if (t_menu_root == nil) then
@@ -628,7 +796,7 @@ function gui:create_menu(x,y,menu)
                             self, -- "menu parent"
                             self.drawbox.x+self.drawbox.w, -- x position
                             self.drawbox.y+(i-1)*self.itemheight+self.itemheight/2, -- y position
-                            self.menu[i][3]) -- menu table
+                            self.menu[i][2].menu) -- menu table
           
         end
       end
@@ -658,8 +826,9 @@ function gui:create_menu(x,y,menu)
       local dh = my - self.drawbox.y
       local i = math.ceil((dh / self.drawbox.h) * #self.menu)
       if (self.menu[i]) then
-        if (type(self.menu[i][3]) == "function") then
-          self.menu[i][3](self,mx, my, button)
+        if (self.menu[i][2].menu == nil) then
+          -- clickable menu item
+          self.menu[i][2]:onclick(self,mx, my, button)
           
           -- close the whole tree!
           if (self.menu_root) then
@@ -669,8 +838,8 @@ function gui:create_menu(x,y,menu)
           end
         
           self:needsredraw()
-        elseif (type(self.menu[i][3]) == "table") then
-
+        else
+          -- submenu
           local t_menu_root = self.menu_root
           if (t_menu_root == nil) then
             t_menu_root = self
@@ -679,7 +848,7 @@ function gui:create_menu(x,y,menu)
                             self, -- "menu parent"
                             self.drawbox.x+self.drawbox.w, -- x position
                             self.drawbox.y+(i-1)*self.itemheight+self.itemheight/2, -- y position
-                            self.menu[i][3]) -- menu table
+                            self.menu[i][2].menu) -- menu table
           
         end
       end
@@ -736,11 +905,13 @@ function gui:create_menu(x,y,menu)
         gui:drawfont(v[1], 10, item_y + 12)
         
         -- short
-        if (v[2]) then
+        if not (v[2].shortcut == nil) then
           local r,g,b = gfx.getcolor()
           gfx.setcolor(0.5, 0.5, 0.5)
           gui:drawfont(v[2], self.stdwith-(#v[2]*8), item_y + 12)
           gfx.setcolor(r,g,b)
+        elseif not (v[2].menu == nil) then
+          gui:drawfont(">", self.stdwith-8, item_y + 12)
         end
         
         item_y = item_y + self.itemheight
