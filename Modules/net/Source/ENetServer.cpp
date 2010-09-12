@@ -51,7 +51,7 @@ Pxf::Network::Packet* ENetServer::Recv()
 			break;
 
 		case ENET_EVENT_TYPE_DISCONNECT:
-			Message("ENetServer", "Client disconnected: %s.", event.peer->data);
+			Message("ENetServer", "Client disconnected: %d.", (int)event.peer->data);
 			break;
 
 		case ENET_EVENT_TYPE_CONNECT:
