@@ -552,9 +552,29 @@ end
 
 -- spawns a menu in the root of the widget tree
 function gui:spawn_menu(x,y,menu)
+  local wid = gui:create_menu(x,y,menu)
+  gui.widgets:addwidget(wid)
+end
+
+function gui:spawn_submenu(root,parent,x,y,menu)
+  local wid = gui:create_menu(x,y,menu)
+  wid.menu_parent = parent
+  wid.menu_root = root
+  parent.menu_child = wid
+  gui.widgets:addwidget(wid)
+end
+
+-- creates a menu
+function gui:create_menu(x,y,menu)
   local wid = gui:create_basewidget(x,y,200,10)
+  wid.widget_type = "menu"
+  wid.menu_parent = nil
+  wid.menu_child = nil
+  wid.menu_root = nil
   wid.stdwith = 200
+  wid.itemheight = 24
   wid.menu = menu
+  wid.highlightid = 0
   
   -- overflow control
   if (x + wid.stdwith > app.width) then
@@ -565,27 +585,89 @@ function gui:spawn_menu(x,y,menu)
   -- set correct height of menu
   local new_h = 0
   for k,v in pairs(menu) do
-    new_h = new_h + 24
+    new_h = new_h + wid.itemheight
   end
   wid.drawbox.h = new_h
   wid.hitbox.h = new_h
   
-  function wid:mouseover(mx,my,button)
-    -- TODO: aoe
+  wid.superdestroy = wid.destroy
+  function wid:destroy()
+    -- call sub menus to also destroy
+    if (self.menu_child) then
+      self.menu_child:destroy()
+    end
+    
+    self:superdestroy()
+  end
+  
+  function wid:mouseover(mx,my)
+    
+    -- if we have child menus, close them
+    --[[if (self.menu_child) then
+      self.menu_child:destroy()
+    end]]
+    
+    -- find correct menu item
+    local dh = my - self.drawbox.y
+    local i = math.ceil((dh / self.drawbox.h) * #self.menu)
+    if not (i == self.highlightid) then
+      self.highlightid = i
+      self:needsredraw()
+      if (self.menu[i]) then
+        if (self.menu_child) then
+          self.menu_child:destroy()
+        end
+        
+        if (type(self.menu[i][3]) == "table") then
+          
+          local t_menu_root = self.menu_root
+          if (t_menu_root == nil) then
+            t_menu_root = self
+          end
+          gui:spawn_submenu(t_menu_root, -- "menu root"
+                            self, -- "menu parent"
+                            self.drawbox.x+self.drawbox.w, -- x position
+                            self.drawbox.y+(i-1)*self.itemheight+self.itemheight/2, -- y position
+                            self.menu[i][3]) -- menu table
+          
+        end
+      end
+    end
+  end
+  
+  function wid:lostfocus(newfocus)
+    if (newfocus.widget_type == "menu") then
+      return 0
+    end
+    
+    if (self.menu_parent) then
+      self.menu_parent:lostfocus(newfocus)
+    end
+    
+    self:destroy()
   end
   
   function wid:mouserelease(mx,my,button)
     if (button == inp.MOUSE_LEFT) then
-      --self:action(mx,my,button)
-      --self:destroy()
+      -- if we have child menus, close them
+      if (self.menu_child) then
+        self.menu_child:destroy()
+      end
       
       -- find correct menu item
       local dh = my - self.drawbox.y
       local i = math.ceil((dh / self.drawbox.h) * #self.menu)
       if (self.menu[i]) then
-        self.menu[i][3]()
+        if (type(self.menu[i][3]) == "function") then
+          self.menu[i][3](self,mx, my, button)
+          
+          -- close the whole tree!
+          if (self.menu_root) then
+            self.menu_root:destroy()
+          end
         
-        self:needsredraw()
+          self:needsredraw()
+        end
       end
     end
     
@@ -597,10 +679,7 @@ function gui:spawn_menu(x,y,menu)
     end
   end
   
-  function wid:lostfocus()
-    self:destroy()
-  end
-  
+  wid.superdraw = wid.draw
   function wid:draw(force)
     if (self.redraw_needed or force) then
       gfx.translate(self.drawbox.x, self.drawbox.y)
@@ -631,6 +710,14 @@ function gui:spawn_menu(x,y,menu)
       -- loop through all menu items
       local item_y = 0
       for k,v in pairs(self.menu) do
+        if (k == self.highlightid) then
+          local r,g,b = gfx.getcolor()
+          gfx.setcolor(0.2,0.2,0.2)
+          gfx.drawtopleft(0, item_y+2, self.drawbox.w, self.itemheight-4,
+                          20,1,1,1)
+          gfx.setcolor(r,g,b)
+        end
+        
         -- item
         gui:drawfont(v[1], 10, item_y + 12)
         
@@ -642,14 +729,17 @@ function gui:spawn_menu(x,y,menu)
           gfx.setcolor(r,g,b)
         end
         
-        item_y = item_y + 24
+        item_y = item_y + self.itemheight
       end
     
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
-    
+      
+      --self:superdraw(force)
+      
     end
   end
   
-  gui.widgets:addwidget(wid)
+  return wid
+  --gui.widgets:addwidget(wid)
 end
 

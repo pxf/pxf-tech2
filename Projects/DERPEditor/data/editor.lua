@@ -22,6 +22,9 @@ function toolbar:mouserelease(mx,my,button)
   if (button == inp.MOUSE_RIGHT) then
     gui:spawn_menu(mx,my,{{"Reboot", nil, function () app.reboot() end},
                           {"Quit", "Esc", function () app.quit() end},
+                          {"Settings", nil, {{"GUI Settings", nil, {{"Show/hide redraw areas", nil, function () gui:toggle_show_redraw() end}}
+                                            }}
+                          },
                          })
   end
 end
@@ -86,5 +89,5 @@ function draw(force)
   --gfx.setcolor(1, 0, 0)
   --panic.text("Welcome to ^1D^2E^1R^2P^9 Editor!", 200, 200)
   --poooooooooop()
-  gui:draw(force, false)
+  gui:draw(force)
 end
