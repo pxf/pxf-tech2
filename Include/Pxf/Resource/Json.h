@@ -27,6 +27,8 @@ namespace Resource {
         {}
 
 		virtual ::Json::Value& GetRoot() = 0;
+		virtual void SetRoot(::Json::Value& _Value) = 0;
+		virtual bool SaveToDisk(const char* _FilePath) = 0;
 
 		virtual const bool IsReady() const
 		{
@@ -44,6 +46,7 @@ namespace Resource {
 		{}
 		virtual ~JsonLoader() {};
 		virtual Resource::Json* Load(const char* _FilePath) = 0;
+		virtual Resource::Json* CreateEmpty() = 0;
 		virtual Resource::Json* CreateFrom(const void* _DataPtr, unsigned _DataLen) = 0;
 		virtual void Destroy(void* _Resource)
 		{
@@ -55,7 +58,12 @@ namespace Resource {
 } // Resource
 } // Pxf
 
-
+#else
+#ifdef CONF_FAMILY_WINDOWS
+#pragma message ("Compiling without json support (Resource/Json.h) will not be available.")
+#else
+#warning "Compiling without json support (Resource/Json.h) will not be available."
+#endif
 #endif // CONF_WITH_LIBRARY_JSONCPP
 #endif //_PXF_RESOURCE_JSON_H_
 

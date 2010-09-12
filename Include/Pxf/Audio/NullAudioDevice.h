@@ -20,7 +20,8 @@ namespace Pxf
 
 		virtual ~NullAudioDevice(){};
 
-		virtual bool Initialize(){ return true; };
+		virtual bool Initialize(unsigned int _BufferSize, unsigned int _MaxVoices)
+		{ return true; };
 
 		virtual int RegisterSound(const char* _Filename)
 		{

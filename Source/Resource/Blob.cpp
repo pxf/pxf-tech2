@@ -22,6 +22,9 @@ Resource::BlobLoader::~BlobLoader()
 
 Resource::Blob* Resource::BlobLoader::Load(const char* _FilePath)
 {
+	if (!_FilePath)
+		return NULL;
+
     Resource::Chunk* chunk = Resource::LoadFile(_FilePath);                   
     if (!chunk)
     {

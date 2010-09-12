@@ -65,14 +65,35 @@ int main()
     Resource::ResourceManager* res = kernel->GetResourceManager();
     res->DumpResourceLoaders();
 
-	int tick_id = snd->RegisterSound("data/tick.ogg");
-	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
-
 	// load settings
 	Resource::Json* jdoc = res->Acquire<Resource::Json>("data/config.json");
 	Json::Value settings;
 	if (jdoc)
 		settings = jdoc->GetRoot();
+	else
+	{
+		settings["audio"]["buffersize"] = 1024;
+		settings["audio"]["max_voices"] = 8;
+		settings["input"]["mouse_accel"] = 0.9f;
+		settings["video"]["width"] = 800;
+		settings["video"]["height"] = 600;
+		settings["video"]["vsync"] = false;
+
+		Resource::JsonLoader* jld = res->FindResourceLoader<Resource::JsonLoader>("json");
+		if (jld)
+		{
+			jdoc = jld->CreateEmpty();
+			jdoc->SetRoot(settings);
+			jdoc->SaveToDisk("data/config.json");
+			Message("Main", "Saving new config!");
+		}
+	}
+
+	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
+				   ,settings["audio"].get("max_voices", 8).asUInt());
+
+	int tick_id = snd->RegisterSound("data/tick.ogg");
+	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
 
     Graphics::WindowSpecifications spec;
     spec.Width = settings["video"].get("width", 800).asInt();

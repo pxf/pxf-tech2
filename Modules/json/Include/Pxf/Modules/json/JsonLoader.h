@@ -32,6 +32,13 @@ namespace Modules {
 		{
 			return m_Root;
 		}
+
+		virtual void SetRoot(::Json::Value& _Value)
+		{
+			m_Root = _Value;
+		}
+
+		virtual bool SaveToDisk(const char* _FilePath);
 	};
 
 	class JsonCppLoader : public Resource::JsonLoader
@@ -43,6 +50,7 @@ namespace Modules {
         virtual ~JsonCppLoader();
         virtual Resource::Json* Load(const char* _FilePath);
 		virtual Resource::Json* CreateFrom(const void* _DataPtr, unsigned _DataLen);
+		virtual Resource::Json* CreateEmpty();
     };
 
 } // Graphics

@@ -36,31 +36,33 @@ namespace Pxf
 				}
 			};
 
-        private:
+        protected:
 			RtAudio* m_DAC;
 			Util::Array<Resource::Sound*> m_SoundBank;
 			Util::Array<SoundEntry> m_ActiveVoices;
 			unsigned int m_Channels;
+			unsigned int m_BufferSize;
+			unsigned int m_MaxVoices;
+
 			bool m_Active;
 			bool m_Initialized;
 
-            virtual bool Init();
+			void CloseStream();
+
+			virtual bool Init() { return true; }
+ 
         public:
         RtAudioDevice(Pxf::Kernel* _Kernel)
             : Pxf::Audio::AudioDevice(_Kernel, "Rt Audio Device")
 			, m_Active(false)
 			, m_Channels(2)
+			, m_BufferSize(1024)
+			, m_MaxVoices(8)
 			, m_Initialized(false)
         {
 		}
 
-		virtual bool Initialize()
-		{
-			bool s = Init();
-			if (s)
-				m_Initialized = true;
-			return s;
-		}
+		virtual bool Initialize(unsigned int _BufferSize = 1024, unsigned int _MaxVoices = 8);
 
 		virtual ~RtAudioDevice();
 
