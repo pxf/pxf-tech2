@@ -8,11 +8,19 @@ function gui:create_basewidget(x,y,w,h)
     hitbox = {x = x, y = y, w = w, h = h},
     drawbox = {x = x, y = y, w = w, h = h},
     parent = nil,
-    redraw_needed = false
+    redraw_needed = false,
+    widget_type = "stdwidget" -- stdwidget, menu
   }
   
   function wid:destroy()
     self:needsredraw()
+    
+    -- destroy childs
+    for k,v in pairs(self.childwidgets) do
+      v:destroy()
+    end
+    
+    -- destroy self from parent
     if self.parent then
       local deletek = nil
       for k,v in pairs(self.parent.childwidgets) do
@@ -33,6 +41,7 @@ function gui:create_basewidget(x,y,w,h)
   function wid:addwidget(cwid)
     cwid.parent = self
     table.insert(self.childwidgets, cwid)
+    gui:set_focus(cwid)
     cwid:needsredraw()
   end
   
@@ -221,11 +230,10 @@ function gui:redraw(x,y,w,h)
 end
 
 function gui:set_focus(wid)
-  
   if (self.focuswidget) then
     if not (self.focuswidget == wid) then
       if (self.focuswidget.lostfocus) then
-        self.focuswidget:lostfocus()
+        self.focuswidget:lostfocus(wid)
       end
     end
   end
@@ -278,6 +286,12 @@ function gui:drawfont(str,x,y)
   
 end
 
+function gui:toggle_show_redraw()
+  self.draw_redraw_rects = not self.draw_redraw_rects
+  print("draw_redraw_rects: " .. tostring(self.draw_redraw_rects))
+  return (not self.draw_redraw_rects)
+end
+
 function gui:init()
   self.themetex = gfx.loadtexture("data/guitheme.png")
   self.font = gfx.loadtexture("data/charmap_monaco_shadow.png")
@@ -285,6 +299,8 @@ function gui:init()
   
   self.activewidget = nil
   self.focuswidget = nil
+  
+  self.draw_redraw_rects = false
   
   -- tree of widgets
   self.widgets = gui:create_root()
@@ -301,6 +317,12 @@ function gui:update()
   
   -- test
   --gui:redraw(mx,my,32,32)
+  
+  -- send mouse over
+  local mouse_over_rcv = self.widgets:find_mousehit(mx,my)
+  if mouse_over_rcv and mouse_over_rcv.mouseover then
+    mouse_over_rcv:mouseover(mx,my)
+  end
   
   -- mouse operations on widgets
   if (inp.isbuttondown(inp.MOUSE_LEFT) or
@@ -322,14 +344,16 @@ function gui:update()
     if (not self.mouse.pushed) then
       --self.activewidget
       self.activewidget = self.widgets:find_mousehit(mx,my)
+      print("new active widget: " .. tostring(self.activewidget) .. " (has type " .. self.activewidget.widget_type .. ")")
       
+      -- active widget is now the focus widget
       self:set_focus(self.activewidget)
       
       if (self.activewidget.mousepush) then
         self.activewidget:mousepush(mx,my,self.buttonid)
       end
       
-      print("new active widget: " .. tostring(self.activewidget))
+      
     else
       -- we might have a drag operation on our hands!
       
@@ -373,7 +397,7 @@ function gui:update()
   end]]
 end
 
-function gui:draw(force,show_redraw)
+function gui:draw(force)
   -- redraw gui
   -- NOTE: for efficiency, redrawneeded(...) should be called beforehand
   --       to minimize fill
@@ -382,7 +406,7 @@ function gui:draw(force,show_redraw)
   self.widgets:draw(force)
   
   -- show redraw regions
-  if (show_redraw) then
+  if (self.draw_redraw_rects) then
     for k,v in pairs(gui.redrawrects) do
       local r,g,b = gfx.getcolor()
       gfx.setcolor((k % 3) *30, (k % 2) *30, (k % 1) *30)

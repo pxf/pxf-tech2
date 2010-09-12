@@ -65,19 +65,18 @@ int main()
     Resource::ResourceManager* res = kernel->GetResourceManager();
     res->DumpResourceLoaders();
 
-    Resource::JsonLoader* loader = res->FindResourceLoader<Resource::JsonLoader>("json");
-	Resource::Json* json = loader->CreateFrom("{ \"lol\": 5 }", 15);
-	int lol = json->Get("lol", 4)->asInt();
-	Message("LOL", "lol: %d", lol);
-
 	int tick_id = snd->RegisterSound("data/tick.ogg");
-
 	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
 
+	// load settings
+	Resource::Json* jdoc = res->Acquire<Resource::Json>("data/config.json");
+	Json::Value settings;
+	if (jdoc)
+		settings = jdoc->GetRoot();
 
     Graphics::WindowSpecifications spec;
-    spec.Width = 800;
-    spec.Height = 600;
+    spec.Width = settings["video"].get("width", 800).asInt();
+    spec.Height = settings["video"].get("height", 600).asInt();
     spec.ColorBits = 24;
     spec.AlphaBits = 8;
     spec.DepthBits = 8;
@@ -85,7 +84,7 @@ int main()
     spec.FSAASamples = 0;
     spec.Fullscreen = false;
     spec.Resizeable = false;
-    spec.VerticalSync = false;
+    spec.VerticalSync = settings["video"].get("vsync", true).asBool();
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
 	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
