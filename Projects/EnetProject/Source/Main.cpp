@@ -44,13 +44,23 @@ int main(int argv, char *argc[])
 	else /* client */
 	{
 		Client* client = netdev->CreateClient("localhost", 5006);
+		Client* client2 = netdev->CreateClient("localhost", 5006);
+		client2->Connect();
 		client->Connect();
 //		Sleep(1000);
-		client->Send("Lol", 3);
-		Packet* packet = client->Recv();
+		for(int i=0;i < 10; i++)
+		{
+			client->Send("Lol", 3);
+			client2->Send("Lol", 3);
+
+			client->Recv();
+			client2->Recv();
+		}
+//		Packet* packet = client->Recv();
 //		Sleep(1000);
-		Message("Main Client", "Got packet \"%s\"", packet->GetData());
+//		Message("Main Client", "Got packet \"%s\"", packet->GetData());
 		client->Disconnect();
+		client2->Disconnect();
 
 		return 1;
 	}

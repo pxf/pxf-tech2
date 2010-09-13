@@ -138,6 +138,15 @@ int RtAudioDevice::RegisterSound(const char* _Filename)
 	Resource::Sound* snd = GetKernel()->GetResourceManager()->Acquire<Resource::Sound>(_Filename);
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
+		if (m_SoundBank[i] == snd)
+		{
+			Message("Audio", "Trying to register sound '%s' more than once.", _Filename);
+			return i;
+		}
+	}
+
+	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
+	{
 		if (m_SoundBank[i] == NULL)
 		{
 			m_SoundBank[i] = snd;
@@ -151,6 +160,15 @@ int RtAudioDevice::RegisterSound(Resource::Sound* _Sound)
 {
 	if (!m_Initialized)
 		Initialize();
+
+	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
+	{
+		if (m_SoundBank[i] == _Sound)
+		{
+			Message("Audio", "Trying to register sound '%s' more than once.", _Sound->GetSource());
+			return i;
+		}
+	}
 
 	_Sound->_AddRef();
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)

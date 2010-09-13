@@ -65,7 +65,7 @@ bool JsonCppLoader::Init()
 
 Resource::Json* JsonCppLoader::Load(const char* _FilePath)
 {
-	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);                   
+	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);				   
 	if (!chunk)
 	{
 		Message("JsonLoader", "Unable to create chunk from file '%s'", _FilePath);

@@ -108,7 +108,7 @@ bool WindowGL2::Open()
 
 #ifdef CONF_PLATFORM_MACOSX
 		/* HACK - Get events without bundle */
-		ProcessSerialNumber psn;    
+		ProcessSerialNumber psn;	
 		GetCurrentProcess(&psn);
 		TransformProcessType(&psn,kProcessTransformToForegroundApplication);
 		SetFrontProcess(&psn);
@@ -196,6 +196,11 @@ bool WindowGL2::IsMinimized()
 	}
 
 	return false;
+}
+
+void WindowGL2::SetResizeCallback(WindowSizeCallback fun)
+{
+	glfwSetWindowSizeCallback(fun);
 }
 
 void WindowGL2::SetTitle(const char *_title)

@@ -9,15 +9,15 @@
 namespace Pxf{
 namespace Resource
 {
-    class Chunk;
+	class Chunk;
 }
-    
+	
 namespace Modules {
 
 	class OpenCTMMesh : public Resource::Mesh
 	{
 	protected:
-        virtual bool Build();
+		virtual bool Build();
 	public:
 		OpenCTMMesh(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
 			: Resource::Mesh(_Kernel, _Chunk,_Loader)
@@ -27,17 +27,17 @@ namespace Modules {
 	};
 
 	class CtmMeshLoader : public Resource::MeshLoader
-    {
-    private:
+	{
+	private:
 		CTMcontext m_Context;
 
-        bool Init();
-    public:
-        CtmMeshLoader(Pxf::Kernel* _Kernel);
-        virtual ~CtmMeshLoader();
-        virtual Resource::Mesh* Load(const char* _FilePath);
+		bool Init();
+	public:
+		CtmMeshLoader(Pxf::Kernel* _Kernel);
+		virtual ~CtmMeshLoader();
+		virtual Resource::Mesh* Load(const char* _FilePath);
 		virtual Resource::Mesh* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-    };
+	};
 
 } // Graphics
 } // Pxf

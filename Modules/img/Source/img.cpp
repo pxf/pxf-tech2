@@ -18,31 +18,31 @@ REGISTER_MODULE(GenericImageImporter, "img", Module_Kernel_Version, Module_Api_V
 
 namespace GenericImageLoader_
 {
-    PXFEXPORT Pxf::Module* CreateInstance()
-    {
-        Pxf::Modules::GenericImageImporter *m = new Pxf::Modules::GenericImageImporter("img", Module_Kernel_Version, Module_Api_Version);
-        return m;
-    }
+	PXFEXPORT Pxf::Module* CreateInstance()
+	{
+		Pxf::Modules::GenericImageImporter *m = new Pxf::Modules::GenericImageImporter("img", Module_Kernel_Version, Module_Api_Version);
+		return m;
+	}
 
-    PXFEXPORT void DestroyInstance(Pxf::Module* _module)
-    {
-        if (_module)
-        {
-            delete _module;
-        }
-    }
+	PXFEXPORT void DestroyInstance(Pxf::Module* _module)
+	{
+		if (_module)
+		{
+			delete _module;
+		}
+	}
 }
 
 bool Pxf::Modules::GenericImageImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
-    if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
-    {
-        Pxf::Modules::GenericImageLoader* png_loader = new Pxf::Modules::GenericImageLoader(_Kernel);
+	if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
+	{
+		Pxf::Modules::GenericImageLoader* png_loader = new Pxf::Modules::GenericImageLoader(_Kernel);
 		Pxf::Modules::GenericImageLoader* jpg_loader = new Pxf::Modules::GenericImageLoader(_Kernel);
-        _Kernel->RegisterResourceLoader("png", png_loader);
-        _Kernel->RegisterResourceLoader("jpg", jpg_loader);
-        return true;
-    }
-    
-    return false;
+		_Kernel->RegisterResourceLoader("png", png_loader);
+		_Kernel->RegisterResourceLoader("jpg", jpg_loader);
+		return true;
+	}
+	
+	return false;
 }

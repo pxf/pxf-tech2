@@ -19,19 +19,19 @@ REGISTER_MODULE(NetworkLoader, "net", Module_Kernel_Version, Module_Api_Version)
 
 namespace NetworkLoader_
 {
-    PXFEXPORT Pxf::Module* CreateInstance()
-    {
-        Pxf::Modules::NetworkLoader *m = new Pxf::Modules::NetworkLoader("net", Module_Kernel_Version, Module_Api_Version);
-        return m;
-    }
+	PXFEXPORT Pxf::Module* CreateInstance()
+	{
+		Pxf::Modules::NetworkLoader *m = new Pxf::Modules::NetworkLoader("net", Module_Kernel_Version, Module_Api_Version);
+		return m;
+	}
 
-    PXFEXPORT void DestroyInstance(Pxf::Module* _module)
-    {
-        if (_module)
-        {
-            delete _module;
-        }
-    }
+	PXFEXPORT void DestroyInstance(Pxf::Module* _module)
+	{
+		if (_module)
+		{
+			delete _module;
+		}
+	}
 }
 
 bool Pxf::Modules::NetworkLoader::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
@@ -43,6 +43,6 @@ bool Pxf::Modules::NetworkLoader::RegisterSystem(Pxf::Kernel* _Kernel, unsigned 
 		_Kernel->RegisterNetworkDevice(device);
 		retval = true;
 	}
-    
-    return retval;
+	
+	return retval;
 }

@@ -8,16 +8,16 @@
 namespace Pxf {
 namespace Modules
 {
-    class SampleModule : public Pxf::Module
-    {
-        private:
-        public:
-        SampleModule(const char* _Identifier, unsigned _KernelVersion, unsigned _ApiVersion)
-            : Module(_Identifier, _KernelVersion, _ApiVersion)
-        {}
-        
-        virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier);
-    };
+	class SampleModule : public Pxf::Module
+	{
+		private:
+		public:
+		SampleModule(const char* _Identifier, unsigned _KernelVersion, unsigned _ApiVersion)
+			: Module(_Identifier, _KernelVersion, _ApiVersion)
+		{}
+		
+		virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier);
+	};
 }}
 
 #endif // _PXF_MODULES_SAMPLEMODULE_H_

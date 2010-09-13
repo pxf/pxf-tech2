@@ -19,6 +19,11 @@ bool ENetClient::Connect()
 		Message("ENetClient", "No available peers for an ENet connection.");
 		return false;
 	}
+	
+#if COMPRESSION == 1
+	enet_host_compress_with_range_coder(Client);
+	Message("ENetClient", "Enabling range-coder compression.");
+#endif
 
 	Peer = enet_host_connect(Client, &Address, 2, 0);
 

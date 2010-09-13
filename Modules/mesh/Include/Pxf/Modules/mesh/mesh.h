@@ -8,17 +8,17 @@
 namespace Pxf {
 namespace Modules
 {
-    class CtmMeshImporter : public Pxf::Module
-    {
-        private:
-        public:
-        CtmMeshImporter(const char* _Identifier, unsigned _KernelVersion, unsigned _ApiVersion)
-            : Module(_Identifier, _KernelVersion, _ApiVersion)
-        {}
-        
-        virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType);
-    };
-    
+	class CtmMeshImporter : public Pxf::Module
+	{
+		private:
+		public:
+		CtmMeshImporter(const char* _Identifier, unsigned _KernelVersion, unsigned _ApiVersion)
+			: Module(_Identifier, _KernelVersion, _ApiVersion)
+		{}
+		
+		virtual bool RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType);
+	};
+	
 }}
 
 #endif // _PXF_MODULES_MODEL_H_
