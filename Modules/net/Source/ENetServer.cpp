@@ -3,12 +3,6 @@
 using namespace Pxf::Modules;
 using namespace Pxf::Util;
 
-ENetServer::ENetServer(const int _Port)
-{
-	Address.host = ENET_HOST_ANY;
-	Address.port = _Port;
-}
-
 int ENetServer::CreateClientID()
 {
 	static int num;
@@ -16,10 +10,13 @@ int ENetServer::CreateClientID()
 	return num++;
 }
 
-bool ENetServer::Bind()
+bool ENetServer::Bind(const int _Port)
 {
 	// TODO: Replace 32 with a settable setting. Maybe add it as an argument to ENetServer?
 	// TOOD: Make use of the different channels.
+	Address.host = ENET_HOST_ANY;
+	Address.port = _Port;
+
 	Server = enet_host_create(&Address, 32, 2, 0, 0);
 
 #if COMPRESSION == 1

@@ -34,9 +34,9 @@ namespace Pxf
 		public:
 			int Ident;
 			
-			ENetServer(const int _Port);
+//			ENetServer();
 			
-			virtual bool Bind();
+			virtual bool Bind(const int _Port);
 			virtual bool Shutdown();
 			
 			virtual Network::Packet* Recv();

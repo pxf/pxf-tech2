@@ -12,7 +12,7 @@ namespace Pxf
 		public:
 			virtual ~Server(){}
 
-			virtual bool Bind() = 0;
+			virtual bool Bind(const int _Port) = 0;
 			virtual bool Shutdown() = 0;
 
 			virtual Packet* Recv() = 0;

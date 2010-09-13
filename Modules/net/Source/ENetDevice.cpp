@@ -20,22 +20,22 @@ ENetDevice::~ENetDevice()
 	enet_deinitialize();
 }
 
-Server* ENetDevice::CreateServer(const int _Port)
+Server* ENetDevice::CreateServer()
 {
 	static int ident;
 	
-	ENetServer* server = new ENetServer(_Port);
+	ENetServer* server = new ENetServer();
 	Servers.push_back(server);
 	server->Ident = ident++;
 
 	return (Server*)server;
 }
 
-Client* ENetDevice::CreateClient(const char* _Host, const int _Port)
+Client* ENetDevice::CreateClient()
 {
 	static int ident;
 	
-	ENetClient* client = new ENetClient(_Host, _Port);
+	ENetClient* client = new ENetClient();
 	Clients.push_back(client);
 	client->Ident = ident++;
 
@@ -47,6 +47,7 @@ Server* ENetDevice::GetServer(const int _ServerIdent)
 	for (int i=0; i < Servers.size(); i++)
 		if (Servers[i]->Ident == _ServerIdent)
 			return Servers[i];
+	return NULL;
 }
 
 Client* ENetDevice::GetClient(const int _ClientIdent)
@@ -54,8 +55,11 @@ Client* ENetDevice::GetClient(const int _ClientIdent)
 	for (int i=0; i < Clients.size(); i++)
 		if (Clients[i]->Ident == _ClientIdent)
 			return Clients[i];
+	return NULL;
 }
 
+// TODO: These should also kill the actual connections that are open.
+// TODO: Maybe add a ForceKillServer/Client ?
 void ENetDevice::KillServer(const int _ServerIdent)
 {
 	Util::Array<ENetServer*>::iterator iter = Servers.begin();
