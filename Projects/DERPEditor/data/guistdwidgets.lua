@@ -245,7 +245,16 @@ function gui:create_console(x,y,w,h,visible)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.visible = visible
   wid.stdheight = h
+  wid.minheight = 5
   wid.consolelines = {}
+  
+  if visible then
+    wid.drawbox.h = wid.stdheight
+    wid.hitbox.h = wid.stdheight
+  else
+    wid.drawbox.h = wid.minheight
+    wid.hitbox.h = wid.minheight
+  end
   
   function wid:addline(str)
     table.insert(self.consolelines, str)
@@ -283,7 +292,7 @@ function gui:create_console(x,y,w,h,visible)
       else
         --self.drawbox.h = 10
         --self.hitbox.h = 10
-        self:resize_abs(self.drawbox.w, 10)
+        self:resize_abs(self.drawbox.w, self.minheight)
       end
       
       self:needsredraw()
@@ -643,9 +652,67 @@ function gui:create_simplebutton(x,y,w,h,label,action)
   return wid
 end
 
+function gui:create_menu2(x,y,width,menu)
+  local wid = gui:create_basewidget(x,y,width,20)
+  wid.widget_type = "menu"
+  wid.menu_parent = nil
+  wid.menu_child = nil
+  wid.menu_root = nil
+  wid.width = width
+  wid.menu = menu
+  wid.highlightid = 0
+
+  for k,v in pairs(menu) do
+	if v[1] then
+		local newbut = gui:create_menubutton(v[1],v[2])
+
+	end
+  end
+
+  wid.superdestroy = wid.destroy
+  function wid:destroy()
+    -- call sub menus to also destroy
+    if (self.menu_child) then
+      self.menu_child:destroy()
+    end
+    
+    self:superdestroy()
+  end
+  
+  function wid:mouseover(mx,my)
+
+  end
+
+  wid.superdraw = wid.draw
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- bg
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(0.2,0.2,0.2)
+      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+                      20,6,1,1)
+      gfx.setcolor(r,g,b)
+
+	  -- draw text
+	  for k,v in pairs(menu) do
+
+	  end
+
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+      self:superdraw(force)
+    end
+  end
+
+  return wid
+end
+
 function gui:create_menubar(x,y,w)
   local wid = gui:create_horisontalstack(x,y,w,25)
-  
+  --local wid = gui:spawn_menu(x,y,w)
+
   wid.superdraw = wid.draw
   function wid:draw(force)
     if (self.redraw_needed or force) then
@@ -770,6 +837,7 @@ function gui:create_menu(x,y,menu)
     -- find correct menu item
     local dh = my - self.drawbox.y
     local i = math.ceil((dh / self.drawbox.h) * #self.menu)
+
     if not (i == self.highlightid) then
       self.highlightid = i
       self:needsredraw()
@@ -830,8 +898,12 @@ function gui:create_menu(x,y,menu)
           -- clickable menu item
           self.menu[i][2]:onclick(self,mx, my, button)
           
+		  if ( not (self.menu[i][2].toggle == nil) ) then
+			-- execute function
+			self.menu[i][2].toggle = not self.menu[i][2].toggle
+
           -- close the whole tree!
-          if (self.menu_root) then
+          elseif (self.menu_root) then
             self.menu_root:destroy()
           else
             self:destroy() -- we are the root
@@ -902,7 +974,7 @@ function gui:create_menu(x,y,menu)
         end
         
         -- item
-        gui:drawfont(v[1], 10, item_y + 12)
+        gui:drawfont(v[1], 20, item_y + 12)
         
         -- short
         if not (v[2].shortcut == nil) then
@@ -912,6 +984,8 @@ function gui:create_menu(x,y,menu)
           gfx.setcolor(r,g,b)
         elseif not (v[2].menu == nil) then
           gui:drawfont(">", self.stdwith-8, item_y + 12)
+		elseif v[2].toggle then
+		  gui:drawfont("*",10,item_y+14)
         end
         
         item_y = item_y + self.itemheight

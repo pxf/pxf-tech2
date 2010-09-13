@@ -30,6 +30,8 @@ namespace Network
 
 		virtual void KillServer(const int _ServerIdent) = 0;
 		virtual void KillClient(const int _ClientIdent) = 0;
+		
+		virtual int CreateType() = 0;
 	};
 }
 }

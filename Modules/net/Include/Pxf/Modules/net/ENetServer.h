@@ -6,10 +6,12 @@
 
 #include <Pxf/Modules/net/ENetDevice.h>
 #include <Pxf/Modules/net/ENetDefs.h>
+#include <Pxf/Base/Platform.h>
 
 #include <Pxf/Util/Array.h>
 #include <enet/enet.h>
 #include <stdio.h>
+#include <string.h>
 
 namespace Pxf
 {
@@ -26,18 +28,21 @@ namespace Pxf
 		private:
 			ENetAddress Address;
 			ENetHost *Server;
-
+			
 			int CreateClientID();
 
 		public:
+			int Ident;
+			
 			ENetServer(const int _Port);
-
+			
 			virtual bool Bind();
 			virtual bool Shutdown();
-
+			
 			virtual Network::Packet* Recv();
-			virtual bool Send(const int _Client, const char* _Buf, const int _Length);
-			virtual bool SendAll(const char* _Buf, const int _Length);
+			virtual Network::Packet* RecvNonBlocking(const int _Timeout);
+			virtual bool Send(const int _Client, const int _Type, const char* _Buf);
+			virtual bool SendAll(const int _Type, const char* _Buf);
 		};
 	}
 }
