@@ -57,8 +57,8 @@ int main(int argv, char *argc[])
 			client->Send(def, "Lol");
 			client2->Send(crit, "Lol");
 
-			client->Recv();
-			client2->Recv();
+			client->RecvNonBlocking(1000);
+			client2->RecvNonBlocking(1000);
 		}
 //		Packet* packet = client->Recv();
 //		Sleep(1000);

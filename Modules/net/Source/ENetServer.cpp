@@ -90,6 +90,56 @@ Pxf::Network::Packet* ENetServer::Recv()
 	return NULL;
 }
 
+Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
+{
+	ENetEvent event;
+	int stopTime = Platform::GetTime() + _Timeout;
+
+	/* Loop until we hit an error. */
+	while (enet_host_service(Server, &event, stopTime - Platform::GetTime()) >= 0)
+	{
+		switch(event.type)
+		{
+		case ENET_EVENT_TYPE_NONE:
+			Message("ENetServer", "Timeout.");
+			return NULL;
+			break;
+
+		case ENET_EVENT_TYPE_DISCONNECT:
+			Message("ENetServer", "Client disconnected: %d.", (int)event.peer->data);
+			break;
+
+		case ENET_EVENT_TYPE_CONNECT:
+			Message("ENetServer", "Client connected: %x:%u."
+				, event.peer->address.host, event.peer->address.port);
+			event.peer->data = (void*)CreateClientID();
+			break;
+
+		case ENET_EVENT_TYPE_RECEIVE:
+			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
+				, (int)event.peer->data, event.channelID, event.packet->dataLength);
+			if (event.packet->dataLength > MAX_PACKET_SIZE)
+			{
+				Message("ENetServer", "Packet too large (%u > %d), throwing."
+					, event.packet->dataLength, MAX_PACKET_SIZE);
+				continue;
+			}
+
+			ENetDataPacket* packet = new ENetDataPacket(
+				(char*)event.packet->data
+				, (int)event.peer->data
+				, (int)event.packet->dataLength);
+
+			enet_packet_destroy(event.packet);
+
+			return (Network::Packet*)packet;
+		}
+	}
+
+	// Error
+	return NULL;
+}
+
 bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 {
 	ENetPacket *packet;

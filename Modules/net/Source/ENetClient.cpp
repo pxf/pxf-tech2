@@ -125,6 +125,54 @@ Pxf::Network::Packet* ENetClient::Recv()
 	return NULL;
 }
 
+Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
+{
+	ENetEvent event;
+	ENetDataPacket* packet;
+	int retcode;
+	int stopTime = Platform::GetTime() + _Timeout;
+
+	Message("ENetClient", "Recv()...");
+	
+	while ((retcode = enet_host_service(Client, &event, stopTime-Platform::GetTime())) >= 0)
+	{
+		switch(event.type)
+		{
+		case ENET_EVENT_TYPE_NONE:
+			Message("ENetClient", "Timeout.");
+			return NULL;
+			break;
+
+		case ENET_EVENT_TYPE_RECEIVE:
+			Message("ENetClient", "Client %d. Packet received from %s on channel %u. Length %u."
+				, Ident, event.peer->data, event.channelID, event.packet->dataLength);
+			if (event.packet->dataLength > MAX_PACKET_SIZE)
+			{
+				Message("ENetClient", "Packet too large (%u > %d), throwing."
+					, event.packet->dataLength, MAX_PACKET_SIZE);
+				continue;
+			}
+
+			packet = new ENetDataPacket(
+				(char*)event.packet->data
+				, (int)event.peer->data
+				, (int)event.packet->dataLength);
+			
+			enet_packet_destroy(event.packet);
+
+			return (Network::Packet*)packet;
+			break;
+
+		default:
+			Message("ENetClient", "Unhandled.");
+		}
+	}
+
+	Message("ENetClient", "Recv() stop. %d - %d", event.type, retcode);
+
+	return NULL;
+}
+
 // TODO: Add support for different priorities.
 // TODO: Add support for use of different channels.
 bool ENetClient::Send(const int _Type, const char* _Buf)
