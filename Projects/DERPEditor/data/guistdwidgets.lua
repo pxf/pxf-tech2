@@ -245,7 +245,16 @@ function gui:create_console(x,y,w,h,visible)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.visible = visible
   wid.stdheight = h
+  wid.minheight = 5
   wid.consolelines = {}
+  
+  if visible then
+    wid.drawbox.h = wid.stdheight
+    wid.hitbox.h = wid.stdheight
+  else
+    wid.drawbox.h = wid.minheight
+    wid.hitbox.h = wid.minheight
+  end
   
   function wid:addline(str)
     table.insert(self.consolelines, str)
@@ -283,7 +292,7 @@ function gui:create_console(x,y,w,h,visible)
       else
         --self.drawbox.h = 10
         --self.hitbox.h = 10
-        self:resize_abs(self.drawbox.w, 10)
+        self:resize_abs(self.drawbox.w, self.minheight)
       end
       
       self:needsredraw()
