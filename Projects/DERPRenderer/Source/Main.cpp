@@ -108,7 +108,7 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	
 	Graphics::Window* win = gfx->OpenWindow(&spec);
-	Graphics::Model* test_model = gfx->CreateModel("data/icosphere.ctm");
+	Graphics::Model* test_model = gfx->CreateModel("data/box.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
 	//glDisable(GL_CULL_FACE);
