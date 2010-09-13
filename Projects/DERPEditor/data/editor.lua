@@ -45,6 +45,7 @@ local window_menu = {{"Inspector",{toggle = false, onclick = function() end}},
 --   ie. menubar, console, toolbar, tabbar
 local topstack = gui:create_verticalstack(0,0,app.width)
 
+local menubar2 = gui:create_menu2(0,0,app.width,{{"File",file_menu},{"Window",window_menu}})
 local menubar = gui:create_menubar(0,0,app.width)
 menubar:addwidget(gui:create_menubutton("File",file_menu))
 menubar:addwidget(gui:create_menubutton("Edit",edit_menu))
@@ -57,6 +58,7 @@ local toolbar = gui:create_horisontalpanel(0,0,app.width,42, app.width)
 
 -- add topstack widgets
 topstack:addwidget(menubar)
+topstack:addwidget(menubar2)
 topstack:addwidget(console)
 topstack:addwidget(toolbar)
 
