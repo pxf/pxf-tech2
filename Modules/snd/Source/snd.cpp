@@ -19,19 +19,19 @@ REGISTER_MODULE(AudioImporter, "snd", Module_Kernel_Version, Module_Api_Version)
 
 namespace AudioLoader_
 {
-    PXFEXPORT Pxf::Module* CreateInstance()
-    {
-        Pxf::Modules::AudioImporter *m = new Pxf::Modules::AudioImporter("snd", Module_Kernel_Version, Module_Api_Version);
-        return m;
-    }
+	PXFEXPORT Pxf::Module* CreateInstance()
+	{
+		Pxf::Modules::AudioImporter *m = new Pxf::Modules::AudioImporter("snd", Module_Kernel_Version, Module_Api_Version);
+		return m;
+	}
 
-    PXFEXPORT void DestroyInstance(Pxf::Module* _module)
-    {
-        if (_module)
-        {
-            delete _module;
-        }
-    }
+	PXFEXPORT void DestroyInstance(Pxf::Module* _module)
+	{
+		if (_module)
+		{
+			delete _module;
+		}
+	}
 }
 
 bool Pxf::Modules::AudioImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
@@ -43,12 +43,12 @@ bool Pxf::Modules::AudioImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned 
 		_Kernel->RegisterAudioDevice(device);
 		retval = true;
 	}
-    if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
-    {
-        Pxf::Modules::OggAudioLoader* oggloader = new Pxf::Modules::OggAudioLoader(_Kernel);
-        _Kernel->RegisterResourceLoader("ogg", oggloader);
+	if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
+	{
+		Pxf::Modules::OggAudioLoader* oggloader = new Pxf::Modules::OggAudioLoader(_Kernel);
+		_Kernel->RegisterResourceLoader("ogg", oggloader);
 		retval = true;
-    }
-    
-    return retval;
+	}
+	
+	return retval;
 }

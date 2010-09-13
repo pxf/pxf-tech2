@@ -46,7 +46,7 @@ void InputDeviceGLFW::mouse_callback(int _Button, int _Action)
 // END -- GLFW callbacks
 
 InputDeviceGLFW::InputDeviceGLFW(Pxf::Kernel* _Kernel)
-            : Pxf::Input::InputDevice(_Kernel, "GLFW Input Device")
+			: Pxf::Input::InputDevice(_Kernel, "GLFW Input Device")
 {
 	// Singleton hack for our GLFW callbacks to work
 	Instance = this;

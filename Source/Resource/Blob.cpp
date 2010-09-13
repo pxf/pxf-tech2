@@ -12,7 +12,7 @@ Resource::Blob::~Blob()
 }
 
 Resource::BlobLoader::BlobLoader(Pxf::Kernel* _Kernel)
-    : ResourceLoader(_Kernel, "Blob loader")
+	: ResourceLoader(_Kernel, "Blob loader")
 {
 }
 
@@ -22,13 +22,16 @@ Resource::BlobLoader::~BlobLoader()
 
 Resource::Blob* Resource::BlobLoader::Load(const char* _FilePath)
 {
-    Resource::Chunk* chunk = Resource::LoadFile(_FilePath);                   
-    if (!chunk)
-    {
-        Pxf::Message("BlobLoader", "Unable to create chunk from file '%s'", _FilePath);
-        return NULL;
-    }
-    return new Resource::Blob(m_Kernel, chunk, this);
+	if (!_FilePath)
+		return NULL;
+
+	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);				   
+	if (!chunk)
+	{
+		Pxf::Message("BlobLoader", "Unable to create chunk from file '%s'", _FilePath);
+		return NULL;
+	}
+	return new Resource::Blob(m_Kernel, chunk, this);
 }
 
 Resource::Blob* Resource::BlobLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)

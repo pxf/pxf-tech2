@@ -280,7 +280,7 @@ void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachm
 
 	FrameBufferObject* _OldFBO = m_pDevice->BindFrameBufferObject(this);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, _Attachment,
-                             GL_RENDERBUFFER_EXT, ((RenderBufferGL2*) _Buffer)->GetHandle());
+							 GL_RENDERBUFFER_EXT, ((RenderBufferGL2*) _Buffer)->GetHandle());
 	m_pDevice->BindFrameBufferObject(_OldFBO);
 
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);

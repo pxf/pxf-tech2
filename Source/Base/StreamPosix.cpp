@@ -75,11 +75,11 @@ bool FileStream::SeekTo(uint _Offset)
 	PXF_ASSERT(m_Offset + _Offset <= m_Size, "FileStream::SeekTo: Seeking past EOF");
 	PXF_ASSERT(_Offset >= 0 && _Offset <= m_Size, "FileStream::SeekTo: Invalid offset");
 	bool ret = fseek((FILE*)m_Handle, _Offset, SEEK_SET) >= 0;
-    if (ret)
-    {
-        m_Offset = _Offset;
-        m_Remaining = m_Size - _Offset;
-    }
+	if (ret)
+	{
+		m_Offset = _Offset;
+		m_Remaining = m_Size - _Offset;
+	}
 	return ret;
 }
 
@@ -89,8 +89,8 @@ bool FileStream::SeekToStart()
 	bool ret = fseek((FILE*)m_Handle, 0, SEEK_SET) >= 0;
 	if (ret)
 	{
-        m_Offset = 0;
-        m_Remaining = m_Size;
+		m_Offset = 0;
+		m_Remaining = m_Size;
 	}
 	return ret;
 }
@@ -99,11 +99,11 @@ bool FileStream::SeekToEnd()
 {
 	PXF_ASSERT(IsValid(), "FileStream::SeekToEnd: Invalid handle");
 	bool ret = fseek((FILE*)m_Handle, 0, SEEK_END) >= 0;
-    if (ret)
-    {
-        m_Offset = m_Size;
-        m_Remaining = 0;
-    }
+	if (ret)
+	{
+		m_Offset = m_Size;
+		m_Remaining = 0;
+	}
 	return ret;
 }
 

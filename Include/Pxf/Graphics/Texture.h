@@ -9,7 +9,7 @@ namespace Pxf
 {
 	namespace Graphics
 	{
-        class GraphicsDevice;
+		class GraphicsDevice;
 		
 		//! Abstract texture class
 		class Texture : public DeviceResource

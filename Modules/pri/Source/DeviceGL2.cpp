@@ -26,7 +26,7 @@ using namespace Pxf::Modules;
 using Util::String;
 
 DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
-    : GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
+	: GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
 	, m_CurrentFrameBufferObject(0)
 	, m_CurrentShader(0)
 {
@@ -41,7 +41,7 @@ DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
 	
 	// Clear BindTexture history
 	for(int i = 0; i < 16; ++i)
-        m_BindHistory[i] = NULL;
+		m_BindHistory[i] = NULL;
 	
 }
 
@@ -135,15 +135,15 @@ Texture* DeviceGL2::CreateTextureFromData(const unsigned char* _datachunk, int _
 
 Texture* DeviceGL2::BindTexture(Texture* _texture)
 {
-    Texture* ret = m_BindHistory[0];
-    m_BindHistory[0] = _texture;
-    if (_texture == NULL)
-    {
-        glBindTexture(GL_TEXTURE_2D, 0);
-    } else {
-        glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
-    }
-    return ret;
+	Texture* ret = m_BindHistory[0];
+	m_BindHistory[0] = _texture;
+	if (_texture == NULL)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
+	}
+	return ret;
 }
 
 static GLuint _texture_units_array[16] = {GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2, GL_TEXTURE3, GL_TEXTURE4,
@@ -152,22 +152,22 @@ static GLuint _texture_units_array[16] = {GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2,
 										GL_TEXTURE15};
 Texture* DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
 {
-    Texture* ret = m_BindHistory[_texture_unit];
-    m_BindHistory[_texture_unit] = _texture;
+	Texture* ret = m_BindHistory[_texture_unit];
+	m_BindHistory[_texture_unit] = _texture;
 	glActiveTextureARB(_texture_units_array[_texture_unit]);
-    if (_texture == NULL)
-    {
-    	glBindTexture(GL_TEXTURE_2D, 0);
-    } else {
-    	glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
-    }
-    return ret;
+	if (_texture == NULL)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
+	}
+	return ret;
 }
 
 void DeviceGL2::DestroyTexture(Graphics::Texture* _texture)
 {
   if (_texture)
-    delete _texture;
+	delete _texture;
 }
 
 Model* DeviceGL2::CreateModel(const char* _FilePath)
@@ -216,14 +216,14 @@ static unsigned LookupPrimitiveType(VertexBufferPrimitiveType _PrimitiveType)
 
 void DeviceGL2::DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount)
 {
-    PXF_ASSERT(_VertexCount <= _pVertexBuffer->GetVertexCount(), "Attempting to draw too many vertices");
-    _pVertexBuffer->_PreDraw();
-    GLuint primitive = LookupPrimitiveType(_pVertexBuffer->GetPrimitive());
-    unsigned vertex_count = _pVertexBuffer->GetVertexCount();
-    if (_VertexCount > 0)
-        vertex_count = _VertexCount;
-    glDrawArrays(primitive, 0, vertex_count);
-    _pVertexBuffer->_PostDraw();
+	PXF_ASSERT(_VertexCount <= _pVertexBuffer->GetVertexCount(), "Attempting to draw too many vertices");
+	_pVertexBuffer->_PreDraw();
+	GLuint primitive = LookupPrimitiveType(_pVertexBuffer->GetPrimitive());
+	unsigned vertex_count = _pVertexBuffer->GetVertexCount();
+	if (_VertexCount > 0)
+		vertex_count = _VertexCount;
+	glDrawArrays(primitive, 0, vertex_count);
+	_pVertexBuffer->_PostDraw();
 }
 
 RenderBuffer* DeviceGL2::CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height)

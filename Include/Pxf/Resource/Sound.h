@@ -16,14 +16,14 @@ namespace Resource {
 
 	public:
 		Sound(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Kernel, _Chunk, _Loader)
-            , m_Length(0.f)
-            , m_Channels(0)
-            , m_SoundData(NULL)
+			: ResourceBase(_Kernel, _Chunk, _Loader)
+			, m_Length(0.f)
+			, m_Channels(0)
+			, m_SoundData(NULL)
 			, m_SoundDataLen(0)
-        {}
+		{}
 		virtual ~Sound()
-        {}
+		{}
 
 		const float Length() const
 		{

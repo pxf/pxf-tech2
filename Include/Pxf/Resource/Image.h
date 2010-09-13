@@ -16,14 +16,14 @@ namespace Resource {
 
 	public:
 		Image(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Kernel, _Chunk, _Loader)
-            , m_Channels(0)
-            , m_Height(0)
-            , m_Width(0)
-            , m_ImageData(NULL)
-        {}
+			: ResourceBase(_Kernel, _Chunk, _Loader)
+			, m_Channels(0)
+			, m_Height(0)
+			, m_Width(0)
+			, m_ImageData(NULL)
+		{}
 		virtual ~Image()
-        {}
+		{}
 
 		const int Width() const
 		{

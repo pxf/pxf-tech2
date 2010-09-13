@@ -66,7 +66,7 @@ void SimpleCamera::SetLookAt(float x,float y,float z)
 
 	m_Model.m[ 2] = m_ZAxis.x;
 	m_Model.m[ 6] = m_ZAxis.y;
-	m_Model.m[10] = m_ZAxis.z;    
+	m_Model.m[10] = m_ZAxis.z;	
 	m_Model.m[14] = -Dot(m_ZAxis, m_Eye);
 
 	m_Orientation.CreateFromMatrix(&m_Model);

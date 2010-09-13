@@ -7,18 +7,18 @@
 namespace Pxf {
 namespace Resource
 {
-    class Blob : public Resource::ResourceBase
-    {
-    protected:
-        virtual bool Build();
-    public:
-        Blob(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-            : Resource::ResourceBase(_Kernel, _Chunk, _Loader)
-        {
-            Build();
-        }
-        
-        virtual ~Blob();
+	class Blob : public Resource::ResourceBase
+	{
+	protected:
+		virtual bool Build();
+	public:
+		Blob(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::ResourceBase(_Kernel, _Chunk, _Loader)
+		{
+			Build();
+		}
+		
+		virtual ~Blob();
 
 		void* GetDataPtr() const
 		{
@@ -34,23 +34,23 @@ namespace Resource
 		{
 			return m_Chunk != 0;
 		}
-    };
+	};
 
-    class BlobLoader : public Resource::ResourceLoader
-    {
-    private:
-        bool Init(){ return true; }
-    public:
-        BlobLoader(Pxf::Kernel* _Kernel);
-        ~BlobLoader();
-        virtual Resource::Blob* Load(const char* _FilePath);
+	class BlobLoader : public Resource::ResourceLoader
+	{
+	private:
+		bool Init(){ return true; }
+	public:
+		BlobLoader(Pxf::Kernel* _Kernel);
+		~BlobLoader();
+		virtual Resource::Blob* Load(const char* _FilePath);
 		virtual Resource::Blob* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        virtual void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Blob*)_Resource;
-        }
-    };
+		virtual void Destroy(void* _Resource)
+		{
+			if (_Resource)
+				delete (Resource::Blob*)_Resource;
+		}
+	};
 }
 }
 

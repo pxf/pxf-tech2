@@ -19,38 +19,38 @@ Resource::ResourceManager::ResourceManager()
 
 Resource::ResourceManager::~ResourceManager()
 {
-    // clean up resource loaders
+	// clean up resource loaders
 	// several extensions might share resource loader, but they are located together.
 	// we use prev to make sure to only delete a pointer once.
 
 	Message("ResourceManager", "Destroying resource manager");
 
 	// clean up loaded resources
-    if (m_LoadedResources->size() > 0)
-    {
-        Message("ResourceManager", "Cleaning up unreleased resources");
-        Util::Map<Util::String, ResourceBase*>::iterator iter;
-        for(iter = m_LoadedResources->begin(); iter != m_LoadedResources->end(); ++iter)
-        {
+	if (m_LoadedResources->size() > 0)
+	{
+		Message("ResourceManager", "Cleaning up unreleased resources");
+		Util::Map<Util::String, ResourceBase*>::iterator iter;
+		for(iter = m_LoadedResources->begin(); iter != m_LoadedResources->end(); ++iter)
+		{
 			Message("ResourceManager", "Deleting resource '%s' [refs = %d]", iter->first.c_str(), iter->second->m_References);
-            iter->second->m_Loader->Destroy(iter->second);
-        }
-    }
+			iter->second->m_Loader->Destroy(iter->second);
+		}
+	}
 
-    if (m_ResourceLoaders->size() > 0)
-    {
-        Util::Map<Util::String, ResourceLoader*>::iterator iter;
-        for(iter = m_ResourceLoaders->begin(); iter != m_ResourceLoaders->end(); ++iter)
-        {
+	if (m_ResourceLoaders->size() > 0)
+	{
+		Util::Map<Util::String, ResourceLoader*>::iterator iter;
+		for(iter = m_ResourceLoaders->begin(); iter != m_ResourceLoaders->end(); ++iter)
+		{
 			if (iter->second)
 				iter->second->Destroy(iter->second);
-        }
-    }
+		}
+	}
 }
 
 void Resource::ResourceManager::RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader)
 {
-    m_ResourceLoaders->insert(std::make_pair(_Ext, _ResourceLoader));
+	m_ResourceLoaders->insert(std::make_pair(_Ext, _ResourceLoader));
 }
 
 void Resource::ResourceManager::DumpResourceLoaders()

@@ -13,7 +13,7 @@
 
 namespace Pxf
 {
-    class Kernel;
+	class Kernel;
 
 	namespace Resource
 	{
@@ -37,9 +37,9 @@ namespace Pxf
 		class GraphicsDevice : public System
 		{
 		public:
-            GraphicsDevice(Pxf::Kernel* _Kernel, const char* _Identifier)
-                : System(_Kernel, Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, _Identifier)
-            {}
+			GraphicsDevice(Pxf::Kernel* _Kernel, const char* _Identifier)
+				: System(_Kernel, Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, _Identifier)
+			{}
 
 			// Windowing
 			virtual Window* OpenWindow(WindowSpecifications* _pWindowSpecs) = 0;
@@ -62,8 +62,8 @@ namespace Pxf
 			virtual Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels) = 0;
 			virtual Texture* BindTexture(Texture* _texture) = 0;
 			virtual Texture* BindTexture(Texture* _texture, unsigned int _texture_unit) = 0; // Multi-texturing
-      virtual void DestroyTexture(Texture* _texture) = 0;
-            
+	  virtual void DestroyTexture(Texture* _texture) = 0;
+			
 			virtual VertexBuffer* CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag) = 0;
 			virtual void DestroyVertexBuffer(VertexBuffer* _pVertexBuffer) = 0;
 			virtual void DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount) = 0;

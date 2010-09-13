@@ -11,7 +11,7 @@ namespace Pxf
 	_PXF_STATIC_ASSERT_NAME_(__LINE__)[(e) ? 1 : -1]
 	#define _PXF_STATIC_ASSERT_NAME_(line)	_PXF_STATIC_ASSERT_NAME2_(line)
 	#define _PXF_STATIC_ASSERT_NAME2_(line)	static_assert_failed_at_line_##line
-    
+	
 	/* Assert */
 	#if defined(CONF_DEBUG) && defined(CONF_COMPILER_MSVC)
 		#define PXF_ASSERT(_Expression, _Message, ...) do{\

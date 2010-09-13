@@ -6,21 +6,22 @@
 
 namespace Pxf
 {
-    namespace Audio
-    {
-        class NullAudioDevice : public Pxf::Audio::AudioDevice
-        {
-        private:
-            virtual bool Init()
-            {   return true;    }
-        public:
-        NullAudioDevice(Pxf::Kernel* _Kernel)
-            : Pxf::Audio::AudioDevice(_Kernel, "Null Audio Device")
-        {}
+	namespace Audio
+	{
+		class NullAudioDevice : public Pxf::Audio::AudioDevice
+		{
+		private:
+			virtual bool Init()
+			{   return true;	}
+		public:
+		NullAudioDevice(Pxf::Kernel* _Kernel)
+			: Pxf::Audio::AudioDevice(_Kernel, "Null Audio Device")
+		{}
 
 		virtual ~NullAudioDevice(){};
 
-		virtual bool Initialize(){ return true; };
+		virtual bool Initialize(unsigned int _BufferSize, unsigned int _MaxVoices)
+		{ return true; };
 
 		virtual int RegisterSound(const char* _Filename)
 		{
@@ -42,23 +43,23 @@ namespace Pxf
 
 		}
 
-        virtual void Play(int _SoundID, bool _Loop)
-        {}
-        virtual void Stop(int _SoundID)
-        {}
-        virtual void StopAll()
-        {}
-        virtual void Pause(int _SoundID)
-        {}
-        virtual void PauseAll()
-        {}
+		virtual void Play(int _SoundID, bool _Loop)
+		{}
+		virtual void Stop(int _SoundID)
+		{}
+		virtual void StopAll()
+		{}
+		virtual void Pause(int _SoundID)
+		{}
+		virtual void PauseAll()
+		{}
 
 		virtual void DumpInfo()
 		{
 			Message("Audio", "Using dummy audio device");
 		}
-        };
-    }
+		};
+	}
 }
 
 #endif // _PXF_AUDIODEVICE_NULLAUDIODEVICE_H_

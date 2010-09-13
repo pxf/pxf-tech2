@@ -36,8 +36,8 @@ namespace Resource {
 		mesh_descriptor m_MeshData;
 	public:
 		Mesh(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
-            : ResourceBase(_Kernel, _Chunk, _Loader)
-        {
+			: ResourceBase(_Kernel, _Chunk, _Loader)
+		{
 			m_MeshData.has_normals = false;
 			m_MeshData.vertex_count = 0;
 			m_MeshData.triangle_count = 0;
@@ -47,7 +47,7 @@ namespace Resource {
 		}
 
 		virtual ~Mesh()
-        {}
+		{}
 
 		virtual const bool IsReady() const
 		{
