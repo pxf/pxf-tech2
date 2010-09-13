@@ -18,6 +18,7 @@ namespace Pxf{
 			bool Close();
 			void Swap();
 
+			void SetResizeCallback(WindowSizeCallback fun);
 			void SetTitle(const char *_title);
 
 			int GetFPS();
