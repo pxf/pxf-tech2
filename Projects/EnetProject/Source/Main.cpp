@@ -38,7 +38,7 @@ int main(int argv, char *argc[])
 		{
 			packet = server->Recv();
 			Message("Main Server", "Got packet \"%s\"", packet->GetData());
-			sleep(1);
+			//sleep(1);
 			server->SendAll(def, "lol");
 			Message("Main", "SendAll");
 		}
