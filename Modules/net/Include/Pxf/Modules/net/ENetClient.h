@@ -8,6 +8,7 @@
 #include <Pxf/Modules/net/ENetDefs.h>
 
 #include <enet/enet.h>
+#include <string.h>
 
 namespace Pxf 
 {
@@ -25,8 +26,10 @@ namespace Pxf
 			ENetAddress Address;
 			ENetHost *Client;
 			ENetPeer *Peer;
-
+			
 		public:
+			int Ident;
+			
 			ENetClient(const char* _Host, const int _Port);
 
 			virtual bool Connect();
@@ -34,7 +37,8 @@ namespace Pxf
 			virtual bool Connected();
 
 			virtual Network::Packet* Recv();
-			virtual bool Send(const char* _Buf, const int _Length);
+			virtual bool Send(const int _Type, const char* _Buf);
+
 		};
 	}
 }

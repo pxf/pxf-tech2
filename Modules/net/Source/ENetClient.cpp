@@ -36,7 +36,7 @@ bool ENetClient::Connect()
 	if (enet_host_service(Client, &event, 5000) > 0 &&
 		event.type == ENET_EVENT_TYPE_CONNECT)
 	{
-		Message("ENetClient", "Connection established.");
+		Message("ENetClient", "Connection established. Client %d.", Ident);
 		return true;
 	}
 	else
@@ -96,8 +96,8 @@ Pxf::Network::Packet* ENetClient::Recv()
 			break;
 
 		case ENET_EVENT_TYPE_RECEIVE:
-			Message("ENetClient", "Packet received from %s on channel %u. Length %u."
-				, event.peer->data, event.channelID, event.packet->dataLength);
+			Message("ENetClient", "Client %d. Packet received from %s on channel %u. Length %u."
+				, Ident, event.peer->data, event.channelID, event.packet->dataLength);
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetClient", "Packet too large (%u > %d), throwing."
@@ -127,14 +127,14 @@ Pxf::Network::Packet* ENetClient::Recv()
 
 // TODO: Add support for different priorities.
 // TODO: Add support for use of different channels.
-bool ENetClient::Send(const char* _Buf, const int _Length)
+bool ENetClient::Send(const int _Type, const char* _Buf)
 {
 	ENetPacket *packet;
 
-	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
 
 	// Send over channel 0.
-	enet_peer_send(Peer, 0, packet);
+	enet_peer_send(Peer, _Type, packet);
 
 	// TODO: Need a way of destroying the packets.
 //	enet_host_flush(Client);

@@ -1,0 +1,53 @@
+- 3:
+
+[ ] renderare:
+  [ ] int. json till block
+  [ ] blockstruktur
+  [ ] 
+[ ] editor:
+  [ ] block som genererar "output"
+  [ ] designkonceptualisering
+  [ ] etablera GUI-layout
+  [ ] 
+[ ] allmänt
+  [ ] LUA bindings för nätverk
+
+- 4:
+
+[ ] renderare:
+  [ ] utföra block/träd
+  [ ] skicka resultat
+[ ] editor:
+  [ ] ta emot resultat från editorn
+  [ ] göra klart guit
+
+- 5:
+
+
+- 6:
+
+[ ] crunch
+[ ] renderare:
+  [ ] interp. json
+  [ ] behandla data
+  [ ] skicka resultat
+  [ ] kommunicera med editor
+  [ ] ladda resurser
+    [ ] lokalt
+	 [ ] editor
+  [ ] profiling för varje komponent
+[ ] editor:
+  [ ] GUI design
+  [ ] workspace
+  [ ] block genererar json/shaderkod
+  [ ] ladda/spara
+  [ ] komponentbibliotek
+  [ ] få data från renderaren samt visa resultat
+
+- 7:
+
+[ ] rapport
+[ ] dokumentation
+[ ] bugfix
+[ ] presentation
+
