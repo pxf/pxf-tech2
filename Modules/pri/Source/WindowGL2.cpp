@@ -108,7 +108,7 @@ bool WindowGL2::Open()
 
 #ifdef CONF_PLATFORM_MACOSX
 		/* HACK - Get events without bundle */
-		ProcessSerialNumber psn;    
+		ProcessSerialNumber psn;	
 		GetCurrentProcess(&psn);
 		TransformProcessType(&psn,kProcessTransformToForegroundApplication);
 		SetFrontProcess(&psn);

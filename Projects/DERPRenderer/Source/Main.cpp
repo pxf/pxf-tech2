@@ -47,23 +47,23 @@ struct MyVertex
 
 int main()
 {
-    Pxf::RandSetSeed(time(NULL));
-    Kernel* kernel = Pxf::Kernel::GetInstance();
+	Pxf::RandSetSeed(time(NULL));
+	Kernel* kernel = Pxf::Kernel::GetInstance();
 
 	// Just load everything
-    kernel->RegisterModule("pri", 0xFFFF, true);
-    kernel->RegisterModule("img", 0xFFFF, true);
+	kernel->RegisterModule("pri", 0xFFFF, true);
+	kernel->RegisterModule("img", 0xFFFF, true);
 	kernel->RegisterModule("mesh", 0xFFFF, true);
 	kernel->RegisterModule("snd", 0xFFFF, true);
 	kernel->RegisterModule("json", 0xFFFF, true);
 	kernel->RegisterModule("net", 0xFFFF, true);
-    kernel->DumpAvailableModules();
+	kernel->DumpAvailableModules();
 
-    Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
-    Audio::AudioDevice* snd = kernel->GetAudioDevice();
-    Input::InputDevice* inp = kernel->GetInputDevice();
-    Resource::ResourceManager* res = kernel->GetResourceManager();
-    res->DumpResourceLoaders();
+	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
+	Audio::AudioDevice* snd = kernel->GetAudioDevice();
+	Input::InputDevice* inp = kernel->GetInputDevice();
+	Resource::ResourceManager* res = kernel->GetResourceManager();
+	res->DumpResourceLoaders();
 
 	// load settings
 	Resource::Json* jdoc = res->Acquire<Resource::Json>("data/config.json");
@@ -95,19 +95,19 @@ int main()
 	int tick_id = snd->RegisterSound("data/tick.ogg");
 	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
 
-    Graphics::WindowSpecifications spec;
-    spec.Width = settings["video"].get("width", 800).asInt();
-    spec.Height = settings["video"].get("height", 600).asInt();
-    spec.ColorBits = 24;
-    spec.AlphaBits = 8;
-    spec.DepthBits = 8;
-    spec.StencilBits = 0;
-    spec.FSAASamples = 0;
-    spec.Fullscreen = false;
-    spec.Resizeable = false;
-    spec.VerticalSync = settings["video"].get("vsync", true).asBool();
-    
-    Graphics::Window* win = gfx->OpenWindow(&spec);
+	Graphics::WindowSpecifications spec;
+	spec.Width = settings["video"].get("width", 800).asInt();
+	spec.Height = settings["video"].get("height", 600).asInt();
+	spec.ColorBits = 24;
+	spec.AlphaBits = 8;
+	spec.DepthBits = 8;
+	spec.StencilBits = 0;
+	spec.FSAASamples = 0;
+	spec.Fullscreen = false;
+	spec.Resizeable = false;
+	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
+	
+	Graphics::Window* win = gfx->OpenWindow(&spec);
 	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
@@ -176,7 +176,7 @@ int main()
 	float cam_z = 15.0f;
 
 	while(win->IsOpen())
-    {
+	{
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 
@@ -259,10 +259,10 @@ int main()
 		win->Swap();
 
 		glPopMatrix();
-    }
-    
+	}
+	
 
-    delete kernel;
-    return 0;
+	delete kernel;
+	return 0;
 }
 

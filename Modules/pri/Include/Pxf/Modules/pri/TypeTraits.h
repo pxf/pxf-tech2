@@ -113,20 +113,20 @@ namespace Pxf
 			}
 
 			// OpenGL type traits
-			//    http://www.gamedev.net/reference/programming/features/ogltypetraits/
-			//    http://www.gamedev.net/community/forums/topic.asp?topic_id=510016&whichpage=1&#3325591
+			//	http://www.gamedev.net/reference/programming/features/ogltypetraits/
+			//	http://www.gamedev.net/community/forums/topic.asp?topic_id=510016&whichpage=1&#3325591
 
 			template <class T>
 			struct OpenGL_Traits {};
 
 			OPENGL_TRAIT(unsigned int,   GL_UNSIGNED_INT,   1);
-			OPENGL_TRAIT(int,            GL_INT,            1);
+			OPENGL_TRAIT(int,			GL_INT,			1);
 			OPENGL_TRAIT(unsigned short, GL_UNSIGNED_SHORT, 1);
-			OPENGL_TRAIT(short,          GL_SHORT,          1);
-			OPENGL_TRAIT(float,          GL_FLOAT,          1);
-			OPENGL_TRAIT(double,         GL_DOUBLE,         1);
-			OPENGL_TRAIT(bool,           GL_BOOL,           1);
-			OPENGL_TRAIT(char,           GL_BYTE,           1);
+			OPENGL_TRAIT(short,		  GL_SHORT,		  1);
+			OPENGL_TRAIT(float,		  GL_FLOAT,		  1);
+			OPENGL_TRAIT(double,		 GL_DOUBLE,		 1);
+			OPENGL_TRAIT(bool,		   GL_BOOL,		   1);
+			OPENGL_TRAIT(char,		   GL_BYTE,		   1);
 			OPENGL_TRAIT_T(Math::Vector2D<T>, OpenGL_Traits<T>::GL_TYPE, 2);
 			OPENGL_TRAIT_T(Math::Vector3D<T>, OpenGL_Traits<T>::GL_TYPE, 3);
 			OPENGL_TRAIT_T(Math::Vector4D<T>, OpenGL_Traits<T>::GL_TYPE, 4);

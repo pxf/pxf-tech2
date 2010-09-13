@@ -8,9 +8,9 @@
 namespace Pxf{
 namespace Resource
 {
-    class Chunk;
+	class Chunk;
 }
-    
+	
 namespace Modules {
 
 	class JsonCpp : public Resource::Json
@@ -18,7 +18,7 @@ namespace Modules {
 	protected:
 		::Json::Reader m_Reader;
 		::Json::Value m_Root;
-        virtual bool Build();
+		virtual bool Build();
 	public:
 		JsonCpp(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
 			: Resource::Json(_Kernel, _Chunk,_Loader)
@@ -42,16 +42,16 @@ namespace Modules {
 	};
 
 	class JsonCppLoader : public Resource::JsonLoader
-    {
-    private:
-        bool Init();
-    public:
-        JsonCppLoader(Pxf::Kernel* _Kernel);
-        virtual ~JsonCppLoader();
-        virtual Resource::Json* Load(const char* _FilePath);
+	{
+	private:
+		bool Init();
+	public:
+		JsonCppLoader(Pxf::Kernel* _Kernel);
+		virtual ~JsonCppLoader();
+		virtual Resource::Json* Load(const char* _FilePath);
 		virtual Resource::Json* CreateFrom(const void* _DataPtr, unsigned _DataLen);
 		virtual Resource::Json* CreateEmpty();
-    };
+	};
 
 } // Graphics
 } // Pxf

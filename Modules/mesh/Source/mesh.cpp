@@ -17,29 +17,29 @@ REGISTER_MODULE(CtmMeshImporter, "mesh", Module_Kernel_Version, Module_Api_Versi
 
 namespace CtmMeshLoader_
 {
-    PXFEXPORT Pxf::Module* CreateInstance()
-    {
-        Pxf::Modules::CtmMeshImporter *m = new Pxf::Modules::CtmMeshImporter("mesh", Module_Kernel_Version, Module_Api_Version);
-        return m;
-    }
+	PXFEXPORT Pxf::Module* CreateInstance()
+	{
+		Pxf::Modules::CtmMeshImporter *m = new Pxf::Modules::CtmMeshImporter("mesh", Module_Kernel_Version, Module_Api_Version);
+		return m;
+	}
 
-    PXFEXPORT void DestroyInstance(Pxf::Module* _module)
-    {
-        if (_module)
-        {
-            delete _module;
-        }
-    }
+	PXFEXPORT void DestroyInstance(Pxf::Module* _module)
+	{
+		if (_module)
+		{
+			delete _module;
+		}
+	}
 }
 
 bool Pxf::Modules::CtmMeshImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
-    if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
-    {
-        Pxf::Modules::CtmMeshLoader* loader = new Pxf::Modules::CtmMeshLoader(_Kernel);
-        _Kernel->RegisterResourceLoader("ctm", loader);
-        return true;
-    }
-    
-    return false;
+	if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
+	{
+		Pxf::Modules::CtmMeshLoader* loader = new Pxf::Modules::CtmMeshLoader(_Kernel);
+		_Kernel->RegisterResourceLoader("ctm", loader);
+		return true;
+	}
+	
+	return false;
 }

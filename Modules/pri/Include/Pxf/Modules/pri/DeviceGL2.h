@@ -8,8 +8,8 @@
 #include <Pxf/Modules/pri/WindowGL2.h>
 
 namespace Pxf{
-    namespace Graphics
-    {
+	namespace Graphics
+	{
 		class QuadBatch;
 		class VertexBuffer;
 		class RenderTarget;
@@ -17,7 +17,7 @@ namespace Pxf{
 		class FrameBufferObject;
 		class Shader;
 		class Model;
-    }
+	}
 
 	namespace Resource
 	{
@@ -85,12 +85,12 @@ namespace Pxf{
 			virtual void SetUniformMat4(Graphics::Shader* _Shader, const char* _name, const Math::Mat4* _value);
 
 		private:
-            bool Init(){ return true; };
+			bool Init(){ return true; };
 			Graphics::Window* m_Window;
 			Graphics::FrameBufferObject* m_CurrentFrameBufferObject;
 			Graphics::Shader* m_CurrentShader;
 			
-            Graphics::Texture* m_BindHistory[16];
+			Graphics::Texture* m_BindHistory[16];
 		};
 
 	} // Graphics

@@ -14,24 +14,24 @@ REGISTER_MODULE(SampleModule, Module_Kernel_Version, Module_Api_Version);
 
 namespace SampleModule_
 {
-    PXFEXPORT Pxf::Module* CreateInstance()
-    {
-        Pxf::Modules::SampleModule *m = new Pxf::Modules::SampleModule("SampleModule", Module_Kernel_Version, Module_Api_Version);
-        return m;
-    }
+	PXFEXPORT Pxf::Module* CreateInstance()
+	{
+		Pxf::Modules::SampleModule *m = new Pxf::Modules::SampleModule("SampleModule", Module_Kernel_Version, Module_Api_Version);
+		return m;
+	}
 
-    PXFEXPORT void DestroyInstance(Pxf::Module* _module)
-    {
-        if (_module)
-        {
-            delete _module;
-        }
-    }
+	PXFEXPORT void DestroyInstance(Pxf::Module* _module)
+	{
+		if (_module)
+		{
+			delete _module;
+		}
+	}
 }
 
 
 bool Pxf::Modules::SampleModule::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType, unsigned _Identifier)
 {
-    Message("SampleModule", "Checking module for system type %d", _SystemType);
-    return false;
+	Message("SampleModule", "Checking module for system type %d", _SystemType);
+	return false;
 }

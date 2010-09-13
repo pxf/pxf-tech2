@@ -4,11 +4,11 @@
 #include <Pxf/Graphics/FrameBufferObject.h>
 
 namespace Pxf{
-    namespace Graphics
-    {
+	namespace Graphics
+	{
 		class GraphicsDevice;
 		class RenderBuffer;
-    }
+	}
 
 	namespace Modules {
 		class FrameBufferObjectGL2 : public Graphics::FrameBufferObject

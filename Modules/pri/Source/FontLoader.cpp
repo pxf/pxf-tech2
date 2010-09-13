@@ -15,12 +15,12 @@ using namespace Modules;
 bool BitmapFont::Build()
 {
 	// Set constant values
-	const uint32 HEADER           = ByteswapNtoL(0xBADC0FFE);	
-	const uint32 SECTION_INFO     = ByteswapNtoL(0x53C70001);
+	const uint32 HEADER		   = ByteswapNtoL(0xBADC0FFE);	
+	const uint32 SECTION_INFO	 = ByteswapNtoL(0x53C70001);
 	const uint32 SECTION_COMMON   = ByteswapNtoL(0x53C70002);
-	const uint32 SECTION_CHARS    = ByteswapNtoL(0x53C70003);
+	const uint32 SECTION_CHARS	= ByteswapNtoL(0x53C70003);
 	const uint32 SECTION_KERNINGS = ByteswapNtoL(0x53C70004);
-	const uint32 SECTION_IMAGE    = ByteswapNtoL(0x53C70005);
+	const uint32 SECTION_IMAGE	= ByteswapNtoL(0x53C70005);
 
 	// Check chunk
 	if (m_Chunk->size < 512) // Appropriate value? Anyone? Hm. :/
@@ -84,15 +84,15 @@ bool BitmapFont::Build()
 	for(int i = 0; i < num_chars; i++)
 	{
 		int16 id = data.ReadLE<int16>();
-		m_CharInfo[id].Width    = float(data.ReadLE<int16>());
+		m_CharInfo[id].Width	= float(data.ReadLE<int16>());
 		m_CharInfo[id].Height   = float(data.ReadLE<int16>());
 		m_CharInfo[id].XOffset  = float(data.ReadLE<int16>());
 		m_CharInfo[id].YOffset  = float(data.ReadLE<int16>());
 		m_CharInfo[id].XAdvance = float(data.ReadLE<int16>());
-		m_CharInfo[id].Tx1      = data.ReadLE<float>();
-		m_CharInfo[id].Ty1      = data.ReadLE<float>();
-		m_CharInfo[id].Tx2      = data.ReadLE<float>();
-		m_CharInfo[id].Ty2      = data.ReadLE<float>();
+		m_CharInfo[id].Tx1	  = data.ReadLE<float>();
+		m_CharInfo[id].Ty1	  = data.ReadLE<float>();
+		m_CharInfo[id].Tx2	  = data.ReadLE<float>();
+		m_CharInfo[id].Ty2	  = data.ReadLE<float>();
 	}
 
 	if (data.ReadLE<uint32>() != SECTION_KERNINGS)
@@ -192,7 +192,7 @@ bool BitmapFontLoader::Init()
 
 Resource::Font* BitmapFontLoader::Load(const char* _FilePath)
 {
-	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);                   
+	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);				   
 	if (!chunk)
 	{
 		Message("FontLoader", "Unable to create chunk from file '%s'", _FilePath);

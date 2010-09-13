@@ -18,29 +18,29 @@ REGISTER_MODULE(JsonImporter, "json", Module_Kernel_Version, Module_Api_Version)
 
 namespace JsonImporter_
 {
-    PXFEXPORT Pxf::Module* CreateInstance()
-    {
-        Pxf::Modules::JsonImporter *m = new Pxf::Modules::JsonImporter("json", Module_Kernel_Version, Module_Api_Version);
-        return m;
-    }
+	PXFEXPORT Pxf::Module* CreateInstance()
+	{
+		Pxf::Modules::JsonImporter *m = new Pxf::Modules::JsonImporter("json", Module_Kernel_Version, Module_Api_Version);
+		return m;
+	}
 
-    PXFEXPORT void DestroyInstance(Pxf::Module* _module)
-    {
-        if (_module)
-        {
-            delete _module;
-        }
-    }
+	PXFEXPORT void DestroyInstance(Pxf::Module* _module)
+	{
+		if (_module)
+		{
+			delete _module;
+		}
+	}
 }
 
 bool Pxf::Modules::JsonImporter::RegisterSystem(Pxf::Kernel* _Kernel, unsigned _SystemType)
 {
-    if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
-    {
-        Pxf::Modules::JsonCppLoader* loader = new Pxf::Modules::JsonCppLoader(_Kernel);
-        _Kernel->RegisterResourceLoader("json", loader);
-        return true;
-    }
-    
-    return false;
+	if (_SystemType & Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER)
+	{
+		Pxf::Modules::JsonCppLoader* loader = new Pxf::Modules::JsonCppLoader(_Kernel);
+		_Kernel->RegisterResourceLoader("json", loader);
+		return true;
+	}
+	
+	return false;
 }
