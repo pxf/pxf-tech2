@@ -198,6 +198,11 @@ bool WindowGL2::IsMinimized()
 	return false;
 }
 
+void WindowGL2::SetResizeCallback(WindowSizeCallback fun)
+{
+	glfwSetWindowSizeCallback(fun);
+}
+
 void WindowGL2::SetTitle(const char *_title)
 {
 	if (IsOpen())

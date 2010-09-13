@@ -7,11 +7,14 @@ namespace Pxf{
 		class Window
 		{
 		public:
+			typedef void(*WindowSizeCallback)(int _Width, int _Height);
+
 			virtual ~Window(){};
 			virtual bool Open() = 0;
 			virtual bool Close() = 0;
 			virtual void Swap() = 0;
 
+			virtual void SetResizeCallback(WindowSizeCallback fun) = 0;
 			virtual void SetTitle(const char *_title) = 0;
 
 			virtual int GetFPS() = 0;
