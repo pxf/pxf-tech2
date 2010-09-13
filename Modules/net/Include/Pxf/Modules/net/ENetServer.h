@@ -6,6 +6,7 @@
 
 #include <Pxf/Modules/net/ENetDevice.h>
 #include <Pxf/Modules/net/ENetDefs.h>
+#include <Pxf/Base/Platform.h>
 
 #include <Pxf/Util/Array.h>
 #include <enet/enet.h>
@@ -39,6 +40,7 @@ namespace Pxf
 			virtual bool Shutdown();
 			
 			virtual Network::Packet* Recv();
+			virtual Network::Packet* RecvNonBlocking(const int _Timeout);
 			virtual bool Send(const int _Client, const int _Type, const char* _Buf);
 			virtual bool SendAll(const int _Type, const char* _Buf);
 		};

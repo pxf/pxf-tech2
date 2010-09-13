@@ -16,6 +16,7 @@ namespace Pxf
 			virtual bool Shutdown() = 0;
 
 			virtual Packet* Recv() = 0;
+			virtual Packet* RecvNonBlocking(const int _Timeout) = 0;
 			virtual bool Send(const int _Client, const int _Type, const char* _Buf) = 0;
 			virtual bool SendAll(const int _Type, const char* _Buf) = 0;
 		};
