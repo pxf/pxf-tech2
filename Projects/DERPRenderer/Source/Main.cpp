@@ -108,7 +108,7 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	
 	Graphics::Window* win = gfx->OpenWindow(&spec);
-	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
+	Graphics::Model* test_model = gfx->CreateModel("data/box.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
 
@@ -220,12 +220,11 @@ int main()
 		//gfx->SetProjection(cam.GetProjectionView());
 		//gfx->SetModelView(cam.GetModelView());
 
-		/*
 		glBegin(GL_TRIANGLES);
 		glVertex3f(0.0f,0.0f,0.0f);
 		glVertex3f(1.0f,0.0f,0.0f);
 		glVertex3f(0.0f,1.0f,0.0f);
-		glEnd(); */
+		glEnd(); 
 		
 		//glRotatef(a,1.0f,0.0f,0.0f);
 		test_model->Draw();

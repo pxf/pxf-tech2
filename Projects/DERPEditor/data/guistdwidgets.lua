@@ -839,8 +839,12 @@ function gui:create_menu(x,y,menu)
           -- clickable menu item
           self.menu[i][2]:onclick(self,mx, my, button)
           
+		  if ( not (self.menu[i][2].toggle == nil) ) then
+			-- execute function
+			self.menu[i][2].toggle = not self.menu[i][2].toggle
+
           -- close the whole tree!
-          if (self.menu_root) then
+          elseif (self.menu_root) then
             self.menu_root:destroy()
           else
             self:destroy() -- we are the root
@@ -911,7 +915,7 @@ function gui:create_menu(x,y,menu)
         end
         
         -- item
-        gui:drawfont(v[1], 10, item_y + 12)
+        gui:drawfont(v[1], 20, item_y + 12)
         
         -- short
         if not (v[2].shortcut == nil) then
@@ -921,6 +925,8 @@ function gui:create_menu(x,y,menu)
           gfx.setcolor(r,g,b)
         elseif not (v[2].menu == nil) then
           gui:drawfont(">", self.stdwith-8, item_y + 12)
+		elseif v[2].toggle then
+		  gui:drawfont("*",10,item_y+14)
         end
         
         item_y = item_y + self.itemheight

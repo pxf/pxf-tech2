@@ -42,7 +42,6 @@ DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
 	// Clear BindTexture history
 	for(int i = 0; i < 16; ++i)
 		m_BindHistory[i] = NULL;
-	
 }
 
 DeviceGL2::~DeviceGL2()

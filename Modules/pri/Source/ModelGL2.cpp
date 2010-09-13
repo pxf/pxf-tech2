@@ -59,6 +59,10 @@ bool ModelGL2::Load(Resource::Mesh* _Mesh)
 	for(int i = 0; i < bufSize; i++)
 	{
 		bufp[i] = p[i];
+
+		if( (i % 3) == 0)
+			printf("---\n");
+
 		printf("%f\n",bufp[i]);
 	}
 

@@ -29,6 +29,11 @@ local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C"
                   }
 local about_menu = {{"About DERPEditor", {onclick = function () spawn_aboutwindow() end}}
                    }
+
+local window_menu = {{"Inspector",{toggle = false, onclick = function() end}},
+					 {"Toolbar",{toggle = true, onclick = function() end}},
+					 {"Navigator",{toggle = false, onclick = function() end}}
+					}
                    
 ----------------------------------------------
 -- create workspace
@@ -43,6 +48,7 @@ local topstack = gui:create_verticalstack(0,0,app.width)
 local menubar = gui:create_menubar(0,0,app.width)
 menubar:addwidget(gui:create_menubutton("File",file_menu))
 menubar:addwidget(gui:create_menubutton("Edit",edit_menu))
+menubar:addwidget(gui:create_menubutton("Window",window_menu))
 menubar:addwidget(gui:create_menubutton("About",about_menu))
 
 local console = gui:create_console(0,0,app.width,100,false)

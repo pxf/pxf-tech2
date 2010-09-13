@@ -393,5 +393,8 @@
     <None Include="data\guistdwidgets.lua">
       <Filter>Editor\Data</Filter>
     </None>
+    <None Include="data\guibase.lua">
+      <Filter>Editor\Data</Filter>
+    </None>
   </ItemGroup>
 </Project>

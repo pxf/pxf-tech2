@@ -71,7 +71,7 @@ void InputDeviceGLFW::Update()
 	if (!initialized)
 	{
 		glfwEnable(GLFW_KEY_REPEAT);
-		glfwDisable(GLFW_SYSTEM_KEYS);
+		//glfwDisable(GLFW_SYSTEM_KEYS);
 
 		// Setup GLFW callbacks
 		glfwSetCharCallback(char_callback);
