@@ -4,6 +4,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Timer.h>
 
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
@@ -32,6 +33,10 @@ extern "C" {
 #define LUAAPP_REDRAWMODE_NORMAL 1
 #define LUAAPP_REDRAWMODE_STENCIL 2
 
+// TODO: Fix setting for doublepass
+#define LUAAPP_DOUBLEPASS_OFF 2
+#define LUAAPP_DOUBLEPASS_ON 1
+
 
 namespace DERPEditor
 {
@@ -44,7 +49,7 @@ namespace DERPEditor
         void CleanUp();
         void Init();
         bool Boot();
-        bool Reboot();
+        void Reboot();
         void Shutdown();
         
         bool Update();
@@ -55,7 +60,7 @@ namespace DERPEditor
         
         // QuadBatches
         unsigned int m_QuadBatchCount;
-        TexturedQuadBatch* m_QuadBatches[LUAAPP_MAXQB];
+        QuadBatch* m_QuadBatches[LUAAPP_MAXQB];
         
         // QuadBatch control
         int ChangeActiveQB(unsigned int _id);
@@ -69,7 +74,7 @@ namespace DERPEditor
         bool m_RedrawNeeded;
         bool m_RedrawFull;
         bool m_RedrawStencil;
-        bool m_RedrawMode;
+        unsigned int m_RedrawMode;
         QuadBatch* m_StencilQB;
         
         // Matrises
@@ -87,6 +92,7 @@ namespace DERPEditor
         Pxf::Graphics::GraphicsDevice* m_gfx;
         Pxf::Input::InputDevice* m_inp;
         Pxf::Graphics::Window* m_win;
+		    Pxf::Audio::AudioDevice* m_snd;
         
     private:
         const char* m_Filepath;
@@ -100,7 +106,12 @@ namespace DERPEditor
         bool m_Running;
         bool m_Started;
         bool m_Shutdown;
+        bool m_Reboot;
         int m_QuadBatchCurrent;
+        
+        // Timers
+        Pxf::Timer m_TimerUpdate;
+        Pxf::Timer m_TimerDraw;
         
         // Register lua libs and callbacks
         void _register_lua_libs_callbacks();

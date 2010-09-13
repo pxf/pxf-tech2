@@ -179,6 +179,12 @@
     <ClCompile Include="Source\AppGraphicsLib.cpp">
       <Filter>Editor\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\LuaApp.cpp">
+      <Filter>Editor\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AppSoundLib.cpp">
+      <Filter>Editor\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">
@@ -371,6 +377,9 @@
       <Filter>Modules\pri\include</Filter>
     </ClInclude>
     <ClInclude Include="Include\AppGraphicsLib.h">
+      <Filter>Editor\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\AppSoundLib.h">
       <Filter>Editor\Include</Filter>
     </ClInclude>
   </ItemGroup>

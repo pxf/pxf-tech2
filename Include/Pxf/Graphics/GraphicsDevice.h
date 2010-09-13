@@ -13,7 +13,14 @@
 
 namespace Pxf
 {
-    class Kernel;
+	class Kernel;
+
+	namespace Resource
+	{
+		class Image;
+		class Mesh;
+	}
+
 	namespace Graphics
 	{
 		class Window;
@@ -30,9 +37,9 @@ namespace Pxf
 		class GraphicsDevice : public System
 		{
 		public:
-            GraphicsDevice(Pxf::Kernel* _Kernel, const char* _Identifier)
-                : System(_Kernel, Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, _Identifier)
-            {}
+			GraphicsDevice(Pxf::Kernel* _Kernel, const char* _Identifier)
+				: System(_Kernel, Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE, _Identifier)
+			{}
 
 			// Windowing
 			virtual Window* OpenWindow(WindowSpecifications* _pWindowSpecs) = 0;
@@ -44,22 +51,26 @@ namespace Pxf
 			// Graphics
 			virtual void SetViewport(int _x, int _y, int _w, int _h) = 0;
 			virtual void SetProjection(Math::Mat4 *_matrix) = 0;
+			virtual void SetModelView(Math::Mat4 *_matrix) = 0;
 			virtual void Translate(Math::Vec3f _translate) = 0;
 			virtual void SwapBuffers() = 0;
 
 			// Texture
 			virtual Texture* CreateEmptyTexture(int _Width,int _Height,TextureFormatStorage _Format = TEX_FORMAT_RGBA) = 0;
 			virtual Texture* CreateTexture(const char* _filepath) = 0;
+			virtual Texture* CreateTexture(Resource::Image* _Image) = 0;
 			virtual Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels) = 0;
 			virtual Texture* BindTexture(Texture* _texture) = 0;
 			virtual Texture* BindTexture(Texture* _texture, unsigned int _texture_unit) = 0; // Multi-texturing
-            
+	  virtual void DestroyTexture(Texture* _texture) = 0;
+			
 			virtual VertexBuffer* CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag) = 0;
 			virtual void DestroyVertexBuffer(VertexBuffer* _pVertexBuffer) = 0;
 			virtual void DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount) = 0;
 			
 			// Model
 			virtual Model* CreateModel(const char* _FilePath) = 0;
+			virtual Model* CreateModel(Resource::Mesh* _Mesh) = 0;
 
 			// Buffers
 			virtual RenderBuffer* CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height) = 0;

@@ -9,10 +9,10 @@ class RtAudio;
 
 namespace Pxf
 {
-    namespace Modules
-    {
-        class RtAudioDevice : public Pxf::Audio::AudioDevice
-        {
+	namespace Modules
+	{
+		class RtAudioDevice : public Pxf::Audio::AudioDevice
+		{
 		public:
 			struct SoundEntry
 			{
@@ -36,22 +36,33 @@ namespace Pxf
 				}
 			};
 
-        private:
+		protected:
 			RtAudio* m_DAC;
 			Util::Array<Resource::Sound*> m_SoundBank;
 			Util::Array<SoundEntry> m_ActiveVoices;
 			unsigned int m_Channels;
-			bool m_Active;
+			unsigned int m_BufferSize;
+			unsigned int m_MaxVoices;
 
-            virtual bool Init();
-        public:
-        RtAudioDevice(Pxf::Kernel* _Kernel)
-            : Pxf::Audio::AudioDevice(_Kernel, "Rt Audio Device")
+			bool m_Active;
+			bool m_Initialized;
+
+			void CloseStream();
+
+			virtual bool Init() { return true; }
+ 
+		public:
+		RtAudioDevice(Pxf::Kernel* _Kernel)
+			: Pxf::Audio::AudioDevice(_Kernel, "Rt Audio Device")
 			, m_Active(false)
 			, m_Channels(2)
-        {
-			Init();
+			, m_BufferSize(1024)
+			, m_MaxVoices(8)
+			, m_Initialized(false)
+		{
 		}
+
+		virtual bool Initialize(unsigned int _BufferSize = 1024, unsigned int _MaxVoices = 8);
 
 		virtual ~RtAudioDevice();
 
@@ -59,11 +70,12 @@ namespace Pxf
 		virtual int RegisterSound(Resource::Sound* _Sound);
 		virtual int GetSoundID(const Resource::Sound* _Sound);
 		virtual void UnregisterSound(int _Id);
-        virtual void Play(unsigned int _SoundID, bool _Loop);
-        virtual void Stop(unsigned int _SoundID);
-        virtual void StopAll();
-        virtual void Pause(unsigned int _SoundID);
-        virtual void PauseAll();
+		virtual void Play(int _SoundID, bool _Loop);
+		virtual void Stop(int _SoundID);
+		virtual void StopAll();
+		virtual void Pause(int _SoundID);
+		virtual void PauseAll();
+		virtual void DumpInfo();
 
 		Util::Array<Resource::Sound*>* GetSoundBank()
 		{
@@ -80,8 +92,8 @@ namespace Pxf
 			return m_Active;
 		}
 
-        };
-    }
+		};
+	}
 }
 
 #endif // _PXF_MODULES_RTAUDIODEVICE_H_

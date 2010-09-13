@@ -3,7 +3,7 @@
 
 namespace Pxf
 {
-    const char* PathExt(const char* _FilePath);
+	const char* PathExt(const char* _FilePath);
 }
 
 #endif

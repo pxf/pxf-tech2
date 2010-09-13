@@ -17,7 +17,7 @@ namespace Pxf
 		{
 		public:
 			TextureGL2(GraphicsDevice* _pDevice);
-			~TextureGL2();
+			virtual ~TextureGL2();
 			void Load(const char* _filepath);
 			void LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels);
 			void Unload();

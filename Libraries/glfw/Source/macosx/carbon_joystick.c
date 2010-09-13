@@ -1,11 +1,12 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        macosx_enable.c
-// Platform:    Mac OS X
-// API Version: 2.6
-// WWW:         http://glfw.sourceforge.net
+// Platform:    Carbon/AGL/CGL
+// API Version: 2.7
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2003      Keith Bauer
+// Copyright (c) 2003-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -28,15 +29,23 @@
 //
 //========================================================================
 
-void _glfwPlatformEnableSystemKeys( void )
+#include "internal.h"
+
+// TO DO: use HID manager to implement joystick support.
+
+int _glfwPlatformGetJoystickParam( int joy, int param )
 {
-    // Nothing to do; event handling code checks the status of
-    // _glfwWin.SysKeysDisabled to ensure this behavior.
+    // GL_FALSE == 0
+    return 0;
 }
 
-void _glfwPlatformDisableSystemKeys( void )
+int _glfwPlatformGetJoystickPos( int joy, float *pos, int numaxes )
 {
-    // Nothing to do; event handling code checks the status of
-    // _glfwWin.SysKeysDisabled to ensure this behavior.
+    return 0;
+}
+
+int _glfwPlatformGetJoystickButtons( int joy, unsigned char *buttons, int numbuttons )
+{
+    return 0;
 }
 

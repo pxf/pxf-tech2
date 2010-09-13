@@ -24,6 +24,8 @@ namespace Pxf
 				, m_AttachmentMask(0)
 			{ }
 
+			virtual ~FrameBufferObject(){};
+
 
 			virtual void Attach(Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps) = 0;
 			virtual void Attach(RenderBuffer* _Buffer, const unsigned _Attachment) = 0;

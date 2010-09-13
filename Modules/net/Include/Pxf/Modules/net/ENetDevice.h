@@ -3,8 +3,15 @@
 
 #include <Pxf/Network/NetworkDevice.h>
 #include <Pxf/Network/Server.h>
-#include <Pxf/Base/Debug.h>
+#include <Pxf/Network/Client.h>
 
+#include <Pxf/Modules/net/ENetServer.h>
+#include <Pxf/Modules/net/ENetClient.h>
+#include <Pxf/Modules/net/ENetDefs.h>
+#include <Pxf/Modules/net/ENetDataPacket.h>
+
+#include <Pxf/Util/Array.h>
+#include <Pxf/Base/Debug.h>
 #include <enet/enet.h>
 
 namespace Pxf 
@@ -18,14 +25,21 @@ namespace Pxf
 
 	namespace Modules
 	{
+		class ENetClient;
+		class ENetServer;
+
 		class ENetDevice : public Pxf::Network::NetworkDevice
 		{
 		private:
 			virtual bool Init()
 				{ return true; }
 
+			Util::Array<ENetServer*> Servers;
+			Util::Array<ENetClient*> Clients;
+
 		public:
 			ENetDevice(Pxf::Kernel* _Kernel);
+			~ENetDevice();
 
 			virtual Network::Server* CreateServer(const int _Port);
 			virtual Network::Client* CreateClient(const char* _Host, const int _Port);

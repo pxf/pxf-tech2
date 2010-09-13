@@ -48,87 +48,55 @@ int DERPEditor::app_quit(lua_State *L)
   return 0;
 }
 
-/*
- * Below is a modified version of the debug.traceback function shipped with Lua.
- */
-
-#define LEVELS1	12	/* size of the first part of the stack */
-#define LEVELS2	10	/* size of the second part of the stack */
-
-static lua_State *getthread (lua_State *L, int *arg) {
-  if (lua_isthread(L, 1)) {
-    *arg = 1;
-    return lua_tothread(L, 1);
+int DERPEditor::app__setrenderoption(lua_State *L)
+{
+  // app.setrenderoption(render_mode) -- changes render option
+  if (lua_gettop(L) == 1)
+  {
+    LuaApp::GetInstance()->m_RedrawMode = lua_tointeger(L, 1);
+    return 0;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to setrenderoption function!");
+    lua_error(L);
   }
-  else {
-    *arg = 0;
-    return L;
-  }
+  return 0;
 }
 
-int DERPEditor::app_traceback(lua_State *L) {
-  int level;
-  int firstpart = 1;  /* still before eventual `...' */
-  int arg;
-  lua_State *L1 = getthread(L, &arg);
-  lua_Debug ar;
-  if (lua_isnumber(L, arg+2)) {
-    level = (int)lua_tointeger(L, arg+2);
-    lua_pop(L, 1);
+int DERPEditor::app__getrenderoption(lua_State *L)
+{
+  // render_mode = app.getrenderoption() -- get render option
+  if (lua_gettop(L) == 0)
+  {
+    lua_pushnumber(L, LuaApp::GetInstance()->m_RedrawMode);
+    return 1;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to getrenderoption function!");
+    lua_error(L);
   }
-  else
-    level = (L == L1) ? 1 : 0;  /* level 0 may be this own function */
-  if (lua_gettop(L) == arg)
-    lua_pushliteral(L, "");
-  else if (!lua_isstring(L, arg+1)) return 1;  /* message is not a string */
-  else lua_pushliteral(L, "\n");
-  lua_pushliteral(L, "stack traceback:");
-  while (lua_getstack(L1, level++, &ar)) {
-    if (level > LEVELS1 && firstpart) {
-      /* no more than `LEVELS2' more levels? */
-      if (!lua_getstack(L1, level+LEVELS2, &ar))
-        level--;  /* keep going */
-      else {
-        lua_pushliteral(L, "\n\t...");  /* too many levels */
-        while (lua_getstack(L1, level+LEVELS2, &ar))  /* find last levels */
-          level++;
-      }
-      firstpart = 0;
-      continue;
-    }
-    lua_pushliteral(L, "\n\t");
-    lua_getinfo(L1, "Snl", &ar);
-    lua_pushfstring(L, "%s:", ar.short_src);
-    if (ar.currentline > 0)
-      lua_pushfstring(L, "%d:", ar.currentline);
-    if (*ar.namewhat != '\0')  /* is there a name? */
-        lua_pushfstring(L, " in function " LUA_QS, ar.name);
-    else {
-      if (*ar.what == 'm')  /* main? */
-        lua_pushfstring(L, " in main chunk");
-      else if (*ar.what == 'C' || *ar.what == 't')
-        lua_pushliteral(L, " ?");  /* C function or tail call */
-      else
-        lua_pushfstring(L, " in function <%s:%d>",
-                           ar.short_src, ar.linedefined);
-    }
-    lua_concat(L, lua_gettop(L) - arg);
-  }
-  lua_concat(L, lua_gettop(L) - arg);
-  return 1;
+  return 0;
 }
-
 
 int DERPEditor::luaopen_appcore (lua_State *L) {
   const luaL_reg appcorelib[] = {
     {"reboot",   app_reboot},
     {"quit",   app_quit},
-    {"traceback",   app_traceback},
+    //{"traceback",   app_traceback},
     {"getwindimensions",   app_getwindimensions},
+    
+    {"_setrenderoption",   app__setrenderoption},
+    {"_getrenderoption",   app__getrenderoption},
     {NULL, NULL}
     };
   
   luaL_register(L, LUA_APPCORENAME, appcorelib);
+  lua_pushinteger(L, LUAAPP_REDRAWMODE_FULL);
+  lua_setfield(L, -2, "REDRAWMODE_FULL");
+  lua_pushinteger(L, LUAAPP_REDRAWMODE_NORMAL);
+  lua_setfield(L, -2, "REDRAWMODE_NORMAL");
+  lua_pushinteger(L, LUAAPP_REDRAWMODE_STENCIL);
+  lua_setfield(L, -2, "REDRAWMODE_STENCIL");
   /*lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
   lua_pushnumber(L, HUGE_VAL);

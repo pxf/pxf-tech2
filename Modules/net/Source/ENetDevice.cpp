@@ -11,17 +11,27 @@ ENetDevice::ENetDevice(Pxf::Kernel* _Kernel)
 		Message("ENetDevice", "Unable to initialize enet.");
 	else
 		Message("ENetDevice", "enet initialized.");
-	atexit(enet_deinitialize);
+}
+
+ENetDevice::~ENetDevice()
+{
+	enet_deinitialize();
 }
 
 Server* ENetDevice::CreateServer(const int _Port)
 {
-	return NULL;
+	ENetServer* server = new ENetServer(_Port);
+	Servers.push_back(server);
+
+	return (Server*)server;
 }
 
 Client* ENetDevice::CreateClient(const char* _Host, const int _Port)
 {
-	return NULL;
+	ENetClient* client = new ENetClient(_Host, _Port);
+	Clients.push_back(client);
+
+	return (Client*)client;
 }
 
 Server* ENetDevice::GetServer(const int _ServerIdent)

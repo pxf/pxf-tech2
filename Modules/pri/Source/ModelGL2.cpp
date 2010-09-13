@@ -3,6 +3,7 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Mesh.h>
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Memory.h>
 
 #define LOCAL_MSG "ModelGL2"
 
@@ -27,30 +28,60 @@ bool ModelGL2::Load(const char* _FilePath)
 		return false;
 	}
 
-	Resource::Mesh::mesh_descriptor md = (*mesh->GetData());
+	return Load(mesh);
+}
+
+bool ModelGL2::Load(Resource::Mesh* _Mesh)
+{
+	Resource::Mesh::mesh_descriptor md = (*_Mesh->GetData());
 
 	m_VertexCount = md.vertex_count;
+	m_TriangleCount = md.triangle_count;
+
 
 	m_VertexBuffer = GetDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
-	m_VertexBuffer->CreateFromBuffer((void*) md.vertices,md.vertex_count,3);
+	
+	m_VertexBuffer->CreateNewBuffer(md.triangle_count*3,3*sizeof(float));
+	//m_VertexBuffer->CreateFromBuffer((void*) md.vertices,md.triangle_count*3,12);
+
+	int bufSize = md.triangle_count * 9;
+
+	float* buf = new float[bufSize];
+	const float* p = md.vertices;
+
+	float* bufp = (float*) m_VertexBuffer->MapData(VB_ACCESS_READ_WRITE);
 
 	m_VertexBuffer->SetData(VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
 	m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_TRIANGLES);
 
+	//Pxf::MemoryCopy(buf,md.vertices,bufSize);
+
+	for(int i = 0; i < bufSize; i++)
+	{
+		bufp[i] = p[i];
+		printf("%f\n",bufp[i]);
+	}
+
+	m_VertexBuffer->UnmapData();
+
 	return true;
+}
+
+ModelGL2::~ModelGL2()
+{
+	if (m_VertexBuffer)
+		Unload();
 }
 
 bool ModelGL2::Unload()
 {
 	m_VertexCount = 0;
 	Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DestroyVertexBuffer(m_VertexBuffer);
+	m_VertexBuffer = 0;
 	return true;
 }
 
 void ModelGL2::Draw()
 {
-	if(m_VertexCount <= 0)
-		return;
-
-	GetDevice()->DrawBuffer(m_VertexBuffer, m_VertexCount);
+	GetDevice()->DrawBuffer(m_VertexBuffer, m_TriangleCount*3);
 }

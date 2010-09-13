@@ -1,3 +1,4 @@
+-- some debug output before we start being awesome
 print("app has:")
 for k,v in pairs(app) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
@@ -8,10 +9,18 @@ for k,v in pairs(gfx) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
 end
 
+print("snd has:")
+for k,v in pairs(snd) do
+  print("        " .. tostring(k) .. " : " .. tostring(v))
+end
+
 print("inp has:")
 for k,v in pairs(inp) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
 end
+
+print("Render mode: " .. tostring(app._getrenderoption()))
+print("abc")
 
 -- store window dimensions for later use
 app.width, app.height = app.getwindimensions()
@@ -47,6 +56,15 @@ function point_hittest(px,py, x0,y0, x1,y1 )
   end
   
   return true
+end
+
+app.rendermode = app._getrenderoption()
+function app.setrenderoption(render_mode)
+  app.rendermode = render_mode
+  app._setrenderoption(render_mode)
+end
+function app.getrenderoption()
+  return app.rendermode
 end
 
 gfx.forceredraw = true
@@ -172,6 +190,9 @@ end
 -- basic callfunctions
 function _update()
   if (not error_stop) then
+    if (app.rendermode == app.REDRAWMODE_FULL) then
+      gfx.redrawneeded()
+    end
     update()
   else
     gfx.redrawneeded()

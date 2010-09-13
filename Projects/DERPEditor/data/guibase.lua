@@ -8,10 +8,19 @@ function gui:create_basewidget(x,y,w,h)
     hitbox = {x = x, y = y, w = w, h = h},
     drawbox = {x = x, y = y, w = w, h = h},
     parent = nil,
-    redraw_needed = false
+    redraw_needed = false,
+    widget_type = "stdwidget" -- stdwidget, menu
   }
   
   function wid:destroy()
+    self:needsredraw()
+    
+    -- destroy childs
+    for k,v in pairs(self.childwidgets) do
+      v:destroy()
+    end
+    
+    -- destroy self from parent
     if self.parent then
       local deletek = nil
       for k,v in pairs(self.parent.childwidgets) do
@@ -32,12 +41,14 @@ function gui:create_basewidget(x,y,w,h)
   function wid:addwidget(cwid)
     cwid.parent = self
     table.insert(self.childwidgets, cwid)
+    gui:set_focus(cwid)
+    cwid:needsredraw()
   end
   
   -----------------------------------
   -- redraw functions
   function wid:needsredraw()
-    local x,y = self:find_abspos()
+    local x,y = self:find_abspos(self)
     gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
     self.redraw_needed = true
     
@@ -55,13 +66,13 @@ function gui:create_basewidget(x,y,w,h)
       v:resetredraw()
     end
   end
-  function wid:find_abspos()
+  function wid:find_abspos(sender)
     local x,y
     x = self.drawbox.x
     y = self.drawbox.y
     
     if not (self.parent == nil) then
-      local tx,ty = self.parent:find_abspos()
+      local tx,ty = self.parent:find_abspos(sender)
       x = x + tx
       y = y + ty
     end
@@ -146,8 +157,12 @@ function gui:create_basewidget(x,y,w,h)
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
-      for k,v in pairs(self.childwidgets) do
-        thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+      --for k,v in pairs(self.childwidgets) do
+      for i = #self.childwidgets, 1, -1 do
+        local v = self.childwidgets[i]
+        if not (v == nil) then
+          thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+        end
         
         if not (thit == nil) then
           -- we hit a child widget, return this one instead
@@ -179,6 +194,13 @@ end
 function gui:create_root()
   local rootwid = self:create_basewidget(0, 0, app.width, app.height)
   
+  -- child widget control
+  rootwid.super_addwidget = rootwid.addwidget
+  function rootwid:addwidget(cwid)
+    self:super_addwidget(cwid)
+    gui:set_focus(cwid)
+  end
+  
   function rootwid:draw(force)
     local r,g,b = gfx.getcolor()
     gfx.setcolor(86/255,86/255,86/255)
@@ -200,18 +222,94 @@ end
 
 gui.redrawrects = {}
 function gui:redraw(x,y,w,h)
-  --[[self.widgets:find_redrawhit(x,y,x+w,y+h)
+  self.widgets:find_redrawhit(x,y,x+w,y+h)
   gfx.redrawneeded(x,y,w,h)
   --print("redraw area: " .. tostring(x) .." " .. tostring(y) .. " " .. tostring(w) .." " .. tostring(h))
-  table.insert(gui.redrawrects, 1, {x,y,w,h})]]
-  gfx.redrawneeded()
+  table.insert(gui.redrawrects, 1, {x,y,w,h})
+  --gfx.redrawneeded()
+end
+
+function gui:set_focus(wid)
+  if (self.focuswidget) then
+    if not (self.focuswidget == wid) then
+      if (self.focuswidget.lostfocus) then
+        self.focuswidget:lostfocus(wid)
+      end
+    end
+  end
+  self.focuswidget = wid
+  
+end
+
+function gui:drawcenteredfont(str,x,y)
+  local x2 = x - ((#str-1) * 8) / 2
+  local y2 = y + (4 / 2) - 1
+  gui:drawfont(str, x2, y2)
+end
+
+function gui:drawfont(str,x,y)
+  local oldtex = gfx.bindtexture(self.font)
+  --local r,g,b = gfx.getcolor()
+  --gfx.setcolor(1, 1, 1)
+  gfx.translate(x, y)
+	local strlen = #str
+	local char_w = 8
+	
+	local char_counter = 0
+	local euro_next = false
+	
+	for i=1,strlen do
+	  -- calculate tex coords
+	  local index = string.byte(str, i)
+	  if (index == 195) then
+	    -- found special char
+	    euro_next = true
+    else	  
+  	    -- draw quad
+  	    if (euro_next) then
+  	      euro_next = false
+  	      index = index + 32
+	      else
+	        index = index - 32
+	      end
+    	  local s = math.fmod(index, 16) * 16
+    	  local t = math.floor(index / 16) * 16
+  	    gfx.drawcentered((char_counter)*char_w, 0, 16, 16, s, t, 16, 16)
+  	    char_counter = char_counter + 1
+    
+    end
+	end
+	
+	gfx.translate(-x, -y)
+	--gfx.setcolor(r,g,b)
+	gfx.bindtexture(oldtex)
+  
+end
+
+function gui:toggle_show_redraw()
+  self.draw_redraw_rects = not self.draw_redraw_rects
+  print("draw_redraw_rects: " .. tostring(self.draw_redraw_rects))
+  return (not self.draw_redraw_rects)
+end
+
+function gui:tooltip(str)
+  if (self.statusbar) then
+    self.statusbar:settext(str)
+  end
 end
 
 function gui:init()
   self.themetex = gfx.loadtexture("data/guitheme.png")
+  self.font = gfx.loadtexture("data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
   self.activewidget = nil
+  self.focuswidget = nil
+  
+  self.draw_redraw_rects = false
+  
+  -- statusbar widget
+  self.statusbar = nil
   
   -- tree of widgets
   self.widgets = gui:create_root()
@@ -228,6 +326,12 @@ function gui:update()
   
   -- test
   --gui:redraw(mx,my,32,32)
+  
+  -- send mouse over
+  local mouse_over_rcv = self.widgets:find_mousehit(mx,my)
+  if mouse_over_rcv and mouse_over_rcv.mouseover then
+    mouse_over_rcv:mouseover(mx,my)
+  end
   
   -- mouse operations on widgets
   if (inp.isbuttondown(inp.MOUSE_LEFT) or
@@ -249,12 +353,16 @@ function gui:update()
     if (not self.mouse.pushed) then
       --self.activewidget
       self.activewidget = self.widgets:find_mousehit(mx,my)
+      print("new active widget: " .. tostring(self.activewidget) .. " (has type " .. self.activewidget.widget_type .. ")")
+      
+      -- active widget is now the focus widget
+      self:set_focus(self.activewidget)
       
       if (self.activewidget.mousepush) then
         self.activewidget:mousepush(mx,my,self.buttonid)
       end
       
-      print("new active widget: " .. tostring(self.activewidget))
+      
     else
       -- we might have a drag operation on our hands!
       
@@ -298,7 +406,7 @@ function gui:update()
   end]]
 end
 
-function gui:draw(force,show_redraw)
+function gui:draw(force)
   -- redraw gui
   -- NOTE: for efficiency, redrawneeded(...) should be called beforehand
   --       to minimize fill
@@ -307,7 +415,7 @@ function gui:draw(force,show_redraw)
   self.widgets:draw(force)
   
   -- show redraw regions
-  if (show_redraw) then
+  if (self.draw_redraw_rects) then
     for k,v in pairs(gui.redrawrects) do
       local r,g,b = gfx.getcolor()
       gfx.setcolor((k % 3) *30, (k % 2) *30, (k % 1) *30)

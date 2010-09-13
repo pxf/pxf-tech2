@@ -7,18 +7,18 @@
 namespace Pxf {
 namespace Resource
 {
-    class Text : public Resource::ResourceBase
-    {
-    protected:
-        virtual bool Build();
-    public:
-        Text(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-            : Resource::ResourceBase(_Chunk, _Loader)
-        {
-            Build();
-        }
-        
-        virtual ~Text();
+	class Text : public Resource::ResourceBase
+	{
+	protected:
+		virtual bool Build();
+	public:
+		Text(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::ResourceBase(_Kernel, _Chunk, _Loader)
+		{
+			Build();
+		}
+		
+		virtual ~Text();
 		/*
 		void* GetDataPtr() const
 		{
@@ -34,24 +34,24 @@ namespace Resource
 		{
 			return m_Chunk != 0;
 		}
-    };
+	};
 
 
-    class TextLoader : public Resource::ResourceLoader
-    {
-    private:
-        bool Init(){ return true; }
-    public:
-        TextLoader(Pxf::Kernel* _Kernel);
-        ~TextLoader();
-        virtual Resource::Text* Load(const char* _FilePath);
+	class TextLoader : public Resource::ResourceLoader
+	{
+	private:
+		bool Init(){ return true; }
+	public:
+		TextLoader(Pxf::Kernel* _Kernel);
+		~TextLoader();
+		virtual Resource::Text* Load(const char* _FilePath);
 		virtual Resource::Text* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        virtual void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Text*)_Resource;
-        }
-    };
+		virtual void Destroy(void* _Resource)
+		{
+			if (_Resource)
+				delete (Resource::Text*)_Resource;
+		}
+	};
 }
 }
 

@@ -9,40 +9,35 @@
 namespace Pxf{
 namespace Resource
 {
-    class Chunk;
+	class Chunk;
 }
-    
+	
 namespace Modules {
 
-    class SOILImage : public Resource::Image
-    {
-    protected:
-        virtual bool Build();
-    public:
-        SOILImage(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-            : Resource::Image(_Chunk, _Loader)
-        {
-            Build();
-        }
-        
-        virtual ~SOILImage();
-    };
+	class SOILImage : public Resource::Image
+	{
+	protected:
+		virtual bool Build();
+	public:
+		SOILImage(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Image(_Kernel, _Chunk, _Loader)
+		{
+			Build();
+		}
+		
+		virtual ~SOILImage();
+	};
 
-    class GenericImageLoader : public Resource::ResourceLoader
-    {
-    private:
-        bool Init(){ return true; }
-    public:
-        GenericImageLoader(Pxf::Kernel* _Kernel);
-        ~GenericImageLoader();
-        virtual Resource::Image* Load(const char* _FilePath);
+	class GenericImageLoader : public Resource::ImageLoader
+	{
+	private:
+		bool Init(){ return true; }
+	public:
+		GenericImageLoader(Pxf::Kernel* _Kernel);
+		~GenericImageLoader();
+		virtual Resource::Image* Load(const char* _FilePath);
 		virtual Resource::Image* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        virtual void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Image*)_Resource;
-        }
-    };
+	};
 
 } // Graphics
 } // Pxf

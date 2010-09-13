@@ -4,11 +4,11 @@
 #include <Pxf/Graphics/FrameBufferObject.h>
 
 namespace Pxf{
-    namespace Graphics
-    {
+	namespace Graphics
+	{
 		class GraphicsDevice;
 		class RenderBuffer;
-    }
+	}
 
 	namespace Modules {
 		class FrameBufferObjectGL2 : public Graphics::FrameBufferObject
@@ -17,7 +17,7 @@ namespace Pxf{
 			FrameBufferObjectGL2(Graphics::GraphicsDevice* _Device)
 				: FrameBufferObject(_Device)
 			{ _Configure(); }
-			~FrameBufferObjectGL2();
+			virtual ~FrameBufferObjectGL2();
 
 			void Attach(Graphics::Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps);
 			void Attach(Graphics::RenderBuffer* _Buffer, const unsigned _Attachment);

@@ -4,6 +4,8 @@
 #include <Pxf/System.h>
 
 #include <Pxf/Network/Server.h>
+#include <Pxf/Network/Client.h>
+#include <Pxf/Network/Packet.h>
 
 namespace Pxf 
 {
@@ -18,6 +20,7 @@ namespace Network
 		NetworkDevice(Kernel* _Kernel, const char* _Identifier)
 			: Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_NETWORKDEVICE, _Identifier)
 		{}
+		virtual ~NetworkDevice(){}
 
 		virtual Server* CreateServer(const int _Port) = 0;
 		virtual Client* CreateClient(const char* _Host, const int _Port) = 0;

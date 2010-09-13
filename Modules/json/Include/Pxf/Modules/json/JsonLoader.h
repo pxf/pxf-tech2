@@ -4,41 +4,54 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Json.h>
+
 namespace Pxf{
 namespace Resource
 {
-    class Chunk;
+	class Chunk;
 }
-    
+	
 namespace Modules {
 
 	class JsonCpp : public Resource::Json
 	{
 	protected:
-        virtual bool Build();
+		::Json::Reader m_Reader;
+		::Json::Value m_Root;
+		virtual bool Build();
 	public:
-		JsonCpp(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Json(_Chunk,_Loader)
-		{ }
+		JsonCpp(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Json(_Kernel, _Chunk,_Loader)
+		{
+			Build();
+		}
+
+		virtual ~JsonCpp();
 		
-		virtual ~JsonCpp() { }
+		virtual ::Json::Value& GetRoot()
+		{
+			return m_Root;
+		}
+
+		virtual void SetRoot(::Json::Value& _Value)
+		{
+			m_Root = _Value;
+		}
+
+		virtual bool SaveToDisk(const char* _FilePath);
 	};
 
-	class JsonLoader : public Resource::ResourceLoader
-    {
-    private:
-        bool Init();
-    public:
-        JsonLoader(Pxf::Kernel* _Kernel);
-        ~JsonLoader();
-        virtual Resource::Json* Load(const char* _FilePath);
+	class JsonCppLoader : public Resource::JsonLoader
+	{
+	private:
+		bool Init();
+	public:
+		JsonCppLoader(Pxf::Kernel* _Kernel);
+		virtual ~JsonCppLoader();
+		virtual Resource::Json* Load(const char* _FilePath);
 		virtual Resource::Json* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        virtual void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Json*)_Resource;
-        }
-    };
+		virtual Resource::Json* CreateEmpty();
+	};
 
 } // Graphics
 } // Pxf

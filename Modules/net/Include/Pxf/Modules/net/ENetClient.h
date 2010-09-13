@@ -1,8 +1,11 @@
 #ifndef _PXF_MODULES_NET_ENETCLIENT_H_
 #define _PXF_MODULES_NET_ENETCLIENT_H_
 
-#include <Pxf/Network/NetworkDevice.h>
-#include <Pxf/Base/Debug.h>
+#include <Pxf/Network/Client.h>
+#include <Pxf/Network/Packet.h>
+
+#include <Pxf/Modules/net/ENetDevice.h>
+#include <Pxf/Modules/net/ENetDefs.h>
 
 #include <enet/enet.h>
 
@@ -10,23 +13,28 @@ namespace Pxf
 {
 	namespace Network
 	{
-//		class NetworkDevice;
 		class Client;
+		class Packet;
 	}
 
 	namespace Modules
 	{
-		class ENetClient
+		class ENetClient : public Pxf::Network::Client
 		{
+		private:
+			ENetAddress Address;
+			ENetHost *Client;
+			ENetPeer *Peer;
+
 		public:
-			ENetClient();
+			ENetClient(const char* _Host, const int _Port);
 
-			virtual bool Connect() = 0;
-			virtual bool Disconnect() = 0;
-			virtual bool Connected() = 0;
+			virtual bool Connect();
+			virtual bool Disconnect();
+			virtual bool Connected();
 
-			virtual int Recv(char* _Buf) = 0;
-			virtual bool Send(const char* _Buf, const int _Length) = 0;
+			virtual Network::Packet* Recv();
+			virtual bool Send(const char* _Buf, const int _Length);
 		};
 	}
 }

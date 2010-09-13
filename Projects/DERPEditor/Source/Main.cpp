@@ -4,6 +4,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Timer.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
@@ -45,6 +46,7 @@ int main()
 
     kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
+	kernel->RegisterModule("snd", 0xFFFF, true);
 	  //kernel->RegisterModule("mesh", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
     kernel->DumpAvailableModules();
 
@@ -77,12 +79,12 @@ int main()
     spec.Height = 600;
     spec.ColorBits = 24;
     spec.AlphaBits = 8;
-    spec.DepthBits = 32;
-    spec.StencilBits = 8;
+    spec.DepthBits = 24;
+    spec.StencilBits = 1;
     spec.FSAASamples = 0;
     spec.Fullscreen = false;
     spec.Resizeable = false;
-    spec.VerticalSync = false;
+    spec.VerticalSync = true;
     
     Graphics::Window* win = gfx->OpenWindow(&spec);
    
@@ -108,25 +110,6 @@ int main()
 	printf("Color attachments: %i\n",pFBO->GetNumColorAttachment());
 	*/
 	
-	/*
-	// mesh test
-	CTMcontext	context;
-	CTMuint		vertCount, triCount;
-	const CTMuint* indices;
-	const CTMfloat*	vertices;
-
-	ctmLoad(context, "data/test.ctm");
-	if(ctmGetError(context) == CTM_NONE)
-	{
-		vertCount = ctmGetInteger(context, CTM_VERTEX_COUNT);
-		vertices = ctmGetFloatArray(context, CTM_VERTICES);
-		triCount = ctmGetInteger(context, CTM_TRIANGLE_COUNT);
-		indices = ctmGetIntegerArray(context, CTM_INDICES);
-	}
-
-	ctmFreeContext(context);
-
-	*/
 
 	// QuadBatch tests
 	glEnable( GL_TEXTURE_2D );
@@ -154,14 +137,36 @@ int main()
     bool running = true;
 
 	//Graphics::Model* test_model = gfx->CreateModel("data/test.ctm");
-
+	
+	glfwDisable(GLFW_AUTO_POLL_EVENTS);
+	
+	
+	Pxf::Timer racetimer;
+	uint64 framelength = 16;
+	uint64 frametotal = 0;
+	
+	racetimer.Start();
+	
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
+		while (frametotal < framelength)
+		{
+			racetimer.Stop();
+			frametotal += racetimer.Interval();
+			racetimer.Start();
+			glfwSleep(0.004);
+		}
+		frametotal = 0;
+		
         inp->Update();
 		//gfx->BindFrameBufferObject(pFBO);
 		//Graphics::Shader* prev = gfx->BindShader(test_shader);
         running = app->Update();
         app->Draw();
+        //app->Reboot();
+        //running = app->Update();
+        //app->Draw();
+        //break;
 		//gfx->BindShader(prev);
 		//gfx->UnbindFrameBufferObject();
 		

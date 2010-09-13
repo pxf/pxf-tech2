@@ -9,40 +9,35 @@
 namespace Pxf{
 namespace Resource
 {
-    class Chunk;
+	class Chunk;
 }
-    
+	
 namespace Modules {
 
-    class OggSound : public Resource::Sound
-    {
-    protected:
-        virtual bool Build();
-    public:
-        OggSound(Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-            : Resource::Sound(_Chunk, _Loader)
-        {
-            Build();
-        }
-        
-        virtual ~OggSound();
-    };
+	class OggSound : public Resource::Sound
+	{
+	protected:
+		virtual bool Build();
+	public:
+		OggSound(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+			: Resource::Sound(_Kernel, _Chunk, _Loader)
+		{
+			Build();
+		}
+		
+		virtual ~OggSound();
+	};
 
-    class OggAudioLoader : public Resource::ResourceLoader
-    {
-    private:
-        bool Init(){ return true; }
-    public:
-        OggAudioLoader(Pxf::Kernel* _Kernel);
-        ~OggAudioLoader();
-        Resource::Sound* Load(const char* _FilePath);
+	class OggAudioLoader : public Resource::SoundLoader
+	{
+	private:
+		bool Init(){ return true; }
+	public:
+		OggAudioLoader(Pxf::Kernel* _Kernel);
+		~OggAudioLoader();
+		Resource::Sound* Load(const char* _FilePath);
 		Resource::Sound* CreateFrom(const void* _DataPtr, unsigned _DataLen);
-        void Destroy(void* _Resource)
-        {
-            if (_Resource)
-                delete (Resource::Sound*)_Resource;
-        }
-    };
+	};
 
 } // Graphics
 } // Pxf

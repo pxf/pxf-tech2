@@ -8,8 +8,8 @@
 #include <Pxf/Modules/pri/WindowGL2.h>
 
 namespace Pxf{
-    namespace Graphics
-    {
+	namespace Graphics
+	{
 		class QuadBatch;
 		class VertexBuffer;
 		class RenderTarget;
@@ -17,7 +17,14 @@ namespace Pxf{
 		class FrameBufferObject;
 		class Shader;
 		class Model;
-    }
+	}
+
+	namespace Resource
+	{
+		class Image;
+		class Mesh;
+	}
+
 	namespace Modules {
 		class DeviceGL2 : public Graphics::GraphicsDevice
 		{
@@ -32,16 +39,20 @@ namespace Pxf{
 
 			void SetViewport(int _x, int _y, int _w, int _h);
 			void SetProjection(Math::Mat4 *_matrix);
+			void SetModelView(Math::Mat4 *_matrix);
 			void SwapBuffers();
 			void Translate(Math::Vec3f _translate);
 
 			Graphics::Texture* CreateEmptyTexture(int _Width,int _Height, Graphics::TextureFormatStorage _Format = Graphics::TEX_FORMAT_RGBA);
 			Graphics::Texture* CreateTexture(const char* _filepath);
+			Graphics::Texture* CreateTexture(Resource::Image* _Image);
 			Graphics::Texture* CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture);
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
+			void DestroyTexture(Graphics::Texture* _texture);
 
 			Graphics::Model* CreateModel(const char* _FilePath);
+			Graphics::Model* CreateModel(Resource::Mesh* _Mesh);
 
 			Graphics::VertexBuffer* CreateVertexBuffer(Graphics::VertexBufferLocation _VertexBufferLocation, Graphics::VertexBufferUsageFlag _VertexBufferUsageFlag);
 			void DestroyVertexBuffer(Graphics::VertexBuffer* _pVertexBuffer);
@@ -74,12 +85,12 @@ namespace Pxf{
 			virtual void SetUniformMat4(Graphics::Shader* _Shader, const char* _name, const Math::Mat4* _value);
 
 		private:
-            bool Init(){ return true; };
+			bool Init(){ return true; };
 			Graphics::Window* m_Window;
 			Graphics::FrameBufferObject* m_CurrentFrameBufferObject;
 			Graphics::Shader* m_CurrentShader;
 			
-            Graphics::Texture* m_BindHistory[16];
+			Graphics::Texture* m_BindHistory[16];
 		};
 
 	} // Graphics

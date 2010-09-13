@@ -44,7 +44,7 @@ Math::Vec4f TextureGL2::CreateTextureSubset(float _x1, float _y1, float _x2, flo
 	coords.w = coords.y + _y2 * ydelta;
 	return coords;
 }
-
+ 
 void TextureGL2::Load(const char* _filepath)
 {
 	m_Filepath = _filepath;
@@ -55,6 +55,10 @@ void TextureGL2::Load(const char* _filepath)
 
 void TextureGL2::LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels)
 {
+
+	if (m_TextureID)
+		Unload();
+
 	m_Width = _width;
 	m_Height = _height;
 	m_Channels = _channels;
@@ -112,34 +116,34 @@ void TextureGL2::Unload()
 
 void TextureGL2::Reload()
 {
-    if (m_TextureID != 0)
-    {
-        Unload();
-    }
+	if (m_TextureID != 0)
+	{
+		Unload();
+	}
 
-    Resource::ResourceManager* res = GetDevice()->GetKernel()->GetResourceManager();
-    Resource::Image* img = res->Acquire<Resource::Image>(m_Filepath.c_str());
-    
-    if (!img)
-    {
-        Message(LOCAL_MSG, "Failed to load file '%s'", m_Filepath.c_str());
+	Resource::ResourceManager* res = GetDevice()->GetKernel()->GetResourceManager();
+	Resource::Image* img = res->Acquire<Resource::Image>(m_Filepath.c_str());
+	
+	if (!img)
+	{
+		Message(LOCAL_MSG, "Failed to load file '%s'", m_Filepath.c_str());
 		return;
-    }
-    
-    m_TextureID = SOIL_create_OGL_texture(
-        img->Ptr(),
-        img->Width(), img->Height(), img->Channels(),
-        SOIL_CREATE_NEW_ID,
-        0);
-    
-    m_Width = img->Width();
-    m_Height = img->Height();
-    m_Channels = img->Channels();
-        
-    res->Release(img);
-    
-    if (m_TextureID == 0)
-        Message(LOCAL_MSG, "Failed to create texture for '%s'", m_Filepath.c_str());
+	}
+	
+	m_TextureID = SOIL_create_OGL_texture(
+		img->Ptr(),
+		img->Width(), img->Height(), img->Channels(),
+		SOIL_CREATE_NEW_ID,
+		0);
+	
+	m_Width = img->Width();
+	m_Height = img->Height();
+	m_Channels = img->Channels();
+		
+	res->Release(img);
+	
+	if (m_TextureID == 0)
+		Message(LOCAL_MSG, "Failed to create texture for '%s'", m_Filepath.c_str());
 }
 
 int TextureGL2::GetWidth()
@@ -168,9 +172,9 @@ void TextureGL2::SetMagFilter(TextureFilter _Filter)
 	GLint param = GL_NEAREST;
 
 	// use a lut
-	if      (_Filter == TEX_FILTER_NEAREST) param = GL_NEAREST;
+	if	  (_Filter == TEX_FILTER_NEAREST) param = GL_NEAREST;
 	else if (_Filter == TEX_FILTER_LINEAR)  param = GL_LINEAR;
-	else    Message("TextureGL2", "invalid mag filter, using GL_NEAREST");
+	else	Message("TextureGL2", "invalid mag filter, using GL_NEAREST");
 	
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param);
@@ -181,13 +185,13 @@ void TextureGL2::SetMinFilter(TextureFilter _Filter)
 	GLint param = GL_NEAREST;
 
 	// use a lut
-	if      (_Filter == TEX_FILTER_NEAREST) param = GL_NEAREST;
+	if	  (_Filter == TEX_FILTER_NEAREST) param = GL_NEAREST;
 	else if (_Filter == TEX_FILTER_LINEAR)  param = GL_LINEAR;
 	else if (_Filter == TEX_FILTER_LINEAR_MIPMAP_LINEAR)  param = GL_LINEAR_MIPMAP_LINEAR;
 	else if (_Filter == TEX_FILTER_LINEAR_MIPMAP_NEAREST)  param = GL_LINEAR_MIPMAP_NEAREST;
 	else if (_Filter == TEX_FILTER_NEAREST_MIPMAP_LINEAR)  param = GL_NEAREST_MIPMAP_LINEAR;
 	else if (_Filter == TEX_FILTER_NEAREST_MIPMAP_NEAREST)  param = GL_NEAREST_MIPMAP_NEAREST;
-	else    Message("TextureGL2", "invalid mag filter, using GL_NEAREST");
+	else	Message("TextureGL2", "invalid mag filter, using GL_NEAREST");
 
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, param);

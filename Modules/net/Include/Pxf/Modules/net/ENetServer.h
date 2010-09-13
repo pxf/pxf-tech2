@@ -1,26 +1,43 @@
 #ifndef _PXF_MODULES_NET_ENETSERVER_H_
 #define _PXF_MODULES_NET_ENETSERVER_H_
 
+#include <Pxf/Network/Server.h>
+#include <Pxf/Network/Packet.h>
+
+#include <Pxf/Modules/net/ENetDevice.h>
+#include <Pxf/Modules/net/ENetDefs.h>
+
+#include <Pxf/Util/Array.h>
+#include <enet/enet.h>
+#include <stdio.h>
+
 namespace Pxf
 {
 	namespace Network
 	{
 		class Server;
+		class Packet;
 	}
 
 	namespace Modules
 	{
-		class ENetServer
+		class ENetServer : public Pxf::Network::Server
 		{
+		private:
+			ENetAddress Address;
+			ENetHost *Server;
+
+			int CreateClientID();
+
 		public:
-			ENetServer();
+			ENetServer(const int _Port);
 
-			virtual bool Bind() = 0;
-			virtual bool Shutdown() = 0;
+			virtual bool Bind();
+			virtual bool Shutdown();
 
-			virtual int Recv(char* _Buf) = 0;
-			virtual bool Send(const int _Client, const char* _Buf, const int _Length) = 0;
-			virtual bool SendAll(const char* _Buf, const int _Length) = 0;
+			virtual Network::Packet* Recv();
+			virtual bool Send(const int _Client, const char* _Buf, const int _Length);
+			virtual bool SendAll(const char* _Buf, const int _Length);
 		};
 	}
 }

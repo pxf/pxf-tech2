@@ -7,35 +7,38 @@
 #include <Pxf/Resource/Chunk.h>
 
 namespace Pxf {
+	class Kernel;
 namespace Resource {
-    class ResourceManager;
-    class ResourceLoader;
-    class ResourceBase : public Util::Noncopyable
-    {
-    protected:
-        Chunk* m_Chunk;
-        unsigned m_References;
-        ResourceLoader* m_Loader;
-        virtual bool Build() pure;
-        friend class ResourceManager;
-    public:
-        ResourceBase(Chunk* _Chunk, ResourceLoader* _Loader)
-            : m_Chunk(_Chunk)
-            , m_Loader(_Loader)
-            , m_References(0)
-        {}
-        virtual ~ResourceBase()
-        {
-            if (m_Chunk)
-                delete m_Chunk;
-        };
+	class ResourceManager;
+	class ResourceLoader;
+	class ResourceBase : public Util::Noncopyable
+	{
+	protected:
+		Kernel* m_Kernel;
+		Chunk* m_Chunk;
+		unsigned m_References;
+		ResourceLoader* m_Loader;
+		virtual bool Build() pure;
+		friend class ResourceManager;
+	public:
+		ResourceBase(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader)
+			: m_Kernel(_Kernel) 
+			, m_Chunk(_Chunk)
+			, m_Loader(_Loader)
+			, m_References(0)
+		{}
+		virtual ~ResourceBase()
+		{
+			if (m_Chunk)
+				delete m_Chunk;
+		};
 
-        virtual const bool IsReady() const pure;
+		virtual const bool IsReady() const pure;
 
-        const char* GetSource() const
-        {
-            return m_Chunk->source;
-        }
+		const char* GetSource() const
+		{
+			return m_Chunk->source;
+		}
 
 		void _AddRef()
 		{
@@ -47,7 +50,7 @@ namespace Resource {
 			m_References--;
 		}
 
-    };
+	};
 
 } // Resource
 } // Pxf

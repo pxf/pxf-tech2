@@ -14,6 +14,9 @@
 #include <Pxf/Modules/pri/OpenGLUtils.h>
 #include <Pxf/Modules/pri/TypeTraits.h>
 
+#include <Pxf/Resource/Image.h>
+#include <Pxf/Resource/Mesh.h>
+
 
 #define LOCAL_MSG "Device"
 
@@ -23,7 +26,7 @@ using namespace Pxf::Modules;
 using Util::String;
 
 DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
-    : GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
+	: GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
 	, m_CurrentFrameBufferObject(0)
 	, m_CurrentShader(0)
 {
@@ -38,7 +41,7 @@ DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
 	
 	// Clear BindTexture history
 	for(int i = 0; i < 16; ++i)
-        m_BindHistory[i] = NULL;
+		m_BindHistory[i] = NULL;
 	
 }
 
@@ -81,6 +84,12 @@ void DeviceGL2::SetProjection(Math::Mat4 *_matrix)
 	glMatrixMode (GL_MODELVIEW);
 }
 
+void DeviceGL2::SetModelView(Math::Mat4 *_matrix)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf((GLfloat*)(_matrix->m));
+}
+
 void DeviceGL2::SwapBuffers()
 {
 	if (m_Window)
@@ -109,6 +118,14 @@ Texture* DeviceGL2::CreateTexture(const char* _filepath)
 	return _tex;
 }
 
+Texture* DeviceGL2::CreateTexture(Resource::Image* _Image)
+{
+	_Image->_AddRef();
+	TextureGL2* _tex = new TextureGL2(this);
+	_tex->LoadData(_Image->Ptr(), _Image->Width(), _Image->Height(), _Image->Channels());
+	return _tex;	
+}
+
 Texture* DeviceGL2::CreateTextureFromData(const unsigned char* _datachunk, int _width, int _height, int _channels)
 {
 	TextureGL2* _tex = new TextureGL2(this);
@@ -118,15 +135,15 @@ Texture* DeviceGL2::CreateTextureFromData(const unsigned char* _datachunk, int _
 
 Texture* DeviceGL2::BindTexture(Texture* _texture)
 {
-    Texture* ret = m_BindHistory[0];
-    m_BindHistory[0] = _texture;
-    if (_texture == NULL)
-    {
-        glBindTexture(GL_TEXTURE_2D, 0);
-    } else {
-        glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
-    }
-    return ret;
+	Texture* ret = m_BindHistory[0];
+	m_BindHistory[0] = _texture;
+	if (_texture == NULL)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
+	}
+	return ret;
 }
 
 static GLuint _texture_units_array[16] = {GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2, GL_TEXTURE3, GL_TEXTURE4,
@@ -135,16 +152,22 @@ static GLuint _texture_units_array[16] = {GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2,
 										GL_TEXTURE15};
 Texture* DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
 {
-    Texture* ret = m_BindHistory[_texture_unit];
-    m_BindHistory[_texture_unit] = _texture;
+	Texture* ret = m_BindHistory[_texture_unit];
+	m_BindHistory[_texture_unit] = _texture;
 	glActiveTextureARB(_texture_units_array[_texture_unit]);
-    if (_texture == NULL)
-    {
-    	glBindTexture(GL_TEXTURE_2D, 0);
-    } else {
-    	glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
-    }
-    return ret;
+	if (_texture == NULL)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
+	}
+	return ret;
+}
+
+void DeviceGL2::DestroyTexture(Graphics::Texture* _texture)
+{
+  if (_texture)
+	delete _texture;
 }
 
 Model* DeviceGL2::CreateModel(const char* _FilePath)
@@ -152,6 +175,14 @@ Model* DeviceGL2::CreateModel(const char* _FilePath)
 	ModelGL2* _NewModel = new ModelGL2(this);
 	_NewModel->Load(_FilePath);
 	return _NewModel;
+}
+
+Model* DeviceGL2::CreateModel(Resource::Mesh* _Mesh)
+{
+	_Mesh->_AddRef();
+	ModelGL2* _NewModel = new ModelGL2(this);
+	_NewModel->Load((Resource::Mesh*)_Mesh);
+	return _NewModel;	
 }
 
 VertexBuffer* DeviceGL2::CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
@@ -185,14 +216,14 @@ static unsigned LookupPrimitiveType(VertexBufferPrimitiveType _PrimitiveType)
 
 void DeviceGL2::DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount)
 {
-    PXF_ASSERT(_VertexCount <= _pVertexBuffer->GetVertexCount(), "Attempting to draw too many vertices");
-    _pVertexBuffer->_PreDraw();
-    GLuint primitive = LookupPrimitiveType(_pVertexBuffer->GetPrimitive());
-    unsigned vertex_count = _pVertexBuffer->GetVertexCount();
-    if (_VertexCount > 0)
-        vertex_count = _VertexCount;
-    glDrawArrays(primitive, 0, vertex_count);
-    _pVertexBuffer->_PostDraw();
+	PXF_ASSERT(_VertexCount <= _pVertexBuffer->GetVertexCount(), "Attempting to draw too many vertices");
+	_pVertexBuffer->_PreDraw();
+	GLuint primitive = LookupPrimitiveType(_pVertexBuffer->GetPrimitive());
+	unsigned vertex_count = _pVertexBuffer->GetVertexCount();
+	if (_VertexCount > 0)
+		vertex_count = _VertexCount;
+	glDrawArrays(primitive, 0, vertex_count);
+	_pVertexBuffer->_PostDraw();
 }
 
 RenderBuffer* DeviceGL2::CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height)

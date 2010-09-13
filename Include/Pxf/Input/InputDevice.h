@@ -9,34 +9,36 @@
 namespace Pxf {
 namespace Input
 {
-    class InputDevice : public Pxf::System
-    {
-    public:
-    InputDevice(Kernel* _Kernel, const char* _Identifier)
-    : Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_INPUTDEVICE, _Identifier)
-    {}
-    
-    virtual void Update() = 0;
+	class InputDevice : public Pxf::System
+	{
+	public:
+	InputDevice(Kernel* _Kernel, const char* _Identifier)
+	: Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_INPUTDEVICE, _Identifier)
+	{}
 
-    virtual bool IsKeyDown(int _key) = 0;
-    virtual bool IsButtonDown(int _button) = 0;
+	virtual ~InputDevice(){};
+	
+	virtual void Update() = 0;
 
-    virtual int GetLastKey() = 0;
-    virtual int GetLastChar() = 0;
-    virtual int GetLastButton() = 0;
+	virtual bool IsKeyDown(int _key) = 0;
+	virtual bool IsButtonDown(int _button) = 0;
 
-    virtual void ClearLastKey() = 0;
-    virtual void ClearLastChar() = 0;
-    virtual void ClearLastButton() = 0;
+	virtual int GetLastKey() = 0;
+	virtual int GetLastChar() = 0;
+	virtual int GetLastButton() = 0;
 
-    virtual void GetMousePos(int *x, int *y) = 0;
-    virtual void SetMousePos(int x, int y) = 0;
+	virtual void ClearLastKey() = 0;
+	virtual void ClearLastChar() = 0;
+	virtual void ClearLastButton() = 0;
 
-    virtual MouseMode GetMouseMode() = 0;
-    virtual void SetMouseMode(MouseMode _Mode) = 0;
+	virtual void GetMousePos(int *x, int *y) = 0;
+	virtual void SetMousePos(int x, int y) = 0;
 
-    virtual void ShowCursor(bool _show) = 0;
-    };
+	virtual MouseMode GetMouseMode() = 0;
+	virtual void SetMouseMode(MouseMode _Mode) = 0;
+
+	virtual void ShowCursor(bool _show) = 0;
+	};
 }
 }
 

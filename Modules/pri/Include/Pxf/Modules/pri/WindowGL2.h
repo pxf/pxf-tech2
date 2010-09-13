@@ -12,7 +12,7 @@ namespace Pxf{
 		{
 		public:
 			WindowGL2(WindowSpecifications *_window_spec);
-			~WindowGL2();
+			virtual ~WindowGL2();
 
 			bool Open();
 			bool Close();

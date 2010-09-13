@@ -22,6 +22,8 @@ namespace Pxf
 				, m_Height(_Height)
 			{ }
 
+			virtual ~RenderBuffer(){};
+
 			int GetWidth() { return m_Width; }
 			int GetHeight() { return m_Height; }
 

@@ -88,9 +88,9 @@ char*	StringDuplicateF(const char *format, ...)
 		if (n > -1 && n < size)
 			return p;
 		/* Else try again with more space. */
-		if (n > -1)    /* glibc 2.1 */
+		if (n > -1)	/* glibc 2.1 */
 			size = n+1; /* precisely what is needed */
-		else           /* glibc 2.0 */
+		else		   /* glibc 2.0 */
 			size *= 2;  /* twice the old size */
 		if ((np =(char*)realloc (p, size*sizeof(char))) == NULL) {
 			free(p);
@@ -110,7 +110,7 @@ char *Pxf::StringSub(const char *str, int start, int length)
 
 	if (length == -1) length = str_length - start;
 	if (length < 0)   length = str_length - start + length;
-	if (start < 0)     start = str_length + start;
+	if (start < 0)	 start = str_length + start;
 
 	if (start > str_length || length < 0 || length-start > length) return 0;
 
@@ -125,7 +125,7 @@ char *Pxf::StringConcat(const char *str1, const char *str2)
 {
 	int len_str1 = StringLength(str1);
 	int len_str2 = StringLength(str2);
-	int len      = len_str1 + len_str2;
+	int len	  = len_str1 + len_str2;
 	char *ret = (char*)MemoryAllocate((len + 1)*sizeof(char));
 	StringCopy(ret, str1, len_str1);
 	StringCopy(ret+len_str1, str2, len_str2);
