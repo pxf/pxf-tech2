@@ -49,6 +49,8 @@ namespace Pxf
 
 			virtual void KillServer(const int _ServerIdent);
 			virtual void KillClient(const int _ClientIdent);
+			
+			virtual int CreateType();
 		};
 	}
 }

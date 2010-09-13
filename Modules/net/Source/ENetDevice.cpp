@@ -53,3 +53,10 @@ void ENetDevice::KillClient(const int _ClientIdent)
 {
 	return;
 }
+
+int ENetDevice::CreateType()
+{
+	static int typeCounter;
+	
+	return ++typeCounter;
+}

@@ -90,27 +90,27 @@ Pxf::Network::Packet* ENetServer::Recv()
 	return NULL;
 }
 
-bool ENetServer::Send(const int _Client, const char* _Buf, const int _Length)
+bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 {
 	ENetPacket *packet;
 
-	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
 
-	enet_peer_send(&Server->peers[_Client], 0, packet);
+	enet_peer_send(&Server->peers[_Client], _Type, packet);
 	enet_packet_destroy(packet);
 	enet_host_flush(Server);
 
 	return true;
 }
 
-bool ENetServer::SendAll(const char* _Buf, const int _Length)
+bool ENetServer::SendAll(const int _Type, const char* _Buf)
 {
 	ENetPacket *packet;
 	ENetPeer *peer;
 
-	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
 
-	enet_host_broadcast(Server, 0, packet);
+	enet_host_broadcast(Server, _Type, packet);
 
 
 	// TODO: Some way of destroying this packet.

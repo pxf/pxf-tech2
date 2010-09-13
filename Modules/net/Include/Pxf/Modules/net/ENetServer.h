@@ -10,6 +10,7 @@
 #include <Pxf/Util/Array.h>
 #include <enet/enet.h>
 #include <stdio.h>
+#include <string.h>
 
 namespace Pxf
 {
@@ -26,18 +27,18 @@ namespace Pxf
 		private:
 			ENetAddress Address;
 			ENetHost *Server;
-
+			
 			int CreateClientID();
 
 		public:
 			ENetServer(const int _Port);
-
+			
 			virtual bool Bind();
 			virtual bool Shutdown();
-
+			
 			virtual Network::Packet* Recv();
-			virtual bool Send(const int _Client, const char* _Buf, const int _Length);
-			virtual bool SendAll(const char* _Buf, const int _Length);
+			virtual bool Send(const int _Client, const int _Type, const char* _Buf);
+			virtual bool SendAll(const int _Type, const char* _Buf);
 		};
 	}
 }

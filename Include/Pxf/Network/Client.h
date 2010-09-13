@@ -17,7 +17,7 @@ namespace Pxf
 			virtual bool Connected() = 0;
 
 			virtual Packet* Recv() = 0;
-			virtual bool Send(const char* _Buf, const int _Length) = 0;
+			virtual bool Send(const int _Type, const char* _Buf) = 0;
 		};
 	}
 }

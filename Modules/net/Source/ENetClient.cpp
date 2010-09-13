@@ -127,11 +127,11 @@ Pxf::Network::Packet* ENetClient::Recv()
 
 // TODO: Add support for different priorities.
 // TODO: Add support for use of different channels.
-bool ENetClient::Send(const char* _Buf, const int _Length)
+bool ENetClient::Send(const int _Type, const char* _Buf)
 {
 	ENetPacket *packet;
 
-	packet = enet_packet_create(_Buf, _Length+1, ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
 
 	// Send over channel 0.
 	enet_peer_send(Peer, 0, packet);
