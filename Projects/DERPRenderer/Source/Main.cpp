@@ -108,10 +108,11 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	
 	Graphics::Window* win = gfx->OpenWindow(&spec);
-	Graphics::Model* test_model = gfx->CreateModel("data/box.ctm");
+	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
-	//glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+	
 
 	//Math::Mat4 t_ortho = Math::Mat4::Ortho(0, spec.Width, spec.Height, 0, 1.0f, 10000.0f);
 	//gfx->SetProjection(&t_ortho);
@@ -152,7 +153,7 @@ int main()
 	data[21] = MyVertex(Vec3f(-0.5f, -0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
 	data[22] = MyVertex(Vec3f(0.5f, -0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
 	data[23] = MyVertex(Vec3f(0.5f, -0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-
+	/*
 	Graphics::VertexBuffer* pBuff;
 
 	pBuff = gfx->CreateVertexBuffer(Graphics::VB_LOCATION_GPU, Graphics::VB_USAGE_STATIC_DRAW);
@@ -164,7 +165,7 @@ int main()
 	pBuff->SetPrimitive(Graphics::VB_PRIMITIVE_QUADS);
 
 	pBuff->UpdateData(data,sizeof(data),0);
-
+	*/
 	SimpleCamera cam;
 	cam.SetPerspective(45.0f,800 / 600, 1.0f,10000.0f);
 	cam.SetLookAt(0.0f,0.0f,0.0f);

@@ -52,13 +52,13 @@ bool ModelGL2::Load(Resource::Mesh* _Mesh)
 		unsigned int idx = md.indices[i];
 		
 		// look-up position for index idx
-		float x = (md.vertices+idx)[0];
-		float y = (md.vertices+idx)[1];
-		float z = (md.vertices+idx)[2];
+		float x = *(md.vertices+(idx*3));
+		float y = *(md.vertices+(idx*3)+1);
+		float z = *(md.vertices+(idx*3)+2);
 
 		// set position
 		ptr[i].vertex = Math::Vec3f(x,y,z);
-		Message("Model", "%d. (%.2f, %.2f, %.2f)", i, ptr[i].vertex.x, ptr[i].vertex.y, ptr[i].vertex.z);
+		Message("Model", "%d. [%d](%.2f, %.2f, %.2f)", i, idx, ptr[i].vertex.x, ptr[i].vertex.y, ptr[i].vertex.z);
 	}
 
 	m_VertexBuffer->UnmapData();
