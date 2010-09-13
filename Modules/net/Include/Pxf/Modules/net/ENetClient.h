@@ -26,8 +26,10 @@ namespace Pxf
 			ENetAddress Address;
 			ENetHost *Client;
 			ENetPeer *Peer;
-
+			
 		public:
+			int Ident;
+			
 			ENetClient(const char* _Host, const int _Port);
 
 			virtual bool Connect();
@@ -36,6 +38,7 @@ namespace Pxf
 
 			virtual Network::Packet* Recv();
 			virtual bool Send(const int _Type, const char* _Buf);
+
 		};
 	}
 }

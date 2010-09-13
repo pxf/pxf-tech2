@@ -20,16 +20,22 @@ ENetDevice::~ENetDevice()
 
 Server* ENetDevice::CreateServer(const int _Port)
 {
+	static int ident;
+	
 	ENetServer* server = new ENetServer(_Port);
 	Servers.push_back(server);
+	server->Ident = ident++;
 
 	return (Server*)server;
 }
 
 Client* ENetDevice::CreateClient(const char* _Host, const int _Port)
 {
+	static int ident;
+	
 	ENetClient* client = new ENetClient(_Host, _Port);
 	Clients.push_back(client);
+	client->Ident = ident++;
 
 	return (Client*)client;
 }
