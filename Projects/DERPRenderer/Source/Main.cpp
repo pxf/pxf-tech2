@@ -228,7 +228,7 @@ int main()
 		glVertex3f(0.0f,1.0f,0.0f);
 		glEnd(); */
 		
-		glRotatef(a,1.0f,0.5f,-0.4f);
+		glRotatef(a,1.0f, 0, 0);
 		//glScalef(0.1, 0.1, 0.1);
 		test_model->Draw();
 

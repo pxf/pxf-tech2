@@ -46,17 +46,18 @@ bool ModelGL2::Load(Resource::Mesh* _Mesh)
 	m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_TRIANGLES);
 
 	ModelGL2::Vertex* ptr = (ModelGL2::Vertex*) m_VertexBuffer->MapData(VB_ACCESS_READ_WRITE);
-	for(int i = 0, j = 0; i < md.triangle_count; i++, j+=3)
+	for(int i = 0; i < md.triangle_count*3; i++)
 	{
-		unsigned int i1 = md.indices[j+0];
-		unsigned int i2 = md.indices[j+1];
-		unsigned int i3 = md.indices[j+2];
-		Math::Vec3f* v1 = (Math::Vec3f*)&md.vertices[i1];
-		Math::Vec3f* v2 = (Math::Vec3f*)&md.vertices[i2];
-		Math::Vec3f* v3 = (Math::Vec3f*)&md.vertices[i3];
-		ptr[j].vertex = *v1;
-		ptr[j+1].vertex = *v2;
-		ptr[j+2].vertex = *v3;
+		// index for vertex i
+		unsigned int idx = md.indices[i];
+		
+		// look-up position for index idx
+		float x = (md.vertices+idx)[0];
+		float y = (md.vertices+idx)[1];
+		float z = (md.vertices+idx)[2];
+
+		// set position
+		ptr[i].vertex = Math::Vec3f(x,y,z);
 		Message("Model", "%d. (%.2f, %.2f, %.2f)", i, ptr[i].vertex.x, ptr[i].vertex.y, ptr[i].vertex.z);
 	}
 
