@@ -163,9 +163,9 @@ int RtAudioDevice::RegisterSound(Resource::Sound* _Sound)
 
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
-		if (m_SoundBank[i] == snd)
+		if (m_SoundBank[i] == _Sound)
 		{
-			Message("Audio", "Trying to register sound '%s' more than once.", _Filename);
+			Message("Audio", "Trying to register sound '%s' more than once.", _Sound->GetSource());
 			return i;
 		}
 	}
