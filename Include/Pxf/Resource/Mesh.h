@@ -22,6 +22,18 @@ namespace Resource {
 				normals = cpy.normals;
 				indices = cpy.indices;
 			}
+			~mesh_descriptor()
+			{
+				// TODO: Move implementation details to module, so we can delete this.
+				/*
+				if (vertices)
+					delete [] vertices;
+				if (normals)
+					delete [] normals;
+				if (indices)
+					delete [] indices;
+				*/
+			}
 
 			bool has_normals;
 			int vertex_count;
@@ -51,7 +63,7 @@ namespace Resource {
 
 		virtual const bool IsReady() const
 		{
-			return m_MeshData.vertices && !(m_MeshData.has_normals ^ (m_MeshData.normals == 0)) && m_MeshData.indices;
+			return m_MeshData.vertices && !(m_MeshData.has_normals && (m_MeshData.normals == 0)) && m_MeshData.indices;
 		}
 
 		mesh_descriptor* GetData() { return &m_MeshData; }

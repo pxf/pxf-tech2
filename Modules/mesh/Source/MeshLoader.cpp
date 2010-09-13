@@ -1,4 +1,5 @@
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Base/Memory.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Modules/mesh/MeshLoader.h>
 
@@ -88,43 +89,29 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 
 		Resource::Mesh::mesh_descriptor _Data;
 		_Data.has_normals = _HasNormals;
-		_Data.has_normals = false;
 		_Data.vertex_count = _VertCount;
 		_Data.triangle_count = _TriCount;
-		_Data.vertices = _Vertices;
-		_Data.normals = _Normals;
-		_Data.indices= _Indices;
+
+		float *n_vertices, *n_normals;
+		unsigned int* n_indices;
+
+		n_vertices = (float *) MemoryAllocate(3 * sizeof(float) * _VertCount);
+		MemoryCopy(n_vertices, _Vertices, 3 * sizeof(float)*_VertCount);
+		if (_HasNormals)
+		{
+			n_normals = (float *) MemoryAllocate(3 * sizeof(float) * _VertCount);
+			MemoryCopy(n_normals, _Normals, 3 * sizeof(float)*_VertCount);
+		}
+		n_indices = (unsigned int *) MemoryAllocate(3 * sizeof(unsigned int) * _TriCount);
+		MemoryCopy(n_indices, _Indices, 3 * sizeof(unsigned int)*_TriCount);
+
+		_Data.vertices = n_vertices;
+		_Data.normals = n_normals;
+		_Data.indices= n_indices;
 
 		Message(LOCAL_MSG,"Finished loading model %s", _FilePath);
 
-		//float _Vertbuf[3*_TriCount * 3];
-
-		int bufSize = 3*_TriCount*3;
-		float* _Vertbuf = new float[bufSize];
-
-		for(int i = 0; i < _TriCount; i++)
-		{
-			for(int j = 0; j < 3; j++)
-			{
-				for(int k = 0; k < 3; k++)
-				{	
-					int index = _Indices[i];
-					_Vertbuf[i*9 + j*3 + k] = _Vertices[index + k];
-				}
-			}
-		}
-
-		_Data.vertices = _Vertbuf;
 		_NewMesh->SetData(_Data);
-
-		/*
-		const float* p = _Vertbuf;
-
-		for(int i = 0; i < bufSize; i++)
-		{
-			printf("%f\n",(*p));
-			p++;
-		}*/
 
 		return _NewMesh;
 	}

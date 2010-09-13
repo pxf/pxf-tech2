@@ -108,9 +108,10 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	
 	Graphics::Window* win = gfx->OpenWindow(&spec);
-	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
+	Graphics::Model* test_model = gfx->CreateModel("data/icosphere.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
+	//glDisable(GL_CULL_FACE);
 
 	//Math::Mat4 t_ortho = Math::Mat4::Ortho(0, spec.Width, spec.Height, 0, 1.0f, 10000.0f);
 	//gfx->SetProjection(&t_ortho);
@@ -178,7 +179,7 @@ int main()
 	while(win->IsOpen())
 	{
 		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
+		//glPushMatrix();
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -205,7 +206,7 @@ int main()
 		int mx,my;
 		inp->GetMousePos(&mx,&my);
 
-		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_DEPTH_TEST);
 
 		// test
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -227,7 +228,8 @@ int main()
 		glVertex3f(0.0f,1.0f,0.0f);
 		glEnd(); */
 		
-		//glRotatef(a,1.0f,0.0f,0.0f);
+		glRotatef(a,1.0f,0.5f,-0.4f);
+		//glScalef(0.1, 0.1, 0.1);
 		test_model->Draw();
 
 		//
