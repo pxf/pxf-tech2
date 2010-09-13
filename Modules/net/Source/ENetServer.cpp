@@ -22,6 +22,11 @@ bool ENetServer::Bind()
 	// TOOD: Make use of the different channels.
 	Server = enet_host_create(&Address, 32, 2, 0, 0);
 
+#if COMPRESSION == 1
+	enet_host_compress_with_range_coder(Server);
+	Message("ENetServer", "Enabling range-coder compression.");
+#endif
+
 	if (Server == NULL)
 	{
 		Message("ENetServer", "Could not bind to localhost:%d", Address.port);
@@ -107,13 +112,9 @@ bool ENetServer::SendAll(const char* _Buf, const int _Length)
 
 	enet_host_broadcast(Server, 0, packet);
 
-/*	for(int i = 0; i < Server->peerCount; i++)
-	{
-		Message("ENetServer", "Sending to %d.", i);
-		enet_peer_send(&Server->peers[i], 0, packet);
-	}
-*/
 
+	// TODO: Some way of destroying this packet.
+	//		 Even better, is it destroyed by the enet-library?
 //	enet_packet_destroy(packet);
 //	enet_host_flush(Server);
 
