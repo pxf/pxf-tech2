@@ -507,19 +507,35 @@ end
 
 function gui:create_movablepanel(x,y,w,h)
 	local base_widget = gui:create_basewidget(x,y,w,h)
-	--base_widget.offset = { dx = 0, dy = 0 }
 
 	function base_widget:mousedrag(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
-		  self:needsredraw()
-			--self.offset.dx = self.offset.dx + dx
-			--self.offset.dy = self.offset.dy + dy
-
-			self.drawbox.x = self.drawbox.x + dx
-			self.drawbox.y = self.drawbox.y + dy
-			self.hitbox.x = self.hitbox.x + dx
-			self.hitbox.y = self.hitbox.y + dy
-			self:needsredraw()
+			if (gui.snap_to_grid) then
+				local x,y = inp.getmousepos()
+				
+				local cell_x = math.ceil(x / gui.grid_size)
+				local cell_y = math.ceil(y / gui.grid_size)
+				
+				-- Note: add offset from point clicked within the component
+				-- Right now, its just moving the box
+				
+				self:needsredraw()
+				self.drawbox.x = cell_x * gui.grid_size
+				self.hitbox.x = cell_x * gui.grid_size
+				self.drawbox.y = cell_y * gui.grid_size
+				self.hitbox.y = cell_y * gui.grid_size
+				self:needsredraw()
+				
+				
+			else
+				self:needsredraw()
+				self.drawbox.x = self.drawbox.x + dx
+				self.drawbox.y = self.drawbox.y + dy
+				self.hitbox.x = self.hitbox.x + dx
+				self.hitbox.y = self.hitbox.y + dy
+				self:needsredraw()
+			end
+			
 		end
 	end
 
@@ -662,10 +678,12 @@ function gui:create_menu2(x,y,width,menu)
   wid.menu = menu
   wid.highlightid = 0
 
+  wid.menu_children = {}
+
   for k,v in pairs(menu) do
 	if v[1] then
 		local newbut = gui:create_menubutton(v[1],v[2])
-
+		table.insert(wid.menu_children,newbut)
 	end
   end
 
@@ -694,10 +712,9 @@ function gui:create_menu2(x,y,width,menu)
       gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
                       20,6,1,1)
       gfx.setcolor(r,g,b)
-
-	  -- draw text
-	  for k,v in pairs(menu) do
-
+    
+	  for k,v in pairs(self.menu_children) do
+		v:draw()
 	  end
 
       gfx.translate(-self.drawbox.x, -self.drawbox.y)

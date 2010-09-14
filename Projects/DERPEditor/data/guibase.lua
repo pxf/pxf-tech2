@@ -1,4 +1,6 @@
 gui = {}
+gui.snap_to_grid = false
+gui.grid_size = 100
 
 ----------------------------------------------
 -- base classes for widgets
