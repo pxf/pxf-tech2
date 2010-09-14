@@ -16,7 +16,7 @@ long int sstat_memoryusage()
 	prof_hprocess = OpenProcess(  PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, prof_processid );
 	
     if (NULL == prof_hprocess)
-      return 0;
+      return -1;
 
     if ( GetProcessMemoryInfo( prof_hprocess, &prof_pmc, sizeof(prof_pmc)) )
     {
