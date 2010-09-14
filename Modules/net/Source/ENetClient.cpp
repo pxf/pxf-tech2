@@ -2,15 +2,12 @@
 
 using namespace Pxf::Modules;
 
-ENetClient::ENetClient(const char* _Host, const int _Port)
-{
-	enet_address_set_host(&Address, _Host);
-	Address.port = _Port;
-}
-
-bool ENetClient::Connect()
+bool ENetClient::Connect(const char* _Host, const int _Port)
 {
 	ENetEvent event;
+
+	enet_address_set_host(&Address, _Host);
+	Address.port = _Port;
 
 	Client = enet_host_create(NULL, 1, 2, 0, 0);
 

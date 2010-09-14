@@ -22,8 +22,8 @@ namespace Network
 		{}
 		virtual ~NetworkDevice(){}
 
-		virtual Server* CreateServer(const int _Port) = 0;
-		virtual Client* CreateClient(const char* _Host, const int _Port) = 0;
+		virtual Server* CreateServer() = 0;
+		virtual Client* CreateClient() = 0;
 
 		virtual Server* GetServer(const int _ServerIdent) = 0;
 		virtual Client* GetClient(const int _ClientIdent) = 0;

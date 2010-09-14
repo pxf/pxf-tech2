@@ -8,7 +8,7 @@
 #include <Pxf/Base/Debug.h>
 
 /* #include <windows.h> */
-#include <unistd.h>
+//#include <unistd.h>
 
 
 using namespace Pxf;
@@ -31,9 +31,9 @@ int main(int argv, char *argc[])
 
 	if (isserver)
 	{
-		Server* server = netdev->CreateServer(5006);
+		Server* server = netdev->CreateServer();
 		Packet* packet;
-		server->Bind();
+		server->Bind(5006);
 		while (1)
 		{
 			packet = server->Recv();
@@ -47,10 +47,10 @@ int main(int argv, char *argc[])
 	}
 	else /* client */
 	{
-		Client* client = netdev->CreateClient("localhost", 5006);
-		Client* client2 = netdev->CreateClient("localhost", 5006);
-		client2->Connect();
-		client->Connect();
+		Client* client = netdev->CreateClient();
+		Client* client2 = netdev->CreateClient();
+		client2->Connect("localhost", 5006);
+		client->Connect("localhost", 5006);
 //		Sleep(1000);
 		for(int i=0;i < 10; i++)
 		{

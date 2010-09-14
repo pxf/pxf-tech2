@@ -31,9 +31,9 @@ namespace Pxf
 		public:
 			int Ident;
 			
-			ENetClient(const char* _Host, const int _Port);
+			//ENetClient(const char* _Host, const int _Port);
 
-			virtual bool Connect();
+			virtual bool Connect(const char* _Host, const int _Port);
 			virtual bool Disconnect();
 			virtual bool Connected();
 
