@@ -6,6 +6,7 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Modules/pri/FontLoader.h>
+#include <Pxf/Base/Memory.h>
 
 #define LOCAL_MSG "FontLoader"
 
@@ -79,7 +80,7 @@ bool BitmapFont::Build()
 		return false;
 	}
 
-	memset(m_CharInfo, 0, sizeof(CharInfo_t) * 256);
+	MemorySet(m_CharInfo, 0, sizeof(CharInfo_t) * 256);
 
 	for(int i = 0; i < num_chars; i++)
 	{
@@ -109,7 +110,7 @@ bool BitmapFont::Build()
 
 		m_Kernings = new Kerning_t[num_kernings];
 
-		memset(m_Kernings, 0, sizeof(Kerning_t) * num_kernings);
+		MemorySet(m_Kernings, 0, sizeof(Kerning_t) * num_kernings);
 		for(int i = 0; i < num_kernings; i++)
 		{
 			m_Kernings[i].first  = (char)data.ReadLE<int16>();
