@@ -15,7 +15,7 @@ namespace Pxf
 			struct Vertex
 			{
 				Math::Vec3f vertex;
-				//Math::Vec3f normal;
+				Math::Vec3f normal;
 			};
 
 		private:
