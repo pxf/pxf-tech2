@@ -54,4 +54,10 @@ long int sstat_memoryusage()
 	return info.resident_size;
 }
 
+#else
+long int sstat_memoryusage()
+{
+	return 420*1024*1024;
+}
+
 #endif
