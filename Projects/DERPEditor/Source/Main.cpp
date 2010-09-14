@@ -93,7 +93,7 @@ int main()
 
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
-		printf("mem usage: %dMB\n", sstat_memoryusage() / 1024.0f / 1024.0f);
+		printf("mem usage: %.1fMB\n", sstat_memoryusage() / 1024.0f / 1024.0f);
 		
 		while (frametotal < framelength)
 		{

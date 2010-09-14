@@ -10,7 +10,7 @@ long int sstat_memoryusage()
 	DWORD  prof_processid;
 	HANDLE prof_hprocess;
 	PROCESS_MEMORY_COUNTERS prof_pmc;
-	int    prof_memusage = 0;
+	long int    prof_memusage = 0;
 	
 	prof_processid = GetCurrentProcessId();
 	prof_hprocess = OpenProcess(  PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, prof_processid );
