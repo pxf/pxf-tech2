@@ -2,6 +2,7 @@
 #define _PXF_MODULES_PRI_MODELGL2_H_
 #include <Pxf/Graphics/Model.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Math/Vector.h>
 
 namespace Pxf
 {
@@ -11,10 +12,10 @@ namespace Pxf
 		class ModelGL2 : public Graphics::Model
 		{
 		public:
-			struct ModelGL2Vertex
+			struct Vertex
 			{
-
-
+				Math::Vec3f vertex;
+				Math::Vec3f normal;
 			};
 
 		private:

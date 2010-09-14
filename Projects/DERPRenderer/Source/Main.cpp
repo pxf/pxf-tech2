@@ -3,6 +3,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Timer.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Input/InputDevice.h>
@@ -111,6 +112,8 @@ int main()
 	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
+	glDisable(GL_CULL_FACE);
+	
 
 	//Math::Mat4 t_ortho = Math::Mat4::Ortho(0, spec.Width, spec.Height, 0, 1.0f, 10000.0f);
 	//gfx->SetProjection(&t_ortho);
@@ -151,7 +154,7 @@ int main()
 	data[21] = MyVertex(Vec3f(-0.5f, -0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
 	data[22] = MyVertex(Vec3f(0.5f, -0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
 	data[23] = MyVertex(Vec3f(0.5f, -0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-
+	/*
 	Graphics::VertexBuffer* pBuff;
 
 	pBuff = gfx->CreateVertexBuffer(Graphics::VB_LOCATION_GPU, Graphics::VB_USAGE_STATIC_DRAW);
@@ -163,7 +166,7 @@ int main()
 	pBuff->SetPrimitive(Graphics::VB_PRIMITIVE_QUADS);
 
 	pBuff->UpdateData(data,sizeof(data),0);
-
+	*/
 	SimpleCamera cam;
 	cam.SetPerspective(45.0f,800 / 600, 1.0f,10000.0f);
 	cam.SetLookAt(0.0f,0.0f,0.0f);
@@ -175,10 +178,12 @@ int main()
 	int oldmx,oldmy;
 	float cam_z = 15.0f;
 
+	Timer t;
 	while(win->IsOpen())
 	{
+		t.Start();
 		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
+		//glPushMatrix();
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -205,7 +210,7 @@ int main()
 		int mx,my;
 		inp->GetMousePos(&mx,&my);
 
-		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_DEPTH_TEST);
 
 		// test
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -227,7 +232,8 @@ int main()
 		glVertex3f(0.0f,1.0f,0.0f);
 		glEnd(); */
 		
-		//glRotatef(a,1.0f,0.0f,0.0f);
+		glRotatef(a,1.0f, 0, 0);
+		//glScalef(0.1, 0.1, 0.1);
 		test_model->Draw();
 
 		//
@@ -243,10 +249,6 @@ int main()
 
 
 		oldmx = mx; oldmy = my;
-
-		char title[512];
-		Format(title, "Renderer (fps: %d)", win->GetFPS());
-		win->SetTitle(title);
 		
 		if (inp->GetLastButton() == Input::MOUSE_LEFT)
 			snd->Play(tick_id);
@@ -256,6 +258,11 @@ int main()
 		inp->ClearLastKey();
 		inp->ClearLastButton();
 
+		char title[512];
+		
+		t.Stop();
+		Format(title, "Renderer (fps: %d, processing time: %d ms)", win->GetFPS(), t.Interval());
+		win->SetTitle(title);
 		win->Swap();
 
 		glPopMatrix();

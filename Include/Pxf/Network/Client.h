@@ -12,12 +12,13 @@ namespace Pxf
 		public:
 			virtual ~Client(){}
 
-			virtual bool Connect() = 0;
+			virtual bool Connect(const char* _Host, const int _Port) = 0;
 			virtual bool Disconnect() = 0;
 			virtual bool Connected() = 0;
 
 			virtual Packet* Recv() = 0;
-			virtual bool Send(const char* _Buf, const int _Length) = 0;
+			virtual Packet* RecvNonBlocking(const int _Timeout) = 0;
+			virtual bool Send(const int _Type, const char* _Buf) = 0;
 		};
 	}
 }

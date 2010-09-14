@@ -7,7 +7,8 @@
 
 #include <Pxf/Base/Debug.h>
 
-#include <windows.h>
+/* #include <windows.h> */
+//#include <unistd.h>
 
 
 using namespace Pxf;
@@ -22,20 +23,23 @@ int main(int argv, char *argc[])
 	kernel->DumpAvailableModules();
 
 	NetworkDevice* netdev = kernel->GetNetworkDevice();
+	
+	int def = netdev->CreateType();
+	int crit = netdev->CreateType();
 
 	int isserver = (argv > 1 && !strcmp(argc[1], "server"));
 
 	if (isserver)
 	{
-		Server* server = netdev->CreateServer(5006);
+		Server* server = netdev->CreateServer();
 		Packet* packet;
-		server->Bind();
+		server->Bind(5006);
 		while (1)
 		{
 			packet = server->Recv();
 			Message("Main Server", "Got packet \"%s\"", packet->GetData());
-//			Sleep(1000);
-			server->SendAll("lol", 3);
+			//sleep(1);
+			server->SendAll(def, "lol");
 			Message("Main", "SendAll");
 		}
 		
@@ -43,18 +47,18 @@ int main(int argv, char *argc[])
 	}
 	else /* client */
 	{
-		Client* client = netdev->CreateClient("localhost", 5006);
-		Client* client2 = netdev->CreateClient("localhost", 5006);
-		client2->Connect();
-		client->Connect();
+		Client* client = netdev->CreateClient();
+		Client* client2 = netdev->CreateClient();
+		client2->Connect("localhost", 5006);
+		client->Connect("localhost", 5006);
 //		Sleep(1000);
 		for(int i=0;i < 10; i++)
 		{
-			client->Send("Lol", 3);
-			client2->Send("Lol", 3);
+			client->Send(def, "Lol");
+			client2->Send(crit, "Lol");
 
-			client->Recv();
-			client2->Recv();
+			client->RecvNonBlocking(1000);
+			client2->RecvNonBlocking(1000);
 		}
 //		Packet* packet = client->Recv();
 //		Sleep(1000);

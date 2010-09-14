@@ -39,27 +39,30 @@ bool ModelGL2::Load(Resource::Mesh* _Mesh)
 	m_TriangleCount = md.triangle_count;
 
 
-	m_VertexBuffer = GetDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
-	
-	m_VertexBuffer->CreateNewBuffer(md.triangle_count*3,3*sizeof(float));
-	//m_VertexBuffer->CreateFromBuffer((void*) md.vertices,md.triangle_count*3,12);
-
-	int bufSize = md.triangle_count * 9;
-
-	float* buf = new float[bufSize];
-	const float* p = md.vertices;
-
-	float* bufp = (float*) m_VertexBuffer->MapData(VB_ACCESS_READ_WRITE);
-
-	m_VertexBuffer->SetData(VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
+	m_VertexBuffer = GetDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_STATIC_DRAW);
+	m_VertexBuffer->CreateNewBuffer(md.triangle_count*3, sizeof(ModelGL2::Vertex));
+	m_VertexBuffer->SetData(VB_VERTEX_DATA, 0                  , 3); // SetData(Type, OffsetInBytes, NumComponents)
+	if (md.has_normals)
+		m_VertexBuffer->SetData(VB_NORMAL_DATA, sizeof(Math::Vec3f), 3);
 	m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_TRIANGLES);
 
-	//Pxf::MemoryCopy(buf,md.vertices,bufSize);
-
-	for(int i = 0; i < bufSize; i++)
+	ModelGL2::Vertex* ptr = (ModelGL2::Vertex*) m_VertexBuffer->MapData(VB_ACCESS_READ_WRITE);
+	for(int i = 0; i < md.triangle_count*3; i++)
 	{
-		bufp[i] = p[i];
-		printf("%f\n",bufp[i]);
+		unsigned int idx = md.indices[i] * 3;
+		
+		Math::Vec3f vertex = Math::Vec3f(*(md.vertices+idx+0), *(md.vertices+idx+1), *(md.vertices+idx+2));
+		Math::Vec3f normal;
+		if (md.has_normals)
+			normal = Math::Vec3f(*(md.normals+idx+0), *(md.normals+idx+1), *(md.normals+idx+2));
+
+		// set position
+		ptr[i].vertex = vertex;
+		ptr[i].normal = normal;
+
+
+
+		Message("Model", "%d. [%d](%.2f, %.2f, %.2f)", i, idx, ptr[i].vertex.x, ptr[i].vertex.y, ptr[i].vertex.z);
 	}
 
 	m_VertexBuffer->UnmapData();
