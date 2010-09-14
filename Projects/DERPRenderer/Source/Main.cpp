@@ -3,6 +3,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Timer.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Input/InputDevice.h>
@@ -177,8 +178,10 @@ int main()
 	int oldmx,oldmy;
 	float cam_z = 15.0f;
 
+	Timer t;
 	while(win->IsOpen())
 	{
+		t.Start();
 		glMatrixMode(GL_PROJECTION);
 		//glPushMatrix();
 
@@ -246,10 +249,6 @@ int main()
 
 
 		oldmx = mx; oldmy = my;
-
-		char title[512];
-		Format(title, "Renderer (fps: %d)", win->GetFPS());
-		win->SetTitle(title);
 		
 		if (inp->GetLastButton() == Input::MOUSE_LEFT)
 			snd->Play(tick_id);
@@ -259,6 +258,11 @@ int main()
 		inp->ClearLastKey();
 		inp->ClearLastButton();
 
+		char title[512];
+		
+		t.Stop();
+		Format(title, "Renderer (fps: %d, processing time: %d ms)", win->GetFPS(), t.Interval());
+		win->SetTitle(title);
 		win->Swap();
 
 		glPopMatrix();
