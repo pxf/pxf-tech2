@@ -59,7 +59,6 @@ topstack:addwidget(toolbar)
 local statusbar = gui:create_statusbar(0,app.height,app.width, editor.name .. " v" .. editor.version)
 gui.statusbar = statusbar
 
-
 ----------------------------------------------
 -- add widgets to root
 gui.widgets:addwidget(topstack)

@@ -204,14 +204,15 @@ function gui:create_root()
   function rootwid:draw(force)
     local r,g,b = gfx.getcolor()
     gfx.setcolor(86/255,86/255,86/255)
-    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,18,2,1,1)
+    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,19,4,1,1)
     gfx.setcolor(r,g,b)
     
-    gfx.translate(self.drawbox.x, self.drawbox.y)
     for k,v in pairs(self.childwidgets) do
+      gfx.translate(self.drawbox.x, self.drawbox.y)
       v:draw(force)
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
     end
-    gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
   end
   
   return rootwid

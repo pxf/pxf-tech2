@@ -78,7 +78,7 @@ void LuaApp::Init()
   m_QuadBatchCount++;
   
   // Init GL settings
-  Math::Mat4 prjmat = Math::Mat4::Ortho(0, 800, 600, 0, LUAAPP_DEPTH_FAR, LUAAPP_DEPTH_NEAR);
+  Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, LUAAPP_DEPTH_FAR, LUAAPP_DEPTH_NEAR);
   m_gfx->SetProjection(&prjmat);
   
   //glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
@@ -318,7 +318,7 @@ void LuaApp::Draw()
 	m_TimerDraw.Start();
     // Setup viewport and matrises
     // TODO: get window dimensions dynamically
-    m_gfx->SetViewport(0, 0, 800, 600);
+    m_gfx->SetViewport(0, 0, m_win->GetWidth(), m_win->GetHeight());
     
     if (m_Running)
     {

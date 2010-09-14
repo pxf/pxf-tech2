@@ -27,7 +27,7 @@
 
 #include <enet/enet.h>
 
-//#include <openctm.h>
+#include <sstat.h>
 
 #include <ctime>
 
@@ -35,6 +35,9 @@
 #include "TexturedQuadBatch.h"
 #include "LuaApp.h"
 #include <Pxf/Modules/pri/OpenGL.h>
+
+
+
 
 using namespace Pxf;
 using namespace DERPEditor;
@@ -75,7 +78,7 @@ int main()
 
 
     Graphics::WindowSpecifications spec;
-    spec.Width = 800;
+    spec.Width = 1024;
     spec.Height = 600;
     spec.ColorBits = 24;
     spec.AlphaBits = 8;
@@ -149,6 +152,8 @@ int main()
 	
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
     {
+		printf("mem usage: %dMB\n", sstat_memoryusage() / 1024.0f / 1024.0f);
+		
 		while (frametotal < framelength)
 		{
 			racetimer.Stop();
