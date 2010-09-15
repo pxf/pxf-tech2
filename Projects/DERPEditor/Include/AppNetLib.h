@@ -5,14 +5,13 @@
 
 #define LUA_LIB
 #include "lua.h"
-#include "luaxlib.h"
 
 #define LUA_APPNETLIBNAME "net"
 
 namespace DERPEditor
 {
 	// lib functions
-	int snd_createserver(lua_State *L);
+	int net_createserver(lua_State *L);
 
 	// Register lib
 	int luaopen_appnet(lua_State *L);
