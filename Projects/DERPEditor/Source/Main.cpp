@@ -27,8 +27,6 @@
 
 #include <enet/enet.h>
 
-#include <sstat.h>
-
 #include <ctime>
 
 #include "QuadBatch.h"
@@ -92,9 +90,7 @@ int main()
 	glEnable(GL_TEXTURE_2D);
 
     while(win->IsOpen() && !inp->IsKeyDown(Input::ESC) && running)
-    {
-		printf("mem usage: %.1fMB\n", sstat_memoryusage() / 1024.0f / 1024.0f);
-		
+    {	
 		while (frametotal < framelength)
 		{
 			racetimer.Stop();
