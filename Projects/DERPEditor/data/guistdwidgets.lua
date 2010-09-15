@@ -74,9 +74,9 @@ function gui:create_horisontalpanel(x,y,w,h,max)
     return x,y
   end
   
-  --wid.superdraw = wid.draw
+  -- wid.superdraw = wid.draw
   function wid:draw(force)
-    if (self.redraw_needed or force) then
+    if (self.visible and (self.redraw_needed or force)) then
       local r,g,b = gfx.getcolor()
       gfx.setcolor(46/256,46/256,46/256)
       gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
@@ -241,14 +241,14 @@ end
 
 
 -- simple console output
-function gui:create_console(x,y,w,h,visible)
+function gui:create_console(x,y,w,h,open_state)
   local wid = gui:create_basewidget(x,y,w,h)
-  wid.visible = visible
+  wid.open_state = open_state
   wid.stdheight = h
   wid.minheight = 5
   wid.consolelines = {}
   
-  if visible then
+  if open_state then
     wid.drawbox.h = wid.stdheight
     wid.hitbox.h = wid.stdheight
   else
@@ -269,7 +269,7 @@ function gui:create_console(x,y,w,h,visible)
       gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,18,2,1,1)
       gfx.setcolor(r,g,b)
       
-      if (self.visible) then
+      if (self.open_state) then
         
         for k,v in pairs(self.consolelines) do
           panic.text(v, 16, 16*k)
@@ -283,9 +283,9 @@ function gui:create_console(x,y,w,h,visible)
   
   function wid:mouserelease(mx,my,button)
     if (button == inp.MOUSE_LEFT) then
-      self.visible = not self.visible
+      self.open_state = not self.open_state
       
-      if (self.visible) then
+      if (self.open_state) then
         --self.drawbox.h = self.stdheight
         --self.hitbox.h = self.stdheight
         self:resize_abs(self.drawbox.w, self.stdheight)
@@ -300,13 +300,6 @@ function gui:create_console(x,y,w,h,visible)
   end
   
   return wid
-end
-
--- aoeu
-function gui:create_container(x,y,w,h)
-	local base_widget = gui:create_basewidget(x,y,w,h)
-
-	return base_widget
 end
 
 function gui:create_labelpanel(x,y,w,h,text)
@@ -364,7 +357,7 @@ function gui:create_movablewindow(x,y,w,h,label)
 	minimize_label_arrow.super_draw = minimize_label_arrow.draw
 	close_label_icon.super_draw = close_label_icon.draw
 
-	local top_container = gui:create_container(0,0,w,20)
+	local top_container = gui:create_basewidget(0,0,w,20)
 
 	close_button:addwidget(close_label_icon)
 	minimize_button:addwidget(minimize_label_arrow)
@@ -708,7 +701,7 @@ function gui:create_menu2(x,y,width,menu)
     
       -- bg
       local r,g,b = gfx.getcolor()
-      gfx.setcolor(0.2,0.2,0.2)
+      gfx.setcolor(0.3,0.3,0.3)
       gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
                       20,6,1,1)
       gfx.setcolor(r,g,b)
@@ -716,6 +709,8 @@ function gui:create_menu2(x,y,width,menu)
 	  for k,v in pairs(self.menu_children) do
 		v:draw()
 	  end
+	  
+	  gui:drawfont("dicksuck", 0,0)
 
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
     
