@@ -30,9 +30,20 @@ local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C"
 local about_menu = {{"Memory usage", {onclick = function () print("Memory usage: " .. tostring(app.getmemusage()/1024/1024) .. "MB") end}},
                     {"About DERPEditor", {onclick = function () spawn_aboutwindow() end}}
                    }
-
+				   
 local window_menu = {{"Inspector",{toggle = false, onclick = function() end}},
-					 {"Toolbar",{toggle = true, onclick = function() end}},
+					 {"Toolbar",{toggle = true, tooltip = "Show/Hide Toolbar.",
+						onclick = 
+							function(self) 
+								toolbar.visible = not self.toggle
+								
+								if toolbar.visible then
+									toolbar:resize_abs(app.width,40)
+								else
+									toolbar:resize_abs(0,0)
+								end
+								
+							end }},
 					 {"Navigator",{toggle = false, onclick = function() end}}
 					}
                    
@@ -45,24 +56,16 @@ local window_menu = {{"Inspector",{toggle = false, onclick = function() end}},
 -- create top widget stack
 --   ie. menubar, console, toolbar, tabbar
 local topstack = gui:create_verticalstack(0,0,app.width)
-
---local menubar2 = gui:create_menu2(0,0,app.width,{{"File",file_menu},{"Window",window_menu}})
 local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
---[[local menubar = gui:create_menubar(0,0,app.width)
-menubar:addwidget(gui:create_menubutton("File",file_menu))
-menubar:addwidget(gui:create_menubutton("Edit",edit_menu))
-menubar:addwidget(gui:create_menubutton("Window",window_menu))
-menubar:addwidget(gui:create_menubutton("About",about_menu))]]
 
-local console = gui:create_console(0,0,app.width,100,false)
+console = gui:create_console(0,0,app.width,100,false)
 
-local toolbar = gui:create_horisontalpanel(0,0,app.width,42, app.width)
+toolbar = gui:create_horisontalpanel(0,0,app.width,40, app.width)
 
 -- add topstack widgets
 topstack:addwidget(menubar)
---topstack:addwidget(menubar2)
-topstack:addwidget(console)
 topstack:addwidget(toolbar)
+topstack:addwidget(console)
 
 ----------------------------------------------
 -- create status bar

@@ -74,9 +74,9 @@ function gui:create_horisontalpanel(x,y,w,h,max)
     return x,y
   end
   
-  --wid.superdraw = wid.draw
+  -- wid.superdraw = wid.draw
   function wid:draw(force)
-    if (self.redraw_needed or force) then
+    if (self.visible and (self.redraw_needed or force)) then
       local r,g,b = gfx.getcolor()
       gfx.setcolor(46/256,46/256,46/256)
       gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
@@ -241,14 +241,14 @@ end
 
 
 -- simple console output
-function gui:create_console(x,y,w,h,visible)
+function gui:create_console(x,y,w,h,open_state)
   local wid = gui:create_basewidget(x,y,w,h)
-  wid.visible = visible
+  wid.open_state = open_state
   wid.stdheight = h
   wid.minheight = 5
   wid.consolelines = {}
   
-  if visible then
+  if open_state then
     wid.drawbox.h = wid.stdheight
     wid.hitbox.h = wid.stdheight
   else
@@ -269,7 +269,7 @@ function gui:create_console(x,y,w,h,visible)
       gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,18,2,1,1)
       gfx.setcolor(r,g,b)
       
-      if (self.visible) then
+      if (self.open_state) then
         
         for k,v in pairs(self.consolelines) do
           panic.text(v, 16, 16*k)
@@ -283,9 +283,9 @@ function gui:create_console(x,y,w,h,visible)
   
   function wid:mouserelease(mx,my,button)
     if (button == inp.MOUSE_LEFT) then
-      self.visible = not self.visible
+      self.open_state = not self.open_state
       
-      if (self.visible) then
+      if (self.open_state) then
         --self.drawbox.h = self.stdheight
         --self.hitbox.h = self.stdheight
         self:resize_abs(self.drawbox.w, self.stdheight)
@@ -300,13 +300,6 @@ function gui:create_console(x,y,w,h,visible)
   end
   
   return wid
-end
-
--- aoeu
-function gui:create_container(x,y,w,h)
-	local base_widget = gui:create_basewidget(x,y,w,h)
-
-	return base_widget
 end
 
 function gui:create_labelpanel(x,y,w,h,text)
@@ -364,7 +357,7 @@ function gui:create_movablewindow(x,y,w,h,label)
 	minimize_label_arrow.super_draw = minimize_label_arrow.draw
 	close_label_icon.super_draw = close_label_icon.draw
 
-	local top_container = gui:create_container(0,0,w,20)
+	local top_container = gui:create_basewidget(0,0,w,20)
 
 	close_button:addwidget(close_label_icon)
 	minimize_button:addwidget(minimize_label_arrow)
@@ -507,19 +500,35 @@ end
 
 function gui:create_movablepanel(x,y,w,h)
 	local base_widget = gui:create_basewidget(x,y,w,h)
-	--base_widget.offset = { dx = 0, dy = 0 }
 
 	function base_widget:mousedrag(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
-		  self:needsredraw()
-			--self.offset.dx = self.offset.dx + dx
-			--self.offset.dy = self.offset.dy + dy
-
-			self.drawbox.x = self.drawbox.x + dx
-			self.drawbox.y = self.drawbox.y + dy
-			self.hitbox.x = self.hitbox.x + dx
-			self.hitbox.y = self.hitbox.y + dy
-			self:needsredraw()
+			if (gui.snap_to_grid) then
+				local x,y = inp.getmousepos()
+				
+				local cell_x = math.ceil(x / gui.grid_size)
+				local cell_y = math.ceil(y / gui.grid_size)
+				
+				-- Note: add offset from point clicked within the component
+				-- Right now, its just moving the box
+				
+				self:needsredraw()
+				self.drawbox.x = cell_x * gui.grid_size
+				self.hitbox.x = cell_x * gui.grid_size
+				self.drawbox.y = cell_y * gui.grid_size
+				self.hitbox.y = cell_y * gui.grid_size
+				self:needsredraw()
+				
+				
+			else
+				self:needsredraw()
+				self.drawbox.x = self.drawbox.x + dx
+				self.drawbox.y = self.drawbox.y + dy
+				self.hitbox.x = self.hitbox.x + dx
+				self.hitbox.y = self.hitbox.y + dy
+				self:needsredraw()
+			end
+			
 		end
 	end
 
@@ -651,7 +660,6 @@ function gui:create_simplebutton(x,y,w,h,label,action)
   
   return wid
 end
-
 
 -- spawns a menu in the root of the widget tree
 function gui:spawn_menu(x,y,menu)
@@ -938,6 +946,8 @@ function gui:create_menubar(x,y,w,menus)
     if (self.menu_child) then
       self.menu_child:destroy()
     end
+    
+    self:needsredraw()
   end
   
   function wid:lostfocus(newfocus)

@@ -1,4 +1,6 @@
 gui = {}
+gui.snap_to_grid = false
+gui.grid_size = 100
 
 ----------------------------------------------
 -- base classes for widgets
@@ -9,7 +11,9 @@ function gui:create_basewidget(x,y,w,h)
     drawbox = {x = x, y = y, w = w, h = h},
     parent = nil,
     redraw_needed = false,
+	visible = true,
     widget_type = "stdwidget" -- stdwidget, menu
+	
   }
   
   function wid:destroy()
@@ -119,14 +123,20 @@ function gui:create_basewidget(x,y,w,h)
   ----------------------------------
   
   function wid:draw(force)
-    gfx.translate(self.drawbox.x, self.drawbox.y)
-    for k,v in pairs(self.childwidgets) do
-      v:draw(force)
-    end
-    gfx.translate(-self.drawbox.x, -self.drawbox.y)
+	if self.visible then
+		gfx.translate(self.drawbox.x, self.drawbox.y)
+		for k,v in pairs(self.childwidgets) do
+		  v:draw(force)
+		end
+		gfx.translate(-self.drawbox.x, -self.drawbox.y)
+	end
   end
   
   function wid:hittest(x0,y0,x1,y1)
+	if not self.visible then
+		return false
+	end
+	
     if (x1 < self.hitbox.x) then
       return false
     elseif (x0 > self.hitbox.x + self.hitbox.w) then
@@ -141,6 +151,10 @@ function gui:create_basewidget(x,y,w,h)
   end
   
   function wid:hittest_d(x0,y0,x1,y1) -- drawbox hittest
+ 	if not self.visible then
+		return false
+	end
+	
     if (x1 < self.drawbox.x) then
       return false
     elseif (x0 > self.drawbox.x + self.drawbox.w) then
