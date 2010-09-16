@@ -32,7 +32,7 @@ local about_menu = {{"Memory usage", {onclick = function () print("Memory usage:
                     {"About DERPEditor", {onclick = function () spawn_aboutwindow() end}}
                    }
 				   
-local window_menu = {{"Inspector",{toggle = false, onclick = function() end}},
+local window_menu = {{"Inspector",{toggle = false, tooltip = "Show/Hide inspector panel.", onclick = function() end}},
 					 {"Toolbar",{toggle = true, tooltip = "Show/Hide Toolbar.",
 						onclick = 
 							function(self) 
@@ -45,7 +45,7 @@ local window_menu = {{"Inspector",{toggle = false, onclick = function() end}},
 								end
 								
 							end }},
-					 {"Navigator",{toggle = false, onclick = function() end}}
+					 {"Navigator",{toggle = false, tooltip = "Show/Hide navigator.", onclick = function() end}}
 					}
                    
 ----------------------------------------------
@@ -61,8 +61,11 @@ local window_menu = {{"Inspector",{toggle = false, onclick = function() end}},
 local topstack = gui:create_verticalstack(0,0,app.width,10)
 local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
 
+
 console = gui:create_console(0,0,app.width,100,false)
 toolbar = gui:create_horizontalpanel(0,0,app.width,40, app.width)
+local testinput = gui:create_textinput(0,0,140)
+toolbar:addwidget(testinput)
 
 -- add topstack widgets
 topstack:addwidget(menubar)
