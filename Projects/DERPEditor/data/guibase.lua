@@ -125,19 +125,12 @@ function gui:create_basewidget(x,y,w,h)
   
   function wid:draw(force)
 	if self.visible then
-		local r,g,b = gfx.getcolor()
-		
-		--gfx.setcolor(self.bg_color.r,self.bg_color.g,self.bg_color.b)
 		
 		if (gui.draw_debug_rects) then
-			gfx.setcolor(220/256,220/256,220/256)
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, 1, 17, 1, 1, 1) -- top
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, 1, self.drawbox.h, 17, 1, 1, 1) -- left
-			gfx.drawtopleft(self.drawbox.x + self.drawbox.w, self.drawbox.y, 1,self.drawbox.h, 17, 1, 1, 1) -- right
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h, self.drawbox.w, 1, 17, 1, 1, 1) -- bottom
-			
-			--gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.x+, self.drawbox.y+self.drawbox.h, 17, 1, 1, 1) -- upper left
-			gfx.setcolor(r,g,b)
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, 1, 5, 5, 1, 1) -- top
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, 1, self.drawbox.h, 5, 5, 1, 1) -- left
+			gfx.drawtopleft(self.drawbox.x + self.drawbox.w, self.drawbox.y, 1,self.drawbox.h, 5, 5, 1, 1) -- right
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h, self.drawbox.w, 1, 5, 5, 1, 1) -- bottom
 		end
 		
 		gfx.translate(self.drawbox.x, self.drawbox.y)
@@ -145,7 +138,6 @@ function gui:create_basewidget(x,y,w,h)
 		  v:draw(force)
 		end
 		gfx.translate(-self.drawbox.x, -self.drawbox.y)
-		--gfx.setcolor(r,g,b)
 	end
   end
   
@@ -237,7 +229,7 @@ function gui:create_root()
     local r,g,b = gfx.getcolor()
 
     gfx.setcolor(86/255,86/255,86/255)
-    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,19,4,1,1)
+    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,5,5,1,1)
     gfx.setcolor(r,g,b)
     
     for k,v in pairs(self.childwidgets) do
@@ -333,7 +325,7 @@ function gui:tooltip(str)
 end
 
 function gui:init()
-  self.themetex = gfx.loadtexture("data/guitheme.png")
+  self.themetex = gfx.loadtexture("data/guitheme_brown.png")
   self.font = gfx.loadtexture("data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   

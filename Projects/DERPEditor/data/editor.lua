@@ -1,6 +1,7 @@
 require("data/guibase")
 require("data/guistdwidgets")
 require("data/specwindows")
+require("data/DERPWidgets")
 
 ----------------------------------------------
 -- "constants"
@@ -75,8 +76,8 @@ gui.statusbar = statusbar
 
 ----------------------------------------------
 -- add widgets to root
-gui.widgets:addwidget(topstack)
-gui.widgets:addwidget(statusbar)
+--gui.widgets:addwidget(topstack)
+--gui.widgets:addwidget(statusbar)
 
 --[[
  _________________________
@@ -103,7 +104,7 @@ local window_container = gui:create_verticalstack(0,0,app.width,app.height)
 window_container.widget_type = "window container"
 
 	-- 1:
-	local menu_container = gui:create_horizontalstack(0,0,app.width,40)
+	local menu_container = derp:create_menu(0,0,app.width,40)
 	menu_container.widget_type = "menu"
 
 	-- 2:
@@ -167,8 +168,10 @@ window_container:addwidget(menu_container)
 window_container:addwidget(center_container)
 window_container:addwidget(statusbar_container)
 
---gui.widgets:addwidget(window_container)
---gui.draw_debug_rects = true
+gui.widgets:addwidget(window_container)
+gui.draw_debug_rects = true
+
+--gui.themetex = gfx.loadtexture("data/guitheme_brown.png")
 
 ----------------------------------------------
 -- initial draw
