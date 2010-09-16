@@ -52,15 +52,17 @@ local window_menu = {{"Inspector",{toggle = false, tooltip = "Show/Hide inspecto
 
 -- TODO: Create workspace.. :)
 
+--local workspace = gui:create_workspace(
+
 ----------------------------------------------
 -- create top widget stack
 --   ie. menubar, console, toolbar, tabbar
-local topstack = gui:create_verticalstack(0,0,app.width)
+local topstack = gui:create_verticalstack(0,0,app.width,10)
 local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
 
-local console = gui:create_console(0,0,app.width,100,false)
 
-local toolbar = gui:create_horisontalpanel(0,0,app.width,40, app.width)
+console = gui:create_console(0,0,app.width,100,false)
+toolbar = gui:create_horizontalpanel(0,0,app.width,40, app.width)
 local testinput = gui:create_textinput(0,0,140)
 toolbar:addwidget(testinput)
 
@@ -78,6 +80,98 @@ gui.statusbar = statusbar
 -- add widgets to root
 gui.widgets:addwidget(topstack)
 gui.widgets:addwidget(statusbar)
+
+--[[
+ _________________________
+|WINDOW
+| ___________________________
+||MENU
+||___________________________
+||L|CENTER
+|| |
+||P|
+||A|
+||D|
+||_|_________________________                           
+||STATUSBAR
+||___________________________
+|____________________________
+
+]]
+
+
+----------------------------------------------
+-- 0:
+local window_container = gui:create_verticalstack(0,0,app.width,app.height)
+window_container.widget_type = "window container"
+
+	-- 1:
+	local menu_container = gui:create_horizontalstack(0,0,app.width,40)
+	menu_container.widget_type = "menu"
+
+	-- 2:
+	local center_container = gui:create_horizontalstack(0,0,app.width,app.height-60)
+	center_container.widget_type = "center"
+
+	-- 3: 
+	local statusbar_container = gui:create_horizontalstack(0,0,app.width,20)
+	statusbar_container.widget_type = "statusbar"
+
+		-- 21: 
+		local left_padding_container = gui:create_basewidget(0,0,20,app.height-60)
+		left_padding_container.widget_type = "center: left padding"
+
+		-- 22
+		local center_main_container = gui:create_verticalstack(20,0,app.width-40,app.height-60)
+		center_main_container.widget_type = "center: main"
+
+		--- 221
+		local center_main_toolbar = gui:create_horizontalstack(0,0,app.width-40,40)
+		center_main_toolbar.widget_type = "center: main: toolbar"
+
+		--- 222 LOL no more names :(
+		local center_main_main = gui:create_horizontalstack(0,0,app.width-40,app.height-100)
+		center_main_main.widget_type = "center: main: main"
+
+			---- 2221
+			local workspace = gui:create_verticalstack(0,0,app.width-240,app.height-100)
+			workspace.widget_type = "center: main: main: workspace"
+
+				----- 22211
+				local workspace_tabs = gui:create_basewidget(0,0,app.width-240,20)
+				workspace_tabs.widget_type = "center: main: main: workspace: tabs"
+
+				----- 22212 
+				local workspace_area = gui:create_basewidget(0,0,app.width-240,app.height-120)
+				workspace_area.widget_type = "center: main: main: workspace: workspace area"
+				
+			---- 2222
+			local inspector = gui:create_verticalstack(0,0,200,app.height-100)
+			inspector.widget_type = "center: main: main: inspector"
+			
+		-- 23
+		local right_padding_container = gui:create_basewidget(app.width-20,0,20,app.height-60)
+		right_padding_container.widget_type = "center container: right padding"
+
+workspace:addwidget(workspace_tabs)
+workspace:addwidget(workspace_area)
+
+center_main_main:addwidget(workspace)
+center_main_main:addwidget(inspector)
+
+center_main_container:addwidget(center_main_toolbar)
+center_main_container:addwidget(center_main_main)
+
+center_container:addwidget(left_padding_container)
+center_container:addwidget(center_main_container)
+center_container:addwidget(right_padding_container)
+
+window_container:addwidget(menu_container)
+window_container:addwidget(center_container)
+window_container:addwidget(statusbar_container)
+
+--gui.widgets:addwidget(window_container)
+--gui.draw_debug_rects = true
 
 ----------------------------------------------
 -- initial draw
