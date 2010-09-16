@@ -28,7 +28,7 @@
 end]]
 
 -- scrollable panel
-function gui:create_horisontalpanel(x,y,w,h,max)
+function gui:create_horizontalpanel(x,y,w,h,max)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.offset = 0
   wid.max = max
@@ -114,8 +114,8 @@ function gui:create_horisontalpanel(x,y,w,h,max)
 end
 
 -- creates a widget stack that displays all widgets as a "stack"
-function gui:create_verticalstack(x,y,w)
-  local wid = gui:create_basewidget(x,y,w,10)
+function gui:create_verticalstack(x,y,w,h)
+  local wid = gui:create_basewidget(x,y,w,h)
   
   function wid:addwidget(cwid)
     cwid.parent = self
@@ -170,7 +170,7 @@ function gui:create_verticalstack(x,y,w)
 end
 
 -- creates a widget stack that displays all widgets as a "stack" but sideways
-function gui:create_horisontalstack(x,y,w,h)
+function gui:create_horizontalstack(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
   
   function wid:addwidget(cwid)
@@ -304,13 +304,14 @@ end
 
 function gui:create_labelpanel(x,y,w,h,text)
 	local base_widget = gui:create_basewidget(x,y,w,h)
+	base_widget.label_text = text
 
 	base_widget.superdraw = base_widget.draw
 
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		gui:drawfont(text, x, y)
+		gui:drawfont(self.label_text, x, y)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
