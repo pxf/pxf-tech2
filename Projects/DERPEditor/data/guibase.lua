@@ -50,6 +50,16 @@ function gui:create_basewidget(x,y,w,h)
   end
   
   -----------------------------------
+  -- update functions
+  --  (can be useful for animation or input)
+  function wid:update()
+    for k,v in pairs(self.childwidgets) do
+		  v:update(force)
+		end
+  end
+  
+  
+  -----------------------------------
   -- redraw functions
   function wid:needsredraw()
     local x,y = self:find_abspos(self)
@@ -254,6 +264,12 @@ function gui:set_focus(wid)
   end
   self.focuswidget = wid
   
+  if (self.focuswidget) then
+    if (self.focuswidget.gotfocus) then
+      self.focuswidget:gotfocus()
+    end
+  end
+  
 end
 
 function gui:drawcenteredfont(str,x,y)
@@ -407,6 +423,9 @@ function gui:update()
     end
     
   end
+  
+  -- call update function on widgets
+  self.widgets:update()
   
   --[[if (inp.isbuttondown(inp.MOUSE_LEFT)) then
     -- check if we hit something

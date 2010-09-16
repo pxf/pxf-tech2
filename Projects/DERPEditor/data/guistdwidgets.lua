@@ -1036,3 +1036,74 @@ function gui:create_menubar(x,y,w,menus)
   --gui.widgets:addwidget(wid)
 end
 
+-- creates a menu
+function gui:create_textinput(x,y,w)
+  local wid = gui:create_basewidget(x,y,w,30)
+  wid.stdheight = 30
+  wid.stdpadding = 20
+  --wid.
+  wid.value = ""
+  wid.state = "normal"
+  
+  -- key states
+  wid.backspace = false
+  
+  function wid:lostfocus(wid)
+    self.state = "normal"
+  end
+  
+  function wid:gotfocus()
+    self.state = "input"
+    self.backspace = false
+  end
+  
+  function wid:update()
+    if (self.state == "input") then
+      
+      -- special keys
+      if (inp.iskeydown(inp.BACKSPACE)) then
+        if not (self.backspace) then
+          self.value = string.sub(self.value, 1, #self.value - 1)
+        end
+        self.backspace = true
+      else
+        self.backspace = false
+        
+        -- char inputs
+        local c = inp.getlastchar()
+        inp.clearlastchar()
+      
+        if not (c == 0) then
+          --print("input char: " .. tostring(c))
+          self.value = self.value .. string.char(c)
+        end
+        
+      end
+    end
+  end
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- bg
+      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+                      40,6,1,1)
+                      
+      if (self.state == "input") then
+        gui:drawfont(self.value .. "|", self.stdpadding / 2, self.drawbox.h / 2)
+      else
+        gui:drawfont(self.value, self.stdpadding / 2, self.drawbox.h / 2)
+      end
+    
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+      
+    end
+  end
+  
+  return wid
+  --gui.widgets:addwidget(wid)
+end
+
+
+

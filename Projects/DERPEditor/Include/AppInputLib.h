@@ -18,6 +18,12 @@ namespace DERPEditor
     int inp_isbuttondown(lua_State *L);
     int inp_isbuttonup(lua_State *L);
 
+	  int inp_getlastchar(lua_State *L);
+	  int inp_clearlastchar(lua_State *L);
+	  
+    int inp_iskeydown(lua_State *L);
+    int inp_iskeyup(lua_State *L);
+
     // Register lib
     int luaopen_appinput(lua_State *L);
   
