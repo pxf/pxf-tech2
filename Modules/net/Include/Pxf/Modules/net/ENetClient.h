@@ -29,8 +29,6 @@ namespace Pxf
 			ENetPeer *Peer;
 			
 		public:
-			int Ident;
-			
 			//ENetClient(const char* _Host, const int _Port);
 
 			virtual bool Connect(const char* _Host, const int _Port);

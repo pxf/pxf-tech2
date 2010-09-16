@@ -10,6 +10,8 @@ namespace Pxf
 		class Server
 		{
 		public:
+			const int Ident;
+
 			virtual ~Server(){}
 
 			virtual bool Bind(const int _Port) = 0;
