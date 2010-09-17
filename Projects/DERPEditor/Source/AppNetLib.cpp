@@ -17,8 +17,12 @@ int DERPEditor::net_createserver(lua_State *L)
 
 		lua_newtable(L);
 		lua_pushlightuserdata(L, server);
+		lua_newtable(L);
+		lua_pushcfunction(L, net_server_delete);
+		lua_setfield(L, -2, "__gc");
+		lua_setmetatable(L, -2);
 		lua_setfield(L, -2, "instance");
-		lua_pushcfunction(L, net_bind);
+		lua_pushcfunction(L, net_server_bind);
 		lua_setfield(L, -2, "bind");
 
 		return 1;
@@ -49,7 +53,7 @@ int DERPEditor::net_createclient(lua_State *L)
 	return 0;
 }
 
-int DERPEditor::net_bind(lua_State *L)
+int DERPEditor::net_server_bind(lua_State *L)
 {
 	if (lua_gettop(L) == 2)
 	{
@@ -62,6 +66,23 @@ int DERPEditor::net_bind(lua_State *L)
 	else
 	{
 		lua_pushstring(L, "Invalid arguments passed to bind function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int DERPEditor::net_server_delete(lua_State *L)
+{
+	if (lua_gettop(L) == 2)
+	{
+		Message("net", "Deleting server");
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to delete function!");
 		lua_error(L);
 	}
 

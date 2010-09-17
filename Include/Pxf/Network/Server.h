@@ -10,7 +10,7 @@ namespace Pxf
 		class Server
 		{
 		public:
-			const int Ident;
+			int Ident;
 
 			virtual ~Server(){}
 

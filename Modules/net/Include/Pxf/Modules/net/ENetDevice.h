@@ -37,6 +37,8 @@ namespace Pxf
 			Util::Array<ENetServer*> Servers;
 			Util::Array<ENetClient*> Clients;
 
+			int ChildID;
+
 		public:
 			ENetDevice(Pxf::Kernel* _Kernel);
 			~ENetDevice();

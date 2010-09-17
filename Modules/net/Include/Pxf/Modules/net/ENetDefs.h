@@ -3,6 +3,6 @@
 
 #define MAX_PACKET_SIZE 65000
 
-#define COMPRESSION 1
+#define COMPRESSION 0
 
 #endif /* _PXF_MODULES_NET_ENETDEFS_H_ */
