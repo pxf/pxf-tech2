@@ -13,6 +13,8 @@ ENetDevice::ENetDevice(Pxf::Kernel* _Kernel)
 		Message("ENetDevice", "Unable to initialize enet.");
 	else
 		Message("ENetDevice", "enet initialized.");
+
+	ChildID = 0;
 }
 
 ENetDevice::~ENetDevice()
@@ -22,22 +24,18 @@ ENetDevice::~ENetDevice()
 
 Server* ENetDevice::CreateServer()
 {
-	static int ident;
-	
 	ENetServer* server = new ENetServer();
 	Servers.push_back(server);
-	server->Ident = ident++;
+	server->Ident = ChildID++;
 
 	return (Server*)server;
 }
 
 Client* ENetDevice::CreateClient()
 {
-	static int ident;
-	
 	ENetClient* client = new ENetClient();
 	Clients.push_back(client);
-	client->Ident = ident++;
+	client->Ident = ChildID++;
 
 	return (Client*)client;
 }

@@ -92,7 +92,8 @@ namespace DERPEditor
         Pxf::Graphics::GraphicsDevice* m_gfx;
         Pxf::Input::InputDevice* m_inp;
         Pxf::Graphics::Window* m_win;
-		    Pxf::Audio::AudioDevice* m_snd;
+		Pxf::Audio::AudioDevice* m_snd;
+		Pxf::Network::NetworkDevice* m_net;
         
     private:
         const char* m_Filepath;

@@ -32,9 +32,8 @@ namespace Pxf
 			int CreateClientID();
 
 		public:
-			int Ident;
-			
-//			ENetServer();
+//			ENetServer(){}
+			virtual ~ENetServer(){};
 			
 			virtual bool Bind(const int _Port);
 			virtual bool Shutdown();

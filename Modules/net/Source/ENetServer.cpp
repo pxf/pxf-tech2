@@ -17,6 +17,7 @@ bool ENetServer::Bind(const int _Port)
 	Address.host = ENET_HOST_ANY;
 	Address.port = _Port;
 
+	Message("ENetServer", "Ident %d", Ident);
 	Server = enet_host_create(&Address, 32, 2, 0, 0);
 
 #if COMPRESSION == 1
