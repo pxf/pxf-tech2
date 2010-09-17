@@ -10,6 +10,8 @@ namespace Pxf
 		class Client
 		{
 		public:
+			const int Ident;
+
 			virtual ~Client(){}
 
 			virtual bool Connect(const char* _Host, const int _Port) = 0;
