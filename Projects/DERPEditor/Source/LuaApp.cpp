@@ -35,7 +35,7 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_AppErrorQB->AddCentered(0, 0, 512, 256);
     m_AppErrorQB->End();
     
-    m_StencilQB = new QuadBatch(32, &m_CurrentDepth, &m_CurrentColor);
+    m_StencilQB = new QuadBatch(128*4, &m_CurrentDepth, &m_CurrentColor);
     
     m_RedrawNeeded = false;
     m_RedrawStencil = false;
@@ -76,7 +76,10 @@ void LuaApp::Init()
 {
   m_RedrawMode = LUAAPP_REDRAWMODE_FULL;
   
-  m_QuadBatches[m_QuadBatchCount] = new QuadBatch(LUAAPP_QBSIZE, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
+  m_MaxQuadCount = 2048;
+  m_DepthStep = (LUAAPP_DEPTH_RANGE / m_MaxQuadCount);
+  
+  m_QuadBatches[m_QuadBatchCount] = new QuadBatch(m_MaxQuadCount, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
   m_QuadBatchCount++;
   
   // Init GL settings
@@ -281,7 +284,7 @@ QuadBatch* LuaApp::GetActiveQB()
 
 void LuaApp::IncDepth()
 {
-  m_CurrentDepth = m_CurrentDepth - LUAAPP_DEPTH_STEP;
+  m_CurrentDepth = m_CurrentDepth - m_DepthStep;
 }
 
 void LuaApp::ResetDepth()

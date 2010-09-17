@@ -349,8 +349,8 @@ function gui:tooltip(str)
 end
 
 function gui:init()
-  self.themetex = gfx.loadtexture("data/guitheme.png")
-  self.font = gfx.loadtexture("data/charmap_monaco_shadow.png")
+  self.themetex = gfx.loadtexture(2048*2, "data/guitheme.png")
+  self.font = gfx.loadtexture(1024, "data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
   self.activewidget = nil

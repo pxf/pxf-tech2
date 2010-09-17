@@ -77,8 +77,8 @@ function gfx.redrawneeded(x,y,w,h)
 end
 
 -- load standard textures
-font = gfx.loadtexture("data/consolefont2.png")
-runtimeerror_tex = gfx.loadtexture("data/runtimeerror.png")
+font = gfx.loadtexture(1024, "data/consolefont2.png")
+runtimeerror_tex = gfx.loadtexture(1,"data/runtimeerror.png")
 
 -- error handling
 error_stop = false
