@@ -1038,9 +1038,11 @@ function gui:create_menubar(x,y,w,menus)
 end
 
 -- creates a menu
-function gui:create_textinput(x,y,w)
+function gui:create_textinput(x,y,w,masked)
   local wid = gui:create_basewidget(x,y,w,30)
+  wid.masked = masked -- passwords etc
   wid.stdheight = 30
+  wid.selectionheight = 16
   wid.stdpadding = 20
   wid.value = ""
   wid.state = "normal"
@@ -1054,18 +1056,20 @@ function gui:create_textinput(x,y,w)
   wid.rightekey = false
   
   -- find out max visible char number
-  wid.maxvisible = math.floor((w-wid.stdpadding) / 8)
+  wid.maxvisible = math.floor((w-wid.stdpadding-8) / 8)
   
   -- TODO: add mouserelease and mousedrag events so that the
   --       user can select text with the mouse.
   
   function wid:lostfocus(wid)
     self.state = "normal"
+    self:needsredraw()
   end
   
   function wid:gotfocus()
     self.state = "input"
     self.backspace = false
+    self:needsredraw()
   end
   
   function wid:update()
@@ -1087,6 +1091,8 @@ function gui:create_textinput(x,y,w)
           
         end
         self.backspace = true
+        self:needsredraw()
+        
       elseif (inp.iskeydown(inp.DEL)) then
         if not (self.deletekey) then
           -- delete part of value if we have a range of value selected
@@ -1099,6 +1105,8 @@ function gui:create_textinput(x,y,w)
 
         end
         self.deletekey = true
+        self:needsredraw()
+        
       elseif (inp.iskeydown(inp.LEFT)) then
         -- left arrow key
         if (inp.iskeydown(inp.LSHIFT)) then
@@ -1118,6 +1126,8 @@ function gui:create_textinput(x,y,w)
           self.selection.finish = nil
           self.selection.start = self.selection.start - 1
         end
+        
+        self:needsredraw()
       elseif (inp.iskeydown(inp.RIGHT)) then
         -- right arrow key
         if (inp.iskeydown(inp.LSHIFT)) then
@@ -1136,6 +1146,8 @@ function gui:create_textinput(x,y,w)
           self.selection.finish = nil
           self.selection.start = self.selection.start + 1
         end
+        
+        self:needsredraw()
       else
         
         -- reset special keys
@@ -1159,6 +1171,8 @@ function gui:create_textinput(x,y,w)
           self.selection.finish = nil
           
         end
+        
+        self:needsredraw()
         
       end
       
@@ -1201,13 +1215,22 @@ function gui:create_textinput(x,y,w)
       
       -- find out what is visible
       out_str = string.sub(self.value, self.viewstart+1, self.viewstart+1+self.maxvisible)        
+      
+      -- password?
+      if (self.masked) then
+        local new_outstr = ""
+        for i=1,#out_str do
+          new_outstr = new_outstr .. self.masked
+        end
+        out_str = new_outstr
+      end
         
       if not (self.selection.finish == nil) then
         -- selected range
         local r,g,b = gfx.getcolor()
         gfx.setcolor(0.8,0.5,0.5)
-        local sx1 = self.stdpadding / 2 + (self.selection.start - self.viewstart)*8 - 4
-        local sx2 = self.stdpadding / 2 + (self.selection.finish - self.viewstart)*8 - 4
+        local sx1 = self.stdpadding / 2 + (self.selection.start - self.viewstart)*8
+        local sx2 = self.stdpadding / 2 + (self.selection.finish - self.viewstart)*8
         if (sx1 < self.stdpadding / 2) then
           sx1 = self.stdpadding / 2
         elseif (sx1 > self.drawbox.w - self.stdpadding / 2) then
@@ -1218,18 +1241,18 @@ function gui:create_textinput(x,y,w)
         elseif (sx2 > self.drawbox.w - self.stdpadding / 2) then
           sx2 = self.drawbox.w - self.stdpadding / 2
         end
-        gfx.drawtopleft(sx1, 0, sx2-sx1, self.drawbox.h,
+        gfx.drawtopleft(sx1, self.drawbox.h / 2 - self.selectionheight / 2, sx2-sx1, self.selectionheight,
                         17,6,1,1)
         gfx.setcolor(r,g,b)
       end
       
       -- render visible string
-      gui:drawfont(out_str, self.stdpadding / 2, self.drawbox.h / 2)
+      gui:drawfont(out_str, self.stdpadding / 2+4, self.drawbox.h / 2)
       
-      if (self.state == "input") then
+      if (self.state == "input" and not self.selection.finish) then
         local r,g,b = gfx.getcolor()
         gfx.setcolor(0.8,0.5,0.5)
-        gui:drawfont("-", self.stdpadding / 2 + (self.selection.start - self.viewstart)*8, self.drawbox.h / 2+4);
+        gui:drawfont("-", self.stdpadding / 2 + 4 + (self.selection.start - self.viewstart)*8, self.drawbox.h / 2+4);
         
         gfx.setcolor(r,g,b)
       end
