@@ -1042,12 +1042,19 @@ function gui:create_textinput(x,y,w)
   local wid = gui:create_basewidget(x,y,w,30)
   wid.stdheight = 30
   wid.stdpadding = 20
-  --wid.
-  wid.value = ""
+  wid.value = "1234567890"
   wid.state = "normal"
+  wid.selection = {start = 0, finish = nil, direction = 0}
+  wid.viewstart = 0
   
   -- key states
   wid.backspace = false
+  wid.deletekey = false
+  wid.leftkey = false
+  wid.rightekey = false
+  
+  -- find out max visible char number
+  wid.maxvisible = math.floor((w-wid.stdpadding) / 8)
   
   function wid:lostfocus(wid)
     self.state = "normal"
@@ -1064,22 +1071,139 @@ function gui:create_textinput(x,y,w)
       -- special keys
       if (inp.iskeydown(inp.BACKSPACE)) then
         if not (self.backspace) then
-          self.value = string.sub(self.value, 1, #self.value - 1)
+          -- delete part of value if we have a range of value selected
+          if (self.selection.finish) then
+            self.value = string.sub(self.value, 1, self.selection.start) .. string.sub(self.value, self.selection.finish+1)
+          else
+            self.selection.start = self.selection.start - 1
+            if (self.selection.start >= 0) then
+              self.value = string.sub(self.value, 1, self.selection.start) .. string.sub(self.value, self.selection.start+2)
+            end
+          end
+          self.selection.finish = nil
+          
         end
         self.backspace = true
+      elseif (inp.iskeydown(inp.DEL)) then
+        if not (self.deletekey) then
+          -- delete part of value if we have a range of value selected
+          if (self.selection.finish) then
+            self.value = string.sub(self.value, 1, self.selection.start) .. string.sub(self.value, self.selection.finish)
+          else
+            self.value = string.sub(self.value, 1, self.selection.start) .. string.sub(self.value, self.selection.start+2)
+          end
+          self.selection.finish = nil
+
+        end
+        self.deletekey = true
+      elseif (inp.iskeydown(inp.LEFT)) then
+        --[[if (inp.iskeydown(inp.LSHIFT)) then
+          -- shift-selection
+          if (inp.iskeydown(inp.LEFT)) then
+            -- left arrow
+              if (self.selection.finish == nil) then
+                self.selection.finish = self.selection.start
+              end
+
+              self.selection.start = self.selection.start - 1
+          elseif (inp.iskeydown(inp.RIGHT)) then
+            -- left arrow
+              if (self.selection.finish) then
+                self.selection.finish = self.selection.finish + 1
+              else
+                self.selection.finish = self.selection.start + 1
+              end
+          end
+        else]]
+        if (inp.iskeydown(inp.LSHIFT)) then
+          if (self.selection.finish == nil) then -- first selection
+            self.selection.finish = self.selection.start
+            self.selection.start = self.selection.start - 1
+            self.selection.direction = -1
+          else
+            if (self.selection.direction == -1) then
+              self.selection.start = self.selection.start - 1
+            else
+              self.selection.finish = self.selection.finish - 1
+            end
+          end
+        else
+          self.selection.finish = nil
+          self.selection.start = self.selection.start - 1
+        end
+      elseif (inp.iskeydown(inp.RIGHT)) then
+        if (inp.iskeydown(inp.LSHIFT)) then
+          if not (self.selection.finish) then -- first selection
+            self.selection.finish = self.selection.start + 1
+            self.selection.direction = 1
+          else
+            if (self.selection.direction == 1) then
+              self.selection.finish = self.selection.finish + 1
+            else
+              self.selection.start = self.selection.start + 1
+            end
+          end
+        else
+          self.selection.finish = nil
+          self.selection.start = self.selection.start + 1
+        end
       else
+        
+        -- reset special keys
         self.backspace = false
+        self.deletekey = false
         
         -- char inputs
         local c = inp.getlastchar()
         inp.clearlastchar()
       
         if not (c == 0) then
-          --print("input char: " .. tostring(c))
-          self.value = self.value .. string.char(c)
+          
+          -- delete part of value if we have a range of value selected
+          if (self.selection.finish) then
+            self.value = string.sub(self.value, 1, self.selection.start) .. string.char(c) .. string.sub(self.value, self.selection.finish+1)
+          else          
+            self.value = string.sub(self.value, 1, self.selection.start) .. string.char(c) .. string.sub(self.value, self.selection.start+1)
+            self.selection.start = self.selection.start + 1
+          end
+          
+          self.selection.finish = nil
+          
         end
         
       end
+      
+      -- sanity control! aoe or something like that
+      
+      if self.selection.finish then
+        --[[
+        if (self.selection.start >= self.selection.finish) then
+          self.selection.finish = self.selection.start
+          self.selection.start = self.selection.finish - 1
+          self.selection.direction = 1
+        end]]
+        
+        if (self.selection.finish < 0) then
+          self.selection.finish = 0
+        elseif (self.selection.finish > #self.value) then
+          self.selection.finish = #self.value
+        end
+      end
+      
+      if (self.selection.start < 0) then
+        self.selection.start = 0
+      elseif (self.selection.start > #self.value) then
+        self.selection.start = #self.value
+      end
+        
+      if (self.selection.start - self.viewstart > self.maxvisible) then
+        self.viewstart = self.selection.start - self.maxvisible
+      end
+      
+      if (self.selection.start < self.viewstart) then
+        self.viewstart = self.selection.start
+      end
+      
     end
   end
   
@@ -1091,10 +1215,41 @@ function gui:create_textinput(x,y,w)
       gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
                       40,6,1,1)
                       
+      local out_str = self.value
+      
+      -- find out what is visible
+      out_str = string.sub(self.value, self.viewstart+1, self.viewstart+1+self.maxvisible)        
+        
+      if not (self.selection.finish == nil) then
+        -- selected range
+        local r,g,b = gfx.getcolor()
+        gfx.setcolor(0.8,0.5,0.5)
+        local sx1 = self.stdpadding / 2 + (self.selection.start - self.viewstart)*8 - 4
+        local sx2 = self.stdpadding / 2 + (self.selection.finish - self.viewstart)*8 - 4
+        if (sx1 < self.stdpadding / 2) then
+          sx1 = self.stdpadding / 2
+        elseif (sx1 > self.drawbox.w - self.stdpadding / 2) then
+          sx1 = self.drawbox.w - self.stdpadding / 2
+        end
+        if (sx2 < self.stdpadding / 2) then
+          sx2 = self.stdpadding / 2
+        elseif (sx2 > self.drawbox.w - self.stdpadding / 2) then
+          sx2 = self.drawbox.w - self.stdpadding / 2
+        end
+        gfx.drawtopleft(sx1, 0, sx2-sx1, self.drawbox.h,
+                        17,6,1,1)
+        gfx.setcolor(r,g,b)
+      end
+      
+      -- render visible string
+      gui:drawfont(out_str, self.stdpadding / 2, self.drawbox.h / 2)
+      
       if (self.state == "input") then
-        gui:drawfont(self.value .. "|", self.stdpadding / 2, self.drawbox.h / 2)
-      else
-        gui:drawfont(self.value, self.stdpadding / 2, self.drawbox.h / 2)
+        local r,g,b = gfx.getcolor()
+        gfx.setcolor(0.8,0.5,0.5)
+        gui:drawfont("-", self.stdpadding / 2 + (self.selection.start - self.viewstart)*8, self.drawbox.h / 2+4);
+        
+        gfx.setcolor(r,g,b)
       end
     
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
@@ -1103,7 +1258,6 @@ function gui:create_textinput(x,y,w)
   end
   
   return wid
-  --gui.widgets:addwidget(wid)
 end
 
 

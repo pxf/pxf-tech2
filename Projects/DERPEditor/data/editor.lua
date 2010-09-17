@@ -63,7 +63,7 @@ local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", ed
 
 console = gui:create_console(0,0,app.width,100,false)
 toolbar = gui:create_horizontalpanel(0,0,app.width,40, app.width)
-local testinput = gui:create_textinput(0,0,140)
+local testinput = gui:create_textinput(20,8,140)
 toolbar:addwidget(testinput)
 
 -- add topstack widgets
