@@ -81,8 +81,15 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Modules\json\Source\JsonImporter.cpp" />
+    <ClCompile Include="..\..\Modules\json\Source\JsonLoader.cpp" />
     <ClCompile Include="..\..\Modules\mesh\Source\mesh.cpp" />
     <ClCompile Include="..\..\Modules\mesh\Source\MeshLoader.cpp" />
+    <ClCompile Include="..\..\Modules\net\Source\ENetClient.cpp" />
+    <ClCompile Include="..\..\Modules\net\Source\ENetDataPacket.cpp" />
+    <ClCompile Include="..\..\Modules\net\Source\ENetDevice.cpp" />
+    <ClCompile Include="..\..\Modules\net\Source\ENetServer.cpp" />
+    <ClCompile Include="..\..\Modules\net\Source\net.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\DeviceGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\FrameBufferObjectGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp" />
@@ -94,10 +101,16 @@
     <ClCompile Include="..\..\Modules\pri\Source\TypeTraits.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp" />
+    <ClCompile Include="..\..\Modules\snd\Source\OggAudioLoader.cpp" />
+    <ClCompile Include="..\..\Modules\snd\Source\RtAudioDevice.cpp" />
+    <ClCompile Include="..\..\Modules\snd\Source\snd.cpp" />
+    <ClCompile Include="..\..\Source\Math\Matrix.cpp" />
     <ClCompile Include="..\..\Source\Resource\Blob.cpp" />
     <ClCompile Include="..\..\Source\Resource\Text.cpp" />
+    <ClCompile Include="Source\AppCoreLib.cpp" />
     <ClCompile Include="Source\AppGraphicsLib.cpp" />
     <ClCompile Include="Source\AppInputLib.cpp" />
+    <ClCompile Include="Source\AppNetLib.cpp" />
     <ClCompile Include="Source\AppSoundLib.cpp" />
     <ClCompile Include="Source\LuaApp.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -122,13 +135,23 @@
     <ClCompile Include="Source\TexturedQuadBatch.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\Pxf\Audio\AudioDevice.h" />
+    <ClInclude Include="..\..\Include\Pxf\Audio\NullAudioDevice.h" />
     <ClInclude Include="..\..\Include\Pxf\Graphics\FrameBufferObject.h" />
     <ClInclude Include="..\..\Include\Pxf\Graphics\RenderBuffer.h" />
     <ClInclude Include="..\..\Include\Pxf\Input\InputDefs.h" />
     <ClInclude Include="..\..\Include\Pxf\Input\InputDevice.h" />
     <ClInclude Include="..\..\Include\Pxf\Input\NullInputDevice.h" />
     <ClInclude Include="..\..\Include\Pxf\Kernel.h" />
+    <ClInclude Include="..\..\Include\Pxf\Math\Math.h" />
+    <ClInclude Include="..\..\Include\Pxf\Math\Matrix.h" />
+    <ClInclude Include="..\..\Include\Pxf\Math\Quaternion.h" />
+    <ClInclude Include="..\..\Include\Pxf\Math\Vector.h" />
     <ClInclude Include="..\..\Include\Pxf\Module.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\Client.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\NetworkDevice.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\Packet.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\Server.h" />
     <ClInclude Include="..\..\Include\Pxf\Pxf.h" />
     <ClInclude Include="..\..\Include\Pxf\Resource\Blob.h" />
     <ClInclude Include="..\..\Include\Pxf\Resource\Mesh.h" />
@@ -168,8 +191,16 @@
     <ClInclude Include="..\..\Include\Pxf\Util\String.h" />
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\ImageLoader.h" />
     <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\img.h" />
+    <ClInclude Include="..\..\Modules\json\Include\Pxf\Modules\json\JsonImporter.h" />
+    <ClInclude Include="..\..\Modules\json\Include\Pxf\Modules\json\JsonLoader.h" />
     <ClInclude Include="..\..\Modules\mesh\Include\Pxf\Modules\mesh\mesh.h" />
     <ClInclude Include="..\..\Modules\mesh\Include\Pxf\Modules\mesh\MeshLoader.h" />
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetClient.h" />
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetDataPacket.h" />
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetDefs.h" />
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetDevice.h" />
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetServer.h" />
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\net.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\FrameBufferObjectGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\InputDeviceGLFW.h" />
@@ -183,15 +214,24 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TypeTraits.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
+    <ClInclude Include="..\..\Modules\snd\Include\Pxf\Modules\snd\OggAudioLoader.h" />
+    <ClInclude Include="..\..\Modules\snd\Include\Pxf\Modules\snd\RtAudioDevice.h" />
+    <ClInclude Include="..\..\Modules\snd\Include\Pxf\Modules\snd\snd.h" />
+    <ClInclude Include="Include\AppCoreLib.h" />
     <ClInclude Include="Include\AppGraphicsLib.h" />
+    <ClInclude Include="Include\AppInputLib.h" />
+    <ClInclude Include="Include\AppNetLib.h" />
     <ClInclude Include="Include\AppSoundLib.h" />
+    <ClInclude Include="Include\LuaApp.h" />
     <ClInclude Include="Include\QuadBatch.h" />
     <ClInclude Include="Include\TexturedQuadBatch.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="data\bootstrap.lua" />
     <None Include="data\editor.lua" />
     <None Include="data\guibase.lua" />
     <None Include="data\guistdwidgets.lua" />
+    <None Include="data\specwindows.lua" />
     <None Include="data\test.ctm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

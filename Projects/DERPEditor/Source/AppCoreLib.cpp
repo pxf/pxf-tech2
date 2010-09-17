@@ -113,8 +113,6 @@ int DERPEditor::luaopen_appcore (lua_State *L) {
   lua_setfield(L, -2, "REDRAWMODE_FULL");
   lua_pushinteger(L, LUAAPP_REDRAWMODE_NORMAL);
   lua_setfield(L, -2, "REDRAWMODE_NORMAL");
-  lua_pushinteger(L, LUAAPP_REDRAWMODE_STENCIL);
-  lua_setfield(L, -2, "REDRAWMODE_STENCIL");
   /*lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
   lua_pushnumber(L, HUGE_VAL);

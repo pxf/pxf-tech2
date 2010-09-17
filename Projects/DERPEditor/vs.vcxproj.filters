@@ -69,6 +69,45 @@
     <Filter Include="Modules\mesh">
       <UniqueIdentifier>{b12fcffe-acfb-4bbf-8a44-22add1572ded}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Network">
+      <UniqueIdentifier>{70ec6ed6-e05f-4a1d-ac5b-8b28c32006cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\net">
+      <UniqueIdentifier>{7c8bb7df-1193-43cc-939e-8386be1edbf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Audio">
+      <UniqueIdentifier>{958d8c75-5d30-4ec8-8069-7f6171fd5b52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Math">
+      <UniqueIdentifier>{1a211527-3559-4301-ad1a-d5ba9b96b252}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Source Files\Math">
+      <UniqueIdentifier>{ea480af1-37f4-4bfd-9d09-d9f1b95497e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\net\include">
+      <UniqueIdentifier>{c0b2750a-adcc-4e76-bc2f-fafcd1071f44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\net\source">
+      <UniqueIdentifier>{ce1d64d6-718c-4881-a44c-62c142689328}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\json">
+      <UniqueIdentifier>{b0aaab4e-40f1-4754-813c-1cd4d7e4af7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\json\include">
+      <UniqueIdentifier>{4476d667-aa94-4e31-a2cc-6128f0010e80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\json\source">
+      <UniqueIdentifier>{49c6147e-1340-44f3-a02d-4ef46e9650f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\snd">
+      <UniqueIdentifier>{a2dae3d7-aaf5-4601-84b4-086a3cc1d866}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\snd\include">
+      <UniqueIdentifier>{4a0b321d-0928-48da-8741-768eba78d741}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\snd\source">
+      <UniqueIdentifier>{3b0a200e-3fd6-4520-8086-a36db2e51625}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Kernel.cpp">
@@ -187,6 +226,45 @@
     </ClCompile>
     <ClCompile Include="Source\AppInputLib.cpp">
       <Filter>Editor\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AppCoreLib.cpp">
+      <Filter>Editor\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AppNetLib.cpp">
+      <Filter>Editor\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Math\Matrix.cpp">
+      <Filter>Framework\Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\net\Source\ENetServer.cpp">
+      <Filter>Modules\net\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\net\Source\net.cpp">
+      <Filter>Modules\net\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\net\Source\ENetClient.cpp">
+      <Filter>Modules\net\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\net\Source\ENetDataPacket.cpp">
+      <Filter>Modules\net\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\net\Source\ENetDevice.cpp">
+      <Filter>Modules\net\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\json\Source\JsonImporter.cpp">
+      <Filter>Modules\json\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\json\Source\JsonLoader.cpp">
+      <Filter>Modules\json\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\snd\Source\OggAudioLoader.cpp">
+      <Filter>Modules\snd\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\snd\Source\RtAudioDevice.cpp">
+      <Filter>Modules\snd\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\snd\Source\snd.cpp">
+      <Filter>Modules\snd\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -385,6 +463,81 @@
     <ClInclude Include="Include\AppSoundLib.h">
       <Filter>Editor\Include</Filter>
     </ClInclude>
+    <ClInclude Include="Include\AppNetLib.h">
+      <Filter>Editor\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\LuaApp.h">
+      <Filter>Editor\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\AppInputLib.h">
+      <Filter>Editor\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\AppCoreLib.h">
+      <Filter>Editor\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\Client.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\NetworkDevice.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\Packet.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\Server.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Audio\AudioDevice.h">
+      <Filter>Framework\Header Files\Pxf\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Audio\NullAudioDevice.h">
+      <Filter>Framework\Header Files\Pxf\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Math\Math.h">
+      <Filter>Framework\Header Files\Pxf\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Math\Matrix.h">
+      <Filter>Framework\Header Files\Pxf\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Math\Quaternion.h">
+      <Filter>Framework\Header Files\Pxf\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Math\Vector.h">
+      <Filter>Framework\Header Files\Pxf\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetClient.h">
+      <Filter>Modules\net\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetDataPacket.h">
+      <Filter>Modules\net\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetDefs.h">
+      <Filter>Modules\net\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetDevice.h">
+      <Filter>Modules\net\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\ENetServer.h">
+      <Filter>Modules\net\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\net\Include\Pxf\Modules\net\net.h">
+      <Filter>Modules\net\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\json\Include\Pxf\Modules\json\JsonImporter.h">
+      <Filter>Modules\json\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\json\Include\Pxf\Modules\json\JsonLoader.h">
+      <Filter>Modules\json\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\snd\Include\Pxf\Modules\snd\OggAudioLoader.h">
+      <Filter>Modules\snd\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\snd\Include\Pxf\Modules\snd\RtAudioDevice.h">
+      <Filter>Modules\snd\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\snd\Include\Pxf\Modules\snd\snd.h">
+      <Filter>Modules\snd\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\test.ctm">
@@ -397,6 +550,12 @@
       <Filter>Editor\Data</Filter>
     </None>
     <None Include="data\guibase.lua">
+      <Filter>Editor\Data</Filter>
+    </None>
+    <None Include="data\bootstrap.lua">
+      <Filter>Editor\Data</Filter>
+    </None>
+    <None Include="data\specwindows.lua">
       <Filter>Editor\Data</Filter>
     </None>
   </ItemGroup>

@@ -23,15 +23,14 @@ extern "C" {
 #define LUAAPP_TABLE "app"
 
 #define LUAAPP_MAXQB 8
-#define LUAAPP_QBSIZE 2048
+//#define LUAAPP_QBSIZE 2048
 #define LUAAPP_DEPTH_RANGE 200.0f
 #define LUAAPP_DEPTH_FAR 100.0f
 #define LUAAPP_DEPTH_NEAR -100.0f
-#define LUAAPP_DEPTH_STEP (LUAAPP_DEPTH_RANGE / (LUAAPP_QBSIZE * LUAAPP_MAXQB))
+//#define LUAAPP_DEPTH_STEP (LUAAPP_DEPTH_RANGE / (LUAAPP_QBSIZE * LUAAPP_MAXQB))
 
 #define LUAAPP_REDRAWMODE_FULL 0
 #define LUAAPP_REDRAWMODE_NORMAL 1
-#define LUAAPP_REDRAWMODE_STENCIL 2
 
 // TODO: Fix setting for doublepass
 #define LUAAPP_DOUBLEPASS_OFF 2
@@ -61,6 +60,10 @@ namespace DERPEditor
         // QuadBatches
         unsigned int m_QuadBatchCount;
         QuadBatch* m_QuadBatches[LUAAPP_MAXQB];
+        
+        // Depth control
+        int m_MaxQuadCount;
+        float m_DepthStep;
         
         // QuadBatch control
         int ChangeActiveQB(unsigned int _id);
