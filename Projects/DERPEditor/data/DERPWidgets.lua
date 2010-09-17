@@ -184,7 +184,7 @@ function derp:create_workspace(x,y,w,h)
 	wid.widget_type = "workspace"
 	wid.super_draw = wid.draw
 	
-	local checkers_texture = gfx.loadtexture("data/checkers.png")
+	local checkers_texture = gfx.loadtexture(64,"data/checkers.png")
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
