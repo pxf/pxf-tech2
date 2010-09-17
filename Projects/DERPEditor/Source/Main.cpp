@@ -25,6 +25,8 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Blob.h>
 
+#include <Pxf/Network/NetworkDevice.h>
+
 #include <enet/enet.h>
 
 #include <sstat.h>
@@ -51,12 +53,14 @@ int main()
     kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
 	kernel->RegisterModule("snd", 0xFFFF, true);
+	kernel->RegisterModule("net", Pxf::System::SYSTEM_TYPE_NETWORKDEVICE, true);
     kernel->DumpAvailableModules();
 
 	// Device contexts
     Graphics::GraphicsDevice*	gfx = kernel->GetGraphicsDevice();
     Input::InputDevice*			inp = kernel->GetInputDevice();
     Resource::ResourceManager*	res = kernel->GetResourceManager();
+	Network::NetworkDevice*     net = kernel->GetNetworkDevice();
 
     res->DumpResourceLoaders();
 
