@@ -123,50 +123,7 @@ int main()
 			  0.0f,0.0f,0.0f,
 			  0.0f,1.0f,0.0f); 
 		*/
-	MyVertex data[24];
-	// Front
-	data[0]  = MyVertex(Vec3f(-0.5f, -0.5f, 0.5f), Vec4f(0, 0, 1, 1.0f));
-	data[1]  = MyVertex(Vec3f(0.5f, -0.5f, 0.5f), Vec4f(0, 0, 1, 1.0f));
-	data[2]  = MyVertex(Vec3f(0.5f, 0.5f, 0.5f), Vec4f(0, 0, 1, 1.0f));
-	data[3]  = MyVertex(Vec3f(-0.5f, 0.5f, 0.5f), Vec4f(0, 0, 1, 1.0f));
-	// Back
-	data[4]  = MyVertex(Vec3f(-0.5f, -0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[5]  = MyVertex(Vec3f(-0.5f, 0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[6]  = MyVertex(Vec3f(0.5f, 0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[7]  = MyVertex(Vec3f(0.5f, -0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	// Top
-	data[8]  = MyVertex(Vec3f(-0.5f, 0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[9]  = MyVertex(Vec3f(0.5f, 0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[10] = MyVertex(Vec3f(0.5f, 0.5f, -0.5), Vec4f(0, 1, 1, 1.0f));
-	data[11] = MyVertex(Vec3f(-0.5f, 0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
-	// Left
-	data[12] = MyVertex(Vec3f(-0.5f, -0.5f, 0.5f), Vec4f(1, 1, 1, 1.0f));
-	data[13] = MyVertex(Vec3f(-0.5f, 0.5f, 0.5f), Vec4f(1, 1, 1, 1.0f));
-	data[14] = MyVertex(Vec3f(-0.5f, 0.5f, -0.5f), Vec4f(1, 1, 1, 1.0f));
-	data[15] = MyVertex(Vec3f(-0.5f, -0.5f, -0.5f), Vec4f(1, 1, 1, 1.0f));
-	// Right
-	data[16] = MyVertex(Vec3f(0.5f, -0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[17] = MyVertex(Vec3f(0.5f, 0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[18] = MyVertex(Vec3f(0.5f, 0.5f, 0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[19] = MyVertex(Vec3f(0.5f, -0.5f, 0.5f), Vec4f(1, 0, 1, 1.0f));
-	// Bottom
-	data[20] = MyVertex(Vec3f(-0.5f, -0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[21] = MyVertex(Vec3f(-0.5f, -0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[22] = MyVertex(Vec3f(0.5f, -0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[23] = MyVertex(Vec3f(0.5f, -0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-	/*
-	Graphics::VertexBuffer* pBuff;
 
-	pBuff = gfx->CreateVertexBuffer(Graphics::VB_LOCATION_GPU, Graphics::VB_USAGE_STATIC_DRAW);
-	pBuff->CreateNewBuffer(24, sizeof(Vec3f) + sizeof(Vec4f));
-
-	pBuff->SetData(Graphics::VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
-
-	pBuff->SetData(Graphics::VB_COLOR_DATA, sizeof(Vec3f), 4);
-	pBuff->SetPrimitive(Graphics::VB_PRIMITIVE_QUADS);
-
-	pBuff->UpdateData(data,sizeof(data),0);
-	*/
 	SimpleCamera cam;
 	cam.SetPerspective(45.0f,800 / 600, 1.0f,10000.0f);
 	cam.SetLookAt(0.0f,0.0f,0.0f);
@@ -225,12 +182,6 @@ int main()
 		//gfx->SetProjection(cam.GetProjectionView());
 		//gfx->SetModelView(cam.GetModelView());
 
-		/*
-		glBegin(GL_TRIANGLES);
-		glVertex3f(0.0f,0.0f,0.0f);
-		glVertex3f(1.0f,0.0f,0.0f);
-		glVertex3f(0.0f,1.0f,0.0f);
-		glEnd(); */
 		
 		glRotatef(a,1.0f, 0, 0);
 		//glScalef(0.1, 0.1, 0.1);

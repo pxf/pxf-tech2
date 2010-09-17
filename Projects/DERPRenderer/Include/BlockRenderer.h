@@ -39,6 +39,8 @@ namespace Derp
 			: m_BlockType(_BlockType)
 		{}
 
+		virtual bool Initialize(const char* _JsonData) = 0;
+
 		virtual ~Block() {};
 
 		BlockType GetType()
