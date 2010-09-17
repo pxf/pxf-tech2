@@ -12,7 +12,6 @@ function gui:create_basewidget(x,y,w,h)
     parent = nil,
     redraw_needed = false,
 	visible = true,
-	bg_color = {r = 256, g = 0, b = 0},
     widget_type = "stdwidget" -- stdwidget, menu
 	
   }
@@ -238,7 +237,7 @@ function gui:create_root()
   function rootwid:draw(force)
     local r,g,b = gfx.getcolor()
 
-    gfx.setcolor(86/255,86/255,86/255)
+    gfx.setcolor(5/255,5/255,5/255)
     gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,5,5,1,1)
     gfx.setcolor(r,g,b)
     
