@@ -1057,11 +1057,94 @@ function gui:create_textinput(x,y,w,masked)
   wid.leftkey = false
   wid.rightekey = false
   
+  wid.mouseselect = false
+  
   -- find out max visible char number
   wid.maxvisible = math.floor((w-wid.stdpadding-8) / 8)
   
-  -- TODO: add mouserelease and mousedrag events so that the
-  --       user can select text with the mouse.
+  function wid:sanitycheck_selection()
+    if (self.selection.finish == self.selection.start) then
+      self.selection.finish = nil
+    end
+    
+    if self.selection.finish then
+      
+      if (self.selection.finish < self.selection.start) then
+        local tstart = self.selection.start
+        self.selection.start = self.selection.finish
+        self.selection.finish = tstart
+      end
+      
+      if (self.selection.finish < 0) then
+        self.selection.finish = 0
+      elseif (self.selection.finish > #self.value) then
+        self.selection.finish = #self.value
+      end
+    end
+    
+    if (self.selection.start < 0) then
+      self.selection.start = 0
+    elseif (self.selection.start > #self.value) then
+      self.selection.start = #self.value
+    end
+      
+    if (self.selection.start - self.viewstart > self.maxvisible) then
+      self.viewstart = self.selection.start - self.maxvisible
+    end
+    
+    if (self.selection.start < self.viewstart) then
+      self.viewstart = self.selection.start
+    end
+    
+  end
+  
+  function wid:mousedrag(dx,dy,button)
+    if (button == inp.MOUSE_LEFT) then
+      if (self.mouseselect) then
+        self:needsredraw()
+        -- find selection finish
+        local mx,my = inp.getmousepos()
+        local dw = mx - self.drawbox.x - self.stdpadding / 2 + 4
+        local i = math.floor((dw / (self.drawbox.w - self.stdpadding)) * self.maxvisible)
+        local deltaselection = self.viewstart + i
+        
+        if (deltaselection <= self.selection.start) then
+          if not (self.selection.finish) then
+            self.selection.finish = self.selection.start
+          end
+          self.selection.start = deltaselection
+        else
+          self.selection.finish = deltaselection
+        end
+      end
+      
+    end
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    self.mouseselect = false
+  end
+  
+  function wid:mousepush(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      
+      if not (self.mouseselect) then
+        self:needsredraw()
+        -- new mouse selection
+        
+        -- find selection start
+        local dw = mx - self.drawbox.x - self.stdpadding / 2 + 4
+        local i = math.floor((dw / (self.drawbox.w - self.stdpadding)) * self.maxvisible)
+        self.selection.start = self.viewstart + i
+        self.selection.finish = nil
+        self:sanitycheck_selection()
+        self.mouseselect = true
+      else
+        -- continued selection
+      end
+      
+    end
+  end
   
   function wid:lostfocus(wid)
     self.state = "normal"
@@ -1178,29 +1261,8 @@ function gui:create_textinput(x,y,w,masked)
         
       end
       
-      -- sanity control! aoe or something like that
-      if self.selection.finish then
-        
-        if (self.selection.finish < 0) then
-          self.selection.finish = 0
-        elseif (self.selection.finish > #self.value) then
-          self.selection.finish = #self.value
-        end
-      end
       
-      if (self.selection.start < 0) then
-        self.selection.start = 0
-      elseif (self.selection.start > #self.value) then
-        self.selection.start = #self.value
-      end
-        
-      if (self.selection.start - self.viewstart > self.maxvisible) then
-        self.viewstart = self.selection.start - self.maxvisible
-      end
-      
-      if (self.selection.start < self.viewstart) then
-        self.viewstart = self.selection.start
-      end
+      self:sanitycheck_selection()
       
     end
   end
