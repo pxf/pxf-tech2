@@ -74,10 +74,10 @@ int DERPEditor::net_server_bind(lua_State *L)
 
 int DERPEditor::net_server_delete(lua_State *L)
 {
-	if (lua_gettop(L) == 2)
-	{
-		Message("net", "Deleting server");
+	Message("net", "Deleting server");
 
+	if (lua_gettop(L) == 0)
+	{
 		return 0;
 	}
 	else
