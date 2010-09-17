@@ -76,18 +76,20 @@ function gui:create_horizontalpanel(x,y,w,h,max)
   
   -- wid.superdraw = wid.draw
   function wid:draw(force)
-    if (self.visible and (self.redraw_needed or force)) then
-      local r,g,b = gfx.getcolor()
-      gfx.setcolor(46/256,46/256,46/256)
-      gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
-                      18,2,1,1)
-      gfx.setcolor(r,g,b)
+    if self.visible then
+      if (self.redraw_needed or force) then
+        local r,g,b = gfx.getcolor()
+        gfx.setcolor(46/256,46/256,46/256)
+        gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
+                        18,2,1,1)
+        gfx.setcolor(r,g,b)
+      end
+      gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
+      for k,v in pairs(self.childwidgets) do
+        v:draw(force)
+      end
+      gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
     end
-    gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
-    for k,v in pairs(self.childwidgets) do
-      v:draw(force)
-    end
-    gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
   end
   
   function wid:find_mousehit(mx,my)

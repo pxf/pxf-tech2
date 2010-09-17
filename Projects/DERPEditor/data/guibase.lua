@@ -11,7 +11,7 @@ function gui:create_basewidget(x,y,w,h)
     drawbox = {x = x, y = y, w = w, h = h},
     parent = nil,
     redraw_needed = false,
-	visible = true,
+    visible = true,
     widget_type = "stdwidget" -- stdwidget, menu
 	
   }
@@ -134,21 +134,21 @@ function gui:create_basewidget(x,y,w,h)
   ----------------------------------
   
   function wid:draw(force)
-	if self.visible then
+  	if self.visible then
 		
-		if (gui.draw_debug_rects) then
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, 1, 5, 5, 1, 1) -- top
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, 1, self.drawbox.h, 5, 5, 1, 1) -- left
-			gfx.drawtopleft(self.drawbox.x + self.drawbox.w, self.drawbox.y, 1,self.drawbox.h, 5, 5, 1, 1) -- right
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h, self.drawbox.w, 1, 5, 5, 1, 1) -- bottom
-		end
+  		if (gui.draw_debug_rects) then
+  			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, 1, 5, 5, 1, 1) -- top
+  			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, 1, self.drawbox.h, 5, 5, 1, 1) -- left
+  			gfx.drawtopleft(self.drawbox.x + self.drawbox.w, self.drawbox.y, 1,self.drawbox.h, 5, 5, 1, 1) -- right
+  			gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h, self.drawbox.w, 1, 5, 5, 1, 1) -- bottom
+  		end
 		
-		gfx.translate(self.drawbox.x, self.drawbox.y)
-		for k,v in pairs(self.childwidgets) do
-		  v:draw(force)
-		end
-		gfx.translate(-self.drawbox.x, -self.drawbox.y)
-	end
+  		gfx.translate(self.drawbox.x, self.drawbox.y)
+  		for k,v in pairs(self.childwidgets) do
+  		  v:draw(force)
+  		end
+  		gfx.translate(-self.drawbox.x, -self.drawbox.y)
+  	end
   end
   
   function wid:hittest(x0,y0,x1,y1)
@@ -237,10 +237,11 @@ function gui:create_root()
   
   function rootwid:draw(force)
     local r,g,b = gfx.getcolor()
-
+    local oldtex = gfx.bindtexture(0)
     gfx.setcolor(5/255,5/255,5/255)
-    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,5,5,1,1)
+    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h)
     gfx.setcolor(r,g,b)
+    gfx.bindtexture(oldtex)
     
     for k,v in pairs(self.childwidgets) do
       gfx.translate(self.drawbox.x, self.drawbox.y)

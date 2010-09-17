@@ -25,7 +25,6 @@ int DERPEditor::gfx_loadtexture (lua_State *L) {
     int quadcount = lua_tointeger(L, 1);
     inst->m_MaxQuadCount += quadcount;
     inst->m_DepthStep = (LUAAPP_DEPTH_RANGE / inst->m_MaxQuadCount);
-    printf("max quad count: %i, depth step: %f\n", inst->m_MaxQuadCount, inst->m_DepthStep);
     inst->m_QuadBatches[inst->m_QuadBatchCount] = new TexturedQuadBatch(quadcount*4,
                                                                         lua_tostring(L, 2),
                                                                         &(inst->m_CurrentDepth),
