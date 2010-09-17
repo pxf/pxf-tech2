@@ -97,6 +97,7 @@
     <ClCompile Include="..\..\Source\Resource\Blob.cpp" />
     <ClCompile Include="..\..\Source\Resource\Text.cpp" />
     <ClCompile Include="Source\AppGraphicsLib.cpp" />
+    <ClCompile Include="Source\AppInputLib.cpp" />
     <ClCompile Include="Source\AppSoundLib.cpp" />
     <ClCompile Include="Source\LuaApp.cpp" />
     <ClCompile Include="Source\Main.cpp" />

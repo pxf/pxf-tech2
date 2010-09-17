@@ -1,5 +1,6 @@
 #include "AppCoreLib.h"
 
+#include <sstat.h>
 
 int DERPEditor::app_getwindimensions(lua_State *L)
 {
@@ -48,6 +49,21 @@ int DERPEditor::app_quit(lua_State *L)
   return 0;
 }
 
+int DERPEditor::app_getmemusage(lua_State *L)
+{
+  // app.getmemusage() -- returns in bytes how much memory the application is using
+  if (lua_gettop(L) == 0)
+  {
+	lua_pushnumber(L, sstat_memoryusage());
+    return 1;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to getmemusage function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int DERPEditor::app__setrenderoption(lua_State *L)
 {
   // app.setrenderoption(render_mode) -- changes render option
@@ -84,6 +100,8 @@ int DERPEditor::luaopen_appcore (lua_State *L) {
     {"quit",   app_quit},
     //{"traceback",   app_traceback},
     {"getwindimensions",   app_getwindimensions},
+    
+    {"getmemusage",   app_getmemusage},
     
     {"_setrenderoption",   app__setrenderoption},
     {"_getrenderoption",   app__getrenderoption},
