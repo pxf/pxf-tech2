@@ -1042,7 +1042,7 @@ function gui:create_textinput(x,y,w)
   local wid = gui:create_basewidget(x,y,w,30)
   wid.stdheight = 30
   wid.stdpadding = 20
-  wid.value = "1234567890"
+  wid.value = ""
   wid.state = "normal"
   wid.selection = {start = 0, finish = nil, direction = 0}
   wid.viewstart = 0
@@ -1055,6 +1055,9 @@ function gui:create_textinput(x,y,w)
   
   -- find out max visible char number
   wid.maxvisible = math.floor((w-wid.stdpadding) / 8)
+  
+  -- TODO: add mouserelease and mousedrag events so that the
+  --       user can select text with the mouse.
   
   function wid:lostfocus(wid)
     self.state = "normal"
@@ -1097,25 +1100,9 @@ function gui:create_textinput(x,y,w)
         end
         self.deletekey = true
       elseif (inp.iskeydown(inp.LEFT)) then
-        --[[if (inp.iskeydown(inp.LSHIFT)) then
-          -- shift-selection
-          if (inp.iskeydown(inp.LEFT)) then
-            -- left arrow
-              if (self.selection.finish == nil) then
-                self.selection.finish = self.selection.start
-              end
-
-              self.selection.start = self.selection.start - 1
-          elseif (inp.iskeydown(inp.RIGHT)) then
-            -- left arrow
-              if (self.selection.finish) then
-                self.selection.finish = self.selection.finish + 1
-              else
-                self.selection.finish = self.selection.start + 1
-              end
-          end
-        else]]
+        -- left arrow key
         if (inp.iskeydown(inp.LSHIFT)) then
+          -- shift pushed = selection
           if (self.selection.finish == nil) then -- first selection
             self.selection.finish = self.selection.start
             self.selection.start = self.selection.start - 1
@@ -1132,7 +1119,9 @@ function gui:create_textinput(x,y,w)
           self.selection.start = self.selection.start - 1
         end
       elseif (inp.iskeydown(inp.RIGHT)) then
+        -- right arrow key
         if (inp.iskeydown(inp.LSHIFT)) then
+          -- shift pushed = selection
           if not (self.selection.finish) then -- first selection
             self.selection.finish = self.selection.start + 1
             self.selection.direction = 1
@@ -1174,14 +1163,7 @@ function gui:create_textinput(x,y,w)
       end
       
       -- sanity control! aoe or something like that
-      
       if self.selection.finish then
-        --[[
-        if (self.selection.start >= self.selection.finish) then
-          self.selection.finish = self.selection.start
-          self.selection.start = self.selection.finish - 1
-          self.selection.direction = 1
-        end]]
         
         if (self.selection.finish < 0) then
           self.selection.finish = 0
