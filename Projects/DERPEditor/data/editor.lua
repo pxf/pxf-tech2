@@ -1,6 +1,7 @@
 require("data/guibase")
 require("data/guistdwidgets")
 require("data/specwindows")
+require("data/DERPWidgets")
 
 ----------------------------------------------
 -- "constants"
@@ -102,56 +103,57 @@ gui.widgets:addwidget(statusbar)
 
 ----------------------------------------------
 -- 0:
-local window_container = gui:create_verticalstack(0,0,app.width,app.height)
-window_container.widget_type = "window container"
+-- create attachment point
+local window_container = derp:window_container()
 
 	-- 1:
-	local menu_container = gui:create_horizontalstack(0,0,app.width,40)
-	menu_container.widget_type = "menu"
+	local menu_container = derp:create_menu(0,0,app.width,40)
 
 	-- 2:
 	local center_container = gui:create_horizontalstack(0,0,app.width,app.height-60)
 	center_container.widget_type = "center"
 
 	-- 3: 
-	local statusbar_container = gui:create_horizontalstack(0,0,app.width,20)
-	statusbar_container.widget_type = "statusbar"
+	local statusbar_container = derp:create_statusbar(0,0,app.width,20)
 
 		-- 21: 
-		local left_padding_container = gui:create_basewidget(0,0,20,app.height-60)
-		left_padding_container.widget_type = "center: left padding"
+		local left_padding_container = derp:create_block(0,0,20,app.height-60, "left padding")
+		left_padding_container.border.right = true
 
 		-- 22
 		local center_main_container = gui:create_verticalstack(20,0,app.width-40,app.height-60)
 		center_main_container.widget_type = "center: main"
 
 		--- 221
-		local center_main_toolbar = gui:create_horizontalstack(0,0,app.width-40,40)
-		center_main_toolbar.widget_type = "center: main: toolbar"
+		local center_main_toolbar = derp:create_toolbar(0,0,app.width-40,40)
 
 		--- 222 LOL no more names :(
 		local center_main_main = gui:create_horizontalstack(0,0,app.width-40,app.height-100)
 		center_main_main.widget_type = "center: main: main"
 
 			---- 2221
-			local workspace = gui:create_verticalstack(0,0,app.width-240,app.height-100)
+			local workspace = gui:create_verticalstack(0,0,app.width-290,app.height-100)
 			workspace.widget_type = "center: main: main: workspace"
 
 				----- 22211
-				local workspace_tabs = gui:create_basewidget(0,0,app.width-240,20)
+				local workspace_tabs = derp:create_workspace_tabs(0,0,app.width-290,20)
 				workspace_tabs.widget_type = "center: main: main: workspace: tabs"
 
 				----- 22212 
-				local workspace_area = gui:create_basewidget(0,0,app.width-240,app.height-120)
+				local workspace_area = derp:create_workspace(0,0,app.width-290,app.height-120)
 				workspace_area.widget_type = "center: main: main: workspace: workspace area"
 				
 			---- 2222
-			local inspector = gui:create_verticalstack(0,0,200,app.height-100)
-			inspector.widget_type = "center: main: main: inspector"
+			local inspector = derp:create_inspector(0,0,250,app.height-100)
 			
 		-- 23
-		local right_padding_container = gui:create_basewidget(app.width-20,0,20,app.height-60)
+		local right_padding_container = derp:create_block(app.width-20,0,20,app.height-60)
 		right_padding_container.widget_type = "center container: right padding"
+		right_padding_container.border.left = true
+
+ws01 = workspace_tabs:addworkspace("workspace01")
+ws01.active = true
+ws02 = workspace_tabs:addworkspace("workspace02")
 
 workspace:addwidget(workspace_tabs)
 workspace:addwidget(workspace_area)
@@ -172,6 +174,7 @@ window_container:addwidget(statusbar_container)
 
 --gui.widgets:addwidget(window_container)
 --gui.draw_debug_rects = true
+--gui.themetex = gfx.loadtexture("data/guitheme_brown.png")
 
 ----------------------------------------------
 -- initial draw
