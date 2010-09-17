@@ -128,6 +128,7 @@ function gui:create_basewidget(x,y,w,h)
   end
   function wid:child_resized(cwid)
     -- do nothing ?
+	print("aoe")
   end
   -- end of redraw functions
   ----------------------------------
@@ -340,7 +341,7 @@ function gui:tooltip(str)
 end
 
 function gui:init()
-  self.themetex = gfx.loadtexture("data/guitheme_brown.png")
+  self.themetex = gfx.loadtexture("data/guitheme.png")
   self.font = gfx.loadtexture("data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   

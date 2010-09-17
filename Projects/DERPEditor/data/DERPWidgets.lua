@@ -80,6 +80,19 @@ function derp:create_inspector(x,y,w,h)
 		end
 	end
 	
+	function wid:mousedrag(dx,dy,button)
+		if button == inp.MOUSE_LEFT then
+			self.drawbox.x = self.drawbox.x + dx
+			self.drawbox.w = self.drawbox.w - dx
+			self.hitbox.x = self.hitbox.x + dx
+			self.hitbox.w = self.hitbox.w - dx
+			
+			if (not (self.parent == nil)) then
+				--self.parent:child_resized(self)
+			end
+		end
+	end
+	
 	return wid
 end
 
@@ -178,12 +191,12 @@ function derp:create_workspace(x,y,w,h)
 			-- DRAW BG
 			
 			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1+128,self.drawbox.w-2,self.drawbox.h-2-128,1,1,1,1) -- solid bg
-			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,128,511,1,1,127)	-- gradient
 			
 			local old_tex = gfx.bindtexture(checkers_texture)
-			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,self.drawbox.h-2,0,0,16,16)	-- checkers
-			
+			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,self.drawbox.h-2,0,0,500,500*0.75)	-- checkers
 			gfx.bindtexture(old_tex)
+			
+			--gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,128,509,1,1,127)	-- gradient
 		
 			-- DRAW BORDER
 			-- TOP

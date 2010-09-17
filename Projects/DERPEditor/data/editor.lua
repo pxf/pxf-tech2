@@ -79,8 +79,8 @@ gui.statusbar = statusbar
 
 ----------------------------------------------
 -- add widgets to root
---gui.widgets:addwidget(topstack)
---gui.widgets:addwidget(statusbar)
+gui.widgets:addwidget(topstack)
+gui.widgets:addwidget(statusbar)
 
 --[[
  _________________________
@@ -172,8 +172,9 @@ window_container:addwidget(menu_container)
 window_container:addwidget(center_container)
 window_container:addwidget(statusbar_container)
 
-gui.widgets:addwidget(window_container)
+--gui.widgets:addwidget(window_container)
 --gui.draw_debug_rects = true
+--gui.themetex = gfx.loadtexture("data/guitheme_brown.png")
 
 ----------------------------------------------
 -- initial draw
