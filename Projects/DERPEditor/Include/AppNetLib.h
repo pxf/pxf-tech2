@@ -16,10 +16,10 @@ namespace DERPEditor
 	// lib functions
 	int net_createserver(lua_State *L);
 	int net_createclient(lua_State *L);
-	
-	// server functions
-	int net_bind(lua_State *L);
 
+	// server functions
+	int net_server_bind(lua_State *L);
+	int net_server_delete(lua_State *L);
 
 	// client functions
 

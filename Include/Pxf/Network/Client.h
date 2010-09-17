@@ -10,7 +10,7 @@ namespace Pxf
 		class Client
 		{
 		public:
-			const int Ident;
+			int Ident;
 
 			virtual ~Client(){}
 
