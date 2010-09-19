@@ -13,6 +13,12 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
+local test = net.createserver()
+for k,v in pairs(debug.getmetatable(test.instance)) do
+  print(k,v)
+end
+test.instance = nil
+
 ----------------------------------------------
 -- setup menus
 local file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = function () app.reboot() end}},

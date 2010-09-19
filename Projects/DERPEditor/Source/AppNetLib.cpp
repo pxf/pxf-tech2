@@ -13,14 +13,18 @@ int DERPEditor::net_createserver(lua_State *L)
 {
 	if (lua_gettop(L) == 0)
 	{
-		Server* server = LuaApp::GetInstance()->m_net->CreateServer();
 
 		lua_newtable(L);
-		lua_pushlightuserdata(L, server);
-		lua_newtable(L);
+    Server** server = (Server**)lua_newuserdata(L, sizeof(Server*));
+		luaL_getmetatable(L, "net.server");
+    lua_setmetatable(L, -2);
+    
+    *server = LuaApp::GetInstance()->m_net->CreateServer();
+    
+		/*lua_newtable(L);
 		lua_pushcfunction(L, net_server_delete);
 		lua_setfield(L, -2, "__gc");
-		lua_setmetatable(L, -2);
+		lua_setmetatable(L, -2);*/
 		lua_setfield(L, -2, "instance");
 		lua_pushcfunction(L, net_server_bind);
 		lua_setfield(L, -2, "bind");
@@ -76,8 +80,9 @@ int DERPEditor::net_server_delete(lua_State *L)
 {
 	Message("net", "Deleting server");
 
-	if (lua_gettop(L) == 0)
+	if (lua_gettop(L) == 1)
 	{
+    delete (*(Server**)lua_touserdata(L, 1));
 		return 0;
 	}
 	else
@@ -91,6 +96,7 @@ int DERPEditor::net_server_delete(lua_State *L)
 
 int DERPEditor::luaopen_appnet(lua_State *L)
 {
+  
 	const luaL_reg appnetlib[] = {
 		{"createserver", net_createserver},
 		{"createclient", net_createclient},
@@ -98,6 +104,12 @@ int DERPEditor::luaopen_appnet(lua_State *L)
 	};
 
 	luaL_register(L, LUA_APPNETLIBNAME, appnetlib);
+ 
+  // set __gc for net.server
+	luaL_newmetatable(L, "net.server");
+  lua_pushstring(L, "__gc");
+  lua_pushcfunction(L, net_server_delete);
+  lua_settable(L, -3); 
 
 	return 1;
 }
