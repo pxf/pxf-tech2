@@ -18,6 +18,9 @@ namespace DERPEditor
 	int net_createclient(lua_State *L);
 	int net_addtag(lua_State *L);
 
+	// packet
+	int net_packet_delete(lua_State *L);
+
 	// server functions
 	int net_server_bind(lua_State *L);
 	int net_server_send(lua_State *); // not implemented
