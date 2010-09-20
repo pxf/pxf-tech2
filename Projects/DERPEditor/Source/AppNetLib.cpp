@@ -123,7 +123,8 @@ int DERPEditor::net_client_recv(lua_State *L)
 		Client* client = *(Client**)lua_touserdata(L, -1);
 		Packet* packet = client->Recv();
 		// TODO: Return an actual packet-object instead.
-		lua_pushlstring(L, packet->GetData(), packet->GetLength());
+		//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+		net_packet_push(L, packet);
 
 		return 1;
 	}
@@ -146,7 +147,8 @@ int DERPEditor::net_client_recv_noblock(lua_State *L)
 
 		if (packet != NULL)
 			// TODO: Return an actual packet-object instead.
-			lua_pushlstring(L, packet->GetData(), packet->GetLength());
+			//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+			net_packet_push(L, packet);
 		else
 			return 0;
 
@@ -191,8 +193,6 @@ int DERPEditor::net_createserver(lua_State *L)
 
 		*server = LuaApp::GetInstance()->m_net->CreateServer();
 
-		Message("aoeuuuu", "Ident: %d", (*server)->Ident);
-    
 		lua_setfield(L, -2, "instance");
 		lua_pushcfunction(L, net_server_bind);
 		lua_setfield(L, -2, "bind");
@@ -214,8 +214,8 @@ int DERPEditor::net_server_bind(lua_State *L)
 	{
 		lua_getfield(L, -2, "instance");
 		Server* server = *(Server**)lua_touserdata(L, -1);
-		Message("aoeu", "IDENT %d", server->Ident);
 		server->Bind(lua_tonumber(L, -2));
+
 		return 0;
 	}
 	else
@@ -227,15 +227,14 @@ int DERPEditor::net_server_bind(lua_State *L)
 	return 0;
 }
 
-/*
 int DERPEditor::net_server_send(lua_State *L)
 {
-	if (lua_gettop(L) == 0)
+	if (lua_gettop(L) == 2)
 	{
-		lua_getfield(L, -2, "instance");
+		lua_getfield(L, -3, "instance");
 		Server* server = *(Server**)lua_touserdata(L, -1);
 		// TODO: Fix the channel.
-		server->Send(0, lua_tolstring(L, -2, NULL));
+		server->Send(lua_tonumber(L, -2), 0, lua_tolstring(L, -3, NULL));
 
 		return 0;
 	}
@@ -246,7 +245,7 @@ int DERPEditor::net_server_send(lua_State *L)
 	}
 
 	return 0;
-}*/
+}
 
 int DERPEditor::net_server_send_all(lua_State *L)
 {
@@ -277,7 +276,8 @@ int DERPEditor::net_server_recv(lua_State *L)
 		Packet* packet = server->Recv();
 
 		// TODO: Return an actual packet-object instead.
-		lua_pushlstring(L, packet->GetData(), packet->GetLength());
+		//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+		net_packet_push(L, packet);
 
 		return 1;
 	}
@@ -300,7 +300,8 @@ int DERPEditor::net_server_recv_noblock(lua_State *L)
 
 		if (packet != NULL)
 			// TODO: Return an actual packet-object instead.
-			lua_pushlstring(L, packet->GetData(), packet->GetLength());
+			//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+			net_packet_push(L, packet);
 		else
 			return 0;
 
@@ -333,6 +334,50 @@ int DERPEditor::net_server_delete(lua_State *L)
 	return 0;
 }
 
+//
+// ------------- PACKET
+//
+
+int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
+{
+	lua_newtable(L);
+	Packet** packet = (Packet**)lua_newuserdata(L, sizeof(Packet*));
+	luaL_getmetatable(L, "net.packet");
+	lua_setmetatable(L, -2);
+
+	*packet = _Packet;
+
+	lua_setfield(L, -2, "instance");
+	lua_pushnumber(L, _Packet->GetSender());
+	lua_setfield(L, -2, "sender");
+	lua_pushlstring(L, _Packet->GetData(), _Packet->GetLength());
+	lua_setfield(L, -2, "data");
+	lua_pushnumber(L, 0); // TODO: Replace this with the channel.
+	lua_setfield(L, -2, "tag");
+
+	return 1;
+}
+
+int DERPEditor::net_packet_delete(lua_State *L)
+{
+	Message("net", "Deleting packet");
+
+	if (lua_gettop(L) == 1)
+	{
+    delete (*(Packet**)lua_touserdata(L, 1));
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to delete function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+
+
 int DERPEditor::luaopen_appnet(lua_State *L)
 {
   
@@ -355,6 +400,12 @@ int DERPEditor::luaopen_appnet(lua_State *L)
 	luaL_newmetatable(L, "net.client");
 	lua_pushstring(L, "__gc");
 	lua_pushcfunction(L, net_client_delete);
+	lua_settable(L, -3); 
+
+	// set __gc for net.packet
+	luaL_newmetatable(L, "net.packet");
+	lua_pushstring(L, "__gc");
+	lua_pushcfunction(L, net_packet_delete);
 	lua_settable(L, -3); 
 
 	return 1;
