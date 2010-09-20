@@ -190,5 +190,6 @@ function update()
 end
 
 function draw(force)
+  gfx.setalpha(0.2)
   gui:draw(force)
 end
