@@ -80,6 +80,11 @@ function derp:create_inspector(x,y,w,h)
 		end
 	end
 	
+	function wid:resize_callback(w,h)
+		self.drawbox.h = self.drawbox.h + h - 1
+		self.hitbox.h = self.drawbox.h - 1
+	end
+	
 	function wid:mousedrag(dx,dy,button)
 		if button == inp.MOUSE_LEFT then
 			self.drawbox.x = self.drawbox.x + dx
@@ -113,10 +118,9 @@ function derp:create_workspace_tabs(x,y,w,h)
 	
 	function wid:addworkspace(name)
 		local ws = gui:create_basewidget(0,0,100,20)
+		ws.widget_type = "workspace tab " .. #self.childwidgets
 		ws.active = false
 		ws.parent = self
-		ws.animation_state = 0		-- 0 STOPPED, 1 ANIMATING
-		ws.animation_time = 0
 		
 		function ws:draw(force)
 			if (self.redraw_needed or force) then
@@ -139,17 +143,7 @@ function derp:create_workspace_tabs(x,y,w,h)
 		end
 		
 		function ws:update()
-		--[[
-			local dt = 0.016666667
-			
-			if self.animation_state == 1 then
-				if self.animation_time >= 2 then
-					self.animation_state = 2
-					self.animation_time = 0
-				else
-					self.animation_time = self.animation_time + dt
-				end
-			end ]]
+
 		end
 		
 		function ws:mouseover(mx,my)
@@ -213,22 +207,105 @@ function derp:create_workspace(x,y,w,h)
 		end
 	end
 	
+	function wid:resize_callback(w,h)
+		self.drawbox.h = self.drawbox.h + h - 1
+		self.hitbox.h = self.drawbox.h - 1
+	end
+	
+	return wid
+end
+
+function derp:create_workspacecontainer(x,y,w,h)
+	local wid = gui:create_verticalstack(x,y,w,h)
+	
+	function wid:resize_callback(w,h)
+		for k,v in pairs(self.childwidgets) do
+			v:resize_callback(w,h)
+		end
+	
+		self.drawbox.h = self.drawbox.h + h - 1
+		self.hitbox.h = self.drawbox.h - 1
+	end
+	
+	return wid
+end
+
+function derp:create_maincontainer(x,y,w,h)
+	local wid = gui:create_horizontalstack(x,y,w,h)
+	wid.widget_type = "main container"
+	
+	function wid:resize_callback(w,h)
+		for k,v in pairs(self.childwidgets) do
+			v:resize_callback(w,h)
+		end
+		
+		print("resizing widget " .. self.widget_type .. " with " .. w .. " " .. h)
+		
+		self.drawbox.y = self.drawbox.y - h + 1
+		self.hitbox.y = self.drawbox.y
+		
+		self.drawbox.h = self.drawbox.h + h + 1
+		self.hitbox.h = self.drawbox.h
+		
+		self:needsredraw()
+	end
+	
 	return wid
 end
 
 function derp:create_toolbar(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	local draggies = gui:create_basewidget(0,0,7,40)
+	local parent = nil
+	
 	draggies.super_draw = draggies.draw
+	draggies.widget_type = "toolbar drag widget"
 	
 	wid:addwidget(draggies)
 	wid.widget_type = "toolbar"
+	wid.drag_removed = false
 	
 	function draggies:draw(force)
 		if (self.redraw_needed or force) then
 			gfx.drawtopleft(4,8,3,25,1,10,3,25) -- LOL MAGIC NUMBARS
 			
 			draggies:super_draw()
+		end
+	end
+	
+	function draggies:mousedrag(mx,my)
+		wid:move_relative(mx,my)
+		
+		if not wid.drag_removed then
+			parent = wid.parent
+			
+			print (wid.parent.widget_type)
+			
+			wid.parent:removewidget(wid)
+			
+			parent:resize_callback(0,wid.drawbox.h)
+			gui.widgets:addwidget(wid)
+			
+			x,y = inp.getmousepos()
+			wid:move_abs(x,y)
+			
+			wid.drag_removed = true
+			wid.drag = true
+		end
+	end
+	
+	function draggies:mouserelease(dx,dy,button)
+		if (button == inp.MOUSE_LEFT) then
+			wid.drag = false
+			
+			print(parent.widget_type)
+			
+			gui.widgets:removewidget(wid)
+			
+			--parent:addwidget(wid)
+			
+			-- determine where to place toolbar
+			--wid.drag_removed = false
 		end
 	end
 	
@@ -242,11 +319,11 @@ function derp:create_toolbar(x,y,w,h)
 			-- TOP
 			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,self.drawbox.w-2,1,1,5,1,1)
 			-- BOTTOM
-			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.h-2,self.drawbox.w-2,1,1,5,1,1)
+			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y + self.drawbox.h-2,self.drawbox.w-2,1,1,5,1,1)
 			-- LEFT
 			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
 			-- RIGHT
-			gfx.drawtopleft(self.drawbox.w-2, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
+			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-2, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
 			
 			self:super_draw(force)
 		end

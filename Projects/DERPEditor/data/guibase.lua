@@ -49,6 +49,26 @@ function gui:create_basewidget(x,y,w,h)
     cwid:needsredraw()
   end
   
+  	function wid:removewidget(cwid)
+		local find_k = nil
+		
+		if not cwid then
+			return nil
+		end
+
+		-- make sure we find
+		for k,v in pairs(self.childwidgets) do
+			if (v == cwid) then
+				find_k = k
+				break
+			end
+		end
+
+		if find_k then
+			self.childwidgets[find_k] = nil
+		end
+	end
+  
   -----------------------------------
   -- update functions
   --  (can be useful for animation or input)
@@ -128,8 +148,17 @@ function gui:create_basewidget(x,y,w,h)
   end
   function wid:child_resized(cwid)
     -- do nothing ?
-	print("aoe")
+
   end
+  
+  function wid:resize_callback(w,h)
+	for k,v in pairs(self.childwidgets) do
+		v:resize_callback(w,h)
+	end
+  end
+  
+  
+  
   -- end of redraw functions
   ----------------------------------
   
@@ -342,7 +371,7 @@ function gui:tooltip(str)
 end
 
 function gui:init()
-  self.themetex = gfx.loadtexture(2048*2, "data/guitheme.png")
+  self.themetex = gfx.loadtexture(2048*2, "data/guitheme_brown.png")
   self.font = gfx.loadtexture(1024, "data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
@@ -357,7 +386,6 @@ function gui:init()
   
   -- tree of widgets
   self.widgets = gui:create_root()
-  --self.widgets:addwidget(gui:create_testwidget(300,300,300,400))
 end
 
 function gui:update()
