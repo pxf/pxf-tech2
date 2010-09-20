@@ -27,6 +27,8 @@
 #include <Pxf/Resource/Sound.h>
 #include <Pxf/Resource/Font.h>
 
+#include "BlockRenderer.h"
+
 #include <ctime>
 
 #include "Camera.h"
@@ -34,17 +36,6 @@
 using namespace Pxf;
 using namespace Math;
 
-struct MyVertex
-{
-	Vec3f v;
-	Vec4f c;
-	MyVertex(){}
-	MyVertex(Vec3f _v, Vec4f _c)
-	{
-		v = _v;
-		c = _c;
-	}
-};
 
 int main()
 {
@@ -96,6 +87,11 @@ int main()
 	int tick_id = snd->RegisterSound("data/tick.ogg");
 	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
 
+	Derp::AuxiliaryBlock block;
+	Derp::RenderBlock rblock;
+	Derp::PostProcessBlock pblock;
+	Graphics::Texture* tex = pblock.GetOutputValue(0);
+
 	Graphics::WindowSpecifications spec;
 	spec.Width = settings["video"].get("width", 800).asInt();
 	spec.Height = settings["video"].get("height", 600).asInt();
@@ -112,61 +108,7 @@ int main()
 	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
-	glDisable(GL_CULL_FACE);
-	
 
-	//Math::Mat4 t_ortho = Math::Mat4::Ortho(0, spec.Width, spec.Height, 0, 1.0f, 10000.0f);
-	//gfx->SetProjection(&t_ortho);
-
-	/*
-	gluLookAt(0.0f,0.0f,100.0f,
-			  0.0f,0.0f,0.0f,
-			  0.0f,1.0f,0.0f); 
-		*/
-	MyVertex data[24];
-	// Front
-	data[0]  = MyVertex(Vec3f(-0.5f, -0.5f, 0.5f), Vec4f(0, 0, 1, 1.0f));
-	data[1]  = MyVertex(Vec3f(0.5f, -0.5f, 0.5f), Vec4f(0, 0, 1, 1.0f));
-	data[2]  = MyVertex(Vec3f(0.5f, 0.5f, 0.5f), Vec4f(0, 0, 1, 1.0f));
-	data[3]  = MyVertex(Vec3f(-0.5f, 0.5f, 0.5f), Vec4f(0, 0, 1, 1.0f));
-	// Back
-	data[4]  = MyVertex(Vec3f(-0.5f, -0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[5]  = MyVertex(Vec3f(-0.5f, 0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[6]  = MyVertex(Vec3f(0.5f, 0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[7]  = MyVertex(Vec3f(0.5f, -0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	// Top
-	data[8]  = MyVertex(Vec3f(-0.5f, 0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[9]  = MyVertex(Vec3f(0.5f, 0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[10] = MyVertex(Vec3f(0.5f, 0.5f, -0.5), Vec4f(0, 1, 1, 1.0f));
-	data[11] = MyVertex(Vec3f(-0.5f, 0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
-	// Left
-	data[12] = MyVertex(Vec3f(-0.5f, -0.5f, 0.5f), Vec4f(1, 1, 1, 1.0f));
-	data[13] = MyVertex(Vec3f(-0.5f, 0.5f, 0.5f), Vec4f(1, 1, 1, 1.0f));
-	data[14] = MyVertex(Vec3f(-0.5f, 0.5f, -0.5f), Vec4f(1, 1, 1, 1.0f));
-	data[15] = MyVertex(Vec3f(-0.5f, -0.5f, -0.5f), Vec4f(1, 1, 1, 1.0f));
-	// Right
-	data[16] = MyVertex(Vec3f(0.5f, -0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[17] = MyVertex(Vec3f(0.5f, 0.5f, -0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[18] = MyVertex(Vec3f(0.5f, 0.5f, 0.5f), Vec4f(1, 0, 1, 1.0f));
-	data[19] = MyVertex(Vec3f(0.5f, -0.5f, 0.5f), Vec4f(1, 0, 1, 1.0f));
-	// Bottom
-	data[20] = MyVertex(Vec3f(-0.5f, -0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[21] = MyVertex(Vec3f(-0.5f, -0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[22] = MyVertex(Vec3f(0.5f, -0.5f, -0.5f), Vec4f(0, 1, 1, 1.0f));
-	data[23] = MyVertex(Vec3f(0.5f, -0.5f, 0.5f), Vec4f(0, 1, 1, 1.0f));
-	/*
-	Graphics::VertexBuffer* pBuff;
-
-	pBuff = gfx->CreateVertexBuffer(Graphics::VB_LOCATION_GPU, Graphics::VB_USAGE_STATIC_DRAW);
-	pBuff->CreateNewBuffer(24, sizeof(Vec3f) + sizeof(Vec4f));
-
-	pBuff->SetData(Graphics::VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
-
-	pBuff->SetData(Graphics::VB_COLOR_DATA, sizeof(Vec3f), 4);
-	pBuff->SetPrimitive(Graphics::VB_PRIMITIVE_QUADS);
-
-	pBuff->UpdateData(data,sizeof(data),0);
-	*/
 	SimpleCamera cam;
 	cam.SetPerspective(45.0f,800 / 600, 1.0f,10000.0f);
 	cam.SetLookAt(0.0f,0.0f,0.0f);
