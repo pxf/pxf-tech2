@@ -42,9 +42,15 @@ function gui:create_basewidget(x,y,w,h)
   
   -- child widget control
   wid.childwidgets = {}
-  function wid:addwidget(cwid)
+  function wid:addwidget(cwid,location)
     cwid.parent = self
-    table.insert(self.childwidgets, cwid)
+	
+	if not localtion == nil then
+		table.insert(self.childwidgets,location,cwid)
+	else
+		table.insert(self.childwidgets, cwid)
+	end
+	
     gui:set_focus(cwid)
     cwid:needsredraw()
   end

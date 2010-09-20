@@ -137,7 +137,6 @@ local window_container = derp:window_container()
 			local center_main_main = derp:create_maincontainer(0,0,app.width-40,app.height-100)
 
 				---- 2221
-				--local workspace = gui:create_verticalstack(0,0,app.width-290,app.height-100)
 				local workspace = derp:create_workspacecontainer(0,0,app.width-290,app.height-100)
 
 					----- 22211
@@ -190,6 +189,6 @@ function update()
 end
 
 function draw(force)
-  gfx.setalpha(0.2)
+  --gfx.setalpha(1.0)
   gui:draw(force)
 end
