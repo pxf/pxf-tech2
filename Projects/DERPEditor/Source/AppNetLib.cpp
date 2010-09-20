@@ -123,7 +123,8 @@ int DERPEditor::net_client_recv(lua_State *L)
 		Client* client = *(Client**)lua_touserdata(L, -1);
 		Packet* packet = client->Recv();
 		// TODO: Return an actual packet-object instead.
-		lua_pushlstring(L, packet->GetData(), packet->GetLength());
+		//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+		net_packet_push(L, packet);
 
 		return 1;
 	}
@@ -146,7 +147,8 @@ int DERPEditor::net_client_recv_noblock(lua_State *L)
 
 		if (packet != NULL)
 			// TODO: Return an actual packet-object instead.
-			lua_pushlstring(L, packet->GetData(), packet->GetLength());
+			//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+			net_packet_push(L, packet);
 		else
 			return 0;
 
@@ -274,7 +276,8 @@ int DERPEditor::net_server_recv(lua_State *L)
 		Packet* packet = server->Recv();
 
 		// TODO: Return an actual packet-object instead.
-		lua_pushlstring(L, packet->GetData(), packet->GetLength());
+		//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+		net_packet_push(L, packet);
 
 		return 1;
 	}
@@ -297,7 +300,8 @@ int DERPEditor::net_server_recv_noblock(lua_State *L)
 
 		if (packet != NULL)
 			// TODO: Return an actual packet-object instead.
-			lua_pushlstring(L, packet->GetData(), packet->GetLength());
+			//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+			net_packet_push(L, packet);
 		else
 			return 0;
 
