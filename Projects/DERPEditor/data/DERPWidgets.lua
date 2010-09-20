@@ -305,13 +305,21 @@ function derp:create_toolbar(x,y,w,h)
 			gui.widgets:removewidget(wid)
 			
 			wid.parent = parent
-			table.insert(parent.childwidgets,0,wid)
+			table.insert(parent.childwidgets,wid)
+			gui:set_focus(wid)
 			
 			-- determine where to put toolbar, for now just put it back..
 			wid:move_abs(0,0)
 			parent:resize_callback(0,wid.drawbox.h-1)
 			
 			parent:needsredraw()
+			
+			for k,v in pairs(parent.childwidgets) do
+				print(k .. ": " .. v.widget_type)
+				for k,v in pairs(v.childwidgets) do
+					print("  " .. k .. ": " .. v.widget_type)
+				end
+			end
 		end
 	end
 	
