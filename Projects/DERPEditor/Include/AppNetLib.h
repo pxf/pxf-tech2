@@ -19,6 +19,7 @@ namespace DERPEditor
 	int net_addtag(lua_State *L);
 
 	// packet
+	int net_packet_push(lua_State *L, Pxf::Network::Packet* _Packet);
 	int net_packet_delete(lua_State *L);
 
 	// server functions
@@ -30,11 +31,11 @@ namespace DERPEditor
 	int net_server_delete(lua_State *L);
 
 	// client functions
-	int net_client_connect(lua_State *);
-	int net_client_disconnect(lua_State *); // not implemented
-	int net_client_send(lua_State *);
-	int net_client_recv(lua_State *);
-	int net_client_recv_noblock(lua_State *);
+	int net_client_connect(lua_State *L);
+	int net_client_disconnect(lua_State *L); // not implemented
+	int net_client_send(lua_State *L);
+	int net_client_recv(lua_State *L);
+	int net_client_recv_noblock(lua_State *L);
 	int net_client_delete(lua_State *L);
 
 	// Register lib

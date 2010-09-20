@@ -334,6 +334,26 @@ int DERPEditor::net_server_delete(lua_State *L)
 // ------------- PACKET
 //
 
+int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
+{
+	lua_newtable(L);
+	Packet** packet = (Packet**)lua_newuserdata(L, sizeof(Packet*));
+	luaL_getmetatable(L, "net.packet");
+	lua_setmetatable(L, -2);
+
+	*packet = _Packet;
+
+	lua_setfield(L, -2, "instance");
+	lua_pushnumber(L, _Packet->GetSender());
+	lua_setfield(L, -2, "sender");
+	lua_pushlstring(L, _Packet->GetData(), _Packet->GetLength());
+	lua_setfield(L, -2, "data");
+	lua_pushnumber(L, 0); // TODO: Replace this with the channel.
+	lua_setfield(L, -2, "tag");
+
+	return 1;
+}
+
 int DERPEditor::net_packet_delete(lua_State *L)
 {
 	Message("net", "Deleting packet");
