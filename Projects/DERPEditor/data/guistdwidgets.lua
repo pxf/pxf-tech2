@@ -148,6 +148,8 @@ function gui:create_verticalstack(x,y,w,h)
     end
   end
   
+
+  
   --[[function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
@@ -185,6 +187,31 @@ function gui:create_horizontalstack(x,y,w,h)
     offsetx = offsetx + cwid.drawbox.w
     --self:resize_abs(offsetx, self.drawbox.h)
     table.insert(self.childwidgets, cwid)
+  end
+  
+   function wid:removewidget(cwid)
+	local find_k = nil
+	
+	if not cwid then
+		return nil
+	end
+	
+	-- make sure we find
+	for k,v in pairs(self.childwidgets) do
+		if (v == cwid) then
+			find_k = k
+			break
+		end
+	end
+	
+	if find_k then
+		self.childwidgets[find_k] = nil
+		
+		local offset_x = 0
+		for k,v in pairs(self.childwidgets) do
+			
+		end
+	end
   end
   
   function wid:child_resized(cwid)

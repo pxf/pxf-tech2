@@ -134,6 +134,33 @@ int DERPEditor::gfx_setcolor (lua_State *L) {
   return 0;
 }
 
+int DERPEditor::gfx_getalpha (lua_State *L) {
+  // a = gfx.getalpha()
+  if (lua_gettop(L) == 0)
+  {
+    lua_pushnumber(L, LuaApp::GetInstance()->m_CurrentColor.a);
+    return 1;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to getalpha function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::gfx_setalpha (lua_State *L) {
+  // gfx.setalpha(a)
+  if (lua_gettop(L) == 1)
+  {
+    LuaApp::GetInstance()->m_CurrentColor.a = lua_tonumber(L, 1);
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to setalpha function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int DERPEditor::gfx_setclearcolor (lua_State *L) {
   // gfx.setclearcolor(r,g,b)
   if (lua_gettop(L) == 3)
@@ -249,10 +276,12 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
     {"loadtexture",   gfx_loadtexture},
     {"bindtexture",   gfx_bindtexture},
     {"translate",   gfx_translate},
-	{"scale",   gfx_scale},
-	{"rotate",   gfx_rotate},
+  	{"scale",   gfx_scale},
+  	{"rotate",   gfx_rotate},
     {"getcolor",   gfx_getcolor},
     {"setcolor",   gfx_setcolor},
+    {"getalpha",   gfx_getalpha},
+    {"setalpha",   gfx_setalpha},
     {"setclearcolor",   gfx_setclearcolor},
     
     {"drawcentered",   gfx_drawcentered},
