@@ -9,7 +9,7 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 	enet_address_set_host(&Address, _Host);
 	Address.port = _Port;
 
-	Client = enet_host_create(NULL, 1, 2, 0, 0);
+	Client = enet_host_create(NULL, 1, NetDev->GetTags()->size(), 0, 0);
 
 	if (Client == NULL)
 	{

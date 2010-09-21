@@ -27,9 +27,13 @@ namespace Pxf
 			ENetAddress Address;
 			ENetHost *Client;
 			ENetPeer *Peer;
+			Network::NetworkDevice* NetDev;
 			
 		public:
 			//ENetClient(const char* _Host, const int _Port);
+			ENetClient(Network::NetworkDevice* _NetworkDevice)
+				: NetDev(_NetworkDevice)
+			{}
 
 			virtual bool Connect(const char* _Host, const int _Port);
 			virtual bool Disconnect();
