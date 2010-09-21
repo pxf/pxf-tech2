@@ -81,8 +81,8 @@ function derp:create_inspector(x,y,w,h)
 	end
 	
 	function wid:resize_callback(w,h)
-		self.drawbox.h = self.drawbox.h + h - 1
-		self.hitbox.h = self.drawbox.h - 1
+		self.drawbox.h = self.drawbox.h - h
+		self.hitbox.h = self.drawbox.h
 	end
 	
 	function wid:mousedrag(dx,dy,button)
@@ -208,8 +208,8 @@ function derp:create_workspace(x,y,w,h)
 	end
 	
 	function wid:resize_callback(w,h)
-		self.drawbox.h = self.drawbox.h + h - 1
-		self.hitbox.h = self.drawbox.h - 1
+		self.drawbox.h = self.drawbox.h - h
+		self.hitbox.h = self.drawbox.h
 	end
 	
 	return wid
@@ -223,8 +223,8 @@ function derp:create_workspacecontainer(x,y,w,h)
 			v:resize_callback(w,h)
 		end
 	
-		self.drawbox.h = self.drawbox.h + h - 1
-		self.hitbox.h = self.drawbox.h - 1
+		self.drawbox.h = self.drawbox.h - h
+		self.hitbox.h = self.drawbox.h
 	end
 	
 	return wid
@@ -234,17 +234,16 @@ function derp:create_maincontainer(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	wid.widget_type = "main container"
 	
-	function wid:resize_callback(w,h)
+	function wid:resize_callback(w,h,state)
 		for k,v in pairs(self.childwidgets) do
 			v:resize_callback(w,h)
 		end
 		
-		print("resizing widget " .. self.widget_type .. " with " .. w .. " " .. h)
+		self.drawbox.y = self.drawbox.y + h
+		self.drawbox.h = self.drawbox.h - h
 		
-		self.drawbox.y = self.drawbox.y - h + 1
+		
 		self.hitbox.y = self.drawbox.y
-		
-		self.drawbox.h = self.drawbox.h + h + 1
 		self.hitbox.h = self.drawbox.h
 		
 		self:needsredraw()
@@ -255,7 +254,7 @@ end
 
 function derp:create_toolbar(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
-	local draggies = gui:create_basewidget(0,0,7,40)
+	local draggies = gui:create_basewidget(0,0,12,40)
 	local parent = nil
 	
 	draggies.super_draw = draggies.draw
@@ -264,10 +263,19 @@ function derp:create_toolbar(x,y,w,h)
 	wid:addwidget(draggies)
 	wid.widget_type = "toolbar"
 	wid.drag_removed = false
+	wid.drag = false
 	
 	function draggies:draw(force)
 		if (self.redraw_needed or force) then
-			gfx.drawtopleft(4,8,3,25,1,10,3,25) -- LOL MAGIC NUMBARS
+			if self.drag then 
+				gfx.setalpha(0.7)
+			end
+			
+			gfx.drawtopleft(4,8,3,25,1,10,3,25)
+			
+			if self.drag then 
+				gfx.setalpha(1.0)
+			end
 			
 			draggies:super_draw()
 		end
@@ -278,12 +286,9 @@ function derp:create_toolbar(x,y,w,h)
 		
 		if not wid.drag_removed then
 			parent = wid.parent
-			
-			print (wid.parent.widget_type)
-			
 			wid.parent:removewidget(wid)
 			
-			parent:resize_callback(0,wid.drawbox.h)
+			parent:resize_callback(0,-wid.drawbox.h+1)
 			gui.widgets:addwidget(wid)
 			
 			x,y = inp.getmousepos()
@@ -297,21 +302,34 @@ function derp:create_toolbar(x,y,w,h)
 	function draggies:mouserelease(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
 			wid.drag = false
-			
-			print(parent.widget_type)
-			
 			gui.widgets:removewidget(wid)
 			
-			--parent:addwidget(wid)
+			wid.parent = parent
+			table.insert(parent.childwidgets,wid)
+			gui:set_focus(wid)
 			
-			-- determine where to place toolbar
-			--wid.drag_removed = false
+			-- determine where to put toolbar, for now just put it back..
+			wid:move_abs(0,0)
+			parent:resize_callback(0,wid.drawbox.h-1)
+			
+			parent:needsredraw()
+			
+			for k,v in pairs(parent.childwidgets) do
+				print(k .. ": " .. v.widget_type)
+				for k,v in pairs(v.childwidgets) do
+					print("  " .. k .. ": " .. v.widget_type)
+				end
+			end
 		end
 	end
 	
 	wid.super_draw = wid.draw
 	function wid:draw(force)	
 		if (self.redraw_needed or force) then
+			if self.drag then 
+				gfx.setalpha(0.7)
+			end
+		
 			-- DRAW BG
 			gfx.drawtopleft(self.drawbox.x+2, self.drawbox.y+2, self.drawbox.w-4, self.drawbox.h-4, 510, 0, 1, 127)
 			
@@ -324,6 +342,10 @@ function derp:create_toolbar(x,y,w,h)
 			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
 			-- RIGHT
 			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-2, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
+			
+			if self.drag then
+				gfx.setalpha(1.0)
+			end
 			
 			self:super_draw(force)
 		end

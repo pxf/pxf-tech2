@@ -128,7 +128,8 @@ function gui:create_verticalstack(x,y,w,h)
     cwid:move_abs(0, offsety)
     offsety = offsety + cwid.drawbox.h
     self:resize_abs(self.drawbox.w, offsety)
-    table.insert(self.childwidgets, cwid)
+	
+	table.insert(self.childwidgets, cwid)
   end
   
   function wid:child_resized(cwid)
@@ -177,7 +178,8 @@ end
 function gui:create_horizontalstack(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
   
-  function wid:addwidget(cwid)
+  function wid:addwidget(cwid,location)
+  
     cwid.parent = self
     local offsetx = 0
     for k,v in pairs(self.childwidgets) do
