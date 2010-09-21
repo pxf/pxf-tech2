@@ -1,4 +1,4 @@
-#include "BlockRenderer.h"
+#include "RenderBlocks.h"
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Debug.h>

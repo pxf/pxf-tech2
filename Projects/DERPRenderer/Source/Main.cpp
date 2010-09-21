@@ -28,7 +28,7 @@
 #include <Pxf/Resource/Font.h>
 #include <Pxf/Resource/Text.h>
 
-#include "BlockRenderer.h"
+#include "RenderBlocks.h"
 
 #include <ctime>
 
