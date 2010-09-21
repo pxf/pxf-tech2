@@ -1,6 +1,7 @@
 #include "BlockRenderer.h"
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/String.h>
+#include <Pxf/Base/Debug.h>
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Json.h>
@@ -48,5 +49,7 @@ bool PostProcessBlock::Initialize(const char* _JsonData)
 bool RootBlock::Initialize(const char* _JsonData)
 {
 	Json::Value block = CreateJson(_JsonData);
+	for(int i = 0; i < block.size(); i++)
+		Message("RootBlock", block[i]["blockName"].asCString());
 	return true;
 }
