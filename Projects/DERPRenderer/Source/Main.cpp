@@ -28,7 +28,7 @@
 #include <Pxf/Resource/Font.h>
 #include <Pxf/Resource/Text.h>
 
-#include "RenderBlocks.h"
+#include "Renderer.h"
 
 #include <ctime>
 
@@ -88,9 +88,12 @@ int main()
 	int tick_id = snd->RegisterSound("data/tick.ogg");
 	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
 
-	Resource::Text* text = res->Acquire<Resource::Text>("data/testblocks.json");
+	/*Resource::Text* text = res->Acquire<Resource::Text>("data/testblocks.json");
 	Derp::RootBlock rblock;
-	rblock.Initialize(text->Ptr());
+	rblock.Initialize(text->Ptr());*/
+	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
+	renderer->LoadJson();
+	delete renderer;
 
 	Graphics::WindowSpecifications spec;
 	spec.Width = settings["video"].get("width", 800).asInt();

@@ -15,12 +15,12 @@
                   "filepath" : "loltexture.png",
                   "minfilter" : "nearest"
                  },
-   "blockOutput" : "texture"
+   "blockOutput" : {"texture1" : "texture"}
   },
 
   {"blockName" : "output1",
    "blockType" : "Root",
-   "blockInput" : "auxinput1",
+   "blockInput" : {"auxinput1" : "texture1"},
    "blockData" : {"host" : "localhost",
                   "port" : "4632",
                   "feedback" : true,
