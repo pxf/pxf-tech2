@@ -20,14 +20,16 @@ namespace Pxf
 			char* Data;
 			int Sender;
 			int Length;
+			int Tag;
 
 		public:
-			ENetDataPacket(char* _Data, const int _Sender, const int _Length);
+			ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag);
 			virtual ~ENetDataPacket();
 
 			virtual char* GetData();
 			virtual int GetSender();
 			virtual int GetLength();
+			virtual int GetTag();
 		};
 	}
 }

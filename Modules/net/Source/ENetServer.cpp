@@ -13,12 +13,11 @@ int ENetServer::CreateClientID()
 bool ENetServer::Bind(const int _Port)
 {
 	// TODO: Replace 32 with a settable setting. Maybe add it as an argument to ENetServer?
-	// TOOD: Make use of the different channels.
 	Address.host = ENET_HOST_ANY;
 	Address.port = _Port;
 
-	Message("ENetServer", "Ident %d", Ident);
-	Server = enet_host_create(&Address, 32, 2, 0, 0);
+//	Message("ENetServer", "Ident %d %d", Ident, NetDev->GetTags()->size());
+	Server = enet_host_create(&Address, 32, NetDev->GetTags()->size(), 0, 0);
 
 #if COMPRESSION == 1
 	enet_host_compress_with_range_coder(Server);
@@ -76,7 +75,8 @@ Pxf::Network::Packet* ENetServer::Recv()
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
 				, (int)event.peer->data
-				, (int)event.packet->dataLength);
+				, (int)event.packet->dataLength
+				, (int)event.channelID);
 
 			enet_packet_destroy(event.packet);
 
@@ -126,7 +126,8 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
 				, (int)event.peer->data
-				, (int)event.packet->dataLength);
+				, (int)event.packet->dataLength
+				, (int)event.channelID);
 
 			enet_packet_destroy(event.packet);
 

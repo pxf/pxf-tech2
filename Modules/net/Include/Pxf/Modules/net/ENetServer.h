@@ -28,11 +28,14 @@ namespace Pxf
 		private:
 			ENetAddress Address;
 			ENetHost *Server;
+			Network::NetworkDevice* NetDev;
 			
 			int CreateClientID();
 
 		public:
-//			ENetServer(){}
+			ENetServer(Network::NetworkDevice* _NetworkDevice)
+				: NetDev(_NetworkDevice)
+			{}
 			virtual ~ENetServer(){};
 			
 			virtual bool Bind(const int _Port);
