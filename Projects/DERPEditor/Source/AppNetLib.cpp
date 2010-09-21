@@ -53,12 +53,15 @@ int DERPEditor::net_gettags(lua_State *L)
 	{
 		Util::Array<char*>* tags = LuaApp::GetInstance()->m_net->GetTags();
 
+		lua_newtable(L);
+
 		for(int i=0; i<tags->size(); i++)
 		{
-			Message("tag", "%d: %s", i, (*tags)[i]);
+			lua_pushnumber(L, i);
+			lua_setfield(L, -2, (*tags)[i]);
 		}
 
-		return 0;
+		return 1;
 	}
 	else
 	{
