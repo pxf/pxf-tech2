@@ -1,0 +1,34 @@
+//////////////////
+// tree info
+[
+  {"blockName" : "PipelineTree",
+   "blockType" : "PipelineTree",
+   "blockData" : { "root" : "output1" }
+  },
+
+
+  //////////////////
+  // block info
+  {"blockName" : "auxinput1",
+   "blockType" : "AuxComp",
+   "blockData" : {"auxType" : "texture",
+                  "filepath" : "loltexture.png",
+                  "minfilter" : "nearest"
+                 },
+   "blockOutput" : "texture"
+  },
+
+  {"blockName" : "output1",
+   "blockType" : "Root",
+   "blockInput" : "auxinput1",
+   "blockData" : {"host" : "localhost",
+                  "port" : "4632",
+                  "feedback" : true,
+                  "realtime" : false,
+                  "shaderVert" : "",
+                  "shaderFrag" : "",
+                  "width" : 1024,
+                  "height" : 768
+                 }
+  }
+]
