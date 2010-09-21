@@ -261,6 +261,7 @@ function derp:create_workspace(x,y,w,h)
 			--wid:super_draw(force)
 			
 			for k,v in pairs(self.childwidgets) do
+			
 				v.hitbox.x = rel_x + v.drawbox.x
 				v.hitbox.y = rel_y + v.drawbox.y
 				v:draw(force)
@@ -327,7 +328,6 @@ function derp:create_workspace(x,y,w,h)
 				
 				if not (wid.active_widget == nil) then
 					wid.active_widget.selected = false
-					print(wid.active_widget.widget_type)
 				end
 				
 				wid.active_widget = self
