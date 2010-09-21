@@ -164,6 +164,7 @@ local window_container = derp:window_container()
 		right_padding_container.border.left = true
 
 workspace_area:addcomponent(100,100)
+workspace_area:addcomponent(0,100)
 
 ws01 = workspace_tabs:addworkspace("workspace01")
 ws01.active = true

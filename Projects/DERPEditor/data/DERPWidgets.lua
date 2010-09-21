@@ -186,18 +186,56 @@ function derp:create_workspace_tabs(x,y,w,h)
 	return wid
 end
 
+function derp:create_workspace_camera(x,y,w,h)
+	local cam = {}
+	cam.x = x
+	cam.y = y
+	cam.bounds = { left = -w, right = w, top = h, bottom = -h}
+	
+	--print(cam.bounds.left .. " " .. cam.bounds.right .. " " .. cam.bounds.bottom .. " " .. cam.bounds.top)
+	
+	function cam:move_abs(x,y)
+		if x >= self.bounds.left and x <= self.bounds.right then
+			self.x = x
+		end
+		if y >= self.bounds.bottom and y <= self.bounds.top then
+			self.y = y
+		end
+	end
+	
+	function cam:move_relative(dx,dy)
+		local x = self.x + dx
+		local y = self.y + dy
+	
+		if x >= self.bounds.left and x <= self.bounds.right then
+			self.x = x
+		end
+		if y >= self.bounds.bottom and y <= self.bounds.top then
+			self.y = y
+		end
+	end
+	
+	return cam
+end
+
 function derp:create_workspace(x,y,w,h)
 	local wid = gui:create_basewidget(x,y,w,h)
 	wid.widget_type = "workspace"
 	wid.super_draw = wid.draw
 	wid.active_widget = nil
+	wid.camera = derp:create_workspace_camera(0,0,300,300)
 	
 	local checkers_texture = gfx.loadtexture(64,"data/checkers.png")
+	
+	function wid:mousedrag(mx,my)
+		self.camera:move_relative(mx,my)
+		
+		--print(self.camera.x .. "," .. self.camera.y)
+	end 
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
 			-- DRAW BG
-			
 			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1+128,self.drawbox.w-2,self.drawbox.h-2-128,1,1,1,1) -- solid bg
 			
 			local old_tex = gfx.bindtexture(checkers_texture)
@@ -216,8 +254,19 @@ function derp:create_workspace(x,y,w,h)
 			-- RIGHT
 			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
 			
-		
-			wid:super_draw(force)
+			local rel_x = self.camera.x + self.drawbox.w * 0.5
+			local rel_y = self.camera.y + self.drawbox.h * 0.5
+			
+			gfx.translate(rel_x,rel_y)
+			--wid:super_draw(force)
+			
+			for k,v in pairs(self.childwidgets) do
+				v.hitbox.x = rel_x + v.drawbox.x
+				v.hitbox.y = rel_y + v.drawbox.y
+				v:draw(force)
+			end
+			
+			gfx.translate(-rel_x,-rel_y)
 		end
 	end
 	
@@ -231,6 +280,9 @@ function derp:create_workspace(x,y,w,h)
 		
 		function comp:mousedrag(mx,my)
 			self:move_relative(mx,my)
+			
+			--print(self.drawbox.x,self.drawbox.y)
+			self:needsredraw()
 		end
 		
 		function comp:draw(force)
@@ -250,6 +302,10 @@ function derp:create_workspace(x,y,w,h)
 					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1)
 					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
 				end
+				
+				local draw_label = self.widget_type .. " (" .. self.drawbox.x .. "," .. self.drawbox.y .. ")"
+				
+				gui:drawfont(draw_label, self.drawbox.x,self.drawbox.y-5)
 			end
 		end
 		
@@ -268,6 +324,14 @@ function derp:create_workspace(x,y,w,h)
 		function comp:mouserelease(dx,dy,button)
 			if (button == inp.MOUSE_LEFT) then
 				self.selected = true
+				
+				if not (wid.active_widget == nil) then
+					wid.active_widget.selected = false
+					print(wid.active_widget.widget_type)
+				else
+					print("dicksuck")
+				end
+				
 				wid.active_widget = self
 			end
 		end
