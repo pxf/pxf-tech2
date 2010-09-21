@@ -1299,6 +1299,7 @@ function gui:create_textinput(x,y,w,masked)
   function wid:draw(force)
     if (self.redraw_needed or force) then
       gfx.translate(self.drawbox.x, self.drawbox.y)
+      local oldtex = gfx.bindtexture(0)
     
       -- bg
       gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
@@ -1349,7 +1350,8 @@ function gui:create_textinput(x,y,w,masked)
         
         gfx.setcolor(r,g,b)
       end
-    
+      
+      gfx.bindtexture(oldtex)
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
       
     end

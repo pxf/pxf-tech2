@@ -114,6 +114,7 @@ local window_container = derp:window_container()
 
 	-- 1:
 	local menu_container = derp:create_menu(0,0,app.width,40)
+	menu_container:addwidget(menubar)
 
 	-- 2:
 	local center_container = gui:create_horizontalstack(0,0,app.width,app.height-60)
@@ -132,6 +133,8 @@ local window_container = derp:window_container()
 		
 			--- 221
 			local center_main_toolbar = derp:create_toolbar(0,0,app.width-40,40)
+			local testinput = gui:create_textinput(20,8,200)
+      center_main_toolbar:addwidget(testinput)
 
 			--- 222 LOL no more names :(
 			local center_main_main = derp:create_maincontainer(0,0,app.width-40,app.height-100)
