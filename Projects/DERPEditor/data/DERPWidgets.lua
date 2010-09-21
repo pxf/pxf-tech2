@@ -207,6 +207,52 @@ function derp:create_workspace(x,y,w,h)
 		end
 	end
 	
+	function wid:addcomponent(x,y)
+		local comp = gui:create_basewidget(x,y,100,100)
+		comp.widget_type = "component" .. #self.childwidgets
+		comp.mouseover = false
+		comp.super_find_mousehit = comp.find_mousehit
+		comp.super_draw = comp.draw
+		
+		function comp:mousedrag(mx,my)
+			self:move_relative(mx,my)
+		end
+		
+		function comp:draw(force)
+			if (self.redraw_needed or force) then
+				-- DRAW BG
+				gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 1, 1, 1, 1)
+			
+				-- DRAW BORDERS
+				if self.mouseover then
+					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-1,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,13,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,13,5,1,1)
+				else
+					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-1,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
+				end
+			end
+		end
+		
+		function comp:find_mousehit(mx,my)
+			local hit = self:super_find_mousehit(mx,my) 
+			
+			if not (hit == nil) then
+				self.mouseover = true
+			else
+				self.mouseover = false
+			end
+			
+			return hit
+		end
+		
+		self:addwidget(comp)
+	end
+	
 	function wid:resize_callback(w,h)
 		self.drawbox.h = self.drawbox.h - h
 		self.hitbox.h = self.drawbox.h
@@ -296,14 +342,19 @@ function derp:create_toolbar(x,y,w,h)
 			
 			wid.drag_removed = true
 			wid.drag = true
+			parent:needsredraw()
+			wid:needsredraw()
 		end
 	end
 	
 	function draggies:mouserelease(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
 			wid.drag = false
+			wid.drag_removed = false
+			
 			gui.widgets:removewidget(wid)
 			
+			-- add toolbar back to parent
 			wid.parent = parent
 			table.insert(parent.childwidgets,wid)
 			gui:set_focus(wid)
@@ -313,13 +364,16 @@ function derp:create_toolbar(x,y,w,h)
 			parent:resize_callback(0,wid.drawbox.h-1)
 			
 			parent:needsredraw()
+			wid:needsredraw()
 			
+			--[[
 			for k,v in pairs(parent.childwidgets) do
 				print(k .. ": " .. v.widget_type)
 				for k,v in pairs(v.childwidgets) do
 					print("  " .. k .. ": " .. v.widget_type)
 				end
 			end
+			]]
 		end
 	end
 	
@@ -380,7 +434,7 @@ function derp:create_block(x,y,w,h,type)
 			end
 			
 			if(self.border.bottom) then
-				gfx.drawtopleft(self.drawbox,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
 			end
 			
 			self:super_draw(force)
