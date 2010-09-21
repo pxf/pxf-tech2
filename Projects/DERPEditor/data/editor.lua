@@ -163,9 +163,13 @@ local window_container = derp:window_container()
 		right_padding_container.widget_type = "center container: right padding"
 		right_padding_container.border.left = true
 
+workspace_area:addcomponent(100,100)
+workspace_area:addcomponent(-200,100)
+
 ws01 = workspace_tabs:addworkspace("workspace01")
 ws01.active = true
 ws02 = workspace_tabs:addworkspace("workspace02")
+ws03 = workspace_tabs:addworkspace("workspace03")
 
 workspace:addwidget(workspace_tabs)
 workspace:addwidget(workspace_area)
