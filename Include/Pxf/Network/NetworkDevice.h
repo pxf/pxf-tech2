@@ -33,8 +33,8 @@ namespace Network
 		virtual void KillServer(const int _ServerIdent) = 0;
 		virtual void KillClient(const int _ClientIdent) = 0;
 		
-		virtual int AddTag(const char* _Name) = 0;
-		virtual Util::Array<const char*> GetTags() = 0;
+		virtual int AddTag(char* _Name) = 0;
+		virtual Util::Array<char*>* GetTags() = 0;
 	};
 }
 }
