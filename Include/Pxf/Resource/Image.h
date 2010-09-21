@@ -22,6 +22,15 @@ namespace Resource {
 			, m_Width(0)
 			, m_ImageData(NULL)
 		{}
+
+		Image(Kernel* _Kernel, Chunk* _Chunk, ResourceLoader* _Loader, int _Width, int _Height, int _Channels)
+			: ResourceBase(_Kernel, _Chunk, _Loader)
+			, m_Channels(_Channels)
+			, m_Height(_Height)
+			, m_Width(m_Width)
+			, m_ImageData(NULL)
+		{}
+
 		virtual ~Image()
 		{}
 
@@ -62,6 +71,7 @@ namespace Resource {
 		virtual ~ImageLoader() {};
 		virtual Resource::Image* Load(const char* _FilePath) = 0;
 		virtual Resource::Image* CreateFrom(const void* _DataPtr, unsigned _DataLen) = 0;
+		virtual Resource::Image* CreateFromRaw(int _Width, int _Height, int _Channels, unsigned char* _DataPtr) = 0;
 		virtual void Destroy(void* _Resource)
 		{
 			if (_Resource)
