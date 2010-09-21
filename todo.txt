@@ -3,14 +3,12 @@
 [ ] renderare:
   [ ] int. json till block
   [ ] blockstruktur
-  [ ] 
 [ ] editor:
   [ ] block som genererar "output"
-  [ ] designkonceptualisering
-  [ ] etablera GUI-layout
-  [ ] 
-[ ] allmänt
-  [ ] LUA bindings för nätverk
+  [x] designkonceptualisering
+  [x] etablera GUI-layout
+[x] allmänt
+  [x] LUA bindings för nätverk
 
 - 4:
 

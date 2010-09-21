@@ -105,7 +105,8 @@ Pxf::Network::Packet* ENetClient::Recv()
 			packet = new ENetDataPacket(
 				(char*)event.packet->data
 				, (int)event.peer->data
-				, (int)event.packet->dataLength);
+				, (int)event.packet->dataLength
+				, (int)event.channelID);
 			
 			enet_packet_destroy(event.packet);
 
@@ -153,7 +154,8 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 			packet = new ENetDataPacket(
 				(char*)event.packet->data
 				, (int)event.peer->data
-				, (int)event.packet->dataLength);
+				, (int)event.packet->dataLength
+				, (int)event.channelID);
 			
 			enet_packet_destroy(event.packet);
 

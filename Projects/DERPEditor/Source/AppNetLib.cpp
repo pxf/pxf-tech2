@@ -6,6 +6,8 @@
 
 #include <Pxf/Network/NetworkDevice.h>
 
+#include <string.h>
+
 using namespace Pxf::Network;
 using namespace Pxf;
 
@@ -379,7 +381,7 @@ int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
 	lua_setfield(L, -2, "sender");
 	lua_pushlstring(L, _Packet->GetData(), _Packet->GetLength());
 	lua_setfield(L, -2, "data");
-	lua_pushnumber(L, 0); // TODO: Replace this with the channel.
+	lua_pushnumber(L, _Packet->GetTag());
 	lua_setfield(L, -2, "tag");
 
 	return 1;
@@ -391,7 +393,7 @@ int DERPEditor::net_packet_delete(lua_State *L)
 
 	if (lua_gettop(L) == 1)
 	{
-    delete (*(Packet**)lua_touserdata(L, 1));
+		delete (*(Packet**)lua_touserdata(L, 1));
 		return 0;
 	}
 	else
