@@ -328,8 +328,6 @@ function derp:create_workspace(x,y,w,h)
 				if not (wid.active_widget == nil) then
 					wid.active_widget.selected = false
 					print(wid.active_widget.widget_type)
-				else
-					print("dicksuck")
 				end
 				
 				wid.active_widget = self
