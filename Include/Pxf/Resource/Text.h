@@ -19,17 +19,17 @@ namespace Resource
 		}
 		
 		virtual ~Text();
-		/*
-		void* GetDataPtr() const
+		
+		char* Ptr() const
 		{
-			return m_Chunk->data;
+			return (char*)m_Chunk->data;
 		}
 
-		unsigned GetDataLen() const
+		unsigned Length() const
 		{
 			return m_Chunk->size;
 		}
-		*/
+	
 		const bool IsReady() const
 		{
 			return m_Chunk != 0;

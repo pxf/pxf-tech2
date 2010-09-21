@@ -45,6 +45,7 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_Started = false;
     m_Running = false;
     m_Shutdown = false;
+    m_Reboot = false;
     m_QuadBatchCurrent = -1;
     m_QuadBatchCount = 0;
     
@@ -56,7 +57,7 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_snd = Kernel::GetInstance()->GetAudioDevice();
 	  m_net = Kernel::GetInstance()->GetNetworkDevice();
     
-	m_snd->Initialize();
+	  m_snd->Initialize();
 
     // Set "snigelton"
     _appinstance = this;

@@ -13,6 +13,11 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
+net.addtag("ohhai")
+for k,v in pairs(net.gettags()) do
+  print(k,v)
+end
+
 local test = net.createserver()
 for k,v in pairs(debug.getmetatable(test.instance)) do
   print(k,v)

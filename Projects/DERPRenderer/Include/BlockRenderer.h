@@ -47,9 +47,13 @@ namespace Derp
 		void* m_Outputs[NUM_OUTPUTS];
 
 		BlockOutputType m_OutputType;
+		
+    bool m_IsPerformed;
+		
 	public:
 		Block(BlockType _BlockType)
 			: m_BlockType(_BlockType)
+      , m_IsPerformed(false)
 		{
 			// memset m_inputs, m_outputs
 		}
