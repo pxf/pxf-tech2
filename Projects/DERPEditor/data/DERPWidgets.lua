@@ -255,7 +255,9 @@ end
 function derp:create_toolbar(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	local draggies = gui:create_basewidget(0,0,12,40)
-	local parent = nil
+	
+	wid.prev_owner = nil
+	--local parent = nil
 	
 	draggies.super_draw = draggies.draw
 	draggies.widget_type = "toolbar drag widget"
@@ -267,20 +269,22 @@ function derp:create_toolbar(x,y,w,h)
 	
 	function draggies:draw(force)
 		if (self.redraw_needed or force) then
+		  local old_a = gfx.getalpha()
 			if self.drag then 
 				gfx.setalpha(0.7)
-			end
+		  end
 			
 			gfx.drawtopleft(4,8,3,25,1,10,3,25)
 			
-			if self.drag then 
-				gfx.setalpha(1.0)
-			end
+			--if self.drag then 
+			gfx.setalpha(old_a)
+			--end
 			
 			draggies:super_draw()
 		end
 	end
 	
+	--[[
 	function draggies:mousedrag(mx,my)
 		wid:move_relative(mx,my)
 		
@@ -297,9 +301,28 @@ function derp:create_toolbar(x,y,w,h)
 			wid.drag_removed = true
 			wid.drag = true
 		end
+	end]]
+	
+	function draggies:mousedrag(mx,my)
+		self.parent:move_relative(mx,my)
+		
+		if not self.parent.drag_removed then
+		  self.parent.prev_owner = self.parent.parent
+			--parent = wid.parent
+			self.parent.parent:removewidget(self.parent)
+			
+			self.parent.parent:resize_callback(0,-wid.drawbox.h+1)
+			gui.widgets:addwidget(self.parent)
+			
+			x,y = inp.getmousepos()
+			self.parent:move_abs(x,y)
+			
+			self.parent.drag_removed = true
+			self.parent.drag = true
+		end
 	end
 	
-	function draggies:mouserelease(dx,dy,button)
+	--[[function draggies:mouserelease(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
 			wid.drag = false
 			gui.widgets:removewidget(wid)
@@ -315,6 +338,33 @@ function derp:create_toolbar(x,y,w,h)
 			parent:needsredraw()
 			
 			for k,v in pairs(parent.childwidgets) do
+				print(k .. ": " .. v.widget_type)
+				for k,v in pairs(v.childwidgets) do
+					print("  " .. k .. ": " .. v.widget_type)
+				end
+			end
+		end
+	end]]
+	
+	function draggies:mouserelease(dx,dy,button)
+		if (button == inp.MOUSE_LEFT) then
+			self.parent.drag = false
+			gui.widgets:removewidget(self.parent)
+			
+			--wid.parent = parent
+			--table.insert(self.parent.parent.childwidgets,self.parent)
+			--gui:set_focus(self.parent)
+			--self.parent.prev_owner:addwidget(self.parent)
+			table.insert(self.parent.prev_owner.childwidgets,self.parent)
+			gui:set_focus(self.parent)
+			
+			-- determine where to put toolbar, for now just put it back..
+			self.parent:move_abs(0,0)
+			self.parent.parent:resize_callback(0,wid.drawbox.h-1)
+			
+			self.parent.parent:needsredraw()
+			
+			for k,v in pairs(self.parent.parent.childwidgets) do
 				print(k .. ": " .. v.widget_type)
 				for k,v in pairs(v.childwidgets) do
 					print("  " .. k .. ": " .. v.widget_type)
