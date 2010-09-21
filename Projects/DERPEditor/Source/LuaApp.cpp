@@ -54,7 +54,7 @@ LuaApp::LuaApp(Graphics::Window* _win, const char* _filepath)
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
     m_inp = Kernel::GetInstance()->GetInputDevice();
     m_snd = Kernel::GetInstance()->GetAudioDevice();
-	m_net = Kernel::GetInstance()->GetNetworkDevice();
+	  m_net = Kernel::GetInstance()->GetNetworkDevice();
     
 	m_snd->Initialize();
 
@@ -503,8 +503,8 @@ void LuaApp::_register_own_callbacks()
     luaopen_appcore(L);
     luaopen_appinput(L);
     luaopen_appgraphics(L);
-	luaopen_appsound(L);
-	luaopen_appnet(L);
+  	luaopen_appsound(L);
+  	luaopen_appnet(L);
 	/*Vec2::RegisterClass(L);
     GraphicsSubsystem::RegisterClass(L);
     ResourcesSubsystem::RegisterClass(L);

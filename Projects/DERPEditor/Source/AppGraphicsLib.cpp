@@ -23,7 +23,7 @@ int DERPEditor::gfx_loadtexture (lua_State *L) {
   {
     LuaApp* inst = LuaApp::GetInstance();
     int quadcount = lua_tointeger(L, 1);
-    inst->m_MaxQuadCount = quadcount;
+    inst->m_MaxQuadCount += quadcount;
     inst->m_DepthStep = (LUAAPP_DEPTH_RANGE / inst->m_MaxQuadCount);
     inst->m_QuadBatches[inst->m_QuadBatchCount] = new TexturedQuadBatch(quadcount*4,
                                                                         lua_tostring(L, 2),
@@ -129,6 +129,33 @@ int DERPEditor::gfx_setcolor (lua_State *L) {
     
   } else {
     lua_pushstring(L, "Invalid argument passed to setcolor function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::gfx_getalpha (lua_State *L) {
+  // a = gfx.getalpha()
+  if (lua_gettop(L) == 0)
+  {
+    lua_pushnumber(L, LuaApp::GetInstance()->m_CurrentColor.a);
+    return 1;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to getalpha function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::gfx_setalpha (lua_State *L) {
+  // gfx.setalpha(a)
+  if (lua_gettop(L) == 1)
+  {
+    LuaApp::GetInstance()->m_CurrentColor.a = lua_tonumber(L, 1);
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to setalpha function!");
     lua_error(L);
   }
   return 0;
@@ -249,10 +276,12 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
     {"loadtexture",   gfx_loadtexture},
     {"bindtexture",   gfx_bindtexture},
     {"translate",   gfx_translate},
-	{"scale",   gfx_scale},
-	{"rotate",   gfx_rotate},
+  	{"scale",   gfx_scale},
+  	{"rotate",   gfx_rotate},
     {"getcolor",   gfx_getcolor},
     {"setcolor",   gfx_setcolor},
+    {"getalpha",   gfx_getalpha},
+    {"setalpha",   gfx_setalpha},
     {"setclearcolor",   gfx_setclearcolor},
     
     {"drawcentered",   gfx_drawcentered},

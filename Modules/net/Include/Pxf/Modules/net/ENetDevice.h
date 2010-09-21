@@ -37,6 +37,8 @@ namespace Pxf
 			Util::Array<ENetServer*> Servers;
 			Util::Array<ENetClient*> Clients;
 
+			Util::Array<char*> Tags;
+
 			int ChildID;
 
 		public:
@@ -52,7 +54,8 @@ namespace Pxf
 			virtual void KillServer(const int _ServerIdent);
 			virtual void KillClient(const int _ClientIdent);
 			
-			virtual int CreateType();
+			virtual int AddTag(char* _Name);
+			virtual Util::Array<char*>* GetTags();
 		};
 	}
 }

@@ -82,9 +82,16 @@ void ENetDevice::KillClient(const int _ClientIdent)
 		}
 }
 
-int ENetDevice::CreateType()
+int ENetDevice::AddTag(char* _Name)
 {
-	static int typeCounter;
-	
-	return ++typeCounter;
+	char* tmp = new char[strlen(_Name)+1];
+	strcpy(tmp, _Name);
+	Tags.push_back(tmp);
+
+	return Tags.size()-1;
+}
+
+Util::Array<char*>* ENetDevice::GetTags()
+{
+	return &Tags;
 }

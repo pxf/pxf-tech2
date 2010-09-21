@@ -13,6 +13,12 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
+local test = net.createserver()
+for k,v in pairs(debug.getmetatable(test.instance)) do
+  print(k,v)
+end
+test.instance = nil
+
 ----------------------------------------------
 -- setup menus
 local file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = function () app.reboot() end}},
@@ -64,7 +70,7 @@ local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", ed
 
 console = gui:create_console(0,0,app.width,100,false)
 toolbar = gui:create_horizontalpanel(0,0,app.width,40, app.width)
-local testinput = gui:create_textinput(20,8,140)
+local testinput = gui:create_textinput(20,8,200)
 toolbar:addwidget(testinput)
 
 -- add topstack widgets
@@ -79,8 +85,8 @@ gui.statusbar = statusbar
 
 ----------------------------------------------
 -- add widgets to root
-gui.widgets:addwidget(topstack)
-gui.widgets:addwidget(statusbar)
+--gui.widgets:addwidget(topstack)
+--gui.widgets:addwidget(statusbar)
 
 --[[
  _________________________
@@ -122,30 +128,28 @@ local window_container = derp:window_container()
 
 		-- 22
 		local center_main_container = gui:create_verticalstack(20,0,app.width-40,app.height-60)
-		center_main_container.widget_type = "center: main"
+		center_main_container.widget_type = "center main container"
+		
+			--- 221
+			local center_main_toolbar = derp:create_toolbar(0,0,app.width-40,40)
 
-		--- 221
-		local center_main_toolbar = derp:create_toolbar(0,0,app.width-40,40)
+			--- 222 LOL no more names :(
+			local center_main_main = derp:create_maincontainer(0,0,app.width-40,app.height-100)
 
-		--- 222 LOL no more names :(
-		local center_main_main = gui:create_horizontalstack(0,0,app.width-40,app.height-100)
-		center_main_main.widget_type = "center: main: main"
+				---- 2221
+				local workspace = derp:create_workspacecontainer(0,0,app.width-290,app.height-100)
 
-			---- 2221
-			local workspace = gui:create_verticalstack(0,0,app.width-290,app.height-100)
-			workspace.widget_type = "center: main: main: workspace"
+					----- 22211
+					local workspace_tabs = derp:create_workspace_tabs(0,0,app.width-290,20)
+					workspace_tabs.widget_type = "center: main: main: workspace: tabs"
 
-				----- 22211
-				local workspace_tabs = derp:create_workspace_tabs(0,0,app.width-290,20)
-				workspace_tabs.widget_type = "center: main: main: workspace: tabs"
-
-				----- 22212 
-				local workspace_area = derp:create_workspace(0,0,app.width-290,app.height-120)
-				workspace_area.widget_type = "center: main: main: workspace: workspace area"
+					----- 22212 
+					local workspace_area = derp:create_workspace(0,0,app.width-290,app.height-120)
+					workspace_area.widget_type = "center: main: main: workspace: workspace area"
+					
+				---- 2222
+				local inspector = derp:create_inspector(0,0,250,app.height-100)
 				
-			---- 2222
-			local inspector = derp:create_inspector(0,0,250,app.height-100)
-			
 		-- 23
 		local right_padding_container = derp:create_block(app.width-20,0,20,app.height-60)
 		right_padding_container.widget_type = "center container: right padding"
@@ -172,7 +176,7 @@ window_container:addwidget(menu_container)
 window_container:addwidget(center_container)
 window_container:addwidget(statusbar_container)
 
---gui.widgets:addwidget(window_container)
+gui.widgets:addwidget(window_container)
 --gui.draw_debug_rects = true
 --gui.themetex = gfx.loadtexture("data/guitheme_brown.png")
 
@@ -185,5 +189,6 @@ function update()
 end
 
 function draw(force)
+  --gfx.setalpha(1.0)
   gui:draw(force)
 end

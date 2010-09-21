@@ -11,7 +11,7 @@ function gui:create_basewidget(x,y,w,h)
     drawbox = {x = x, y = y, w = w, h = h},
     parent = nil,
     redraw_needed = false,
-	visible = true,
+    visible = true,
     widget_type = "stdwidget" -- stdwidget, menu
 	
   }
@@ -42,12 +42,38 @@ function gui:create_basewidget(x,y,w,h)
   
   -- child widget control
   wid.childwidgets = {}
-  function wid:addwidget(cwid)
+  function wid:addwidget(cwid,location)
     cwid.parent = self
-    table.insert(self.childwidgets, cwid)
+	
+	if not localtion == nil then
+		table.insert(self.childwidgets,location,cwid)
+	else
+		table.insert(self.childwidgets, cwid)
+	end
+	
     gui:set_focus(cwid)
     cwid:needsredraw()
   end
+  
+  	function wid:removewidget(cwid)
+		local find_k = nil
+		
+		if not cwid then
+			return nil
+		end
+
+		-- make sure we find
+		for k,v in pairs(self.childwidgets) do
+			if (v == cwid) then
+				find_k = k
+				break
+			end
+		end
+
+		if find_k then
+			self.childwidgets[find_k] = nil
+		end
+	end
   
   -----------------------------------
   -- update functions
@@ -128,27 +154,36 @@ function gui:create_basewidget(x,y,w,h)
   end
   function wid:child_resized(cwid)
     -- do nothing ?
-	print("aoe")
+
   end
+  
+  function wid:resize_callback(w,h)
+	for k,v in pairs(self.childwidgets) do
+		v:resize_callback(w,h)
+	end
+  end
+  
+  
+  
   -- end of redraw functions
   ----------------------------------
   
   function wid:draw(force)
-	if self.visible then
+  	if self.visible then
 		
-		if (gui.draw_debug_rects) then
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, 1, 5, 5, 1, 1) -- top
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, 1, self.drawbox.h, 5, 5, 1, 1) -- left
-			gfx.drawtopleft(self.drawbox.x + self.drawbox.w, self.drawbox.y, 1,self.drawbox.h, 5, 5, 1, 1) -- right
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h, self.drawbox.w, 1, 5, 5, 1, 1) -- bottom
-		end
+  		if (gui.draw_debug_rects) then
+  			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, 1, 5, 5, 1, 1) -- top
+  			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, 1, self.drawbox.h, 5, 5, 1, 1) -- left
+  			gfx.drawtopleft(self.drawbox.x + self.drawbox.w, self.drawbox.y, 1,self.drawbox.h, 5, 5, 1, 1) -- right
+  			gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h, self.drawbox.w, 1, 5, 5, 1, 1) -- bottom
+  		end
 		
-		gfx.translate(self.drawbox.x, self.drawbox.y)
-		for k,v in pairs(self.childwidgets) do
-		  v:draw(force)
-		end
-		gfx.translate(-self.drawbox.x, -self.drawbox.y)
-	end
+  		gfx.translate(self.drawbox.x, self.drawbox.y)
+  		for k,v in pairs(self.childwidgets) do
+  		  v:draw(force)
+  		end
+  		gfx.translate(-self.drawbox.x, -self.drawbox.y)
+  	end
   end
   
   function wid:hittest(x0,y0,x1,y1)
@@ -237,10 +272,11 @@ function gui:create_root()
   
   function rootwid:draw(force)
     local r,g,b = gfx.getcolor()
-
+    local oldtex = gfx.bindtexture(0)
     gfx.setcolor(5/255,5/255,5/255)
-    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,5,5,1,1)
+    gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h)
     gfx.setcolor(r,g,b)
+    gfx.bindtexture(oldtex)
     
     for k,v in pairs(self.childwidgets) do
       gfx.translate(self.drawbox.x, self.drawbox.y)
@@ -341,7 +377,7 @@ function gui:tooltip(str)
 end
 
 function gui:init()
-  self.themetex = gfx.loadtexture(2048*2, "data/guitheme.png")
+  self.themetex = gfx.loadtexture(2048*2, "data/guitheme_brown.png")
   self.font = gfx.loadtexture(1024, "data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
@@ -356,7 +392,6 @@ function gui:init()
   
   -- tree of widgets
   self.widgets = gui:create_root()
-  --self.widgets:addwidget(gui:create_testwidget(300,300,300,400))
 end
 
 function gui:update()

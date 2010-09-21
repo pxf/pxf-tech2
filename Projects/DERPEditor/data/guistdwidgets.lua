@@ -76,18 +76,20 @@ function gui:create_horizontalpanel(x,y,w,h,max)
   
   -- wid.superdraw = wid.draw
   function wid:draw(force)
-    if (self.visible and (self.redraw_needed or force)) then
-      local r,g,b = gfx.getcolor()
-      gfx.setcolor(46/256,46/256,46/256)
-      gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
-                      18,2,1,1)
-      gfx.setcolor(r,g,b)
+    if self.visible then
+      if (self.redraw_needed or force) then
+        local r,g,b = gfx.getcolor()
+        gfx.setcolor(46/256,46/256,46/256)
+        gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,
+                        18,2,1,1)
+        gfx.setcolor(r,g,b)
+      end
+      gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
+      for k,v in pairs(self.childwidgets) do
+        v:draw(force)
+      end
+      gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
     end
-    gfx.translate(self.drawbox.x + self.offset, self.drawbox.y)
-    for k,v in pairs(self.childwidgets) do
-      v:draw(force)
-    end
-    gfx.translate(-(self.drawbox.x + self.offset), -self.drawbox.y)
   end
   
   function wid:find_mousehit(mx,my)
@@ -126,7 +128,8 @@ function gui:create_verticalstack(x,y,w,h)
     cwid:move_abs(0, offsety)
     offsety = offsety + cwid.drawbox.h
     self:resize_abs(self.drawbox.w, offsety)
-    table.insert(self.childwidgets, cwid)
+	
+	table.insert(self.childwidgets, cwid)
   end
   
   function wid:child_resized(cwid)
@@ -145,6 +148,8 @@ function gui:create_verticalstack(x,y,w,h)
       self:needsredraw()
     end
   end
+  
+
   
   --[[function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
@@ -173,7 +178,8 @@ end
 function gui:create_horizontalstack(x,y,w,h)
   local wid = gui:create_basewidget(x,y,w,h)
   
-  function wid:addwidget(cwid)
+  function wid:addwidget(cwid,location)
+  
     cwid.parent = self
     local offsetx = 0
     for k,v in pairs(self.childwidgets) do
@@ -183,6 +189,31 @@ function gui:create_horizontalstack(x,y,w,h)
     offsetx = offsetx + cwid.drawbox.w
     --self:resize_abs(offsetx, self.drawbox.h)
     table.insert(self.childwidgets, cwid)
+  end
+  
+   function wid:removewidget(cwid)
+	local find_k = nil
+	
+	if not cwid then
+		return nil
+	end
+	
+	-- make sure we find
+	for k,v in pairs(self.childwidgets) do
+		if (v == cwid) then
+			find_k = k
+			break
+		end
+	end
+	
+	if find_k then
+		self.childwidgets[find_k] = nil
+		
+		local offset_x = 0
+		for k,v in pairs(self.childwidgets) do
+			
+		end
+	end
   end
   
   function wid:child_resized(cwid)
@@ -1038,9 +1069,11 @@ function gui:create_menubar(x,y,w,menus)
 end
 
 -- creates a menu
-function gui:create_textinput(x,y,w)
+function gui:create_textinput(x,y,w,masked)
   local wid = gui:create_basewidget(x,y,w,30)
+  wid.masked = masked -- passwords etc
   wid.stdheight = 30
+  wid.selectionheight = 16
   wid.stdpadding = 20
   wid.value = ""
   wid.state = "normal"
@@ -1053,19 +1086,104 @@ function gui:create_textinput(x,y,w)
   wid.leftkey = false
   wid.rightekey = false
   
-  -- find out max visible char number
-  wid.maxvisible = math.floor((w-wid.stdpadding) / 8)
+  wid.mouseselect = false
   
-  -- TODO: add mouserelease and mousedrag events so that the
-  --       user can select text with the mouse.
+  -- find out max visible char number
+  wid.maxvisible = math.floor((w-wid.stdpadding-8) / 8)
+  
+  function wid:sanitycheck_selection()
+    if (self.selection.finish == self.selection.start) then
+      self.selection.finish = nil
+    end
+    
+    if self.selection.finish then
+      
+      if (self.selection.finish < self.selection.start) then
+        local tstart = self.selection.start
+        self.selection.start = self.selection.finish
+        self.selection.finish = tstart
+      end
+      
+      if (self.selection.finish < 0) then
+        self.selection.finish = 0
+      elseif (self.selection.finish > #self.value) then
+        self.selection.finish = #self.value
+      end
+    end
+    
+    if (self.selection.start < 0) then
+      self.selection.start = 0
+    elseif (self.selection.start > #self.value) then
+      self.selection.start = #self.value
+    end
+      
+    if (self.selection.start - self.viewstart > self.maxvisible) then
+      self.viewstart = self.selection.start - self.maxvisible
+    end
+    
+    if (self.selection.start < self.viewstart) then
+      self.viewstart = self.selection.start
+    end
+    
+  end
+  
+  function wid:mousedrag(dx,dy,button)
+    if (button == inp.MOUSE_LEFT) then
+      if (self.mouseselect) then
+        self:needsredraw()
+        -- find selection finish
+        local mx,my = inp.getmousepos()
+        local dw = mx - self.drawbox.x - self.stdpadding / 2 + 4
+        local i = math.floor((dw / (self.drawbox.w - self.stdpadding)) * self.maxvisible)
+        local deltaselection = self.viewstart + i
+        
+        if (deltaselection <= self.selection.start) then
+          if not (self.selection.finish) then
+            self.selection.finish = self.selection.start
+          end
+          self.selection.start = deltaselection
+        else
+          self.selection.finish = deltaselection
+        end
+      end
+      
+    end
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    self.mouseselect = false
+  end
+  
+  function wid:mousepush(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      
+      if not (self.mouseselect) then
+        self:needsredraw()
+        -- new mouse selection
+        
+        -- find selection start
+        local dw = mx - self.drawbox.x - self.stdpadding / 2 + 4
+        local i = math.floor((dw / (self.drawbox.w - self.stdpadding)) * self.maxvisible)
+        self.selection.start = self.viewstart + i
+        self.selection.finish = nil
+        self:sanitycheck_selection()
+        self.mouseselect = true
+      else
+        -- continued selection
+      end
+      
+    end
+  end
   
   function wid:lostfocus(wid)
     self.state = "normal"
+    self:needsredraw()
   end
   
   function wid:gotfocus()
     self.state = "input"
     self.backspace = false
+    self:needsredraw()
   end
   
   function wid:update()
@@ -1087,6 +1205,8 @@ function gui:create_textinput(x,y,w)
           
         end
         self.backspace = true
+        self:needsredraw()
+        
       elseif (inp.iskeydown(inp.DEL)) then
         if not (self.deletekey) then
           -- delete part of value if we have a range of value selected
@@ -1099,6 +1219,8 @@ function gui:create_textinput(x,y,w)
 
         end
         self.deletekey = true
+        self:needsredraw()
+        
       elseif (inp.iskeydown(inp.LEFT)) then
         -- left arrow key
         if (inp.iskeydown(inp.LSHIFT)) then
@@ -1118,6 +1240,8 @@ function gui:create_textinput(x,y,w)
           self.selection.finish = nil
           self.selection.start = self.selection.start - 1
         end
+        
+        self:needsredraw()
       elseif (inp.iskeydown(inp.RIGHT)) then
         -- right arrow key
         if (inp.iskeydown(inp.LSHIFT)) then
@@ -1136,6 +1260,8 @@ function gui:create_textinput(x,y,w)
           self.selection.finish = nil
           self.selection.start = self.selection.start + 1
         end
+        
+        self:needsredraw()
       else
         
         -- reset special keys
@@ -1160,31 +1286,12 @@ function gui:create_textinput(x,y,w)
           
         end
         
-      end
-      
-      -- sanity control! aoe or something like that
-      if self.selection.finish then
+        self:needsredraw()
         
-        if (self.selection.finish < 0) then
-          self.selection.finish = 0
-        elseif (self.selection.finish > #self.value) then
-          self.selection.finish = #self.value
-        end
       end
       
-      if (self.selection.start < 0) then
-        self.selection.start = 0
-      elseif (self.selection.start > #self.value) then
-        self.selection.start = #self.value
-      end
-        
-      if (self.selection.start - self.viewstart > self.maxvisible) then
-        self.viewstart = self.selection.start - self.maxvisible
-      end
       
-      if (self.selection.start < self.viewstart) then
-        self.viewstart = self.selection.start
-      end
+      self:sanitycheck_selection()
       
     end
   end
@@ -1201,13 +1308,22 @@ function gui:create_textinput(x,y,w)
       
       -- find out what is visible
       out_str = string.sub(self.value, self.viewstart+1, self.viewstart+1+self.maxvisible)        
+      
+      -- password?
+      if (self.masked) then
+        local new_outstr = ""
+        for i=1,#out_str do
+          new_outstr = new_outstr .. self.masked
+        end
+        out_str = new_outstr
+      end
         
       if not (self.selection.finish == nil) then
         -- selected range
         local r,g,b = gfx.getcolor()
         gfx.setcolor(0.8,0.5,0.5)
-        local sx1 = self.stdpadding / 2 + (self.selection.start - self.viewstart)*8 - 4
-        local sx2 = self.stdpadding / 2 + (self.selection.finish - self.viewstart)*8 - 4
+        local sx1 = self.stdpadding / 2 + (self.selection.start - self.viewstart)*8
+        local sx2 = self.stdpadding / 2 + (self.selection.finish - self.viewstart)*8
         if (sx1 < self.stdpadding / 2) then
           sx1 = self.stdpadding / 2
         elseif (sx1 > self.drawbox.w - self.stdpadding / 2) then
@@ -1218,18 +1334,18 @@ function gui:create_textinput(x,y,w)
         elseif (sx2 > self.drawbox.w - self.stdpadding / 2) then
           sx2 = self.drawbox.w - self.stdpadding / 2
         end
-        gfx.drawtopleft(sx1, 0, sx2-sx1, self.drawbox.h,
+        gfx.drawtopleft(sx1, self.drawbox.h / 2 - self.selectionheight / 2, sx2-sx1, self.selectionheight,
                         17,6,1,1)
         gfx.setcolor(r,g,b)
       end
       
       -- render visible string
-      gui:drawfont(out_str, self.stdpadding / 2, self.drawbox.h / 2)
+      gui:drawfont(out_str, self.stdpadding / 2+4, self.drawbox.h / 2)
       
-      if (self.state == "input") then
+      if (self.state == "input" and not self.selection.finish) then
         local r,g,b = gfx.getcolor()
         gfx.setcolor(0.8,0.5,0.5)
-        gui:drawfont("-", self.stdpadding / 2 + (self.selection.start - self.viewstart)*8, self.drawbox.h / 2+4);
+        gui:drawfont("-", self.stdpadding / 2 + 4 + (self.selection.start - self.viewstart)*8, self.drawbox.h / 2+4);
         
         gfx.setcolor(r,g,b)
       end

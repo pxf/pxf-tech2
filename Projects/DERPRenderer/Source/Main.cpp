@@ -27,6 +27,8 @@
 #include <Pxf/Resource/Sound.h>
 #include <Pxf/Resource/Font.h>
 
+#include "BlockRenderer.h"
+
 #include <ctime>
 
 #include "Camera.h"
@@ -34,17 +36,6 @@
 using namespace Pxf;
 using namespace Math;
 
-struct MyVertex
-{
-	Vec3f v;
-	Vec4f c;
-	MyVertex(){}
-	MyVertex(Vec3f _v, Vec4f _c)
-	{
-		v = _v;
-		c = _c;
-	}
-};
 
 int main()
 {
@@ -96,6 +87,11 @@ int main()
 	int tick_id = snd->RegisterSound("data/tick.ogg");
 	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
 
+	Derp::AuxiliaryBlock block;
+	Derp::RenderBlock rblock;
+	Derp::PostProcessBlock pblock;
+	Graphics::Texture* tex = pblock.GetOutputValue(0);
+
 	Graphics::WindowSpecifications spec;
 	spec.Width = settings["video"].get("width", 800).asInt();
 	spec.Height = settings["video"].get("height", 600).asInt();
@@ -112,17 +108,6 @@ int main()
 	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
-	glDisable(GL_CULL_FACE);
-	
-
-	//Math::Mat4 t_ortho = Math::Mat4::Ortho(0, spec.Width, spec.Height, 0, 1.0f, 10000.0f);
-	//gfx->SetProjection(&t_ortho);
-
-	/*
-	gluLookAt(0.0f,0.0f,100.0f,
-			  0.0f,0.0f,0.0f,
-			  0.0f,1.0f,0.0f); 
-		*/
 
 	SimpleCamera cam;
 	cam.SetPerspective(45.0f,800 / 600, 1.0f,10000.0f);
@@ -182,6 +167,12 @@ int main()
 		//gfx->SetProjection(cam.GetProjectionView());
 		//gfx->SetModelView(cam.GetModelView());
 
+		/*
+		glBegin(GL_TRIANGLES);
+		glVertex3f(0.0f,0.0f,0.0f);
+		glVertex3f(1.0f,0.0f,0.0f);
+		glVertex3f(0.0f,1.0f,0.0f);
+		glEnd(); */
 		
 		glRotatef(a,1.0f, 0, 0);
 		//glScalef(0.1, 0.1, 0.1);
