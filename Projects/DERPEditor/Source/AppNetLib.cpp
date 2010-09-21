@@ -31,7 +31,9 @@ int DERPEditor::net_addtag(lua_State *L)
 {
 	if (lua_gettop(L) == 1)
 	{
-		int type = LuaApp::GetInstance()->m_net->CreateType();
+		char* tag = new char[strlen(lua_tolstring(L, -1, NULL))];
+		strcpy(tag, lua_tolstring(L, -1, NULL));
+		int type = LuaApp::GetInstance()->m_net->AddTag(tag);
 		lua_pushnumber(L, type);
 
 		return 1;
@@ -39,6 +41,31 @@ int DERPEditor::net_addtag(lua_State *L)
 	else
 	{
 		lua_pushstring(L, "Invalid arguments passed to addtag function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int DERPEditor::net_gettags(lua_State *L)
+{
+	if (lua_gettop(L) == 0)
+	{
+		Util::Array<char*>* tags = LuaApp::GetInstance()->m_net->GetTags();
+
+		lua_newtable(L);
+
+		for(int i=0; i<tags->size(); i++)
+		{
+			lua_pushnumber(L, i);
+			lua_setfield(L, -2, (*tags)[i]);
+		}
+
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to gettags function!");
 		lua_error(L);
 	}
 
@@ -385,6 +412,7 @@ int DERPEditor::luaopen_appnet(lua_State *L)
 		{"createserver", net_createserver},
 		{"createclient", net_createclient},
 		{"addtag", net_addtag},
+		{"gettags", net_gettags},
 		{NULL, NULL}
 	};
 
