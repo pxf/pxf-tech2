@@ -59,10 +59,6 @@ bool ModelGL2::Load(Resource::Mesh* _Mesh)
 		// set position
 		ptr[i].vertex = vertex;
 		ptr[i].normal = normal;
-
-
-
-		Message("Model", "%d. [%d](%.2f, %.2f, %.2f)", i, idx, ptr[i].vertex.x, ptr[i].vertex.y, ptr[i].vertex.z);
 	}
 
 	m_VertexBuffer->UnmapData();
