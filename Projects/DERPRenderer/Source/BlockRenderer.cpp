@@ -17,7 +17,15 @@ static Json::Value CreateJson(const char* data)
 	Resource::Json* doc = jsonloader->CreateFrom(data, StringLength(data));
 	Json::Value root;
 	if (doc)
+	{
 		root = doc->GetRoot();
+		
+		for ( int index = 0; index < root.size(); ++index )  // Iterates over the sequence elements.
+       printf("tooka dump: %s\n",  root[index].asString() );
+		
+	} else {
+    Message("JSON", "Taak a daaamp?");
+	}
 	jsonloader->Destroy(doc);
 	return root;
 }
