@@ -15,7 +15,9 @@ static Json::Value CreateJson(const char* data)
 	Resource::ResourceManager* res = k->GetResourceManager();
 	Resource::JsonLoader* jsonloader = res->FindResourceLoader<Pxf::Resource::JsonLoader>("json");
 	Resource::Json* doc = jsonloader->CreateFrom(data, StringLength(data));
-	Json::Value root = doc->GetRoot();
+	Json::Value root;
+	if (doc)
+		root = doc->GetRoot();
 	jsonloader->Destroy(doc);
 	return root;
 }
@@ -37,5 +39,6 @@ bool PostProcessBlock::Initialize(const char* _JsonData)
 
 bool RootBlock::Initialize(const char* _JsonData)
 {
-	return false;
+	Json::Value block = CreateJson(_JsonData);
+	return true;
 }
