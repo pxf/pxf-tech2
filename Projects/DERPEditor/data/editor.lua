@@ -163,6 +163,7 @@ workspace_area:addcomponent(100,100)
 ws01 = workspace_tabs:addworkspace("workspace01")
 ws01.active = true
 ws02 = workspace_tabs:addworkspace("workspace02")
+ws03 = workspace_tabs:addworkspace("workspace03")
 
 workspace:addwidget(workspace_tabs)
 workspace:addwidget(workspace_area)
