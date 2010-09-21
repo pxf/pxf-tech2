@@ -31,7 +31,7 @@ int DERPEditor::net_addtag(lua_State *L)
 {
 	if (lua_gettop(L) == 1)
 	{
-		int type = LuaApp::GetInstance()->m_net->CreateType();
+		int type = LuaApp::GetInstance()->m_net->AddTag(lua_tolstring(L, -1, NULL));
 		lua_pushnumber(L, type);
 
 		return 1;

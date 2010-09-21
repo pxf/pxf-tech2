@@ -24,7 +24,7 @@ namespace DERPEditor
 
 	// server functions
 	int net_server_bind(lua_State *L);
-	int net_server_send(lua_State *); // not implemented
+	int net_server_send(lua_State *);
 	int net_server_send_all(lua_State *);
 	int net_server_recv(lua_State *);
 	int net_server_recv_noblock(lua_State *);
