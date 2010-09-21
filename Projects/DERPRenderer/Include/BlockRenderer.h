@@ -10,6 +10,7 @@ namespace Derp
 {
 	enum BlockType
 	{
+		BLOCK_TYPE_ROOT,
 		BLOCK_TYPE_AUXILIARY,
 		BLOCK_TYPE_RENDER,
 		BLOCK_TYPE_POSTPROCESS
@@ -53,6 +54,8 @@ namespace Derp
 			// memset m_inputs, m_outputs
 		}
 
+		virtual bool Initialize(const char* _JsonData) = 0;
+
 		virtual ~Block() {};
 
 		template <typename OutputT>
@@ -78,6 +81,8 @@ namespace Derp
 		AuxiliaryBlock()
 			: Block(BLOCK_TYPE_AUXILIARY)
 		{}
+
+		virtual bool Initialize(const char* _JsonData);
 	};
 
 	//
@@ -90,6 +95,8 @@ namespace Derp
 		RenderBlock()
 			: Block(BLOCK_TYPE_RENDER)
 		{}
+
+		virtual bool Initialize(const char* _JsonData);
 
 		Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
 		{
@@ -108,10 +115,32 @@ namespace Derp
 			: Block(BLOCK_TYPE_POSTPROCESS)
 		{}
 
+		virtual bool Initialize(const char* _JsonData);
 
 		Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
 		{
 			return (Pxf::Graphics::Texture*) m_Outputs[index];
+		}
+	};
+	
+	//
+	// Root block
+	//
+
+	class RootBlock : public Block
+	{
+	protected:
+		Pxf::Graphics::Texture* m_OutputTexture;
+	public:
+		RootBlock()
+			: Block(BLOCK_TYPE_ROOT)
+		{}
+
+		virtual bool Initialize(const char* _JsonData);
+
+		Pxf::Graphics::Texture* GetOutputValue()
+		{
+			return m_OutputTexture;
 		}
 	};
 };
