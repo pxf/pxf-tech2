@@ -20,10 +20,6 @@ static Json::Value CreateJson(const char* data)
 	if (doc)
 	{
 		root = doc->GetRoot();
-		
-		for ( int index = 0; index < root.size(); ++index )  // Iterates over the sequence elements.
-       printf("tooka dump: %s\n",  root[index].asString() );
-		
 	} else {
     Message("JSON", "Taak a daaamp?");
 	}
