@@ -5,9 +5,6 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Debug.h>
 
-#include <Pxf/Graphics/Texture.h>
-#include <Pxf/Graphics/GraphicsDevice.h>
-
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Json.h>
 
@@ -53,7 +50,7 @@ bool AuxiliaryBlock::Initialize(Json::Value *node)
 	// Add outputs
 	for(int i = 0; i < (*node)["blockOutput"].size(); i++)
 	{
-		m_Outputs.insert( std::make_pair((*node)["blockOutput"][i]["name"].asCString(), (*node)["blockOutput"][i]["type"].asCString()) );
+		m_OutputTypes.insert( std::make_pair((*node)["blockOutput"][i]["name"].asCString(), (*node)["blockOutput"][i]["type"].asCString()) );
 	}
 	
 	return true;
@@ -66,10 +63,24 @@ void AuxiliaryBlock::BuildGraph()
 	
 	if (!m_HasBeenBuilt)
 	{
-		m_TextureOutput = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture(m_AuxData);
-		
+		// TODO: check so this is a texture aux
+		for (Util::Map<Util::String, Util::String>::iterator iter = m_OutputTypes.begin(); iter != m_OutputTypes.end(); ++iter)
+		{
+			Graphics::Texture* toutputtex = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture(m_AuxData);
+			m_Outputs.insert( std::make_pair((*iter).first, (void*)toutputtex) );
+		}
 		m_HasBeenBuilt = true;
 	}
+}
+
+void* AuxiliaryBlock::GetOutput(Pxf::Util::String _outputname, Pxf::Util::String _outputtype)
+{
+	if (m_OutputTypes[_outputname] == _outputtype)
+	{
+		return m_Outputs[_outputname];
+	}
+	
+	return 0;
 }
 
 bool RenderBlock::Initialize(Json::Value *node)
@@ -107,6 +118,7 @@ void RootBlock::BuildGraph()
 {
 	if (!m_HasBeenBuilt)
 	{
+		
 		// Build childs in trees
 		for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
 		{
@@ -122,13 +134,66 @@ void RootBlock::BuildGraph()
 			//m_Inputs.insert( std::make_pair(node["blockInput"][i]["block"].asCString(), node["blockInput"][i]["output"].asCString()) );
 		}*/
 		
+		// Setup internal block stuff
+		m_OutputQuad = new SimpleQuad(0, 0, m_Width, m_Height);
+		m_OutputTexture = m_gfx->CreateEmptyTexture(m_Width, m_Height);
+		
 		m_HasBeenBuilt = true;
 	}
 }
 
 bool RootBlock::Execute()
 {
-	m_OutputTexture = ((AuxiliaryBlock*)(m_InputBlocks["auxinput1"]))->m_TextureOutput;
+	// Execute prereqs
+	for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+	{
+		// Get pointer to input block
+		Block* inputblock = m_InputBlocks[(*iter).first];
+		inputblock->Execute();
+	}
+	
+	// Setup OGL context etc
+	m_gfx->SetViewport(0, 0, m_Width, m_Height);
+	Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_Width, 0, m_Height, -1.0f, 10000.0f);
+  m_gfx->SetProjection(&prjmat);
+	glDisable(GL_DEPTH_TEST);
+  glClear(GL_COLOR_BUFFER_BIT);
+	
+	// Attach and bind render texture to FBO
+	m_Renderer->m_FBO->Attach(m_OutputTexture, GL_COLOR_ATTACHMENT0_EXT, false);
+	m_gfx->BindFrameBufferObject(m_Renderer->m_FBO);
+	
+	// Gather and bind all our inputs
+	int ttexunit = 0;
+	for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+	{
+		// Get pointer to input block
+		Block* inputblock = m_InputBlocks[(*iter).first];
+		
+		// Get texture pointer
+		Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).second, "texture");
+		if (inputtex == 0) {
+			Message("RootBlock", "Got a NULL pointer from input: %s (%s).", (*iter).first.c_str(), (*iter).second.c_str());
+			return false;
+		}
+		
+		m_gfx->BindTexture(inputtex, ttexunit);
+		ttexunit += 1;
+	}
+	
+	// Bind shaders
+	// -------- todo ---------
+	
+	// Render
+	m_OutputQuad->Draw();
+	
+	// Unbind FBO
+	m_gfx->UnbindFrameBufferObject();
+	
+	// Detach texture
+	m_Renderer->m_FBO->Detach(GL_COLOR_ATTACHMENT0_EXT);
+	
+	// Return
 	return Block::Execute();
 }
 
