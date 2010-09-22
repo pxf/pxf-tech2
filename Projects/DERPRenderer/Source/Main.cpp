@@ -98,19 +98,7 @@ int main()
 
 	
 
-	Graphics::WindowSpecifications spec;
-	spec.Width = settings["video"].get("width", 800).asInt();
-	spec.Height = settings["video"].get("height", 600).asInt();
-	spec.ColorBits = 24;
-	spec.AlphaBits = 8;
-	spec.DepthBits = 8;
-	spec.StencilBits = 0;
-	spec.FSAASamples = 0;
-	spec.Fullscreen = false;
-	spec.Resizeable = false;
-	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	
-	Graphics::Window* win = gfx->OpenWindow(&spec);
 	/* commenting out all model stuff for now..
 	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
 
@@ -127,6 +115,27 @@ int main()
 	int oldmx,oldmy;
 	float cam_z = 15.0f;
 	*/
+	
+	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
+	renderer->LoadJson();
+	
+	Graphics::WindowSpecifications spec;
+	spec.Width = renderer->m_Width;//settings["video"].get("width", 800).asInt();
+	spec.Height = renderer->m_Height;//settings["video"].get("height", 600).asInt();
+	spec.ColorBits = 24;
+	spec.AlphaBits = 8;
+	spec.DepthBits = 8;
+	spec.StencilBits = 0;
+	spec.FSAASamples = 0;
+	spec.Fullscreen = false;
+	spec.Resizeable = false;
+	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
+	Graphics::Window* win = gfx->OpenWindow(&spec);
+	
+	// Build pipeline graph
+	renderer->BuildGraph();
+	
+	// Setup full screen quad
 	
 	struct QuadVertex
   {
@@ -171,10 +180,7 @@ int main()
   pVertBuf[3].coord = tCurrentCoords[3];
 	
 	finalquad->UnmapData();
-	
-	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
-	renderer->LoadJson();
-	renderer->BuildGraph();
+
 
 	Timer t;
 	while(win->IsOpen())

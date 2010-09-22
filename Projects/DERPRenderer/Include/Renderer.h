@@ -32,6 +32,8 @@ namespace Derp
 		{
 			return m_RootBlock->GetOutputValue();
 		}
+		
+		int m_Width, m_Height;
 
   private:
     const char* m_Filepath;

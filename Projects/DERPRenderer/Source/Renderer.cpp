@@ -13,6 +13,8 @@ Renderer::Renderer(const char* _filepath)
 	: m_Filepath(_filepath)
 	, m_RootBlock(NULL)
 	, m_RootName(NULL)
+	, m_Width(0)
+	, m_Height(0)
 {
   // do something?
 }
@@ -71,6 +73,14 @@ void Renderer::LoadJson()
 			}
 		}
 		
+		// Lookup root node and set result specific data.
+		if (m_RootName)
+		{
+			m_RootBlock = (RootBlock*)m_Blocks[m_RootName];
+			m_Width = m_RootBlock->m_Width;
+			m_Height = m_RootBlock->m_Height;
+		}
+		
 		
 	} else {
     Message("Renderer", "Error while loading JSON data.");
@@ -81,7 +91,6 @@ void Renderer::BuildGraph()
 {
 	if (m_RootName)
 	{
-		m_RootBlock = (RootBlock*)m_Blocks[m_RootName];
 		m_RootBlock->BuildGraph();
 		
 	} else {

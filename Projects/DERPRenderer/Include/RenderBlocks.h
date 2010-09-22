@@ -175,9 +175,7 @@ namespace Derp
 	class RootBlock : public Block
 	{
 	protected:
-		// Root output i.e. final tree result
-		Pxf::Graphics::Texture* m_OutputTexture;
-		int m_Width, m_Height;
+		
 	private:
 		//const char *m_InputBlockName;
 		//Block* m_InputBlock;
@@ -205,6 +203,10 @@ namespace Derp
 		{
 			return m_OutputTexture;
 		}
+		
+		// Root output i.e. final tree result
+		Pxf::Graphics::Texture* m_OutputTexture;
+		int m_Width, m_Height;
 	};
 };
 
