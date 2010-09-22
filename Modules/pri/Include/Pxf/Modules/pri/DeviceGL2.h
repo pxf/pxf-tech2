@@ -51,6 +51,9 @@ namespace Pxf{
 			Graphics::Texture* BindTexture(Graphics::Texture* _texture, unsigned int _texture_unit);
 			void DestroyTexture(Graphics::Texture* _texture);
 
+			Graphics::Texture* CreateTextureFromFramebuffer();
+			Resource::Image* CreateImageFromTexture(Graphics::Texture* _texture);
+
 			Graphics::Model* CreateModel(const char* _FilePath);
 			Graphics::Model* CreateModel(Resource::Mesh* _Mesh);
 

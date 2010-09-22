@@ -64,6 +64,6 @@ Resource::Image* Modules::GenericImageLoader::CreateFromRaw(int _Width, int _Hei
 	Resource::Chunk* chunk = new Resource::Chunk();
 	chunk->data = (void*) _DataPtr;
 	chunk->size = _Width * _Height * _Channels;
-	chunk->is_static = true;
+	chunk->is_static = false;
 	return new SOILImage(m_Kernel, chunk, this, _Width, _Height, _Channels);
 }
