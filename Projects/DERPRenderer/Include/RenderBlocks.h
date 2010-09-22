@@ -102,12 +102,6 @@ namespace Derp
 		virtual void BuildGraph() {} ;
 		
 		virtual bool Execute() { m_IsPerformed = true; return true; };
-
-		/*template <typename OutputT>
-		OutputT* GetOutputValue(unsigned int index)
-		{
-			return (OutputT*)m_Outputs[index];
-		}*/
 		
 		void* GetOutput(Pxf::Util::String _outputname)
 		{
@@ -119,10 +113,10 @@ namespace Derp
 			return m_OutputTypes[_outputname];
 		}
 
-		/*BlockType GetType()
+		BlockType GetType()
 		{
 			return m_BlockType;
-		}*/
+		}
 
 	};
 

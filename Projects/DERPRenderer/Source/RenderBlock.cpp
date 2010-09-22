@@ -81,9 +81,17 @@ void AuxiliaryBlock::BuildGraph()
 			} else if (inputtype == "float")
 			{
 				float* toutresult = new float(0.0f);
-				//*toutresult = 0.5f;
+				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutresult) );
+			} else if (inputtype == "int")
+			{
+				int* toutresult = new int(0.0f);
+				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutresult) );
+			} else if (inputtype == "vec2")
+			{
+				Math::Vec2f* toutresult = new Math::Vec2f(0.0f);
 				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutresult) );
 			}
+			
 		}
 		m_HasBeenBuilt = true;
 	}
@@ -106,9 +114,19 @@ bool AuxiliaryBlock::Execute()
 				if (inputtype == "float")
 				{
 					float* val = (float*)m_Outputs[(*iter).first];
-					lua_getfield(L, LUA_GLOBALSINDEX, "src");
-					lua_pcall(L, 0, 1, 0);
 					*val = lua_tonumber(L, -1);
+					
+				} else if (inputtype == "int")
+				{
+					int* val = (int*)m_Outputs[(*iter).first];
+					*val = lua_tointeger(L, -1);
+					
+				} else if (inputtype == "vec2")
+				{
+					Math::Vec2f* val = (Math::Vec2f*)m_Outputs[(*iter).first];
+					(*val).x = lua_tonumber(L, -2);
+					(*val).y = lua_tonumber(L, -1);
+
 				} else {
 					Message("AuxiliaryBlock::Execute", "Don't know what to do!");
 				}
@@ -234,8 +252,20 @@ bool RootBlock::Execute()
 		{
 			// Input is a script with float result
 			float* scriptres = (float*)inputblock->GetOutput((*iter).second);
-			Message("RootBlock", "Result from an auxblock, should set uniform float '%s' to '%f'.", (*iter).second.c_str(), *scriptres);
 			m_gfx->SetUniformf(m_Shader, (*iter).second.c_str(), *scriptres);
+			
+		} else if (inputtype == "int")
+		{
+			// Input is a script with int result
+			int* scriptres = (int*)inputblock->GetOutput((*iter).second);
+			m_gfx->SetUniformi(m_Shader, (*iter).second.c_str(), *scriptres);
+
+		} else if (inputtype == "vec2")
+		{
+			// Input is a script with vec2 result
+			Math::Vec2f* scriptres = (Math::Vec2f*)inputblock->GetOutput((*iter).second);
+			m_gfx->SetUniformVec2(m_Shader, (*iter).second.c_str(), scriptres);
+
 		}
 	}
 	

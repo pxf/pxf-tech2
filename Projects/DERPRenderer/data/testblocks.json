@@ -22,10 +22,10 @@
   {"blockName" : "auxinput2",
    "blockType" : "AuxComp",
    "blockData" : {"auxType" : "script",
-                  "src" : "function src() return math.sin(os.clock()) end"
+                  "src" : "return math.sin(os.clock()), math.cos(os.clock())"
                  },
    "blockOutput" : [{"name" : "script1",
-                     "type" : "float"}]
+                     "type" : "vec2"}]
   },
 
   {"blockName" : "output1",
@@ -39,7 +39,7 @@
                   "realtime" : false,
                   "shaderVert" : "varying vec2 texcoords;
                   uniform sampler2D texture1;
-                  uniform float script1;
+                  uniform vec2 script1;
                   void main(void)
                   {
                   	vec4 v = vec4(gl_Vertex);
@@ -48,10 +48,12 @@
                   }",
                   "shaderFrag" : "varying vec2 texcoords;
                   uniform sampler2D texture1;
-                  uniform float script1;
+                  uniform vec2 script1;
                   void main()
                   {
-                  	gl_FragColor = texture2D(texture1, script1*texcoords);
+                    vec2 lolsup = (script1 + 1.0) / 2.0;
+                  	gl_FragColor = texture2D(texture1, lolsup.r *texcoords);
+                  	gl_FragColor.r = gl_FragColor.r * lolsup.g;
                   }",
                   "width" : 512,
                   "height" : 512
