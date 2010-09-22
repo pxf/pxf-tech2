@@ -214,9 +214,8 @@ Resource::Image* DeviceGL2::CreateImageFromTexture(Graphics::Texture* _texture)
 	int channels = 3;
 	unsigned char* pixels = (unsigned char*)MemoryAllocate(width*height*channels);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-	//flip_image(0, 0, width, height, channels, pixels);
 	Resource::Image* img = ldr->CreateFromRaw(width, height, channels, pixels);
-	// TODO: pixels will be deallocated later within the loader I think, check that shit out.
+	MemoryFree(pixels);
 	return img;
 }
 

@@ -1,4 +1,5 @@
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Base/Memory.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Path.h>
 #include <Pxf/Base/String.h>
@@ -79,7 +80,9 @@ Resource::Image* Modules::GenericImageLoader::CreateFrom(const void* _DataPtr, u
 Resource::Image* Modules::GenericImageLoader::CreateFromRaw(int _Width, int _Height, int _Channels, unsigned char* _DataPtr)
 {
 	Resource::Chunk* chunk = new Resource::Chunk();
-	chunk->data = (void*) _DataPtr;
+	unsigned char* data = (unsigned char*)MemoryAllocate(_Width*_Height*_Channels);
+	MemoryCopy(data, _DataPtr, _Width*_Height*_Channels);
+	chunk->data = (void*) data;
 	chunk->size = _Width * _Height * _Channels;
 	chunk->is_static = false;
 	return new SOILImage(m_Kernel, chunk, this, _Width, _Height, _Channels);

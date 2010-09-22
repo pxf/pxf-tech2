@@ -16,7 +16,7 @@ namespace Resource {
 	protected:
 		Kernel* m_Kernel;
 		Chunk* m_Chunk;
-		unsigned m_References;
+		int m_References;
 		ResourceLoader* m_Loader;
 		virtual bool Build() pure;
 		friend class ResourceManager;
