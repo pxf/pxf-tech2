@@ -15,6 +15,13 @@
 
 #include <json/json.h>
 
+// Lua includes
+extern "C" {
+    #include <lua.h>
+    #include <lauxlib.h>
+    #include <lualib.h>
+}
+
 namespace Pxf
 {
 	namespace Graphics { class Texture; }
@@ -102,9 +109,14 @@ namespace Derp
 			return (OutputT*)m_Outputs[index];
 		}*/
 		
-		virtual void* GetOutput(Pxf::Util::String _outputname, Pxf::Util::String _outputtype) 
+		void* GetOutput(Pxf::Util::String _outputname)
 		{
-			return 0;
+			return m_Outputs[_outputname];	
+		}
+		
+		virtual Pxf::Util::String GetOutputType(Pxf::Util::String _outputname)
+		{
+			return m_OutputTypes[_outputname];
 		}
 
 		/*BlockType GetType()
@@ -125,6 +137,8 @@ namespace Derp
 		const char* m_AuxData;
 		const char* m_JsonData;
 		
+		// Used if AuxBlock is a script
+		lua_State* L;
 		
 	public:
 		
@@ -137,7 +151,8 @@ namespace Derp
 		
 		virtual void BuildGraph();
 		
-		virtual void* GetOutput(Pxf::Util::String _outputname, Pxf::Util::String _outputtype);
+		virtual bool Execute();
+		
 		
 		//Pxf::Graphics::Texture *m_TextureOutput;
 	};
@@ -199,10 +214,10 @@ namespace Derp
 		//Block* m_InputBlock;
 		
 		// init usage
-		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_Inputs;
+		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_Inputs; // <block name, output of block>
 		
 		// build graph usage
-		Pxf::Util::Map<Pxf::Util::String, Block*> m_InputBlocks;
+		Pxf::Util::Map<Pxf::Util::String, Block*> m_InputBlocks; // <black name, block pointer>
 		
 		const char* m_JsonData;
 		

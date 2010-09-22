@@ -44,7 +44,11 @@ bool AuxiliaryBlock::Initialize(Json::Value *node)
 	else if ((*node)["blockData"]["auxType"].asString() == "script")
 	{
 		m_AuxType = AUXILIARY_SCRIPT;
-		m_AuxData = (*node)["blockData"]["script"].asCString();
+		m_AuxData = (*node)["blockData"]["src"].asCString();
+		
+		// Setup lua
+		L = luaL_newstate();
+		luaL_openlibs(L);
 	}
 	
 	// Add outputs
@@ -53,6 +57,7 @@ bool AuxiliaryBlock::Initialize(Json::Value *node)
 		m_OutputTypes.insert( std::make_pair((*node)["blockOutput"][i]["name"].asCString(), (*node)["blockOutput"][i]["type"].asCString()) );
 	}
 	
+	
 	return true;
 }
 
@@ -60,27 +65,59 @@ void AuxiliaryBlock::BuildGraph()
 {
 	// I have no inputs just do nothing!
 	//Message("AUXBLOCK", "My name is: %s", m_BlockName);
-	
+	//exit(1);
 	if (!m_HasBeenBuilt)
 	{
 		// TODO: check so this is a texture aux
 		for (Util::Map<Util::String, Util::String>::iterator iter = m_OutputTypes.begin(); iter != m_OutputTypes.end(); ++iter)
 		{
-			Graphics::Texture* toutputtex = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture(m_AuxData);
-			m_Outputs.insert( std::make_pair((*iter).first, (void*)toutputtex) );
+			Util::String inputtype = (*iter).second;
+			
+			if (inputtype == "texture")
+			{
+				Graphics::Texture* toutputtex = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture(m_AuxData);
+				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutputtex) );
+				
+			} else if (inputtype == "float")
+			{
+				float* toutresult = new float(0.0f);
+				//*toutresult = 0.5f;
+				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutresult) );
+			}
 		}
 		m_HasBeenBuilt = true;
 	}
 }
 
-void* AuxiliaryBlock::GetOutput(Pxf::Util::String _outputname, Pxf::Util::String _outputtype)
+bool AuxiliaryBlock::Execute()
 {
-	if (m_OutputTypes[_outputname] == _outputtype)
+	if (m_AuxType == AUXILIARY_SCRIPT)
 	{
-		return m_Outputs[_outputname];
+		int s = luaL_dostring(L, m_AuxData);
+		if (s) {
+			Message("AuxiliaryBlock::Execute", "Error while running supplied script: %s", lua_tostring(L, -1));
+		} else {
+			
+			// Take care of result
+			for (Util::Map<Util::String, Util::String>::iterator iter = m_OutputTypes.begin(); iter != m_OutputTypes.end(); ++iter)
+			{
+				Util::String inputtype = (*iter).second;
+				
+				if (inputtype == "float")
+				{
+					float* val = (float*)m_Outputs[(*iter).first];
+					lua_getfield(L, LUA_GLOBALSINDEX, "src");
+					lua_pcall(L, 0, 1, 0);
+					*val = lua_tonumber(L, -1);
+				} else {
+					Message("AuxiliaryBlock::Execute", "Don't know what to do!");
+				}
+			}
+			
+		}
 	}
 	
-	return 0;
+	return Block::Execute();
 }
 
 bool RenderBlock::Initialize(Json::Value *node)
@@ -179,15 +216,27 @@ bool RootBlock::Execute()
 		Block* inputblock = m_InputBlocks[(*iter).first];
 		
 		// Get texture pointer
-		Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).second, "texture");
-		if (inputtex == 0) {
-			Message("RootBlock", "Got a NULL pointer from input: %s (%s).", (*iter).first.c_str(), (*iter).second.c_str());
-			return false;
-		}
+		Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).second);
+		if (inputtype == "texture")
+		{
+			// Input is a texture, bind and set uniform
+			Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).second);
+			if (inputtex == 0) {
+				exit(1);
+				return false;
+			}
 		
-		m_gfx->BindTexture(inputtex, ttexunit);
-		m_gfx->SetUniformi(m_Shader, (*iter).first.c_str(), inputtex->GetTextureID());
-		ttexunit += 1;
+			m_gfx->BindTexture(inputtex, ttexunit);
+			m_gfx->SetUniformi(m_Shader, (*iter).second.c_str(), inputtex->GetTextureID());
+			ttexunit += 1;
+			
+		} else if (inputtype == "float")
+		{
+			// Input is a script with float result
+			float* scriptres = (float*)inputblock->GetOutput((*iter).second);
+			Message("RootBlock", "Result from an auxblock, should set uniform float '%s' to '%f'.", (*iter).second.c_str(), *scriptres);
+			m_gfx->SetUniformf(m_Shader, (*iter).second.c_str(), *scriptres);
+		}
 	}
 	
 	// Render

@@ -18,15 +18,28 @@
    "blockOutput" : [{"name" : "texture1",
                      "type" : "texture"}]
   },
+  
+  {"blockName" : "auxinput2",
+   "blockType" : "AuxComp",
+   "blockData" : {"auxType" : "script",
+                  "src" : "function src() return math.sin(os.clock()) end"
+                 },
+   "blockOutput" : [{"name" : "script1",
+                     "type" : "float"}]
+  },
 
   {"blockName" : "output1",
    "blockType" : "Root",
-   "blockInput" : [{"block" : "auxinput1", "output" : "texture1"}],
+   "blockInput" : [{"block" : "auxinput1", "output" : "texture1"},
+                   {"block" : "auxinput2", "output" : "script1"}
+                  ],
    "blockData" : {"host" : "localhost",
                   "port" : "4632",
                   "feedback" : true,
                   "realtime" : false,
                   "shaderVert" : "varying vec2 texcoords;
+                  uniform sampler2D texture1;
+                  uniform float script1;
                   void main(void)
                   {
                   	vec4 v = vec4(gl_Vertex);
@@ -35,11 +48,10 @@
                   }",
                   "shaderFrag" : "varying vec2 texcoords;
                   uniform sampler2D texture1;
+                  uniform float script1;
                   void main()
                   {
-                  	gl_FragColor = texture2D(texture1, texcoords);
-                  	gl_FragColor.g = gl_FragColor.g / 2.0;
-                  	gl_FragColor.b = gl_FragColor.b / 2.0;
+                  	gl_FragColor = texture2D(texture1, script1*texcoords);
                   }",
                   "width" : 512,
                   "height" : 512
