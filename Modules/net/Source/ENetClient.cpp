@@ -9,7 +9,7 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 	enet_address_set_host(&Address, _Host);
 	Address.port = _Port;
 
-	Client = enet_host_create(NULL, 1, 2, 0, 0);
+	Client = enet_host_create(NULL, 1, NetDev->GetTags()->size(), 0, 0);
 
 	if (Client == NULL)
 	{
@@ -105,7 +105,8 @@ Pxf::Network::Packet* ENetClient::Recv()
 			packet = new ENetDataPacket(
 				(char*)event.packet->data
 				, (int)event.peer->data
-				, (int)event.packet->dataLength);
+				, (int)event.packet->dataLength
+				, (int)event.channelID);
 			
 			enet_packet_destroy(event.packet);
 
@@ -153,7 +154,8 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 			packet = new ENetDataPacket(
 				(char*)event.packet->data
 				, (int)event.peer->data
-				, (int)event.packet->dataLength);
+				, (int)event.packet->dataLength
+				, (int)event.channelID);
 			
 			enet_packet_destroy(event.packet);
 

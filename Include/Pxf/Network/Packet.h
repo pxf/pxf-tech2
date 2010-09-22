@@ -14,6 +14,7 @@ namespace Pxf
 			virtual char* GetData() = 0;
 			virtual int GetSender() = 0;
 			virtual int GetLength() = 0;
+			virtual int GetTag() = 0;
 		};
 	}
 }

@@ -17,12 +17,21 @@ namespace Modules {
 	class SOILImage : public Resource::Image
 	{
 	protected:
+		bool m_IsRaw;
 		virtual bool Build();
 	public:
 		SOILImage(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
 			: Resource::Image(_Kernel, _Chunk, _Loader)
+			, m_IsRaw(false)
 		{
 			Build();
+		}
+
+		SOILImage(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader, int _Width, int _Height, int _Channels)
+			: Resource::Image(_Kernel, _Chunk, _Loader, _Width, _Height, _Channels)
+			, m_IsRaw(true)
+		{
+			m_ImageData = (unsigned char*)_Chunk->data;
 		}
 		
 		virtual ~SOILImage();
@@ -37,6 +46,7 @@ namespace Modules {
 		~GenericImageLoader();
 		virtual Resource::Image* Load(const char* _FilePath);
 		virtual Resource::Image* CreateFrom(const void* _DataPtr, unsigned _DataLen);
+		virtual Resource::Image* CreateFromRaw(int _Width, int _Height, int _Channels, unsigned char* _DataPtr);
 	};
 
 } // Graphics

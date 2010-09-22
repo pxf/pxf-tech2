@@ -26,7 +26,7 @@ bool Modules::SOILImage::Build()
 }
 Modules::SOILImage::~SOILImage()
 {
-	if(m_ImageData)
+	if(m_ImageData && !m_IsRaw)
 		SOIL_free_image_data(m_ImageData);
 }
 
@@ -57,4 +57,13 @@ Resource::Image* Modules::GenericImageLoader::CreateFrom(const void* _DataPtr, u
 	chunk->size = _DataLen;
 	chunk->is_static = true;
 	return new SOILImage(m_Kernel, chunk, this);
+}
+
+Resource::Image* Modules::GenericImageLoader::CreateFromRaw(int _Width, int _Height, int _Channels, unsigned char* _DataPtr)
+{
+	Resource::Chunk* chunk = new Resource::Chunk();
+	chunk->data = (void*) _DataPtr;
+	chunk->size = _Width * _Height * _Channels;
+	chunk->is_static = true;
+	return new SOILImage(m_Kernel, chunk, this, _Width, _Height, _Channels);
 }

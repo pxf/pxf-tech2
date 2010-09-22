@@ -24,7 +24,7 @@ ENetDevice::~ENetDevice()
 
 Server* ENetDevice::CreateServer()
 {
-	ENetServer* server = new ENetServer();
+	ENetServer* server = new ENetServer(this);
 	Servers.push_back(server);
 	server->Ident = ChildID++;
 
@@ -33,7 +33,7 @@ Server* ENetDevice::CreateServer()
 
 Client* ENetDevice::CreateClient()
 {
-	ENetClient* client = new ENetClient();
+	ENetClient* client = new ENetClient(this);
 	Clients.push_back(client);
 	client->Ident = ChildID++;
 

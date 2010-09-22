@@ -5,12 +5,13 @@
 
 using namespace Pxf::Modules;
 
-ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length)
+ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag)
 {
 	Data = new char[_Length+1];
 	strcpy(Data, _Data);
 	Sender = _Sender;
 	Length = _Length;
+	Tag = _Tag;
 }
 
 ENetDataPacket::~ENetDataPacket()
@@ -31,4 +32,9 @@ int ENetDataPacket::GetSender()
 int ENetDataPacket::GetLength()
 {
 	return Length;
+}
+
+int ENetDataPacket::GetTag()
+{
+	return Tag;
 }

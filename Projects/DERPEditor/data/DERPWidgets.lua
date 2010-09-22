@@ -258,16 +258,16 @@ function derp:create_workspace(x,y,w,h)
 			local rel_y = self.camera.y + self.drawbox.h * 0.5
 			
 			gfx.translate(rel_x,rel_y)
-			--wid:super_draw(force)
 			
-			for k,v in pairs(self.childwidgets) do
-			
+			for k,v in pairs(self.childwidgets) do			
 				v.hitbox.x = rel_x + v.drawbox.x
 				v.hitbox.y = rel_y + v.drawbox.y
 				v:draw(force)
 			end
 			
 			gfx.translate(-rel_x,-rel_y)
+			
+			gui:drawfont(-self.camera.x .. "," .. -self.camera.y,10,30)
 		end
 	end
 	
@@ -281,8 +281,6 @@ function derp:create_workspace(x,y,w,h)
 		
 		function comp:mousedrag(mx,my)
 			self:move_relative(mx,my)
-			
-			--print(self.drawbox.x,self.drawbox.y)
 			self:needsredraw()
 		end
 		
@@ -304,7 +302,7 @@ function derp:create_workspace(x,y,w,h)
 					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
 				end
 				
-				local draw_label = self.widget_type .. " (" .. self.drawbox.x .. "," .. self.drawbox.y .. ")"
+				local draw_label = self.widget_type .. " (" .. self.drawbox.x .. "," .. self.drawbox.y.. ")"
 				
 				gui:drawfont(draw_label, self.drawbox.x,self.drawbox.y-5)
 			end

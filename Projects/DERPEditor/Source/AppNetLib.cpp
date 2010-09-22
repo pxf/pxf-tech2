@@ -6,6 +6,8 @@
 
 #include <Pxf/Network/NetworkDevice.h>
 
+#include <string.h>
+
 using namespace Pxf::Network;
 using namespace Pxf;
 
@@ -260,7 +262,6 @@ int DERPEditor::net_server_send(lua_State *L)
 	{
 		lua_getfield(L, -3, "instance");
 		Server* server = *(Server**)lua_touserdata(L, -1);
-		// TODO: Fix the channel.
 		server->Send(lua_tonumber(L, -2), 0, lua_tolstring(L, -3, NULL));
 
 		return 0;
@@ -302,8 +303,6 @@ int DERPEditor::net_server_recv(lua_State *L)
 		Server* server = *(Server**)lua_touserdata(L, -1);
 		Packet* packet = server->Recv();
 
-		// TODO: Return an actual packet-object instead.
-		//lua_pushlstring(L, packet->GetData(), packet->GetLength());
 		net_packet_push(L, packet);
 
 		return 1;
@@ -326,8 +325,6 @@ int DERPEditor::net_server_recv_noblock(lua_State *L)
 		Packet* packet = server->RecvNonBlocking(lua_tonumber(L, -2));
 
 		if (packet != NULL)
-			// TODO: Return an actual packet-object instead.
-			//lua_pushlstring(L, packet->GetData(), packet->GetLength());
 			net_packet_push(L, packet);
 		else
 			return 0;
@@ -345,11 +342,10 @@ int DERPEditor::net_server_recv_noblock(lua_State *L)
 
 int DERPEditor::net_server_delete(lua_State *L)
 {
-	Message("net", "Deleting server");
-
 	if (lua_gettop(L) == 1)
 	{
-    delete (*(Server**)lua_touserdata(L, 1));
+		// TODO: Disconnect all users?
+		delete (*(Server**)lua_touserdata(L, 1));
 		return 0;
 	}
 	else
@@ -379,7 +375,7 @@ int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
 	lua_setfield(L, -2, "sender");
 	lua_pushlstring(L, _Packet->GetData(), _Packet->GetLength());
 	lua_setfield(L, -2, "data");
-	lua_pushnumber(L, 0); // TODO: Replace this with the channel.
+	lua_pushnumber(L, _Packet->GetTag());
 	lua_setfield(L, -2, "tag");
 
 	return 1;
@@ -387,11 +383,9 @@ int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
 
 int DERPEditor::net_packet_delete(lua_State *L)
 {
-	Message("net", "Deleting packet");
-
 	if (lua_gettop(L) == 1)
 	{
-    delete (*(Packet**)lua_touserdata(L, 1));
+		delete (*(Packet**)lua_touserdata(L, 1));
 		return 0;
 	}
 	else
