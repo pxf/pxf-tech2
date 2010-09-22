@@ -1,5 +1,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Path.h>
+#include <Pxf/Base/String.h>
 #include <Pxf/Modules/img/ImageLoader.h>
 #include <Pxf/Resource/Chunk.h>
 
@@ -28,6 +30,21 @@ Modules::SOILImage::~SOILImage()
 {
 	if(m_ImageData && !m_IsRaw)
 		SOIL_free_image_data(m_ImageData);
+}
+
+bool Modules::SOILImage::SaveAs(const char* _Filename)
+{
+	const char* ext = PathExt(_Filename);
+	int save_type = SOIL_SAVE_TYPE_TGA;
+	if (StringCompare(ext, "tga") == 0)
+		SOIL_SAVE_TYPE_TGA;
+	else if (StringCompare(ext, "dds") == 0)
+		SOIL_SAVE_TYPE_DDS;
+	else if (StringCompare(ext, "bmp") == 0)
+		SOIL_SAVE_TYPE_BMP;
+	else
+		Message("Image", "Save using .bmp, .dds or .tga. '%s' is not supported", ext);
+	return SOIL_save_image(_Filename, save_type, m_Width, m_Height, m_Channels, m_ImageData);
 }
 
 Modules::GenericImageLoader::GenericImageLoader(Pxf::Kernel* _Kernel)
