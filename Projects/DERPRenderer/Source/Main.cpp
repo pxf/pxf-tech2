@@ -207,6 +207,18 @@ int main()
 		gfx->BindTexture(renderer->GetResult());
 		gfx->DrawBuffer(finalquad, 0);
 		
+
+		static bool saved = false;
+		if (!saved)
+		{
+			//Resource::Image* img = gfx->CreateImageFromTexture(renderer->GetResult());
+			Texture* tex = gfx->CreateTextureFromFramebuffer();
+			Resource::Image* img = gfx->CreateImageFromTexture(tex);
+			gfx->DestroyTexture(tex);
+			img->SaveAs("data/last_frame.tga");
+			delete img;
+			saved = true;
+		}
 		
 		// Pick out pipeline result and render it!
 		
