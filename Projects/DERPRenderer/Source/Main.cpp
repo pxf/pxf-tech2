@@ -144,13 +144,11 @@ int main()
 	Timer t;
 	while(win->IsOpen())
 	{
-		t.Start();
-		
-		
+		t.Start();	
+
 		// Execute renderer/pipeline
 		renderer->Execute();
-		
-		
+			
 		// TODO: Setup normal backbuffer and render final output
 		
 		// Setup ogl
@@ -165,19 +163,6 @@ int main()
 		glEnable(GL_TEXTURE_2D);
 		gfx->BindTexture(renderer->GetResult());
 		finalquad->Draw();
-		
-
-		static bool saved = false;
-		if (!saved)
-		{
-			//Resource::Image* img = gfx->CreateImageFromTexture(renderer->GetResult());
-			Texture* tex = gfx->CreateTextureFromFramebuffer();
-			Resource::Image* img = gfx->CreateImageFromTexture(tex);
-			gfx->DestroyTexture(tex);
-			img->SaveAs("data/last_frame.tga");
-			delete img;
-			saved = true;
-		}
 		
 		// Pick out pipeline result and render it!
 		
@@ -266,6 +251,17 @@ int main()
 		
 		if (inp->GetLastKey() == Input::ESC)
 			break;
+
+		if (inp->GetLastKey() == Input::F5)
+		{
+			win->Swap();
+			//Resource::Image* img = gfx->CreateImageFromTexture(renderer->GetResult());
+			Texture* tex = gfx->CreateTextureFromFramebuffer();
+			Resource::Image* img = gfx->CreateImageFromTexture(tex);
+			gfx->DestroyTexture(tex);
+			img->SaveAs("data/screenshot.tga");
+			delete img;
+		}
 		
 		inp->ClearLastKey();
 		inp->ClearLastButton();
