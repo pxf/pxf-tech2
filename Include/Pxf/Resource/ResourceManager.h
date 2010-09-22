@@ -84,6 +84,13 @@ namespace Resource
 		{
 			if (_Resource)
 			{
+				if (!_Resource->GetSource())
+				{
+					Pxf::Message("ResourceManager", "Removing unmanaged resource (fixme)");
+					_Resource->m_Loader->Destroy((ResourceType*)_Resource);
+					return;
+				}
+
 				_Resource->m_References--;
 
 				if (_Resource->m_References <= 0 || _Purge)

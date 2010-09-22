@@ -27,12 +27,14 @@ namespace Resource {
 			: ResourceBase(_Kernel, _Chunk, _Loader)
 			, m_Channels(_Channels)
 			, m_Height(_Height)
-			, m_Width(m_Width)
+			, m_Width(_Width)
 			, m_ImageData(NULL)
 		{}
 
 		virtual ~Image()
 		{}
+
+		virtual bool SaveAs(const char* _Filename) = 0;
 
 		const int Width() const
 		{

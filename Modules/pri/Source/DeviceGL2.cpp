@@ -1,4 +1,5 @@
 #include <Pxf/Pxf.h>
+#include <Pxf/Base/Memory.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Modules/pri/DeviceGL2.h>
 #include <Pxf/Modules/pri/VertexBufferGL2.h>
@@ -14,6 +15,7 @@
 #include <Pxf/Modules/pri/OpenGLUtils.h>
 #include <Pxf/Modules/pri/TypeTraits.h>
 
+#include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Mesh.h>
 
@@ -167,6 +169,54 @@ void DeviceGL2::DestroyTexture(Graphics::Texture* _texture)
 {
   if (_texture)
 	delete _texture;
+}
+
+static void flip_image(int x, int y, int w, int h, int c, unsigned char* pixeldata)
+{
+	/* invert image */
+	for(int j = 0; j*2 < h; ++j)
+	{
+		int index1 = j * w * c;
+		int index2 = (h - 1 - j) * w * c;
+		for(int i = w * c; i > 0; --i)
+		{
+			unsigned char temp = pixeldata[index1];
+			pixeldata[index1] = pixeldata[index2];
+			pixeldata[index2] = temp;
+			++index1;
+			++index2;
+		}
+	}
+}
+
+Graphics::Texture* DeviceGL2::CreateTextureFromFramebuffer()
+{
+	int x = 0;
+	int y = 0;
+	int w = m_Window->GetWidth();
+	int h = m_Window->GetHeight();
+	int c = 3;
+
+	unsigned char* pixeldata = (unsigned char*)MemoryAllocate(w * h * 3);
+	glReadPixels (x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixeldata);
+	flip_image(x, y, w, h, c, pixeldata);
+	Texture* tex = CreateTextureFromData(pixeldata, w, h, c);
+	MemoryFree(pixeldata);
+	return tex;
+}
+
+
+Resource::Image* DeviceGL2::CreateImageFromTexture(Graphics::Texture* _texture)
+{
+	Resource::ImageLoader* ldr = GetKernel()->GetResourceManager()->FindResourceLoader<Resource::ImageLoader>("png");
+	int width = _texture->GetWidth();
+	int height = _texture->GetHeight();
+	int channels = 3;
+	unsigned char* pixels = (unsigned char*)MemoryAllocate(width*height*channels);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+	Resource::Image* img = ldr->CreateFromRaw(width, height, channels, pixels);
+	MemoryFree(pixels);
+	return img;
 }
 
 Model* DeviceGL2::CreateModel(const char* _FilePath)

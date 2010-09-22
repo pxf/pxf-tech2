@@ -35,6 +35,8 @@ namespace Modules {
 		}
 		
 		virtual ~SOILImage();
+
+		virtual bool SaveAs(const char* _Filename);
 	};
 
 	class GenericImageLoader : public Resource::ImageLoader

@@ -86,9 +86,13 @@ void TextureGL2::LoadData(const unsigned char* _datachunk, int _width, int _heig
 	{
 		// can this be done nicer? :(
 		// it's needed because you can't create a texture with soil by a NULL data pointer
+		GLenum fmt = GL_RGBA;
+		if (_channels == 3)
+			fmt = GL_RGB;
+
 		glGenTextures(1, &m_TextureID);
 		glBindTexture(GL_TEXTURE_2D, m_TextureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, fmt, GL_UNSIGNED_BYTE, NULL);
 		glGenerateMipmapEXT(GL_TEXTURE_2D);
 	}
 	else
