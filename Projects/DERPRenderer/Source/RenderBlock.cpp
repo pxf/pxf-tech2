@@ -67,7 +67,6 @@ void AuxiliaryBlock::BuildGraph()
 		for (Util::Map<Util::String, Util::String>::iterator iter = m_OutputTypes.begin(); iter != m_OutputTypes.end(); ++iter)
 		{
 			Graphics::Texture* toutputtex = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture(m_AuxData);
-			Message("AuxBlock", "LOL SUP: %i", toutputtex);
 			m_Outputs.insert( std::make_pair((*iter).first, (void*)toutputtex) );
 		}
 		m_HasBeenBuilt = true;

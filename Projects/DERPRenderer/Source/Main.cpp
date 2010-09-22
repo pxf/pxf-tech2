@@ -32,6 +32,7 @@
 #include <Pxf/Resource/Text.h>
 
 #include "Renderer.h"
+#include "SimpleQuad.h"
 
 #include <ctime>
 
@@ -40,6 +41,7 @@
 using namespace Pxf;
 using namespace Math;
 using namespace Graphics;
+using namespace Derp;
 
 
 int main()
@@ -136,50 +138,7 @@ int main()
 	renderer->BuildGraph();
 	
 	// Setup full screen quad
-	
-	struct QuadVertex
-  {
-      Math::Vec3f position;
-      Math::Vec4f color;
-      Math::Vec2f coord;
-  };
-	Math::Vec2f tCurrentCoords[4];
-  tCurrentCoords[0].u = 0.0f;
-	tCurrentCoords[0].v = 0.0f;
-	tCurrentCoords[1].u = 1.0f;
-	tCurrentCoords[1].v = 0.0f;
-	tCurrentCoords[2].u = 1.0f;
-	tCurrentCoords[2].v = 1.0f;
-	tCurrentCoords[3].u = 0.0f;
-	tCurrentCoords[3].v = 1.0f;
-
-	Graphics::VertexBuffer *finalquad = gfx->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
-  finalquad->CreateNewBuffer(4, sizeof(QuadVertex) );
-  finalquad->SetData(VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
-	finalquad->SetData(VB_COLOR_DATA, sizeof(Vec3f), 4);
-	finalquad->SetData(VB_TEXCOORD_DATA, sizeof(Vec3f)+sizeof(Vec4f), 2);
-	finalquad->SetPrimitive(VB_PRIMITIVE_QUADS);
-	
-	QuadVertex* pVertBuf;
-	pVertBuf = (QuadVertex*)finalquad->MapData(VB_ACCESS_WRITE_ONLY);
-	
-	pVertBuf[0].position = Vec3f(0.0f, 0.0f, 0.0f);
-  pVertBuf[0].color = Vec4f(1.0f);
-  pVertBuf[0].coord = tCurrentCoords[0];
-  
-  pVertBuf[1].position = Vec3f(1.0f, 0.0f, 0.0f);
-  pVertBuf[1].color = Vec4f(1.0f);
-  pVertBuf[1].coord = tCurrentCoords[1];
-  
-  pVertBuf[2].position = Vec3f(1.0f, 1.0f, 0.0f);
-  pVertBuf[2].color = Vec4f(1.0f);
-  pVertBuf[2].coord = tCurrentCoords[2];
-  
-  pVertBuf[3].position = Vec3f(0.0f, 1.0f, 0.0f);
-  pVertBuf[3].color = Vec4f(1.0f);
-  pVertBuf[3].coord = tCurrentCoords[3];
-	
-	finalquad->UnmapData();
+	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
 
 
 	Timer t;
@@ -205,7 +164,7 @@ int main()
 		// Render final output
 		glEnable(GL_TEXTURE_2D);
 		gfx->BindTexture(renderer->GetResult());
-		gfx->DrawBuffer(finalquad, 0);
+		finalquad->Draw();
 		
 		
 		// Pick out pipeline result and render it!
@@ -308,7 +267,7 @@ int main()
 		//glPopMatrix();
 	}
 	
-	Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DestroyVertexBuffer(finalquad);
+	delete finalquad;
 	delete renderer;
 
 	delete kernel;
