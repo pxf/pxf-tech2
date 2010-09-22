@@ -1,6 +1,13 @@
 #ifndef _PXF_DERPRENDERER_RENDERBLOCKS_H_
 #define _PXF_DERPRENDERER_RENDERBLOCKS_H_
 
+#include <Pxf/Util/String.h>
+#include <Pxf/Util/Map.h>
+
+#include <Pxf/Graphics/Texture.h>
+
+#include <json/json.h>
+
 namespace Pxf
 {
 	namespace Graphics { class Texture; }
@@ -8,6 +15,8 @@ namespace Pxf
 
 namespace Derp
 {
+	class Renderer;
+	
 	enum BlockType
 	{
 		BLOCK_TYPE_ROOT,
@@ -40,6 +49,7 @@ namespace Derp
 	{
 	protected:
 		BlockType m_BlockType;
+		Renderer* m_Renderer;
 
 		static const int NUM_INPUTS = 8;
 		static const int NUM_OUTPUTS = 8;
@@ -48,19 +58,29 @@ namespace Derp
 
 		BlockOutputType m_OutputType;
 		
+		
+		const char *m_BlockName;
     bool m_IsPerformed;
+		bool m_HasBeenBuilt;
 		
 	public:
-		Block(BlockType _BlockType)
+		Block(Renderer* _renderer, BlockType _BlockType)
 			: m_BlockType(_BlockType)
       , m_IsPerformed(false)
+      , m_Renderer(_renderer)
+			, m_HasBeenBuilt(false)
+			, m_BlockName(NULL)
 		{
 			// memset m_inputs, m_outputs
 		}
 
-		virtual bool Initialize(const char* _JsonData) = 0;
+		virtual bool Initialize(Json::Value *node) = 0;
 
 		virtual ~Block() {};
+		
+		virtual void BuildGraph() {} ;
+		
+		virtual bool Execute() { m_IsPerformed = true; return true; };
 
 		template <typename OutputT>
 		OutputT* GetOutputValue(unsigned int index)
@@ -81,12 +101,27 @@ namespace Derp
 
 	class AuxiliaryBlock : public Block
 	{
+	private:
+		AuxiliaryType m_AuxType;
+		const char* m_AuxData;
+		const char* m_JsonData;
+		
+		
+		// init usage
+		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_Outputs; // <name, type>
+		
 	public:
-		AuxiliaryBlock()
-			: Block(BLOCK_TYPE_AUXILIARY)
+		
+		AuxiliaryBlock(Renderer* _renderer, const char* _JsonData)
+			: Block(_renderer, BLOCK_TYPE_AUXILIARY)
+			, m_JsonData(_JsonData)
 		{}
 
-		virtual bool Initialize(const char* _JsonData);
+		virtual bool Initialize(Json::Value *node);
+		
+		virtual void BuildGraph();
+		
+		Pxf::Graphics::Texture *m_TextureOutput;
 	};
 
 	//
@@ -95,12 +130,15 @@ namespace Derp
 
 	class RenderBlock : public Block
 	{
+	private:
+		const char* m_JsonData;
 	public:
-		RenderBlock()
-			: Block(BLOCK_TYPE_RENDER)
+		RenderBlock(Renderer* _renderer, const char* _JsonData)
+			: Block(_renderer, BLOCK_TYPE_RENDER)
+			, m_JsonData(_JsonData)
 		{}
 
-		virtual bool Initialize(const char* _JsonData);
+		virtual bool Initialize(Json::Value *node);
 
 		Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
 		{
@@ -114,12 +152,15 @@ namespace Derp
 
 	class PostProcessBlock : public Block
 	{
+	private:
+		const char* m_JsonData;
 	public:
-		PostProcessBlock()
-			: Block(BLOCK_TYPE_POSTPROCESS)
+		PostProcessBlock(Renderer* _renderer, const char* _JsonData)
+			: Block(_renderer, BLOCK_TYPE_POSTPROCESS)
+			, m_JsonData(_JsonData)
 		{}
 
-		virtual bool Initialize(const char* _JsonData);
+		virtual bool Initialize(Json::Value *node);
 
 		Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
 		{
@@ -134,13 +175,31 @@ namespace Derp
 	class RootBlock : public Block
 	{
 	protected:
+		// Root output i.e. final tree result
 		Pxf::Graphics::Texture* m_OutputTexture;
+		int m_Width, m_Height;
+	private:
+		//const char *m_InputBlockName;
+		//Block* m_InputBlock;
+		
+		// init usage
+		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_Inputs;
+		
+		// build graph usage
+		Pxf::Util::Map<Pxf::Util::String, Block*> m_InputBlocks;
+		
+		const char* m_JsonData;
 	public:
-		RootBlock()
-			: Block(BLOCK_TYPE_ROOT)
+		RootBlock(Renderer* _renderer, const char* _JsonData)
+			: Block(_renderer, BLOCK_TYPE_ROOT)
+			, m_JsonData(_JsonData)
+			, m_Width(0)
+			, m_Height(0)
 		{}
 
-		virtual bool Initialize(const char* _JsonData);
+		virtual void BuildGraph();
+		virtual bool Initialize(Json::Value *node);
+		virtual bool Execute();
 
 		Pxf::Graphics::Texture* GetOutputValue()
 		{

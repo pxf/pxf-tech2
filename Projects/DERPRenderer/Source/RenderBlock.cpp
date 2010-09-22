@@ -1,11 +1,15 @@
 #include "RenderBlocks.h"
+#include "Renderer.h"
+
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Debug.h>
+
 #include <Pxf/Graphics/Texture.h>
+#include <Pxf/Graphics/GraphicsDevice.h>
+
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Json.h>
-#include <json/json.h>
 
 using namespace Derp;
 using namespace Pxf;
@@ -27,25 +31,104 @@ static Json::Value CreateJson(const char* data)
 	return root;
 }
 
-bool AuxiliaryBlock::Initialize(const char* _JsonData)
+bool AuxiliaryBlock::Initialize(Json::Value *node)
 {
-	return false;
-}
-
-bool RenderBlock::Initialize(const char* _JsonData)
-{
-	return false;
-}
-
-bool PostProcessBlock::Initialize(const char* _JsonData)
-{
-	return false;
-}
-
-bool RootBlock::Initialize(const char* _JsonData)
-{
-	Json::Value block = CreateJson(_JsonData);
-	for(int i = 0; i < block.size(); i++)
-		Message("RootBlock", block[i]["blockName"].asCString());
+	//Json::Value node = CreateJson(m_JsonData);
+	
+	// First set blockname
+	m_BlockName = (*node)["blockName"].asCString();
+	
+	// Take care of what type of aux block this is, and set AuxData
+	if ((*node)["blockData"]["auxType"].asString() == "texture")
+	{
+		m_AuxType = AUXILIARY_TEXTURE;
+		m_AuxData = (*node)["blockData"]["filepath"].asCString();
+	}
+	else if ((*node)["blockData"]["auxType"].asString() == "script")
+	{
+		m_AuxType = AUXILIARY_SCRIPT;
+		m_AuxData = (*node)["blockData"]["script"].asCString();
+	}
+	
+	// Add outputs
+	for(int i = 0; i < (*node)["blockOutput"].size(); i++)
+	{
+		m_Outputs.insert( std::make_pair((*node)["blockOutput"][i]["name"].asCString(), (*node)["blockOutput"][i]["type"].asCString()) );
+	}
+	
 	return true;
 }
+
+void AuxiliaryBlock::BuildGraph()
+{
+	// I have no inputs just do nothing!
+	//Message("AUXBLOCK", "My name is: %s", m_BlockName);
+	
+	if (!m_HasBeenBuilt)
+	{
+		m_TextureOutput = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture(m_AuxData);
+		
+		m_HasBeenBuilt = true;
+	}
+}
+
+bool RenderBlock::Initialize(Json::Value *node)
+{
+	return false;
+}
+
+bool PostProcessBlock::Initialize(Json::Value *node)
+{
+	return false;
+}
+
+bool RootBlock::Initialize(Json::Value *node)
+{
+	
+	// First set blockname
+	m_BlockName = (*node)["blockName"].asCString();
+	
+	// Setup texture properties
+	m_Width = (*node)["blockData"]["width"].asInt();
+	m_Height = (*node)["blockData"]["height"].asInt();
+	
+	// Add inputs
+	for(int i = 0; i < (*node)["blockInput"].size(); i++)
+	{
+		m_Inputs.insert( std::make_pair((*node)["blockInput"][i]["block"].asCString(), (*node)["blockInput"][i]["output"].asCString()) );
+	}
+	
+	// TODO: Add other root properties
+	
+	return true;
+}
+
+void RootBlock::BuildGraph()
+{
+	if (!m_HasBeenBuilt)
+	{
+		// Build childs in trees
+		for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+		{
+			Block *child = m_Renderer->m_Blocks[(*iter).first.c_str()];
+			child->BuildGraph();
+			m_InputBlocks.insert( std::make_pair((*iter).first.c_str(), child) );
+		}	
+	
+		// Build up input pointers
+		/*for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+		{
+			Message("LOOOOOOOOOOOOOOOOOOOOOL", (*iter).first.c_str());
+			//m_Inputs.insert( std::make_pair(node["blockInput"][i]["block"].asCString(), node["blockInput"][i]["output"].asCString()) );
+		}*/
+		
+		m_HasBeenBuilt = true;
+	}
+}
+
+bool RootBlock::Execute()
+{
+	m_OutputTexture = ((AuxiliaryBlock*)(m_InputBlocks["auxinput1"]))->m_TextureOutput;
+	return Block::Execute();
+}
+

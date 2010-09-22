@@ -13,6 +13,9 @@
 #include <Pxf/Graphics/RenderBuffer.h>
 #include <Pxf/Graphics/Model.h>
 
+#include <Pxf/Graphics/VertexBuffer.h>
+#include <Pxf/Graphics/VertexBufferDefs.h>
+
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
@@ -36,6 +39,7 @@
 
 using namespace Pxf;
 using namespace Math;
+using namespace Graphics;
 
 
 int main()
@@ -85,15 +89,14 @@ int main()
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
 
-	int tick_id = snd->RegisterSound("data/tick.ogg");
-	Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
+	//int tick_id = snd->RegisterSound("data/tick.ogg");
+	//Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
 
 	/*Resource::Text* text = res->Acquire<Resource::Text>("data/testblocks.json");
 	Derp::RootBlock rblock;
 	rblock.Initialize(text->Ptr());*/
-	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
-	renderer->LoadJson();
-	delete renderer;
+
+	
 
 	Graphics::WindowSpecifications spec;
 	spec.Width = settings["video"].get("width", 800).asInt();
@@ -108,6 +111,7 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	
 	Graphics::Window* win = gfx->OpenWindow(&spec);
+	/* commenting out all model stuff for now..
 	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
 
 	gluPerspective(45.0f,800/600,1.0f,20000.0f);
@@ -122,11 +126,86 @@ int main()
 
 	int oldmx,oldmy;
 	float cam_z = 15.0f;
+	*/
+	
+	struct QuadVertex
+  {
+      Math::Vec3f position;
+      Math::Vec4f color;
+      Math::Vec2f coord;
+  };
+	Math::Vec2f tCurrentCoords[4];
+  tCurrentCoords[0].u = 0.0f;
+	tCurrentCoords[0].v = 0.0f;
+	tCurrentCoords[1].u = 1.0f;
+	tCurrentCoords[1].v = 0.0f;
+	tCurrentCoords[2].u = 1.0f;
+	tCurrentCoords[2].v = 1.0f;
+	tCurrentCoords[3].u = 0.0f;
+	tCurrentCoords[3].v = 1.0f;
+
+	Graphics::VertexBuffer *finalquad = gfx->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
+  finalquad->CreateNewBuffer(4, sizeof(QuadVertex) );
+  finalquad->SetData(VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
+	finalquad->SetData(VB_COLOR_DATA, sizeof(Vec3f), 4);
+	finalquad->SetData(VB_TEXCOORD_DATA, sizeof(Vec3f)+sizeof(Vec4f), 2);
+	finalquad->SetPrimitive(VB_PRIMITIVE_QUADS);
+	
+	QuadVertex* pVertBuf;
+	pVertBuf = (QuadVertex*)finalquad->MapData(VB_ACCESS_WRITE_ONLY);
+	
+	pVertBuf[0].position = Vec3f(0.0f, 0.0f, 0.0f);
+  pVertBuf[0].color = Vec4f(1.0f);
+  pVertBuf[0].coord = tCurrentCoords[0];
+  
+  pVertBuf[1].position = Vec3f(1.0f, 0.0f, 0.0f);
+  pVertBuf[1].color = Vec4f(1.0f);
+  pVertBuf[1].coord = tCurrentCoords[1];
+  
+  pVertBuf[2].position = Vec3f(1.0f, 1.0f, 0.0f);
+  pVertBuf[2].color = Vec4f(1.0f);
+  pVertBuf[2].coord = tCurrentCoords[2];
+  
+  pVertBuf[3].position = Vec3f(0.0f, 1.0f, 0.0f);
+  pVertBuf[3].color = Vec4f(1.0f);
+  pVertBuf[3].coord = tCurrentCoords[3];
+	
+	finalquad->UnmapData();
+	
+	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
+	renderer->LoadJson();
+	renderer->BuildGraph();
 
 	Timer t;
 	while(win->IsOpen())
 	{
 		t.Start();
+		
+		
+		// Execute renderer/pipeline
+		renderer->Execute();
+		
+		
+		// TODO: Setup normal backbuffer and render final output
+		
+		// Setup ogl
+		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
+	  //Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), win->GetHeight(), 0, 1.0f, 10000.0f);
+		Math::Mat4 prjmat = Math::Mat4::Ortho(0, 1.0f, 1.0f, 0, -1.0f, 10000.0f);
+	  gfx->SetProjection(&prjmat);
+	  glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		// Render final output
+		glEnable(GL_TEXTURE_2D);
+		gfx->BindTexture(renderer->GetResult());
+		gfx->DrawBuffer(finalquad, 0);
+		
+		
+		// Pick out pipeline result and render it!
+		
+		/*
+		
 		glMatrixMode(GL_PROJECTION);
 		//glPushMatrix();
 
@@ -135,12 +214,13 @@ int main()
 
 		inp->Update();
 
-		gluLookAt(0.0f,0.0f,cam_z,0.0f,0.0f,0.0f,0.0f,1.0f,0.0f); 
+		//gluLookAt(0.0f,0.0f,cam_z,0.0f,0.0f,0.0f,0.0f,1.0f,0.0f); 
+		
 
 		if (inp->GetLastKey() == Input::ESC)
 			break;
 
-
+		/*
 		if (inp->GetLastKey() == Input::UP)
 		{
 			cam_z += 0.5f;
@@ -154,6 +234,7 @@ int main()
 		
 		int mx,my;
 		inp->GetMousePos(&mx,&my);
+		
 
 		//glEnable(GL_DEPTH_TEST);
 
@@ -161,7 +242,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		gfx->SetViewport(0,0,800,600);
 
-		a += 0.1f;
+		//a += 0.1f;
 		//cam.SetPosition(0.0f,a,0.0f);
 
 		glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
@@ -177,9 +258,9 @@ int main()
 		glVertex3f(0.0f,1.0f,0.0f);
 		glEnd(); */
 		
-		glRotatef(a,1.0f, 0, 0);
+		//glRotatef(a,1.0f, 0, 0);
 		//glScalef(0.1, 0.1, 0.1);
-		test_model->Draw();
+		//test_model->Draw();
 
 		//
 		//gfx->DrawBuffer(pBuff,24);
@@ -193,26 +274,36 @@ int main()
 		gfx->Translate(Pxf::Math::Vec3f(0.0f,0.0f,20000.0f)); */
 
 
-		oldmx = mx; oldmy = my;
+		/*oldmx = mx; oldmy = my;
 		
 		if (inp->GetLastButton() == Input::MOUSE_LEFT)
 			snd->Play(tick_id);
 		if (inp->GetLastButton() == Input::MOUSE_RIGHT)
 			snd->Pause(tick_id);
-
+		
 		inp->ClearLastKey();
 		inp->ClearLastButton();
-
-		char title[512];
+		*/
 		
+		inp->Update();
+		
+		if (inp->GetLastKey() == Input::ESC)
+			break;
+		
+		inp->ClearLastKey();
+		inp->ClearLastButton();
+		
+		char title[512];
 		t.Stop();
 		Format(title, "Renderer (fps: %d, processing time: %d ms)", win->GetFPS(), t.Interval());
 		win->SetTitle(title);
 		win->Swap();
 
-		glPopMatrix();
+		//glPopMatrix();
 	}
 	
+	Pxf::Kernel::GetInstance()->GetGraphicsDevice()->DestroyVertexBuffer(finalquad);
+	delete renderer;
 
 	delete kernel;
 	return 0;

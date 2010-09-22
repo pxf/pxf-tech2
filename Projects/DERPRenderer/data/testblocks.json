@@ -12,15 +12,16 @@
   {"blockName" : "auxinput1",
    "blockType" : "AuxComp",
    "blockData" : {"auxType" : "texture",
-                  "filepath" : "loltexture.png",
+                  "filepath" : "data/derptest.png",
                   "minfilter" : "nearest"
                  },
-   "blockOutput" : {"texture1" : "texture"}
+   "blockOutput" : [{"name" : "texture1",
+                     "type" : "texture"}]
   },
 
   {"blockName" : "output1",
    "blockType" : "Root",
-   "blockInput" : {"auxinput1" : "texture1"},
+   "blockInput" : [{"block" : "auxinput1", "output" : "texture1"}],
    "blockData" : {"host" : "localhost",
                   "port" : "4632",
                   "feedback" : true,
