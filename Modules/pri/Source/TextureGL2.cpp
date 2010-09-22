@@ -165,9 +165,9 @@ int TextureGL2::GetChannels()
 	return m_Channels;
 }
 
-GLuint TextureGL2::GetTextureID()
+unsigned int TextureGL2::GetTextureID()
 {
-	return m_TextureID;
+	return (unsigned int)m_TextureID;
 }
 
 

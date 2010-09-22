@@ -35,7 +35,7 @@ namespace Pxf
 			Math::Vec4f CreateTextureSubset(float _x1, float _y1, float _x2, float _y2);
 			
 			// OGL specific
-			GLuint GetTextureID();
+			unsigned int GetTextureID();
 
 		private:
 			GLuint m_TextureID;

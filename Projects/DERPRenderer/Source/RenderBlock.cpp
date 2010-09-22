@@ -103,6 +103,10 @@ bool RootBlock::Initialize(Json::Value *node)
 	m_Width = (*node)["blockData"]["width"].asInt();
 	m_Height = (*node)["blockData"]["height"].asInt();
 	
+	// Store shader code
+	m_VertShader = (*node)["blockData"]["shaderVert"].asCString();
+	m_FragShader = (*node)["blockData"]["shaderFrag"].asCString();
+	
 	// Add inputs
 	for(int i = 0; i < (*node)["blockInput"].size(); i++)
 	{
@@ -137,6 +141,7 @@ void RootBlock::BuildGraph()
 		// Setup internal block stuff
 		m_OutputQuad = new SimpleQuad(0, 0, m_Width, m_Height);
 		m_OutputTexture = m_gfx->CreateEmptyTexture(m_Width, m_Height);
+		m_Shader = m_gfx->CreateShader(m_BlockName, m_VertShader, m_FragShader);
 		
 		m_HasBeenBuilt = true;
 	}
@@ -163,6 +168,9 @@ bool RootBlock::Execute()
 	m_Renderer->m_FBO->Attach(m_OutputTexture, GL_COLOR_ATTACHMENT0_EXT, false);
 	m_gfx->BindFrameBufferObject(m_Renderer->m_FBO);
 	
+	// Bind shaders
+	m_gfx->BindShader(m_Shader);
+	
 	// Gather and bind all our inputs
 	int ttexunit = 0;
 	for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
@@ -178,14 +186,15 @@ bool RootBlock::Execute()
 		}
 		
 		m_gfx->BindTexture(inputtex, ttexunit);
+		m_gfx->SetUniformi(m_Shader, (*iter).first.c_str(), inputtex->GetTextureID());
 		ttexunit += 1;
 	}
 	
-	// Bind shaders
-	// -------- todo ---------
-	
 	// Render
 	m_OutputQuad->Draw();
+	
+	// Unbind shader
+	m_gfx->BindShader(0);
 	
 	// Unbind FBO
 	m_gfx->UnbindFrameBufferObject();

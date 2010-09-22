@@ -26,8 +26,21 @@
                   "port" : "4632",
                   "feedback" : true,
                   "realtime" : false,
-                  "shaderVert" : "",
-                  "shaderFrag" : "",
+                  "shaderVert" : "varying vec2 texcoords;
+                  void main(void)
+                  {
+                  	vec4 v = vec4(gl_Vertex);
+                  	gl_Position = gl_ModelViewProjectionMatrix * v;
+                  	texcoords = vec2(gl_MultiTexCoord0);
+                  }",
+                  "shaderFrag" : "varying vec2 texcoords;
+                  uniform sampler2D texture1;
+                  void main()
+                  {
+                  	gl_FragColor = texture2D(texture1, texcoords);
+                  	gl_FragColor.g = gl_FragColor.g / 2.0;
+                  	gl_FragColor.b = gl_FragColor.b / 2.0;
+                  }",
                   "width" : 512,
                   "height" : 512
                  }

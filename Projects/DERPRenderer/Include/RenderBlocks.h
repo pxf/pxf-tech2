@@ -5,6 +5,7 @@
 #include <Pxf/Util/String.h>
 #include <Pxf/Util/Map.h>
 
+#include <Pxf/Graphics/Shader.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Texture.h>
 
@@ -205,6 +206,11 @@ namespace Derp
 		
 		const char* m_JsonData;
 		
+		// Shader object
+		Pxf::Graphics::Shader* m_Shader;
+		const char* m_VertShader;
+		const char* m_FragShader;
+		
 		// Root output renderquad
 		SimpleQuad* m_OutputQuad;
 		
@@ -216,7 +222,10 @@ namespace Derp
 			, m_Height(0)
 		{}
 		
-		virtual ~RootBlock() { delete m_OutputQuad; }
+		virtual ~RootBlock() {
+			delete m_OutputQuad;
+			m_gfx->DestroyShader(m_Shader);
+		}
 
 		virtual void BuildGraph();
 		virtual bool Initialize(Json::Value *node);

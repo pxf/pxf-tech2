@@ -36,6 +36,8 @@ namespace Pxf
 			virtual void SetMinFilter(TextureFilter _Filter) = 0;
 
 			virtual void SetClampMethod(TextureClampMethod _Method) = 0;
+			
+			virtual unsigned int GetTextureID() = 0;
 
 			virtual Math::Vec4f CreateTextureSubset(float _x1, float _y1, float _x2, float _y2) = 0;
 		};
