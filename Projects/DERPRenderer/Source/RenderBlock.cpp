@@ -227,7 +227,7 @@ bool RootBlock::Execute()
 			}
 		
 			m_gfx->BindTexture(inputtex, ttexunit);
-			m_gfx->SetUniformi(m_Shader, (*iter).second.c_str(), inputtex->GetTextureID());
+			//m_gfx->SetUniformi(m_Shader, (*iter).second.c_str(), inputtex->GetTextureID());
 			ttexunit += 1;
 			
 		} else if (inputtype == "float")
