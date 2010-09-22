@@ -6,6 +6,10 @@
 #include <Pxf/Util/String.h>
 #include <Pxf/Util/Map.h>
 
+#include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Graphics/RenderBuffer.h>
+#include <Pxf/Graphics/FrameBufferObject.h>
+
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Json.h>
 #include <Pxf/Resource/Text.h>
@@ -30,16 +34,19 @@ namespace Derp
 		
 		Pxf::Graphics::Texture* GetResult()
 		{
-			return m_RootBlock->GetOutputValue();
+			return m_RootBlock->m_OutputTexture;
 		}
 		
 		int m_Width, m_Height;
+		Pxf::Graphics::FrameBufferObject* m_FBO;
 
   private:
     const char* m_Filepath;
 		Pxf::Resource::Json* m_doc;
 		Pxf::Resource::JsonLoader* m_jsonloader;
 		Json::Value root; // json-root
+		
+		Pxf::Graphics::GraphicsDevice *m_gfx;
 		
 		// internal pipeline representation
 		const char* m_RootName;

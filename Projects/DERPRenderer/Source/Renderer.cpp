@@ -8,6 +8,7 @@
 
 using namespace Derp;
 using namespace Pxf;
+using namespace Graphics;
 
 Renderer::Renderer(const char* _filepath)
 	: m_Filepath(_filepath)
@@ -91,6 +92,11 @@ void Renderer::BuildGraph()
 {
 	if (m_RootName)
 	{
+		// Setup internal OGL stuff
+		m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
+		m_FBO = m_gfx->CreateFrameBufferObject();
+		
+		// Build graph
 		m_RootBlock->BuildGraph();
 		
 	} else {

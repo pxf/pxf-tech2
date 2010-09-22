@@ -1,10 +1,16 @@
 #ifndef _PXF_DERPRENDERER_RENDERBLOCKS_H_
 #define _PXF_DERPRENDERER_RENDERBLOCKS_H_
 
+#include <Pxf/Kernel.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Util/Map.h>
 
+#include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Texture.h>
+
+#include <Pxf/Modules/pri/OpenGL.h>
+
+#include "SimpleQuad.h"
 
 #include <json/json.h>
 
@@ -51,27 +57,34 @@ namespace Derp
 		BlockType m_BlockType;
 		Renderer* m_Renderer;
 
-		static const int NUM_INPUTS = 8;
+		/*static const int NUM_INPUTS = 8;
 		static const int NUM_OUTPUTS = 8;
 		void* m_Inputs[NUM_INPUTS];
-		void* m_Outputs[NUM_OUTPUTS];
+		void* m_Outputs[NUM_OUTPUTS];*/
 
-		BlockOutputType m_OutputType;
+		//BlockOutputType m_OutputType;
 		
-		
+		// State stuff
 		const char *m_BlockName;
     bool m_IsPerformed;
 		bool m_HasBeenBuilt;
 		
+		// graphics device pointer for easy access 8)
+		Pxf::Graphics::GraphicsDevice* m_gfx;
+		
+		// init usage
+		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_OutputTypes; // <name, type>
+		Pxf::Util::Map<Pxf::Util::String, void*> m_Outputs; // <name, outputpointer>
+		
 	public:
 		Block(Renderer* _renderer, BlockType _BlockType)
-			: m_BlockType(_BlockType)
-      , m_IsPerformed(false)
+			: m_IsPerformed(false) // m_BlockType(_BlockType)
       , m_Renderer(_renderer)
 			, m_HasBeenBuilt(false)
 			, m_BlockName(NULL)
 		{
 			// memset m_inputs, m_outputs
+			m_gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
 		}
 
 		virtual bool Initialize(Json::Value *node) = 0;
@@ -82,16 +95,21 @@ namespace Derp
 		
 		virtual bool Execute() { m_IsPerformed = true; return true; };
 
-		template <typename OutputT>
+		/*template <typename OutputT>
 		OutputT* GetOutputValue(unsigned int index)
 		{
 			return (OutputT*)m_Outputs[index];
+		}*/
+		
+		virtual void* GetOutput(Pxf::Util::String _outputname, Pxf::Util::String _outputtype) 
+		{
+			return 0;
 		}
 
-		BlockType GetType()
+		/*BlockType GetType()
 		{
 			return m_BlockType;
-		}
+		}*/
 
 	};
 
@@ -107,9 +125,6 @@ namespace Derp
 		const char* m_JsonData;
 		
 		
-		// init usage
-		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_Outputs; // <name, type>
-		
 	public:
 		
 		AuxiliaryBlock(Renderer* _renderer, const char* _JsonData)
@@ -121,7 +136,9 @@ namespace Derp
 		
 		virtual void BuildGraph();
 		
-		Pxf::Graphics::Texture *m_TextureOutput;
+		virtual void* GetOutput(Pxf::Util::String _outputname, Pxf::Util::String _outputtype);
+		
+		//Pxf::Graphics::Texture *m_TextureOutput;
 	};
 
 	//
@@ -140,10 +157,10 @@ namespace Derp
 
 		virtual bool Initialize(Json::Value *node);
 
-		Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
+		/*Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
 		{
 			return (Pxf::Graphics::Texture*) m_Outputs[index];
-		}
+		}*/
 	};
 
 	//
@@ -162,10 +179,10 @@ namespace Derp
 
 		virtual bool Initialize(Json::Value *node);
 
-		Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
+		/*Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
 		{
 			return (Pxf::Graphics::Texture*) m_Outputs[index];
-		}
+		}*/
 	};
 	
 	//
@@ -187,6 +204,10 @@ namespace Derp
 		Pxf::Util::Map<Pxf::Util::String, Block*> m_InputBlocks;
 		
 		const char* m_JsonData;
+		
+		// Root output renderquad
+		SimpleQuad* m_OutputQuad;
+		
 	public:
 		RootBlock(Renderer* _renderer, const char* _JsonData)
 			: Block(_renderer, BLOCK_TYPE_ROOT)
@@ -194,15 +215,17 @@ namespace Derp
 			, m_Width(0)
 			, m_Height(0)
 		{}
+		
+		virtual ~RootBlock() { delete m_OutputQuad; }
 
 		virtual void BuildGraph();
 		virtual bool Initialize(Json::Value *node);
 		virtual bool Execute();
 
-		Pxf::Graphics::Texture* GetOutputValue()
+		/*Pxf::Graphics::Texture* GetOutputValue()
 		{
 			return m_OutputTexture;
-		}
+		}*/
 		
 		// Root output i.e. final tree result
 		Pxf::Graphics::Texture* m_OutputTexture;
