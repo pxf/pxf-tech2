@@ -5,8 +5,8 @@
 #include <Pxf/Math/Vector.h>
 #include <Pxf/Math/Matrix.h>
 
-/* These macros are prefered to use over GL::CheckError, since they will raise a breakpoint
-   where the error occured instead of showing you the CheckError function.
+/* These macros are preferred to use over GL::CheckError, since they will raise a breakpoint
+   where the error occurred instead of showing you the CheckError function.
 */
 #ifdef CONF_DEBUG
 	#if defined(CONF_COMPILER_MSVC)
