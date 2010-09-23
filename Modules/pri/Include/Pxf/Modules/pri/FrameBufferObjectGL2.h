@@ -26,13 +26,13 @@ namespace Pxf{
 
 			void DetachAll();
 			
-			void GetAttachedBuffers(GLenum* _attachments, int* _size);
+			int GetNumAttached();
 
 			unsigned GetHandle() { return m_Handle; }
 		private:
 			void _Configure();	// check max attachments 
 			unsigned m_Handle;
-			GLenum m_Attachments[16];
+			//GLenum m_Attachments[16];
 		};
 	} // Graphics
 } // Pxf

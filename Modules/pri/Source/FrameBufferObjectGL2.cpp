@@ -197,7 +197,6 @@ void FrameBufferObjectGL2::Attach(Texture* _Texture, const unsigned _Attachment,
 		}	
 		
 		
-		m_Attachments[m_NumColorAttachment] = _Attachment;
 		m_NumColorAttachment++;
 		m_AttachmentMask ^= _ID+1;
 	}
@@ -270,7 +269,6 @@ void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachm
 			Message(LOCAL_MSG,"Already attached, reattaching with new ID");
 		}	
 		
-		m_Attachments[m_NumColorAttachment] = _Attachment;
 		m_NumColorAttachment++;
 		m_AttachmentMask ^= _ID+1;
 	}
@@ -289,11 +287,8 @@ void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachm
 	m_Complete = CheckFBO(status);
 }
 
-void FrameBufferObjectGL2::GetAttachedBuffers(GLenum* _attachments, int* _size)
+int FrameBufferObjectGL2::GetNumAttached()
 {
-	// Build attachment array
-	_attachments = m_Attachments;
-	
-	_size = &m_NumColorAttachment;
+	return m_NumColorAttachment;
 }
 
