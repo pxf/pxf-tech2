@@ -305,7 +305,6 @@ void DeviceGL2::BindRenderBuffer(RenderBuffer* _pRenderBuffer)
 
 void DeviceGL2::UnbindRenderBuffer()
 {
-	// ehm .. aoeu
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 }
 
@@ -357,7 +356,7 @@ void DeviceGL2::UnbindFrameBufferObject()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	m_CurrentFrameBufferObject = 0;
-	glDrawBuffer(GL_BACK);
+	//glDrawBuffer(GL_BACK);
 }
 
 

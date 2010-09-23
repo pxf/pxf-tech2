@@ -93,12 +93,11 @@ int main()
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
 	
-	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
-	renderer->LoadJson();
+	//Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
 	
 	Graphics::WindowSpecifications spec;
-	spec.Width = renderer->m_Width;//settings["video"].get("width", 800).asInt();
-	spec.Height = renderer->m_Height;//settings["video"].get("height", 600).asInt();
+	spec.Width = 256;
+	spec.Height = 256;
 	spec.ColorBits = 24;
 	spec.AlphaBits = 8;
 	spec.DepthBits = 8;
@@ -109,25 +108,52 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
-	// Build pipeline graph
-	renderer->BuildGraph();
-	
 	// Setup full screen quad
 	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
+
+	Graphics::RenderBuffer* a = gfx->CreateRenderBuffer(GL_RGBA,256,256);
+	Graphics::RenderBuffer* b = gfx->CreateRenderBuffer(GL_RGBA,256,256);
+
+	Graphics::FrameBufferObject* FBO = gfx->CreateFrameBufferObject();
+	FBO->Attach(a,GL_COLOR_ATTACHMENT0);
+	FBO->Attach(b,GL_COLOR_ATTACHMENT1);
+
+	const char* vs = "void main(void)  \
+                  {					\
+                  	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex; \
+                  	gl_TexCoord[0] = gl_MultiTexCoord0; \
+                  }"; 
+
+	const char* fs = "void main() \
+                  { \
+                  	gl_FragData[0] = vec4(0.0, 1.0, 0.0, 1.0); \
+                  	gl_FragData[1] = vec4(1.0, 0.0, 0.0, 1.0); \
+                  }";
+	const char* vs_res = "uniform sampler2D texture3; \
+                  uniform sampler2D texture2; \
+                  void main(void) \
+                  { \
+                  	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex; \
+                  	gl_TexCoord[0] = gl_MultiTexCoord0; \
+                  }";
+
+	const char* fs_res = "uniform sampler2D texture3; \
+                  uniform sampler2D texture2; \
+                  void main() \
+                  { \
+					gl_FragColor = texture2D(texture3, gl_TexCoord[0].st); \
+                  }";
+
+	Graphics::Shader* shader = gfx->CreateShader("TEST",vs,fs);
+	Graphics::Shader* result = gfx->CreateShader("RESULT",vs_res,fs_res);
 
 	Timer t;
 	while(win->IsOpen())
 	{
 		t.Start();	
-
-		// Execute renderer/pipeline
-		renderer->Execute();
-			
-		// TODO: Setup normal backbuffer and render final output
 		
 		// Setup ogl
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
-	  //Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), win->GetHeight(), 0, 1.0f, 10000.0f);
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, 1.0f, 1.0f, 0, -1.0f, 10000.0f);
 		gfx->SetProjection(&prjmat);
 		glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
@@ -135,9 +161,20 @@ int main()
 		
 		// Render final output
 		glEnable(GL_TEXTURE_2D);
-		gfx->BindTexture(renderer->GetResult());
+
+		gfx->BindFrameBufferObject(FBO);
+		gfx->BindShader(shader);
+
 		finalquad->Draw();
-		
+		gfx->BindShader(0);
+
+		gfx->UnbindFrameBufferObject();
+	
+		glBindTexture(GL_TEXTURE_2D,((Modules::RenderBufferGL2*) a)->GetHandle());
+
+		gfx->BindShader(result);
+		finalquad->Draw();
+
 		inp->Update();
 		
 		if (inp->GetLastKey() == Input::ESC)
@@ -160,15 +197,12 @@ int main()
 		char title[512];
 		t.Stop();
 		Format(title, "Renderer (fps: %d, processing time: %d ms)", win->GetFPS(), t.Interval());
-		win->SetTitle(title);
+		win->SetTitle(title); 
 
 		win->Swap();
-
-		//glPopMatrix();
 	}
 	
 	delete finalquad;
-	delete renderer;
 
 	delete kernel;
 	return 0;

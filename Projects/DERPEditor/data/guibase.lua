@@ -178,6 +178,13 @@ function gui:create_basewidget(x,y,w,h)
   			gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h, self.drawbox.w, 1, 5, 5, 1, 1) -- bottom
   		end
 		
+		if (gui.draw_hitbox_rects) then
+			gfx.drawtopleft(self.hitbox.x, self.hitbox.y, self.hitbox.w, 1, 17, 5, 1, 1) -- top
+  			gfx.drawtopleft(self.hitbox.x, self.hitbox.y, 1, self.hitbox.h, 17, 5, 1, 1) -- left
+  			gfx.drawtopleft(self.hitbox.x + self.hitbox.w, self.hitbox.y, 1,self.hitbox.h, 17, 5, 1, 1) -- right
+  			gfx.drawtopleft(self.hitbox.x, self.hitbox.y + self.hitbox.h, self.hitbox.w, 1, 17, 5, 1, 1) -- bottom
+		end
+		
   		gfx.translate(self.drawbox.x, self.drawbox.y)
   		for k,v in pairs(self.childwidgets) do
   		  v:draw(force)
@@ -386,6 +393,7 @@ function gui:init()
   
   self.draw_debug_rects = false
   self.draw_redraw_rects = false
+  self.draw_hitbox_rects = false
   
   -- statusbar widget
   self.statusbar = nil

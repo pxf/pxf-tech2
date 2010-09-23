@@ -1,8 +1,26 @@
 derp = {}
+derp.active_workspace = nil
 
 function derp:window_container()
 	wid = gui:create_verticalstack(0,0,app.width,app.height)
 	wid.widget_type = "window container"
+	wid.draworder = {}
+	
+	function wid:setup()
+		for k,v in pairs(self.childwidgets) do
+			
+		end
+	end
+	
+	function wid:draw(force)
+		if(self.redraw_needed or force) then
+			local draw_last = nil
+			
+			for k,v in pairs(self.childwidgets) do
+				v:draw(force)
+			end
+		end
+	end
 	
 	--[[
 	function wid:draw(force)
@@ -101,11 +119,11 @@ function derp:create_inspector(x,y,w,h)
 	return wid
 end
 
-function derp:create_workspace_tabs(x,y,w,h)
+function derp:create_workspace_tabs(x,y,w,h,workspace)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	wid.widget_type = "workspace tabs"
 	wid.super_draw = wid.draw
-	wid.active_workspace = nil
+	wid.workspace = workspace
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
@@ -116,10 +134,10 @@ function derp:create_workspace_tabs(x,y,w,h)
 		end
 	end
 	
-	function wid:addworkspace(name)
+	function wid:addtab(name)
 		local ws = gui:create_basewidget(0,0,100,20)
 		ws.widget_type = "workspace tab " .. #self.childwidgets
-		ws.active = false
+		ws.active = true
 		ws.highlight = false
 		ws.parent = self
 		ws.super_find_mousehit = ws.find_mousehit
@@ -178,7 +196,7 @@ function derp:create_workspace_tabs(x,y,w,h)
 		 end
 		
 		self:addwidget(ws)
-		wid.active_workspace = self
+		derp.active_workspace = self
 		
 		return ws
 	end
@@ -186,32 +204,30 @@ function derp:create_workspace_tabs(x,y,w,h)
 	return wid
 end
 
-function derp:create_workspace_camera(x,y,w,h)
-	local cam = {}
-	cam.x = x
-	cam.y = y
+function derp:create_workspacecamera(x,y,w,h)
+	local cam = gui:create_basewidget(x,y,w*2,h*2)
+	cam.widget_type = "workspace camera"
 	cam.bounds = { left = -w, right = w, top = h, bottom = -h}
+	cam.super_draw = cam.draw
+	local checkers_texture = gfx.loadtexture(64,"data/checkers.png")
 	
-	--print(cam.bounds.left .. " " .. cam.bounds.right .. " " .. cam.bounds.bottom .. " " .. cam.bounds.top)
-	
-	function cam:move_abs(x,y)
-		if x >= self.bounds.left and x <= self.bounds.right then
-			self.x = x
-		end
-		if y >= self.bounds.bottom and y <= self.bounds.top then
-			self.y = y
-		end
+	function cam:mousedrag(mx,my)
+		self:needsredraw()
+		self:move_relative(mx,my)
+		self:needsredraw()
 	end
 	
-	function cam:move_relative(dx,dy)
-		local x = self.x + dx
-		local y = self.y + dy
-	
-		if x >= self.bounds.left and x <= self.bounds.right then
-			self.x = x
-		end
-		if y >= self.bounds.bottom and y <= self.bounds.top then
-			self.y = y
+	function cam:draw(force)
+		if (force or self.redraw_needed) then
+			gfx.setalpha(0.25)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,5,1,1) -- solid bg
+			gfx.setalpha(1.0)
+			
+			local old_tex = gfx.bindtexture(checkers_texture)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*0.75)	-- checkers
+			gfx.bindtexture(old_tex)
+
+			self:super_draw(force)
 		end
 	end
 	
@@ -223,26 +239,14 @@ function derp:create_workspace(x,y,w,h)
 	wid.widget_type = "workspace"
 	wid.super_draw = wid.draw
 	wid.active_widget = nil
-	wid.camera = derp:create_workspace_camera(0,0,300,300)
+	wid.cam = derp:create_workspacecamera(0,0,w,h)
+	wid:addwidget(wid.cam)
 	
-	local checkers_texture = gfx.loadtexture(64,"data/checkers.png")
-	
-	function wid:mousedrag(mx,my)
-		self.camera:move_relative(mx,my)
-		
-		--print(self.camera.x .. "," .. self.camera.y)
-	end 
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
 			-- DRAW BG
-			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1+128,self.drawbox.w-2,self.drawbox.h-2-128,1,1,1,1) -- solid bg
-			
-			local old_tex = gfx.bindtexture(checkers_texture)
-			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,self.drawbox.h-2,0,0,500,500*0.75)	-- checkers
-			gfx.bindtexture(old_tex)
-			
-			--gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,128,509,1,1,127)	-- gradient
+			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,self.drawbox.h-2,1,1,1,1) -- solid bg
 		
 			-- DRAW BORDER
 			-- TOP
@@ -254,62 +258,71 @@ function derp:create_workspace(x,y,w,h)
 			-- RIGHT
 			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
 			
-			local rel_x = self.camera.x + self.drawbox.w * 0.5
-			local rel_y = self.camera.y + self.drawbox.h * 0.5
-			
-			gfx.translate(rel_x,rel_y)
-			
-			for k,v in pairs(self.childwidgets) do			
-				v.hitbox.x = rel_x + v.drawbox.x
-				v.hitbox.y = rel_y + v.drawbox.y
-				v:draw(force)
-			end
-			
-			gfx.translate(-rel_x,-rel_y)
-			
-			gui:drawfont(-self.camera.x .. "," .. -self.camera.y,10,30)
+			self.cam:draw(force)
 		end
 	end
 	
 	function wid:addcomponent(x,y)
-		local comp = gui:create_basewidget(x,y,100,100)
+		local comp = gui:create_basewidget(x + self.cam.drawbox.w * 0.5,y + self.cam.drawbox.h * 0.5,100,100)
 		comp.widget_type = "component" .. #self.childwidgets
 		comp.highlight = false
 		comp.selected = false
 		comp.super_find_mousehit = comp.find_mousehit
 		comp.super_draw = comp.draw
 		
-		function comp:mousedrag(mx,my)
+		function comp:mousedrag(mx,my)		
+			self:needsredraw()
+			
 			self:move_relative(mx,my)
+			
+			--[[
+			-- bounds
+			if self.drawbox.x < wid.camera.bounds.left then
+				self.drawbox.x = wid.camera.bounds.left
+			elseif (self.drawbox.x + self.drawbox.w) > wid.camera.bounds.right then
+				self.drawbox.x = wid.camera.bounds.right - self.drawbox.w
+			end
+			
+			if self.drawbox.y < (-wid.camera.bounds.top) then
+				self.drawbox.y = -wid.camera.bounds.top
+			elseif (self.drawbox.y + self.drawbox.h) > (-wid.camera.bounds.bottom) then
+				self.drawbox.y = -wid.camera.bounds.bottom - self.drawbox.h
+			end]]--
+			
 			self:needsredraw()
 		end
 		
 		function comp:draw(force)
 			if (self.redraw_needed or force) then
 				-- DRAW BG
-				gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 1, 1, 1, 1)
+				gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 1, 5, 1, 1)
 			
+				self:super_draw(force)
 				-- DRAW BORDERS
+				--[[
 				if self.highlight or self.selected then
-					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-1,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,13,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,13,5,1,1)
+					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
+					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
+					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,13,5,1,1)
+					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,13,5,1,1)
 				else
 					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-1,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
+					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
+					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1)
+					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
 				end
+				]]
 				
-				local draw_label = self.widget_type .. " (" .. self.drawbox.x .. "," .. self.drawbox.y.. ")"
+				--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1) -- TOP
+				--gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 5,self.drawbox.y+10,1,self.drawbox.h-20,1,5,1,1)
 				
-				gui:drawfont(draw_label, self.drawbox.x,self.drawbox.y-5)
+				--gui:drawfont(self.widget_type, self.drawbox.x+6,self.drawbox.y+10)
+				--gui:drawfont("(" .. self.drawbox.x .. "," .. self.drawbox.y .. ")", self.drawbox.x+6,self.drawbox.y+20)
 			end
 		end
 		
 		function comp:find_mousehit(mx,my)
-			local hit = self:super_find_mousehit(mx,my) 
+			local hit = self:super_find_mousehit(mx, my) 
 			
 			if not (hit == nil) then
 				self.highlight = true
@@ -332,7 +345,7 @@ function derp:create_workspace(x,y,w,h)
 			end
 		end
 		
-		self:addwidget(comp)
+		self.cam:addwidget(comp)
 	end
 	
 	function wid:resize_callback(w,h)
