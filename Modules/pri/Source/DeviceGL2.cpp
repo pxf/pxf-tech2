@@ -329,9 +329,9 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		m_CurrentFrameBufferObject = _pFrameBufferObject;
 		
 		int _buffercount;
-		GLenum* _buffers;
-		((FrameBufferObjectGL2*) _pFrameBufferObject)->GetAttachedBuffers(_buffers, &_buffercount);
-		glDrawBuffers(_buffercount, _buffers);
+		GLenum _buffers = 0;
+		((FrameBufferObjectGL2*) _pFrameBufferObject)->GetAttachedBuffers(&_buffers, &_buffercount);
+		GL::DrawBuffers(_buffercount, &_buffers);
 
 		return _OldFBO;
 	}
