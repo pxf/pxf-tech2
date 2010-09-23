@@ -45,12 +45,14 @@
                   uniform float script1;
                   void main()
                   {
-                  	gl_FragColor = texture2D(texture1, script1*gl_TexCoord[0].st);
-                  	//gl_FragData[1] = texture2D(texture1, script1*gl_TexCoord[0].st);
-                  	//gl_FragData[0] = vec4(1.0, 0.0, 0.0, 1.0);
+                  	//gl_FragColor = texture2D(texture1, script1*gl_TexCoord[0].st);
+                  	gl_FragData[0] = vec4(0.0, 1.0, 0.0, 1.0);//texture2D(texture1, script1*gl_TexCoord[0].st);
+                  	gl_FragData[1] = vec4(1.0, 0.0, 0.0, 1.0);
                   }"
                  },
-   "blockOutput" : [{"name" : "texture3",
+   "blockOutput" : [{"name" : "texture2",
+                     "type" : "texture"},
+					 {"name" : "texture3",
                      "type" : "texture"}]
   },
 
@@ -77,7 +79,7 @@
                   void main()
                   {
                     //vec4 aoe = texture2D(texture1, gl_TexCoord[0].st);
-                  	gl_FragColor = (1.0/script1)*texture2D(texture3, gl_TexCoord[0].st);
+                  	gl_FragColor = texture2D(texture3, gl_TexCoord[0].st);
                   }",
                   "width" : 512,
                   "height" : 512

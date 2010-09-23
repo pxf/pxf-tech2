@@ -90,33 +90,6 @@ int main()
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
-
-	//int tick_id = snd->RegisterSound("data/tick.ogg");
-	//Resource::Font* fnt = res->Acquire<Resource::Font>("data/Monaco12p.pfnt");
-
-	/*Resource::Text* text = res->Acquire<Resource::Text>("data/testblocks.json");
-	Derp::RootBlock rblock;
-	rblock.Initialize(text->Ptr());*/
-
-	
-
-	
-	/* commenting out all model stuff for now..
-	Graphics::Model* test_model = gfx->CreateModel("data/teapot.ctm");
-
-	gluPerspective(45.0f,800/600,1.0f,20000.0f);
-
-	SimpleCamera cam;
-	cam.SetPerspective(45.0f,800 / 600, 1.0f,10000.0f);
-	cam.SetLookAt(0.0f,0.0f,0.0f);
-	cam.SetPosition(0.0f,0.0f,10.0f);
-
-	float a = 0.0f;
-	float mousesens = 2.0f;
-
-	int oldmx,oldmy;
-	float cam_z = 15.0f;
-	*/
 	
 	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
 	renderer->LoadJson();

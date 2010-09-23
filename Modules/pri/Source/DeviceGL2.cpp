@@ -328,14 +328,17 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetHandle());
 		m_CurrentFrameBufferObject = _pFrameBufferObject;
 		
-		int _buffercount;
-		GLenum _buffers = 0;
-		((FrameBufferObjectGL2*) _pFrameBufferObject)->GetAttachedBuffers(&_buffers, &_buffercount);
+		int _buffercount = 0;
+		GLenum _attachment_lut[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT,
+		                GL_COLOR_ATTACHMENT3_EXT, GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT,
+		                GL_COLOR_ATTACHMENT6_EXT, GL_COLOR_ATTACHMENT7_EXT, GL_COLOR_ATTACHMENT8_EXT};
+
+		_buffercount = ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetNumAttached();
 		Message("DeviceGL2:::BindFrameBufferObject", "buffercount: %i", _buffercount);
 		if (_buffercount > 1)
-			glDrawBuffers(_buffercount, &_buffers);
+			glDrawBuffers(_buffercount, _attachment_lut);
 		else
-			glDrawBuffer(GL_BACK);
+			glDrawBuffer(_attachment_lut[0]);
 
 		return _OldFBO;
 	}
