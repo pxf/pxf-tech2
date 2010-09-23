@@ -152,11 +152,10 @@ void FrameBufferObjectGL2::Detach(const unsigned _Attachment)
 		return;
 	}
 
-	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
+	FrameBufferObject* OldFBO = m_pDevice->BindFrameBufferObject(this);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _Attachment, GL_TEXTURE_2D, 0, 0);
-	m_pDevice->BindFrameBufferObject(_CurrentFBO);
-
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_pDevice->BindFrameBufferObject(OldFBO);
 	m_Complete = CheckFBO(status);
 }
 
@@ -207,17 +206,18 @@ void FrameBufferObjectGL2::Attach(Texture* _Texture, const unsigned _Attachment,
 	}
 
 	// everything OK, attach it
-	FrameBufferObject* _CurrentFBO = m_pDevice->BindFrameBufferObject(this);
+	FrameBufferObject* OldFBO = m_pDevice->BindFrameBufferObject(this);
 
-	m_pDevice->BindTexture(_Texture);
+	Texture* OldTex = m_pDevice->BindTexture(_Texture);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _Attachment, GL_TEXTURE_2D, ((TextureGL2*) _Texture)->GetTextureID(), 0);
 
 	if (_GenMipmaps)
 		glGenerateMipmapEXT(GL_TEXTURE_2D);
 
-	m_pDevice->BindFrameBufferObject(_CurrentFBO);
-
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+
+	m_pDevice->BindTexture(OldTex);
+	m_pDevice->BindFrameBufferObject(OldFBO);
 	m_Complete = CheckFBO(status);
 }
 
@@ -278,12 +278,11 @@ void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachm
 		return;
 	}
 
-	FrameBufferObject* _OldFBO = m_pDevice->BindFrameBufferObject(this);
+	FrameBufferObject* OldFBO = m_pDevice->BindFrameBufferObject(this);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, _Attachment,
 							 GL_RENDERBUFFER_EXT, ((RenderBufferGL2*) _Buffer)->GetHandle());
-	m_pDevice->BindFrameBufferObject(_OldFBO);
-
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	m_pDevice->BindFrameBufferObject(OldFBO);
 	m_Complete = CheckFBO(status);
 }
 
