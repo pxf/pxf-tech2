@@ -59,14 +59,14 @@
   {"blockName" : "output1",
    "blockType" : "Root",
    "blockInput" : [{"block" : "postprocess1", "output" : "texture3"},
-                   //{"block" : "auxinput1", "output" : "texture1"},
+                   {"block" : "postprocess1", "output" : "texture2"},
                    {"block" : "auxinput2", "output" : "script1"}],
    "blockData" : {"host" : "localhost",
                   "port" : "4632",
                   "feedback" : true,
                   "realtime" : false,
                   "shaderVert" : "uniform sampler2D texture3;
-                  //uniform sampler2D texture1;
+                  uniform sampler2D texture2;
                   uniform float script1;
                   void main(void)
                   {
@@ -74,12 +74,12 @@
                   	gl_TexCoord[0] = gl_MultiTexCoord0;
                   }",
                   "shaderFrag" : "uniform sampler2D texture3;
-                  uniform sampler2D texture1;
+                  uniform sampler2D texture2;
                   uniform float script1;
                   void main()
                   {
                     //vec4 aoe = texture2D(texture1, gl_TexCoord[0].st);
-                  	gl_FragColor = texture2D(texture3, gl_TexCoord[0].st);
+                  	gl_FragColor = texture2D(texture2, gl_TexCoord[0].st);
                   }",
                   "width" : 512,
                   "height" : 512
