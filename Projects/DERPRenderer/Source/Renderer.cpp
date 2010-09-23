@@ -23,7 +23,7 @@ Renderer::Renderer(const char* _filepath)
 Renderer::~Renderer()
 {
   // clean up!
-	if(m_Doc)
+	if(m_doc)
 		m_jsonloader->Destroy(m_doc);
 }
 

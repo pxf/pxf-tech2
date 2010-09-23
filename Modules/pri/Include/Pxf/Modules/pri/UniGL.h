@@ -1,9 +1,32 @@
-#ifndef _PXF_GRAPHICS_OPENGL_UTILS_H_
-#define _PXF_GRAPHICS_OPENGL_UTILS__H_
+#ifndef _PXF_GRAPHICS_UNIGL_H_
+#define _PXF_GRAPHICS_UNIGL_H_
+#include <Pxf/Base/Config.h>
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <Pxf/Math/Vector.h>
 #include <Pxf/Math/Matrix.h>
 
+/* These macros are preferred to use over GL::CheckError, since they will raise a breakpoint
+   where the error occurred instead of showing you the CheckError function.
+*/
+#ifdef CONF_DEBUG
+	#if defined(CONF_COMPILER_MSVC)
+		#define PXFGLCHECK(name) do{\
+			int err = GL_NO_ERROR;\
+			while((err = glGetError()) != GL_NO_ERROR)\
+			{Pxf::Message(name, "GL error %d => '%s'", err, gluErrorString(err));\
+			__asm {int 3};}}while(0)
+	#elif defined(CONF_COMPILER_GCC)
+		#define PXFGLCHECK(name) do{\
+			int err = GL_NO_ERROR;\
+			while((err = glGetError()) != GL_NO_ERROR)\
+			{Pxf::Message(name, "GL error %d => '%s'", err, gluErrorString(err));\
+			asm("int $0x3\n");}}while(0)
+	#else // other compilers, clang mayhaps?
+		#define PXFGLCHECK(name) do{Pxf::Graphics::GL::CheckError(name);}while(0)
+	#endif
+#else
+	#define PXFGLCHECK(name) do{}while(0)
+#endif
 
 #define OPENGL_TRAIT(Type, GLType, GLSize)\
 	template <>\
@@ -168,4 +191,4 @@ namespace Pxf
 #undef OPENGL_TRAIT_T
 
 
-#endif // _PXF_GRAPHICS_OPENGL_UTILS_H_
+#endif // _PXF_GRAPHICS_UNIGL_H_
