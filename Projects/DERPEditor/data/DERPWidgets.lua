@@ -1,40 +1,6 @@
 derp = {}
 derp.active_workspace = nil
 
-function derp:window_container()
-	wid = gui:create_verticalstack(0,0,app.width,app.height)
-	wid.widget_type = "window container"
-	wid.draworder = {}
-	
-	function wid:setup()
-		for k,v in pairs(self.childwidgets) do
-			
-		end
-	end
-	
-	function wid:draw(force)
-		if(self.redraw_needed or force) then
-			local draw_last = nil
-			
-			for k,v in pairs(self.childwidgets) do
-				v:draw(force)
-			end
-		end
-	end
-	
-	--[[
-	function wid:draw(force)
-		if(self.redraw_needed or force) then
-			gfx.bindtexture(gui.themetex)
-			-- DRAW BG
-			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 9, 1, 1, 1)
-		end
-	end
-	]]
-	
-	return wid
-end
-
 function derp:create_menu(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	wid.widget_type = "menu"
@@ -82,13 +48,14 @@ function derp:create_inspector(x,y,w,h)
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
 			-- DRAW BG
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,9,1,1,1)
 			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,self.drawbox.h-2,1,1,1,1)
 		
 			-- DRAW BORDER
 			-- TOP
 			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y,self.drawbox.w-2,1,1,5,1,1)
 			-- BOTTOM
-			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.h-2,self.drawbox.w-2,1,1,5,1,1)
+			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y + self.drawbox.h-2,self.drawbox.w-2,1,1,5,1,1)
 			-- LEFT
 			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
 			-- RIGHT
@@ -101,19 +68,7 @@ function derp:create_inspector(x,y,w,h)
 	function wid:resize_callback(w,h)
 		self.drawbox.h = self.drawbox.h - h
 		self.hitbox.h = self.drawbox.h
-	end
-	
-	function wid:mousedrag(dx,dy,button)
-		if button == inp.MOUSE_LEFT then
-			self.drawbox.x = self.drawbox.x + dx
-			self.drawbox.w = self.drawbox.w - dx
-			self.hitbox.x = self.hitbox.x + dx
-			self.hitbox.w = self.hitbox.w - dx
-			
-			if (not (self.parent == nil)) then
-				--self.parent:child_resized(self)
-			end
-		end
+		self.drawbox.y = self.drawbox.y + h
 	end
 	
 	return wid
@@ -134,62 +89,38 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 		end
 	end
 	
+	function wid:resize_callback(w,h)
+		self.drawbox.y = self.drawbox.y + h
+	end
+	
 	function wid:addtab(name)
 		local ws = gui:create_basewidget(0,0,100,20)
 		ws.widget_type = "workspace tab " .. #self.childwidgets
-		ws.active = true
-		ws.highlight = false
 		ws.parent = self
 		ws.super_find_mousehit = ws.find_mousehit
-		
 		function ws:draw(force)
 			if (self.redraw_needed or force) then
 				
 				-- DRAW BG
-				if self.active or self.highlight then
-					gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,self.drawbox.h,13,1,1,1)
-				else
-					gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,self.drawbox.h,13,5,1,1)
-				end
+				gfx.drawtopleft(self.drawbox.x,0,self.drawbox.w,self.drawbox.h,9,1,1,1)
+				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,self.drawbox.h,13,1,1,1)
+
 				
 				-- DRAW BORDERS
 				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,1,1,5,1,1) -- TOP
 				gfx.drawtopleft(self.drawbox.x + 1,self.drawbox.h-1,self.drawbox.w-1,1,1,5,1,1) -- BOTTOM
 				gfx.drawtopleft(self.drawbox.x + 1,0,1,self.drawbox.h-1,1,5,1,1) -- LEFT
 				gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1,0,1,self.drawbox.h-1,1,5,1,1) -- RIGHT
-				
-				--gui:drawfont(name,self.drawbox.x + 10,self.drawbox.y + 10)
 			end
-		end
-		
-		function ws:update()
-		
-		end
-
-		function ws:find_mousehit(mx,my)
-			local hit = self:super_find_mousehit(mx,my) 
-			
-			if (hit == nil) then
-				self.highlight = false
-				self:needsredraw()
-			else
-				self.highlight = true
-				self:needsredraw()
-			end
-			
-			return hit
 		end
 		
 		function ws:mouserelease(mx,my,button)
 			if (button == inp.MOUSE_LEFT) then
-				self.parent.active_workspace = self
-				for k,v in pairs(self.parent.childwidgets) do
-					if not (v == self) then
-						v.active = false
-					end
+				if (derp.active_workspace and not (derp.active_workspace == self) ) then
+					derp.active_workspace.active = false
+					derp.active_workspace = self
+					self.active = true
 				end
-				
-				self.active = true
 			end
 			
 			self:needsredraw()
@@ -245,19 +176,6 @@ function derp:create_workspace(x,y,w,h)
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
-			-- DRAW BG
-			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,self.drawbox.h-2,1,1,1,1) -- solid bg
-		
-			-- DRAW BORDER
-			-- TOP
-			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,self.drawbox.w-2,1,1,5,1,1)
-			-- BOTTOM
-			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y + self.drawbox.h-2,self.drawbox.w-2,1,1,5,1,1)
-			-- LEFT
-			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
-			-- RIGHT
-			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
-			
 			self.cam:draw(force)
 		end
 	end
@@ -275,49 +193,27 @@ function derp:create_workspace(x,y,w,h)
 			
 			self:move_relative(mx,my)
 			
-			--[[
-			-- bounds
-			if self.drawbox.x < wid.camera.bounds.left then
-				self.drawbox.x = wid.camera.bounds.left
-			elseif (self.drawbox.x + self.drawbox.w) > wid.camera.bounds.right then
-				self.drawbox.x = wid.camera.bounds.right - self.drawbox.w
-			end
-			
-			if self.drawbox.y < (-wid.camera.bounds.top) then
-				self.drawbox.y = -wid.camera.bounds.top
-			elseif (self.drawbox.y + self.drawbox.h) > (-wid.camera.bounds.bottom) then
-				self.drawbox.y = -wid.camera.bounds.bottom - self.drawbox.h
-			end]]--
-			
 			self:needsredraw()
 		end
 		
 		function comp:draw(force)
 			if (self.redraw_needed or force) then
 				-- DRAW BG
-				gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 1, 5, 1, 1)
+				gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 1, 1, 1, 1)
 			
 				self:super_draw(force)
 				-- DRAW BORDERS
-				--[[
 				if self.highlight or self.selected then
 					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
-					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
-					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,13,5,1,1)
-					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,13,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,13,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,13,5,1,1)
 				else
 					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-1,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
-					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
-					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1)
-					--gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1)
+					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
 				end
-				]]
-				
-				--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1) -- TOP
-				--gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 5,self.drawbox.y+10,1,self.drawbox.h-20,1,5,1,1)
-				
-				--gui:drawfont(self.widget_type, self.drawbox.x+6,self.drawbox.y+10)
-				--gui:drawfont("(" .. self.drawbox.x .. "," .. self.drawbox.y .. ")", self.drawbox.x+6,self.drawbox.y+20)
 			end
 		end
 		
@@ -377,6 +273,7 @@ function derp:create_workspacecontainer(x,y,w,h)
 	
 		self.drawbox.h = self.drawbox.h - h
 		self.hitbox.h = self.drawbox.h
+		self.drawbox.y = self.drawbox.y - h
 	end
 	
 	return wid
@@ -399,6 +296,45 @@ function derp:create_maincontainer(x,y,w,h)
 		self.hitbox.h = self.drawbox.h
 		
 		self:needsredraw()
+	end
+	
+	return wid
+end
+
+function derp:create_workspaceframe(x,y,w,h)
+	local wid = gui:create_basewidget(x,y,w,h)
+	
+	function wid:hittest(mx,my) 
+	
+	end
+	
+	function wid:resize_callback(w,h)
+		self.drawbox.y = self.drawbox.y + h
+		self.drawbox.h = self.drawbox.h - h
+	end
+	
+	function wid:draw(force)
+		-- DRAW BORDERS
+		
+		-- OUTER BORDERS
+		gfx.drawtopleft(self.drawbox.x, self.drawbox.y,self.drawbox.w,1,9,1,1,1)
+		-- BOTTOM
+		gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h,self.drawbox.w,1,9,1,1,1)
+		-- LEFT
+		gfx.drawtopleft(self.drawbox.x, self.drawbox.y,1,self.drawbox.h,9,1,1,1)
+		-- RIGHT
+		--gfx.drawtopleft(self.drawbox.x + self.drawbox.h, 1,self.drawbox.w,1,9,1,1,1)
+		
+		
+		-- INNER BORDERS
+		-- TOP
+		gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,self.drawbox.w-2,1,1,5,1,1)
+		-- BOTTOM
+		gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y + self.drawbox.h-1,self.drawbox.w-2,1,1,5,1,1)
+		-- LEFT
+		gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
+		-- RIGHT
+		gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1, self.drawbox.y+1,1,self.drawbox.h-1,1,5,1,1)
 	end
 	
 	return wid
@@ -436,6 +372,7 @@ function derp:create_toolbar(x,y,w,h)
 	
 	function draggies:mousedrag(mx,my)
 		self.parent:move_relative(mx,my)
+		self.parent.drag = true
 		
 		if not self.parent.drag_removed then
 		  self.parent.prev_owner = self.parent.parent
@@ -449,7 +386,6 @@ function derp:create_toolbar(x,y,w,h)
 			self.parent:move_abs(x,y)
 			
 			self.parent.drag_removed = true
-			self.parent.drag = true
 		end
 	end
 	
@@ -462,17 +398,12 @@ function derp:create_toolbar(x,y,w,h)
 			gui:set_focus(self.parent)
 			
 			-- determine where to put toolbar, for now just put it back..
-			self.parent:move_abs(0,0)
+			self.parent:move_abs(20,40)
 			self.parent.parent:resize_callback(0,wid.drawbox.h-1)
 			
 			self.parent.parent:needsredraw()
 			
-			for k,v in pairs(self.parent.parent.childwidgets) do
-				print(k .. ": " .. v.widget_type)
-				for k,v in pairs(v.childwidgets) do
-					print("  " .. k .. ": " .. v.widget_type)
-				end
-			end
+			self.parent.drag_removed = false
 		end
 	end
 	
@@ -480,10 +411,12 @@ function derp:create_toolbar(x,y,w,h)
 	function wid:draw(force)	
 		if (self.redraw_needed or force) then
 			if self.drag then 
-				gfx.setalpha(0.7)
+				gfx.setalpha(0.5)
 			end
-		
+			
 			-- DRAW BG
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 9, 1, 1, 1)
+			
 			gfx.drawtopleft(self.drawbox.x+2, self.drawbox.y+2, self.drawbox.w-4, self.drawbox.h-4, 510, 0, 1, 127)
 			
 			-- DRAW BORDERS
@@ -512,6 +445,8 @@ function derp:create_block(x,y,w,h,type)
 	wid.widget_type = type
 	
 	wid.super_draw = wid.draw
+	
+	print("sup? " .. wid.drawbox.x .. "," .. wid.drawbox.y)
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then

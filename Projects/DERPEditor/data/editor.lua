@@ -88,111 +88,55 @@ topstack:addwidget(console)
 local statusbar = gui:create_statusbar(0,app.height,app.width, editor.name .. " v" .. editor.version)
 gui.statusbar = statusbar
 
-----------------------------------------------
--- add widgets to root
---gui.widgets:addwidget(topstack)
---gui.widgets:addwidget(statusbar)
-
---[[
- _________________________
-|WINDOW
-| ___________________________
-||MENU
-||___________________________
-||L|CENTER
-|| |
-||P|
-||A|
-||D|
-||_|_________________________                           
-||STATUSBAR
-||___________________________
-|____________________________
-
-]]
-
 
 ----------------------------------------------
--- 0:
--- create attachment point
-local window_container = derp:window_container()
-
-	-- 1:
-	local menu_container = derp:create_menu(0,0,app.width,40)
-	menu_container:addwidget(menubar)
-
-	-- 2:
-	local center_container = gui:create_horizontalstack(0,0,app.width,app.height-60)
-	center_container.widget_type = "center"
+local menu_container = derp:create_menu(0,0,app.width,40)
+menu_container:addwidget(menubar)
 	
-		-- 21: 
-		local left_padding_container = derp:create_block(0,0,20,app.height-60, "left padding")
-		left_padding_container.border.right = true
+local left_padding_container = derp:create_block(0,40,20,app.height-60, "left padding")
+left_padding_container.border.right = true
 
-		-- 22
-		local center_main_container = gui:create_verticalstack(20,0,app.width-40,app.height-60)
-		center_main_container.widget_type = "center main container"
-		
-			--- 221
-			local center_main_toolbar = derp:create_toolbar(0,0,app.width-40,40)
-			local testinput = gui:create_textinput(0,8,200)
-			
-			--center_main_toolbar:addwidget(testinput)
+local center_main_toolbar = derp:create_toolbar(20,40,app.width-40,40)
+local testinput = gui:create_textinput(0,8,200)
 
-			--- 222 LOL no more names :(
-			local center_main_main = derp:create_maincontainer(0,0,app.width-40,app.height-100)
+--center_main_toolbar:addwidget(testinput)
 
-				---- 2221
-				local workspace = derp:create_workspacecontainer(0,0,app.width-290,app.height-100)
+local workspace_tabs = derp:create_workspace_tabs(20,80,app.width-290,20)
+workspace_tabs.widget_type = "workspace tabs"
 
-					----- 22211
-					local workspace_tabs = derp:create_workspace_tabs(0,0,app.width-290,20)
-					workspace_tabs.widget_type = "center: main: main: workspace: tabs"
+local workspace_area = derp:create_workspace(0,0,app.width,app.height)
+workspace_area.widget_type = "workspace area 01"
 
-					----- 22212 
-					local workspace_area = derp:create_workspace(0,0,app.width-290,app.height-120)
-					workspace_area.widget_type = "center: main: main: workspace: workspace area"
-					
-				---- 2222
-				local inspector = derp:create_inspector(0,0,250,app.height-100)
-				
-		-- 23
-		local right_padding_container = derp:create_block(app.width-20,0,20,app.height-60)
-		right_padding_container.widget_type = "center container: right padding"
-		right_padding_container.border.left = true
+local inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
 
-	-- 3: 
-	local statusbar_container = derp:create_statusbar(0,0,app.width,20)
+local right_padding_container = derp:create_block(app.width-20,40,20,app.height-60)
+right_padding_container.widget_type = "center container: right padding"
+right_padding_container.border.left = true
+
+local statusbar_container = derp:create_statusbar(0,app.height-20,app.width,20)
+
 
 workspace_area:addcomponent(0,0)
 workspace_area:addcomponent(-200,-100)
 
 ws01 = workspace_tabs:addtab("workspace01",workspace_area)
---ws01.active = true
-ws02 = workspace_tabs:addtab("workspace02",workspace_area)
---ws03 = workspace_tabs:addworkspace("workspace03")
 
-workspace:addwidget(workspace_tabs)
-workspace:addwidget(workspace_area)
+local workspace_frames = derp:create_workspaceframe(20,100,app.width-290,app.height-121)
 
-center_main_main:addwidget(workspace)
-center_main_main:addwidget(inspector)
+gui.widgets:addwidget(workspace_area)
+gui.widgets:addwidget(menu_container)
+gui.widgets:addwidget(left_padding_container)
+gui.widgets:addwidget(right_padding_container)
+gui.widgets:addwidget(statusbar_container)
+gui.widgets:addwidget(center_main_toolbar)
+gui.widgets:addwidget(workspace_tabs)
+gui.widgets:addwidget(inspector)
+gui.widgets:addwidget(workspace_frames)
 
-center_main_container:addwidget(center_main_toolbar)
-center_main_container:addwidget(center_main_main)
-
-center_container:addwidget(left_padding_container)
-center_container:addwidget(center_main_container)
-center_container:addwidget(right_padding_container)
-
-window_container:addwidget(menu_container)
-window_container:addwidget(center_container)
-window_container:addwidget(statusbar_container)
-
-gui.widgets:addwidget(window_container)
 --gui.draw_debug_rects = false
 --gui.draw_hitbox_rects = true
 --gui.themetex = gfx.loadtexture("data/guitheme_brown.png")
+
 
 ----------------------------------------------
 -- initial draw
