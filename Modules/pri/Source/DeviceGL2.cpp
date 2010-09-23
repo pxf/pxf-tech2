@@ -134,10 +134,15 @@ Texture* DeviceGL2::CreateTextureFromData(const unsigned char* _datachunk, int _
 	return _tex;
 }
 
+static GLuint _texture_units_array[16] = {GL_TEXTURE0_ARB, GL_TEXTURE1_ARB, GL_TEXTURE2_ARB, GL_TEXTURE3_ARB, GL_TEXTURE4_ARB,
+										GL_TEXTURE5_ARB, GL_TEXTURE6_ARB, GL_TEXTURE7_ARB, GL_TEXTURE8_ARB, GL_TEXTURE9_ARB,
+										GL_TEXTURE10_ARB, GL_TEXTURE11_ARB, GL_TEXTURE12_ARB, GL_TEXTURE13_ARB, GL_TEXTURE14_ARB,
+										GL_TEXTURE15_ARB};
 Texture* DeviceGL2::BindTexture(Texture* _texture)
 {
 	Texture* ret = m_BindHistory[0];
 	m_BindHistory[0] = _texture;
+	glActiveTextureARB(_texture_units_array[0]);
 	if (_texture == NULL)
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -147,10 +152,7 @@ Texture* DeviceGL2::BindTexture(Texture* _texture)
 	return ret;
 }
 
-static GLuint _texture_units_array[16] = {GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2, GL_TEXTURE3, GL_TEXTURE4,
-										GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9,
-										GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12, GL_TEXTURE13, GL_TEXTURE14,
-										GL_TEXTURE15};
+
 Texture* DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
 {
 	Texture* ret = m_BindHistory[_texture_unit];

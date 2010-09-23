@@ -101,7 +101,9 @@ namespace Derp
 		
 		virtual void BuildGraph() {} ;
 		
-		virtual bool Execute() { m_IsPerformed = true; return true; };
+		virtual bool Execute() { m_IsPerformed = true; return true; }
+		
+		virtual void ResetPerformed() { m_IsPerformed = false; }
 		
 		void* GetOutput(Pxf::Util::String _outputname)
 		{
@@ -140,6 +142,8 @@ namespace Derp
 			: Block(_renderer, BLOCK_TYPE_AUXILIARY)
 			, m_JsonData(_JsonData)
 		{}
+		
+		virtual void ResetPerformed() { m_IsPerformed = false; }
 
 		virtual bool Initialize(Json::Value *node);
 		
@@ -167,10 +171,7 @@ namespace Derp
 
 		virtual bool Initialize(Json::Value *node);
 
-		/*Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
-		{
-			return (Pxf::Graphics::Texture*) m_Outputs[index];
-		}*/
+
 	};
 
 	//
@@ -181,18 +182,35 @@ namespace Derp
 	{
 	private:
 		const char* m_JsonData;
+		
+		// init usage
+		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_InputTypes; // <block name, output of block>
+		
+		// build graph usage
+		Pxf::Util::Map<Pxf::Util::String, Block*> m_Inputs; // <black name, block pointer>
+		
+		// Shader object
+		Pxf::Graphics::Shader* m_Shader;
+		const char* m_VertShader;
+		const char* m_FragShader;
+		
+		// Root output renderquad
+		SimpleQuad* m_OutputQuad;
+		
+		int m_Width, m_Height;
 	public:
 		PostProcessBlock(Renderer* _renderer, const char* _JsonData)
 			: Block(_renderer, BLOCK_TYPE_POSTPROCESS)
 			, m_JsonData(_JsonData)
 		{}
+		
+		virtual void ResetPerformed();
 
 		virtual bool Initialize(Json::Value *node);
 
-		/*Pxf::Graphics::Texture* GetOutputValue(unsigned int index)
-		{
-			return (Pxf::Graphics::Texture*) m_Outputs[index];
-		}*/
+		virtual void BuildGraph();
+		
+		virtual bool Execute();
 	};
 	
 	//
@@ -235,6 +253,8 @@ namespace Derp
 			delete m_OutputQuad;
 			m_gfx->DestroyShader(m_Shader);
 		}
+		
+		virtual void ResetPerformed();
 
 		virtual void BuildGraph();
 		virtual bool Initialize(Json::Value *node);

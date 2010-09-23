@@ -69,6 +69,17 @@ void Renderer::LoadJson()
 				// Add newly created root block to the block list
 				m_Blocks.insert( std::make_pair(root[i]["blockName"].asString(), newrootblock));
 				
+			} else if(root[i]["blockType"].asString() == "Post-Process") {
+				/*
+				 * Create Post-Process block
+				 */
+				Json::StyledWriter writer;
+				Block* newppblock = new PostProcessBlock(this, writer.write(root[i]).c_str());
+				newppblock->Initialize(&root[i]);
+
+				// Add newly created post-process block to the block list
+				m_Blocks.insert( std::make_pair(root[i]["blockName"].asString(), newppblock));
+
 			} else {
 				Message("Renderer", "Unknown block type: %s", root[i]["blockType"].asCString());
 			}
@@ -108,6 +119,7 @@ void Renderer::Execute()
 {
 	if (m_RootBlock)
 	{
+		m_RootBlock->ResetPerformed();
 		m_RootBlock->Execute();
 	} else {
 		Message("Renderer", "Failed to execute root block since it's NULL.");
