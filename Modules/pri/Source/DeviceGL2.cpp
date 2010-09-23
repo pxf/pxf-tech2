@@ -329,8 +329,8 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		m_CurrentFrameBufferObject = _pFrameBufferObject;
 		
 		int _buffercount;
-		GLenum* _buffers;
-		((FrameBufferObjectGL2*) _pFrameBufferObject)->GetAttachedBuffers(_buffers, &_buffercount);
+		GLenum _buffers = 0;
+		((FrameBufferObjectGL2*) _pFrameBufferObject)->GetAttachedBuffers(&_buffers, &_buffercount);
 		Message("DeviceGL2:::BindFrameBufferObject", "buffercount: %i", _buffercount);
 		if (_buffercount > 1)
 			glDrawBuffers(_buffercount, _buffers);
