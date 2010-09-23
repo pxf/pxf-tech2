@@ -1,6 +1,7 @@
 #include <Pxf/Modules/pri/FrameBufferObjectGL2.h>
 #include <Pxf/Modules/pri/RenderBufferGL2.h>
 #include <Pxf/Modules/pri/TextureGL2.h>
+#include <Pxf/Modules/pri/UniGL.h>
 
 #include <stdio.h>
 
@@ -26,6 +27,7 @@ void FrameBufferObjectGL2::DetachAll()
 
 void FrameBufferObjectGL2::_Configure()
 {
+	PXFGLCHECK("_Configure/Start");
 	GLint _Attachments = 0;
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_Attachments);
 
@@ -44,6 +46,7 @@ void FrameBufferObjectGL2::_Configure()
 
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	m_Complete = CheckFBO(status);
+	PXFGLCHECK("_Configure/End");
 }
 
 bool CheckFBO(GLenum _status)
@@ -110,6 +113,7 @@ unsigned TranslateAttachment(unsigned _ID)
 
 void FrameBufferObjectGL2::Detach(const unsigned _Attachment)
 {
+	PXFGLCHECK("Detach/Start");
 	if(_Attachment == GL_DEPTH_ATTACHMENT_EXT)
 	{
 		if(!m_UseDepthAttachment)
@@ -157,10 +161,12 @@ void FrameBufferObjectGL2::Detach(const unsigned _Attachment)
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	m_pDevice->BindFrameBufferObject(OldFBO);
 	m_Complete = CheckFBO(status);
+	PXFGLCHECK("Detach/End");
 }
 
 void FrameBufferObjectGL2::Attach(Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps)
 {
+	PXFGLCHECK("Attach Tex/End");
 	if(!_Texture)
 	{
 		Message(LOCAL_MSG,"Unable to attach with invalid texture");
@@ -219,10 +225,12 @@ void FrameBufferObjectGL2::Attach(Texture* _Texture, const unsigned _Attachment,
 	m_pDevice->BindTexture(OldTex);
 	m_pDevice->BindFrameBufferObject(OldFBO);
 	m_Complete = CheckFBO(status);
+	PXFGLCHECK("Attach Tex/End");
 }
 
 void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachment)
 {
+	PXFGLCHECK("Attach RB/Start");
 	if(!_Buffer)
 	{
 		Message(LOCAL_MSG,"Invalid renderbuffer passed to attach function");
@@ -284,6 +292,8 @@ void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachm
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	m_pDevice->BindFrameBufferObject(OldFBO);
 	m_Complete = CheckFBO(status);
+
+	PXFGLCHECK("Attach RB/End");
 }
 
 int FrameBufferObjectGL2::GetNumAttached()

@@ -1,9 +1,23 @@
 #ifndef _PXF_GRAPHICS_UNIGL_H_
 #define _PXF_GRAPHICS_UNIGL_H_
+#include <Pxf/Base/Config.h>
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <Pxf/Math/Vector.h>
 #include <Pxf/Math/Matrix.h>
 
+#ifdef CONF_DEBUG
+	#ifdef CONF_COMPILER_MSVC
+		#define PXFGLCHECK(name) do{\
+			int err = GL_NO_ERROR;\
+			while((err = glGetError()) != GL_NO_ERROR)\
+			{Pxf::Message(name, "GL error %d => '%s'", err, gluErrorString(err));\
+			__asm {int 3};}}while(0)
+	#else
+		#define PXFGLCHECK(name) do{Pxf::Graphics::GL::CheckError(name);}while(0)
+	#endif
+#else
+	#define PXFGLCHECK(name) do{}while(0)
+#endif
 
 #define OPENGL_TRAIT(Type, GLType, GLSize)\
 	template <>\
