@@ -327,6 +327,11 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetHandle());
 		m_CurrentFrameBufferObject = _pFrameBufferObject;
+		
+		int _buffercount;
+		GLenum* _buffers;
+		((FrameBufferObjectGL2*) _pFrameBufferObject)->GetAttachedBuffers(_buffers, &_buffercount);
+		glDrawBuffers(_buffercount, _buffers);
 
 		return _OldFBO;
 	}
@@ -335,6 +340,7 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		m_CurrentFrameBufferObject = 0;
+		glDrawBuffer(GL_BACK);
 
 		return _OldFBO;
 	}
@@ -344,6 +350,7 @@ void DeviceGL2::UnbindFrameBufferObject()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	m_CurrentFrameBufferObject = 0;
+	glDrawBuffer(GL_BACK);
 }
 
 

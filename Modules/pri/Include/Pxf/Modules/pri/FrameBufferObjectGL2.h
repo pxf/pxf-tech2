@@ -2,6 +2,7 @@
 #define _PXF_GRAPHICS_FRAMEBUFFEROBJECTGL2_H_
 
 #include <Pxf/Graphics/FrameBufferObject.h>
+#include <Pxf/Modules/pri/OpenGL.h>
 
 namespace Pxf{
 	namespace Graphics
@@ -24,11 +25,14 @@ namespace Pxf{
 			void Detach(const unsigned _Attachment);	
 
 			void DetachAll();
+			
+			void GetAttachedBuffers(GLenum* _attachments, int* _size);
 
 			unsigned GetHandle() { return m_Handle; }
 		private:
 			void _Configure();	// check max attachments 
 			unsigned m_Handle;
+			GLenum m_Attachments[16];
 		};
 	} // Graphics
 } // Pxf
