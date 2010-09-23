@@ -10,6 +10,7 @@ using namespace Pxf::Graphics;
 ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const char* _VertexShader, const char* _FragmentShader)
 : Shader(_pDevice)
 {
+	PXFGLCHECK("ShaderGLSL::ShaderGLSL/Start");
 	if (_VertexShader && _FragmentShader)
 	{
 		m_Valid = true;
@@ -39,6 +40,7 @@ ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const 
 
 	if (m_Valid)	
 		Message("Shader", "Shader '%s' was compiled and linked successfully", _Identifier);
+	PXFGLCHECK("ShaderGLSL::ShaderGLSL/End");
 }
 
 ShaderGLSL::~ShaderGLSL()

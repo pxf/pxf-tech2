@@ -1,6 +1,7 @@
 #include <Pxf/Pxf.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Modules/pri/TextureGL2.h>
+#include <Pxf/Modules/pri/UniGL.h>
 #include <Pxf/Base/Debug.h>
 
 #include <Pxf/Kernel.h>
@@ -55,6 +56,7 @@ void TextureGL2::Load(const char* _filepath)
 
 void TextureGL2::LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels)
 {
+	PXFGLCHECK("TextureGL2::LoadData/Start");
 
 	if (m_TextureID)
 		Unload();
@@ -108,18 +110,23 @@ void TextureGL2::LoadData(const unsigned char* _datachunk, int _width, int _heig
 	if( m_TextureID == 0)
 	{
 		Message(LOCAL_MSG, "SOIL loading error data chunk: '%s';", SOIL_last_result() );
+		PXFGLCHECK("TextureGL2::LoadData/End");
 		return;
 	}
+	PXFGLCHECK("TextureGL2::LoadData/End");
 }
 
 void TextureGL2::Unload()
 {
+	PXFGLCHECK("TextureGL2::Unload/Start");
 	glDeleteTextures( 1, &m_TextureID );
 	m_TextureID = 0;
+	PXFGLCHECK("TextureGL2::Unload/End");
 }
 
 void TextureGL2::Reload()
 {
+	PXFGLCHECK("TextureGL2::Reload/Start");
 	if (m_TextureID != 0)
 	{
 		Unload();
@@ -131,6 +138,7 @@ void TextureGL2::Reload()
 	if (!img)
 	{
 		Message(LOCAL_MSG, "Failed to load file '%s'", m_Filepath.c_str());
+		PXFGLCHECK("TextureGL2::Reload/End");
 		return;
 	}
 	
@@ -148,6 +156,7 @@ void TextureGL2::Reload()
 	
 	if (m_TextureID == 0)
 		Message(LOCAL_MSG, "Failed to create texture for '%s'", m_Filepath.c_str());
+	PXFGLCHECK("TextureGL2::Reload/End");
 }
 
 int TextureGL2::GetWidth()
@@ -173,6 +182,7 @@ unsigned int TextureGL2::GetTextureID()
 
 void TextureGL2::SetMagFilter(TextureFilter _Filter)
 {
+	PXFGLCHECK("TextureGL2::SetMagFilter/Start");
 	GLint param = GL_NEAREST;
 
 	// use a lut
@@ -182,10 +192,12 @@ void TextureGL2::SetMagFilter(TextureFilter _Filter)
 	
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param);
+	PXFGLCHECK("TextureGL2::SetMagFilter/End");
 }
 
 void TextureGL2::SetMinFilter(TextureFilter _Filter)
 {
+	PXFGLCHECK("TextureGL2::SetMinFilter/Start");
 	GLint param = GL_NEAREST;
 
 	// use a lut
@@ -199,10 +211,12 @@ void TextureGL2::SetMinFilter(TextureFilter _Filter)
 
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, param);
+	PXFGLCHECK("TextureGL2::SetMinFilter/End");
 }
 
 void TextureGL2::SetClampMethod(TextureClampMethod _Method)
 {
+	PXFGLCHECK("TextureGL2::SetClampMethod/Start");
 	GLint m = 0;
 	switch(_Method)
 	{
@@ -215,4 +229,5 @@ void TextureGL2::SetClampMethod(TextureClampMethod _Method)
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m);
+	PXFGLCHECK("TextureGL2::SetClampMethod/Start");
 }

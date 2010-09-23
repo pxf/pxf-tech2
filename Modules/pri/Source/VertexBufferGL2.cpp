@@ -77,6 +77,7 @@ VertexBufferGL2::~VertexBufferGL2()
 
 void VertexBufferGL2::_PreDraw()
 {
+	PXFGLCHECK("VertexBufferGL2::_PreDraw/Start");
 	unsigned int BufferOffset = 0;
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
@@ -121,10 +122,12 @@ void VertexBufferGL2::_PreDraw()
 		glEnableClientState(GL_EDGE_FLAG_ARRAY);
 		glEdgeFlagPointer(m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_EdgeFlagAttributes.StrideOffset));
 	}
+	PXFGLCHECK("VertexBufferGL2::_PreDraw/End");
 }
 
 void VertexBufferGL2::_PostDraw()
 {
+	PXFGLCHECK("VertexBufferGL2::_PostDraw/Start");
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)
 	{
 		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
@@ -157,12 +160,14 @@ void VertexBufferGL2::_PostDraw()
 	{
 		glDisableClientState(GL_EDGE_FLAG_ARRAY);
 	}
+	PXFGLCHECK("VertexBufferGL2::_PostDraw/End");
 }
 
 
 
 void VertexBufferGL2::CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize)
 {
+	PXFGLCHECK("VertexBufferGL2::CreateNewBuffer/Start");
 	if (m_InterleavedData != 0 || m_BufferObjectId != 0)
 		return;
 
@@ -182,10 +187,12 @@ void VertexBufferGL2::CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize)
 	m_VertexCount = _NumVertices;
 	m_VertexSize = _VertexSize;
 	m_ByteCount = _NumVertices * _VertexSize;
+	PXFGLCHECK("VertexBufferGL2::CreateNewBuffer/End");
 }
 
 void VertexBufferGL2::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32 _VertexSize)
 {
+	PXFGLCHECK("VertexBufferGL2::CreateFromBuffer/Start");
 	if (m_InterleavedData != 0 && m_BufferObjectId != 0)
 		return;
 
@@ -208,10 +215,12 @@ void VertexBufferGL2::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32
 	m_VertexCount = _NumVertices;
 	m_VertexSize = _VertexSize;
 	m_ByteCount = _NumVertices * _VertexSize;
+	PXFGLCHECK("VertexBufferGL2::CreateFromBuffer/End");
 }
 
 void VertexBufferGL2::UpdateData(void* _Buffer, uint32 _Count, uint32 _Offset)
 {
+	PXFGLCHECK("VertexBufferGL2::UpdateData/Start");
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{
 		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
@@ -224,10 +233,12 @@ void VertexBufferGL2::UpdateData(void* _Buffer, uint32 _Count, uint32 _Offset)
 		stream.SeekTo(_Offset);
 		stream.Write(_Buffer, _Count);
 	}
+	PXFGLCHECK("VertexBufferGL2::UpdateData/End");
 }
 
 void* VertexBufferGL2::MapData(VertexBufferAccessFlag _AccessFlag)
 {
+	PXFGLCHECK("VertexBufferGL2::MapData/Start");
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{
 		GLuint access = LookupAccessFlag(_AccessFlag);
@@ -235,20 +246,23 @@ void* VertexBufferGL2::MapData(VertexBufferAccessFlag _AccessFlag)
 		void* data = GL::MapBuffer(GL::ARRAY_BUFFER, access);
 		GL::BindBuffer(GL::ARRAY_BUFFER, 0);
 		m_IsMapped = true;
+		PXFGLCHECK("VertexBufferGL2::MapData/End");
 		return data;
 	}
 	else if (m_VertexBufferLocation == VB_LOCATION_SYS && m_InterleavedData != 0)
 	{
 		m_IsMapped = true;
+		PXFGLCHECK("VertexBufferGL2::MapData/End");
 		return m_InterleavedData;
 	}
 
+	PXFGLCHECK("VertexBufferGL2::MapData/End");
 	return NULL;
 }
 
 void VertexBufferGL2::UnmapData()
 {
-
+	PXFGLCHECK("VertexBufferGL2::UnmapData/Start");
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{
 		GL::BindBuffer(GL::ARRAY_BUFFER, (GLuint) m_BufferObjectId);
@@ -261,5 +275,6 @@ void VertexBufferGL2::UnmapData()
 	{
 		m_IsMapped = false;
 	}
+	PXFGLCHECK("VertexBufferGL2::UnmapData/End");
 }
 
