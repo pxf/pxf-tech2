@@ -173,6 +173,15 @@
     <ClCompile Include="Source\Camera.cpp">
       <Filter>Renderer\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SimpleQuad.cpp">
+      <Filter>Renderer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer.cpp">
+      <Filter>Renderer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RenderBlock.cpp">
+      <Filter>Renderer\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">
@@ -359,6 +368,15 @@
       <Filter>Modules\pri\include</Filter>
     </ClInclude>
     <ClInclude Include="Include\Camera.h">
+      <Filter>Renderer\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimpleQuad.h">
+      <Filter>Renderer\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer.h">
+      <Filter>Renderer\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderBlocks.h">
       <Filter>Renderer\Include</Filter>
     </ClInclude>
   </ItemGroup>

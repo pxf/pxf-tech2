@@ -115,6 +115,9 @@
     <ClCompile Include="..\..\Modules\img\Source\img.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\RenderBlock.cpp" />
+    <ClCompile Include="Source\Renderer.cpp" />
+    <ClCompile Include="Source\SimpleQuad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Graphics\FrameBufferObject.h" />
@@ -179,6 +182,9 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
     <ClInclude Include="Include\Camera.h" />
+    <ClInclude Include="Include\RenderBlocks.h" />
+    <ClInclude Include="Include\Renderer.h" />
+    <ClInclude Include="Include\SimpleQuad.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
