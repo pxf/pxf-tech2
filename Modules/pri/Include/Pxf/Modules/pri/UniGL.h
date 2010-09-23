@@ -5,6 +5,9 @@
 #include <Pxf/Math/Vector.h>
 #include <Pxf/Math/Matrix.h>
 
+/* These macros are prefered to use over GL::CheckError, since they will raise a breakpoint
+   where the error occured instead of showing you the CheckError function.
+*/
 #ifdef CONF_DEBUG
 	#if defined(CONF_COMPILER_MSVC)
 		#define PXFGLCHECK(name) do{\
@@ -18,7 +21,7 @@
 			while((err = glGetError()) != GL_NO_ERROR)\
 			{Pxf::Message(name, "GL error %d => '%s'", err, gluErrorString(err));\
 			asm("int $0x3\n");}}while(0)
-	#else
+	#else // other compilers, clang mayhaps?
 		#define PXFGLCHECK(name) do{Pxf::Graphics::GL::CheckError(name);}while(0)
 	#endif
 #else
