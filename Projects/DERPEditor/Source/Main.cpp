@@ -89,7 +89,8 @@ int main()
 	uint64 frametotal = 0;
 	
 	racetimer.Start();
-	
+
+
 	// bind texturing Note: can we move this to the graphics device? 
 	glEnable(GL_TEXTURE_2D);
 

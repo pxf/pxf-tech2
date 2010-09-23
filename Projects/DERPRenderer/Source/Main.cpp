@@ -140,6 +140,12 @@ int main()
 	// Setup full screen quad
 	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
 
+	/*Graphics::RenderBuffer* a = gfx->CreateRenderBuffer(GL_RGBA8,256,256);
+	Graphics::RenderBuffer* b = gfx->CreateRenderBuffer(GL_RGBA8,256,256);
+
+	Graphics::FrameBufferObject* FBO = gfx->CreateFrameBufferObject();
+	FBO->Attach(a,GL_COLOR_ATTACHMENT0);
+	FBO->Attach(b,GL_COLOR_ATTACHMENT1);*/
 
 	Timer t;
 	while(win->IsOpen())

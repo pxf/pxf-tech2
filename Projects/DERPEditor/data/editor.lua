@@ -124,10 +124,7 @@ local window_container = derp:window_container()
 	-- 2:
 	local center_container = gui:create_horizontalstack(0,0,app.width,app.height-60)
 	center_container.widget_type = "center"
-
-	-- 3: 
-	local statusbar_container = derp:create_statusbar(0,0,app.width,20)
-
+	
 		-- 21: 
 		local left_padding_container = derp:create_block(0,0,20,app.height-60, "left padding")
 		left_padding_container.border.right = true
@@ -138,8 +135,9 @@ local window_container = derp:window_container()
 		
 			--- 221
 			local center_main_toolbar = derp:create_toolbar(0,0,app.width-40,40)
-			local testinput = gui:create_textinput(20,8,200)
-      center_main_toolbar:addwidget(testinput)
+			local testinput = gui:create_textinput(0,8,200)
+			
+			--center_main_toolbar:addwidget(testinput)
 
 			--- 222 LOL no more names :(
 			local center_main_main = derp:create_maincontainer(0,0,app.width-40,app.height-100)
@@ -163,13 +161,16 @@ local window_container = derp:window_container()
 		right_padding_container.widget_type = "center container: right padding"
 		right_padding_container.border.left = true
 
-workspace_area:addcomponent(100,100)
-workspace_area:addcomponent(-200,100)
+	-- 3: 
+	local statusbar_container = derp:create_statusbar(0,0,app.width,20)
 
-ws01 = workspace_tabs:addworkspace("workspace01")
-ws01.active = true
-ws02 = workspace_tabs:addworkspace("workspace02")
-ws03 = workspace_tabs:addworkspace("workspace03")
+workspace_area:addcomponent(0,0)
+workspace_area:addcomponent(-200,-100)
+
+ws01 = workspace_tabs:addtab("workspace01",workspace_area)
+--ws01.active = true
+ws02 = workspace_tabs:addtab("workspace02",workspace_area)
+--ws03 = workspace_tabs:addworkspace("workspace03")
 
 workspace:addwidget(workspace_tabs)
 workspace:addwidget(workspace_area)
@@ -189,7 +190,8 @@ window_container:addwidget(center_container)
 window_container:addwidget(statusbar_container)
 
 gui.widgets:addwidget(window_container)
---gui.draw_debug_rects = true
+--gui.draw_debug_rects = false
+--gui.draw_hitbox_rects = true
 --gui.themetex = gfx.loadtexture("data/guitheme_brown.png")
 
 ----------------------------------------------
