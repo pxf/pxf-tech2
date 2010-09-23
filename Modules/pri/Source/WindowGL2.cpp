@@ -8,7 +8,7 @@
 #include <Carbon/Carbon.h>
 #endif
 #include <Pxf/Modules/pri/OpenGL.h>
-#include <Pxf/Modules/pri/TypeTraits.h>
+#include <Pxf/Modules/pri/UniGL.h>
 
 using namespace Pxf;
 using namespace Pxf::Graphics;

@@ -1,6 +1,6 @@
 #include <Pxf/Modules/pri/ShaderGLSL.h>
 #include <Pxf/Modules/pri/OpenGL.h>
-#include <Pxf/Modules/pri/TypeTraits.h>
+#include <Pxf/Modules/pri/UniGL.h>
 
 #include <Pxf/Base/Debug.h>
 

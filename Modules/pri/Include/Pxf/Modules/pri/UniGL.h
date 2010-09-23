@@ -1,5 +1,5 @@
-#ifndef _PXF_GRAPHICS_OPENGL_UTILS_H_
-#define _PXF_GRAPHICS_OPENGL_UTILS__H_
+#ifndef _PXF_GRAPHICS_UNIGL_H_
+#define _PXF_GRAPHICS_UNIGL_H_
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <Pxf/Math/Vector.h>
 #include <Pxf/Math/Matrix.h>
@@ -168,4 +168,4 @@ namespace Pxf
 #undef OPENGL_TRAIT_T
 
 
-#endif // _PXF_GRAPHICS_OPENGL_UTILS_H_
+#endif // _PXF_GRAPHICS_UNIGL_H_

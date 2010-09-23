@@ -13,7 +13,7 @@
 
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <Pxf/Modules/pri/OpenGLUtils.h>
-#include <Pxf/Modules/pri/TypeTraits.h>
+#include <Pxf/Modules/pri/UniGL.h>
 
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Image.h>
