@@ -47,6 +47,8 @@ namespace Pxf
 			extern PFNGLMAPBUFFERPROC MapBuffer;
 			extern PFNGLUNMAPBUFFERPROC UnmapBuffer;
 
+			extern PFNGLDRAWBUFFERSPROC DrawBuffers;
+
 			// Shader
 			extern unsigned int COMPILE_STATUS;
 			extern unsigned int LINK_STATUS;
