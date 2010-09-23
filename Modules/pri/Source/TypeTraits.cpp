@@ -14,6 +14,8 @@ PFNGLBUFFERSUBDATAPROC GL::BufferSubData = 0;
 PFNGLMAPBUFFERPROC GL::MapBuffer = 0;
 PFNGLUNMAPBUFFERPROC GL::UnmapBuffer = 0;
 
+PFNGLDRAWBUFFERSPROC GL::DrawBuffers = 0;
+
 // Shader
 unsigned int GL::LINK_STATUS = 0;
 unsigned int GL::COMPILE_STATUS = 0;
@@ -89,6 +91,12 @@ void GL::SetupExtensions()
 		UnmapBuffer = glUnmapBufferARB;
 	}
 
+	/* GL_ARB_draw_buffers */
+	if (glewIsSupported("ARB_draw_buffers"))
+	{
+		DrawBuffers = glDrawBuffersARB;
+	}
+
 	/* OpenGL 2.0 */
 	if (GLEW_VERSION_2_0)
 	{
@@ -96,6 +104,8 @@ void GL::SetupExtensions()
 		LINK_STATUS = GL_LINK_STATUS;
 		VERTEX_SHADER = GL_VERTEX_SHADER;
 		FRAGMENT_SHADER = GL_FRAGMENT_SHADER;
+
+		DrawBuffers = glDrawBuffers;
 
 		CreateProgram = glCreateProgram;
 		CreateShader = glCreateShader;
