@@ -1,0 +1,14 @@
+{
+   "audio" : {
+      "buffersize" : 1024,
+      "max_voices" : 8
+   },
+   "input" : {
+      "mouse_accel" : 0.8999999761581421
+   },
+   "video" : {
+      "height" : 600,
+      "vsync" : false,
+      "width" : 800
+   }
+}
