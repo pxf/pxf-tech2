@@ -6,12 +6,18 @@
 #include <Pxf/Math/Matrix.h>
 
 #ifdef CONF_DEBUG
-	#ifdef CONF_COMPILER_MSVC
+	#if defined(CONF_COMPILER_MSVC)
 		#define PXFGLCHECK(name) do{\
 			int err = GL_NO_ERROR;\
 			while((err = glGetError()) != GL_NO_ERROR)\
 			{Pxf::Message(name, "GL error %d => '%s'", err, gluErrorString(err));\
 			__asm {int 3};}}while(0)
+	#elif defined(CONF_COMPILER_GCC)
+		#define PXFGLCHECK(name) do{\
+			int err = GL_NO_ERROR;\
+			while((err = glGetError()) != GL_NO_ERROR)\
+			{Pxf::Message(name, "GL error %d => '%s'", err, gluErrorString(err));\
+			asm("int $0x3\n");}}while(0)
 	#else
 		#define PXFGLCHECK(name) do{Pxf::Graphics::GL::CheckError(name);}while(0)
 	#endif
