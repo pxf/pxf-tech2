@@ -95,23 +95,29 @@ int main()
                   	gl_FragData[0] = vec4(0.0, 1.0, 0.0, 1.0); \
                   	gl_FragData[1] = vec4(1.0, 0.0, 0.0, 1.0); \
                   }";
-	const char* vs_res = "uniform sampler2D texture3; \
-                  uniform sampler2D texture2; \
+	const char* vs_res = "uniform sampler2D texa; \
+                  uniform sampler2D texb; \
                   void main(void) \
                   { \
                   	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex; \
                   	gl_TexCoord[0] = gl_MultiTexCoord0; \
                   }";
 
-	const char* fs_res = "uniform sampler2D texture3; \
-                  uniform sampler2D texture2; \
+	const char* fs_res = "uniform sampler2D texa; \
+                  uniform sampler2D texb; \
                   void main() \
                   { \
-					gl_FragColor = texture2D(texture3, gl_TexCoord[0].st); \
+                    if (gl_TexCoord[0].t > 0.5) { \
+                        gl_FragColor = texture2D(texb, gl_TexCoord[0].st); \
+					} else { \
+                        gl_FragColor = texture2D(texa, gl_TexCoord[0].st); \
+					} \
                   }";
 
 	Graphics::Shader* shader = gfx->CreateShader("TEST",vs,fs);
 	Graphics::Shader* result = gfx->CreateShader("RESULT",vs_res,fs_res);
+	gfx->SetUniformi(result, "texa", 0);
+	gfx->SetUniformi(result, "texb", 1);
 
 	Timer t;
 	while(win->IsOpen())
@@ -137,7 +143,8 @@ int main()
 		gfx->UnbindFrameBufferObject();
 	
 		//glBindTexture(GL_TEXTURE_2D,((Modules::RenderBufferGL2*) a)->GetHandle());
-		gfx->BindTexture(a);
+		gfx->BindTexture(b ,1);
+		gfx->BindTexture(a, 0);
 
 		gfx->BindShader(result);
 		finalquad->Draw();
