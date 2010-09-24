@@ -317,7 +317,7 @@ bool PostProcessBlock::Execute()
 		m_gfx->UnbindFrameBufferObject();
 	
 		// Detach texture
-		for(int i = 0; i < num_attach; ++i)
+		for(int i = num_attach-1; i >= 0; i--)
 		{
 			m_Renderer->m_FBO->Detach(attach_lut[i]);
 		}

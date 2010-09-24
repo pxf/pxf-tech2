@@ -158,9 +158,7 @@ void FrameBufferObjectGL2::Detach(const unsigned _Attachment)
 
 	FrameBufferObject* OldFBO = m_pDevice->BindFrameBufferObject(this);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _Attachment, GL_TEXTURE_2D, 0, 0);
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	m_pDevice->BindFrameBufferObject(OldFBO);
-	m_Complete = CheckFBO(status);
 	PXFGLCHECK("Detach/End");
 }
 
