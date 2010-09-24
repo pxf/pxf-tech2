@@ -22,23 +22,20 @@
 #include <Pxf/Base/Random.h>
 
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <Pxf/Modules/pri/UniGL.h>
 
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 #include <Pxf/Resource/Image.h>
-#include <Pxf/Resource/Json.h>
 #include <Pxf/Resource/Sound.h>
 #include <Pxf/Resource/Font.h>
 #include <Pxf/Resource/Text.h>
 
-#include <Pxf/Modules/pri/RenderBufferGL2.h>
+#include <Pxf/Graphics/FrameBufferObject.h>
 
-#include "Renderer.h"
 #include "SimpleQuad.h"
 
 #include <ctime>
-
-#include "Camera.h"
 
 using namespace Pxf;
 using namespace Math;
@@ -55,49 +52,18 @@ int main()
 	kernel->RegisterModule("pri", 0xFFFF, true);
 	kernel->RegisterModule("img", 0xFFFF, true);
 	kernel->RegisterModule("mesh", 0xFFFF, true);
-	kernel->RegisterModule("snd", 0xFFFF, true);
-	kernel->RegisterModule("json", 0xFFFF, true);
 	kernel->RegisterModule("net", 0xFFFF, true);
 	kernel->DumpAvailableModules();
 
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
-	Audio::AudioDevice* snd = kernel->GetAudioDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	Resource::ResourceManager* res = kernel->GetResourceManager();
 	res->DumpResourceLoaders();
-
-	// load settings
-	Resource::Json* jdoc = res->Acquire<Resource::Json>("data/config.json");
-	Json::Value settings;
-	if (jdoc)
-		settings = jdoc->GetRoot();
-	else
-	{
-		settings["audio"]["buffersize"] = 1024;
-		settings["audio"]["max_voices"] = 8;
-		settings["input"]["mouse_accel"] = 0.9f;
-		settings["video"]["width"] = 800;
-		settings["video"]["height"] = 600;
-		settings["video"]["vsync"] = false;
-
-		Resource::JsonLoader* jld = res->FindResourceLoader<Resource::JsonLoader>("json");
-		if (jld)
-		{
-			jdoc = jld->CreateEmpty();
-			jdoc->SetRoot(settings);
-			jdoc->SaveToDisk("data/config.json");
-			Message("Main", "Saving new config!");
-		}
-	}
-
-	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
-				   ,settings["audio"].get("max_voices", 8).asUInt());
 	
-	//Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
 	
 	Graphics::WindowSpecifications spec;
-	spec.Width = 256;
-	spec.Height = 256;
+	spec.Width = 512;
+	spec.Height = 512;
 	spec.ColorBits = 24;
 	spec.AlphaBits = 8;
 	spec.DepthBits = 8;
@@ -105,18 +71,18 @@ int main()
 	spec.FSAASamples = 0;
 	spec.Fullscreen = false;
 	spec.Resizeable = false;
-	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
+	spec.VerticalSync = true;
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
 	// Setup full screen quad
 	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
 
-	Graphics::RenderBuffer* a = gfx->CreateRenderBuffer(GL_RGBA,256,256);
-	Graphics::RenderBuffer* b = gfx->CreateRenderBuffer(GL_RGBA,256,256);
+	Graphics::Texture* a = gfx->CreateEmptyTexture(512,512);
+	Graphics::Texture* b = gfx->CreateEmptyTexture(512,512);
 
 	Graphics::FrameBufferObject* FBO = gfx->CreateFrameBufferObject();
-	FBO->Attach(a,GL_COLOR_ATTACHMENT0);
-	FBO->Attach(b,GL_COLOR_ATTACHMENT1);
+	FBO->Attach(a,GL_COLOR_ATTACHMENT0_EXT, false);
+	FBO->Attach(b,GL_COLOR_ATTACHMENT1_EXT, false);
 
 	const char* vs = "void main(void)  \
                   {					\
@@ -170,7 +136,8 @@ int main()
 
 		gfx->UnbindFrameBufferObject();
 	
-		glBindTexture(GL_TEXTURE_2D,((Modules::RenderBufferGL2*) a)->GetHandle());
+		//glBindTexture(GL_TEXTURE_2D,((Modules::RenderBufferGL2*) a)->GetHandle());
+		gfx->BindTexture(a);
 
 		gfx->BindShader(result);
 		finalquad->Draw();
@@ -179,17 +146,6 @@ int main()
 		
 		if (inp->GetLastKey() == Input::ESC)
 			break;
-
-		if (inp->GetLastKey() == Input::F5)
-		{
-			win->Swap();
-			//Resource::Image* img = gfx->CreateImageFromTexture(renderer->GetResult());
-			Texture* tex = gfx->CreateTextureFromFramebuffer();
-			Resource::Image* img = gfx->CreateImageFromTexture(tex);
-			gfx->DestroyTexture(tex);
-			img->SaveAs("data/screenshot.tga");
-			delete img;
-		}
 		
 		inp->ClearLastKey();
 		inp->ClearLastButton();
