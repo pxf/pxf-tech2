@@ -80,6 +80,7 @@
                   {
                     //vec4 aoe = texture2D(texture1, gl_TexCoord[0].st);
                     if (gl_TexCoord[0].t > 0.5)
+                        //gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
                         gl_FragColor = texture2D(texture2, gl_TexCoord[0].st);
                     else
                         gl_FragColor = texture2D(texture3, gl_TexCoord[0].st);

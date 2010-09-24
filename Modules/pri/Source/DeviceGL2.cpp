@@ -332,7 +332,7 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 
 	if(_pFrameBufferObject)
 	{
-		glClear(GL_COLOR_BUFFER_BIT /* | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT */);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
 		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetHandle());
@@ -347,10 +347,6 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		Message("DeviceGL2:::BindFrameBufferObject", "buffercount: %i", _buffercount);
 		glDrawBuffers(_buffercount, _attachment_lut);
 
-
-		//GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-		//FrameBufferObjectGL2::CheckFBO(status);
-
 		PXFGLCHECK("DeviceGL2::BindFrameBufferObject/End");
 		return _OldFBO;
 	}
@@ -359,10 +355,7 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		m_CurrentFrameBufferObject = 0;
-		//glDrawBuffer(GL_BACK);
-
-		//GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-		//FrameBufferObjectGL2::CheckFBO(status);
+		glDrawBuffer(GL_BACK);
 
 		PXFGLCHECK("DeviceGL2::BindFrameBufferObject/End");
 		return _OldFBO;
@@ -373,7 +366,7 @@ void DeviceGL2::UnbindFrameBufferObject()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	m_CurrentFrameBufferObject = 0;
-	//glDrawBuffer(GL_BACK);
+	glDrawBuffer(GL_BACK);
 }
 
 
