@@ -31,6 +31,8 @@
 #include <Pxf/Resource/Font.h>
 #include <Pxf/Resource/Text.h>
 
+#include <Pxf/Network/NetworkDevice.h>
+
 #include <Pxf/Modules/pri/RenderBufferGL2.h>
 
 #include "Renderer.h"
@@ -64,6 +66,7 @@ int main()
 	Audio::AudioDevice* snd = kernel->GetAudioDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	Resource::ResourceManager* res = kernel->GetResourceManager();
+	Network::NetworkDevice* net = kernel->GetNetworkDevice();
 	res->DumpResourceLoaders();
 
 	// load settings
@@ -115,6 +118,13 @@ int main()
 	// Setup full screen quad
 	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
 
+	// Setup network.
+	int packet_renderer = net->AddTag("renderer");
+	int packet_result = net->AddTag("result");
+	int packet_profiling = net->AddTag("profiling");
+	Network::Server* server = net->CreateServer();
+	server->Bind(7005);
+
 	Timer t;
 	while(win->IsOpen())
 	{
@@ -163,6 +173,13 @@ int main()
 		win->SetTitle(title);
 
 		win->Swap();
+
+		Network::Packet* packet = server->RecvNonBlocking(0);
+		if (packet != NULL)
+			if (packet->GetTag() == packet_renderer)
+			{
+				Message("main", "aoeu, lol");
+			}
 
 		//glPopMatrix();
 	}

@@ -17,7 +17,7 @@ bool ENetServer::Bind(const int _Port)
 	Address.port = _Port;
 
 //	Message("ENetServer", "Ident %d %d", Ident, NetDev->GetTags()->size());
-	Server = enet_host_create(&Address, 32, NetDev->GetTags()->size(), 0, 0);
+	Server = enet_host_create(&Address, 1, NetDev->GetTags()->size(), 0, 0);
 
 #if COMPRESSION == 1
 	enet_host_compress_with_range_coder(Server);
@@ -99,7 +99,7 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 		switch(event.type)
 		{
 		case ENET_EVENT_TYPE_NONE:
-			Message("ENetServer", "Timeout.");
+//			Message("ENetServer", "Timeout.");
 			return NULL;
 			break;
 

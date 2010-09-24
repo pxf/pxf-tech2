@@ -92,6 +92,14 @@ int DERPEditor::net_createclient(lua_State *L)
 		lua_setfield(L, -2, "instance");
 		lua_pushcfunction(L, net_client_connect);
 		lua_setfield(L, -2, "connect");
+		lua_pushcfunction(L, net_client_send);
+		lua_setfield(L, -2, "send");
+		lua_pushcfunction(L, net_client_recv);
+		lua_setfield(L, -2, "recv");
+		lua_pushcfunction(L, net_client_recv_noblock);
+		lua_setfield(L, -2, "recv_noblock");
+		lua_pushcfunction(L, net_client_disconnect);
+		lua_setfield(L, -2, "disconnect");
 
 		return 1;
 	}
@@ -124,9 +132,28 @@ int DERPEditor::net_client_connect(lua_State *L)
 	return 0;
 }
 
+int DERPEditor::net_client_disconnect(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		lua_getfield(L, -1, "instance");
+		Client* client = *(Client**)lua_touserdata(L, -1);
+		client->Disconnect();
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to disconnect function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
 int DERPEditor::net_client_send(lua_State *L)
 {
-	if (lua_gettop(L) == 0)
+	if (lua_gettop(L) == 2)
 	{
 		lua_getfield(L, -2, "instance");
 		Client* client = *(Client**)lua_touserdata(L, -1);
@@ -146,7 +173,7 @@ int DERPEditor::net_client_send(lua_State *L)
 
 int DERPEditor::net_client_recv(lua_State *L)
 {
-	if (lua_gettop(L) == 0)
+	if (lua_gettop(L) == 1)
 	{
 		lua_getfield(L, -1, "instance");
 		Client* client = *(Client**)lua_touserdata(L, -1);
@@ -168,15 +195,13 @@ int DERPEditor::net_client_recv(lua_State *L)
 
 int DERPEditor::net_client_recv_noblock(lua_State *L)
 {
-	if (lua_gettop(L) == 1)
+	if (lua_gettop(L) == 2)
 	{
 		lua_getfield(L, -2, "instance");
 		Client* client = *(Client**)lua_touserdata(L, -1);
 		Packet* packet = client->RecvNonBlocking(lua_tonumber(L, -2));
 
 		if (packet != NULL)
-			// TODO: Return an actual packet-object instead.
-			//lua_pushlstring(L, packet->GetData(), packet->GetLength());
 			net_packet_push(L, packet);
 		else
 			return 0;
@@ -225,6 +250,14 @@ int DERPEditor::net_createserver(lua_State *L)
 		lua_setfield(L, -2, "instance");
 		lua_pushcfunction(L, net_server_bind);
 		lua_setfield(L, -2, "bind");
+		lua_pushcfunction(L, net_server_send_all);
+		lua_setfield(L, -2, "send_all");
+		lua_pushcfunction(L, net_server_send);
+		lua_setfield(L, -2, "send");
+		lua_pushcfunction(L, net_server_recv);
+		lua_setfield(L, -2, "recv");
+		lua_pushcfunction(L, net_server_recv_noblock);
+		lua_setfield(L, -2, "recv_noblock");
 
 		return 1;
 	}
