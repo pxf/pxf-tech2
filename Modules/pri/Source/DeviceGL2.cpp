@@ -349,6 +349,9 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		else
 			glDrawBuffer(_attachment_lut[0]);
 
+		GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+		FrameBufferObjectGL2::CheckFBO(status);
+
 		PXFGLCHECK("DeviceGL2::BindFrameBufferObject/End");
 		return _OldFBO;
 	}
@@ -358,6 +361,9 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		m_CurrentFrameBufferObject = 0;
 		glDrawBuffer(GL_BACK);
+
+		GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+		FrameBufferObjectGL2::CheckFBO(status);
 
 		PXFGLCHECK("DeviceGL2::BindFrameBufferObject/End");
 		return _OldFBO;

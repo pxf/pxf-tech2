@@ -49,7 +49,7 @@ void FrameBufferObjectGL2::_Configure()
 	PXFGLCHECK("_Configure/End");
 }
 
-bool CheckFBO(GLenum _status)
+bool FrameBufferObjectGL2::CheckFBO(unsigned _status)
 {
 	switch(_status)
 	{

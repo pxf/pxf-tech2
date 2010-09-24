@@ -27,6 +27,7 @@ namespace Pxf{
 			void DetachAll();
 			
 			int GetNumAttached();
+			static bool CheckFBO(unsigned _status);
 
 			unsigned GetHandle() { return m_Handle; }
 		private:
