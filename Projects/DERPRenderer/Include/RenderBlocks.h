@@ -192,10 +192,10 @@ namespace Derp
 		const char* m_JsonData;
 		
 		// init usage
-		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_InputTypes; // <block name, output of block>
+		Pxf::Util::Array<OutputStruct> m_Inputs; // <{block name, output name of block}>
 		
 		// build graph usage
-		Pxf::Util::Map<Pxf::Util::String, Block*> m_Inputs; // <black name, block pointer>
+		Pxf::Util::Map<Pxf::Util::String, Block*> m_InputBlocks; // <black name, block pointer>
 		
 		// Shader object
 		Pxf::Graphics::Shader* m_Shader;
