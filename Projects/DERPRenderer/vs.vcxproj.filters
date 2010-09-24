@@ -69,6 +69,9 @@
     <Filter Include="Renderer\Source">
       <UniqueIdentifier>{680af578-5897-4ab4-b6da-f58704611de3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Network">
+      <UniqueIdentifier>{c90a5e44-ce71-4358-bdec-da9ce90996cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Kernel.cpp">
@@ -378,6 +381,18 @@
     </ClInclude>
     <ClInclude Include="Include\RenderBlocks.h">
       <Filter>Renderer\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\Client.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\NetworkDevice.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\Packet.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\Server.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
