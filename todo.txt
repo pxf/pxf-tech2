@@ -1,8 +1,8 @@
 - 3:
 
 [ ] renderare:
-  [ ] int. json till block
-  [ ] blockstruktur
+  [x] int. json till block
+  [x] blockstruktur
 [ ] editor:
   [ ] block som genererar "output"
   [x] designkonceptualisering
@@ -13,7 +13,7 @@
 - 4:
 
 [ ] renderare:
-  [ ] utföra block/träd
+  [x] utföra block/träd
   [ ] skicka resultat
 [ ] editor:
   [ ] ta emot resultat från editorn
