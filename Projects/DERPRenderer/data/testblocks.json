@@ -45,27 +45,29 @@
                   uniform float script1;
                   void main()
                   {
-                  	//gl_FragColor = texture2D(texture1, script1*gl_TexCoord[0].st);
-                  	gl_FragData[0] = vec4(0.0, 1.0, 0.0, 1.0);
-                  	gl_FragData[1] = vec4(1.0, 0.0, 0.0, 1.0);
+                  	gl_FragData[0] = texture2D(texture1, script1*gl_TexCoord[0].st);
+                  //	gl_FragData[0] = vec4(0.0, 1.0, 0.0, 1.0);
+                  	gl_FragData[1] = vec4(1.0) - texture2D(texture1, script1*gl_TexCoord[0].st);
+                  	gl_FragData[2] = vec4(0.5) - texture2D(texture1, script1*gl_TexCoord[0].st);
                   }"
                  },
-   "blockOutput" : [{"name" : "texture2",
-                     "type" : "texture"},
-					 {"name" : "texture3",
-                     "type" : "texture"}]
+   "blockOutput" : [ {"name" : "texture2", "type" : "texture"},
+					 {"name" : "texture3", "type" : "texture"},
+					 {"name" : "texture4", "type" : "texture"}]
   },
 
   {"blockName" : "output1",
    "blockType" : "Root",
    "blockInput" : [{"block" : "postprocess1", "output" : "texture3"},
                    {"block" : "postprocess1", "output" : "texture2"},
+                   {"block" : "postprocess1", "output" : "texture4"},
                    {"block" : "auxinput2", "output" : "script1"}],
    "blockData" : {"host" : "localhost",
                   "port" : "4632",
                   "feedback" : true,
                   "realtime" : false,
                   "shaderVert" : "uniform sampler2D texture3;
+                  uniform sampler2D texture4;
                   uniform sampler2D texture2;
                   uniform float script1;
                   void main(void)
@@ -74,14 +76,16 @@
                   	gl_TexCoord[0] = gl_MultiTexCoord0;
                   }",
                   "shaderFrag" : "uniform sampler2D texture3;
+                  uniform sampler2D texture4;
                   uniform sampler2D texture2;
                   uniform float script1;
                   void main()
                   {
                     //vec4 aoe = texture2D(texture1, gl_TexCoord[0].st);
-                    if (gl_TexCoord[0].t > 0.5)
-                        //gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+                    if (gl_TexCoord[0].t > 0.75)
                         gl_FragColor = texture2D(texture2, gl_TexCoord[0].st);
+                    else if (gl_TexCoord[0].t > 0.5)
+                        gl_FragColor = texture2D(texture4, gl_TexCoord[0].st);
                     else
                         gl_FragColor = texture2D(texture3, gl_TexCoord[0].st);
                   }",
