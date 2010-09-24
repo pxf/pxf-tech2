@@ -94,6 +94,14 @@ namespace Derp
 			// memset m_inputs, m_outputs
 			m_gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
 		}
+		
+		struct OutputStruct
+		{
+			Pxf::Util::String block_name;
+			Pxf::Util::String block_output;
+			
+			OutputStruct(Pxf::Util::String _name, Pxf::Util::String _output) { block_name =  _name; block_output = _output; }
+		};
 
 		virtual bool Initialize(Json::Value *node) = 0;
 
@@ -226,7 +234,7 @@ namespace Derp
 		//Block* m_InputBlock;
 		
 		// init usage
-		Pxf::Util::Map<Pxf::Util::String, Pxf::Util::String> m_Inputs; // <block name, output of block>
+		Pxf::Util::Array<OutputStruct> m_Inputs; // <{block name, output name of block}>
 		
 		// build graph usage
 		Pxf::Util::Map<Pxf::Util::String, Block*> m_InputBlocks; // <black name, block pointer>
