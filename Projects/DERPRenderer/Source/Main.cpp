@@ -160,13 +160,22 @@ int main()
 			Texture* tex = gfx->CreateTextureFromFramebuffer();
 			Resource::Image* img = gfx->CreateImageFromTexture(tex);
 
+			gfx->DestroyTexture(tex);
+			img->SaveAs("data/screenshot.tga");
+			delete img;
+		}
+
+		if (inp->GetLastKey() == Input::F6)
+		{
+			win->Swap();
+			Texture* tex = gfx->CreateTextureFromFramebuffer();
+			Resource::Image* img = gfx->CreateImageFromTexture(tex);
+
 			// TODO: Also send some identifier for the last texture.
 			int height = img->Height();
 			server->SendAllL(packet_result, (const char*)&height, 1);
 			server->SendAllL(packet_result, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 
-			gfx->DestroyTexture(tex);
-			img->SaveAs("data/screenshot.tga");
 			delete img;
 		}
 		
