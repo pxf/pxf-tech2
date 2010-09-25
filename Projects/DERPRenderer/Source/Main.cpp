@@ -161,8 +161,8 @@ int main()
 			Resource::Image* img = gfx->CreateImageFromTexture(tex);
 
 			// TODO: Also send some identifier for the last texture.
-			server->SendAllL(packet_result, (const char*)img->Height(), 1);
-			server->SendAllL(packet_result, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+			server->SendAllL(packet_result, (const char*)((char)img->Height()), 1);
+			server->SendAllL(packet_result, (const char*)(img->Ptr()), img->Height()*img->Width()*img->Channels());
 
 			gfx->DestroyTexture(tex);
 			img->SaveAs("data/screenshot.tga");
