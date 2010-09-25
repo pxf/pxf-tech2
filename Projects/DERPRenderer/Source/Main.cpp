@@ -95,6 +95,13 @@ int main()
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
+
+	// Setup network.
+	int packet_renderer = net->AddTag("renderer");
+	int packet_result = net->AddTag("result");
+	int packet_profiling = net->AddTag("profiling");
+	Network::Server* server = net->CreateServer();
+	server->Bind(7005);
 	
 	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
 	renderer->LoadJson();
@@ -117,13 +124,6 @@ int main()
 	
 	// Setup full screen quad
 	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
-
-	// Setup network.
-	int packet_renderer = net->AddTag("renderer");
-	int packet_result = net->AddTag("result");
-	int packet_profiling = net->AddTag("profiling");
-	Network::Server* server = net->CreateServer();
-	server->Bind(7005);
 
 	Timer t;
 	while(win->IsOpen())
@@ -159,6 +159,11 @@ int main()
 			//Resource::Image* img = gfx->CreateImageFromTexture(renderer->GetResult());
 			Texture* tex = gfx->CreateTextureFromFramebuffer();
 			Resource::Image* img = gfx->CreateImageFromTexture(tex);
+
+			// TODO: Also send some identifier for the last texture.
+			server->SendAllL(packet_result, (const char*)img->Height(), 1);
+			server->SendAllL(packet_result, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+
 			gfx->DestroyTexture(tex);
 			img->SaveAs("data/screenshot.tga");
 			delete img;

@@ -21,6 +21,7 @@ namespace Pxf
 			virtual Packet* RecvNonBlocking(const int _Timeout) = 0;
 			virtual bool Send(const int _Client, const int _Type, const char* _Buf) = 0;
 			virtual bool SendAll(const int _Type, const char* _Buf) = 0;
+			virtual bool SendAllL(const int _Type, const char* _Buf, const int _Length) = 0;
 		};
 	}
 }
