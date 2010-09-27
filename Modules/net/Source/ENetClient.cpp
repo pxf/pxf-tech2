@@ -22,7 +22,7 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 	Message("ENetClient", "Enabling range-coder compression.");
 #endif
 
-	Peer = enet_host_connect(Client, &Address, 2, 0);
+	Peer = enet_host_connect(Client, &Address, NetDev->GetTags()->size(), 0);
 
 	if (Peer == NULL)
 	{
@@ -89,7 +89,7 @@ Pxf::Network::Packet* ENetClient::Recv()
 		switch(event.type)
 		{
 		case ENET_EVENT_TYPE_NONE:
-			Message("ENetClient", "Timeout.");
+//			Message("ENetClient", "Timeout.");
 			break;
 
 		case ENET_EVENT_TYPE_RECEIVE:
@@ -137,7 +137,7 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 		switch(event.type)
 		{
 		case ENET_EVENT_TYPE_NONE:
-			Message("ENetClient", "Timeout.");
+//			Message("ENetClient", "Timeout.");
 			return NULL;
 			break;
 
@@ -172,20 +172,13 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 	return NULL;
 }
 
-// TODO: Add support for different priorities.
-// TODO: Add support for use of different channels.
 bool ENetClient::Send(const int _Type, const char* _Buf)
 {
 	ENetPacket *packet;
 
 	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
 
-	// Send over channel 0.
 	enet_peer_send(Peer, _Type, packet);
-
-	// TODO: Need a way of destroying the packets.
-//	enet_host_flush(Client);
-//	enet_packet_destroy(packet);
 
 	return true;
 }
