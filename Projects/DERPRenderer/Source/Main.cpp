@@ -67,7 +67,6 @@ int main()
 	Audio::AudioDevice* snd = kernel->GetAudioDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	Resource::ResourceManager* res = kernel->GetResourceManager();
-	Network::NetworkDevice* net = kernel->GetNetworkDevice();
 	res->DumpResourceLoaders();
 
 	// load settings
@@ -113,16 +112,8 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
-	// Setup network.
-	int packet_renderer = net->AddTag("renderer");
-	int packet_result = net->AddTag("result");
-	int packet_profiling = net->AddTag("profiling");
-	
-	Network::Server* server = net->CreateServer();
-	server->Bind(settings["network"].get("port", 7005).asUInt());
-	
 	// Setup renderer
-	Derp::Renderer* renderer = new Derp::Renderer(server);
+	Derp::Renderer* renderer = new Derp::Renderer(settings["network"].get("port", 7005).asUInt());
 	
 	// Setup full screen quad
 	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
@@ -165,7 +156,7 @@ int main()
 			delete img;
 		}
 
-		if (inp->GetLastKey() == Input::F6)
+/*		if (inp->GetLastKey() == Input::F6)
 		{
 			win->Swap();
 			Texture* tex = gfx->CreateTextureFromFramebuffer();
@@ -179,6 +170,7 @@ int main()
 			gfx->DestroyTexture(tex);
 			delete img;
 		}
+		*/
 		
 		inp->ClearLastKey();
 		inp->ClearLastButton();
@@ -190,12 +182,13 @@ int main()
 
 		win->Swap();
 
-		Network::Packet* packet = server->RecvNonBlocking(0);
+		/*Network::Packet* packet = server->RecvNonBlocking(0);
 		if (packet != NULL)
 			if (packet->GetTag() == packet_renderer)
 			{
 				Message("main", "aoeu, lol");
 			}
+			*/
 
 		//glPopMatrix();
 	}

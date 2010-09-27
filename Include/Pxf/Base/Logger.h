@@ -8,7 +8,7 @@ namespace Pxf
 	protected:
 		static const unsigned int MAX_TAGS = 32;
 		static const char* s_Tags[MAX_TAGS];
-		static unsigned short Logger::s_TagCount;
+		static unsigned short s_TagCount;
 	public:
 
 		enum Flag
