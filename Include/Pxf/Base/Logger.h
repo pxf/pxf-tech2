@@ -17,7 +17,9 @@ namespace Pxf
 			IS_INFORMATION = (1 << 30),
 			IS_WARNING     = (1 << 29),
 			IS_CRITICAL    = (1 << 28),
-			IS_REGISTERED  = (1 << 27)
+			IS_REGISTERED  = (1 << 27),
+			IS_ANY         = IS_DEBUG | IS_INFORMATION | IS_WARNING | IS_CRITICAL,
+			IS_ANYREG      = IS_ANY | IS_REGISTERED
 		};
 
 		virtual bool WriteImpl(unsigned int _Tag, const char* _SrcBuffer, unsigned int _SrcLength) = 0;

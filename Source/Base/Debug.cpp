@@ -1,6 +1,7 @@
 #include <Pxf/Base/Config.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Kernel.h>
 
 #include <cstdio>
 
@@ -29,11 +30,10 @@ void Pxf::Message(const char* _SubSystem, const char* _Message, ...)
 	va_list va;
 	va_start(va, _Message);
 	vsprintf(Buffer, _Message, va);
-	printf("[%s] %s\n", _SubSystem, Buffer);
 	va_end(va);
 #else
 	FormatArgumentList(Buffer, &_Message);
-	printf("[%s] %s\n", _SubSystem, Buffer);
-	fflush(stdout);
 #endif
+
+	Kernel::GetInstance()->Log(0, Buffer);
 }

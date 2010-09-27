@@ -54,6 +54,11 @@ int main()
 	Pxf::RandSetSeed(time(NULL));
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 
+	unsigned main_tag = Logger::CreateTag("Main");
+
+	kernel->Log(main_tag | Logger::IS_CRITICAL, "Honk %s", "Tonk");
+	kernel->Log(main_tag | Logger::IS_DEBUG, "Honk %s", "Tonk LOL");
+
 	// Just load everything
 	kernel->RegisterModule("pri", 0xFFFF, true);
 	kernel->RegisterModule("img", 0xFFFF, true);
@@ -89,15 +94,12 @@ int main()
 			jdoc = jld->CreateEmpty();
 			jdoc->SetRoot(settings);
 			jdoc->SaveToDisk("data/config.json");
-			Message("Main", "Saving new config!");
+			kernel->Log(main_tag | Logger::IS_INFORMATION, "Saving new config!");
 		}
 	}
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
-	unsigned tag = Logger::CreateTag("Main");
-	kernel->Log(tag | Logger::IS_CRITICAL, "Honk %s", "Tonk");
-
 	
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;//renderer->m_Width;//settings["video"].get("width", 800).asInt();
@@ -186,7 +188,7 @@ int main()
 		if (packet != NULL)
 			if (packet->GetTag() == packet_renderer)
 			{
-				Message("main", "aoeu, lol");
+				kernel->Log(main_tag | Logger::IS_DEBUG, "aoeu, lol");
 			}
 			*/
 
