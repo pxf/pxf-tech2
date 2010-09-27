@@ -276,7 +276,6 @@ bool PostProcessBlock::Execute()
 				// Input is a texture, bind and set uniform
 				Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).block_output);
 				if (inputtex == 0) {
-					exit(1);
 					return false;
 				}
 		
@@ -438,7 +437,6 @@ bool RootBlock::Execute()
 				// Input is a texture, bind and set uniform
 				Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).block_output);
 				if (inputtex == 0) {
-					exit(1);
 					return false;
 				}
 				

@@ -4,6 +4,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Timer.h>
+#include <Pxf/Base/Logger.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Input/InputDevice.h>
@@ -94,6 +95,9 @@ int main()
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
+	unsigned tag = Logger::CreateTag("Main");
+	kernel->Log(tag | Logger::IS_CRITICAL, "Honk %s", "Tonk");
+
 	
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;//renderer->m_Width;//settings["video"].get("width", 800).asInt();
@@ -163,6 +167,7 @@ int main()
 			server->SendAllL(packet_result, (const char*)&height, 1);
 			server->SendAllL(packet_result, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 
+			gfx->DestroyTexture(tex);
 			delete img;
 		}
 		*/
