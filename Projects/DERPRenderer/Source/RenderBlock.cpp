@@ -236,6 +236,8 @@ bool PostProcessBlock::Execute()
 		{
 			(*iter).second->Execute();
 		}
+		
+		m_ProfileTimer.Start();
 	
 		// Setup OGL context etc
 		m_gfx->SetViewport(0, 0, m_Width, m_Height);
@@ -317,6 +319,10 @@ bool PostProcessBlock::Execute()
 		{
 			m_Renderer->m_FBO->Detach(attach_lut[i]);
 		}
+		
+		// End block timer
+		m_ProfileTimer.Stop();
+		// do something with result m_ProfileTimer.Interval()
 	}
 	
 	// Return

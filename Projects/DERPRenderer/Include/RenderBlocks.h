@@ -4,6 +4,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Util/Map.h>
+#include <Pxf/Base/Timer.h>
 
 #include <Pxf/Graphics/Shader.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
@@ -76,6 +77,7 @@ namespace Derp
 		const char *m_BlockName;
     bool m_IsPerformed;
 		bool m_HasBeenBuilt;
+		Pxf::Timer m_ProfileTimer;
 		
 		// graphics device pointer for easy access 8)
 		Pxf::Graphics::GraphicsDevice* m_gfx;
