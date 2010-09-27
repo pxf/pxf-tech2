@@ -344,7 +344,10 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		                GL_COLOR_ATTACHMENT6_EXT, GL_COLOR_ATTACHMENT7_EXT, GL_COLOR_ATTACHMENT8_EXT};
 
 		_buffercount = ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetNumAttached();
-		glDrawBuffers(_buffercount, _attachment_lut);
+		if (_buffercount > 1)
+			glDrawBuffers(_buffercount, _attachment_lut);
+		else
+			glDrawBuffer(_attachment_lut[0]);
 
 		PXFGLCHECK("DeviceGL2::BindFrameBufferObject/End");
 		return _OldFBO;
