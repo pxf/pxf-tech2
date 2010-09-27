@@ -4,6 +4,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Timer.h>
+#include <Pxf/Base/Logger.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Input/InputDevice.h>
@@ -95,20 +96,13 @@ int main()
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
+	unsigned tag = Logger::CreateTag("Main");
+	kernel->Log(tag | Logger::IS_CRITICAL, "Honk %s", "Tonk");
 
-	// Setup network.
-	int packet_renderer = net->AddTag("renderer");
-	int packet_result = net->AddTag("result");
-	int packet_profiling = net->AddTag("profiling");
-	Network::Server* server = net->CreateServer();
-	server->Bind(7005);
-	
-	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
-	renderer->LoadJson();
 	
 	Graphics::WindowSpecifications spec;
-	spec.Width = renderer->m_Width;//settings["video"].get("width", 800).asInt();
-	spec.Height = renderer->m_Height;//settings["video"].get("height", 600).asInt();
+	spec.Width = 512;//renderer->m_Width;//settings["video"].get("width", 800).asInt();
+	spec.Height = 512;//renderer->m_Height;//settings["video"].get("height", 600).asInt();
 	spec.ColorBits = 24;
 	spec.AlphaBits = 8;
 	spec.DepthBits = 8;
@@ -119,8 +113,16 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
-	// Build pipeline graph
-	renderer->BuildGraph();
+	// Setup network.
+	int packet_renderer = net->AddTag("renderer");
+	int packet_result = net->AddTag("result");
+	int packet_profiling = net->AddTag("profiling");
+	
+	Network::Server* server = net->CreateServer();
+	server->Bind(settings["network"].get("port", 7005).asUInt());
+	
+	// Setup renderer
+	Derp::Renderer* renderer = new Derp::Renderer(server);
 	
 	// Setup full screen quad
 	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
@@ -132,8 +134,6 @@ int main()
 
 		// Execute renderer/pipeline
 		renderer->Execute();
-			
-		// TODO: Setup normal backbuffer and render final output
 		
 		// Setup ogl
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
@@ -176,6 +176,7 @@ int main()
 			server->SendAllL(packet_result, (const char*)&height, 1);
 			server->SendAllL(packet_result, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 
+			gfx->DestroyTexture(tex);
 			delete img;
 		}
 		

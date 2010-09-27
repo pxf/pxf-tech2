@@ -10,31 +10,58 @@ using namespace Derp;
 using namespace Pxf;
 using namespace Graphics;
 
-Renderer::Renderer(const char* _filepath)
-	: m_Filepath(_filepath)
+Renderer::Renderer(Network::Server* _net)
+	: m_Net(_net)
 	, m_RootBlock(NULL)
 	, m_RootName(NULL)
 	, m_Width(0)
 	, m_Height(0)
+	, m_jsonloader(0)
+	, m_doc(0)
+	, m_JsonData(0)
 {
-  // do something?
+  // Load default blocks
+	LoadFromFile("data/default.json");
 }
 
 Renderer::~Renderer()
+{		
+	CleanUp();
+}
+
+void Renderer::CleanUp()
 {
-  // clean up!
 	if(m_doc)
-		m_jsonloader->Destroy(m_doc);
+	{
+		if (m_jsonloader)
+			m_jsonloader->Destroy(m_doc);
+	}
+	
+	if (m_JsonData)
+		delete [] m_JsonData;
+}
+
+void Renderer::LoadFromFile(const char* _filepath)
+{
+	CleanUp();
+	
+  Kernel* k = Kernel::GetInstance();
+ 	Resource::ResourceManager* res = k->GetResourceManager();
+  Resource::Text* data = res->Acquire<Resource::Text>(_filepath);
+	m_jsonloader = res->FindResourceLoader<Pxf::Resource::JsonLoader>("json");
+	//m_doc = m_jsonloader->CreateFrom(data->Ptr(), StringLength(data->Ptr()));	
+
+	m_JsonDataSize = StringLength(data->Ptr());	
+	m_JsonData = new char[m_JsonDataSize];
+	StringCopy(m_JsonData, data->Ptr(), m_JsonDataSize);
+	
+	LoadJson();
+	BuildGraph();
 }
 
 void Renderer::LoadJson()
 {
-  Kernel* k = Kernel::GetInstance();
-
- 	Resource::ResourceManager* res = k->GetResourceManager();
-  Resource::Text* data = res->Acquire<Resource::Text>(m_Filepath);
-	m_jsonloader = res->FindResourceLoader<Pxf::Resource::JsonLoader>("json");
-	m_doc = m_jsonloader->CreateFrom(data->Ptr(), StringLength(data->Ptr()));
+	m_doc = m_jsonloader->CreateFrom(m_JsonData, m_JsonDataSize);
 	
 	if (m_doc)
 	{
@@ -118,6 +145,8 @@ void Renderer::BuildGraph()
 
 void Renderer::Execute()
 {
+	
+	
 	if (m_RootBlock)
 	{
 		m_RootBlock->ResetPerformed();

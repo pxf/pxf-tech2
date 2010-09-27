@@ -1,21 +1,19 @@
 #include <Pxf/Kernel.h>
-#include <Pxf/Base/Debug.h>
-#include <Pxf/Base/SharedLibrary.h>
 #include <Pxf/Module.h>
+#include <Pxf/Base/Debug.h>
+#include <Pxf/Base/Logger.h>
+#include <Pxf/Base/SharedLibrary.h>
+#include <Pxf/Base/String.h>
 #include <Pxf/Base/Utils.h>
-
 #include <Pxf/Audio/NullAudioDevice.h>
 #include <Pxf/Input/NullInputDevice.h>
-
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Network/NetworkDevice.h>
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 
-#include <Pxf/Base/String.h>
-
 Pxf::Kernel* Pxf::Kernel::s_Kernel = 0;
-const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
+const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 2);
 
 Pxf::Kernel::Kernel()
 	: m_AudioDevice(0)
@@ -23,10 +21,12 @@ Pxf::Kernel::Kernel()
 	, m_GraphicsDevice(0)
 	, m_ResourceManager(0)
 	, m_NetworkDevice(0)
+	, m_Loggers(0)
 {
 	// We need to make sure that the resource manager is created in this address space.
 	s_Kernel = this;
 	Resource::ResourceManager* mgr = GetResourceManager();
+	m_Loggers = new LoggerEntry_t(new StdLogger());
 }
 
 Pxf::Kernel::~Kernel()
@@ -46,6 +46,21 @@ Pxf::Kernel::~Kernel()
 			delete m_AvailableModules[i]->dynlib;
 		delete m_AvailableModules[i];
 	}
+
+	if (m_Loggers)
+	{
+		while(m_Loggers)
+		{
+			SafeDelete(m_Loggers->logger);
+			if (m_Loggers->next == 0)
+				break;
+
+			m_Loggers->logger = m_Loggers->next->logger;
+			m_Loggers->next = m_Loggers->next->next;
+		}
+		SafeDelete(m_Loggers);
+	}
+
 }
 
 
@@ -120,6 +135,71 @@ Pxf::Resource::ResourceManager* Pxf::Kernel::GetResourceManager()
 	return m_ResourceManager;
 }
 
+void Pxf::Kernel::RegisterLogger(Logger* _logger)
+{
+	LoggerEntry_t* iter = m_Loggers;
+	while(iter)
+	{
+		if (iter->logger == _logger)
+			break; /* already registered */
+		else if (iter->next == 0)
+		{
+			LoggerEntry_t* log = new LoggerEntry_t(_logger);
+			iter->next = log;
+			break;
+		}
+		iter = iter->next;
+	}
+}
+
+void Pxf::Kernel::UnregisterLogger(Logger* _logger)
+{
+	LoggerEntry_t* iter = m_Loggers;
+	while(iter)
+	{
+		if (iter->logger == _logger)
+		{
+			SafeDelete(iter->logger);
+			if (iter->next)
+			{
+				LoggerEntry_t* old = iter->next;
+				iter->logger = iter->next->logger;
+				iter->next = iter->next->next;
+				SafeDelete(old);
+			}
+			else
+				iter->next = 0;
+		}
+
+		if (iter->next == 0)
+			break;
+		iter = iter->next;
+	}
+}
+
+void Pxf::Kernel::Log(unsigned int _Tag, const char* _Message, ...)
+{
+		char Buffer[4092];
+#ifdef CONF_PLATFORM_MACOSX
+		va_list va;
+		va_start(va, _Message);
+		vsprintf(Buffer, _Message, va);
+		va_end(va);
+		return res;
+#else
+		FormatArgumentList(Buffer, &_Message);
+#endif
+
+		LoggerEntry_t* iter = m_Loggers;
+		while(iter)
+		{
+			iter->logger->Write(_Tag, Buffer);
+			if (iter->next == 0)
+				break;
+			iter = iter->next;
+		}
+
+}
 
 //TODO: Should the build file define PXF_MODULE_EXT instead?
 static const char* get_full_module_ext()
