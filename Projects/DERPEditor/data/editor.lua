@@ -17,7 +17,7 @@ net.addtag("pipeline")
 net.addtag("result")
 net.addtag("profiling")
 client = net.createclient()
-client:connect("localhost", 7005)
+client:connect("mkeyd.net", 7005)
 client:send("pipeline", [[[{"blockName" : "PipelineTree",
    "blockType" : "PipelineTree",
    "blockData" : { "root" : "output1" }
@@ -50,7 +50,6 @@ client:send("pipeline", [[[{"blockName" : "PipelineTree",
                     void main()
                     {
                           gl_FragColor = vec4(1.0) - texture2D(texture1, gl_TexCoord[0].st);
-                          gl_FragColor.gb = vec2(0.0);
                     }",
                     "width" : 512,
                     "height" : 512
