@@ -10,9 +10,8 @@ using namespace Derp;
 using namespace Pxf;
 using namespace Graphics;
 
-Renderer::Renderer(Network::Server* _net)
-	: m_Net(_net)
-	, m_RootBlock(NULL)
+Renderer::Renderer(unsigned int _port)
+	: m_RootBlock(NULL)
 	, m_RootName(NULL)
 	, m_Width(0)
 	, m_Height(0)
@@ -20,6 +19,15 @@ Renderer::Renderer(Network::Server* _net)
 	, m_doc(0)
 	, m_JsonData(0)
 {
+	// Set tags for network.
+	Network::NetworkDevice* _net = Pxf::Kernel::GetInstance()->GetNetworkDevice();
+	m_NetTag_Pipeline = _net->AddTag("pipeline");
+	m_NetTag_Result = _net->AddTag("result");
+	m_NetTag_Profiling = _net->AddTag("profiling");
+	
+	m_Net = _net->CreateServer();
+	m_Net->Bind(_port);
+	
   // Load default blocks
 	LoadFromFile("data/default.json");
 }
@@ -31,6 +39,14 @@ Renderer::~Renderer()
 
 void Renderer::CleanUp()
 {
+	// Delete blocks
+	for(Util::Map<Util::String, Block*>::iterator iter = m_Blocks.begin(); iter != m_Blocks.end(); ++iter)
+	{
+		delete (*iter).second;
+	}
+	m_Blocks.clear();
+	
+	
 	if(m_doc)
 	{
 		if (m_jsonloader)
@@ -39,6 +55,7 @@ void Renderer::CleanUp()
 	
 	if (m_JsonData)
 		delete [] m_JsonData;
+		
 }
 
 void Renderer::LoadFromFile(const char* _filepath)
@@ -145,7 +162,21 @@ void Renderer::BuildGraph()
 
 void Renderer::Execute()
 {
-	
+	Network::Packet* packet = m_Net->RecvNonBlocking(0);
+	if (packet != NULL)
+		if (packet->GetTag() == m_NetTag_Pipeline)
+		{
+			CleanUp();
+			
+			m_JsonDataSize = packet->GetLength();
+			StringCopy(m_JsonData, packet->GetData(), m_JsonDataSize);
+			
+			Message("Renderer", "Got new pipeline data, loading JSON and building graph.");
+			
+			LoadJson();
+			BuildGraph();
+			
+		}
 	
 	if (m_RootBlock)
 	{
