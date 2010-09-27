@@ -169,9 +169,11 @@ void Renderer::Execute()
 			CleanUp();
 			
 			m_JsonDataSize = packet->GetLength();
+			m_JsonData = new char[m_JsonDataSize];
 			StringCopy(m_JsonData, packet->GetData(), m_JsonDataSize);
 			
-			Message("Renderer", "Got new pipeline data, loading JSON and building graph.");
+			Message("Renderer", "Got new pipeline data, loading JSON and building graph: %s", m_JsonData);
+			
 			
 			LoadJson();
 			BuildGraph();

@@ -13,18 +13,58 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
---net.addtag("lol")
---net.addtag("hejsan")
---client = net.createclient()
---client.connect("localhost", 7005)
---client.send("lol", "hejsan svejsan :D")
---client.recv()
+net.addtag("pipeline")
+net.addtag("result")
+net.addtag("profiling")
+client = net.createclient()
+client:connect("localhost", 7005)
+client:send("pipeline", [[[{"blockName" : "PipelineTree",
+   "blockType" : "PipelineTree",
+   "blockData" : { "root" : "output1" }
+  },
+  
+  {"blockName" : "auxinput1",
+     "blockType" : "AuxComp",
+     "blockData" : {"auxType" : "texture",
+                    "filepath" : "data/derptest.png",
+                    "minfilter" : "nearest"
+                   },
+     "blockOutput" : [{"name" : "texture1",
+                       "type" : "texture"}]
+  },
+  
+  {"blockName" : "output1",
+     "blockType" : "Root",
+     "blockInput" : [{"block" : "auxinput1", "output" : "texture1"}],
+     "blockData" : {"host" : "localhost",
+                    "port" : "4632",
+                    "feedback" : true,
+                    "realtime" : false,
+                    "shaderVert" : "uniform sampler2D texture1;
+                    void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "uniform sampler2D texture1;
+                    void main()
+                    {
+                          gl_FragColor = vec4(1.0) - texture2D(texture1, gl_TexCoord[0].st);
+                          gl_FragColor.gb = vec2(0.0);
+                    }",
+                    "width" : 512,
+                    "height" : 512
+                   }
+    }
+]
+]])
+client:recv_noblock(0)
 
-local test = net.createserver()
+--[[local test = net.createserver()
 for k,v in pairs(debug.getmetatable(test.instance)) do
   print(k,v)
 end
-test.instance = nil
+--test.instance = nil]]
 
 ----------------------------------------------
 -- setup menus
