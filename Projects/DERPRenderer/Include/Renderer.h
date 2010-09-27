@@ -24,7 +24,7 @@ namespace Derp
   class Renderer
   {
   public:
-    Renderer(Pxf::Network::Server* _net);
+    Renderer(unsigned int _port);
     virtual ~Renderer ();
 	
 		void LoadFromFile(const char* _filepath);
@@ -47,6 +47,9 @@ namespace Derp
 		Pxf::Network::Server* m_Net;
 		char* m_JsonData;
 		unsigned int m_JsonDataSize;
+		
+		
+		int m_NetTag_Pipeline, m_NetTag_Result, m_NetTag_Profiling;
 
   private:
     //const char* m_Filepath;

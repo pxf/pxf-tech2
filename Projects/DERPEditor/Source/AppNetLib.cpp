@@ -153,12 +153,38 @@ int DERPEditor::net_client_disconnect(lua_State *L)
 
 int DERPEditor::net_client_send(lua_State *L)
 {
-	if (lua_gettop(L) == 2)
+	if (lua_gettop(L) == 3)
 	{
-		lua_getfield(L, -2, "instance");
+		lua_getfield(L, -3, "instance");
 		Client* client = *(Client**)lua_touserdata(L, -1);
-		// TODO: Fix the channel.
-		client->Send(0, lua_tolstring(L, -2, NULL));
+
+		int channel = 0;
+
+		if (lua_isstring(L, -3))
+		{
+			// Fetch the number connected to the string.
+			Util::Array<char*>* tags = LuaApp::GetInstance()->m_net->GetTags();
+
+			int i;
+			for (i=0; i < tags->size(); i++)
+			{
+				if (strcmp((*tags)[i], lua_tolstring(L, -3, NULL)) == 0)
+					// Found it.
+					break;
+			}
+
+			if (i == tags->size())
+				// Couldn't find it.
+				channel = 0;
+			else
+				channel = i;
+
+			client->Send(channel, lua_tolstring(L, -2, NULL));
+		}
+		else if (lua_isnumber(L, -3))
+		{
+			client->Send(lua_tonumber(L, -3), lua_tolstring(L, -2, NULL));
+		}
 
 		return 0;
 	}
@@ -178,8 +204,7 @@ int DERPEditor::net_client_recv(lua_State *L)
 		lua_getfield(L, -1, "instance");
 		Client* client = *(Client**)lua_touserdata(L, -1);
 		Packet* packet = client->Recv();
-		// TODO: Return an actual packet-object instead.
-		//lua_pushlstring(L, packet->GetData(), packet->GetLength());
+
 		net_packet_push(L, packet);
 
 		return 1;

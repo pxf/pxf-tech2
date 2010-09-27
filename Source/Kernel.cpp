@@ -1,5 +1,6 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Module.h>
+#include <Pxf/Base/Config.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Logger.h>
 #include <Pxf/Base/SharedLibrary.h>
@@ -188,7 +189,6 @@ void Pxf::Kernel::Log(unsigned int _Tag, const char* _Message, ...)
 		va_start(va, _Message);
 		vsprintf(Buffer, _Message, va);
 		va_end(va);
-		return res;
 #else
 		FormatArgumentList(Buffer, &_Message);
 #endif
