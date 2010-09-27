@@ -24,23 +24,31 @@
 
 - 6:
 
-[ ] crunch
-[ ] renderare:
-  [ ] interp. json
-  [ ] behandla data
-  [ ] skicka resultat
-  [ ] kommunicera med editor
-  [ ] ladda resurser
-    [ ] lokalt
-	 [ ] editor
-  [ ] profiling för varje komponent
-[ ] editor:
-  [ ] GUI design
-  [ ] workspace
-  [ ] block genererar json/shaderkod
-  [ ] ladda/spara
-  [ ] komponentbibliotek
-  [ ] få data från renderaren samt visa resultat
+[ ] renderare
+	[ ] interpret json
+	[ ] behandla data/resurser
+	[ ] skicka resultat (F)
+	[ ] kommunicera med editor (F)
+	[ ] ladda resurser lokalt/remote (F/JA)
+	[ ] profiling (S/JA)
+		 -- dela på render block
+		  - geometry
+		  - camera
+[ ] Allmänt
+	[ ] Bindings för att skapa textur från rådata (S)
+	[ ] Unika id på paket (F)
+
+[ ] Editor
+	[ ] Guidesign
+	[ ] workspace
+	[ ] block genererar shaderkod
+	[ ] ladda/spara
+	[ ] serialize lua
+	[ ] undo/redo
+	[ ] ta emot resultat från renderare
+	[ ] visa resultat
+	[ ] blockdesign
+	[ ] inspector
 
 - 7:
 
