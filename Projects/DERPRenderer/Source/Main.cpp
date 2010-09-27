@@ -4,6 +4,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Timer.h>
+#include <Pxf/Base/Logger.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Input/InputDevice.h>
@@ -95,6 +96,12 @@ int main()
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
+
+	
+	unsigned tag = Logger::CreateTag("Main");
+	kernel->Log(0, "Fuck U %d", 0xDAD);
+	kernel->Log(tag, "Fuck U %d", 0xDAD);
+	kernel->Log(tag | Logger::IS_CRITICAL, "Fuck U %d", 0xDAD);
 
 	// Setup network.
 	int packet_renderer = net->AddTag("renderer");
