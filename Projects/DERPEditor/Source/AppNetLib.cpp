@@ -153,9 +153,9 @@ int DERPEditor::net_client_disconnect(lua_State *L)
 
 int DERPEditor::net_client_send(lua_State *L)
 {
-	if (lua_gettop(L) == 2)
+	if (lua_gettop(L) == 3)
 	{
-		lua_getfield(L, -2, "instance");
+		lua_getfield(L, -3, "instance");
 		Client* client = *(Client**)lua_touserdata(L, -1);
 
 		int channel = 0;
