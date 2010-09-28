@@ -1,5 +1,7 @@
 #include <Pxf/Resource/Blob.h>
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 
 using namespace Pxf;
 
@@ -13,7 +15,9 @@ Resource::Blob::~Blob()
 
 Resource::BlobLoader::BlobLoader(Pxf::Kernel* _Kernel)
 	: ResourceLoader(_Kernel, "Blob loader")
+	, m_LogTag(0)
 {
+	m_LogTag = m_Kernel->CreateTag("res");
 }
 
 Resource::BlobLoader::~BlobLoader()
@@ -28,7 +32,7 @@ Resource::Blob* Resource::BlobLoader::Load(const char* _FilePath)
 	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);				   
 	if (!chunk)
 	{
-		Pxf::Message("BlobLoader", "Unable to create chunk from file '%s'", _FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Unable to create chunk from file '%s'", _FilePath);
 		return NULL;
 	}
 	return new Resource::Blob(m_Kernel, chunk, this);
