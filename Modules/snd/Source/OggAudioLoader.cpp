@@ -2,6 +2,8 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Modules/snd/OggAudioLoader.h>
 #include <Pxf/Resource/Chunk.h>
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 
 #include <stb_vorbis.h>
 
@@ -24,7 +26,9 @@ Modules::OggSound::~OggSound()
 
 Modules::OggAudioLoader::OggAudioLoader(Pxf::Kernel* _Kernel)
 	: SoundLoader(_Kernel, "Ogg Audio Loader")
+	, m_LogTag(0)
 {
+	m_LogTag = m_Kernel->CreateTag("res");
 }
 
 Modules::OggAudioLoader::~OggAudioLoader()
@@ -36,7 +40,7 @@ Resource::Sound* Modules::OggAudioLoader::Load(const char* _FilePath)
 	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);				   
 	if (!chunk)
 	{
-		Message("AudioLoader", "Unable to create chunk from file '%s'", _FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Unable to create chunk from file '%s'", _FilePath);
 		return NULL;
 	}
 	return new OggSound(m_Kernel, chunk, this);

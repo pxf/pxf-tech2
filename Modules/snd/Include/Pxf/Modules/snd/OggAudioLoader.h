@@ -31,6 +31,7 @@ namespace Modules {
 	class OggAudioLoader : public Resource::SoundLoader
 	{
 	private:
+		unsigned m_LogTag;
 		bool Init(){ return true; }
 	public:
 		OggAudioLoader(Pxf::Kernel* _Kernel);

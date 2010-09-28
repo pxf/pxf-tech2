@@ -39,6 +39,7 @@ namespace Resource
 	class BlobLoader : public Resource::ResourceLoader
 	{
 	private:
+		unsigned m_LogTag;
 		bool Init(){ return true; }
 	public:
 		BlobLoader(Pxf::Kernel* _Kernel);
