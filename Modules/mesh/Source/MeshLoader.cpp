@@ -79,7 +79,9 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		const CTMuint*	_Indices	= 0;
 		const CTMfloat* _Vertices	= 0;
 		const CTMfloat* _Normals	= 0;
+		const CTMfloat* _UVMap	= 0;
 		bool _HasNormals			= false;
+		bool _HasUVMap			= false;
 
 		_VertCount = ctmGetInteger(m_Context, CTM_VERTEX_COUNT);
 		_Vertices = ctmGetFloatArray(m_Context, CTM_VERTICES);
@@ -92,6 +94,12 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 			_HasNormals = true;
 			_Normals = ctmGetFloatArray(m_Context,CTM_NORMALS);
 		}
+		
+		if (_UVMapCount > 0)
+		{
+			_HasUVMap = true;
+			_UVMap = ctmGetFloatArray(m_Context, CTM_UV_MAP_1);
+		}
 
 		OpenCTMMesh* _NewMesh = new OpenCTMMesh(m_Kernel, _Chunk,this);
 
@@ -99,8 +107,9 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		_Data.has_normals = _HasNormals;
 		_Data.vertex_count = _VertCount;
 		_Data.triangle_count = _TriCount;
+		_Data.has_uvmap = _HasUVMap;
 
-		float *n_vertices, *n_normals;
+		float *n_vertices, *n_normals, *n_uvmap;
 		unsigned int* n_indices;
 
 		n_vertices = (float *) MemoryAllocate(3 * sizeof(float) * _VertCount);
@@ -110,12 +119,18 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 			n_normals = (float *) MemoryAllocate(3 * sizeof(float) * _VertCount);
 			MemoryCopy(n_normals, _Normals, 3 * sizeof(float)*_VertCount);
 		}
+		if (_HasUVMap)
+		{
+			n_uvmap = (float *) MemoryAllocate(2 * sizeof(float) * _VertCount);
+			MemoryCopy(n_uvmap, _UVMap, 2 * sizeof(float) * _VertCount);
+		}
 		n_indices = (unsigned int *) MemoryAllocate(3 * sizeof(unsigned int) * _TriCount);
 		MemoryCopy(n_indices, _Indices, 3 * sizeof(unsigned int)*_TriCount);
 
 		_Data.vertices = n_vertices;
 		_Data.normals = n_normals;
 		_Data.indices= n_indices;
+		_Data.texcoords = n_uvmap;
 
 		m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Finished loading model %s", _FilePath);
 

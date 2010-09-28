@@ -16,6 +16,7 @@ namespace Pxf
 			{
 				Math::Vec3f vertex;
 				Math::Vec3f normal;
+				Math::Vec2f texcoord;
 			};
 
 		private:
