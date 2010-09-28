@@ -21,6 +21,7 @@ namespace Pxf
 			int Sender;
 			int Length;
 			int Tag;
+			char* ID;
 
 		public:
 			ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag);
@@ -30,6 +31,7 @@ namespace Pxf
 			virtual int GetSender();
 			virtual int GetLength();
 			virtual int GetTag();
+			virtual char* GetID();
 		};
 	}
 }
