@@ -102,17 +102,11 @@ local window_menu = {{"Inspector",{toggle = false, tooltip = "Show/Hide inspecto
                    
 ----------------------------------------------
 -- create workspace
-
--- TODO: Create workspace.. :)
-
---local workspace = gui:create_workspace(
-
 ----------------------------------------------
 -- create top widget stack
 --   ie. menubar, console, toolbar, tabbar
+--[[
 local topstack = gui:create_verticalstack(0,0,app.width,10)
-local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
-
 
 console = gui:create_console(0,0,app.width,100,false)
 toolbar = gui:create_horizontalpanel(0,0,app.width,40, app.width)
@@ -128,9 +122,11 @@ topstack:addwidget(console)
 -- create status bar
 local statusbar = gui:create_statusbar(0,app.height,app.width, editor.name .. " v" .. editor.version)
 gui.statusbar = statusbar
-
+]]
 
 ----------------------------------------------
+local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
+
 local menu_container = derp:create_menu(0,0,app.width,40)
 menu_container:addwidget(menubar)
 	
@@ -151,14 +147,13 @@ workspace_area.widget_type = "workspace area 01"
 local inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
 
 local right_padding_container = derp:create_block(app.width-20,40,20,app.height-60)
-right_padding_container.widget_type = "center container: right padding"
+right_padding_container.widget_type = "right padding"
 right_padding_container.border.left = true
 
 local statusbar_container = derp:create_statusbar(0,app.height-20,app.width,20)
 
-
-workspace_area:addcomponent(0,0)
-workspace_area:addcomponent(-200,-100)
+workspace_area:addcomponent(0,0,"aux")
+workspace_area:addcomponent(-200,-100,"render")
 
 ws01 = workspace_tabs:addtab("workspace01",workspace_area)
 
@@ -179,6 +174,17 @@ gui.widgets:addwidget(workspace_frames)
 --gui.themetex = gfx.loadtexture("data/guitheme_brown.png")
 
 
+--print(basic_serialize({a = 10, b = 20}))
+
+--basic_serialize(workspace_area)
+
+--local t = loadstring("return" .. basic_serialize({a = 10, b = 20}))()
+--print(t.a)
+
+
+
+--print(t)
+
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()
@@ -188,6 +194,5 @@ function update()
 end
 
 function draw(force)
-  --gfx.setalpha(1.0)
   gui:draw(force)
 end
