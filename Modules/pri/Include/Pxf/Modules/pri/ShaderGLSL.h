@@ -9,6 +9,7 @@ namespace Pxf
 		class ShaderGLSL : public Graphics::Shader
 		{
 		protected:
+			unsigned m_LogTag;
 			unsigned m_ProgramHandle;
 			unsigned m_FragmentShaderHandle;
 			unsigned m_VertexShaderHandle;

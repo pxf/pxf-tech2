@@ -1,15 +1,23 @@
 #include <Pxf/Modules/pri/ModelGL2.h>
-//#include <Pxf/Modules/mesh/
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Mesh.h>
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Memory.h>
-
-#define LOCAL_MSG "ModelGL2"
+#include <Pxf/Base/Logger.h>
 
 using namespace Pxf;
 using namespace Modules;
 using namespace Graphics;
+
+ModelGL2::ModelGL2(Graphics::GraphicsDevice* _pDevice)
+	: Graphics::Model(_pDevice)
+	, m_TriangleCount(0)
+	, m_LogTag(0)
+{
+	m_LogTag = _pDevice->GetKernel()->CreateTag("gfx");
+	if(!Init())
+		_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Unable to initialize model");
+}
 
 bool ModelGL2::Init()
 {
@@ -24,7 +32,7 @@ bool ModelGL2::Load(const char* _FilePath)
 
 	if(!mesh)
 	{
-		Message(LOCAL_MSG, "Load failed");
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to load model: '%s'", _FilePath);
 		return false;
 	}
 

@@ -14,14 +14,14 @@ namespace Resource
 	
 namespace Modules {
 
+	// does nothing? hmz
 	class OpenCTMMesh : public Resource::Mesh
 	{
 	protected:
+		unsigned m_LogTag;
 		virtual bool Build();
 	public:
-		OpenCTMMesh(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Mesh(_Kernel, _Chunk,_Loader)
-		{ }
+		OpenCTMMesh(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader);
 		
 		virtual ~OpenCTMMesh() { }
 	};
@@ -29,6 +29,7 @@ namespace Modules {
 	class CtmMeshLoader : public Resource::MeshLoader
 	{
 	private:
+		unsigned m_LogTag;
 		CTMcontext m_Context;
 
 		bool Init();

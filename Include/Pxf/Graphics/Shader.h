@@ -7,7 +7,7 @@
 namespace Pxf {
 	namespace Graphics {
 		
-		class Shader : Graphics::DeviceResource
+		class Shader : public Graphics::DeviceResource
 		{
 		protected:
 			bool m_Valid;

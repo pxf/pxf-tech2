@@ -5,10 +5,20 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Modules/img/ImageLoader.h>
 #include <Pxf/Resource/Chunk.h>
+#include <Pxf/Base/Logger.h>
 
 #include <SOIL.h>
 
 using namespace Pxf;
+
+Modules::SOILImage::SOILImage(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+	: Resource::Image(_Kernel, _Chunk, _Loader)
+	, m_IsRaw(false)
+	, m_LogTag(0)
+{
+	m_LogTag = m_Kernel->CreateTag("res");
+	Build();
+}
 
 bool Modules::SOILImage::Build()
 {
@@ -21,8 +31,8 @@ bool Modules::SOILImage::Build()
 	if (!m_ImageData)
 	{
 		const char* error = SOIL_last_result();
-		Message("Image", "failed to create image from '%s'", m_Chunk->source);
-		Message("Image", error);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "failed to create image from '%s'", m_Chunk->source ? m_Chunk->source : "unknown");
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, error);
 		return false;
 	}
 	return true;
@@ -44,13 +54,15 @@ bool Modules::SOILImage::SaveAs(const char* _Filename)
 	else if (StringCompare(ext, "bmp") == 0)
 		SOIL_SAVE_TYPE_BMP;
 	else
-		Message("Image", "Save using .bmp, .dds or .tga. '%s' is not supported", ext);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "save images using .bmp, .dds or .tga. '%s' is not supported", ext);
 	return SOIL_save_image(_Filename, save_type, m_Width, m_Height, m_Channels, m_ImageData);
 }
 
 Modules::GenericImageLoader::GenericImageLoader(Pxf::Kernel* _Kernel)
 	: ImageLoader(_Kernel, "Generic Image Loader")
+	, m_LogTag(0)
 {
+	m_LogTag = m_Kernel->CreateTag("res");
 }
 
 Modules::GenericImageLoader::~GenericImageLoader()
@@ -62,7 +74,7 @@ Resource::Image* Modules::GenericImageLoader::Load(const char* _FilePath)
 	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);				   
 	if (!chunk)
 	{
-		Message("ImageLoader", "Unable to create chunk from file '%s'", _FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "unable to create chunk from file '%s'", _FilePath);
 		return NULL;
 	}
 	return new SOILImage(m_Kernel, chunk, this);

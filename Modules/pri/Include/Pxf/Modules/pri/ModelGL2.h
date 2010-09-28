@@ -21,13 +21,12 @@ namespace Pxf
 		private:
 			unsigned m_VertexCount;
 			unsigned m_TriangleCount;
+			unsigned m_LogTag;
 
 			bool Init();
 		public:
-			ModelGL2(Graphics::GraphicsDevice* _pDevice)
-				: Graphics::Model(_pDevice)
-				, m_TriangleCount(0)
-			{ if(!Init()) Message("ModelGL2","Unable to initialize model"); }
+			ModelGL2(Graphics::GraphicsDevice* _pDevice);
+
 			virtual ~ModelGL2();
 
 			bool Load(const char* _FilePath);

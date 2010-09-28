@@ -3,14 +3,21 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Modules/mesh/MeshLoader.h>
 
-#define LOCAL_MSG "MeshLoader"
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 
 using namespace Pxf;
 using namespace Modules;
 
+OpenCTMMesh::OpenCTMMesh(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+	: Resource::Mesh(_Kernel, _Chunk,_Loader)
+	, m_LogTag(0)
+{
+	m_LogTag = m_Kernel->CreateTag("res");
+}
+
 bool OpenCTMMesh::Build()
 {
-
 	return true;
 }
 
@@ -29,7 +36,9 @@ void OpenCTMMesh::SetData(unsigned int _VertCount, unsigned int _TriCount,const 
 
 CtmMeshLoader::CtmMeshLoader(Pxf::Kernel* _Kernel)
 	: MeshLoader(_Kernel, "Ctm Mesh Loader")
+	, m_LogTag(0)
 {
+	m_LogTag = m_Kernel->CreateTag("res");
 	Init();
 }
 
@@ -39,12 +48,11 @@ bool CtmMeshLoader::Init()
 
 	if(ctmGetError(m_Context) == CTM_NONE)	
 	{
-		Message(LOCAL_MSG,"OpenCTM Mesh Loader created");
 		return true;
 	}
 	else
 	{
-		Message(LOCAL_MSG,"Unable to create OpenCTM Context");
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Unable to create OpenCTM Context");
 		return false;
 	}
 }
@@ -57,7 +65,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 	// something failed during load
 	if(!_Chunk)
 	{
-		Message(LOCAL_MSG,"Error loading model %s",_FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Error loading model %s",_FilePath);
 		return 0;
 	}
 
@@ -109,7 +117,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		_Data.normals = n_normals;
 		_Data.indices= n_indices;
 
-		Message(LOCAL_MSG,"Finished loading model %s", _FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Finished loading model %s", _FilePath);
 
 		_NewMesh->SetData(_Data);
 
@@ -117,7 +125,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 	}
 	else
 	{
-		Message(LOCAL_MSG,"Error loading model %s",_FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Error loading model %s",_FilePath);
 		delete _Chunk;
 		return 0;
 	}

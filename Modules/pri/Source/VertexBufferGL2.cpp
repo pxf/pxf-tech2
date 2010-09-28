@@ -1,9 +1,10 @@
-#include <Pxf/Pxf.h>
+#include <Pxf/Kernel.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Modules/pri/VertexBufferGL2.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Stream.h>
+#include <Pxf/Base/Logger.h>
 
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <Pxf/Modules/pri/UniGL.h>
@@ -48,13 +49,15 @@ static GLuint LookupAccessFlag(VertexBufferAccessFlag _BufferAccessFlag)
 VertexBufferGL2::VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
 	: VertexBuffer(_pDevice, _VertexBufferLocation, _VertexBufferUsageFlag)
 	, m_BufferObjectId(0)
+	, m_LogTag(0)
 {
+	m_LogTag = m_pDevice->GetKernel()->CreateTag("gfx");
 	if (_VertexBufferLocation == VB_LOCATION_GPU)
 	{
 		if (!GLEW_VERSION_1_5 && !glewIsSupported("GL_VERSION_1_4  ARB_vertex_buffer_object")
 			&& !glBindBufferARB && !glBindBuffer)
 		{
-			Message("VertexBuffer", "Can not use GPU memory (?)");
+			m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_WARNING, "Vertex Buffer can not use GPU memory, using system memory instead.");
 			m_VertexBufferLocation = VB_LOCATION_SYS;
 		}
 	}

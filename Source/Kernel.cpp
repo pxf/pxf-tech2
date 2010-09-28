@@ -3,6 +3,7 @@
 #include <Pxf/Base/Config.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Logger.h>
+#include <Pxf/Base/Memory.h>
 #include <Pxf/Base/SharedLibrary.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Utils.h>
@@ -24,13 +25,25 @@ Pxf::Kernel::Kernel()
 	, m_NetworkDevice(0)
 	, m_Loggers(0)
 	, m_KernelTag(0)
-	, m_LogFilter()
+	, m_LogTagCount(0)
+	, m_LogTags(0)
+	, m_MaxLogTags(64)
 {
-	// We need to make sure that the resource manager is created in this address space.
 	s_Kernel = this;
-	Resource::ResourceManager* mgr = GetResourceManager();
 	m_Loggers = new LoggerEntry_t(new StdLogger());
-	m_KernelTag = Logger::CreateTag("Kernel");
+
+	if (!m_LogTags)
+	{
+		m_LogTags = new const char*[m_MaxLogTags];
+		MemoryZero(m_LogTags, m_MaxLogTags*sizeof(char*));
+		m_LogTags[0] = "unk";
+		m_LogTagCount = 1;
+	}
+
+	m_KernelTag = CreateTag("krn");
+
+	// We need to make sure that the resource manager is created in this address space.
+	Resource::ResourceManager* mgr = GetResourceManager();
 }
 
 Pxf::Kernel::~Kernel()
@@ -135,7 +148,7 @@ void Pxf::Kernel::RegisterResourceLoader(const char* _Ext, Resource::ResourceLoa
 Pxf::Resource::ResourceManager* Pxf::Kernel::GetResourceManager()
 {
 	if (!m_ResourceManager)
-		m_ResourceManager = new Pxf::Resource::ResourceManager();
+		m_ResourceManager = new Pxf::Resource::ResourceManager(this);
 	return m_ResourceManager;
 }
 
@@ -183,24 +196,51 @@ void Pxf::Kernel::UnregisterLogger(Logger* _logger)
 
 void Pxf::Kernel::Log(unsigned int _Tag, const char* _Message, ...)
 {
-		char Buffer[4092];
-#ifdef CONF_PLATFORM_MACOSX
-		va_list va;
-		va_start(va, _Message);
-		vsprintf(Buffer, _Message, va);
-		va_end(va);
-#else
-		FormatArgumentList(Buffer, &_Message);
-#endif
-		LoggerEntry_t* iter = m_Loggers;
-		while(iter)
-		{
-			iter->logger->Write(_Tag, Buffer);
-			if (iter->next == 0)
-				break;
-			iter = iter->next;
-		}
+	// If _Tag has no warning level flag, set debug-flag
+	if (_Tag & 0xF0000000 == 0)
+		_Tag |= Logger::IS_DEBUG;
 
+	// Write to loggers	
+	char Buffer[4092];
+#ifdef CONF_PLATFORM_MACOSX
+	va_list va;
+	va_start(va, _Message);
+	vsprintf(Buffer, _Message, va);
+	va_end(va);
+#else
+	FormatArgumentList(Buffer, &_Message);
+#endif
+	LoggerEntry_t* iter = m_Loggers;
+	while(iter)
+	{
+		iter->logger->Write(_Tag, m_LogTags, m_MaxLogTags, Buffer);
+		if (iter->next == 0)
+			break;
+		iter = iter->next;
+	}
+
+}
+
+unsigned int Pxf::Kernel::CreateTag(const char* _TagName)
+{
+	unsigned check = FindTagID(_TagName);
+	if (check != 0)
+		return check | Logger::IS_REGISTERED;
+
+	unsigned ret = m_LogTagCount++;
+	m_LogTags[ret] = _TagName;
+	ret |= Logger::IS_REGISTERED;
+	return ret;
+}
+
+unsigned int Pxf::Kernel::FindTagID(const char* _TagName)
+{
+	for(int i = 0; i < m_MaxLogTags; i++)
+	{
+		if (m_LogTags[i] && StringCompareI(_TagName, m_LogTags[i]) == 0)
+			return i;
+	}
+	return 0;
 }
 
 //TODO: Should the build file define PXF_MODULE_EXT instead?
@@ -290,7 +330,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	}
 	
 	Pxf::Module* module = CreateInstance();
-	Log(m_KernelTag | Logger::IS_DEBUG, "Loaded '%s' (0x%x)", FilePath, module);
+	Log(m_KernelTag | Logger::IS_DEBUG, "Loaded '%s'", FilePath);
 	
 	// Check that the module isn't already available, or override
 	bool replaced = false;
@@ -345,7 +385,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 		Log(m_KernelTag | Logger::IS_WARNING, "Warning - Module API version mismatch (%d.%d is recommended)", currmmaj, currmmin);
 	}
 	
-	Log(m_KernelTag | Logger::IS_DEBUG, "Registered %s (dylib, kv: %d.%d, mv: %d.%d) to kernel %x", module->GetIdentifier(), kmaj, kmin, mmaj, mmin, this);
+	//Log(m_KernelTag | Logger::IS_DEBUG, "Registered %s (dylib, kv: %d.%d, mv: %d.%d) to kernel %x", module->GetIdentifier(), kmaj, kmin, mmaj, mmin, this);
 	
 	if (!replaced)
 		m_AvailableModules.push_back(new ModuleEntry_t(lib, module, DestroyInstance));
@@ -378,6 +418,6 @@ void Pxf::Kernel::DumpAvailableModules()
 		const char* path = "built-in";
 		if (m_AvailableModules[i]->dynlib)
 			path = m_AvailableModules[i]->dynlib->GetFilePath();
-		Log(m_KernelTag, "| %d. \t%s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
+		Log(m_KernelTag, "| %d. %s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
 	}
 }
