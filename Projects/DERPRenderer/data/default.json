@@ -31,7 +31,7 @@
   {"blockName" : "auxinput3",
    "blockType" : "AuxComp",
    "blockData" : {"auxType" : "model",
-                  "filepath" : "data/test.ctm"
+                  "filepath" : "data/teapot.ctm"
                  },
    "blockOutput" : [{"name" : "geo1",
                      "type" : "geometry"}]
@@ -40,7 +40,7 @@
   {"blockName" : "auxinput4",
    "blockType" : "AuxComp",
    "blockData" : {"auxType" : "script",
-                  "src" : "lol = 200; return (math.sin(os.clock()) * lol), 0.0, (math.cos(os.clock()) * lol)"
+                  "src" : "lol = 100; return (math.sin(os.clock()) * lol), 0.0, (math.cos(os.clock()) * lol)"
                  },
    "blockOutput" : [{"name" : "script2",
                      "type" : "vec3"}]
@@ -49,7 +49,7 @@
   {"blockName" : "auxinput5",
    "blockType" : "AuxComp",
    "blockData" : {"auxType" : "script",
-                  "src" : "return 0.0, 0.0, 0.0"
+                  "src" : "return 0.0, (math.sin(os.clock()) * 10), 0.0"
                  },
    "blockOutput" : [{"name" : "script3",
                      "type" : "vec3"}]
@@ -67,6 +67,7 @@
   {"blockName" : "render1",
    "blockType" : "Render",
    "blockInput" : [{"block" : "auxinput3", "output" : "geo1"},
+                   {"block" : "auxinput1", "output" : "texture1"},
                    {"block" : "auxinput6", "output" : "script4"},
                    {"block" : "auxinput4", "output" : "script2"},
 						 {"block" : "auxinput5", "output" : "script3"}],
@@ -75,7 +76,8 @@
 						"cameraPosition" : "script2",
 						"cameraLookAt" : "script3",
 						"cameraFov" : 45.0,
-                  "shaderVert" : "varying vec3 n;
+                  "shaderVert" : "uniform sampler2D texture1;
+                  varying vec3 n;
                   uniform vec3 script4;
 						void main(void)
                   {
@@ -84,6 +86,7 @@
                   	gl_TexCoord[0] = gl_MultiTexCoord0;
                   }",
                   "shaderFrag" : "varying vec3 n;
+                  uniform sampler2D texture1;
 						uniform vec3 script4;
                   void main()
                   {
@@ -95,7 +98,7 @@
 
                   	//gl_FragColor = vec4(n, 1.0);
 							//gl_FragColor = vec4(script4, 1.0);
-							gl_FragColor = vec4(color, 1.0);
+							gl_FragColor = intensity*texture2D(texture1, gl_TexCoord[0].st);//vec4(color, 1.0);
                   }"
                  },
    "blockOutput" : [ {"name" : "texture3", "type" : "texture"}]
@@ -103,22 +106,22 @@
   
   {"blockName" : "postprocess1",
    "blockType" : "Post-Process",
-   "blockInput" : [{"block" : "auxinput1", "output" : "texture1"},
+   "blockInput" : [{"block" : "render1", "output" : "texture3"},
                    {"block" : "auxinput2", "output" : "script1"}],
-   "blockData" : {"width" : 64,
-                  "height" : 64,
-                  "shaderVert" : "uniform sampler2D texture1;
+   "blockData" : {"width" : 512,
+                  "height" : 512,
+                  "shaderVert" : "uniform sampler2D texture3;
                   uniform float script1;
                   void main(void)
                   {
                   	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
                   	gl_TexCoord[0] = gl_MultiTexCoord0;
                   }",
-                  "shaderFrag" : "uniform sampler2D texture1;
+                  "shaderFrag" : "uniform sampler2D texture3;
                   uniform float script1;
                   void main()
                   {
-                  	gl_FragData[0] = texture2D(texture1, script1*gl_TexCoord[0].st);
+                  	gl_FragData[0] = vec4(1.0) - texture2D(texture3, gl_TexCoord[0].st);
                   //	gl_FragData[0] = vec4(0.0, 1.0, 0.0, 1.0);
                   //	gl_FragData[1] = vec4(1.0) - texture2D(texture1, script1*gl_TexCoord[0].st);
                   //	gl_FragData[2] = vec4(0.5) - texture2D(texture1, script1*gl_TexCoord[0].st);
@@ -149,7 +152,7 @@
                   uniform float script1;
                   void main()
                   {
-                    if (gl_TexCoord[0].t > 0.25)
+                    if (gl_TexCoord[0].s > 0.5)
                         gl_FragColor = texture2D(texture3, gl_TexCoord[0].st);
                     else
                         gl_FragColor = texture2D(texture2, gl_TexCoord[0].st);

@@ -244,7 +244,7 @@ void RenderBlock::BuildGraph()
 		
 		// Setup internal block stuff
 		m_Shader = m_gfx->CreateShader(m_BlockName, m_VertShader, m_FragShader);
-		m_Cam.SetPerspective(m_CameraFov, (float)m_Width / (float)m_Height, 1.0f, 10000.0f);
+		//m_Cam.SetPerspective(m_CameraFov, (float)m_Width / (float)m_Height, 1.0f, 10000.0f);
 		m_DepthBuffer = m_gfx->CreateRenderBuffer(GL_DEPTH_COMPONENT, m_Width, m_Height);
 		
 		m_HasBeenBuilt = true;
@@ -277,36 +277,46 @@ bool RenderBlock::Execute()
 		// Setup OGL context etc
 		m_gfx->SetViewport(0, 0, m_Width, m_Height);
 		
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(m_CameraFov, (float)m_Width / (float)m_Height, 1.0f, 10000.0f);
+		
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		
+		Math::Vec3f campos, camlook;
+		
 		// Setup camera
 		if (m_CameraPosInput && m_CameraPosInput->GetOutputType(m_CameraPosInputName) == "vec3")
 		{
 			Math::Vec3f* _campos = (Math::Vec3f*)m_CameraPosInput->GetOutput(m_CameraPosInputName);
-			m_Cam.SetPosition(_campos->x, _campos->y, _campos->z);
+			campos = Math::Vec3f(_campos->x, _campos->y, _campos->z);
+			//m_Cam.SetPosition(_campos->x, _campos->y, _campos->z);
 		} else {
 			
 			// Wrong output type of camera position
 			Message("RenderBlock::Execute", "Wrong type of camera position input.");
-			m_Cam.SetPosition(0.0f, 0.0f, 0.0f);
+			campos = Math::Vec3f(0.0f, 0.0f, 0.0f);
+			//m_Cam.SetPosition(0.0f, 0.0f, 0.0f);
 		}
 		
 		if (m_CameraLookInput && m_CameraLookInput->GetOutputType(m_CameraLookInputName) == "vec3")
 		{
 			Math::Vec3f* _camlook = (Math::Vec3f*)m_CameraLookInput->GetOutput(m_CameraLookInputName);
-			m_Cam.SetLookAt(_camlook->x, _camlook->y, _camlook->z);
+			//m_Cam.SetLookAt(_camlook->x, _camlook->y, _camlook->z);
+			camlook = Math::Vec3f(_camlook->x, _camlook->y, _camlook->z);
 		} else {
 			
 			// Wrong output type of camera lookat
 			Message("RenderBlock::Execute", "Wrong type of camera look at input.");
-			m_Cam.SetLookAt(0.0f, 0.0f, 0.0f);
+			camlook = Math::Vec3f(0.0f, 0.0f, 0.0f);
+			//m_Cam.SetLookAt(0.0f, 0.0f, 0.0f);
 		}
 		
-		m_gfx->SetProjection(m_Cam.GetProjectionView());
-		m_gfx->SetModelView(m_Cam.GetModelView());
-
+		gluLookAt(campos.x, campos.y, campos.z, camlook.x, camlook.y, camlook.z, 0.0f, -1.0f, 0.0f);
 		
-		/*Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_Width, 0, m_Height, -1.0f, 10000.0f);
-	  m_gfx->SetProjection(&prjmat);
-		glDisable(GL_DEPTH_TEST);*/
+		//m_gfx->SetProjection(m_Cam.GetProjectionView());
+		//m_gfx->SetModelView(m_Cam.GetModelView());
 	
 		// Attach and bind all render texture outputs to FBO
 		int attach_lut[] = {GL_COLOR_ATTACHMENT0_EXT,

@@ -170,7 +170,7 @@ namespace Derp
 		// build graph usage
 		Pxf::Util::Map<Pxf::Util::String, Block*> m_InputBlocks; // <black name, block pointer>
 		
-		SimpleCamera m_Cam;
+		//SimpleCamera m_Cam;
 		
 		// Shader object
 		Pxf::Graphics::Shader* m_Shader;
