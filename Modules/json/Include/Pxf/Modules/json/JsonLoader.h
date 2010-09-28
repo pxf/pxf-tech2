@@ -16,15 +16,12 @@ namespace Modules {
 	class JsonCpp : public Resource::Json
 	{
 	protected:
+		unsigned m_LogTag;
 		::Json::Reader m_Reader;
 		::Json::Value m_Root;
 		virtual bool Build();
 	public:
-		JsonCpp(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Json(_Kernel, _Chunk,_Loader)
-		{
-			Build();
-		}
+		JsonCpp(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader);
 
 		virtual ~JsonCpp();
 		
@@ -44,6 +41,7 @@ namespace Modules {
 	class JsonCppLoader : public Resource::JsonLoader
 	{
 	private:
+		unsigned m_LogTag;
 		bool Init();
 	public:
 		JsonCppLoader(Pxf::Kernel* _Kernel);

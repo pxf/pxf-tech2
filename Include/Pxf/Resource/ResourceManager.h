@@ -1,6 +1,8 @@
 #ifndef _PXF_RESOURCE_RESOURCEMANAGER_H_
 #define _PXF_RESOURCE_RESOURCEMANAGER_H_
 
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Path.h>
 #include <Pxf/Util/Map.h>
@@ -16,10 +18,12 @@ namespace Resource
 	class ResourceManager
 	{
 	private:
+		Kernel* m_Kernel;
+		unsigned m_LogTag;
 		Pxf::Util::Map<Util::String, ResourceLoader*>* m_ResourceLoaders;
 		Pxf::Util::Map<Util::String, ResourceBase*>* m_LoadedResources;
 	public:
-		ResourceManager();
+		ResourceManager(Kernel* _Kernel);
 		~ResourceManager();
 		
 		void RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader);
@@ -57,14 +61,14 @@ namespace Resource
 					resource = (ResourceType*)loaderit->second->Load(_FilePath);
 					if (!resource)
 					{
-						Pxf::Message("ResourceManager", "Failed to load resource '%s'", _FilePath);
+						m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to load resource '%s'", _FilePath);
 						return NULL;
 					}
 					m_LoadedResources->insert(std::make_pair(_FilePath, resource));
 				}
 				else
 				{
-					Message("ResourceManager", "No supported loader available for type '%s'", fileext);
+					m_Kernel->Log(m_LogTag | Logger::IS_WARNING, "No supported loader available for type '%s'", fileext);
 					return NULL;
 				}
 			}
@@ -86,7 +90,7 @@ namespace Resource
 			{
 				if (!_Resource->GetSource())
 				{
-					Pxf::Message("ResourceManager", "Removing unmanaged resource (fixme)");
+					m_Kernel->Log(m_LogTag | Logger::IS_WARNING, "Removing unmanaged resource (fixme)");
 					_Resource->m_Loader->Destroy((ResourceType*)_Resource);
 					return;
 				}
@@ -98,14 +102,14 @@ namespace Resource
 					Util::Map<Util::String, ResourceBase*>::iterator iter = m_LoadedResources->find(_Resource->GetSource());
 					if (iter != m_LoadedResources->end())
 					{
-						Pxf::Message("ResourceManager", "Purging resource holding '%s' (%s)", _Resource->GetSource(), _Purge? "Forced":"No more refs");
+						m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Purging resource holding '%s' (%s)", _Resource->GetSource(), _Purge? "Forced":"No more refs");
 						m_LoadedResources->erase(iter);
 					}
 
 					_Resource->m_Loader->Destroy((ResourceType*)_Resource);
 				}
 				else
-					Message("ResourceManager", "Releasing resource holding '%s' [refs = %d]", _Resource->GetSource(), _Resource->m_References);
+					m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Releasing resource holding '%s' [refs = %d]", _Resource->GetSource(), _Resource->m_References);
 			}
 		}
 		

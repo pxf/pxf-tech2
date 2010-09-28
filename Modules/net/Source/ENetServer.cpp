@@ -176,3 +176,19 @@ bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
 
 	return true;
 }
+
+bool ENetServer::SendAllIDL(const char* _ID, const int _Type, const char* _Buf, const int _Length)
+{
+	ENetPacket *packet;
+	ENetPeer *peer;
+
+//	Message("ENetServer", "Packet size: %d", _Length);
+
+//	char NewBuf[_Length+2]
+
+	packet = enet_packet_create(_Buf, _Length, ENET_PACKET_FLAG_RELIABLE);
+
+	enet_host_broadcast(Server, _Type, packet);
+
+	return true;
+}

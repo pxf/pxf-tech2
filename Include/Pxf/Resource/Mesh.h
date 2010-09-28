@@ -16,11 +16,13 @@ namespace Resource {
 			mesh_descriptor(const mesh_descriptor &cpy) 
 			{
 				has_normals = cpy.has_normals;
+				has_uvmap = cpy.has_uvmap;
 				vertex_count = cpy.vertex_count;
 				triangle_count = cpy.triangle_count;
 				vertices = cpy.vertices;
 				normals = cpy.normals;
 				indices = cpy.indices;
+				texcoords = cpy.texcoords;
 			}
 			~mesh_descriptor()
 			{
@@ -36,11 +38,13 @@ namespace Resource {
 			}
 
 			bool has_normals;
+			bool has_uvmap;
 			int vertex_count;
 			int triangle_count;
 
 			const float* vertices;
 			const float* normals;
+			const float* texcoords;
 			const unsigned int* indices;
 		};
 
@@ -51,11 +55,13 @@ namespace Resource {
 			: ResourceBase(_Kernel, _Chunk, _Loader)
 		{
 			m_MeshData.has_normals = false;
+			m_MeshData.has_uvmap = false;
 			m_MeshData.vertex_count = 0;
 			m_MeshData.triangle_count = 0;
 			m_MeshData.vertices = 0;
 			m_MeshData.normals = 0;
-			m_MeshData.indices= 0;
+			m_MeshData.indices = 0;
+			m_MeshData.texcoords = 0;
 		}
 
 		virtual ~Mesh()

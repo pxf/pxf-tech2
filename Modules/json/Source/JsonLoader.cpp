@@ -3,6 +3,9 @@
 #include <Pxf/Base/Stream.h>
 #include <Pxf/Modules/json/JsonLoader.h>
 
+#include <Pxf/Base/Logger.h>
+#include <Pxf/Kernel.h>
+
 #define LOCAL_MSG "JsonLoader"
 
 #include <string>
@@ -15,6 +18,13 @@ using namespace Modules;
 	JsonCpp
 */
 
+JsonCpp::JsonCpp(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+	: Resource::Json(_Kernel, _Chunk,_Loader)
+{
+	m_LogTag = m_Kernel->CreateTag("res");
+	Build();
+}
+
 bool JsonCpp::Build()
 {
 	// empty document
@@ -25,8 +35,8 @@ bool JsonCpp::Build()
 
 	if (!success)
 	{
-		Message(LOCAL_MSG, "Failed to parse json file.");
-		Message(LOCAL_MSG, "%s", m_Reader.getFormatedErrorMessages().c_str());
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to parse json file.");
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "%s", m_Reader.getFormatedErrorMessages().c_str());
 	}
 
 	return success;
@@ -54,7 +64,9 @@ bool JsonCpp::SaveToDisk(const char* _FilePath)
 
 JsonCppLoader::JsonCppLoader(Pxf::Kernel* _Kernel)
 	: JsonLoader(_Kernel, "Json Loader")
+	, m_LogTag(0)
 {
+	m_LogTag = m_Kernel->CreateTag("res");
 	Init();
 }
 
@@ -68,7 +80,7 @@ Resource::Json* JsonCppLoader::Load(const char* _FilePath)
 	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);				   
 	if (!chunk)
 	{
-		Message("JsonLoader", "Unable to create chunk from file '%s'", _FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Unable to create chunk from file '%s'", _FilePath);
 		return NULL;
 	}
 	return new JsonCpp(m_Kernel, chunk, this);

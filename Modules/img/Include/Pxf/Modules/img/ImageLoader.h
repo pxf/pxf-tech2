@@ -17,15 +17,11 @@ namespace Modules {
 	class SOILImage : public Resource::Image
 	{
 	protected:
+		unsigned m_LogTag;
 		bool m_IsRaw;
 		virtual bool Build();
 	public:
-		SOILImage(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Image(_Kernel, _Chunk, _Loader)
-			, m_IsRaw(false)
-		{
-			Build();
-		}
+		SOILImage(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader);
 
 		SOILImage(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader, int _Width, int _Height, int _Channels)
 			: Resource::Image(_Kernel, _Chunk, _Loader, _Width, _Height, _Channels)
@@ -42,6 +38,7 @@ namespace Modules {
 	class GenericImageLoader : public Resource::ImageLoader
 	{
 	private:
+		unsigned m_LogTag;
 		bool Init(){ return true; }
 	public:
 		GenericImageLoader(Pxf::Kernel* _Kernel);

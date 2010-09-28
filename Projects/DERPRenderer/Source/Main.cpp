@@ -31,6 +31,7 @@
 #include <Pxf/Resource/Sound.h>
 #include <Pxf/Resource/Font.h>
 #include <Pxf/Resource/Text.h>
+#include <Pxf/Resource/Mesh.h>
 
 #include <Pxf/Network/NetworkDevice.h>
 
@@ -54,7 +55,7 @@ int main()
 	Pxf::RandSetSeed(time(NULL));
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 
-	unsigned main_tag = Logger::CreateTag("Main");
+	unsigned main_tag = kernel->CreateTag("Main");
 
 	kernel->Log(main_tag | Logger::IS_CRITICAL, "Honk %s", "Tonk");
 	kernel->Log(main_tag | Logger::IS_DEBUG, "Honk %s", "Tonk LOL");
@@ -100,7 +101,7 @@ int main()
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
-	
+
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;//renderer->m_Width;//settings["video"].get("width", 800).asInt();
 	spec.Height = 512;//renderer->m_Height;//settings["video"].get("height", 600).asInt();
@@ -113,6 +114,9 @@ int main()
 	spec.Resizeable = false;
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	Graphics::Window* win = gfx->OpenWindow(&spec);
+
+	Resource::Mesh* aoeu = res->Acquire<Resource::Mesh>("data/test.ctm");
+	Graphics::Model* m = gfx->CreateModel(aoeu);
 	
 	// Setup renderer
 	Derp::Renderer* renderer = new Derp::Renderer(settings["network"].get("port", 7005).asUInt());

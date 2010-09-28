@@ -43,6 +43,7 @@ namespace Pxf
 			unsigned int m_Channels;
 			unsigned int m_BufferSize;
 			unsigned int m_MaxVoices;
+			unsigned int m_LogTag;
 
 			bool m_Active;
 			bool m_Initialized;
@@ -52,15 +53,7 @@ namespace Pxf
 			virtual bool Init() { return true; }
  
 		public:
-		RtAudioDevice(Pxf::Kernel* _Kernel)
-			: Pxf::Audio::AudioDevice(_Kernel, "Rt Audio Device")
-			, m_Active(false)
-			, m_Channels(2)
-			, m_BufferSize(1024)
-			, m_MaxVoices(8)
-			, m_Initialized(false)
-		{
-		}
+		RtAudioDevice(Pxf::Kernel* _Kernel);
 
 		virtual bool Initialize(unsigned int _BufferSize = 1024, unsigned int _MaxVoices = 8);
 
@@ -76,6 +69,8 @@ namespace Pxf
 		virtual void Pause(int _SoundID);
 		virtual void PauseAll();
 		virtual void DumpInfo();
+
+		void _ShowMixerWarning(const char* _Msg);
 
 		Util::Array<Resource::Sound*>* GetSoundBank()
 		{

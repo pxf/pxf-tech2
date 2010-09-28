@@ -5,6 +5,7 @@
 #include <Pxf/Base/Debug.h>
 
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Image.h>
 
@@ -19,7 +20,9 @@ using Util::String;
 
 TextureGL2::TextureGL2(GraphicsDevice* _pDevice)
 	: Texture(_pDevice)
+	, m_LogTag(0)
 {
+	m_LogTag = m_pDevice->GetKernel()->CreateTag("gfx");
 	m_TextureID = 0;
 }
 
@@ -109,7 +112,7 @@ void TextureGL2::LoadData(const unsigned char* _datachunk, int _width, int _heig
 	
 	if( m_TextureID == 0)
 	{
-		Message(LOCAL_MSG, "SOIL loading error data chunk: '%s';", SOIL_last_result() );
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "SOIL failed to load image: '%s';", SOIL_last_result() );
 		PXFGLCHECK("TextureGL2::LoadData/End");
 		return;
 	}
@@ -137,7 +140,7 @@ void TextureGL2::Reload()
 	
 	if (!img)
 	{
-		Message(LOCAL_MSG, "Failed to load file '%s'", m_Filepath.c_str());
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to load file '%s'", m_Filepath.c_str());
 		PXFGLCHECK("TextureGL2::Reload/End");
 		return;
 	}
@@ -155,7 +158,7 @@ void TextureGL2::Reload()
 	res->Release(img);
 	
 	if (m_TextureID == 0)
-		Message(LOCAL_MSG, "Failed to create texture for '%s'", m_Filepath.c_str());
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to create texture for '%s'", m_Filepath.c_str());
 	PXFGLCHECK("TextureGL2::Reload/End");
 }
 
@@ -186,9 +189,12 @@ void TextureGL2::SetMagFilter(TextureFilter _Filter)
 	GLint param = GL_NEAREST;
 
 	// use a lut
-	if	  (_Filter == TEX_FILTER_NEAREST) param = GL_NEAREST;
-	else if (_Filter == TEX_FILTER_LINEAR)  param = GL_LINEAR;
-	else	Message("TextureGL2", "invalid mag filter, using GL_NEAREST");
+	if (_Filter == TEX_FILTER_NEAREST)
+		param = GL_NEAREST;
+	else if (_Filter == TEX_FILTER_LINEAR)
+		param = GL_LINEAR;
+	else
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_WARNING, "invalid mag filter, using 'nearest'");
 	
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param);
@@ -207,7 +213,7 @@ void TextureGL2::SetMinFilter(TextureFilter _Filter)
 	else if (_Filter == TEX_FILTER_LINEAR_MIPMAP_NEAREST)  param = GL_LINEAR_MIPMAP_NEAREST;
 	else if (_Filter == TEX_FILTER_NEAREST_MIPMAP_LINEAR)  param = GL_NEAREST_MIPMAP_LINEAR;
 	else if (_Filter == TEX_FILTER_NEAREST_MIPMAP_NEAREST)  param = GL_NEAREST_MIPMAP_NEAREST;
-	else	Message("TextureGL2", "invalid mag filter, using GL_NEAREST");
+	else	m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_WARNING, "invalid mag filter, using GL_NEAREST");
 
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, param);

@@ -92,8 +92,8 @@ namespace Pxf{
 			Graphics::Window* m_Window;
 			Graphics::FrameBufferObject* m_CurrentFrameBufferObject;
 			Graphics::Shader* m_CurrentShader;
-			
 			Graphics::Texture* m_BindHistory[16];
+			unsigned int m_LogTag;
 		};
 
 	} // Graphics

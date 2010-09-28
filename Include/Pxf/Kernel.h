@@ -55,7 +55,9 @@ namespace Pxf {
 		};
 		LoggerEntry_t* m_Loggers;
 		unsigned m_KernelTag;
-		unsigned m_LogFilter;
+		unsigned int m_MaxLogTags;
+		const char** m_LogTags;
+		unsigned short m_LogTagCount;
 
 		Audio::AudioDevice* m_AudioDevice;
 		Input::InputDevice* m_InputDevice;
@@ -96,8 +98,8 @@ namespace Pxf {
 		void RegisterLogger(Logger* _logger);
 		void UnregisterLogger(Logger* _logger);
 		void Log(unsigned int _Tag, const char* _Message, ...);
-		//void SetLogFilter(unsigned int _Filter);
-
+		unsigned int CreateTag(const char* _TagName);
+		unsigned int FindTagID(const char* _TagName);
 
 		//void RegisterPhysicsEngine(PhysicsEngine* _Engine);
 		//PhysicsEngine* GetPhysicsEngine();

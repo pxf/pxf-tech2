@@ -1,4 +1,5 @@
 #include <Pxf/Pxf.h>
+#include <Pxf/Base/Logger.h>
 #include <Pxf/Base/Memory.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Modules/pri/DeviceGL2.h>
@@ -19,9 +20,6 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Mesh.h>
 
-
-#define LOCAL_MSG "Device"
-
 using namespace Pxf;
 using namespace Pxf::Graphics;
 using namespace Pxf::Modules;
@@ -31,15 +29,16 @@ DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
 	: GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
 	, m_CurrentFrameBufferObject(0)
 	, m_CurrentShader(0)
+	, m_LogTag(0)
 {
+	m_LogTag = _Kernel->CreateTag("gfx");
+
 	// Initialize GLFW
 	if (glfwInit() != GL_TRUE)
 	{
-		Message(LOCAL_MSG, "Could not initialize GLFW!");
+		GetKernel()->Log(m_LogTag,"Could not initialize GLFW!");
 		return;
 	}
-
-	Message(LOCAL_MSG, "Device initiated.");
 	
 	// Clear BindTexture history
 	for(int i = 0; i < 16; ++i)
@@ -59,7 +58,7 @@ DeviceGL2::~DeviceGL2()
 
 Window* DeviceGL2::OpenWindow(WindowSpecifications* _pWindowSpecs)
 {
-	m_Window = new WindowGL2(_pWindowSpecs);
+	m_Window = new WindowGL2(this, _pWindowSpecs);
 	m_Window->Open();
 	return m_Window;
 }

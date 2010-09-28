@@ -4,12 +4,19 @@
 
 #include <Pxf/Base/Debug.h>
 
+#include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
+
 using namespace Pxf;
 using namespace Pxf::Graphics;
 
 ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const char* _VertexShader, const char* _FragmentShader)
-: Shader(_pDevice)
+	: Shader(_pDevice)
+	, m_LogTag(0)
 {
+	m_LogTag = m_pDevice->GetKernel()->CreateTag("gfx");
+
 	PXFGLCHECK("ShaderGLSL::ShaderGLSL/Start");
 	if (_VertexShader && _FragmentShader)
 	{
@@ -39,7 +46,7 @@ ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const 
 	}
 
 	if (m_Valid)	
-		Message("Shader", "Shader '%s' was compiled and linked successfully", _Identifier);
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_INFORMATION, "Shader '%s' was compiled and linked successfully", _Identifier);
 	PXFGLCHECK("ShaderGLSL::ShaderGLSL/End");
 }
 
@@ -69,9 +76,9 @@ bool ShaderGLSL::CheckForCompilationErrors(unsigned _ShaderHandle)
 		GL::GetShaderInfoLog(_ShaderHandle, 4095, &len, buff);
 		buff[len] = 0;
 
-		Message("Shader", "Failed to compile shader.");
-		Message("Shader", buff);
-		Message("Shader", "Shader compilation error", buff);
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to compile shader.");
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, buff);
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Shader compilation error", buff);
 		//exit(1);
 		return false;
 	}
@@ -89,10 +96,10 @@ bool ShaderGLSL::CheckForLinkerErrors(unsigned _ProgramHandle)
 		GL::GetProgramInfoLog(_ProgramHandle, 4095, &len, buff);
 		buff[len] = 0;
 
-		Message("Shader", "Failed to link shader.");
-		Message("Shader", buff);
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to link shader.");
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, buff);
 		if (*buff != 0x0)
-			Message("Shader", "Shader link error", buff);
+			m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Shader link error", buff);
 		return false;
 	}
 	return true;
