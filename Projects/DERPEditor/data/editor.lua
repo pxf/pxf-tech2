@@ -17,7 +17,7 @@ net.addtag("pipeline")
 net.addtag("result")
 net.addtag("profiling")
 client = net.createclient()
-client:connect("mkeyd.net", 7005)
+client:connect("localhost", 7005)
 client:send("pipeline", [[[{"blockName" : "PipelineTree",
    "blockType" : "PipelineTree",
    "blockData" : { "root" : "output1" }

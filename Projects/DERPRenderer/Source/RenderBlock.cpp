@@ -34,7 +34,6 @@ static Json::Value CreateJson(const char* data)
 
 bool AuxiliaryBlock::Initialize(Json::Value *node)
 {
-	//Json::Value node = CreateJson(m_JsonData);
 	
 	// First set blockname
 	m_BlockName = (*node)["blockName"].asCString();
@@ -53,6 +52,15 @@ bool AuxiliaryBlock::Initialize(Json::Value *node)
 		// Setup lua
 		L = luaL_newstate();
 		luaL_openlibs(L);
+	}
+	else if ((*node)["blockData"]["auxType"].asString() == "model")
+	{
+		m_AuxType = AUXILIARY_MODEL;
+		m_AuxData = (*node)["blockData"]["filepath"].asCString();
+		
+	} else {
+		Message("AuxiliaryBlock", "Unknown auxiliary block type: %s", (*node)["blockData"]["auxType"].asCString());
+		return false;
 	}
 	
 	// Add outputs
@@ -78,7 +86,7 @@ void AuxiliaryBlock::BuildGraph()
 			
 			if (inputtype == "texture")
 			{
-				Graphics::Texture* toutputtex = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture(m_AuxData);
+				Graphics::Texture* toutputtex = m_gfx->CreateTexture(m_AuxData);
 				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutputtex) );
 				
 			} else if (inputtype == "float")
@@ -93,6 +101,22 @@ void AuxiliaryBlock::BuildGraph()
 			{
 				Math::Vec2f* toutresult = new Math::Vec2f(0.0f);
 				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutresult) );
+				
+			} else if (inputtype == "vec3")
+			{
+				Math::Vec3f* toutresult = new Math::Vec3f(0.0f);
+				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutresult) );
+
+			} else if (inputtype == "geometry")
+			{
+				if (m_AuxType == AUXILIARY_MODEL)
+				{
+					Graphics::Model* model = m_gfx->CreateModel(m_AuxData);
+					m_Outputs.insert( std::make_pair((*iter).first, (void*)model) );
+				} else {
+					Message("AuxiliaryBlock",  "Incompatable auxiliary type and output type.");
+				}
+				
 			}
 			
 		}
@@ -132,6 +156,13 @@ bool AuxiliaryBlock::Execute()
 						(*val).x = lua_tonumber(L, -2);
 						(*val).y = lua_tonumber(L, -1);
 
+					} else if (inputtype == "vec3")
+					{
+						Math::Vec3f* val = (Math::Vec3f*)m_Outputs[(*iter).first];
+						(*val).x = lua_tonumber(L, -3);
+						(*val).y = lua_tonumber(L, -2);
+						(*val).z = lua_tonumber(L, -1);
+
 					} else {
 						Message("AuxiliaryBlock::Execute", "Don't know what to do!");
 					}
@@ -150,8 +181,251 @@ bool AuxiliaryBlock::Execute()
 
 bool RenderBlock::Initialize(Json::Value *node)
 {
-	return false;
+	// First set blockname
+	m_BlockName = (*node)["blockName"].asCString();
+
+	// Setup texture properties
+	m_Width = (*node)["blockData"]["width"].asInt();
+	m_Height = (*node)["blockData"]["height"].asInt();
+
+	// Store shader code
+	m_VertShader = (*node)["blockData"]["shaderVert"].asCString();
+	m_FragShader = (*node)["blockData"]["shaderFrag"].asCString();
+
+	// Store our camera input (we need it in BuildGraph)
+	m_CameraPosInputName = (*node)["blockData"]["cameraPosition"].asString();
+	m_CameraLookInputName = (*node)["blockData"]["cameraLookAt"].asString();
+	m_CameraFov = (float)(*node)["blockData"]["cameraFov"].asDouble();
+
+	// Add inputs
+	for(int i = 0; i < (*node)["blockInput"].size(); i++)
+	{
+		m_Inputs.insert( m_Inputs.end(), OutputStruct((*node)["blockInput"][i]["block"].asCString(), (*node)["blockInput"][i]["output"].asCString()) );
+	}
+
+	// Add outputs
+	for(int i = 0; i < (*node)["blockOutput"].size(); i++)
+	{
+		m_OutputTypes.insert( std::make_pair((*node)["blockOutput"][i]["name"].asCString(), (*node)["blockOutput"][i]["type"].asCString()) );
+	}
+
+	return true;
 }
+
+
+void RenderBlock::BuildGraph()
+{
+	if (!m_HasBeenBuilt)
+	{
+		
+		// Build childs in trees and setup input pointers
+		for (Util::Array<OutputStruct>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+		{
+			Block *child = m_Renderer->m_Blocks[(*iter).block_name.c_str()];
+			child->BuildGraph();
+			m_InputBlocks.insert( std::make_pair((*iter).block_name.c_str(), child) );
+			
+			// Is this our camera position input?
+			if (m_CameraPosInputName == (*iter).block_output)
+			{
+				m_CameraPosInput = child;
+			} else if (m_CameraLookInputName == (*iter).block_output)
+			{
+				m_CameraLookInput = child;
+			}
+		}
+		
+		// Setup output textures
+		for (Util::Map<Util::String, Util::String>::iterator iter = m_OutputTypes.begin(); iter != m_OutputTypes.end(); ++iter)
+		{
+			Graphics::Texture* toutputtex = m_gfx->CreateEmptyTexture(m_Width, m_Height);
+			m_Outputs.insert( std::make_pair((*iter).first, (void*)toutputtex) );
+		}
+		
+		// Setup internal block stuff
+		m_Shader = m_gfx->CreateShader(m_BlockName, m_VertShader, m_FragShader);
+		m_Cam.SetPerspective(m_CameraFov, (float)m_Width / (float)m_Height, 1.0f, 10000.0f);
+		m_DepthBuffer = m_gfx->CreateRenderBuffer(GL_DEPTH_COMPONENT, m_Width, m_Height);
+		
+		m_HasBeenBuilt = true;
+	}
+}
+
+void RenderBlock::ResetPerformed()
+{
+	// Reset inputs
+	for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
+	{
+		(*iter).second->ResetPerformed();
+	}
+	
+	// Reset myself
+	Block::ResetPerformed();
+}
+
+bool RenderBlock::Execute()
+{
+	if (!m_IsPerformed) {
+		// Execute prereqs
+		for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
+		{
+			(*iter).second->Execute();
+		}
+		
+		m_ProfileTimer.Start();
+	
+		// Setup OGL context etc
+		m_gfx->SetViewport(0, 0, m_Width, m_Height);
+		
+		// Setup camera
+		if (m_CameraPosInput && m_CameraPosInput->GetOutputType(m_CameraPosInputName) == "vec3")
+		{
+			Math::Vec3f* _campos = (Math::Vec3f*)m_CameraPosInput->GetOutput(m_CameraPosInputName);
+			m_Cam.SetPosition(_campos->x, _campos->y, _campos->z);
+		} else {
+			
+			// Wrong output type of camera position
+			Message("RenderBlock::Execute", "Wrong type of camera position input.");
+			m_Cam.SetPosition(0.0f, 0.0f, 0.0f);
+		}
+		
+		if (m_CameraLookInput && m_CameraLookInput->GetOutputType(m_CameraLookInputName) == "vec3")
+		{
+			Math::Vec3f* _camlook = (Math::Vec3f*)m_CameraLookInput->GetOutput(m_CameraLookInputName);
+			m_Cam.SetLookAt(_camlook->x, _camlook->y, _camlook->z);
+		} else {
+			
+			// Wrong output type of camera lookat
+			Message("RenderBlock::Execute", "Wrong type of camera look at input.");
+			m_Cam.SetLookAt(0.0f, 0.0f, 0.0f);
+		}
+		
+		m_gfx->SetProjection(m_Cam.GetProjectionView());
+		m_gfx->SetModelView(m_Cam.GetModelView());
+
+		
+		/*Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_Width, 0, m_Height, -1.0f, 10000.0f);
+	  m_gfx->SetProjection(&prjmat);
+		glDisable(GL_DEPTH_TEST);*/
+	
+		// Attach and bind all render texture outputs to FBO
+		int attach_lut[] = {GL_COLOR_ATTACHMENT0_EXT,
+			                  GL_COLOR_ATTACHMENT1_EXT,
+			                  GL_COLOR_ATTACHMENT2_EXT,
+			                  GL_COLOR_ATTACHMENT3_EXT};
+		int num_attach = 0;
+		for (Util::Map<Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
+		{
+			m_Renderer->m_FBO->Attach((Graphics::Texture*)((*iter).second), attach_lut[num_attach], false);
+			num_attach += 1;
+		}
+		
+		// Bind depth buffer
+		m_Renderer->m_FBO->Attach(m_DepthBuffer, GL_DEPTH_ATTACHMENT_EXT);
+		
+		// Bind framebuffer
+		m_gfx->BindFrameBufferObject(m_Renderer->m_FBO);
+		
+		// Enable depth
+		glEnable(GL_DEPTH_TEST);
+		
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+		// Bind shaders
+		m_gfx->BindShader(m_Shader);
+	
+		// Gather and bind all our inputs
+		int ttexunit = 0;
+		for (Util::Array<OutputStruct>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+		{
+			// Get pointer to input block
+			Block* inputblock = m_InputBlocks[(*iter).block_name.c_str()];
+		
+			// Get texture pointer
+			Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).block_output);
+			if (inputtype == "texture")
+			{
+				// Input is a texture, bind and set uniform
+				Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).block_output);
+				if (inputtex == 0) {
+					return false;
+				}
+		
+				m_gfx->BindTexture(inputtex, ttexunit);
+				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
+				ttexunit += 1;
+			
+			} else if (inputtype == "float")
+			{
+				// Input is a script with float result
+				float* scriptres = (float*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformf(m_Shader, (*iter).block_output.c_str(), *scriptres);
+			
+			} else if (inputtype == "int")
+			{
+				// Input is a script with int result
+				int* scriptres = (int*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), *scriptres);
+
+			} else if (inputtype == "vec2")
+			{
+				// Input is a script with vec2 result
+				Math::Vec2f* scriptres = (Math::Vec2f*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformVec2(m_Shader, (*iter).block_output.c_str(), scriptres);
+
+			} else if (inputtype == "vec3")
+			{
+				// Input is a script with vec3 result
+				Math::Vec3f* scriptres = (Math::Vec3f*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformVec3(m_Shader, (*iter).block_output.c_str(), scriptres);
+
+			}
+			
+		}
+	
+		// Render only inputs that deliver geometry
+		for (Util::Array<OutputStruct>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+		{
+			// Get pointer to input block
+			Block* inputblock = m_InputBlocks[(*iter).block_name.c_str()];
+			
+			Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).block_output);
+			if (inputtype == "geometry")
+			{
+				((Graphics::Model*)inputblock->GetOutput((*iter).block_output))->Draw();
+			}
+		}
+			
+		// Unbind shader
+		m_gfx->BindShader(0);
+	
+		// Unbind FBO
+		m_gfx->UnbindFrameBufferObject();
+	
+		// Detach texture
+		for(int i = num_attach-1; i >= 0; i--)
+		{
+			m_Renderer->m_FBO->Detach(attach_lut[i]);
+		}
+		
+		// Detach depth buffer
+		m_Renderer->m_FBO->Detach(GL_DEPTH_ATTACHMENT_EXT);
+		
+		// Disable depth again
+		glDisable(GL_DEPTH_TEST);
+		
+		glLoadIdentity();
+		
+		// End block timer
+		m_ProfileTimer.Stop();
+		// do something with result m_ProfileTimer.Interval()
+	}
+	
+	// Return
+	return Block::Execute();
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////
 // Post-Process
@@ -301,6 +575,12 @@ bool PostProcessBlock::Execute()
 				Math::Vec2f* scriptres = (Math::Vec2f*)inputblock->GetOutput((*iter).block_output);
 				m_gfx->SetUniformVec2(m_Shader, (*iter).block_output.c_str(), scriptres);
 
+			} else if (inputtype == "vec3")
+			{
+				// Input is a script with vec3 result
+				Math::Vec3f* scriptres = (Math::Vec3f*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformVec3(m_Shader, (*iter).block_output.c_str(), scriptres);
+
 			}
 		}
 	
@@ -371,13 +651,6 @@ void RootBlock::BuildGraph()
 			child->BuildGraph();
 			m_InputBlocks.insert( std::make_pair((*iter).block_name.c_str(), child) );
 		}	
-	
-		// Build up input pointers
-		/*for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
-		{
-			Message("LOOOOOOOOOOOOOOOOOOOOOL", (*iter).first.c_str());
-			//m_Inputs.insert( std::make_pair(node["blockInput"][i]["block"].asCString(), node["blockInput"][i]["output"].asCString()) );
-		}*/
 		
 		// Setup internal block stuff
 		m_OutputQuad = new SimpleQuad(0, 0, m_Width, m_Height);
@@ -462,6 +735,12 @@ bool RootBlock::Execute()
 				// Input is a script with vec2 result
 				Math::Vec2f* scriptres = (Math::Vec2f*)inputblock->GetOutput((*iter).block_output);
 				m_gfx->SetUniformVec2(m_Shader, (*iter).block_output.c_str(), scriptres);
+
+			} else if (inputtype == "vec3")
+			{
+				// Input is a script with vec3 result
+				Math::Vec3f* scriptres = (Math::Vec3f*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformVec3(m_Shader, (*iter).block_output.c_str(), scriptres);
 
 			}
 		}
