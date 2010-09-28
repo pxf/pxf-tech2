@@ -4,6 +4,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Timer.h>
+#include <Pxf/Base/Logger.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Input/InputDevice.h>
@@ -31,6 +32,8 @@
 #include <Pxf/Resource/Font.h>
 #include <Pxf/Resource/Text.h>
 
+#include <Pxf/Network/NetworkDevice.h>
+
 #include <Pxf/Modules/pri/RenderBufferGL2.h>
 
 #include "Renderer.h"
@@ -50,6 +53,11 @@ int main()
 {
 	Pxf::RandSetSeed(time(NULL));
 	Kernel* kernel = Pxf::Kernel::GetInstance();
+
+	unsigned main_tag = Logger::CreateTag("Main");
+
+	kernel->Log(main_tag | Logger::IS_CRITICAL, "Honk %s", "Tonk");
+	kernel->Log(main_tag | Logger::IS_DEBUG, "Honk %s", "Tonk LOL");
 
 	// Just load everything
 	kernel->RegisterModule("pri", 0xFFFF, true);
@@ -86,19 +94,16 @@ int main()
 			jdoc = jld->CreateEmpty();
 			jdoc->SetRoot(settings);
 			jdoc->SaveToDisk("data/config.json");
-			Message("Main", "Saving new config!");
+			kernel->Log(main_tag | Logger::IS_INFORMATION, "Saving new config!");
 		}
 	}
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
 	
-	Derp::Renderer* renderer = new Derp::Renderer("data/testblocks.json");
-	renderer->LoadJson();
-	
 	Graphics::WindowSpecifications spec;
-	spec.Width = renderer->m_Width;//settings["video"].get("width", 800).asInt();
-	spec.Height = renderer->m_Height;//settings["video"].get("height", 600).asInt();
+	spec.Width = 512;//renderer->m_Width;//settings["video"].get("width", 800).asInt();
+	spec.Height = 512;//renderer->m_Height;//settings["video"].get("height", 600).asInt();
 	spec.ColorBits = 24;
 	spec.AlphaBits = 8;
 	spec.DepthBits = 8;
@@ -109,8 +114,8 @@ int main()
 	spec.VerticalSync = settings["video"].get("vsync", true).asBool();
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
-	// Build pipeline graph
-	renderer->BuildGraph();
+	// Setup renderer
+	Derp::Renderer* renderer = new Derp::Renderer(settings["network"].get("port", 7005).asUInt());
 	
 	// Setup full screen quad
 	SimpleQuad* finalquad = new SimpleQuad(0.0f, 0.0f, 1.0f, 1.0f);
@@ -122,8 +127,6 @@ int main()
 
 		// Execute renderer/pipeline
 		renderer->Execute();
-			
-		// TODO: Setup normal backbuffer and render final output
 		
 		// Setup ogl
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
@@ -149,10 +152,27 @@ int main()
 			//Resource::Image* img = gfx->CreateImageFromTexture(renderer->GetResult());
 			Texture* tex = gfx->CreateTextureFromFramebuffer();
 			Resource::Image* img = gfx->CreateImageFromTexture(tex);
+
 			gfx->DestroyTexture(tex);
 			img->SaveAs("data/screenshot.tga");
 			delete img;
 		}
+
+/*		if (inp->GetLastKey() == Input::F6)
+		{
+			win->Swap();
+			Texture* tex = gfx->CreateTextureFromFramebuffer();
+			Resource::Image* img = gfx->CreateImageFromTexture(tex);
+
+			// TODO: Also send some identifier for the last texture.
+			int height = img->Height();
+			server->SendAllL(packet_result, (const char*)&height, 1);
+			server->SendAllL(packet_result, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+
+			gfx->DestroyTexture(tex);
+			delete img;
+		}
+		*/
 		
 		inp->ClearLastKey();
 		inp->ClearLastButton();
@@ -163,6 +183,14 @@ int main()
 		win->SetTitle(title);
 
 		win->Swap();
+
+		/*Network::Packet* packet = server->RecvNonBlocking(0);
+		if (packet != NULL)
+			if (packet->GetTag() == packet_renderer)
+			{
+				kernel->Log(main_tag | Logger::IS_DEBUG, "aoeu, lol");
+			}
+			*/
 
 		//glPopMatrix();
 	}

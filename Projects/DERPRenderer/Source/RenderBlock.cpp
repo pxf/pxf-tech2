@@ -174,7 +174,7 @@ bool PostProcessBlock::Initialize(Json::Value *node)
 	// Add inputs
 	for(int i = 0; i < (*node)["blockInput"].size(); i++)
 	{
-		m_InputTypes.insert( std::make_pair((*node)["blockInput"][i]["block"].asCString(), (*node)["blockInput"][i]["output"].asCString()) );
+		m_Inputs.insert( m_Inputs.end(), OutputStruct((*node)["blockInput"][i]["block"].asCString(), (*node)["blockInput"][i]["output"].asCString()) );
 	}
 	
 	// Add outputs
@@ -194,11 +194,11 @@ void PostProcessBlock::BuildGraph()
 	{
 		
 		// Build childs in trees and setup input pointers
-		for (Util::Map<Util::String, Util::String>::iterator iter = m_InputTypes.begin(); iter != m_InputTypes.end(); ++iter)
+		for (Util::Array<OutputStruct>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
 		{
-			Block *child = m_Renderer->m_Blocks[(*iter).first.c_str()];
+			Block *child = m_Renderer->m_Blocks[(*iter).block_name.c_str()];
 			child->BuildGraph();
-			m_Inputs.insert( std::make_pair((*iter).first.c_str(), child) );
+			m_InputBlocks.insert( std::make_pair((*iter).block_name.c_str(), child) );
 		}
 		
 		// Setup output textures
@@ -219,11 +219,9 @@ void PostProcessBlock::BuildGraph()
 void PostProcessBlock::ResetPerformed()
 {
 	// Reset inputs
-	for (Util::Map<Util::String, Util::String>::iterator iter = m_InputTypes.begin(); iter != m_InputTypes.end(); ++iter)
+	for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
 	{
-		// Get pointer to input block
-		Block* inputblock = m_Inputs[(*iter).first];
-		inputblock->ResetPerformed();
+		(*iter).second->ResetPerformed();
 	}
 	
 	// Reset myself
@@ -234,12 +232,12 @@ bool PostProcessBlock::Execute()
 {
 	if (!m_IsPerformed) {
 		// Execute prereqs
-		for (Util::Map<Util::String, Util::String>::iterator iter = m_InputTypes.begin(); iter != m_InputTypes.end(); ++iter)
+		for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
 		{
-			// Get pointer to input block
-			Block* inputblock = m_Inputs[(*iter).first];
-			inputblock->Execute(); // TODO: Remember to avoid circlejerks in the graph.
+			(*iter).second->Execute();
 		}
+		
+		m_ProfileTimer.Start();
 	
 		// Setup OGL context etc
 		m_gfx->SetViewport(0, 0, m_Width, m_Height);
@@ -266,43 +264,42 @@ bool PostProcessBlock::Execute()
 	
 		// Gather and bind all our inputs
 		int ttexunit = 0;
-		for (Util::Map<Util::String, Util::String>::iterator iter = m_InputTypes.begin(); iter != m_InputTypes.end(); ++iter)
+		for (Util::Array<OutputStruct>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
 		{
 			// Get pointer to input block
-			Block* inputblock = m_Inputs[(*iter).first];
+			Block* inputblock = m_InputBlocks[(*iter).block_name.c_str()];
 		
 			// Get texture pointer
-			Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).second);
+			Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).block_output);
 			if (inputtype == "texture")
 			{
 				// Input is a texture, bind and set uniform
-				Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).second);
+				Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).block_output);
 				if (inputtex == 0) {
-					exit(1);
 					return false;
 				}
 		
 				m_gfx->BindTexture(inputtex, ttexunit);
-				m_gfx->SetUniformi(m_Shader, (*iter).second.c_str(), ttexunit);
+				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
 				ttexunit += 1;
 			
 			} else if (inputtype == "float")
 			{
 				// Input is a script with float result
-				float* scriptres = (float*)inputblock->GetOutput((*iter).second);
-				m_gfx->SetUniformf(m_Shader, (*iter).second.c_str(), *scriptres);
+				float* scriptres = (float*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformf(m_Shader, (*iter).block_output.c_str(), *scriptres);
 			
 			} else if (inputtype == "int")
 			{
 				// Input is a script with int result
-				int* scriptres = (int*)inputblock->GetOutput((*iter).second);
-				m_gfx->SetUniformi(m_Shader, (*iter).second.c_str(), *scriptres);
+				int* scriptres = (int*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), *scriptres);
 
 			} else if (inputtype == "vec2")
 			{
 				// Input is a script with vec2 result
-				Math::Vec2f* scriptres = (Math::Vec2f*)inputblock->GetOutput((*iter).second);
-				m_gfx->SetUniformVec2(m_Shader, (*iter).second.c_str(), scriptres);
+				Math::Vec2f* scriptres = (Math::Vec2f*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformVec2(m_Shader, (*iter).block_output.c_str(), scriptres);
 
 			}
 		}
@@ -317,10 +314,14 @@ bool PostProcessBlock::Execute()
 		m_gfx->UnbindFrameBufferObject();
 	
 		// Detach texture
-		for(int i = 0; i < num_attach; ++i)
+		for(int i = num_attach-1; i >= 0; i--)
 		{
 			m_Renderer->m_FBO->Detach(attach_lut[i]);
 		}
+		
+		// End block timer
+		m_ProfileTimer.Stop();
+		// do something with result m_ProfileTimer.Interval()
 	}
 	
 	// Return
@@ -350,7 +351,7 @@ bool RootBlock::Initialize(Json::Value *node)
 	// Add inputs
 	for(int i = 0; i < (*node)["blockInput"].size(); i++)
 	{
-		m_Inputs.insert( std::make_pair((*node)["blockInput"][i]["block"].asCString(), (*node)["blockInput"][i]["output"].asCString()) );
+		m_Inputs.insert( m_Inputs.end(), OutputStruct((*node)["blockInput"][i]["block"].asCString(), (*node)["blockInput"][i]["output"].asCString()) );
 	}
 	
 	// TODO: Add other root properties
@@ -364,11 +365,11 @@ void RootBlock::BuildGraph()
 	{
 		
 		// Build childs in trees
-		for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+		for (Util::Array<OutputStruct>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
 		{
-			Block *child = m_Renderer->m_Blocks[(*iter).first.c_str()];
+			Block *child = m_Renderer->m_Blocks[(*iter).block_name.c_str()];
 			child->BuildGraph();
-			m_InputBlocks.insert( std::make_pair((*iter).first.c_str(), child) );
+			m_InputBlocks.insert( std::make_pair((*iter).block_name.c_str(), child) );
 		}	
 	
 		// Build up input pointers
@@ -390,11 +391,9 @@ void RootBlock::BuildGraph()
 void RootBlock::ResetPerformed()
 {
 	// Reset inputs
-	for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+	for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
 	{
-		// Get pointer to input block
-		Block* inputblock = m_InputBlocks[(*iter).first];
-		inputblock->ResetPerformed();
+		(*iter).second->ResetPerformed();
 	}
 	
 	// Reset myself
@@ -405,11 +404,9 @@ bool RootBlock::Execute()
 {
 	if (!m_IsPerformed) {
 			// Execute prereqs
-		for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+		for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
 		{
-			// Get pointer to input block
-			Block* inputblock = m_InputBlocks[(*iter).first];
-			inputblock->Execute();
+			(*iter).second->Execute();
 		}
 
 		// Setup OGL context etc
@@ -428,44 +425,43 @@ bool RootBlock::Execute()
 
 		// Gather and bind all our inputs
 		int ttexunit = 0;
-		for (Util::Map<Util::String, Util::String>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
+		for (Util::Array<OutputStruct>::iterator iter = m_Inputs.begin(); iter != m_Inputs.end(); ++iter)
 		{
 			// Get pointer to input block
-			Block* inputblock = m_InputBlocks[(*iter).first];
+			Block* inputblock = m_InputBlocks[(*iter).block_name.c_str()];
 	
 			// Get texture pointer
-			Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).second);
+			Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).block_output.c_str());
 			if (inputtype == "texture")
 			{
 				// Input is a texture, bind and set uniform
-				Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).second);
+				Graphics::Texture* inputtex = (Graphics::Texture*)inputblock->GetOutput((*iter).block_output);
 				if (inputtex == 0) {
-					exit(1);
 					return false;
 				}
 				
 				// Unbind textures
 				m_gfx->BindTexture(inputtex, ttexunit);
-				m_gfx->SetUniformi(m_Shader, (*iter).second.c_str(), ttexunit);//inputtex->GetTextureID());
+				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);//inputtex->GetTextureID());
 				ttexunit += 1;
 		
 			} else if (inputtype == "float")
 			{
 				// Input is a script with float result
-				float* scriptres = (float*)inputblock->GetOutput((*iter).second);
-				m_gfx->SetUniformf(m_Shader, (*iter).second.c_str(), *scriptres);
+				float* scriptres = (float*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformf(m_Shader, (*iter).block_output.c_str(), *scriptres);
 		
 			} else if (inputtype == "int")
 			{
 				// Input is a script with int result
-				int* scriptres = (int*)inputblock->GetOutput((*iter).second);
-				m_gfx->SetUniformi(m_Shader, (*iter).second.c_str(), *scriptres);
+				int* scriptres = (int*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), *scriptres);
 
 			} else if (inputtype == "vec2")
 			{
 				// Input is a script with vec2 result
-				Math::Vec2f* scriptres = (Math::Vec2f*)inputblock->GetOutput((*iter).second);
-				m_gfx->SetUniformVec2(m_Shader, (*iter).second.c_str(), scriptres);
+				Math::Vec2f* scriptres = (Math::Vec2f*)inputblock->GetOutput((*iter).block_output);
+				m_gfx->SetUniformVec2(m_Shader, (*iter).block_output.c_str(), scriptres);
 
 			}
 		}

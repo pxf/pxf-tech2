@@ -49,7 +49,7 @@ void FrameBufferObjectGL2::_Configure()
 	PXFGLCHECK("_Configure/End");
 }
 
-bool CheckFBO(GLenum _status)
+bool FrameBufferObjectGL2::CheckFBO(unsigned _status)
 {
 	switch(_status)
 	{
@@ -137,7 +137,7 @@ void FrameBufferObjectGL2::Detach(const unsigned _Attachment)
 	else if(_Attachment >= GL_COLOR_ATTACHMENT0 && _Attachment <= GL_COLOR_ATTACHMENT15)
 	{
 		short unsigned _ID = TranslateAttachment(_Attachment);
-		unsigned short _Result = m_AttachmentMask & (_ID+1);
+		unsigned short _Result = m_AttachmentMask & (1 << (_ID));
 
 		if(!_Result)
 		{
@@ -147,7 +147,7 @@ void FrameBufferObjectGL2::Detach(const unsigned _Attachment)
 		}	
 
 		m_NumColorAttachment--;
-		m_AttachmentMask ^= _ID+1;
+		m_AttachmentMask &= ~(1 << (_ID));
 
 	}
 	else
@@ -158,9 +158,7 @@ void FrameBufferObjectGL2::Detach(const unsigned _Attachment)
 
 	FrameBufferObject* OldFBO = m_pDevice->BindFrameBufferObject(this);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, _Attachment, GL_TEXTURE_2D, 0, 0);
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	m_pDevice->BindFrameBufferObject(OldFBO);
-	m_Complete = CheckFBO(status);
 	PXFGLCHECK("Detach/End");
 }
 
@@ -192,7 +190,7 @@ void FrameBufferObjectGL2::Attach(Texture* _Texture, const unsigned _Attachment,
 	else if(_Attachment >= GL_COLOR_ATTACHMENT0 && _Attachment <= GL_COLOR_ATTACHMENT15)
 	{
 		short unsigned _ID = TranslateAttachment(_Attachment);
-		short unsigned _Result = (m_AttachmentMask & (_ID+1)) / (_ID + 1);
+		short unsigned _Result = (m_AttachmentMask & (1 << (_ID)));
 
 		if(_Result)
 		{
@@ -203,7 +201,7 @@ void FrameBufferObjectGL2::Attach(Texture* _Texture, const unsigned _Attachment,
 		
 		
 		m_NumColorAttachment++;
-		m_AttachmentMask ^= _ID+1;
+		m_AttachmentMask |= (1 << (_ID));
 	}
 	else
 	{
@@ -268,7 +266,7 @@ void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachm
 	else if(_Attachment >= GL_COLOR_ATTACHMENT0 && _Attachment <= GL_COLOR_ATTACHMENT15)
 	{
 		short unsigned _ID = TranslateAttachment(_Attachment);
-		short unsigned _Result = (m_AttachmentMask & (_ID+1)) / (_ID + 1);
+		short unsigned _Result = (m_AttachmentMask & (1 << (_ID)));
 
 		if(_Result)
 		{
@@ -278,7 +276,7 @@ void FrameBufferObjectGL2::Attach(RenderBuffer* _Buffer, const unsigned _Attachm
 		}	
 		
 		m_NumColorAttachment++;
-		m_AttachmentMask ^= _ID+1;
+		m_AttachmentMask |= 1 << (_ID);
 	}
 	else
 	{

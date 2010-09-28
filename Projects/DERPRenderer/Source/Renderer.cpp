@@ -10,31 +10,75 @@ using namespace Derp;
 using namespace Pxf;
 using namespace Graphics;
 
-Renderer::Renderer(const char* _filepath)
-	: m_Filepath(_filepath)
-	, m_RootBlock(NULL)
+Renderer::Renderer(unsigned int _port)
+	: m_RootBlock(NULL)
 	, m_RootName(NULL)
 	, m_Width(0)
 	, m_Height(0)
+	, m_jsonloader(0)
+	, m_doc(0)
+	, m_JsonData(0)
 {
-  // do something?
+	// Set tags for network.
+	Network::NetworkDevice* _net = Pxf::Kernel::GetInstance()->GetNetworkDevice();
+	m_NetTag_Pipeline = _net->AddTag("pipeline");
+	m_NetTag_Result = _net->AddTag("result");
+	m_NetTag_Profiling = _net->AddTag("profiling");
+	
+	m_Net = _net->CreateServer();
+	m_Net->Bind(_port);
+	
+  // Load default blocks
+	LoadFromFile("data/default.json");
 }
 
 Renderer::~Renderer()
+{		
+	CleanUp();
+}
+
+void Renderer::CleanUp()
 {
-  // clean up!
+	// Delete blocks
+	for(Util::Map<Util::String, Block*>::iterator iter = m_Blocks.begin(); iter != m_Blocks.end(); ++iter)
+	{
+		delete (*iter).second;
+	}
+	m_Blocks.clear();
+	
+	
 	if(m_doc)
-		m_jsonloader->Destroy(m_doc);
+	{
+		if (m_jsonloader)
+			m_jsonloader->Destroy(m_doc);
+	}
+	
+	if (m_JsonData)
+		delete [] m_JsonData;
+		
+}
+
+void Renderer::LoadFromFile(const char* _filepath)
+{
+	CleanUp();
+	
+  Kernel* k = Kernel::GetInstance();
+ 	Resource::ResourceManager* res = k->GetResourceManager();
+  Resource::Text* data = res->Acquire<Resource::Text>(_filepath);
+	m_jsonloader = res->FindResourceLoader<Pxf::Resource::JsonLoader>("json");
+	//m_doc = m_jsonloader->CreateFrom(data->Ptr(), StringLength(data->Ptr()));	
+
+	m_JsonDataSize = StringLength(data->Ptr());	
+	m_JsonData = new char[m_JsonDataSize];
+	StringCopy(m_JsonData, data->Ptr(), m_JsonDataSize);
+	
+	LoadJson();
+	BuildGraph();
 }
 
 void Renderer::LoadJson()
 {
-  Kernel* k = Kernel::GetInstance();
-
- 	Resource::ResourceManager* res = k->GetResourceManager();
-  Resource::Text* data = res->Acquire<Resource::Text>(m_Filepath);
-	m_jsonloader = res->FindResourceLoader<Pxf::Resource::JsonLoader>("json");
-	m_doc = m_jsonloader->CreateFrom(data->Ptr(), StringLength(data->Ptr()));
+	m_doc = m_jsonloader->CreateFrom(m_JsonData, m_JsonDataSize);
 	
 	if (m_doc)
 	{
@@ -118,6 +162,24 @@ void Renderer::BuildGraph()
 
 void Renderer::Execute()
 {
+	Network::Packet* packet = m_Net->RecvNonBlocking(0);
+	if (packet != NULL)
+		if (packet->GetTag() == m_NetTag_Pipeline)
+		{
+			CleanUp();
+			
+			m_JsonDataSize = packet->GetLength();
+			m_JsonData = new char[m_JsonDataSize];
+			StringCopy(m_JsonData, packet->GetData(), m_JsonDataSize);
+			
+			Message("Renderer", "Got new pipeline data, loading JSON and building graph: %s", m_JsonData);
+			
+			
+			LoadJson();
+			BuildGraph();
+			
+		}
+	
 	if (m_RootBlock)
 	{
 		m_RootBlock->ResetPerformed();

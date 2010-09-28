@@ -63,6 +63,8 @@ PFNGLUNIFORMMATRIX2FVPROC GL::UniformMatrix2fv = 0;
 PFNGLUNIFORMMATRIX3FVPROC GL::UniformMatrix3fv = 0;
 PFNGLUNIFORMMATRIX4FVPROC GL::UniformMatrix4fv = 0;
 
+void glstubDrawBuffers(GLsizei n, const GLenum* bufs){}
+
 void GL::SetupExtensions()
 {
 	/* OpenGL 1.5 */
@@ -191,4 +193,7 @@ void GL::SetupExtensions()
 		UniformMatrix3fv = glUniformMatrix3fvARB;
 		UniformMatrix4fv = glUniformMatrix4fvARB;
 	}
+
+	if (!DrawBuffers)
+		DrawBuffers = (PFNGLDRAWBUFFERSPROC)glstubDrawBuffers;
 }

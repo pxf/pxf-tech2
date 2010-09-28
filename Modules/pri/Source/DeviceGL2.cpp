@@ -329,10 +329,11 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 {
 	PXFGLCHECK("DeviceGL2::BindFrameBufferObject/Start");
 	// prepare drawing
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	if(_pFrameBufferObject)
 	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		
 		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetHandle());
 		m_CurrentFrameBufferObject = _pFrameBufferObject;
@@ -343,7 +344,6 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		                GL_COLOR_ATTACHMENT6_EXT, GL_COLOR_ATTACHMENT7_EXT, GL_COLOR_ATTACHMENT8_EXT};
 
 		_buffercount = ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetNumAttached();
-		Message("DeviceGL2:::BindFrameBufferObject", "buffercount: %i", _buffercount);
 		if (_buffercount > 1)
 			glDrawBuffers(_buffercount, _attachment_lut);
 		else
@@ -368,7 +368,7 @@ void DeviceGL2::UnbindFrameBufferObject()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	m_CurrentFrameBufferObject = 0;
-	//glDrawBuffer(GL_BACK);
+	glDrawBuffer(GL_BACK);
 }
 
 

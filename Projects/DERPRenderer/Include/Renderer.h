@@ -10,6 +10,8 @@
 #include <Pxf/Graphics/RenderBuffer.h>
 #include <Pxf/Graphics/FrameBufferObject.h>
 
+#include <Pxf/Network/NetworkDevice.h>
+
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Json.h>
 #include <Pxf/Resource/Text.h>
@@ -22,8 +24,11 @@ namespace Derp
   class Renderer
   {
   public:
-    Renderer(const char* _filepath);
+    Renderer(unsigned int _port);
     virtual ~Renderer ();
+	
+		void LoadFromFile(const char* _filepath);
+		void CleanUp();
     
     void LoadJson();
     void BuildGraph();
@@ -39,9 +44,15 @@ namespace Derp
 		
 		int m_Width, m_Height;
 		Pxf::Graphics::FrameBufferObject* m_FBO;
+		Pxf::Network::Server* m_Net;
+		char* m_JsonData;
+		unsigned int m_JsonDataSize;
+		
+		
+		int m_NetTag_Pipeline, m_NetTag_Result, m_NetTag_Profiling;
 
   private:
-    const char* m_Filepath;
+    //const char* m_Filepath;
 		Pxf::Resource::Json* m_doc;
 		Pxf::Resource::JsonLoader* m_jsonloader;
 		Json::Value root; // json-root

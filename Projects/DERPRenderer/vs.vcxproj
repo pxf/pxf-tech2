@@ -127,6 +127,10 @@
     <ClInclude Include="..\..\Include\Pxf\Input\NullInputDevice.h" />
     <ClInclude Include="..\..\Include\Pxf\Kernel.h" />
     <ClInclude Include="..\..\Include\Pxf\Module.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\Client.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\NetworkDevice.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\Packet.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\Server.h" />
     <ClInclude Include="..\..\Include\Pxf\Pxf.h" />
     <ClInclude Include="..\..\Include\Pxf\Resource\Blob.h" />
     <ClInclude Include="..\..\Include\Pxf\Resource\Mesh.h" />

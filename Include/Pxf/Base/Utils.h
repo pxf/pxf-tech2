@@ -130,6 +130,18 @@ namespace Pxf
 		return ((v>>24) | ((v&0xFF0000)>>8) | ((v&0xFF00)<<8) | ((v&0xFF)<<24));
 	}
 
+	template<typename T> 
+	inline void SetBit(T* _value, unsigned _bit)
+	{
+		*_value |= (1 << _bit);
+	}
+
+	template<typename T> 
+	inline void ClearBit(T* _value, unsigned _bit)
+	{
+		*_value &= ~(1 << _bit);
+	}
+
 	// Swaps endianess for arbitrary data type 
 	template<typename T> 
 	static T ByteswapArb(const T& t)

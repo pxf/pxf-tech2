@@ -14,6 +14,7 @@ namespace Pxf {
 	
 	class SharedLibrary;
 	class Module;
+	class Logger;
 	
 	class Kernel
 	{
@@ -39,9 +40,23 @@ namespace Pxf {
 				dynlib = _Library;
 			}
 		};
-		
 		Pxf::Util::Array<ModuleEntry_t*> m_AvailableModules;
 		
+		// Would be nice with Util::List
+		struct LoggerEntry_t
+		{
+			Logger* logger;
+			LoggerEntry_t* next;
+			LoggerEntry_t(Logger* _logger)
+			{
+				logger = _logger;
+				next = 0;
+			}
+		};
+		LoggerEntry_t* m_Loggers;
+		unsigned m_KernelTag;
+		unsigned m_LogFilter;
+
 		Audio::AudioDevice* m_AudioDevice;
 		Input::InputDevice* m_InputDevice;
 		Graphics::GraphicsDevice* m_GraphicsDevice;
@@ -71,20 +86,24 @@ namespace Pxf {
 		
 		void RegisterGraphicsDevice(Graphics::GraphicsDevice* _Device);
 		Graphics::GraphicsDevice* GetGraphicsDevice();
-		
-		void RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader);
-		Resource::ResourceManager* GetResourceManager();
 
 		void RegisterNetworkDevice(Network::NetworkDevice* _Device);
 		Network::NetworkDevice* GetNetworkDevice();
 		
+		void RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader);
+		Resource::ResourceManager* GetResourceManager();
+
+		void RegisterLogger(Logger* _logger);
+		void UnregisterLogger(Logger* _logger);
+		void Log(unsigned int _Tag, const char* _Message, ...);
+		//void SetLogFilter(unsigned int _Filter);
+
+
 		//void RegisterPhysicsEngine(PhysicsEngine* _Engine);
 		//PhysicsEngine* GetPhysicsEngine();
 		//void RegisterScriptEngine(ScriptEngine* _Engine);
 		//ScriptEngine* GetScriptEngine();
 
-		//ResourceManager* GetResourceManager();
-		
 		static unsigned int GetKernelVersion()
 		{
 			return KERNEL_VERSION;

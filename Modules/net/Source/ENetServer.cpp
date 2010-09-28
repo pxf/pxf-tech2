@@ -12,12 +12,11 @@ int ENetServer::CreateClientID()
 
 bool ENetServer::Bind(const int _Port)
 {
-	// TODO: Replace 32 with a settable setting. Maybe add it as an argument to ENetServer?
 	Address.host = ENET_HOST_ANY;
 	Address.port = _Port;
 
 //	Message("ENetServer", "Ident %d %d", Ident, NetDev->GetTags()->size());
-	Server = enet_host_create(&Address, 32, NetDev->GetTags()->size(), 0, 0);
+	Server = enet_host_create(&Address, 1, NetDev->GetTags()->size(), 0, 0);
 
 #if COMPRESSION == 1
 	enet_host_compress_with_range_coder(Server);
@@ -93,13 +92,13 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 	ENetEvent event;
 	int stopTime = Platform::GetTime() + _Timeout;
 
-	/* Loop until we hit an error. */
+	/* Loop until we hit an error or timeout. */
 	while (enet_host_service(Server, &event, stopTime - Platform::GetTime()) >= 0)
 	{
 		switch(event.type)
 		{
 		case ENET_EVENT_TYPE_NONE:
-			Message("ENetServer", "Timeout.");
+//			Message("ENetServer", "Timeout.");
 			return NULL;
 			break;
 
@@ -161,11 +160,19 @@ bool ENetServer::SendAll(const int _Type, const char* _Buf)
 
 	enet_host_broadcast(Server, _Type, packet);
 
+	return true;
+}
 
-	// TODO: Some way of destroying this packet.
-	//		 Even better, is it destroyed by the enet-library?
-//	enet_packet_destroy(packet);
-//	enet_host_flush(Server);
+bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
+{
+	ENetPacket *packet;
+	ENetPeer *peer;
+
+//	Message("ENetServer", "Packet size: %d", _Length);
+
+	packet = enet_packet_create(_Buf, _Length, ENET_PACKET_FLAG_RELIABLE);
+
+	enet_host_broadcast(Server, _Type, packet);
 
 	return true;
 }

@@ -1,21 +1,20 @@
 #include <Pxf/Kernel.h>
-#include <Pxf/Base/Debug.h>
-#include <Pxf/Base/SharedLibrary.h>
 #include <Pxf/Module.h>
+#include <Pxf/Base/Config.h>
+#include <Pxf/Base/Debug.h>
+#include <Pxf/Base/Logger.h>
+#include <Pxf/Base/SharedLibrary.h>
+#include <Pxf/Base/String.h>
 #include <Pxf/Base/Utils.h>
-
 #include <Pxf/Audio/NullAudioDevice.h>
 #include <Pxf/Input/NullInputDevice.h>
-
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Network/NetworkDevice.h>
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 
-#include <Pxf/Base/String.h>
-
 Pxf::Kernel* Pxf::Kernel::s_Kernel = 0;
-const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 1);
+const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 3);
 
 Pxf::Kernel::Kernel()
 	: m_AudioDevice(0)
@@ -23,10 +22,15 @@ Pxf::Kernel::Kernel()
 	, m_GraphicsDevice(0)
 	, m_ResourceManager(0)
 	, m_NetworkDevice(0)
+	, m_Loggers(0)
+	, m_KernelTag(0)
+	, m_LogFilter()
 {
 	// We need to make sure that the resource manager is created in this address space.
 	s_Kernel = this;
 	Resource::ResourceManager* mgr = GetResourceManager();
+	m_Loggers = new LoggerEntry_t(new StdLogger());
+	m_KernelTag = Logger::CreateTag("Kernel");
 }
 
 Pxf::Kernel::~Kernel()
@@ -46,6 +50,21 @@ Pxf::Kernel::~Kernel()
 			delete m_AvailableModules[i]->dynlib;
 		delete m_AvailableModules[i];
 	}
+
+	if (m_Loggers)
+	{
+		while(m_Loggers)
+		{
+			SafeDelete(m_Loggers->logger);
+			if (m_Loggers->next == 0)
+				break;
+
+			m_Loggers->logger = m_Loggers->next->logger;
+			m_Loggers->next = m_Loggers->next->next;
+		}
+		SafeDelete(m_Loggers);
+	}
+
 }
 
 
@@ -55,7 +74,7 @@ void Pxf::Kernel::RegisterAudioDevice(Pxf::Audio::AudioDevice* _Device)
 		m_AudioDevice = new Pxf::Audio::NullAudioDevice(this);
 	else
 		m_AudioDevice = _Device;
-	Pxf::Message("Kernel", "Registered audio device '%s'", m_AudioDevice->GetIdentifier());
+	Log(m_KernelTag, "Registered audio device '%s'", m_AudioDevice->GetIdentifier());
 }
 
 Pxf::Audio::AudioDevice* Pxf::Kernel::GetAudioDevice()
@@ -71,7 +90,7 @@ void Pxf::Kernel::RegisterInputDevice(Pxf::Input::InputDevice* _Device)
 		m_InputDevice = new Pxf::Input::NullInputDevice(this);
 	else
 		m_InputDevice = _Device;
-	Pxf::Message("Kernel", "Registered input device '%s'", m_InputDevice->GetIdentifier());
+	Log(m_KernelTag, "Registered input device '%s'", m_InputDevice->GetIdentifier());
 }
 
 Pxf::Input::InputDevice* Pxf::Kernel::GetInputDevice()
@@ -83,7 +102,7 @@ Pxf::Input::InputDevice* Pxf::Kernel::GetInputDevice()
 		
 void Pxf::Kernel::RegisterGraphicsDevice(Pxf::Graphics::GraphicsDevice* _Device)
 {
-	Pxf::Message("Kernel", "Registering video device '%s'", _Device->GetIdentifier());
+	Log(m_KernelTag, "Registering video device '%s'", _Device->GetIdentifier());
 	m_GraphicsDevice = _Device;
 }
 
@@ -96,7 +115,7 @@ Pxf::Graphics::GraphicsDevice* Pxf::Kernel::GetGraphicsDevice()
 
 void Pxf::Kernel::RegisterNetworkDevice(Pxf::Network::NetworkDevice* _Device)
 {
-	Pxf::Message("Kernel", "Registering network device '%s'", _Device->GetIdentifier());
+	Log(m_KernelTag, "Registering network device '%s'", _Device->GetIdentifier());
 	m_NetworkDevice = _Device;
 }
 
@@ -120,6 +139,69 @@ Pxf::Resource::ResourceManager* Pxf::Kernel::GetResourceManager()
 	return m_ResourceManager;
 }
 
+void Pxf::Kernel::RegisterLogger(Logger* _logger)
+{
+	LoggerEntry_t* iter = m_Loggers;
+	while(iter)
+	{
+		if (iter->logger == _logger)
+			break; /* already registered */
+		else if (iter->next == 0)
+		{
+			LoggerEntry_t* log = new LoggerEntry_t(_logger);
+			iter->next = log;
+			break;
+		}
+		iter = iter->next;
+	}
+}
+
+void Pxf::Kernel::UnregisterLogger(Logger* _logger)
+{
+	LoggerEntry_t* iter = m_Loggers;
+	while(iter)
+	{
+		if (iter->logger == _logger)
+		{
+			SafeDelete(iter->logger);
+			if (iter->next)
+			{
+				LoggerEntry_t* old = iter->next;
+				iter->logger = iter->next->logger;
+				iter->next = iter->next->next;
+				SafeDelete(old);
+			}
+			else
+				iter->next = 0;
+		}
+
+		if (iter->next == 0)
+			break;
+		iter = iter->next;
+	}
+}
+
+void Pxf::Kernel::Log(unsigned int _Tag, const char* _Message, ...)
+{
+		char Buffer[4092];
+#ifdef CONF_PLATFORM_MACOSX
+		va_list va;
+		va_start(va, _Message);
+		vsprintf(Buffer, _Message, va);
+		va_end(va);
+#else
+		FormatArgumentList(Buffer, &_Message);
+#endif
+		LoggerEntry_t* iter = m_Loggers;
+		while(iter)
+		{
+			iter->logger->Write(_Tag, Buffer);
+			if (iter->next == 0)
+				break;
+			iter = iter->next;
+		}
+
+}
 
 //TODO: Should the build file define PXF_MODULE_EXT instead?
 static const char* get_full_module_ext()
@@ -191,7 +273,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	
 	if(!lib->Load(FilePath))
 	{
-		Message("Kernel", "File not found: '%s'", FilePath);
+		Log(m_KernelTag, "File not found: '%s'", FilePath);
 		return false;
 	}
 	
@@ -202,13 +284,13 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	
 	if(!CreateInstance)
 	{
-		Pxf::Message("Kernel", "CreateInstance: %x", CreateInstance);
-		//delete lib;
+		Log(m_KernelTag, "CreateInstance: %x", CreateInstance);
+		delete lib;
 		return false;
 	}
 	
 	Pxf::Module* module = CreateInstance();
-	Pxf::Message("Kernel", "Loaded '%s' (0x%x)", FilePath, module);
+	Log(m_KernelTag | Logger::IS_DEBUG, "Loaded '%s' (0x%x)", FilePath, module);
 	
 	// Check that the module isn't already available, or override
 	bool replaced = false;
@@ -218,14 +300,14 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 		{
 			if (!_OverrideBuiltin)
 			{
-				Message("Kernel", "Module '%s' is already built-in.", module->GetIdentifier());
+				Log(m_KernelTag | Logger::IS_DEBUG, "Module '%s' is already built-in.", module->GetIdentifier());
 				DestroyInstance(module);
 				delete lib;
 				return false;
 			}
 			else
 			{
-				Message("Kernel", "'%s' is overriding built-in '%s'.", FilePath, module->GetIdentifier());
+				Log(m_KernelTag | Logger::IS_DEBUG, "'%s' is overriding built-in '%s'.", FilePath, module->GetIdentifier());
 				
 				// Remove built-in module
 				m_AvailableModules[i]->destroy(m_AvailableModules[i]->module);
@@ -253,17 +335,17 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	Pxf::UnpackShort2(Pxf::Kernel::KERNEL_VERSION, &currkmaj, &currkmin);
 	if (kmaj < currkmaj || (kmaj == currkmaj && kmin < currkmin))
 	{
-		Message("Kernel", "Warning, kernel version mismatch (%d.%d is recommended)", currkmaj, currkmin);
+		Log(m_KernelTag | Logger::IS_WARNING, "Warning, kernel version mismatch (%d.%d is recommended)", currkmaj, currkmin);
 	}
 	
 	unsigned short currmmaj, currmmin;
 	Pxf::UnpackShort2(Pxf::Module::MODULE_VERSION, &currmmaj, &currmmin);
 	if (mmaj < currmmaj || (mmaj == currmmaj && mmin < currmmin))
 	{
-		Message("Kernel", "Warning - Module API version mismatch (%d.%d is recommended)", currmmaj, currmmin);
+		Log(m_KernelTag | Logger::IS_WARNING, "Warning - Module API version mismatch (%d.%d is recommended)", currmmaj, currmmin);
 	}
 	
-	Message("Kernel", "Registered %s (dylib, kv: %d.%d, mv: %d.%d) to kernel %x", module->GetIdentifier(), kmaj, kmin, mmaj, mmin, this);
+	Log(m_KernelTag | Logger::IS_DEBUG, "Registered %s (dylib, kv: %d.%d, mv: %d.%d) to kernel %x", module->GetIdentifier(), kmaj, kmin, mmaj, mmin, this);
 	
 	if (!replaced)
 		m_AvailableModules.push_back(new ModuleEntry_t(lib, module, DestroyInstance));
@@ -290,12 +372,12 @@ bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
 
 void Pxf::Kernel::DumpAvailableModules()
 {
-	Message("Kernel", "Dumping available modules:");
+	Log(m_KernelTag, "Dumping available modules:");
 	for(int i = 0; i < m_AvailableModules.size(); i++)
 	{
 		const char* path = "built-in";
 		if (m_AvailableModules[i]->dynlib)
 			path = m_AvailableModules[i]->dynlib->GetFilePath();
-		Message("Kernel", "| %d. \t%s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
+		Log(m_KernelTag, "| %d. \t%s (%s)", i, m_AvailableModules[i]->module->GetIdentifier(), path);
 	}
 }
