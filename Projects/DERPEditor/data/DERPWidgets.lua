@@ -2,7 +2,7 @@ derp = {}
 derp.active_workspace = nil
 derp.active_tool = nil
 
-function basic_serialize(val)
+function basic_serialize(val,ident)
 	if type(val) == "number" or type(val) == "boolean" then
 		return tostring(val)
 	elseif type(val) == "string" then
@@ -11,9 +11,14 @@ function basic_serialize(val)
 	elseif type(val) == "table" then
 		-- new table
 		local ret = "{\n"
+		local ident_str = ""
+		
+		for i = 0,ident do
+			ident_str = ident_str .. "    "
+		end
 	
 		for k,v in pairs(val) do
-			ret = ret .. "  [" .. basic_serialize(k) .. "] = " .. basic_serialize(v) .. ",\n"
+			ret = ret .. ident_str .. "[" .. basic_serialize(k) .. "] = " .. basic_serialize(v,ident+1) .. ",\n"
 		end
 		
 		ret = ret .. "\n}"
@@ -24,13 +29,31 @@ function basic_serialize(val)
 	end
 end
 
-function derp:save(filename)
+function derp:save(filename,workspace)
 	-- save current workspace
-	local file 
+	local file = io.output(filename .. ".derp","w")
+	local data = basic_serialize(workspace.component_data,0)
+	
+	io.write(data)
+	
+	file:close()
 end
 
 function derp:load(filename)
 	-- load from file
+	local file = io.input(filename .. ".derp","r")
+	local retval = nil
+	
+	if file ~= nil then
+		local str = io.read("*all")
+		retval = loadstring("return" .. str)()
+	else
+		error("Unable to open file " .. filename)
+	end
+	
+	file:close()
+	
+	return retval
 end
 
 
@@ -194,25 +217,18 @@ function derp:create_workspacecamera(x,y,w,h)
 	cam.widget_type = "workspace camera"
 	cam.bounds = { left = -w, right = w, top = h, bottom = -h}
 	cam.super_draw = cam.draw
+	cam.super_mhit = cam.find_mousehit
 	local checkers_texture = gfx.loadtexture(64,"data/checkers.png")
-	
+
 	function cam:mousedrag(mx,my)
 		self:needsredraw()
 		self:move_relative(mx,my)
 		self:needsredraw()
 	end
 	
+	
 	function cam:mouserelease(mx,my,button)
-		if button == inp.MOUSE_RIGHT then
-			local mx,my = inp.getmousepos()
-			
-			--local x = self.drawbox.w * 0.5 
-			--local y = self.drawbox.y * 0.5
-			
-			print(self.drawbox.x + mx .. "," .. self.drawbox.y + my)
-			
-			self.parent:addcomponent(mx,my,"aux")
-		end
+		self.parent:mouserelease(mx,my,button)
 	end
 	
 	function cam:draw(force)
@@ -225,9 +241,9 @@ function derp:create_workspacecamera(x,y,w,h)
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*0.75)	-- checkers
 			gfx.bindtexture(old_tex)
 
-			gfx.drawtopleft(0,0,5,5,5,5,1,1) -- solid bg
+			--gfx.drawtopleft(self.drawbox.w * 0.5,self.drawbox.h * 0.5,5,5,5,5,1,1) -- solid bg
 
-			self:super_draw(force)
+			--self:super_draw(force)
 		end
 	end
 	
@@ -244,24 +260,30 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	wid.component_data = {}
 	wid.saved = true
+	wid.id_counter = 0
 	
-	--[[if from_path then
-		derp:load(from_path)
-	end]]
-	
+	if from_path then
+		wid.component_data = derp:load(from_path)
+	end
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
 			self.cam:draw(force)
+			
+			gfx.translate(self.cam.drawbox.w*0.5 + self.cam.drawbox.x,self.cam.drawbox.h*0.5 + self.cam.drawbox.y)
+			
+			for k,v in pairs(self.component_data) do
+				gfx.drawcentered(v.x,v.y,100,100,17,5,1,1)
+			end
+			
+			gfx.translate(-self.cam.drawbox.w*0.5 - self.cam.drawbox.x,-self.cam.drawbox.h*0.5 - self.cam.drawbox.y)
 		end
 	end
 	
 	function wid:addcomponent(x,y,ctype)
-		--local comp = gui:create_basewidget(x + self.cam.drawbox.w * 0.5,y + self.cam.drawbox.h * 0.5,100,100)
-		
-		table.insert(self.component_data,{ x = x, y = y, type = ctype })
-		
-		print("new " .. ctype .. " component created at " .. x .. "," .. y)
+		table.insert(self.component_data,{ x = x, y = y, type = ctype,id = self.id_counter })
+		print("new " .. ctype .. " component created at " .. x .. "," .. y .. " with id " .. self.id_counter)
+		self.id_counter = self.id_counter + 1
 	end
 	
 	function wid:resize_callback(w,h)
@@ -269,10 +291,24 @@ function derp:create_workspace(x,y,w,h,from_path)
 		self.hitbox.h = self.drawbox.h
 	end
 	
+	function wid:custom_hittest(mx,my)
+		local chit = nil
+		local x,y
+		
+		for k,v in pairs(self.component_data) do
+			x = self.cam.drawbox.w*0.5 + self.cam.drawbox.x + v.x
+			y = self.cam.drawbox.h*0.5 + self.cam.drawbox.y + v.y
+		end
+		
+		return chit
+	end
+	
 	function wid:mouserelease(x,y,button)
-		--[[if (button == inp.MOUSE_LEFT) then
-			self.active_widget.selected = false
-			self.active_widget = nil]]
+		-- custom hit test on components
+	
+		if (button == inp.MOUSE_LEFT) then
+			
+		end
 	end
 	
 	return wid
@@ -422,15 +458,6 @@ function derp:base_tool(x,y,w,h)
 			self:needsredraw()
 			
 			derp:set_activetool(self)
-			--[[
-			self.selected = true
-			
-			if derp.active_tool then
-				derp.active_tool.selected = false
-			end
-			
-			derp.active_tool = self
-			]]
 			
 			self:needsredraw()
 		end
@@ -455,7 +482,6 @@ function derp:create_toolbar(x,y,w,h)
 	
 	wid.prev_owner = nil
 	self:set_activetool(move_select)
-	--derp.active_tool = move_select
 	
 	draggies.super_draw = draggies.draw
 	draggies.widget_type = "toolbar drag widget"

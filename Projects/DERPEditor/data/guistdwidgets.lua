@@ -190,7 +190,7 @@ function gui:create_horizontalstack(x,y,w,h)
     --self:resize_abs(offsetx, self.drawbox.h)
     table.insert(self.childwidgets, cwid)
 	
-	print(cwid.widget_type .. ": " .. offsetx)
+	--print(cwid.widget_type .. ": " .. offsetx)
   end
   
    function wid:removewidget(cwid)
