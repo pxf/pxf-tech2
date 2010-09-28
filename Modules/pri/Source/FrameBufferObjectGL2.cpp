@@ -2,6 +2,8 @@
 #include <Pxf/Modules/pri/RenderBufferGL2.h>
 #include <Pxf/Modules/pri/TextureGL2.h>
 #include <Pxf/Modules/pri/UniGL.h>
+#include <Pxf/Base/Logger.h>
+#include <Pxf/Kernel.h>
 
 #include <stdio.h>
 
@@ -13,6 +15,14 @@ using namespace Pxf::Modules;
 
 unsigned TranslateAttachment(unsigned _ID);
 bool CheckFBO(GLenum _status);
+
+FrameBufferObjectGL2::FrameBufferObjectGL2(Graphics::GraphicsDevice* _Device)
+	: FrameBufferObject(_Device)
+	, m_LogTag(0)
+{
+	m_LogTag = m_pDevice->GetKernel()->CreateTag("gfx");
+	_Configure();
+}
 
 FrameBufferObjectGL2::~FrameBufferObjectGL2()
 {

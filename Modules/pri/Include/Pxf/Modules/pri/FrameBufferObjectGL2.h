@@ -15,9 +15,7 @@ namespace Pxf{
 		class FrameBufferObjectGL2 : public Graphics::FrameBufferObject
 		{
 		public:
-			FrameBufferObjectGL2(Graphics::GraphicsDevice* _Device)
-				: FrameBufferObject(_Device)
-			{ _Configure(); }
+			FrameBufferObjectGL2(Graphics::GraphicsDevice* _Device);
 			virtual ~FrameBufferObjectGL2();
 
 			void Attach(Graphics::Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps);
@@ -33,6 +31,7 @@ namespace Pxf{
 		private:
 			void _Configure();	// check max attachments 
 			unsigned m_Handle;
+			unsigned m_LogTag;
 			//GLenum m_Attachments[16];
 		};
 	} // Graphics

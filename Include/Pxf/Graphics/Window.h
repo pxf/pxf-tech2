@@ -1,12 +1,20 @@
 #ifndef _PXF_GRAPHICS_WINDOW_H_
 #define _PXF_GRAPHICS_WINDOW_H_
 
-namespace Pxf{
-	namespace Graphics {
+#include <Pxf/Graphics/DeviceResource.h>
+#include <Pxf/Graphics/GraphicsDevice.h>
 
-		class Window
+namespace Pxf{
+	namespace Graphics
+	{
+		class Window : public DeviceResource
 		{
 		public:
+
+			Window(GraphicsDevice* _Device)
+				: DeviceResource(_Device)
+			{ }
+
 			typedef void(*WindowSizeCallback)(int _Width, int _Height);
 
 			virtual ~Window(){};

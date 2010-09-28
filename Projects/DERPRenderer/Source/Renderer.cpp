@@ -125,6 +125,17 @@ void Renderer::LoadJson()
 				// Add newly created post-process block to the block list
 				m_Blocks.insert( std::make_pair(root[i]["blockName"].asString(), newppblock));
 
+			} else if(root[i]["blockType"].asString() == "Render") {
+				/*
+				 * Create Geometry Rendering block
+				 */
+				Json::StyledWriter writer;
+				Block* newrenderblock = new RenderBlock(this, writer.write(root[i]).c_str());
+				newrenderblock->Initialize(&root[i]);
+
+				// Add newly created rendering block to the block list
+				m_Blocks.insert( std::make_pair(root[i]["blockName"].asString(), newrenderblock));
+
 			} else {
 				Message("Renderer", "Unknown block type: %s", root[i]["blockType"].asCString());
 			}

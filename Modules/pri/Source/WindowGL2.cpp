@@ -1,4 +1,4 @@
-#include <Pxf/Pxf.h>
+#include <Pxf/Kernel.h>
 #include <Pxf/Base/Platform.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Modules/pri/WindowGL2.h>
@@ -25,8 +25,11 @@ int GLFWCALL on_window_close()
 	return false;
 }
 
-WindowGL2::WindowGL2(WindowSpecifications *_window_spec)
+WindowGL2::WindowGL2(GraphicsDevice* _Device, WindowSpecifications *_window_spec)
+	: Window(_Device)
 {
+	m_LogTag = _Device->GetKernel()->CreateTag("gfx");
+
 	// Window settings
 	m_width = _window_spec->Width;
 	m_height = _window_spec->Height;
@@ -49,7 +52,7 @@ WindowGL2::WindowGL2(WindowSpecifications *_window_spec)
 		m_bits_b = 8;
 		break;
 	default:
-		Message("Window", "Could not initiate widow, invalid number of colorbits (%d)", _window_spec->ColorBits);
+		GetDevice()->GetKernel()->Log(m_LogTag, "Could not initiate widow, invalid number of colorbits (%d)", _window_spec->ColorBits);
 	}
 
 	// Other buffer bits settings
@@ -118,7 +121,7 @@ bool WindowGL2::Open()
 		glewExperimental = true;
 		if (err != GLEW_OK)
 		{
-			Message("Window", "Could not initiate glew.");
+			GetDevice()->GetKernel()->Log(m_LogTag, "Could not initiate glew.");
 		}
 
 		// Map gl-functionality
@@ -127,12 +130,12 @@ bool WindowGL2::Open()
 		// Handle window-close gracefully.
 		glfwSetWindowCloseCallback(on_window_close);
 
-		Message("Window", "Opened window of %dx%d@%d (r: %d g: %d b: %d a: %d d: %d s: %d)", m_width, m_height, m_bits_r+m_bits_g+m_bits_b+m_bits_alpha, m_bits_r, m_bits_g, m_bits_b, m_bits_alpha, m_bits_depth, m_bits_stencil);
+		GetDevice()->GetKernel()->Log(m_LogTag, "Opened window of %dx%d@%d (r: %d g: %d b: %d a: %d d: %d s: %d)", m_width, m_height, m_bits_r+m_bits_g+m_bits_b+m_bits_alpha, m_bits_r, m_bits_g, m_bits_b, m_bits_alpha, m_bits_depth, m_bits_stencil);
 
-		Message("Window", "OpenGL Vendor  : %s", (const char*)glGetString(GL_VENDOR));
-		Message("Window", "OpenGL Renderer: %s", (const char*)glGetString(GL_RENDERER));
-		Message("Window", "OpenGL Version : %s", (const char*)glGetString(GL_VERSION));
-		Message("Window", "GLSL Version   : %s", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+		GetDevice()->GetKernel()->Log(m_LogTag, "OpenGL Vendor  : %s", (const char*)glGetString(GL_VENDOR));
+		GetDevice()->GetKernel()->Log(m_LogTag, "OpenGL Renderer: %s", (const char*)glGetString(GL_RENDERER));
+		GetDevice()->GetKernel()->Log(m_LogTag, "OpenGL Version : %s", (const char*)glGetString(GL_VERSION));
+		GetDevice()->GetKernel()->Log(m_LogTag, "GLSL Version   : %s", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 		return true;
 	}

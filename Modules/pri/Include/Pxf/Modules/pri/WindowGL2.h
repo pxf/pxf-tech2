@@ -11,7 +11,7 @@ namespace Pxf{
 		class WindowGL2 : public Window
 		{
 		public:
-			WindowGL2(WindowSpecifications *_window_spec);
+			WindowGL2(GraphicsDevice* _Device, WindowSpecifications *_window_spec);
 			virtual ~WindowGL2();
 
 			bool Open();
@@ -44,6 +44,7 @@ namespace Pxf{
 			// FPS
 			int64 m_fps_laststamp;
 			int m_fps, m_fps_count;
+			unsigned int m_LogTag;
 		};
 
 	} // Graphics

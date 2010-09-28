@@ -1,5 +1,6 @@
 #include <Pxf/Modules/snd/RtAudioDevice.h>
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 #include <Pxf/Math/Math.h>
 
 #include <Pxf/Resource/Sound.h>
@@ -12,15 +13,18 @@ using namespace Pxf::Modules;
 
 #define MAX_REGISTERED_SOUNDS 128
 
+// TODO: a lock should be used when using voices.
+// TODO: change from Util::Array to a simpler structure for better performance.
 int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 		double _time, RtAudioStreamStatus _status, void *_device)
 {
+	RtAudioDevice* device = (RtAudioDevice*)_device;
+
 	if (_status == RTAUDIO_OUTPUT_UNDERFLOW)
 	{
-		Message("Mixer", "Warning: underflow, stuttering might occur...");
+		device->_ShowMixerWarning("Warning: underflow, stuttering might occur...");
 	}
 	
-	RtAudioDevice* device = (RtAudioDevice*)_device;
 	short* out = (short*)_outbuff;
 	Util::Array<RtAudioDevice::SoundEntry>* voices = device->GetVoices();
 	unsigned int num_voices = voices->size();
@@ -58,6 +62,18 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 	return device->IsActive() ? 0 : 2;
 }
 
+RtAudioDevice::RtAudioDevice(Pxf::Kernel* _Kernel)
+	: Pxf::Audio::AudioDevice(_Kernel, "Rt Audio Device")
+	, m_Active(false)
+	, m_Channels(2)
+	, m_BufferSize(1024)
+	, m_MaxVoices(8)
+	, m_Initialized(false)
+	, m_LogTag(0)
+{
+	m_LogTag = _Kernel->CreateTag("snd");
+}
+
 bool RtAudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices)
 {
 	if (m_Initialized)
@@ -80,7 +96,7 @@ bool RtAudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices
 	/* Initialize audio stream */
 	if (num_devices == 0)
 	{
-		Message("Audio", "No available output devices");
+		m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "No available output devices");
 		return false;
 	}
 
@@ -103,7 +119,7 @@ bool RtAudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices
 	}
 	catch (RtError& e)
 	{
-		Message("Audio", "Fatal error: %s", e.getMessage().c_str());
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Fatal error: %s", e.getMessage().c_str());
 	}
 	return true;
 }
@@ -140,7 +156,7 @@ int RtAudioDevice::RegisterSound(const char* _Filename)
 	{
 		if (m_SoundBank[i] == snd)
 		{
-			Message("Audio", "Trying to register sound '%s' more than once.", _Filename);
+			m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Trying to register sound '%s' more than once.", _Filename);
 			return i;
 		}
 	}
@@ -165,7 +181,7 @@ int RtAudioDevice::RegisterSound(Resource::Sound* _Sound)
 	{
 		if (m_SoundBank[i] == _Sound)
 		{
-			Message("Audio", "Trying to register sound '%s' more than once.", _Sound->GetSource());
+			m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Trying to register sound '%s' more than once.", _Sound->GetSource());
 			return i;
 		}
 	}
@@ -328,7 +344,7 @@ void RtAudioDevice::DumpInfo()
 	/* Enumerate audio devices */
 
 	unsigned num_devices = m_DAC->getDeviceCount();
-	Message("Audio", "Available output devices: %d", num_devices);
+	m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Available output devices: %d", num_devices);
 
 	RtAudio::DeviceInfo info;
 	for(int i = 0; i < num_devices; i++)
@@ -336,8 +352,13 @@ void RtAudioDevice::DumpInfo()
 		info = m_DAC->getDeviceInfo(i);
 		if (info.probed)
 		{
-			Message("Audio", " | %d%s %s (cout: %d; cin: %d)", i, info.isDefaultOutput ? " >" : ".", info.name.c_str()
-				   , info.outputChannels, info.inputChannels);
+			m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, " | %d%s %s (cout: %d; cin: %d)", i, info.isDefaultOutput ? " >" : "."
+						 ,info.name.c_str(), info.outputChannels, info.inputChannels);
 		}
 	}
+}
+
+void RtAudioDevice::_ShowMixerWarning(const char* _Msg)
+{
+	m_Kernel->Log(m_LogTag | Logger::IS_WARNING, _Msg);
 }

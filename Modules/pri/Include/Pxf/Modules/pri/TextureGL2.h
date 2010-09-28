@@ -41,6 +41,7 @@ namespace Pxf
 			GLuint m_TextureID;
 			Util::String m_Filepath;
 			int m_Width, m_Height, m_Channels;
+			unsigned m_LogTag;
 		};
 	} // Graphics
 } // Pxf

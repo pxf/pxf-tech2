@@ -3,14 +3,21 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Modules/mesh/MeshLoader.h>
 
-#define LOCAL_MSG "MeshLoader"
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 
 using namespace Pxf;
 using namespace Modules;
 
+OpenCTMMesh::OpenCTMMesh(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+	: Resource::Mesh(_Kernel, _Chunk,_Loader)
+	, m_LogTag(0)
+{
+	m_LogTag = m_Kernel->CreateTag("res");
+}
+
 bool OpenCTMMesh::Build()
 {
-
 	return true;
 }
 
@@ -29,7 +36,9 @@ void OpenCTMMesh::SetData(unsigned int _VertCount, unsigned int _TriCount,const 
 
 CtmMeshLoader::CtmMeshLoader(Pxf::Kernel* _Kernel)
 	: MeshLoader(_Kernel, "Ctm Mesh Loader")
+	, m_LogTag(0)
 {
+	m_LogTag = m_Kernel->CreateTag("res");
 	Init();
 }
 
@@ -39,12 +48,11 @@ bool CtmMeshLoader::Init()
 
 	if(ctmGetError(m_Context) == CTM_NONE)	
 	{
-		Message(LOCAL_MSG,"OpenCTM Mesh Loader created");
 		return true;
 	}
 	else
 	{
-		Message(LOCAL_MSG,"Unable to create OpenCTM Context");
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Unable to create OpenCTM Context");
 		return false;
 	}
 }
@@ -57,7 +65,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 	// something failed during load
 	if(!_Chunk)
 	{
-		Message(LOCAL_MSG,"Error loading model %s",_FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Error loading model %s",_FilePath);
 		return 0;
 	}
 
@@ -71,7 +79,9 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		const CTMuint*	_Indices	= 0;
 		const CTMfloat* _Vertices	= 0;
 		const CTMfloat* _Normals	= 0;
+		const CTMfloat* _UVMap	= 0;
 		bool _HasNormals			= false;
+		bool _HasUVMap			= false;
 
 		_VertCount = ctmGetInteger(m_Context, CTM_VERTEX_COUNT);
 		_Vertices = ctmGetFloatArray(m_Context, CTM_VERTICES);
@@ -84,6 +94,12 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 			_HasNormals = true;
 			_Normals = ctmGetFloatArray(m_Context,CTM_NORMALS);
 		}
+		
+		if (_UVMapCount > 0)
+		{
+			_HasUVMap = true;
+			_UVMap = ctmGetFloatArray(m_Context, CTM_UV_MAP_1);
+		}
 
 		OpenCTMMesh* _NewMesh = new OpenCTMMesh(m_Kernel, _Chunk,this);
 
@@ -91,8 +107,9 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 		_Data.has_normals = _HasNormals;
 		_Data.vertex_count = _VertCount;
 		_Data.triangle_count = _TriCount;
+		_Data.has_uvmap = _HasUVMap;
 
-		float *n_vertices, *n_normals;
+		float *n_vertices, *n_normals, *n_uvmap;
 		unsigned int* n_indices;
 
 		n_vertices = (float *) MemoryAllocate(3 * sizeof(float) * _VertCount);
@@ -102,14 +119,20 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 			n_normals = (float *) MemoryAllocate(3 * sizeof(float) * _VertCount);
 			MemoryCopy(n_normals, _Normals, 3 * sizeof(float)*_VertCount);
 		}
+		if (_HasUVMap)
+		{
+			n_uvmap = (float *) MemoryAllocate(2 * sizeof(float) * _VertCount);
+			MemoryCopy(n_uvmap, _UVMap, 2 * sizeof(float) * _VertCount);
+		}
 		n_indices = (unsigned int *) MemoryAllocate(3 * sizeof(unsigned int) * _TriCount);
 		MemoryCopy(n_indices, _Indices, 3 * sizeof(unsigned int)*_TriCount);
 
 		_Data.vertices = n_vertices;
 		_Data.normals = n_normals;
 		_Data.indices= n_indices;
+		_Data.texcoords = n_uvmap;
 
-		Message(LOCAL_MSG,"Finished loading model %s", _FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Finished loading model %s", _FilePath);
 
 		_NewMesh->SetData(_Data);
 
@@ -117,7 +140,7 @@ Resource::Mesh* CtmMeshLoader::Load(const char* _FilePath)
 	}
 	else
 	{
-		Message(LOCAL_MSG,"Error loading model %s",_FilePath);
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Error loading model %s",_FilePath);
 		delete _Chunk;
 		return 0;
 	}

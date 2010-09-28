@@ -12,13 +12,10 @@ namespace Modules {
 	class BitmapFont : public Resource::Font
 	{
 	protected:
+		unsigned m_LogTag;
 		virtual bool Build();
 	public:
-		BitmapFont(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
-			: Resource::Font(_Kernel, _Chunk, _Loader)
-		{
-			Build();
-		}
+		BitmapFont(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader);
 		
 		virtual ~BitmapFont();
 	};
@@ -26,6 +23,7 @@ namespace Modules {
 	class BitmapFontLoader : public Resource::FontLoader
 	{
 	private:
+		unsigned m_LogTag;
 		bool Init();
 	public:
 		BitmapFontLoader(Pxf::Kernel* _Kernel);

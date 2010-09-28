@@ -263,6 +263,14 @@ function gui:create_basewidget(x,y,w,h)
     end
   end
   
+  function wid:mouseleave(mx,my)
+	--print(self.widget_type)
+  end
+  
+  function wid:mouseover(mx,my)
+  
+  end
+  
   return wid
 end
 
@@ -390,6 +398,7 @@ function gui:init()
   
   self.activewidget = nil
   self.focuswidget = nil
+  self.highlight_widget = nil
   
   self.draw_debug_rects = false
   self.draw_redraw_rects = false
@@ -415,9 +424,20 @@ function gui:update()
   
   -- send mouse over
   local mouse_over_rcv = self.widgets:find_mousehit(mx,my)
-  if mouse_over_rcv and mouse_over_rcv.mouseover then
+  
+  --print("type: " .. mouse_over_rcv.widget_type)
+  
+  if mouse_over_rcv then
     mouse_over_rcv:mouseover(mx,my)
+	
+	if self.highlight_widget == nil then
+		self.highlight_widget = mouse_over_rcv
+	elseif not (self.highlight_widget == mouse_over_rcv) then
+		self.highlight_widget:mouseleave(mx,my)
+		self.highlight_widget = mouse_over_rcv
+	end
   end
+		
   
   -- mouse operations on widgets
   if (inp.isbuttondown(inp.MOUSE_LEFT) or

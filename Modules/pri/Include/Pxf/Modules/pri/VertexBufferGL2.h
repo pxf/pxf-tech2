@@ -17,6 +17,7 @@ namespace Pxf
 		{
 		private:
 			unsigned m_BufferObjectId;
+			unsigned m_LogTag;
 		public:
 			VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag);
 			virtual ~VertexBufferGL2();

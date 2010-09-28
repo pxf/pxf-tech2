@@ -40,6 +40,7 @@ namespace Resource
 	class TextLoader : public Resource::ResourceLoader
 	{
 	private:
+		unsigned m_LogTag;
 		bool Init(){ return true; }
 	public:
 		TextLoader(Pxf::Kernel* _Kernel);

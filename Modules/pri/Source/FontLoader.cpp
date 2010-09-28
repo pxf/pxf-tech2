@@ -7,11 +7,18 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Modules/pri/FontLoader.h>
 #include <Pxf/Base/Memory.h>
-
-#define LOCAL_MSG "FontLoader"
+#include <Pxf/Base/Logger.h>
 
 using namespace Pxf;
 using namespace Modules;
+
+BitmapFont::BitmapFont(Kernel* _Kernel, Resource::Chunk* _Chunk, Resource::ResourceLoader* _Loader)
+	: Resource::Font(_Kernel, _Chunk, _Loader)
+	, m_LogTag(0)
+{
+	m_LogTag = m_Kernel->CreateTag("fnt");
+	Build();
+}
 
 bool BitmapFont::Build()
 {
@@ -23,10 +30,12 @@ bool BitmapFont::Build()
 	const uint32 SECTION_KERNINGS = ByteswapNtoL(0x53C70004);
 	const uint32 SECTION_IMAGE	= ByteswapNtoL(0x53C70005);
 
+	m_Kernel->Log(m_LogTag, "Creating font for file '%s'", m_Chunk->source ? m_Chunk->source : "unknown");
+
 	// Check chunk
 	if (m_Chunk->size < 512) // Appropriate value? Anyone? Hm. :/
 	{
-		Message("BitmapFont", "Chunk to small to be a font.");
+		m_Kernel->Log(m_LogTag, "Chunk is to small, invalid or corrupted file?");
 		return false;
 	}
 
@@ -36,14 +45,14 @@ bool BitmapFont::Build()
 	// Check header
 	if (data.ReadLE<uint32>() != HEADER)
 	{
-		Message("BitmapFont", "invalid header :-(");
+		m_Kernel->Log(m_LogTag, "invalid header :-(");
 		return false;
 	}
 
 	// Info header
 	if (data.ReadLE<uint32>() != SECTION_INFO)
 	{
-		Message("BitmapFont", "expected info section");
+		m_Kernel->Log(m_LogTag, "expected info section");
 		return false;
 	}
 
@@ -54,7 +63,7 @@ bool BitmapFont::Build()
 	// Common header
 	if (data.ReadLE<uint32>() != SECTION_COMMON)
 	{
-		Message("BitmapFont", "expected common section");
+		m_Kernel->Log(m_LogTag, "expected common section");
 		return false;
 	}
 
@@ -65,7 +74,7 @@ bool BitmapFont::Build()
 	// Chars header
 	if (data.ReadLE<uint32>() != SECTION_CHARS)
 	{
-		Message("BitmapFont", "expected character section");
+		m_Kernel->Log(m_LogTag, "expected character section");
 		return false;
 	}
 
@@ -76,7 +85,7 @@ bool BitmapFont::Build()
 
 	if (!m_CharInfo)
 	{
-		Message("BitmapFont", "Unable allocate memory for character data");
+		m_Kernel->Log(m_LogTag, "Unable allocate memory for character data");
 		return false;
 	}
 
@@ -98,7 +107,7 @@ bool BitmapFont::Build()
 
 	if (data.ReadLE<uint32>() != SECTION_KERNINGS)
 	{
-		Message("BitmapFont", "missing kerning section");
+		m_Kernel->Log(m_LogTag, "missing kerning section");
 		return false;
 	}
 
@@ -122,7 +131,7 @@ bool BitmapFont::Build()
 
 	if (data.ReadLE<uint32>() != SECTION_IMAGE)
 	{
-		Message("BitmapFont", "missing image section (lol..)");
+		m_Kernel->Log(m_LogTag, "missing image section");
 		return false;
 	}
 
@@ -130,7 +139,7 @@ bool BitmapFont::Build()
 
 	if (image_size != data.GetRemainingBytes())
 	{
-		Message("BitmapFont", "wrong image size. corrupt data?");
+		m_Kernel->Log(m_LogTag, "wrong image size. corrupt data?");
 		return false;
 	}
 
@@ -139,7 +148,7 @@ bool BitmapFont::Build()
 
 	if (!chunk)
 	{
-		Message("BitmapFont", "could not allocate chunk, out of memory");
+		m_Kernel->Log(m_LogTag, "could not allocate chunk, out of memory");
 		return false;
 	}
 
@@ -157,14 +166,14 @@ bool BitmapFont::Build()
 
 	if (!m_Image)
 	{
-		Message("BitmapFont", "could not allocate image, out of memory");
+		m_Kernel->Log(m_LogTag, "could not allocate image, out of memory");
 		SafeDelete(chunk);
 		return false;
 	}
 
 	if (!m_Image->IsReady())
 	{
-		Message("BitmapFont", "invalid image in font");
+		m_Kernel->Log(m_LogTag, "invalid image in font");
 		return false;
 	}
 
@@ -182,7 +191,9 @@ BitmapFont::~BitmapFont()
 
 BitmapFontLoader::BitmapFontLoader(Pxf::Kernel* _Kernel)
 	: FontLoader(_Kernel, "Bitmap Font Loader")
+	, m_LogTag(0)
 {
+	m_LogTag = m_Kernel->CreateTag("fnt");
 	Init();
 }
 
@@ -196,7 +207,7 @@ Resource::Font* BitmapFontLoader::Load(const char* _FilePath)
 	Resource::Chunk* chunk = Resource::LoadFile(_FilePath);				   
 	if (!chunk)
 	{
-		Message("FontLoader", "Unable to create chunk from file '%s'", _FilePath);
+		m_Kernel->Log(m_LogTag, "Unable to create chunk from file '%s'", _FilePath);
 		return NULL;
 	}
 	return new BitmapFont(m_Kernel, chunk, this);

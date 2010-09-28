@@ -1,5 +1,59 @@
 derp = {}
 derp.active_workspace = nil
+derp.active_tool = nil
+
+function basic_serialize(val)
+	if type(val) == "number" or type(val) == "boolean" then
+		return tostring(val)
+	elseif type(val) == "string" then
+        return string.format("%q", val)	
+	
+	elseif type(val) == "table" then
+		-- new table
+		local ret = "{\n"
+	
+		for k,v in pairs(val) do
+			ret = ret .. "  [" .. basic_serialize(k) .. "] = " .. basic_serialize(v) .. ",\n"
+		end
+		
+		ret = ret .. "\n}"
+		
+		return ret
+	else
+		error("cannot serialize type: " .. type(val))
+	end
+end
+
+function derp:save(filename)
+	-- save current workspace
+	local file 
+end
+
+function derp:load(filename)
+	-- load from file
+end
+
+
+function derp:editor()
+	
+end
+
+function derp:set_activetool(tool)
+	if not tool then
+		return
+	end
+	
+	if self.active_tool then
+		self.active_tool.selected = false
+		self.active_tool:needsredraw()
+		self.active_tool = tool
+		tool.selected = true
+	else
+		self.active_tool = tool
+		tool.selected = true
+	end
+
+end
 
 function derp:create_menu(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
@@ -103,7 +157,7 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 				
 				-- DRAW BG
 				gfx.drawtopleft(self.drawbox.x,0,self.drawbox.w,self.drawbox.h,9,1,1,1)
-				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,self.drawbox.h,13,1,1,1)
+				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,self.drawbox.h,508,0,1,128)
 
 				
 				-- DRAW BORDERS
@@ -148,6 +202,19 @@ function derp:create_workspacecamera(x,y,w,h)
 		self:needsredraw()
 	end
 	
+	function cam:mouserelease(mx,my,button)
+		if button == inp.MOUSE_RIGHT then
+			local mx,my = inp.getmousepos()
+			
+			--local x = self.drawbox.w * 0.5 
+			--local y = self.drawbox.y * 0.5
+			
+			print(self.drawbox.x + mx .. "," .. self.drawbox.y + my)
+			
+			self.parent:addcomponent(mx,my,"aux")
+		end
+	end
+	
 	function cam:draw(force)
 		if (force or self.redraw_needed) then
 			gfx.setalpha(0.25)
@@ -158,6 +225,8 @@ function derp:create_workspacecamera(x,y,w,h)
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*0.75)	-- checkers
 			gfx.bindtexture(old_tex)
 
+			gfx.drawtopleft(0,0,5,5,5,5,1,1) -- solid bg
+
 			self:super_draw(force)
 		end
 	end
@@ -165,13 +234,20 @@ function derp:create_workspacecamera(x,y,w,h)
 	return cam
 end
 
-function derp:create_workspace(x,y,w,h)
+function derp:create_workspace(x,y,w,h,from_path)
 	local wid = gui:create_basewidget(x,y,w,h)
 	wid.widget_type = "workspace"
 	wid.super_draw = wid.draw
 	wid.active_widget = nil
 	wid.cam = derp:create_workspacecamera(0,0,w,h)
 	wid:addwidget(wid.cam)
+	
+	wid.component_data = {}
+	wid.saved = true
+	
+	--[[if from_path then
+		derp:load(from_path)
+	end]]
 	
 	
 	function wid:draw(force)
@@ -180,68 +256,12 @@ function derp:create_workspace(x,y,w,h)
 		end
 	end
 	
-	function wid:addcomponent(x,y)
-		local comp = gui:create_basewidget(x + self.cam.drawbox.w * 0.5,y + self.cam.drawbox.h * 0.5,100,100)
-		comp.widget_type = "component" .. #self.childwidgets
-		comp.highlight = false
-		comp.selected = false
-		comp.super_find_mousehit = comp.find_mousehit
-		comp.super_draw = comp.draw
+	function wid:addcomponent(x,y,ctype)
+		--local comp = gui:create_basewidget(x + self.cam.drawbox.w * 0.5,y + self.cam.drawbox.h * 0.5,100,100)
 		
-		function comp:mousedrag(mx,my)		
-			self:needsredraw()
-			
-			self:move_relative(mx,my)
-			
-			self:needsredraw()
-		end
+		table.insert(self.component_data,{ x = x, y = y, type = ctype })
 		
-		function comp:draw(force)
-			if (self.redraw_needed or force) then
-				-- DRAW BG
-				gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 1, 1, 1, 1)
-			
-				self:super_draw(force)
-				-- DRAW BORDERS
-				if self.highlight or self.selected then
-					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,13,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,13,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,13,5,1,1)
-				else
-					gfx.drawtopleft(self.drawbox.x+self.drawbox.w-1,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1)
-					gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,5,1,1)
-				end
-			end
-		end
-		
-		function comp:find_mousehit(mx,my)
-			local hit = self:super_find_mousehit(mx, my) 
-			
-			if not (hit == nil) then
-				self.highlight = true
-			else
-				self.highlight = false
-			end
-			
-			return hit
-		end
-		
-		function comp:mouserelease(dx,dy,button)
-			if (button == inp.MOUSE_LEFT) then
-				self.selected = true
-				
-				if not (wid.active_widget == nil) then
-					wid.active_widget.selected = false
-				end
-				
-				wid.active_widget = self
-			end
-		end
-		
-		self.cam:addwidget(comp)
+		print("new " .. ctype .. " component created at " .. x .. "," .. y)
 	end
 	
 	function wid:resize_callback(w,h)
@@ -249,15 +269,10 @@ function derp:create_workspace(x,y,w,h)
 		self.hitbox.h = self.drawbox.h
 	end
 	
-	function wid:mouserelease(dx,dy,button)
-		if (self.active_widget == nil) then
-			return nil
-		end
-	
-		if (button == inp.MOUSE_LEFT) then
+	function wid:mouserelease(x,y,button)
+		--[[if (button == inp.MOUSE_LEFT) then
 			self.active_widget.selected = false
-			self.active_widget = nil
-		end
+			self.active_widget = nil]]
 	end
 	
 	return wid
@@ -340,18 +355,142 @@ function derp:create_workspaceframe(x,y,w,h)
 	return wid
 end
 
+function derp:base_tool(x,y,w,h)
+	local tool = gui:create_basewidget(x,y,w,h)	
+	tool.widget_type = "tool: "
+	tool.highlight = false
+	tool.selected = false
+	tool.super_find_mousehit = tool.find_mousehit
+	
+	function tool:action(action)
+		
+	end
+	
+	function tool:draw(force)
+		if (self.redraw_needed or force) then
+			if self.selected then
+				-- BG
+				gfx.drawtopleft(self.drawbox.x+4,self.drawbox.y + 6,33,29,9,22,1,1) -- upper left corner
+				
+				-- BORDERS
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y + 2,4,4,5,18,4,4) -- upper left corner
+				gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 3,self.drawbox.y+2,3,4,9,18,3,4) -- upper right corner
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h-5,4,3,5,22,4,3) -- lower left corner
+				gfx.drawtopleft(self.drawbox.x+self.drawbox.w-3,self.drawbox.y + self.drawbox.h-5,3,3,9,22,3,3) -- lower right corner
+				
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y+6,4,self.drawbox.h-11,5,22,4,1) -- left frame	
+				gfx.drawtopleft(self.drawbox.x + self.drawbox.w-3,self.drawbox.y+6,3,self.drawbox.h-11,9,22,3,1) -- right frame	
+				gfx.drawtopleft(self.drawbox.x+4,self.drawbox.y+2,self.drawbox.w-7,4,9,18,1,4) -- upper frame
+				gfx.drawtopleft(self.drawbox.x+4,self.drawbox.y+self.drawbox.h - 5,self.drawbox.w-7,3,9,22,1,3) -- lower frame 
+				
+				
+			
+			elseif self.highlight then
+				-- draw borders
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y + 2,2,2,5,10,2,2) -- upper left corner
+				gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 2,self.drawbox.y+2,2,2,10,10,2,2) -- upper right corner
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h-4,2,2,5,15,2,2) -- lower left corner
+				gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2,self.drawbox.y + self.drawbox.h-4,2,2,10,15,2,2) -- lower right corner
+				
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y+4,2,self.drawbox.h-8,5,12,2,1) -- left frame	
+				gfx.drawtopleft(self.drawbox.x + self.drawbox.w-2,self.drawbox.y+4,2,self.drawbox.h-8,10,12,2,1) -- right frame	
+				gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y+2,self.drawbox.w-4,2,7,10,1,2) -- upper frame
+				gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y+self.drawbox.h - 4,self.drawbox.w-4,2,7,15,1,2) -- lower frame
+				
+			end
+		end	
+	end
+	
+	function tool:mouseleave(mx,my)
+		self:needsredraw()
+		self.highlight = false
+		self:needsredraw()
+	end
+	
+	function tool:mouseover(mx,my)
+		self:needsredraw()	
+		self.highlight = true
+		self:needsredraw()
+	end
+	
+	function tool:mousepush(mx,my,button)
+		if (button == inp.MOUSE_LEFT) then
+			if self.selected then
+				return
+			end
+		
+			self:needsredraw()
+			
+			derp:set_activetool(self)
+			--[[
+			self.selected = true
+			
+			if derp.active_tool then
+				derp.active_tool.selected = false
+			end
+			
+			derp.active_tool = self
+			]]
+			
+			self:needsredraw()
+		end
+	end
+	
+	return tool
+end
+
 function derp:create_toolbar(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
-	local draggies = gui:create_basewidget(0,0,12,40)
+	local draggies = gui:create_basewidget(0,0,25,40)
+	
+	-------- TOOLS --------
+	local select_rect = derp:base_tool(0,0,40,40)
+	local move_select = derp:base_tool(0,0,40,40)
+	
+	select_rect.super_draw = select_rect.draw
+	move_select.super_draw = move_select.draw
+	
+	select_rect.widget_type = select_rect.widget_type .. "square select"
+	move_select.widget_type = move_select.widget_type .. "move/select"
+	
 	wid.prev_owner = nil
+	self:set_activetool(move_select)
+	--derp.active_tool = move_select
 	
 	draggies.super_draw = draggies.draw
 	draggies.widget_type = "toolbar drag widget"
 	
-	wid:addwidget(draggies)
 	wid.widget_type = "toolbar"
 	wid.drag_removed = false
 	wid.drag = false
+	
+	wid:addwidget(draggies)
+	wid:addwidget(move_select)
+	wid:addwidget(select_rect)
+	
+	function select_rect:action(action)
+		
+	end
+	
+	function move_select:action(action)
+		if action.drag then
+			print("drag")
+		end
+	end
+	
+	function select_rect:draw(force)
+		if (self.redraw_needed or force) then
+			self:super_draw(true)
+			gfx.drawtopleft(8+self.drawbox.x,self.drawbox.y+8,24,24,1,36,24,24)
+		end
+	end
+	
+	function move_select:draw(force)
+		if (self.redraw_needed or force) then
+			self:super_draw(true)
+			gfx.drawtopleft(10+self.drawbox.x,13 + self.drawbox.y,19,17,1,61,19,17)
+		end
+	end
 	
 	function draggies:draw(force)
 		if (self.redraw_needed or force) then
@@ -362,9 +501,7 @@ function derp:create_toolbar(x,y,w,h)
 			
 			gfx.drawtopleft(4,8,3,25,1,10,3,25)
 			
-			--if self.drag then 
 			gfx.setalpha(old_a)
-			--end
 			
 			draggies:super_draw()
 		end
@@ -376,7 +513,6 @@ function derp:create_toolbar(x,y,w,h)
 		
 		if not self.parent.drag_removed then
 		  self.parent.prev_owner = self.parent.parent
-			--parent = wid.parent
 			self.parent.parent:removewidget(self.parent)
 			
 			self.parent.parent:resize_callback(0,-wid.drawbox.h+1)
@@ -443,10 +579,7 @@ function derp:create_block(x,y,w,h,type)
 	local wid = gui:create_basewidget(x,y,w,h)
 	wid.border = { left = false, right = false, top = false, bottom = false }
 	wid.widget_type = type
-	
 	wid.super_draw = wid.draw
-	
-	print("sup? " .. wid.drawbox.x .. "," .. wid.drawbox.y)
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then

@@ -5,10 +5,6 @@ namespace Pxf
 {
 	class Logger
 	{
-	protected:
-		static const unsigned int MAX_TAGS = 32;
-		static const char* s_Tags[MAX_TAGS];
-		static unsigned short s_TagCount;
 	public:
 
 		enum Flag
@@ -22,11 +18,9 @@ namespace Pxf
 			IS_ANYREG      = IS_ANY | IS_REGISTERED
 		};
 
-		virtual bool WriteImpl(unsigned int _Tag, const char* _SrcBuffer, unsigned int _SrcLength) = 0;
-		bool Write(unsigned int _Tag, const char* _Message);
+		virtual bool WriteImpl(unsigned int _Tag, const char** _TagTable, unsigned int _TagTableSize, const char* _SrcBuffer, unsigned int _SrcLength) = 0;
+		bool Write(unsigned int _Tag, const char** _TagTable, unsigned int _TagTableSize, const char* _Message);
 
-		static unsigned int CreateTag(const char* _TagName, unsigned int _Options = 0);
-		static unsigned int FindTagID(const char* _TagName);
 		static bool IsDebug(unsigned int _Tag);
 		static bool IsInformation(unsigned int _Tag);
 		static bool IsWarning(unsigned int _Tag);
@@ -37,7 +31,7 @@ namespace Pxf
 	class StdLogger : public Logger
 	{
 	public:
-		virtual bool WriteImpl(unsigned int _Tag, const char* _SrcBuffer, unsigned int _SrcLength);
+		virtual bool WriteImpl(unsigned int _Tag, const char** _TagTable, unsigned int _TagTableSize, const char* _SrcBuffer, unsigned int _SrcLength);
 	};
 }
 

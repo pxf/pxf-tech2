@@ -16,6 +16,7 @@ namespace Pxf{
 			RenderBufferGL2(Graphics::GraphicsDevice* _Device, unsigned _Format, unsigned _Width, unsigned _Height)
 				: RenderBuffer(_Device,_Width,_Height)
 				, m_Format(_Format)
+				, m_LogTag(0)
 			{ _InitBuffer(); }
 
 			virtual ~RenderBufferGL2();
@@ -30,6 +31,7 @@ namespace Pxf{
 
 			unsigned m_Handle;
 			unsigned m_Format;
+			unsigned m_LogTag;
 		};
 
 	} // Graphics
