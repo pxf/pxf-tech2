@@ -13,51 +13,7 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
-net.addtag("pipeline")
-net.addtag("result")
-net.addtag("profiling")
-client = net.createclient()
-client:connect("localhost", 7005)
-client:send("pipeline", [[[{"blockName" : "PipelineTree",
-   "blockType" : "PipelineTree",
-   "blockData" : { "root" : "output1" }
-  },
-  
-  {"blockName" : "auxinput1",
-     "blockType" : "AuxComp",
-     "blockData" : {"auxType" : "texture",
-                    "filepath" : "data/derptest.png",
-                    "minfilter" : "nearest"
-                   },
-     "blockOutput" : [{"name" : "texture1",
-                       "type" : "texture"}]
-  },
-  
-  {"blockName" : "output1",
-     "blockType" : "Root",
-     "blockInput" : [{"block" : "auxinput1", "output" : "texture1"}],
-     "blockData" : {"host" : "localhost",
-                    "port" : "4632",
-                    "feedback" : true,
-                    "realtime" : false,
-                    "shaderVert" : "uniform sampler2D texture1;
-                    void main(void)
-                    {
-                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-                    	gl_TexCoord[0] = gl_MultiTexCoord0;
-                    }",
-                    "shaderFrag" : "uniform sampler2D texture1;
-                    void main()
-                    {
-                          gl_FragColor = vec4(1.0) - texture2D(texture1, gl_TexCoord[0].st);
-                    }",
-                    "width" : 512,
-                    "height" : 512
-                   }
-    }
-]
-]])
-client:recv_noblock(0)
+
 
 --[[local test = net.createserver()
 for k,v in pairs(debug.getmetatable(test.instance)) do
@@ -152,8 +108,7 @@ right_padding_container.border.left = true
 
 local statusbar_container = derp:create_statusbar(0,app.height-20,app.width,20)
 
-workspace_area:addcomponent(0,0,"aux")
-workspace_area:addcomponent(-200,-100,"render")
+derp.active_workspace = workspace_area
 
 ws01 = workspace_tabs:addtab("workspace01",workspace_area)
 
