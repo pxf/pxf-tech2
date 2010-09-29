@@ -48,3 +48,8 @@ int ENetDataPacket::GetTag()
 {
 	return Tag;
 }
+
+char* ENetDataPacket::GetID()
+{
+	return ID;
+}
