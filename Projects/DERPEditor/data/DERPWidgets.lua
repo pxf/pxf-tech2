@@ -391,12 +391,18 @@ function derp:create_workspaceframe(x,y,w,h)
 	return wid
 end
 
-function derp:base_tool(x,y,w,h)
+function derp:base_tool(x,y,w,h,name)
 	local tool = gui:create_basewidget(x,y,w,h)	
-	tool.widget_type = "tool: "
 	tool.highlight = false
 	tool.selected = false
 	tool.super_find_mousehit = tool.find_mousehit
+	tool.icon_properties = { w = w, h = h, s = nil,t = nil }
+	
+	if name ~= nil then
+		tool.widget_type = "tool: " .. name
+	else
+		tool.widget_type = "stdtool"
+	end
 	
 	function tool:action(action)
 		
@@ -404,6 +410,9 @@ function derp:base_tool(x,y,w,h)
 	
 	function tool:draw(force)
 		if (self.redraw_needed or force) then
+			local offsetx = (self.drawbox.w - self.icon_properties.w) * 0.5
+			local offsety = (self.drawbox.h - self.icon_properties.h) * 0.5
+		
 			if self.selected then
 				-- BG
 				gfx.drawtopleft(self.drawbox.x+4,self.drawbox.y + 6,33,29,9,22,1,1) -- upper left corner
@@ -419,9 +428,13 @@ function derp:base_tool(x,y,w,h)
 				gfx.drawtopleft(self.drawbox.x+4,self.drawbox.y+2,self.drawbox.w-7,4,9,18,1,4) -- upper frame
 				gfx.drawtopleft(self.drawbox.x+4,self.drawbox.y+self.drawbox.h - 5,self.drawbox.w-7,3,9,22,1,3) -- lower frame 
 				
-				
+				offsetx = offsetx + 2
+				offsety = offsety + 2
 			
 			elseif self.highlight then
+				-- BG
+				gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y + 4,36,32,511,0,1,128)
+			
 				-- draw borders
 				gfx.drawtopleft(self.drawbox.x,self.drawbox.y + 2,2,2,5,10,2,2) -- upper left corner
 				gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 2,self.drawbox.y+2,2,2,10,10,2,2) -- upper right corner
@@ -432,8 +445,9 @@ function derp:base_tool(x,y,w,h)
 				gfx.drawtopleft(self.drawbox.x + self.drawbox.w-2,self.drawbox.y+4,2,self.drawbox.h-8,10,12,2,1) -- right frame	
 				gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y+2,self.drawbox.w-4,2,7,10,1,2) -- upper frame
 				gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y+self.drawbox.h - 4,self.drawbox.w-4,2,7,15,1,2) -- lower frame
-				
 			end
+			
+			gfx.drawtopleft(self.drawbox.x + offsetx,self.drawbox.y + offsety,self.icon_properties.w,self.icon_properties.h,self.icon_properties.s,self.icon_properties.t,self.icon_properties.w,self.icon_properties.h) -- upper left corner
 		end	
 	end
 	
@@ -466,22 +480,42 @@ function derp:base_tool(x,y,w,h)
 	return tool
 end
 
+--local shortcuts = { { "save", function () end, {inp.MOUSE_LEFT, inp.MOUSE_RIGHT}}} 
+
 function derp:create_toolbar(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	local draggies = gui:create_basewidget(0,0,25,40)
+	local separator = gui:create_basewidget(0,0,10,40)
 	
 	-------- TOOLS --------
-	local select_rect = derp:base_tool(0,0,40,40)
-	local move_select = derp:base_tool(0,0,40,40)
+	local undo = derp:base_tool(0,0,40,40,"undo")
+	local redo = derp:base_tool(0,0,40,40,"redo")
+	local select_rect = derp:base_tool(0,0,40,40,"square select")
+	local move_select = derp:base_tool(0,0,40,40,"move/select")
 	
-	select_rect.super_draw = select_rect.draw
-	move_select.super_draw = move_select.draw
+	undo.icon_properties.w = 28
+	undo.icon_properties.h = 24
+	undo.icon_properties.s = 1
+	undo.icon_properties.t = 102
 	
-	select_rect.widget_type = select_rect.widget_type .. "square select"
-	move_select.widget_type = move_select.widget_type .. "move/select"
+	redo.icon_properties.w = 28
+	redo.icon_properties.h = 24
+	redo.icon_properties.s = 2
+	redo.icon_properties.t = 127
 	
-	wid.prev_owner = nil
+	move_select.icon_properties.w = 24
+	move_select.icon_properties.h = 17
+	move_select.icon_properties.s = 1
+	move_select.icon_properties.t = 61
+	
+	select_rect.icon_properties.w = 24
+	select_rect.icon_properties.h = 24
+	select_rect.icon_properties.s = 1
+	select_rect.icon_properties.t = 36
+	
 	self:set_activetool(move_select)
+	
+	-----------------------
 	
 	draggies.super_draw = draggies.draw
 	draggies.widget_type = "toolbar drag widget"
@@ -489,8 +523,12 @@ function derp:create_toolbar(x,y,w,h)
 	wid.widget_type = "toolbar"
 	wid.drag_removed = false
 	wid.drag = false
+	wid.prev_owner = nil
 	
 	wid:addwidget(draggies)
+	wid:addwidget(undo)
+	wid:addwidget(redo)
+	wid:addwidget(separator)
 	wid:addwidget(move_select)
 	wid:addwidget(select_rect)
 	
@@ -504,17 +542,9 @@ function derp:create_toolbar(x,y,w,h)
 		end
 	end
 	
-	function select_rect:draw(force)
+	function separator:draw(force)
 		if (self.redraw_needed or force) then
-			self:super_draw(true)
-			gfx.drawtopleft(8+self.drawbox.x,self.drawbox.y+8,24,24,1,36,24,24)
-		end
-	end
-	
-	function move_select:draw(force)
-		if (self.redraw_needed or force) then
-			self:super_draw(true)
-			gfx.drawtopleft(10+self.drawbox.x,13 + self.drawbox.y,19,17,1,61,19,17)
+			gfx.drawtopleft(self.drawbox.x + 4,self.drawbox.y + 8,2,24,5,26,2,1)
 		end
 	end
 	
