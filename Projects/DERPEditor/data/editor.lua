@@ -143,6 +143,7 @@ gfx.redrawneeded()
 
 function update()
   gui:update()
+  derp:update()
 end
 
 function draw(force)

@@ -1,13 +1,27 @@
 derp = {}
 derp.active_workspace = nil
 derp.active_tool = nil
-derp.keyboard_shortcuts = { { name = "undo", cmd = { inp.LCTRL }, f = function () print("UNDO") end} -- CTRL + z
+derp.keyboard_shortcuts = { { name = "undo", cmd = { inp.LCTRL }, f = function () print("UNDO") end}, -- CTRL + z
+							{ name = "move workspace", cmd = { inp.SPACE }, f = function () print("MOVE") end}
 							}
 
+
 function derp:update()
+--[[
 	for k,v in pairs(self.keyboard_shortcuts) do
-		v:f()
+		local exec = true
+		local action = nil
+			
+		for k2,v2 in pairs(v.cmd) do
+			exec = exec and inp.iskeydown(v2)
+		end
+		
+		if exec then
+			v:f()
+			break
+		end
 	end
+]]
 end
 
 function derp:printstack()
@@ -263,32 +277,9 @@ function derp:create_workspacecamera(x,y,w,h)
 	print(cam.drawbox.h .. "," .. cam.drawbox.w)
 	
 	function cam:mousedrag(mx,my)
-		local x = 0
-		local y = 0
-		
-		self:needsredraw()
-		
-		if ((self.drawbox.x + mx) > 20) then
-			self.drawbox.x = 20
-			self.hitbox.x = 20
-		elseif ((self.drawbox.x + mx) < (-self.drawbox.w + 752)) then
-			self.drawbox.x = -self.drawbox.w + 752
-			self.hitbox.x = -self.drawbox.w + 752
-		else
-			self:move_relative(mx,0)
+		if derp.active_tool then 
+			derp.active_tool:action({tag = "drag", dx = mx, dy = my})
 		end
-		
-		if ((self.drawbox.y + my) > 102) then
-			self.drawbox.y = 102
-			self.hitbox.y = 102
-		elseif ((self.drawbox.y + my) < (-self.drawbox.h + 576)) then
-			self.drawbox.y = -self.drawbox.h + 576
-			self.hitbox.y = -self.drawbox.h + 576
-		else
-			self:move_relative(0,my)
-		end
-
-		self:needsredraw()
 	end
 	
 	function cam:mousepush(mx,my,button)
@@ -428,8 +419,6 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:mousepush(mx,my,button)
-		--local hit = self:custom_hittest(mx,my)
-		
 		if derp.active_tool then
 			derp.active_tool:action({tag = "mousepush",x = mx,y = my})
 		end
@@ -609,6 +598,7 @@ function derp:base_tool(x,y,w,h,name, onclick)
 	function tool:mousepush(mx,my,button)
 		if (button == inp.MOUSE_LEFT) then
 			if self.selected then
+				derp:set_activetool(nil)
 				return
 			end
 		
@@ -648,6 +638,9 @@ function derp:create_toolbar(x,y,w,h)
 			end)
 	local select_rect = derp:base_tool(0,0,40,40,"square select")
 	local move_select = derp:base_tool(0,0,40,40,"move/select")
+	local move_ws = derp:base_tool(0,0,40,40,"move workspace")
+	
+	-- AOE, can this be done better, syntax-wise?
 	
 	undo.icon_properties.w = 28
 	undo.icon_properties.h = 24
@@ -669,7 +662,12 @@ function derp:create_toolbar(x,y,w,h)
 	select_rect.icon_properties.s = 1
 	select_rect.icon_properties.t = 36
 	
-	self:set_activetool(move_select)
+	move_ws.icon_properties.w = 21
+	move_ws.icon_properties.h = 21
+	move_ws.icon_properties.s = 1
+	move_ws.icon_properties.t = 79
+	
+	self:set_activetool(move_ws)
 	
 	-----------------------
 	
@@ -685,9 +683,44 @@ function derp:create_toolbar(x,y,w,h)
 	wid:addwidget(undo)
 	wid:addwidget(redo)
 	wid:addwidget(separator)
+	wid:addwidget(move_ws)
 	wid:addwidget(move_select)
 	wid:addwidget(select_rect)
 		
+		
+	function move_ws:action(action)
+		if action.tag == "drag" then
+		
+			local mx = action.dx
+			local my = action.dy
+			
+			local cam = derp.active_workspace.cam
+		
+			cam:needsredraw()
+			
+			if ((cam.drawbox.x + mx) > 20) then
+				cam.drawbox.x = 20
+				cam.hitbox.x = 20
+			elseif ((cam.drawbox.x + mx) < (-cam.drawbox.w + 752)) then
+				cam.drawbox.x = -cam.drawbox.w + 752
+				cam.hitbox.x = -cam.drawbox.w + 752
+			else
+				cam:move_relative(mx,0)
+			end
+			
+			if ((cam.drawbox.y + my) > 102) then
+				cam.drawbox.y = 102
+				cam.hitbox.y = 102
+			elseif ((cam.drawbox.y + my) < (-cam.drawbox.h + 576)) then
+				cam.drawbox.y = -cam.drawbox.h + 576
+				cam.hitbox.y = -cam.drawbox.h + 576
+			else
+				cam:move_relative(0,my)
+			end
+
+			cam:needsredraw()
+		end
+	end
 	
 	function select_rect:action(action)
 		
