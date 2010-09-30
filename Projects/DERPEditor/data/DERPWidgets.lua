@@ -245,7 +245,6 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 		 end
 		
 		self:addwidget(ws)
-		--derp.active_workspace = self
 		
 		return ws
 	end
