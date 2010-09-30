@@ -24,6 +24,7 @@ end
 ----------------------------------------------
 -- setup menus
 local file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = function () app.reboot() end}},
+				   {"Save", {tooltip = "Save current workspace.", onclick = function () derp:save(derp.active_workspace.widget_type,derp.active_workspace) end}}, -- this should open dialog etc
                    {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () app.quit() end}},
                   }
 local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C", onclick = function () print("copy!!") end}},
@@ -124,6 +125,8 @@ gui.widgets:addwidget(workspace_tabs)
 gui.widgets:addwidget(inspector)
 gui.widgets:addwidget(workspace_frames)
 
+--workspace_area:addcomponent(0,0,"aux")
+
 --gui.draw_debug_rects = false
 --gui.draw_hitbox_rects = true
 --gui.themetex = gfx.loadtexture("data/guitheme_brown.png")
@@ -131,7 +134,8 @@ gui.widgets:addwidget(workspace_frames)
 
 --workspace_area.component_data = derp:load("test")
 
---print(t)
+
+--derp:update()
 
 ----------------------------------------------
 -- initial draw

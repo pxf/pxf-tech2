@@ -1,7 +1,14 @@
 derp = {}
 derp.active_workspace = nil
 derp.active_tool = nil
---derp.workspace_stack = { max_size = 10, counter = 0, stack = {} }
+derp.keyboard_shortcuts = { { name = "undo", cmd = { inp.LCTRL }, f = function () print("UNDO") end} -- CTRL + z
+							}
+
+function derp:update()
+	for k,v in pairs(self.keyboard_shortcuts) do
+		v:f()
+	end
+end
 
 function derp:printstack()
 	print("\n-------------\n")
@@ -26,11 +33,6 @@ function derp:push_workspace(ws)
 	end
 	
 	table.insert(ws.workspace_stack.stack,basic_serialize(ws.component_data,0))
-	
-	--self:printstack()
-	
-	-- reset counter
-	--counter = #self.workspace_stack.counter
 end
 
 function derp:pop_workspace(ws)
@@ -67,8 +69,11 @@ end
 
 function derp:save(filename,workspace)
 	-- save current workspace
-	local file = io.output(filename .. ".derp","w")
+	local fname = filename .. ".derp"
+	local file = io.output(fname,"w")
 	local data = basic_serialize(workspace.component_data,0)
+	
+	print("saving to file " .. fname)
 	
 	io.write(data)
 	
@@ -283,32 +288,34 @@ function derp:create_workspacecamera(x,y,w,h)
 		else
 			self:move_relative(0,my)
 		end
-		
-		--print(self.drawbox.x,x,y)
-	
-		
-		--self:move_relative(x,my)
+
 		self:needsredraw()
 	end
 	
+	function cam:mousepush(mx,my,button)
+		local x = mx - self.drawbox.x - self.drawbox.w * 0.5
+		local y = my - self.drawbox.y - self.drawbox.h * 0.5
+		
+		self.parent:mousepush(x,y,button)
+	end
 	
 	function cam:mouserelease(mx,my,button)
-		self.parent:mouserelease(mx,my,button)
+		local x = mx - self.drawbox.x - self.drawbox.w * 0.5
+		local y = my - self.drawbox.y - self.drawbox.h * 0.5
+	
+		self.parent:mouserelease(x,y,button)
 	end
 	
 	function cam:draw(force)
 		if (force or self.redraw_needed) then
+			local old_alpha = gfx.getalpha()
 			gfx.setalpha(0.25)
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,5,1,1) -- solid bg
-			gfx.setalpha(1.0)
+			gfx.setalpha(old_alpha)
 			
 			local old_tex = gfx.bindtexture(checkers_texture)
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*0.75)	-- checkers
 			gfx.bindtexture(old_tex)
-
-			--gfx.drawtopleft(self.drawbox.w * 0.5,self.drawbox.h * 0.5,5,5,5,5,1,1) -- solid bg
-
-			--self:super_draw(force)
 		end
 	end
 	
@@ -332,14 +339,33 @@ function derp:create_workspace(x,y,w,h,from_path)
 		wid.component_data = derp:load(from_path)
 	end
 	
+	function wid:set_activecomp(comp)
+		if self.active_widget then
+			self.active_widget.active = false
+		end
+		
+		if type(comp) == "number" then
+			self.active_widget  = self.component_data[comp]
+		else
+			self.active_widget = comp
+		end
+		
+		self.active_widget.active = true
+	end
+	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
 			self.cam:draw(force)
 			
 			gfx.translate(self.cam.drawbox.w*0.5 + self.cam.drawbox.x,self.cam.drawbox.h*0.5 + self.cam.drawbox.y)
 			
+			-- add draw scaling?
 			for k,v in pairs(self.component_data) do
-				gfx.drawcentered(v.x,v.y,100,100,17,5,1,1)
+				if v.active then
+					gfx.drawcentered(v.x,v.y,v.w,v.h,17,5,1,1)
+				else
+					gfx.drawcentered(v.x,v.y,v.w,v.h,5,1,1,1)
+				end
 			end
 			
 			gfx.translate(-self.cam.drawbox.w*0.5 - self.cam.drawbox.x,-self.cam.drawbox.h*0.5 - self.cam.drawbox.y)
@@ -373,7 +399,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:addcomponent(x,y,ctype)
-		table.insert(self.component_data,{ x = x, y = y, type = ctype,id = self.id_counter })
+		table.insert(self.component_data,{ x = x, y = y, w = 100, h = 100, type = ctype,id = self.id_counter })
 		print("new " .. ctype .. " component created at " .. x .. "," .. y .. " with id " .. self.id_counter)
 		self.id_counter = self.id_counter + 1
 		
@@ -387,24 +413,32 @@ function derp:create_workspace(x,y,w,h,from_path)
 		self.hitbox.h = self.drawbox.h
 	end
 	
-	function wid:custom_hittest(mx,my)
-		local chit = nil
-		local x,y
-		
-		for k,v in pairs(self.component_data) do
-			x = self.cam.drawbox.w*0.5 + self.cam.drawbox.x + v.x
-			y = self.cam.drawbox.h*0.5 + self.cam.drawbox.y + v.y
+	function wid:custom_hittest(mx,my)		
+		for i = #self.component_data, 1, -1 do
+			v = self.component_data[i]
+			
+			if v then
+				if mx >= (v.x - v.w * 0.5) and mx <= (v.x + v.w * 0.5) 
+					and my >= (v.y - v.h * 0.5) and my <= (v.y + v.h * 0.5) then
+					return v
+				end
+			end
 		end
 		
-		return chit
+		return nil
+	end
+	
+	function wid:mousepush(mx,my,button)
+		--local hit = self:custom_hittest(mx,my)
+		
+		if derp.active_tool then
+			derp.active_tool:action({tag = "mousepush",x = mx,y = my})
+		end
 	end
 	
 	local cp = 0
 	
 	function wid:mouserelease(x,y,button)
-		-- custom hit test on components
-		
-	
 		if (button == inp.MOUSE_RIGHT) then
 			self:addcomponent(x,y,"render" .. cp)
 			cp = cp + 1
@@ -661,8 +695,15 @@ function derp:create_toolbar(x,y,w,h)
 	end
 	
 	function move_select:action(action)
-		if action.drag then
-			print("drag")
+		if action.tag == "mousepush" then
+			local hit = derp.active_workspace:custom_hittest(action.x,action.y)
+			
+			if hit then
+				print("hit: " .. hit.id)
+				
+				derp.active_workspace:set_activecomp(hit)
+				derp:push_workspace(derp.active_workspace)
+			end
 		end
 	end
 	
