@@ -246,6 +246,7 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 			end
 		end
 		
+		--[[
 		function ws:mouserelease(mx,my,button)
 			if (button == inp.MOUSE_LEFT) then
 				if (derp.active_workspace and not (derp.active_workspace == self) ) then
@@ -257,6 +258,7 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 			
 			self:needsredraw()
 		 end
+		 ]]
 		
 		self:addwidget(ws)
 		
@@ -617,8 +619,6 @@ function derp:base_tool(x,y,w,h,name, onclick)
 	return tool
 end
 
---local shortcuts = { { "save", function () end, {inp.MOUSE_LEFT, inp.MOUSE_RIGHT}}} 
-
 function derp:create_toolbar(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	local draggies = gui:create_basewidget(0,0,25,40)
@@ -628,13 +628,17 @@ function derp:create_toolbar(x,y,w,h)
 	local undo = derp:base_tool(0,0,40,40,"undo", 
 			function () 
 				derp:set_activetool(nil)
-				derp.active_workspace:undo()
+				if derp.active_workspace then
+					derp.active_workspace:undo()
+				end
 			end
 			)
 	local redo = derp:base_tool(0,0,40,40,"redo",
 			function () 
 				derp:set_activetool(nil)
-				derp.active_workspace:redo()
+				if derp.active_workspace then
+					derp.active_workspace:redo()
+				end
 			end)
 	local select_rect = derp:base_tool(0,0,40,40,"square select")
 	local move_select = derp:base_tool(0,0,40,40,"move/select")
