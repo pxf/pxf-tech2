@@ -3,5 +3,7 @@
 
 long int sstat_memoryusage();
 //int64_t sstat_cpuusage();
+int sstat_savefiledialog(char* _filename); // return 0 if we can save to _filename
+int sstat_openfiledialog(char* _filename); // return 0 if we can open _filename
 
 #endif /* _SSTAT_H_ */
