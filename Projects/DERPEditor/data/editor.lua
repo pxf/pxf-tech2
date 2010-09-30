@@ -37,7 +37,9 @@ local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C"
                                 }
                    }
                   }
-local about_menu = {{"Memory usage", {onclick = function () print("Memory usage: " .. tostring(app.getmemusage()/1024/1024) .. "MB") end}},
+local about_menu = {{"Test Save Dialog", {onclick = function () print("Save to: " .. tostring(app.savedialog("workspace.derp"))) end}},
+                    {"Test Load Dialog", {onclick = function () print("Load from: " .. tostring(app.opendialog())) end}},
+                    {"Memory usage", {onclick = function () print("Memory usage: " .. tostring(app.getmemusage()/1024/1024) .. "MB") end}},
                     {"About DERPEditor", {onclick = function () spawn_aboutwindow() end}}
                    }
 				   

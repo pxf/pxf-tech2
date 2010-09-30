@@ -64,6 +64,55 @@ int DERPEditor::app_getmemusage(lua_State *L)
   return 0;
 }
 
+int DERPEditor::app_savedialog(lua_State *L)
+{
+  // app.savedialog(default_filename) -- returns a filepath if the dialog succeeded
+  if (lua_gettop(L) == 1)
+  {
+		char* filepath = new char[1024];
+		int ret_size = 0;
+		sprintf(filepath, "%s", lua_tostring(L, 1));
+		
+		if (sstat_savefiledialog(filepath) == 0)
+		{
+			lua_pushstring(L, filepath);
+			ret_size = 1;
+		}
+		
+		delete [] filepath;
+    return ret_size;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to savedialog function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::app_opendialog(lua_State *L)
+{
+  // app.opendialog() -- returns a filepath if the dialog succeeded
+  if (lua_gettop(L) == 0)
+  {
+		char* filepath = new char[1024];
+		int ret_size = 0;
+		
+		if (sstat_openfiledialog(filepath) == 0)
+		{
+			lua_pushstring(L, filepath);
+			ret_size = 1;
+		}
+		
+		delete [] filepath;
+    return ret_size;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to savedialog function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int DERPEditor::app__setrenderoption(lua_State *L)
 {
   // app.setrenderoption(render_mode) -- changes render option
@@ -102,6 +151,8 @@ int DERPEditor::luaopen_appcore (lua_State *L) {
     {"getwindimensions",   app_getwindimensions},
     
     {"getmemusage",   app_getmemusage},
+    {"savedialog",   app_savedialog},
+    {"opendialog",   app_opendialog},
     
     {"_setrenderoption",   app__setrenderoption},
     {"_getrenderoption",   app__getrenderoption},
