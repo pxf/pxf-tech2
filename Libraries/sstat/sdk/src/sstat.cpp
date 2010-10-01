@@ -28,8 +28,21 @@ long int sstat_memoryusage()
 	return prof_memusage;
 }
 
+int sstat_savefiledialog(char* _filename)
+{
+	// TODO: Fix me!
+	return -1;
+}
+
+int sstat_openfiledialog(char* _filename)
+{
+	// TODO: Fix me 2! lols
+  return -1;
+}
+
 #elif defined (MACOSX) || defined (__APPLE__)
 
+// memory stuff
 #include <mach/mach.h>
 #include <mach/mach_init.h>
 #include <mach/task.h>
@@ -38,6 +51,11 @@ long int sstat_memoryusage()
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+
+// save dialog stuff
+#include <Carbon/Carbon.h>
+#include <CoreServices/CoreServices.h>
+//#include <Carbon/HIToolbox/Dialogs.h>
 
 long int sstat_memoryusage()
 {
@@ -52,6 +70,135 @@ long int sstat_memoryusage()
 		return 0;
 	
 	return info.resident_size;
+}
+
+OSErr SimpleNavPutFile( OSType fileType, 
+												OSType fileCreator, 
+												char *filepath)
+{
+	OSStatus       theStatus;
+	NavDialogRef   theDialog;
+	NavReplyRecord theReply;
+	AEDesc         aeDesc;
+	FSRef          fsRefParent, fsRefDelete;
+	FInfo          fileInfo;
+	OSErr          err = noErr;
+	
+	NavDialogCreationOptions inOptions;
+	NavGetDefaultDialogCreationOptions(&inOptions);
+	inOptions.optionFlags = kNavDefaultNavDlogOptions & ~kNavAllowMultipleFiles;
+	inOptions.saveFileName = CFStringCreateWithCString(NULL, filepath, CFStringGetSystemEncoding());
+	
+	theStatus = NavCreatePutFileDialog(&inOptions, fileType, fileCreator, NULL, NULL, &theDialog);
+	NavDialogRun(theDialog);
+	theStatus = NavDialogGetReply ( theDialog, &theReply); 
+	NavDialogDispose(theDialog);
+	
+	if(!theReply.validRecord)
+	{
+	  // Assuming the user changed his/her mind? No harm; no foul.
+	  // Still need to indicate that a file has not been created
+	  return -1;   
+	}   
+                    
+	err = AECoerceDesc(&theReply.selection, typeFSRef, &aeDesc);
+	if(err != noErr)
+		return err;
+	
+	err = AEGetDescData(&aeDesc, &fsRefParent, sizeof(FSRef));
+	if(err != noErr)
+		return err;
+	
+	// Get file name
+	char _filename[1024];
+	CFStringGetCString(theReply.saveFileName, _filename, 1024, CFStringGetSystemEncoding());
+	
+	// Get file path
+	char _filepath[1024];
+	CFURLRef theURL = CFURLCreateFromFSRef( kCFAllocatorDefault, &fsRefParent );
+	CFStringRef thePath = CFURLCopyPath(theURL);
+	CFRelease(theURL);
+	CFStringGetCString(thePath, _filepath, 1024, CFStringGetSystemEncoding());
+	CFRelease(thePath);
+	
+	// Merge them together
+	sprintf(filepath, "%s%s", _filepath, _filename);
+												
+	if(filepath == NULL)
+		return -1; // generic error
+
+	return err;
+}
+
+OSErr SimpleNavGetFile(char *filepath)
+{   
+	OSStatus                    theStatus;
+	NavDialogCreationOptions    inOptions;
+	NavDialogRef                theDialog;
+	NavReplyRecord              theReply;
+	AEDesc                      aeDesc;
+	FSRef                       fsRefParent, fsRefDelete;
+	FInfo                       fileInfo;
+	OSErr                       err = noErr;
+
+	// Setup some dialog options
+	NavGetDefaultDialogCreationOptions(&inOptions);
+	inOptions.optionFlags = kNavDefaultNavDlogOptions & ~kNavAllowMultipleFiles;
+	inOptions.saveFileName = CFStringCreateWithCString(NULL, filepath, CFStringGetSystemEncoding());
+	
+	// Display dialog
+	theStatus = NavCreateGetFileDialog(&inOptions, NULL, NULL, NULL, NULL, NULL, &theDialog);
+	NavDialogRun(theDialog);
+	theStatus = NavDialogGetReply ( theDialog, &theReply); 
+	NavDialogDispose(theDialog);
+
+	if(!theReply.validRecord)
+	{
+		return -1;      
+		// Assuming the user changed his/her mind? 
+		// No harm; no foul, but need to know 
+		// not to try to open the file.
+	}
+	
+	err = AECoerceDesc(&theReply.selection, typeFSRef, &aeDesc);
+	if(err != noErr)
+		return err;
+	
+	err = AEGetDescData(&aeDesc, &fsRefParent, sizeof(FSRef));
+	if(err != noErr)
+		return err;
+	
+	// Get file path
+	char _filepath[1024];
+	CFURLRef theURL = CFURLCreateFromFSRef( kCFAllocatorDefault, &fsRefParent );
+	CFStringRef thePath = CFURLCopyPath(theURL);
+	CFRelease(theURL);
+	CFStringGetCString(thePath, _filepath, 1024, CFStringGetSystemEncoding());
+	CFRelease(thePath);
+	
+	// Merge them together
+	sprintf(filepath, "%s", _filepath);
+												
+	if(filepath == NULL)
+		return -1; // generic error
+
+	return err;
+}
+
+int sstat_savefiledialog(char* _filename)
+{
+  OSErr err = noErr;
+	err = SimpleNavPutFile('TEXT', 'XCEL', _filename);
+
+	return (int)err;
+}
+
+int sstat_openfiledialog(char* _filename)
+{
+  OSErr err = noErr;
+	err = SimpleNavGetFile(_filename);
+
+	return (int)err;
 }
 
 #elif defined (__LINUX__) || defined (__linux__)
@@ -109,6 +256,16 @@ long int sstat_memoryusage()
 long int sstat_memoryusage()
 {
 	return 420*1024*1024;
+}
+
+int sstat_savefiledialog(char* _filename)
+{
+	return -1;
+}
+
+int sstat_openfiledialog(char* _filename)
+{
+  return -1;
 }
 
 #endif

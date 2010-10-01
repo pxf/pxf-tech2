@@ -37,8 +37,6 @@
 #include <Pxf/Modules/pri/OpenGL.h>
 
 
-
-
 using namespace Pxf;
 using namespace DERPEditor;
 
@@ -83,13 +81,14 @@ int main()
     bool running = true;
 	
 	glfwDisable(GLFW_AUTO_POLL_EVENTS);
+
+	glfwDisable(GLFW_MOUSE_CURSOR);
 	
 	Pxf::Timer racetimer;
 	uint64 framelength = 16;
 	uint64 frametotal = 0;
 	
 	racetimer.Start();
-
 
 	// bind texturing Note: can we move this to the graphics device? 
 	glEnable(GL_TEXTURE_2D);
@@ -108,6 +107,7 @@ int main()
         inp->Update();
 
         running = app->Update();
+
         app->Draw();
     }
     

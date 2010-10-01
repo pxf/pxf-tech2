@@ -391,10 +391,37 @@ function gui:tooltip(str)
   end
 end
 
+function gui:draw_custom_cursor(force)
+	if self.needsredraw or force then
+		mx,my = inp.getmousepos()
+		
+		gfx.translate(mx,my)
+		self.current_cursor:draw(force)
+		gfx.translate(-mx,-my)
+	end
+end
+
+function gui:add_customcursor(w,h,s,t,name)
+	local cursor = { w = w, h = h, s = s, t = t, name = name}
+	
+	function cursor:draw(force) 
+		gfx.drawtopleft(0,0,self.w,self.h,self.s,self.t,self.w,self.h)
+	end
+	
+	table.insert(self.custom_cursors,{cursor.name,cursor})
+	
+	return cursor
+end
+
 function gui:init()
   self.themetex = gfx.loadtexture(2048*2, "data/guitheme_brown.png")
   self.font = gfx.loadtexture(1024, "data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
+  
+  self.use_customcursor = true
+  self.current_cursor = nil
+  
+  --self.custom_cursor = gfx.loadtexture(32, "data/guitheme_cursor_brown.png")
   
   self.activewidget = nil
   self.focuswidget = nil
