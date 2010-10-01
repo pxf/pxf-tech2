@@ -81,7 +81,8 @@ int main()
     bool running = true;
 	
 	glfwDisable(GLFW_AUTO_POLL_EVENTS);
-	//glfwDisable(GLFW_MOUSE_CURSOR);
+
+	glfwDisable(GLFW_MOUSE_CURSOR);
 	
 	Pxf::Timer racetimer;
 	uint64 framelength = 16;

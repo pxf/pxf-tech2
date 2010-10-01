@@ -405,6 +405,10 @@ function derp:create_workspace(x,y,w,h,from_path)
 		self.hitbox.h = self.drawbox.h
 	end
 	
+	function wid:custom_hittest(x0,y0,x1,y1)
+	
+	end
+	
 	function wid:custom_hittest(mx,my)		
 		for i = #self.component_data, 1, -1 do
 			v = self.component_data[i]
@@ -429,6 +433,10 @@ function derp:create_workspace(x,y,w,h,from_path)
 	local cp = 0
 	
 	function wid:mouserelease(x,y,button)
+		if derp.active_tool then
+			derp.active_tool:action({tag = "mouserelease", x = x, y = y})
+		end
+	
 		if (button == inp.MOUSE_RIGHT) then
 			self:addcomponent(x,y,"render" .. cp)
 			cp = cp + 1
@@ -515,12 +523,12 @@ function derp:create_workspaceframe(x,y,w,h)
 	return wid
 end
 
-function derp:base_tool(x,y,w,h,name, onclick)
-	local tool = gui:create_basewidget(x,y,w,h)	
+function derp:base_tool(w,h,s,t,name, onclick)
+	local tool = gui:create_basewidget(0,0,40,40)	-- determine from size of toolbar mayhabps?	
 	tool.highlight = false
 	tool.selected = false
 	tool.super_find_mousehit = tool.find_mousehit
-	tool.icon_properties = { w = w, h = h, s = nil,t = nil }
+	tool.icon_properties = { w = w, h = h, s = s,t = t }
 	tool.onclick = onclick
 	
 	
@@ -625,7 +633,7 @@ function derp:create_toolbar(x,y,w,h)
 	local separator = gui:create_basewidget(0,0,10,40)
 	
 	-------- TOOLS --------
-	local undo = derp:base_tool(0,0,40,40,"undo", 
+	local undo = derp:base_tool(28,24,1,102,"undo", 
 			function () 
 				derp:set_activetool(nil)
 				if derp.active_workspace then
@@ -633,43 +641,16 @@ function derp:create_toolbar(x,y,w,h)
 				end
 			end
 			)
-	local redo = derp:base_tool(0,0,40,40,"redo",
+	local redo = derp:base_tool(28,24,2,127,"redo",
 			function () 
 				derp:set_activetool(nil)
 				if derp.active_workspace then
 					derp.active_workspace:redo()
 				end
 			end)
-	local select_rect = derp:base_tool(0,0,40,40,"square select")
-	local move_select = derp:base_tool(0,0,40,40,"move/select")
-	local move_ws = derp:base_tool(0,0,40,40,"move workspace")
-	
-	-- AOE, can this be done better, syntax-wise?
-	
-	undo.icon_properties.w = 28
-	undo.icon_properties.h = 24
-	undo.icon_properties.s = 1
-	undo.icon_properties.t = 102
-	
-	redo.icon_properties.w = 28
-	redo.icon_properties.h = 24
-	redo.icon_properties.s = 2
-	redo.icon_properties.t = 127
-	
-	move_select.icon_properties.w = 24
-	move_select.icon_properties.h = 17
-	move_select.icon_properties.s = 1
-	move_select.icon_properties.t = 61
-	
-	select_rect.icon_properties.w = 24
-	select_rect.icon_properties.h = 24
-	select_rect.icon_properties.s = 1
-	select_rect.icon_properties.t = 36
-	
-	move_ws.icon_properties.w = 21
-	move_ws.icon_properties.h = 21
-	move_ws.icon_properties.s = 1
-	move_ws.icon_properties.t = 79
+	local select_rect = derp:base_tool(24,24,1,36,"square select")
+	local move_select = derp:base_tool(24,17,1,61,"move/select")
+	local move_ws = derp:base_tool(21,21,1,79,"move workspace")
 	
 	self:set_activetool(move_ws)
 	
@@ -683,6 +664,8 @@ function derp:create_toolbar(x,y,w,h)
 	wid.drag = false
 	wid.prev_owner = nil
 	
+	select_rect.draw_rect = gui:create_basewidget(0,0,1,1)
+	
 	wid:addwidget(draggies)
 	wid:addwidget(undo)
 	wid:addwidget(redo)
@@ -690,7 +673,7 @@ function derp:create_toolbar(x,y,w,h)
 	wid:addwidget(move_ws)
 	wid:addwidget(move_select)
 	wid:addwidget(select_rect)
-		
+	
 		
 	function move_ws:action(action)
 		if action.tag == "drag" then
@@ -726,8 +709,69 @@ function derp:create_toolbar(x,y,w,h)
 		end
 	end
 	
+	function select_rect.draw_rect:draw(force)
+		if (self.redrawneeded or force) then
+			local a = gfx.getalpha()
+			gfx.setalpha(0.25)
+			--print(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,13,1,1,1)
+			gfx.setalpha(a)
+		end
+	end
+	
 	function select_rect:action(action)
+		if action.tag == "mousepush" then
+			gui.widgets:addwidget(select_rect.draw_rect)
 		
+			self.new_drag = { x0 = action.x, y0 = action.y, x1 = action.x, y1 = action.y }
+			
+			local mx,my = inp.getmousepos()
+			self.draw_rect:move_abs(mx,my)
+			self.draw_rect:resize_abs(1,1)
+			
+		elseif action.tag == "drag" then
+			self.new_drag.x1 = self.new_drag.x1 + action.dx
+			self.new_drag.y1 = self.new_drag.y1 + action.dy
+			
+			self.draw_rect:resize_relative(action.dx,action.dy)
+		elseif action.tag == "mouserelease" then
+			-- sort coords
+			if self.new_drag.x0 > self.new_drag.x1 then
+				local tmp = self.new_drag.x0
+				self.new_drag.x0 = self.new_drag.x1
+				self.new_drag.x1 = tmp
+			end
+			
+			if self.new_drag.y0 > self.new_drag.y1 then
+				local tmp = self.new_drag.y0
+				self.new_drag.y0 = self.new_drag.y1
+				self.new_drag.y1 = tmp
+			end
+			
+			print(self.new_drag.x0,self.new_drag.x1)
+			
+			local hits = {}
+			for k,v in pairs (derp.active_workspace.component_data) do
+				-- bounds check
+				v.active = false
+				
+				if self.new_drag.x0 > (v.x + v.w*0.5) then
+				elseif self.new_drag.x1 < (v.x - v.w*0.5) then
+				elseif self.new_drag.y0 > (v.y +v.h*0.5) then
+				elseif self.new_drag.y1 < (v.y - v.h*0.5) then
+				else
+					table.insert(hits,v)
+					
+					v.active = true
+				end
+			end
+			
+			if #hits > 0 then
+				derp:push_workspace(derp.active_workspace)
+			end
+			
+			gui.widgets:removewidget(self.draw_rect)
+		end
 	end
 	
 	function move_select:action(action)
