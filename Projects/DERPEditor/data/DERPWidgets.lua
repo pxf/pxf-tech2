@@ -281,6 +281,8 @@ function derp:create_workspacecamera(x,y,w,h)
 	
 	--print(cam.drawbox.h .. "," .. cam.drawbox.w)
 	
+	cam.shortcuts = { { keys = {inp.LCTRL, "C"}, onpress = function () print("Lets copy dat floppy!") end} }
+	
 	function cam:mousedrag(mx,my)
 		if derp.active_tool then 
 			derp.active_tool:action({tag = "drag", dx = mx, dy = my})

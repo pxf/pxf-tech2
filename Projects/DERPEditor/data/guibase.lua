@@ -453,12 +453,12 @@ function gui:update()
   -- test
   --gui:redraw(mx,my,32,32)
   
-  -- check keyboard shortcuts
-  --wid.shortcuts = {} -- { { keys = {inp.LSHIFT, 'C'}, onpress = function () print("LOL SUP") end} }
-  if (self.activewidget) then
-    for _,shortcut in pairs(self.activewidget.shortcuts) do
+  -- check keyboard shortcuts for the focused widget
+  if (self.focuswidget) then
+    for _,shortcut in pairs(self.focuswidget.shortcuts) do
       local shortcut_success = true
       for __,key in pairs(shortcut.keys) do
+        --print("testing: " .. tostring(key) .. " -> ".. tostring(string.byte(key, 1)))
         if not (inp.iskeydown(key)) then
           shortcut_success = false
           break
@@ -466,7 +466,7 @@ function gui:update()
       end
       
       if (shortcut_success) then
-        shortcut:fun()
+        shortcut:onpress()
       end
     end
   end
