@@ -32,6 +32,25 @@ project:Build()
 Modules and libraries are specified in a similar way, have a look in *Libraries/rtaudio*
 and *Modules/snd* to see how the audio system is built.
 
+Building
+~~~~~~~~
+Installing bam is simple, however; on Windows the build-tools aren't in *$PATH* by default. The easiest
+way to get it to work is to copy Tools/bam* to %windir%. 
+
+Now, assuming that everything that bam and your compiler is in *$PATH*, compiling should be as easy as the following:
+----
+bam -j 4 -s Build.lua target_type
+----
+The above command executes compilation using 4 threads, so change this number depending on the system you are using.
+
+Currently the following target type are defined:
+--
+* debug - static debug build, modules will be compiled and embedded in a single binary
+* debug_dll - dynamic debug build, modules will be compiled as easy-replacable dynamic libraries
+* release - static release build
+* release_dll - dynamic release build
+--
+
 Engine
 ------
 This is a general overview of the pxf tech2 engine, its components and how they are connected.
@@ -90,7 +109,7 @@ Future plans on additional systems
 
 Resource Loaders
 ++++++++++++++++
-The resource loaders implements interfaces found in *Pxf/Resource/*, and has the following methods for
+The resource loaders implements interfaces found in *Pxf/Resource/$Type.h*, and has the following methods for
 loading a resource.
 --
 * Load(file_path);
