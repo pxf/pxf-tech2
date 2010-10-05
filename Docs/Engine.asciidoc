@@ -37,11 +37,11 @@ Building
 Installing bam is simple, however; on Windows the build-tools aren't in *$PATH* by default. The easiest
 way to get it to work is to copy Tools/bam* to %windir%. 
 
-Now, assuming that everything that bam and your compiler is in *$PATH*, compiling should be as easy as the following:
+Now, assuming that bam and your compiler is in *$PATH*, compiling should be as easy as the following:
 ----
 bam -j 4 -s Build.lua target_type
 ----
-The above command executes compilation using 4 threads, so change this number depending on the system you are using.
+The above command executes compilation using 4 threads; change this number depending on the system you are using.
 
 Currently the following target type are defined:
 --
@@ -51,9 +51,16 @@ Currently the following target type are defined:
 * release_dll - dynamic release build
 --
 
+Future additions
+~~~~~~~~~~~~~~~~
+--
+* Should be able to compile individual modules in a simple way
+** debug_*module*, release_*module*
+--
+
 Engine
 ------
-This is a general overview of the pxf tech2 engine, its components and how they are connected.
+This is a general overview of the pxf tech2 engine, its components and how they interact with each other.
 
 Kernel
 ~~~~~~
