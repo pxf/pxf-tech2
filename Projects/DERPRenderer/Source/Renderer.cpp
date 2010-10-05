@@ -5,6 +5,8 @@
 #include <Pxf/Base/Debug.h>
 
 #include <Pxf/Graphics/Texture.h>
+#include <Pxf/Network/NetworkDevice.h>
+#include <RemoteLogWriter.h>
 
 using namespace Derp;
 using namespace Pxf;
@@ -25,8 +27,11 @@ Renderer::Renderer(unsigned int _port)
 	m_NetTag_Result = _net->AddTag("result");
 	m_NetTag_Profiling = _net->AddTag("profiling");
 	
+	unsigned netlogtag = _net->AddTag("log");
 	m_Net = _net->CreateServer();
 	m_Net->Bind(_port);
+	Pxf::Kernel::GetInstance()->RegisterLogger(new RemoteLogWriter(m_Net, netlogtag));
+
 	
   // Load default blocks
 	LoadFromFile("data/default.json");
