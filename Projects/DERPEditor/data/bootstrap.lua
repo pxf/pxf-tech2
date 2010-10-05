@@ -236,4 +236,42 @@ function _draw()
   gfx.forceredraw = false
 end
 
+function draw_line_segment(x1,y1,x2,y2,w)
+  local oldtex = gfx.bindtexture(0)
+  local cx,cy = 0,0
+  local len = 0
+  local a = 0
+  
+  -- calc line center
+  cx = ((x2 - x1) / 2)
+  cy = ((y2 - y1) / 2)
+  
+  -- calc line length
+  len = math.sqrt(cx*4*cx + cy*4*cy)
+  
+  -- calc angle
+  a = math.atan(cy/cx)
+  
+  gfx.translate(x1 + cx, y1 + cy)
+  gfx.rotate(a)
+
+  gfx.drawquad(-len/2, -w/2, len/2, -w/2, len/2, w/2, -len/2, w/2)
+  
+  gfx.rotate(-a)
+  gfx.translate(-(x1 + cx),-(y1 + cy))
+  gfx.bindtexture(oldtex)
+end
+
+function draw_line(points,w)
+  local oldx,oldy = nil,nil
+  for k,v in pairs(points) do
+    if not (oldx == nil) then
+      draw_line_segment(oldx,oldy,v[1],v[2],w)
+    end
+    
+    oldx = v[1]
+    oldy = v[2]
+  end
+end
+
 --print("gfx.test() -> " .. tostring(gfx.test()))

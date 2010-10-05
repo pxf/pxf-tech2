@@ -1,4 +1,6 @@
 #include <RemoteLogWriter.h>
+#include <Pxf/Base/Utils.h>
+#include <Pxf/Base/String.h>
 #include <Pxf/Network/Server.h>
 
 bool Derp::RemoteLogWriter::WriteImpl(unsigned int _Tag, const char** _TagTable
@@ -15,7 +17,20 @@ bool Derp::RemoteLogWriter::WriteImpl(unsigned int _Tag, const char** _TagTable
 
 
 	// Should format and add debug/warning/critical-flags
-	m_Server->SendAllL(m_NetLogTag, _SrcBuffer, _SrcLength);
+	char buff[4096];
+	const char* type = 0;
+	if (_Tag & Logger::IS_DEBUG)
+		type = "debug";
+	else if (_Tag & Logger::IS_INFORMATION)
+		type = "info";
+	else if (_Tag & Logger::IS_WARNING)
+		type = "warn";
+	else if (_Tag & Logger::IS_CRITICAL)
+		type = "fatal";
+
+	Pxf::Format(buff, "%s | %s", type, _SrcBuffer);
+
+	m_Server->SendAllL(m_NetLogTag, _SrcBuffer, Pxf::StringLength(buff));
 
 	return true;
 }
