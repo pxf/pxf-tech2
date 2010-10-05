@@ -155,7 +155,7 @@ function derp:create_menu(x,y,w,h)
 end
 
 function derp:create_statusbar(x,y,w,h)
-	local wid = gui:create_statusbar(x,y,w, editor.name .. " v" .. editor.version)--create_basewidget(x,y,w,h)
+	local wid = gui:create_statusbar(x,y,w,h, editor.name .. " v" .. editor.version)--create_basewidget(x,y,w,h)
 	wid.widget_type = "statusbar"
 	
 	wid.sdraw = wid.draw
@@ -167,7 +167,7 @@ function derp:create_statusbar(x,y,w,h)
 			-- DRAW BORDER
 			gfx.drawtopleft(self.drawbox.x+20,self.drawbox.y,self.drawbox.w-40,1,1,5,1,1)
 			
-			wid:sdraw(force)
+			self:sdraw(force)
 		end
 	end
 	

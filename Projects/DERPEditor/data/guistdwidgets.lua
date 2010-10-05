@@ -238,8 +238,8 @@ function gui:create_horizontalstack(x,y,w,h)
   return wid
 end
 
-function gui:create_statusbar(x,y,w,default_text)
-  local wid = gui:create_basewidget(x,y-22,w,22)
+function gui:create_statusbar(x,y,w,h,default_text)
+  local wid = gui:create_basewidget(x,y,w,h)
   wid.default_text = default_text
   wid.text = default_text
   
@@ -255,14 +255,9 @@ function gui:create_statusbar(x,y,w,default_text)
     if (self.redraw_needed or force) then
       gfx.translate(self.drawbox.x, self.drawbox.y)
       
-      -- bg
       local r,g,b = gfx.getcolor()
-      gfx.setcolor(26/256,26/256,26/256)
-      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,18,2,1,1)
-      
-      -- text
       gfx.setcolor(0.6,0.6,0.6)
-      gui:drawfont(self.text,12,12)
+      gui:drawfont(self.text,24,12)
       gfx.setcolor(r,g,b)
 
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
