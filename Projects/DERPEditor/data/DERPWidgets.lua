@@ -333,16 +333,16 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	function wid:set_activecomp(comp)
 		if self.active_widget then
-			self.active_widget.active = false
+			for k,v in pairs(self.active_widget) do
+				v.active = false
+			end
 		end
 		
-		if type(comp) == "number" then
-			self.active_widget  = self.component_data[comp]
-		else
-			self.active_widget = comp
+		for k,v in pairs(comp) do
+			v.active = true
 		end
 		
-		self.active_widget.active = true
+		self.active_widget = comp
 	end
 	
 	function wid:draw(force)
@@ -391,22 +391,18 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:addcomponent(x,y,ctype)
-		table.insert(self.component_data,{ x = x, y = y, w = 100, h = 100, type = ctype,id = self.id_counter })
-		--print("new " .. ctype .. " component created at " .. x .. "," .. y .. " with id " .. self.id_counter)
+		local new_comp = { x = x, y = y, w = 100, h = 100, type = ctype,id = self.id_counter}
+		table.insert(self.component_data,new_comp)
 		self.id_counter = self.id_counter + 1
 		
-		derp:push_workspace(self)
+		self:set_activecomp( {new_comp} )
 		
-		--print(self.workspace_stack.counter)
+		derp:push_workspace(self)
 	end
 	
 	function wid:resize_callback(w,h)
 		self.drawbox.h = self.drawbox.h - h
 		self.hitbox.h = self.drawbox.h
-	end
-	
-	function wid:custom_hittest(x0,y0,x1,y1)
-	
 	end
 	
 	function wid:custom_hittest(mx,my)		
@@ -748,8 +744,6 @@ function derp:create_toolbar(x,y,w,h)
 				self.new_drag.y1 = tmp
 			end
 			
-			--print(self.new_drag.x0,self.new_drag.x1)
-			
 			local hits = {}
 			for k,v in pairs (derp.active_workspace.component_data) do
 				-- bounds check
@@ -768,6 +762,9 @@ function derp:create_toolbar(x,y,w,h)
 			
 			if #hits > 0 then
 				derp:push_workspace(derp.active_workspace)
+				derp.active_workspace.active_widget = hits
+			else
+				derp.active_workspace.active_widget = nil
 			end
 			
 			gui.widgets:removewidget(self.draw_rect)
@@ -775,6 +772,31 @@ function derp:create_toolbar(x,y,w,h)
 	end
 	
 	function move_select:action(action)
+		--[[
+		if action.tag == "mousepush" then
+			if not derp.active_workspace.active_widget then
+				local hit = derp.active_workspace:custom_hittest(action.x,action.y)
+				
+				if hit then
+					derp.active_workspace.active_widget = {hit}
+					hit.active = true
+				else
+					for k,v in pairs(derp.active_workspace.active_widget) do
+						v.active = false
+					end
+					derp.active_workspace.active_widget = nil
+				end
+			end ]]
+		if action.tag == "drag" then
+			if derp.active_workspace.active_widget then
+				for k,v in pairs(derp.active_workspace.active_widget) do
+					v.x = v.x + action.dx
+					v.y = v.y + action.dy
+				end
+			end
+		end
+		
+		--[[
 		if action.tag == "mousepush" then
 			local hit = derp.active_workspace:custom_hittest(action.x,action.y)
 			
@@ -784,7 +806,7 @@ function derp:create_toolbar(x,y,w,h)
 				derp.active_workspace:set_activecomp(hit)
 				derp:push_workspace(derp.active_workspace)
 			end
-		end
+		end ]]
 	end
 	
 	function separator:draw(force)
