@@ -279,7 +279,7 @@ function derp:create_workspacecamera(x,y,w,h)
 	cam.super_mhit = cam.find_mousehit
 	local checkers_texture = gfx.loadtexture(64,"data/checkers.png")
 	
-	print(cam.drawbox.h .. "," .. cam.drawbox.w)
+	--print(cam.drawbox.h .. "," .. cam.drawbox.w)
 	
 	function cam:mousedrag(mx,my)
 		if derp.active_tool then 
@@ -395,12 +395,12 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	function wid:addcomponent(x,y,ctype)
 		table.insert(self.component_data,{ x = x, y = y, w = 100, h = 100, type = ctype,id = self.id_counter })
-		print("new " .. ctype .. " component created at " .. x .. "," .. y .. " with id " .. self.id_counter)
+		--print("new " .. ctype .. " component created at " .. x .. "," .. y .. " with id " .. self.id_counter)
 		self.id_counter = self.id_counter + 1
 		
 		derp:push_workspace(self)
 		
-		print(self.workspace_stack.counter)
+		--print(self.workspace_stack.counter)
 	end
 	
 	function wid:resize_callback(w,h)
@@ -751,7 +751,7 @@ function derp:create_toolbar(x,y,w,h)
 				self.new_drag.y1 = tmp
 			end
 			
-			print(self.new_drag.x0,self.new_drag.x1)
+			--print(self.new_drag.x0,self.new_drag.x1)
 			
 			local hits = {}
 			for k,v in pairs (derp.active_workspace.component_data) do
@@ -782,7 +782,7 @@ function derp:create_toolbar(x,y,w,h)
 			local hit = derp.active_workspace:custom_hittest(action.x,action.y)
 			
 			if hit then
-				print("hit: " .. hit.id)
+				--print("hit: " .. hit.id)
 				
 				derp.active_workspace:set_activecomp(hit)
 				derp:push_workspace(derp.active_workspace)
