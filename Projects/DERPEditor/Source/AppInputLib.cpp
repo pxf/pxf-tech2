@@ -75,7 +75,13 @@ int DERPEditor::inp_iskeydown(lua_State *L) {
   if (lua_gettop(L) == 1)
   {
     Pxf::Input::InputDevice* inp = Pxf::Kernel::GetInstance()->GetInputDevice();
-    lua_pushboolean(L, inp->IsKeyDown(lua_tonumber(L, 1)));
+		if (lua_isnumber(L, 1))
+			lua_pushboolean(L, inp->IsKeyDown(lua_tonumber(L, 1)));
+    else
+		{
+			const char *tstr = lua_tostring(L, 1);
+			lua_pushboolean(L, inp->IsKeyDown((int)(tstr[0])));
+		}
     return 1;
     
   } else {
