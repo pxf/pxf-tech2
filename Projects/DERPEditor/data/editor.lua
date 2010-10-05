@@ -147,9 +147,11 @@ gfx.redrawneeded()
 
 function update()
   gui:update()
-  derp:update()
 end
 
 function draw(force)
   gui:draw(force)
+  
+  -- test line drawing:
+  --draw_line({{100,100},{200,200},{200,320},{100,100}},1)
 end
