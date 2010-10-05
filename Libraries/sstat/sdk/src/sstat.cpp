@@ -250,6 +250,16 @@ long int sstat_memoryusage()
    return ret_val;
 }
 
+int sstat_savefiledialog(char* _filename)
+{
+	return -1;
+}
+
+int sstat_openfiledialog(char* _filename)
+{
+  return -1;
+}
+
 #else
 
 
