@@ -5,6 +5,7 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Timer.h>
 #include <Pxf/Base/Logger.h>
+#include <RemoteLogWriter.h>
 
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Input/InputDevice.h>
@@ -73,6 +74,7 @@ int main()
 	Audio::AudioDevice* snd = kernel->GetAudioDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	Resource::ResourceManager* res = kernel->GetResourceManager();
+	Network::NetworkDevice* net = kernel->GetNetworkDevice();
 	res->DumpResourceLoaders();
 
 	// load settings
@@ -101,6 +103,12 @@ int main()
 
 	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
 				   ,settings["audio"].get("max_voices", 8).asUInt());
+
+
+	unsigned netlogtag = net->AddTag("log");
+	Network::Server* server = net->CreateServer();
+	server->Bind(9001);
+	kernel->RegisterLogger(new RemoteLogWriter(server, netlogtag));
 
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;//renderer->m_Width;//settings["video"].get("width", 800).asInt();
