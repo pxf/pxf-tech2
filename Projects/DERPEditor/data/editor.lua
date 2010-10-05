@@ -24,7 +24,7 @@ end
 ----------------------------------------------
 -- setup menus
 local file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = function () app.reboot() end}},
-				   {"Save", {tooltip = "Save current workspace.", onclick = function () derp:save(derp.active_workspace.widget_type,derp.active_workspace) end}}, -- this should open dialog etc
+				   {"Save As...", {tooltip = "Save current workspace to file...", onclick = function() local filename = app.savedialog("workspace.derp"); if not (filename == nil) then derp:save(filename,derp.active_workspace) else print("Did not save!") end end}},--function () derp:save(derp.active_workspace.widget_type,derp.active_workspace) end}}, -- this should open dialog etc
                    {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () app.quit() end}},
                   }
 local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C", onclick = function () print("copy!!") end}},
@@ -110,6 +110,8 @@ right_padding_container.widget_type = "right padding"
 right_padding_container.border.left = true
 
 local statusbar_container = derp:create_statusbar(0,app.height-20,app.width,20)
+--local statusbar = gui:create_statusbar(0,app.height,app.width, editor.name .. " v" .. editor.version)
+gui.statusbar = statusbar_container
 
 derp.active_workspace = workspace_area
 

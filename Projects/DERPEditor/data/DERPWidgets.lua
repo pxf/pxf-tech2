@@ -83,11 +83,11 @@ end
 
 function derp:save(filename,workspace)
 	-- save current workspace
-	local fname = filename .. ".derp"
+	local fname = filename-- .. ".derp"
 	local file = io.output(fname,"w")
 	local data = basic_serialize(workspace.component_data,0)
 	
-	print("saving to file " .. fname)
+	print("saving to file: " .. fname)
 	
 	io.write(data)
 	
@@ -155,9 +155,10 @@ function derp:create_menu(x,y,w,h)
 end
 
 function derp:create_statusbar(x,y,w,h)
-	local wid = gui:create_basewidget(x,y,w,h)
+	local wid = gui:create_statusbar(x,y,w,h, editor.name .. " v" .. editor.version)--create_basewidget(x,y,w,h)
 	wid.widget_type = "statusbar"
 	
+	wid.sdraw = wid.draw
 	function wid:draw(force) 
 		if (self.redraw_needed or force) then
 			-- DRAW BG
@@ -165,6 +166,8 @@ function derp:create_statusbar(x,y,w,h)
 			
 			-- DRAW BORDER
 			gfx.drawtopleft(self.drawbox.x+20,self.drawbox.y,self.drawbox.w-40,1,1,5,1,1)
+			
+			self:sdraw(force)
 		end
 	end
 	
@@ -277,6 +280,8 @@ function derp:create_workspacecamera(x,y,w,h)
 	local checkers_texture = gfx.loadtexture(64,"data/checkers.png")
 	
 	--print(cam.drawbox.h .. "," .. cam.drawbox.w)
+	
+	cam.shortcuts = { { keys = {inp.LCTRL, "C"}, onpress = function () print("Lets copy dat floppy!") end} }
 	
 	function cam:mousedrag(mx,my)
 		if derp.active_tool then 

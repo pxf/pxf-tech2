@@ -84,6 +84,10 @@ function gui:create_basewidget(x,y,w,h)
 		end
   end
   
+  -----------------------------------
+  -- store key shortcuts in a table
+  wid.shortcuts = {} -- { { keys = {inp.LSHIFT, 'C'}, onpress = function () print("LOL SUP") end} }
+  
   
   -----------------------------------
   -- redraw functions
@@ -448,6 +452,24 @@ function gui:update()
   
   -- test
   --gui:redraw(mx,my,32,32)
+  
+  -- check keyboard shortcuts for the focused widget
+  if (self.focuswidget) then
+    for _,shortcut in pairs(self.focuswidget.shortcuts) do
+      local shortcut_success = true
+      for __,key in pairs(shortcut.keys) do
+        --print("testing: " .. tostring(key) .. " -> ".. tostring(string.byte(key, 1)))
+        if not (inp.iskeydown(key)) then
+          shortcut_success = false
+          break
+        end
+      end
+      
+      if (shortcut_success) then
+        shortcut:onpress()
+      end
+    end
+  end
   
   -- send mouse over
   local mouse_over_rcv = self.widgets:find_mousehit(mx,my)
