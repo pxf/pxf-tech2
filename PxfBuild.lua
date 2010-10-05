@@ -141,11 +141,11 @@ function NewModule(name)
             -- SharedLibrary needs to link with self.required_libs
             local libs = {}
             for i, l in ipairs(self.required_libraries) do
-				local library = LoadLibrary(l)
-				local defname = "CONF_WITH_LIBRARY_"..string.upper(library.name)
+                local library = LoadLibrary(l)
+                local defname = "CONF_WITH_LIBRARY_"..string.upper(library.name)
                 if not project.built_list[l] then
                     module_settings.cc.defines:Add(defname)
-					project:AddDefine(defname)
+                    project:AddDefine(defname)
                     local lib = library:Build(self, module_settings)
                     table.insert(libs, lib)
                     table.insert(project.built_libs, lib)
@@ -153,7 +153,7 @@ function NewModule(name)
                 else
                     -- TODO: Else what?
                     module_settings.cc.defines:Add(defname)
-					project:AddDefine(defname)
+                    project:AddDefine(defname)
                     table.insert(libs, project.built_list[l])
                 end
                 
@@ -169,16 +169,16 @@ function NewModule(name)
                     module_settings.dll.frameworks:Add(l)
                 end
             end
-			local objs = Compile(module_settings, source_files)
+            local objs = Compile(module_settings, source_files)
             return SharedLibrary(module_settings, self.name, objs, frameworkobjs, libs)
         else
-		    for i, l in ipairs(self.required_libraries) do
-				local library = LoadLibrary(l)
-				local defname = "CONF_WITH_LIBRARY_"..string.upper(library.name)
-				module_settings.cc.defines:Add(defname)
-				project:AddDefine(defname)
-			end
-				
+            for i, l in ipairs(self.required_libraries) do
+                local library = LoadLibrary(l)
+                local defname = "CONF_WITH_LIBRARY_"..string.upper(library.name)
+                module_settings.cc.defines:Add(defname)
+                project:AddDefine(defname)
+            end
+                
             -- Return compiled objects instead of creating a static library.
             local objs = Compile(module_settings, source_files)
             return objs;
@@ -191,17 +191,23 @@ end
 function NewProject(name)
     local project = {}
     project.name = name
+    project.system_libraries = {}
     project.required_modules = {}
     project.required_libraries = {}
     project.include_directories = {}
     project.source_directories = {}
     project.defines = {}
     
+    
+    project.AddSystemLibrary = function(self, lib)
+        table.insert(self.system_libraries, lib)
+    end
+    
     project.AddDefine = function(self, def)
-		 if not self.defines[def] then
-			table.insert(self.defines, def)
-			self.defines[def] = nil
-		end
+         if not self.defines[def] then
+            table.insert(self.defines, def)
+            self.defines[def] = nil
+        end
     end
     
     project.RequireLibrary = function(self, library)
@@ -373,11 +379,11 @@ function NewProject(name)
                 end
                 
             end
-			
-			-- Add defines
-			for i,d in ipairs(self.defines) do
-				settings.cc.defines:Add(d)
-			end
+            
+            -- Add defines
+            for i,d in ipairs(self.defines) do
+                settings.cc.defines:Add(d)
+            end
 
             -- Then build the project
             project = Compile(settings, source_files)
