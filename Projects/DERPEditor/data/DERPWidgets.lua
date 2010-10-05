@@ -279,8 +279,6 @@ function derp:create_workspacecamera(x,y,w,h)
 	cam.super_mhit = cam.find_mousehit
 	local checkers_texture = gfx.loadtexture(64,"data/checkers.png")
 	
-	--print(cam.drawbox.h .. "," .. cam.drawbox.w)
-	
 	cam.shortcuts = { { keys = {inp.LCTRL, "C"}, onpress = function () print("Lets copy dat floppy!") end} }
 	
 	function cam:mousedrag(mx,my)

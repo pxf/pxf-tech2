@@ -2,6 +2,7 @@
 #define __DERPEDITOR_QUADBATCH_H__
 
 #include <Pxf/Math/Vector.h>
+#include <Pxf/Math/Matrix.h>
 #include <Pxf/Graphics/VertexBuffer.h>
 
 namespace DERPEditor
