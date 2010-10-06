@@ -349,6 +349,8 @@ function derp:create_workspacecamera(x,y,w,h)
 													v[2].comp.inputs[v[2].socket] = v[2].comp.inputs[v[2].socket] - 1
 													
 													derp.active_workspace.component_data.edges[k] = nil
+													
+													derp:push_workspace(derp.active_workspace)
 												end}})
 										end
 										
