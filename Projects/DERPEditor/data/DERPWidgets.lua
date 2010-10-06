@@ -1,6 +1,12 @@
 derp = {}
 derp.active_workspace = nil
 derp.active_tool = { last = nil, current = nil }
+derp.ws_menu = nil
+
+function derp:init()
+	self.ws_menu = derp:create_workspace_menu()
+	self.ready = true
+end
 
 function derp:printstack()
 	print("\n-------------\n")
@@ -176,6 +182,76 @@ function derp:create_inspector(x,y,w,h)
 	return wid
 end
 
+function derp:create_workspace_menu()
+	local menu = {
+		{"New Component", 
+			{
+				menu = {
+					{"Aux", { onclick = function () 
+								local x,y = self.active_workspace.cam:coord_transform(inp.getmousepos())
+								self.active_workspace:addcomponent(x,y,"aux") 
+							end, tooltip = "Creates a new Aux component"}},
+					{"Render", { onclick = function () 
+								local x,y = self.active_workspace.cam:coord_transform(inp.getmousepos())
+								self.active_workspace:addcomponent(x,y,"render") 
+							end, tooltip = "Creates a new Render component"}},
+					{"Output", { onclick = function () 
+								local x,y = self.active_workspace.cam:coord_transform(inp.getmousepos())
+								self.active_workspace:addcomponent(x,y,"output") 
+							end, tooltip = "Creates a new Output component"}}
+				}
+			}
+	   }
+	}
+			
+	local wid = gui:create_menu(0,0,menu)
+	
+	wid.widget_type = "workspace menu"
+	wid.visible = false
+	
+	function wid:show()
+		if self.visible then
+			self:hide()
+			print("hey")
+		end
+		
+		local x,y = inp.getmousepos()
+		self:move_abs(x,y)
+			
+		self.visible = true
+		gui.widgets:addwidget(self)
+		
+		derp:set_activetool(nil)
+	end
+	
+	function wid:hide()
+		self.visible = false
+		gui.widgets:removewidget(self)
+		
+		derp:set_activetool(derp.active_tool.last)
+	end
+	
+	--[[
+	function wid:draw(force)
+		if ((self.redraw_needed or force) and self.visible) then
+			local old_a = gfx.getalpha()
+			
+			gfx.setalpha(0.5)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,511,128,1)
+			gfx.setalpha(old_a)
+			
+			-- borders
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,1,1,1)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,1,1,1)
+			gfx.drawtopleft(self.drawbox.x+self.drawbox.w,self.drawbox.y,1,self.drawbox.h,1,1,1,1)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,1,1,1)
+		end
+	end
+	]]
+	
+	return wid
+end
+
 function derp:create_workspace_tabs(x,y,w,h,workspace)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	wid.widget_type = "workspace tabs"
@@ -236,6 +312,10 @@ function derp:create_workspacecamera(x,y,w,h)
 	function cam:coord_transform(x,y) 
 		return x - self.drawbox.x - self.drawbox.w * 0.5,y - self.drawbox.y - self.drawbox.h * 0.5
 	end	
+	
+	function cam:coord_transform_inv(x,y)
+		return x + self.drawbox.x + self.drawbox.w * 0.5,y + self.drawbox.y + self.drawbox.h * 0.5
+	end
 	
 	local socket_a = nil
 	
@@ -521,7 +601,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	function wid:mousepush(mx,my,button)
 		if derp.active_tool.current then
-			derp.active_tool.current:action({tag = "mousepush",x = mx,y = my})
+			derp.active_tool.current:action({tag = "mousepush",x = mx,y = my, button = button})
 		end
 	end
 	
@@ -529,12 +609,11 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	function wid:mouserelease(x,y,button)
 		if derp.active_tool.current then
-			derp.active_tool.current:action({tag = "mouserelease", x = x, y = y})
+			derp.active_tool.current:action({tag = "mouserelease", x = x, y = y, button = button})
 		end
-	
+		
 		if (button == inp.MOUSE_RIGHT) then
-			self:addcomponent(x,y,"render" .. cp)
-			cp = cp + 1
+			derp.ws_menu:show(x,y)
 		end
 	end
 	
