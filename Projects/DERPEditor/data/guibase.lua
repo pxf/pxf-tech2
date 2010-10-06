@@ -459,34 +459,39 @@ function gui:update()
     for _,shortcut in pairs(self.focuswidget.shortcuts) do
       local shortcut_success = true
 	  local release = false
+	  local mouse_release = false
 	  
 		if shortcut.mouse then
 		  for __,button in pairs(shortcut.mouse) do
 			if not (inp.isbuttondown(button)) then
 				if shortcut.was_pressed then
-					release = true
+					mouse_release = true
 				end
 				
 				shortcut_success = false
 				break
 			end
 		  end
+		else
+			mouse_release = true
 		end
 		
 	  if shortcut.keys then
 		  for __,key in pairs(shortcut.keys) do
 			if not (inp.iskeydown(key)) then
 			  if shortcut.was_pressed then
-				release = release and true
+				release = true
 			  end
-			  
 			  
 			  shortcut_success = false
 			  break
 			end
 		  end
-		end
-		
+	  else
+		release = true
+	  end
+	
+		release = mouse_release and release
 		
       
       if (shortcut_success and (not shortcut.was_pressed) ) then
