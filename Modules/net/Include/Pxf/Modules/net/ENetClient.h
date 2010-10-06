@@ -30,9 +30,7 @@ namespace Pxf
 			ENetHost *Client;
 			ENetPeer *Peer;
 			Network::NetworkDevice* NetDev;
-
-			Network::Packet* buffered_packet;
-
+			
 			Util::Array<Network::Packet*> BufferedPackets;
 			
 		public:
