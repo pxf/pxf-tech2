@@ -344,8 +344,8 @@ function derp:create_workspacecamera(x,y,w,h)
 									local menu = { }
 									
 									for k,v in pairs(derp.active_workspace.component_data.edges) do
-										if (v[1].comp == cam.socket_a.comp and v[1].socket == cam.socket_a.socket) or
-											(v[2].comp == cam.socket_a.comp and v[2].socket == cam.socket_a.socket) then
+										if (v[1].comp == cam.socket_a.comp and v[1].socket == cam.socket_a.socket and v[1].type == cam.socket_a.type) or
+											(v[2].comp == cam.socket_a.comp and v[2].socket == cam.socket_a.socket and v[2].type == cam.socket_a.type) then
 											
 											local tag = "connection " .. v[1].comp.id .. "." .. v[1].socket .. " to " .. v[2].comp.id .. "." .. v[2].socket
 											table.insert(menu,{tag, { onclick = 
