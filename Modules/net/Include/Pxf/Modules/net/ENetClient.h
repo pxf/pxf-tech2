@@ -41,8 +41,9 @@ namespace Pxf
 
 			virtual Network::Packet* Recv();
 			virtual Network::Packet* RecvNonBlocking(const int _Timeout);
-			virtual bool Send(const int _Type, const char* _Buf);
-
+			virtual bool Send(const int _Type, const char* _Buf, const int _Length);
+			virtual bool SendID(const char* _ID, const int _Type, const char* _Buf, const int _Length);
+			
 		};
 	}
 }

@@ -35,6 +35,8 @@ namespace DERPEditor
 	int net_client_connect(lua_State *L);
 	int net_client_disconnect(lua_State *L);
 	int net_client_send(lua_State *L);
+	int net_client_send_str(lua_State *L);
+	int net_client_send_id(lua_State *L);
 	int net_client_recv(lua_State *L);
 	int net_client_recv_noblock(lua_State *L);
 	int net_client_delete(lua_State *L);

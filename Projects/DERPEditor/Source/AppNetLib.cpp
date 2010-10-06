@@ -179,11 +179,65 @@ int DERPEditor::net_client_send(lua_State *L)
 			else
 				channel = i;
 
-			client->Send(channel, lua_tolstring(L, -2, NULL));
+			const char* message = lua_tolstring(L, -2, NULL);
+			client->Send(channel, message, strlen(message));
 		}
 		else if (lua_isnumber(L, -3))
 		{
-			client->Send(lua_tonumber(L, -3), lua_tolstring(L, -2, NULL));
+			const char* message = lua_tolstring(L, -2, NULL);
+			client->Send(lua_tonumber(L, -3), message, strlen(message));
+		}
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to send function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int DERPEditor::net_client_send_id(lua_State *L)
+{
+	if (lua_gettop(L) == 4)
+	{
+		lua_getfield(L, -4, "instance");
+		Client* client = *(Client**)lua_touserdata(L, -1);
+
+		int channel = 0;
+
+		if (lua_isstring(L, -3))
+		{
+			const char* type = lua_tolstring(L, -3, NULL);
+
+			// Fetch the number connected to the string.
+			Util::Array<char*>* tags = LuaApp::GetInstance()->m_net->GetTags();
+
+			int i;
+			for (i=0; i < tags->size(); i++)
+			{
+				if (strcmp((*tags)[i], type) == 0)
+					// Found it.
+					break;
+			}
+
+			if (i == tags->size())
+				// Couldn't find it.
+				channel = 0;
+			else
+				channel = i;
+
+			const char* message = lua_tolstring(L, -2, NULL);
+			const char* id = lua_tolstring(L, -4, NULL);
+			client->SendID(id, channel, message, strlen(message));
+		}
+		else if (lua_isnumber(L, -3))
+		{
+			const char* message = lua_tolstring(L, -2, NULL);
+			client->SendID(lua_tolstring(L, -4, NULL), lua_tonumber(L, -3)
+				, message, strlen(message));
 		}
 
 		return 0;

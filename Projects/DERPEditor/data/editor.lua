@@ -13,7 +13,18 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
+--[[net.addtag("pipeline")
+net.addtag("result")
+net.addtag("profiling")
+net.addtag("log")
 
+local client = net.createclient()
+
+client:connect("localhost", 7005)
+
+client:recv()
+
+client:disconnect()]]--
 
 --[[local test = net.createserver()
 for k,v in pairs(debug.getmetatable(test.instance)) do

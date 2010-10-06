@@ -183,17 +183,17 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 	ENetPacket *packet;
 	ENetPeer *peer;
 	int IDLength = strlen(_ID);
-	//char NewBuf[_Length+IDLength+3]; // to be safe.
 	char* NewBuf = new char[_Length+IDLength+3];
 
 	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
 
-	printf("bf: %s\n", NewBuf);
+//	printf("bf: %s\n", NewBuf);
 	memcpy((NewBuf+1), &IDLength, 4);
 	memcpy((NewBuf+1+4+IDLength), &_Length, 4);
-	printf("af: %s\n", NewBuf);
+//	printf("af: %s\n", NewBuf);
+	printf("deb: %s\n", (NewBuf+1+4+IDLength+4));
 
-	packet = enet_packet_create(NewBuf, strlen(_ID)+_Length+3, ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(NewBuf, 11+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
 
 	if (packet == NULL)
 	{
