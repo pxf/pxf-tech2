@@ -1,0 +1,132 @@
+﻿pxf-tech2 engine
+================
+
+Document notes:
+--------------
+TODO: Add syntax highlighting with pygments or source-highlight
+
+Build system
+------------
+The engine uses the build system http://matricks.github.com/bam/[bam]. We have a customized
+build file that resolves module and library dependencies in a simple way for each project.
+
+.Example build-file for a simple project
+----
+Import("../../PxfBuild.lua")
+project = NewProject("example-project")
+
+-- Build and link with lua, make headers available etc.
+project:RequireLibrary("lua")
+
+-- Add the module "net", which implements <Pxf/Network/*>. Our implementation uses enet.
+project:RequireModule("net")
+
+-- Add appropriate include and source directories
+project:AddIncludeDirectory("Include/")
+project:AddSourceDirectory("Source/*.cpp")
+
+-- Build
+project:Build()
+----
+
+Modules and libraries are specified in a similar way, have a look in *Libraries/rtaudio*
+and *Modules/snd* to see how the audio system is built.
+
+Building
+~~~~~~~~
+Installing bam is simple, however; on Windows the build-tools aren't in *$PATH* by default. The easiest
+way to get it to work is to copy Tools/bam* to %windir%. 
+
+Now, assuming that bam and your compiler is in *$PATH*, compiling should be as easy as the following:
+----
+bam -j 4 -s Build.lua target_type
+----
+The above command executes compilation using 4 threads; change this number depending on the system you are using.
+
+Currently the following target type are defined:
+--
+* debug - static debug build, modules will be compiled and embedded in a single binary
+* debug_dll - dynamic debug build, modules will be compiled as easy-replacable dynamic libraries
+* release - static release build
+* release_dll - dynamic release build
+--
+
+Future additions
+~~~~~~~~~~~~~~~~
+--
+* Should be able to compile individual modules in a simple way
+** debug_*module*, release_*module*
+--
+
+Engine
+------
+This is a general overview of the pxf tech2 engine, its components and how they interact with each other.
+
+Kernel
+~~~~~~
+
+General
+^^^^^^^
+The kernel is the main component in *pxf-tech2*. The kernel is a singleton, and you can get
+the instance by calling
+----
+Kernel* Kernel::GetInstance();
+----
+
+Modules
+^^^^^^^
+With the kernel, we can register external modules (.dll, .so, .dynlib depending on your platform)
+.Example of registering a module
+----
+kernel->RegisterModule("snd", Pxf::System::SYSTEM_TYPE_AUDIODEVICE | Pxf::System::SYSTEM_TYPE_RESOURCELOADER);
+----
+We have a module *snd* that is responsible for audio output, and what the above snippet does is the following:
+--
+* Check what platform we are compiled for, and if we are in release or debug mode
+    - Load snd_BuildTypeSuffix.PlatformExt (e.g snd_ddyn.dll for dynamically linked build in debug mode on windows)
+* Load module and create an instance of it
+* Check if the module is already loaded (this is the case if a module is already built-in to the binary)^1^
+    - fail, replace or do nothing etc etc.
+* Call Module::RegisterSystems for the loaded module, in the case above we have a filter that
+  specifies to load audio devices and resource loaders (e.g. support for .ogg-files).
+* All done, the audio device is now registered with the kernel, and the instance is available
+through *Kernel::GetAudioDevice()*
+--
+
+*1.* An optional third flag (default=false) can be specified in Kernel::RegisterModule, if set to true
+the already loaded module will be replaced.
+
+Systems
+^^^^^^^
+Currently we have interfaces and working modules for the following systems
+--
+* Audio (snd)
+* Graphics (pri)
+* Network (net)
+* Input (pri)
+* Resource Loader (snd::ogg, json, img, mesh)
+--
+
+Future plans on additional systems
+--
+* Scripting
+* Physics
+--
+
+
+Resource Loaders
+++++++++++++++++
+The resource loaders implements interfaces found in *Pxf/Resource/$Type.h*, and has the following methods for
+loading a resource.
+--
+* Load(file_path);
+* CreateFrom(memory_ptr, length);
+--
+A loader can also have custom methods, for example the JSON loader has
+--
+* CreateEmpty();
+--
+and the image loader has
+--
+* CreateFromRaw(width, height, num_color_channels, memory_ptr);
+--

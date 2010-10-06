@@ -46,7 +46,7 @@ namespace Pxf
 			virtual bool Send(const int _Client, const int _Type, const char* _Buf);
 			virtual bool SendAll(const int _Type, const char* _Buf);
 			virtual bool SendAllL(const int _Type, const char* _Buf, const int _Length);
-			virtual bool SendAllIDL(const char* _ID, const int _Type, const char* _Buf, const int _Length);
+			virtual bool SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length);
 		};
 	}
 }

@@ -1,26 +1,43 @@
 #include <Pxf/Modules/net/ENetDataPacket.h>
 #include <Pxf/Base/Debug.h>
 
-#include <string.h>
+#include <Pxf/Base/String.h>
 
 using namespace Pxf::Modules;
+using namespace Pxf;
 
 ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag)
 {
-/*	if (*_Data == 10 && *(_Data+1) == 20)
+	printf("Packet creation. length: %d\n", _Length);
+	if (*_Data == '\0')
 	{
 		// It's an ID hidden in the beginning.
-		ID = *(_Data+2);
-		Data = new char[_Length-2];
-		strcpy(Data, _Data+2);
+		
+		int IDLength, DataLength;
+
+		memcpy(&IDLength, (_Data+1), 4);
+		memcpy(&DataLength, (_Data+1+IDLength+4), 4);
+
+		printf("idl: %d   ml: %d\n", IDLength, DataLength);
+
+		ID = new char[IDLength+1];
+		Data = new char[DataLength+1];
+		strncpy(ID, (_Data+5), IDLength);
+		strncpy(Data, (_Data+5+IDLength+4), DataLength);
+		ID[IDLength] = '\0';
+		Data[DataLength] = '\0';
+
+		printf("id: %s\n", ID);
+		printf("data: %s\n", Data);
 	}
 	else
-	{*/
+	{
 		Data = new char[_Length+1];
 		strcpy(Data, _Data);
-//	}
+		Length = _Length;
+	}
+
 	Sender = _Sender;
-	Length = _Length;
 	Tag = _Tag;
 }
 
