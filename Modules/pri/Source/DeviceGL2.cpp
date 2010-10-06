@@ -218,9 +218,13 @@ Resource::Image* DeviceGL2::CreateImageFromTexture(Graphics::Texture* _texture)
 	Resource::ImageLoader* ldr = GetKernel()->GetResourceManager()->FindResourceLoader<Resource::ImageLoader>("png");
 	int width = _texture->GetWidth();
 	int height = _texture->GetHeight();
-	int channels = 3;
+	int channels = 4;
 	unsigned char* pixels = (unsigned char*)MemoryAllocate(width*height*channels);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+	
+	Texture* old_tex = BindTexture(_texture);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	BindTexture(old_tex);
+	
 	Resource::Image* img = ldr->CreateFromRaw(width, height, channels, pixels);
 	MemoryFree(pixels);
 	PXFGLCHECK("DeviceGL2::CreateImageFromTexture/End");

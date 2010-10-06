@@ -23,6 +23,11 @@ namespace DERPEditor
     int gfx_getalpha(lua_State *L);
     int gfx_setalpha(lua_State *L);
     int gfx_setclearcolor(lua_State *L);
+
+    // special raw texture handling
+		int gfx_rawtexture(lua_State *L);
+		int gfx_rawtex_delete(lua_State *L);
+		int gfx_rawtex_drawquad(lua_State *L);
     
     // draw calls
     int gfx_drawcentered(lua_State *L);

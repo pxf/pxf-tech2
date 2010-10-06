@@ -100,6 +100,8 @@ int DERPEditor::net_createclient(lua_State *L)
 		lua_setfield(L, -2, "recv_noblock");
 		lua_pushcfunction(L, net_client_disconnect);
 		lua_setfield(L, -2, "disconnect");
+		lua_pushcfunction(L, net_client_send_id);
+		lua_setfield(L, -2, "send_id");
 
 		return 1;
 	}
@@ -298,13 +300,14 @@ int DERPEditor::net_client_recv_noblock(lua_State *L)
 
 int DERPEditor::net_client_delete(lua_State *L)
 {
-	if (lua_gettop(L) == 0)
+	if (lua_gettop(L) == 1)
 	{
+		delete (*(Client**)lua_touserdata(L, 1));
 		return 0;
 	}
 	else
 	{
-		lua_pushstring(L, "Invalid arguments passed to delete function!");
+		lua_pushstring(L, "Invalid arguments passed to client:delete function!");
 		lua_error(L);
 	}
 

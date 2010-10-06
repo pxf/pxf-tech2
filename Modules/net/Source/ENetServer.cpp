@@ -187,11 +187,9 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 
 	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
 
-//	printf("bf: %s\n", NewBuf);
 	memcpy((NewBuf+1), &IDLength, 4);
 	memcpy((NewBuf+1+4+IDLength), &_Length, 4);
-//	printf("af: %s\n", NewBuf);
-	printf("deb: %s\n", (NewBuf+1+4+IDLength+4));
+	//printf("deb: %s\n", (NewBuf+1+4+IDLength+4));
 
 	packet = enet_packet_create(NewBuf, 11+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
 
@@ -201,6 +199,10 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 		return false;
 	}
 	enet_host_broadcast(Server, _Type, packet);
+
+	enet_host_flush(Server);
+
+	//delete NewBuf;
 
 	return true;
 }

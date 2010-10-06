@@ -6,6 +6,9 @@
 
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Network/NetworkDevice.h>
+
+#include <Pxf/Resource/Image.h>
+
 #include <RemoteLogWriter.h>
 
 using namespace Derp;
@@ -24,7 +27,7 @@ Renderer::Renderer(unsigned int _port)
 	// Set tags for network.
 	Network::NetworkDevice* _net = Pxf::Kernel::GetInstance()->GetNetworkDevice();
 	m_NetTag_Pipeline = _net->AddTag("pipeline");
-	m_NetTag_Result = _net->AddTag("result");
+	m_NetTag_Preview = _net->AddTag("preview");
 	m_NetTag_Profiling = _net->AddTag("profiling");
 	
 	unsigned netlogtag = _net->AddTag("log");
@@ -200,6 +203,15 @@ void Renderer::Execute()
 	{
 		m_RootBlock->ResetPerformed();
 		m_RootBlock->Execute();
+		
+		Resource::Image* img = m_gfx->CreateImageFromTexture(GetResult());
+
+		// TODO: Also send some identifier for the last texture.
+		int height = img->Height();
+		m_Net->SendAllID("poop", m_NetTag_Preview, (const char*)&height, 4);
+		m_Net->SendAllID("poop", m_NetTag_Preview, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+
+		delete img;
 	} else {
 		Message("Renderer", "Failed to execute root block since it's NULL.");
 	}
