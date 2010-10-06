@@ -41,6 +41,106 @@ int DERPEditor::gfx_loadtexture (lua_State *L) {
   return 0;
 }
 
+int DERPEditor::gfx_rawtexture (lua_State *L) {
+  // new_raw_texture = gfx.rawtexture(quad_number, width, height, channels, data)
+  if (lua_gettop(L) == 5)
+  {
+		// Setup table to return
+		lua_newtable(L);
+		TexturedQuadBatch** new_raw_tex = (TexturedQuadBatch**)lua_newuserdata(L, sizeof(TexturedQuadBatch*));
+	
+		// Create quadbatch
+    LuaApp* inst = LuaApp::GetInstance();
+    int quadcount = lua_tointeger(L, 1);
+    inst->m_MaxQuadCount += quadcount;
+    inst->m_DepthStep = (LUAAPP_DEPTH_RANGE / inst->m_MaxQuadCount);
+    *new_raw_tex = new TexturedQuadBatch(quadcount*4,
+                                         lua_tonumber(L, 2),
+                                         lua_tonumber(L, 3),
+                                         lua_tonumber(L, 4),
+                                         (const unsigned char*)lua_tostring(L, 5),
+                                         &(inst->m_CurrentDepth),
+                                         &(inst->m_CurrentColor),
+                                         &(inst->m_TransformMatrix)
+                                        );
+		
+		// Push it to the apps (special raw texture) qb array
+		inst->m_RawTextureQB.push_back(*new_raw_tex);
+		
+		// Set metatable
+		luaL_getmetatable(L, "gfx.rawtex");
+		lua_setmetatable(L, -2);
+		
+		// Set member functions
+		lua_setfield(L, -2, "instance");
+		lua_pushcfunction(L, gfx_rawtex_drawquad);
+		lua_setfield(L, -2, "draw");
+		
+    return 1;
+  } else {
+    lua_pushstring(L, "Invalid argument passed to rawtexture function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int DERPEditor::gfx_rawtex_delete(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		// TODO: Remove shieeeeeeeeeeeet
+		printf("IMMA BIN REMOVIN\n");
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to delete function! (of raw texture)");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int DERPEditor::gfx_rawtex_drawquad(lua_State *L)
+{
+  // raw_tex:draw(x0,y0, x1,y1, x2,y2, x3,y3)
+  if (lua_gettop(L) == 9)
+  {
+		lua_getfield(L, 1, "instance");
+		TexturedQuadBatch* qb = *(TexturedQuadBatch**)lua_touserdata(L, -1);
+    if (qb != NULL)
+    {
+			qb->Begin();
+      qb->ResetTextureSubset();
+      qb->AddFreeform(lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4), lua_tonumber(L, 5),
+                      lua_tonumber(L, 6), lua_tonumber(L, 7), lua_tonumber(L, 8), lua_tonumber(L, 9));
+			qb->End();
+      LuaApp::GetInstance()->IncDepth();
+    }
+
+  }
+  // raw_tex:draw(x0,y0, x1,y1, x2,y2, x3,y3, s0, t0, s1, t1)
+  else if (lua_gettop(L) == 13)
+  {
+    lua_getfield(L, 1, "instance");
+    TexturedQuadBatch* qb = *(TexturedQuadBatch**)lua_touserdata(L, -1);
+		if (qb != NULL)
+    {
+			qb->Begin();
+      qb->SetTextureSubset(lua_tonumber(L, 10), lua_tonumber(L, 11), lua_tonumber(L, 12), lua_tonumber(L, 13));
+      qb->AddFreeform(lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4), lua_tonumber(L, 5),
+                      lua_tonumber(L, 6), lua_tonumber(L, 7), lua_tonumber(L, 8), lua_tonumber(L, 9));
+			qb->End();
+      LuaApp::GetInstance()->IncDepth();
+    }
+
+  } else {
+    lua_pushstring(L, "Invalid argument passed to draw function! (of raw texture)");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int DERPEditor::gfx_bindtexture (lua_State *L) {
   // gfx.bindtexture(textureid)
   if (lua_gettop(L) == 1)
@@ -274,6 +374,7 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
   const luaL_reg appgraphicslib[] = {
     {"_redrawneeded",   gfx__redrawneeded},
     {"loadtexture",   gfx_loadtexture},
+    {"rawtexture",   gfx_rawtexture},
     {"bindtexture",   gfx_bindtexture},
     {"translate",   gfx_translate},
   	{"scale",   gfx_scale},
@@ -291,6 +392,13 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
     };
   
   luaL_register(L, LUA_APPGRAPHICSLIBNAME, appgraphicslib);
+
+	// set __gc for gfx.rawtex
+	luaL_newmetatable(L, "gfx.rawtex");
+	lua_pushstring(L, "__gc");
+	lua_pushcfunction(L, gfx_rawtex_delete);
+	lua_settable(L, -3);
+	
   /*lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
   lua_pushnumber(L, HUGE_VAL);

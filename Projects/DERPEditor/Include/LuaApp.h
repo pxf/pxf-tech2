@@ -60,6 +60,9 @@ namespace DERPEditor
         // QuadBatches
         unsigned int m_QuadBatchCount;
         QuadBatch* m_QuadBatches[LUAAPP_MAXQB];
+
+				// Special quad batches
+				Pxf::Util::Array<TexturedQuadBatch*> m_RawTextureQB;
         
         // Depth control
         int m_MaxQuadCount;

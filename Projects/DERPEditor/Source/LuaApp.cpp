@@ -133,6 +133,12 @@ void LuaApp::CleanUp()
     m_RedrawStencil = false;
     m_RedrawFull = false;
     
+		// Clear special raw texture array
+		for(Util::Array<TexturedQuadBatch*>::iterator iter = m_RawTextureQB.begin(); iter != m_RawTextureQB.end(); ++iter)
+		{
+			delete (*iter);
+		}
+		m_RawTextureQB.clear();
     
     // reset transform matrix
     m_TransformMatrix = Math::Mat4::Identity;
@@ -336,6 +342,11 @@ void LuaApp::Draw()
 		{
 			m_QuadBatches[i]->Reset();
 		}
+		// reset all special raw texuters
+		for(Util::Array<TexturedQuadBatch*>::iterator iter = m_RawTextureQB.begin(); iter != m_RawTextureQB.end(); ++iter)
+		{
+			(*iter)->Reset();
+		}
         
 		CallScriptFunc("_draw");
         
@@ -374,6 +385,12 @@ void LuaApp::Draw()
 			for (int i = 0; i < m_QuadBatchCount; ++i)
 			{
 			  m_QuadBatches[i]->Draw();
+			}
+			
+			// Draw all special raw texuters
+			for(Util::Array<TexturedQuadBatch*>::iterator iter = m_RawTextureQB.begin(); iter != m_RawTextureQB.end(); ++iter)
+			{
+				(*iter)->Draw();
 			}
         
 			m_win->Swap();
