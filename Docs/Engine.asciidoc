@@ -1,4 +1,4 @@
-﻿pxf-tech2 engine
+pxf-tech2 engine
 ================
 
 Document notes:
@@ -178,20 +178,41 @@ res->DumpResourceLoaders();
 
 Audio
 -----
+Initialize the audio-device. _BufferSize is the number of frames to process at a time. There is less audio latency with
+lower buffer size, as long as the sound card can keep up. _MaxVoices is the maximum number of simultaniously playing sounds.
 ----
-bool Initialize(unsigned int _BufferSize, unsigned int _MaxVoices);
-int RegisterSound(const char* _Filename);
-int RegisterSound(Resource::Sound* _Sound);
-int GetSoundID(const Resource::Sound* _Sound);
-void UnregisterSound(int _Id);
-inline void UnregisterSound(const Resource::Sound* _Sound);
+bool AudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices);
+----
 
-void Play(int _SoundID, bool _Loop = false);
-void Stop(int _SoundID);
-void StopAll();
-void Pause(int _SoundID);
-void PauseAll();
-void DumpInfo();
+Register a sound with the engine, return identifier used for controlling the sound.
+----
+int AudioDevice::RegisterSound(const char* _Filename);
+int AudioDevice::RegisterSound(Resource::Sound* _Sound);
+----
+
+Look-up sound id based on sound instance
+----
+int AudioDevice::GetSoundID(const Resource::Sound* _Sound);
+----
+
+Unregister sound
+----
+void AudioDevice::UnregisterSound(int _Id);
+void AudioDevice::UnregisterSound(const Resource::Sound* _Sound);
+----
+
+Playback controls
+----
+void AudioDevice::Play(int _SoundID, bool _Loop = false);
+void AudioDevice::Stop(int _SoundID);
+void AudioDevice::StopAll();
+void AudioDevice::Pause(int _SoundID);
+void AudioDevice::PauseAll();
+----
+
+Dump audio device information to the logger
+----
+void AudioDevice::DumpInfo();
 ----
 
 Graphics
@@ -202,40 +223,154 @@ Input
 -----
 The input system is rather simple. The first thing that must be done before you can get any input is to call
 ----
-Input::Update();
+void InputDevice::Update();
 ----
 This should be done at least once per frame.
 
 Keyboard input
 ~~~~~~~~~~~~~~
+Returns true if the key is down
 ----
-bool IsKeyDown(int _key);
+bool InputDevice::IsKeyDown(int _key);
+----
 
-int GetLastKey();
-int GetLastChar();
+When a key is pressed, it's stored internally within the input device
+The key and char value can be fetched with the following methods
+----
+int InputDevice::GetLastKey();
+int InputDevice::GetLastChar();
+----
 
-void ClearLastKey();
-void ClearLastChar();
+You have to manually reset these after each frame, or when you are done with them
+----
+void InputDevice::ClearLastKey();
+void InputDevice::ClearLastChar();
 ----
 
 Mouse input
 ~~~~~~~~~~~
+Same as above, but for mouse buttons.
 ----
-bool IsButtonDown(int _button);
+bool InputDevice::IsButtonDown(int _button);
+int InputDevice::GetLastButton();
+void InputDevice::ClearLastButton();
+----
 
-int GetLastButton();
-void ClearLastButton();
+Set/get active mouse mode
+----
+Input::MouseMode InputDevice::GetMouseMode();
+void InputDevice::SetMouseMode(MouseMode _Mode);
+----
 
-void GetMousePos(int *x, int *y);
-void SetMousePos(int x, int y);
+Get mouse position (either absolute or relative to the previous frame; depending on mouse mode)
+----
+void InputDevice::GetMousePos(int *x, int *y);
+void InputDevice::SetMousePos(int x, int y);
+----
 
-Input::MouseMode GetMouseMode();
-void SetMouseMode(MouseMode _Mode);
-void ShowCursor(bool _show);
+Set visibility of the system cursor
+----
+void InputDevice::ShowCursor(bool _show);
+----
+
+.Special keys
+----
+    UNKNOWN
+    SPACE
+    SPECIAL
+    ESC
+    F1
+    F2
+    F3
+    F4
+    F5
+    F6
+    F7
+    F8
+    F9
+    F10
+    F11
+    F12
+    F13
+    F14
+    F15
+    F16
+    F17
+    F18
+    F19
+    F20
+    F21
+    F22
+    F23
+    F24
+    F25
+    UP
+    DOWN
+    LEFT
+    RIGHT
+    LSHIFT
+    RSHIFT
+    LCTRL
+    RCTRL
+    LALT
+    RALT
+    TAB
+    ENTER
+    BACKSPACE
+    INSERT
+    DEL
+    PAGEUP
+    PAGEDOWN
+    HOME
+    END
+    KP_0
+    KP_1
+    KP_2
+    KP_3
+    KP_4
+    KP_5
+    KP_6
+    KP_7
+    KP_8
+    KP_9
+    KP_DIVIDE
+    KP_MULTIPLY
+    KP_SUBTRACT
+    KP_ADD
+    KP_DECIMAL
+    KP_EQUAL
+    KP_ENTER
+    LAST
+----
+
+.Mouse modes
+----
+    MODE_RELATIVE
+    MODE_ABSOLUTE
+----
+
+.Mouse buttons
+----
+    MOUSE_1
+    MOUSE_2
+    MOUSE_3
+    MOUSE_4
+    MOUSE_5
+    MOUSE_6
+    MOUSE_7
+    MOUSE_8
+
+    MOUSE_NONE
+    MOUSE_LAST
+    MOUSE_LEFT
+    MOUSE_RIGHT
+    MOUSE_MIDDLE
 ----
 
 Network
 -------
+
+.Network::NetworkDevice
 ----
 Server* CreateServer();
 Client* CreateClient();
@@ -250,6 +385,7 @@ int AddTag(char* _Name);
 Util::Array<char*>* GetTags();
 ----
 
+.Network::Client
 ----
 bool Connect(const char* _Host, const int _Port);
 bool Disconnect();
@@ -260,6 +396,7 @@ Packet* RecvNonBlocking(const int _Timeout);
 bool Send(const int _Type, const char* _Buf);
 ----
 
+.Network::Server
 ----
 bool Bind(const int _Port);
 bool Shutdown();
@@ -272,6 +409,7 @@ bool SendAllL(const int _Type, const char* _Buf, const int _Length);
 bool SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length);
 ----
 
+.Network::Packet
 ----
 char* GetData();
 int GetSender();
