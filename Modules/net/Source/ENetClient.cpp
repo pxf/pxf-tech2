@@ -78,6 +78,19 @@ bool ENetClient::Connected()
 
 Pxf::Network::Packet* ENetClient::Recv()
 {
+	if (BufferedPackets.size() > 0)
+	{
+		Network::Packet* bpack = BufferedPackets.front();
+		//BufferedPackets.erase(BufferedPackets.begin());
+
+		for (int i=0; i < BufferedPackets.size(); i++)
+			Message("packet", "packet %d: %s", i, BufferedPackets[i]->GetData());
+
+		Message("aoeu", "Taking from buffer! %s", bpack->GetData());
+
+		return bpack;
+	}
+
 	ENetEvent event;
 	ENetDataPacket* packet;
 	int retcode;
@@ -125,6 +138,14 @@ Pxf::Network::Packet* ENetClient::Recv()
 
 Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 {
+	if (BufferedPackets.size() > 0)
+	{
+		Network::Packet* bpack = BufferedPackets.front();
+		BufferedPackets.erase(BufferedPackets.begin());
+
+		return bpack;
+	}
+
 	ENetEvent event;
 	ENetDataPacket* packet;
 	int retcode;
@@ -202,8 +223,6 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 
 	packet = enet_packet_create(NewBuf, 11+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
 
-	delete NewBuf;
-
 	if (packet == NULL)
 	{
 		Message("ENetServer", "Unable to create packet for sending.");
@@ -212,7 +231,16 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 
 	enet_peer_send(Peer, _Type, packet);
 
-	//enet_host_flush(Peer);
+	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
+	Network::Packet *rpack = Recv();
+	if (rpack != NULL)
+	{
+		Message("aoeu", "Placing in buffer.");
+		BufferedPackets.push_back(rpack);
+	}
 
+	enet_packet_destroy(packet);
+	//delete []NewBuf;
+	
 	return true;
 }

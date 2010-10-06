@@ -100,6 +100,8 @@ int DERPEditor::net_createclient(lua_State *L)
 		lua_setfield(L, -2, "recv_noblock");
 		lua_pushcfunction(L, net_client_disconnect);
 		lua_setfield(L, -2, "disconnect");
+		lua_pushcfunction(L, net_client_send_id);
+		lua_setfield(L, -2, "send_id");
 
 		return 1;
 	}

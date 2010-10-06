@@ -23,6 +23,8 @@ local client = net.createclient()
 client:connect("localhost", 7005)
 
 client:recv()
+client:send_id("lol", "log", "message");
+client:recv()
 
 client:disconnect()]]--
 
