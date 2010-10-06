@@ -202,6 +202,8 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 
 	packet = enet_packet_create(NewBuf, 11+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
 
+	delete NewBuf;
+
 	if (packet == NULL)
 	{
 		Message("ENetServer", "Unable to create packet for sending.");
@@ -209,6 +211,8 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 	}
 
 	enet_peer_send(Peer, _Type, packet);
+
+	//enet_host_flush(Peer);
 
 	return true;
 }

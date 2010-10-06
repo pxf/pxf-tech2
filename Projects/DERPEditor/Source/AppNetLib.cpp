@@ -298,13 +298,14 @@ int DERPEditor::net_client_recv_noblock(lua_State *L)
 
 int DERPEditor::net_client_delete(lua_State *L)
 {
-	if (lua_gettop(L) == 0)
+	if (lua_gettop(L) == 1)
 	{
+		delete (*(Client**)lua_touserdata(L, 1));
 		return 0;
 	}
 	else
 	{
-		lua_pushstring(L, "Invalid arguments passed to delete function!");
+		lua_pushstring(L, "Invalid arguments passed to client:delete function!");
 		lua_error(L);
 	}
 
