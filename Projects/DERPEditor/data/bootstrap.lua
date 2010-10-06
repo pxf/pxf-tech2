@@ -247,7 +247,7 @@ function draw_line_segment(x1,y1,x2,y2,w)
   cy = ((y2 - y1) / 2)
   
   -- calc line length
-  len = math.sqrt(cx*4*cx + cy*4*cy)
+  len = math.sqrt(cx*4*cx + cy*4*cy) + w/2
   
   -- calc angle
   a = math.atan(cy/cx)
