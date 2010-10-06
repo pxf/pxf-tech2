@@ -286,20 +286,18 @@ function draw_spline(points,segments,w)
     local new_p = {0,0}
     local deltat = 0.0
     
-    deltat = ((point_count + 1) * t)
+    deltat = ((point_count) * t) + 1
     i1 = math.floor(deltat)
     i2 = i1 + 1
     i3 = i2 + 1
     i0 = i1 - 1
     
-    deltat = deltat - i1
+    if (i1 <= 1) then
+      i1 = 1
+    end
     
     if (i0 <= 1) then
       i0 = 1
-    end
-    
-    if (i1 <= 1) then
-      i1 = 1
     end
     
     if (i2 >= point_count) then
@@ -309,6 +307,8 @@ function draw_spline(points,segments,w)
     if (i3 >= point_count) then
       i3 = point_count
     end
+    
+    deltat = deltat - i1
     
     p0 = points[i0]
     p1 = points[i1]
