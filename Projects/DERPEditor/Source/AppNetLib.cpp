@@ -179,11 +179,13 @@ int DERPEditor::net_client_send(lua_State *L)
 			else
 				channel = i;
 
-			client->Send(channel, lua_tolstring(L, -2, NULL));
+			const char* message = lua_tolstring(L, -2, NULL);
+			client->Send(channel, message, strlen(message));
 		}
 		else if (lua_isnumber(L, -3))
 		{
-			client->Send(lua_tonumber(L, -3), lua_tolstring(L, -2, NULL));
+			const char* message = lua_tolstring(L, -2, NULL);
+			client->Send(lua_tonumber(L, -3), message, strlen(message));
 		}
 
 		return 0;

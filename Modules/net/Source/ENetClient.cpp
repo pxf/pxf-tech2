@@ -172,11 +172,41 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 	return NULL;
 }
 
-bool ENetClient::Send(const int _Type, const char* _Buf)
+bool ENetClient::Send(const int _Type, const char* _Buf, const int _Length)
 {
 	ENetPacket *packet;
 
 	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
+
+	enet_peer_send(Peer, _Type, packet);
+
+	return true;
+}
+
+bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, const int _Length)
+{
+	ENetPacket *packet;
+	int IDLength = strlen(_ID);
+	char* NewBuf = new char[_Length+IDLength+3];
+
+	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
+
+	memcpy((NewBuf+1), &IDLength, 4);
+	memcpy((NewBuf+1+4+IDLength), &_Length, 4);
+
+	packet = enet_packet_create(NewBuf, 11+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
 
 	enet_peer_send(Peer, _Type, packet);
 
