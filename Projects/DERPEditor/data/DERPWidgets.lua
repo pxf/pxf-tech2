@@ -90,6 +90,9 @@ function derp:load(filename)
 end
 
 function derp:set_activetool(tool)
+	if tool and not tool.toggle then
+		return
+	end
 
 	if self.active_tool.current then
 		self.active_tool.last = self.active_tool.current
@@ -394,7 +397,7 @@ function derp:create_workspacecamera(x,y,w,h)
 							onrelease = function () 
 								derp:set_activetool(derp.active_tool.last)
 							end },
-						{ name = "redo",keys = {inp.LCTRL, inp.LSHIFT, "Z"}, was_pressed = false, onpress = function () print("REDO") derp.active_workspace:redo() end},
+						{ name = "redo",keys = {inp.LCTRL, "Y"}, was_pressed = false, onpress = function () print("REDO") derp.active_workspace:redo() end},
 						{ name = "undo",keys = {inp.LCTRL, "Z"}, was_pressed = false, onpress = function () print("UNDO") derp.active_workspace:undo() end},
 						{ name = "delete", keys = {inp.BACKSPACE}, was_pressed = false, 
 							onpress = function ()  
@@ -572,7 +575,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 					
 					local x1,y1 = self.cam:coord_transform(inp.getmousepos())
 
-					draw_spline({{x0,y0},{x0 + (x1 - x0)*0.25,y0},{x1,y1}},60,2)
+					draw_spline({{x0,y0},{x0 + (x1 - x0)*0.25,y0},{x1 - (x1-x0)*0.25,y1},{x1,y1}},60,2)
 				end
 			
 				gfx.translate(-self.cam.drawbox.w*0.5 - self.cam.drawbox.x,-self.cam.drawbox.h*0.5 - self.cam.drawbox.y)
@@ -764,6 +767,7 @@ function derp:base_tool(w,h,s,t,name, onclick)
 	local tool = gui:create_basewidget(0,0,40,40)	-- determine from size of toolbar mayhabps?	
 	tool.highlight = false
 	tool.selected = false
+	tool.toggle = true
 	tool.super_find_mousehit = tool.find_mousehit
 	tool.icon_properties = { w = w, h = h, s = s,t = t }
 	tool.onclick = onclick
@@ -878,6 +882,7 @@ function derp:create_toolbar(x,y,w,h)
 				end
 			end
 			)
+	undo.toggle = false
 	redo = derp:base_tool(28,24,2,127,"redo",
 			function () 
 				derp:set_activetool(nil)
@@ -885,6 +890,7 @@ function derp:create_toolbar(x,y,w,h)
 					derp.active_workspace:redo()
 				end
 			end)
+	redo.toggle = false
 	select_rect = derp:base_tool(24,24,1,36,"square select")
 	move_select = derp:base_tool(24,17,1,61,"move/select")
 	move_ws = derp:base_tool(21,21,1,79,"move workspace")
