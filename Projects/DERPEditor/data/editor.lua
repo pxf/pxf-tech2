@@ -154,5 +154,5 @@ function draw(force)
   gui:draw(force)
   
   -- test line drawing:
-  --draw_line({{100,100},{200,200},{200,320},{100,100}},1)
+  draw_spline({{100,200},{100,200},{200,100},{300,300},{400,200},{400,200}}, 100,1)
 end
