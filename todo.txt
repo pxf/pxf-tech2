@@ -31,9 +31,9 @@
 	[ ] kommunicera med editor (F)
 	[ ] ladda resurser lokalt/remote (F/JA)
 	[ ] profiling (S/JA)
-		 -- dela på render block
-		  - geometry
-		  - camera
+		  [x] dela på render block
+		  [x] geometry
+		  [x] camera
 [ ] Allmänt
 	[ ] Bindings för att skapa textur från rådata (S)
 	[ ] Unika id på paket (F)
@@ -42,9 +42,9 @@
 	[ ] Guidesign
 	[ ] workspace
 	[ ] block genererar shaderkod
-	[ ] ladda/spara
-	[ ] serialize lua
-	[ ] undo/redo
+	[x] ladda/spara
+	[x] serialize lua
+	[x] undo/redo
 	[ ] ta emot resultat från renderare
 	[ ] visa resultat
 	[ ] blockdesign
