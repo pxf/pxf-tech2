@@ -460,6 +460,15 @@ function gui:update()
       local shortcut_success = true
 	  local release = false
 	  
+		if shortcut.mouse then
+		  for __,button in pairs(shortcut.mouse) do
+			if not (inp.isbuttondown(button)) then
+				shortcut_success = false
+				break
+			end
+		  end
+		end
+	  
       for __,key in pairs(shortcut.keys) do
 		if not (inp.iskeydown(key)) then
 		  if shortcut.was_pressed then
