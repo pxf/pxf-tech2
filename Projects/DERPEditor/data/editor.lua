@@ -61,9 +61,10 @@ gl_FragColor = vec4(1.0);// - texture2D(texture1, gl_TexCoord[0].st);
 ]])
 print(string.byte(tostring(client:recv().data), 1))
 
-local loldata = tostring(client:recv().data)
-print("SUP: " .. loldata)
-local aoe = gfx.rawtexture(128, 512,512,4,loldata)
+local massivedump = client:recv().data
+print("Massive dump: " .. massivedump)
+
+local aoe = gfx.rawtexture(128, 512,512,4,massivedump)
 --print(tostring(client:recv().data))
 client:disconnect()
 
