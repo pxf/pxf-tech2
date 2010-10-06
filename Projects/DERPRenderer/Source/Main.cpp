@@ -73,7 +73,30 @@ int main()
 	Audio::AudioDevice* snd = kernel->GetAudioDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	Resource::ResourceManager* res = kernel->GetResourceManager();
+	Network::NetworkDevice* net = kernel->GetNetworkDevice();
 	res->DumpResourceLoaders();
+
+	net->AddTag("pipeline");
+	net->AddTag("result");
+	net->AddTag("profiling");
+	net->AddTag("log");
+
+	Network::Server* server = net->CreateServer();
+	server->Bind(7005);
+
+	while (true)
+	{
+		Network::Packet* packet = server->RecvNonBlocking(1000);
+		if (packet == NULL)
+		{
+			//Message("aoeu", "Timeout");
+			char med[] = "ett litet meddelande!";
+			server->SendAllID("lol", 0, med, strlen(med));
+		}
+		else
+			Message("aoeu", "message: %s", packet->GetData());
+
+	}
 
 	// load settings
 	Resource::Json* jdoc = res->Acquire<Resource::Json>("data/config.json");

@@ -18,7 +18,7 @@ ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length
 		memcpy(&IDLength, (_Data+1), 4);
 		memcpy(&DataLength, (_Data+1+IDLength+4), 4);
 
-		printf("idl: %d   ml: %d\n", IDLength, DataLength);
+		//printf("idl: %d   ml: %d\n", IDLength, DataLength);
 
 		ID = new char[IDLength+1];
 		Data = new char[DataLength+1];
@@ -29,6 +29,8 @@ ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length
 
 		printf("id: %s\n", ID);
 		printf("data: %s\n", Data);
+
+		Length = DataLength;
 	}
 	else
 	{
