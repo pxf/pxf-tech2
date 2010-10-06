@@ -1,6 +1,7 @@
 #include <Pxf/Modules/net/ENetClient.h>
 
 using namespace Pxf::Modules;
+using namespace Pxf;
 
 bool ENetClient::Connect(const char* _Host, const int _Port)
 {
@@ -78,8 +79,22 @@ bool ENetClient::Connected()
 
 Pxf::Network::Packet* ENetClient::Recv()
 {
+	if (BufferedPackets.size() > 0)
+	{
+		Network::Packet* bpack = BufferedPackets.front();
+		//BufferedPackets.erase(BufferedPackets.begin());
+
+		for (int i=0; i < BufferedPackets.size(); i++)
+			Message("packet", "packet %d: %s", i, BufferedPackets[i]->GetData());
+
+		Message("aoeu", "Taking from buffer! %s", bpack->GetData());
+
+		return bpack;
+	}
+
 	ENetEvent event;
-	ENetDataPacket* packet;
+	//ENetDataPacket* packet;
+	Network::Packet* packet;
 	int retcode;
 
 	Message("ENetClient", "Recv()...");
@@ -102,7 +117,7 @@ Pxf::Network::Packet* ENetClient::Recv()
 				continue;
 			}
 
-			packet = new ENetDataPacket(
+			packet = (Network::Packet*)new ENetDataPacket(
 				(char*)event.packet->data
 				, (int)event.peer->data
 				, (int)event.packet->dataLength
@@ -110,7 +125,7 @@ Pxf::Network::Packet* ENetClient::Recv()
 			
 			enet_packet_destroy(event.packet);
 
-			return (Network::Packet*)packet;
+			return packet;
 			break;
 
 		default:
@@ -125,6 +140,14 @@ Pxf::Network::Packet* ENetClient::Recv()
 
 Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 {
+	if (BufferedPackets.size() > 0)
+	{
+		Network::Packet* bpack = BufferedPackets.front();
+		BufferedPackets.erase(BufferedPackets.begin());
+
+		return bpack;
+	}
+
 	ENetEvent event;
 	ENetDataPacket* packet;
 	int retcode;
@@ -210,5 +233,16 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 
 	enet_peer_send(Peer, _Type, packet);
 
+	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
+	/*Network::Packet *rpack = Recv();
+	if (rpack != NULL)
+	{
+		Message("aoeu", "Placing in buffer.");
+		BufferedPackets.push_back(rpack);
+	}*/
+
+	//enet_packet_destroy(packet);
+	//delete []NewBuf;
+	
 	return true;
 }

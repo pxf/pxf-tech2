@@ -32,7 +32,7 @@ TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, int _width, int _height
     m_Texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData(_texture_data, _width, _height, _channels);
     m_Texture->SetMagFilter(TEX_FILTER_NEAREST);
     m_Texture->SetMinFilter(TEX_FILTER_NEAREST);
-    m_Texture->SetClampMethod(TEX_REPEAT);//TEX_CLAMP_TO_EDGE);
+    m_Texture->SetClampMethod(TEX_CLAMP_TO_EDGE);
 }
 
 TexturedQuadBatch::~TexturedQuadBatch()

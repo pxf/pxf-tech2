@@ -8,6 +8,8 @@
 #include <Pxf/Modules/net/ENetDefs.h>
 #include <Pxf/Base/Platform.h>
 
+#include <Pxf/Util/Array.h>
+
 #include <enet/enet.h>
 #include <string.h>
 
@@ -28,6 +30,8 @@ namespace Pxf
 			ENetHost *Client;
 			ENetPeer *Peer;
 			Network::NetworkDevice* NetDev;
+			
+			Util::Array<Network::Packet*> BufferedPackets;
 			
 		public:
 			//ENetClient(const char* _Host, const int _Port);

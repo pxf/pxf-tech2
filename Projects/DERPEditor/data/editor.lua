@@ -51,7 +51,7 @@ gl_TexCoord[0] = gl_MultiTexCoord0;
 "shaderFrag" : "uniform sampler2D texture1;
 void main()
 {
-gl_FragColor = vec4(1.0) - texture2D(texture1, gl_TexCoord[0].st);
+gl_FragColor = vec4(1.0);// - texture2D(texture1, gl_TexCoord[0].st);
 }",
 "width" : 512,
 "height" : 512
@@ -59,9 +59,12 @@ gl_FragColor = vec4(1.0) - texture2D(texture1, gl_TexCoord[0].st);
 }
 ]
 ]])
-print(tostring(client:recv().data))
+print(string.byte(tostring(client:recv().data), 1))
 
-print(tostring(client:recv().data))
+local loldata = tostring(client:recv().data)
+print("SUP: " .. loldata)
+local aoe = gfx.rawtexture(128, 512,512,4,loldata)
+--print(tostring(client:recv().data))
 client:disconnect()
 
 --[[local test = net.createserver()

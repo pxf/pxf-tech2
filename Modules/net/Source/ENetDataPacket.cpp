@@ -1,4 +1,5 @@
 #include <Pxf/Modules/net/ENetDataPacket.h>
+#include <Pxf/Base/Memory.h>
 #include <Pxf/Base/Debug.h>
 
 #include <Pxf/Base/String.h>
@@ -22,18 +23,20 @@ ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length
 
 		ID = new char[IDLength+1];
 		Data = new char[DataLength+1];
-		strncpy(ID, (_Data+5), IDLength);
-		strncpy(Data, (_Data+5+IDLength+4), DataLength);
+		MemoryCopy(ID, (_Data+5), IDLength);
+		MemoryCopy(Data, (_Data+5+IDLength+4), DataLength);
 		ID[IDLength] = '\0';
 		Data[DataLength] = '\0';
 
-		printf("id: %s\n", ID);
-		printf("data: %s\n", Data);
+		//printf("id: %s\n", ID);
+		//printf("data: %s\n", Data);
 
 		Length = DataLength;
 	}
 	else
 	{
+		ID = new char[4];
+		strcpy(ID, "UND\0");
 		Data = new char[_Length+1];
 		strcpy(Data, _Data);
 		Length = _Length;
@@ -46,6 +49,7 @@ ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length
 ENetDataPacket::~ENetDataPacket()
 {
 	delete Data;
+	delete ID;
 }
 
 char* ENetDataPacket::GetData()
