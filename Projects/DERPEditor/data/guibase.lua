@@ -463,22 +463,31 @@ function gui:update()
 		if shortcut.mouse then
 		  for __,button in pairs(shortcut.mouse) do
 			if not (inp.isbuttondown(button)) then
+				if shortcut.was_pressed then
+					release = true
+				end
+				
 				shortcut_success = false
 				break
 			end
 		  end
 		end
-	  
-      for __,key in pairs(shortcut.keys) do
-		if not (inp.iskeydown(key)) then
-		  if shortcut.was_pressed then
-			release = true
+		
+	  if shortcut.keys then
+		  for __,key in pairs(shortcut.keys) do
+			if not (inp.iskeydown(key)) then
+			  if shortcut.was_pressed then
+				release = release and true
+			  end
+			  
+			  
+			  shortcut_success = false
+			  break
+			end
 		  end
-		  
-          shortcut_success = false
-          break
-        end
-      end
+		end
+		
+		
       
       if (shortcut_success and (not shortcut.was_pressed) ) then
 		shortcut.was_pressed = true

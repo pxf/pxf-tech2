@@ -212,7 +212,6 @@ function derp:create_workspace_menu()
 	function wid:show()
 		if self.visible then
 			self:hide()
-			print("hey")
 		end
 		
 		local x,y = inp.getmousepos()
@@ -317,29 +316,47 @@ function derp:create_workspacecamera(x,y,w,h)
 		return x + self.drawbox.x + self.drawbox.w * 0.5,y + self.drawbox.y + self.drawbox.h * 0.5
 	end
 	
-	local socket_a = nil
+	cam.socket_a = nil
+	cam.comp_drag = false
 	
 	cam.shortcuts = { 	{ name = "copy", keys = {inp.LCTRL, "C"}, was_pressed = false, onpress = function () print("Lets copy dat floppy!") end},
 						{ name = "deselect", keys = {inp.ESC}, was_pressed = false, onpress = function () derp.active_workspace:set_activecomp(nil) end },
 						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
+						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
+							onpress = function ()
+								derp.ws_menu:show() 
+							end,
+							onrelease = function ()
+							
+							end},
+						{ name = "deconnect components", keys = {inp.LSHIFT}, mouse = {inp.MOUSE_RIGHT}, was_pressed = false, 
+							onpress = function () 
+								derp:set_activetool(nil)
+								cam.socket_a = derp.active_workspace:socket_hittest(cam:coord_transform(inp.getmousepos()))
+								
+								if cam.socket_a then
+									print(cam.socket_a.socket)
+								end
+							end,
+							onrelease = function ()
+								derp:set_activetool(derp.active_tool.last)
+							end},
 						{ name = "shift drag", keys = {inp.LSHIFT}, mouse = {inp.MOUSE_LEFT}, was_pressed = false, 
 							onpress = function () 
 								-- override current tool
 								derp:set_activetool(nil)
-								local mx,my = inp.getmousepos()
-								local x,y = cam:coord_transform(mx,my)
-								socket_a = derp.active_workspace:socket_hittest(x,y)
+								cam.socket_a = derp.active_workspace:socket_hittest(cam:coord_transform(inp.getmousepos()))
+								cam.comp_drag = true
 							end,
 							onrelease = function () 
 								-- local hit
 								derp:set_activetool(derp.active_tool.last)
-								local mx,my = inp.getmousepos()
-								local x,y = cam:coord_transform(mx,my)
-								local socket_b = derp.active_workspace:socket_hittest(x,y)
+								local socket_b = derp.active_workspace:socket_hittest(cam:coord_transform(inp.getmousepos()))
 								
-								derp.active_workspace:add_connection(socket_a,socket_b)
-								socket_a = nil
+								derp.active_workspace:add_connection(cam.socket_a,socket_b)
+								cam.socket_a = nil
+								cam.comp_drag = false
 							end },
 						{ name = "move ws",keys = {inp.SPACE}, was_pressed = false, 
 							onpress = function () 
@@ -512,6 +529,14 @@ function derp:create_workspace(x,y,w,h,from_path)
 					gfx.setcolor(r,g,b)
 				end
 			
+				if self.cam.comp_drag and self.cam.socket_a then
+					local x0 = self.cam.socket_a.comp.x + self.cam.socket_a.comp.w * 0.5 - 8
+					local y0 = self.cam.socket_a.comp.y - self.cam.socket_a.comp.h * 0.5 + (self.cam.socket_a.socket-1)*16 + 8
+					local x1,y1 = self.cam:coord_transform(inp.getmousepos())
+
+					draw_spline({{x0,y0},{x0 + (x1 - x0)*0.25,y0},{x1,y1}},60,2)
+				end
+			
 				gfx.translate(-self.cam.drawbox.w*0.5 - self.cam.drawbox.x,-self.cam.drawbox.h*0.5 - self.cam.drawbox.y)
 			end
 		end
@@ -612,9 +637,9 @@ function derp:create_workspace(x,y,w,h,from_path)
 			derp.active_tool.current:action({tag = "mouserelease", x = x, y = y, button = button})
 		end
 		
-		if (button == inp.MOUSE_RIGHT) then
+		--[[if (button == inp.MOUSE_RIGHT) then
 			derp.ws_menu:show(x,y)
-		end
+		end]]
 	end
 	
 	return wid
