@@ -76,7 +76,7 @@ int main()
 	Network::NetworkDevice* net = kernel->GetNetworkDevice();
 	res->DumpResourceLoaders();
 
-	net->AddTag("pipeline");
+	/*net->AddTag("pipeline");
 	net->AddTag("result");
 	net->AddTag("profiling");
 	net->AddTag("log");
@@ -96,7 +96,7 @@ int main()
 		else
 			Message("aoeu", "message: %s", packet->GetData());
 
-	}
+	}*/
 
 	// load settings
 	Resource::Json* jdoc = res->Acquire<Resource::Json>("data/config.json");
