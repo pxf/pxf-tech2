@@ -177,17 +177,27 @@ bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
 	return true;
 }
 
-bool ENetServer::SendAllIDL(const char* _ID, const int _Type, const char* _Buf, const int _Length)
+bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length)
 {
 	ENetPacket *packet;
 	ENetPeer *peer;
+	char NewBuf[_Length+strlen(_ID)+3]; // to be safe.
+	int IDLength = strlen(_ID);
 
-//	Message("ENetServer", "Packet size: %d", _Length);
+	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
 
-//	char NewBuf[_Length+2]
+	printf("bf: %s\n", NewBuf);
+	memcpy((NewBuf+1), &IDLength, 4);
+	memcpy((NewBuf+1+4+IDLength), &_Length, 4);
+	printf("af: %s\n", NewBuf);
 
-	packet = enet_packet_create(_Buf, _Length, ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(NewBuf, strlen(_ID)+_Length+3, ENET_PACKET_FLAG_RELIABLE);
 
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
 	enet_host_broadcast(Server, _Type, packet);
 
 	return true;
