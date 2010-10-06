@@ -1,5 +1,6 @@
 #include <Pxf/Modules/net/ENetServer.h>
 
+
 using namespace Pxf::Modules;
 using namespace Pxf::Util;
 
@@ -181,8 +182,9 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 {
 	ENetPacket *packet;
 	ENetPeer *peer;
-	char NewBuf[_Length+strlen(_ID)+3]; // to be safe.
 	int IDLength = strlen(_ID);
+	//char NewBuf[_Length+IDLength+3]; // to be safe.
+	char* NewBuf = new char[_Length+IDLength+3];
 
 	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
 
