@@ -206,6 +206,7 @@ function derp:create_workspace_menu()
 			
 	local wid = gui:create_menu(0,0,menu)
 	
+	wid.super_menu = wid.menu
 	wid.widget_type = "workspace menu"
 	wid.visible = false
 	
@@ -325,18 +326,39 @@ function derp:create_workspacecamera(x,y,w,h)
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
 						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
+								derp.ws_menu.menu = derp.ws_menu.super_menu
 								derp.ws_menu:show() 
-							end,
-							onrelease = function ()
-							
 							end},
 						{ name = "deconnect components", keys = {inp.LSHIFT}, mouse = {inp.MOUSE_RIGHT}, was_pressed = false, 
 							onpress = function () 
 								derp:set_activetool(nil)
 								cam.socket_a = derp.active_workspace:socket_hittest(cam:coord_transform(inp.getmousepos()))
 								
-								if cam.socket_a then
-									print(cam.socket_a.socket)
+								if cam.socket_a then								
+									-- find all connections from this socket
+									local menu = { }
+									
+									for k,v in pairs(derp.active_workspace.component_data.edges) do
+										if (v[1].comp == cam.socket_a.comp and v[1].socket == cam.socket_a.socket) or
+											(v[2].comp == cam.socket_a.comp and v[2].socket == cam.socket_a.socket) then
+											
+											local tag = "connection " .. v[1].comp.id .. "." .. v[1].socket .. " to " .. v[2].comp.id .. "." .. v[2].socket
+											table.insert(menu,{tag, { onclick = 
+												function () 
+													v[1].comp.outputs[v[1].socket] = v[1].comp.outputs[v[1].socket] - 1
+													v[2].comp.inputs[v[2].socket] = v[2].comp.inputs[v[2].socket] - 1
+													
+													derp.active_workspace.component_data.edges[k] = nil
+												end}})
+										end
+										
+									end
+									
+									if #menu > 0 then
+										derp.ws_menu.menu = menu
+									end
+									
+									cam.socket_a = nil
 								end
 							end,
 							onrelease = function ()
@@ -460,8 +482,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 	function wid:add_connection(socket_a,socket_b)
 		if socket_a and socket_b then
 			if socket_a.type == "output" and socket_b.type == "input" and socket_a.comp ~= socket_b.comp then
-				socket_a.comp.outputs[socket_a.socket] = 1
-				socket_b.comp.inputs[socket_b.socket] = 1
+				socket_a.comp.outputs[socket_a.socket] = socket_a.comp.outputs[socket_a.socket] + 1
+				socket_b.comp.inputs[socket_b.socket] = socket_b.comp.inputs[socket_b.socket] + 1
 				
 				local found = false
 				
@@ -530,8 +552,17 @@ function derp:create_workspace(x,y,w,h,from_path)
 				end
 			
 				if self.cam.comp_drag and self.cam.socket_a then
-					local x0 = self.cam.socket_a.comp.x + self.cam.socket_a.comp.w * 0.5 - 8
-					local y0 = self.cam.socket_a.comp.y - self.cam.socket_a.comp.h * 0.5 + (self.cam.socket_a.socket-1)*16 + 8
+					local x0 = self.cam.socket_a.comp.x
+					local y0 = self.cam.socket_a.comp.y
+					
+					if self.cam.socket_a.type == "output" then
+						x0 = x0 + self.cam.socket_a.comp.w * 0.5 - 8
+						y0 = y0 - self.cam.socket_a.comp.h * 0.5 + (self.cam.socket_a.socket-1)*16 + 8
+					else
+						x0 = x0 - self.cam.socket_a.comp.w * 0.5 + 8
+						y0 = y0 - self.cam.socket_a.comp.h * 0.5 + (self.cam.socket_a.socket-1)*16 + 8
+					end
+					
 					local x1,y1 = self.cam:coord_transform(inp.getmousepos())
 
 					draw_spline({{x0,y0},{x0 + (x1 - x0)*0.25,y0},{x1,y1}},60,2)
