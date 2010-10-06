@@ -228,7 +228,12 @@ function derp:create_workspace_menu()
 		self.visible = false
 		gui.widgets:removewidget(self)
 		
+		gui.focuswidget = derp.active_workspace.cam
 		derp:set_activetool(derp.active_tool.last)
+	end
+	
+	function wid:destroy_callback()
+		self:hide()
 	end
 	
 	--[[

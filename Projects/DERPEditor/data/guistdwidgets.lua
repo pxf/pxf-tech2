@@ -746,6 +746,10 @@ function gui:create_menu(x,y,menu)
     end
     
     self:superdestroy()
+	
+	if self.destroy_callback then
+		self:destroy_callback()
+	end
   end
   
   function wid:mouseover(mx,my)
