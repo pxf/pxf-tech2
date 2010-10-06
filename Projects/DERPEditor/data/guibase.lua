@@ -453,21 +453,37 @@ function gui:update()
   -- test
   --gui:redraw(mx,my,32,32)
   
-  -- check keyboard shortcuts
-  --wid.shortcuts = {} -- { { keys = {inp.LSHIFT, 'C'}, onpress = function () print("LOL SUP") end} }
-  if (self.activewidget) then
-    for _,shortcut in pairs(self.activewidget.shortcuts) do
+  -- check keyboard shortcuts for the focused widget
+  if (self.focuswidget) then
+	local done = false
+    for _,shortcut in pairs(self.focuswidget.shortcuts) do
       local shortcut_success = true
+	  local release = false
+	  
       for __,key in pairs(shortcut.keys) do
-        if not (inp.iskeydown(key)) then
+		if not (inp.iskeydown(key)) then
+		  if shortcut.was_pressed then
+			release = true
+		  end
+		  
           shortcut_success = false
           break
         end
       end
       
-      if (shortcut_success) then
-        shortcut:fun()
-      end
+      if (shortcut_success and (not shortcut.was_pressed) ) then
+		shortcut.was_pressed = true
+        if shortcut.onpress then 
+			shortcut:onpress()
+		end
+      elseif (release) then
+		shortcut.was_pressed = false
+		
+		if shortcut.onrelease then
+			shortcut:onrelease()
+		end
+	  end
+	  
     end
   end
   

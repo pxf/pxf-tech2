@@ -88,10 +88,10 @@ void QuadBatch::AddFreeform(float x0, float y0, float x1, float y1, float x2, fl
     Vec3f p0,p1,p2,p3;
     if (m_Transformation != NULL) {
         Vec4f p0_,p1_,p2_,p3_;
-        p0_ = *m_Transformation * Vec4f(x0,y0, 0.0f, 1.0f);
-        p1_ = *m_Transformation * Vec4f(x1,y1, 0.0f, 1.0f);
-        p2_ = *m_Transformation * Vec4f(x2,y2, 0.0f, 1.0f);
-        p3_ = *m_Transformation * Vec4f(x3,y3, 0.0f, 1.0f);
+        p0_ = (*m_Transformation) * Vec4f(x0,y0, 0.0f, 1.0f);
+        p1_ = (*m_Transformation) * Vec4f(x1,y1, 0.0f, 1.0f);
+        p2_ = (*m_Transformation) * Vec4f(x2,y2, 0.0f, 1.0f);
+        p3_ = (*m_Transformation) * Vec4f(x3,y3, 0.0f, 1.0f);
         p0 = Vec3f(p0_.x, p0_.y, *m_CurrentDepth);
         p1 = Vec3f(p1_.x, p1_.y, *m_CurrentDepth);
         p2 = Vec3f(p2_.x, p2_.y, *m_CurrentDepth);
