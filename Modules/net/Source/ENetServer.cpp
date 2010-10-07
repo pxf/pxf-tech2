@@ -41,6 +41,14 @@ bool ENetServer::Shutdown()
 
 Pxf::Network::Packet* ENetServer::Recv()
 {
+	if (BufferedPackets.size() > 0)
+	{
+		Network::Packet* bpack = BufferedPackets.front();
+		BufferedPackets.erase(BufferedPackets.begin());
+
+		return bpack;
+	}
+
 	ENetEvent event;
 
 	/* Loop until we hit an error. */
@@ -90,6 +98,14 @@ Pxf::Network::Packet* ENetServer::Recv()
 
 Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 {
+	if (BufferedPackets.size() > 0)
+	{
+		Network::Packet* bpack = BufferedPackets.front();
+		BufferedPackets.erase(BufferedPackets.begin());
+
+		return bpack;
+	}
+
 	ENetEvent event;
 	int stopTime = Platform::GetTime() + _Timeout;
 
@@ -149,6 +165,8 @@ bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 	enet_packet_destroy(packet);
 	enet_host_flush(Server);
 
+	Flush();
+
 	return true;
 }
 
@@ -161,6 +179,8 @@ bool ENetServer::SendAll(const int _Type, const char* _Buf)
 
 	enet_host_broadcast(Server, _Type, packet);
 
+	Flush();
+
 	return true;
 }
 
@@ -169,11 +189,11 @@ bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
 	ENetPacket *packet;
 	ENetPeer *peer;
 
-//	Message("ENetServer", "Packet size: %d", _Length);
-
 	packet = enet_packet_create(_Buf, _Length, ENET_PACKET_FLAG_RELIABLE);
 
 	enet_host_broadcast(Server, _Type, packet);
+
+	Flush();
 
 	return true;
 }
@@ -189,7 +209,6 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 
 	memcpy((NewBuf+1), &IDLength, 4);
 	memcpy((NewBuf+1+4+IDLength), &_Length, 4);
-	//printf("deb: %s\n", (NewBuf+1+4+IDLength+4));
 
 	packet = enet_packet_create(NewBuf, 11+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
 
@@ -200,9 +219,21 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 	}
 	enet_host_broadcast(Server, _Type, packet);
 
-	enet_host_flush(Server);
-
-	//delete NewBuf;
+	Flush();
+	
+	delete []NewBuf;
 
 	return true;
 }
+
+void ENetServer::Flush()
+{
+	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
+	Network::Packet *rpack = RecvNonBlocking(0);
+	if (rpack != NULL)
+	{
+		Message("aoeu", "Placing in buffer.");
+		BufferedPackets.push_back(rpack);
+	}
+}
+
