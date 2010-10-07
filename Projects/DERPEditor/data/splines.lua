@@ -44,7 +44,10 @@ function create_spline(control_points, num_segments, w)
                   width = w}
                   
   -- hit test
-  function spline:hit(x,y)
+  function spline:hit(x,y, r)
+    if (#self.segments < 3) then
+      return false
+    end
     
     local p1,p2 = nil,nil
     local p1len,p2len = nil,nil
@@ -52,7 +55,7 @@ function create_spline(control_points, num_segments, w)
     -- find closest points
     for k,v in pairs(self.segments) do
       local p = {v[1] - x, v[2] - y}
-      local len = math.sqrt(p[1]*p[1], p[2]*p[2])
+      local len = math.sqrt(p[1]*p[1] + p[2]*p[2])
       
       if (p1 == nil) then
         p1 = v
@@ -77,7 +80,11 @@ function create_spline(control_points, num_segments, w)
       
     end
     
-    -- LOLLLLLLLLLLLLL
+    -- TODO: do line test instead of p1
+    if (p1len <= r) then
+      print("p1len = " .. tostring(p1len))
+      return true
+    end
     
     return false
   end

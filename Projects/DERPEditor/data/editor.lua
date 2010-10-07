@@ -22,7 +22,7 @@ net.addtag("log")
 
 local fakenet = {connect = function () end, disconnect = function () end, send = function () end, recv = function () end}
 
-local client = net.createclient()
+local client = fakenet--net.createclient()
 client:connect("localhost", 7005)
 --client:recv()
 client:send("pipeline", [[[{"blockName" : "PipelineTree",
@@ -62,7 +62,7 @@ gl_FragColor = vec4(1.0);// - texture2D(texture1, gl_TexCoord[0].st);
 }
 ]
 ]])
-
+--[[
 local retry = true
 local aoe = nil
 
@@ -76,22 +76,9 @@ while (retry) do
     print("Got some strange package! :( '" .. tostring(daaaaata.id) .. "'")
   end
   
-end
---print(string.byte(tostring(client:recv().data), 1))
+end]]
 
---local massivedump = client:recv().data
---print("Massive dump: " .. massivedump)
-
---local 
-
---print(tostring(client:recv().data))
-client:disconnect()
-
---[[local test = net.createserver()
-for k,v in pairs(debug.getmetatable(test.instance)) do
-  print(k,v)
-end
---test.instance = nil]]
+--client:disconnect()
 
 ----------------------------------------------
 -- setup menus
@@ -200,7 +187,17 @@ function draw(force)
   gui:draw(force)
   
   -- test line drawing:
-  --draw_spline({{100,200},{100,200},{200,100},{300,300},{400,200},{400,500}}, 60,2)
+  local line = create_spline({{100,200},{100,200},{200,100},{300,300},{400,200},{400,500}}, 60,5)
+  line:update()
+  local r,g,b = gfx.getcolor()
+  local mx,my = inp.getmousepos()
+  if (line:hit(mx,my,10)) then
+    gfx.setcolor(1,0,0)
+  else
+    gfx.setcolor(1,1,1)
+  end
+  line:draw()
+  gfx.setcolor(r,g,b)
   
   --aoe:draw(200,200,300,200,300,300,200,300)
   
