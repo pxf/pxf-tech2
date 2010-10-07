@@ -202,8 +202,22 @@ void AudioDevice::UnregisterSound(const Resource::Sound* _Sound);
 ----
 
 Playback controls
+
+.Play
 ----
 void AudioDevice::Play(int _SoundID, bool _Loop = false);
+----
+Behaviour for different states of _SoundID
+--
+* Play
+** Starts playing sample with _SoundID if it's not an active voice
+** Resumes _SoundID if it's a paused voice
+** Restart _SoundID if it's an active playing voice
+--
+
+.Other
+Stop or pause individual or all voices.
+----
 void AudioDevice::Stop(int _SoundID);
 void AudioDevice::StopAll();
 void AudioDevice::Pause(int _SoundID);
@@ -218,6 +232,122 @@ void AudioDevice::DumpInfo();
 Graphics
 --------
 For now, see **Pxf/Graphics/*.h**. Still very much a work-in-progress. See **Projects/DERPRenderer** for advanced usage.
+
+.GraphicsDevice
+----
+Graphics::Window* GraphicsDevice::OpenWindow(WindowSpecifications* _pWindowSpecs);
+void GraphicsDevice::CloseWindow();
+
+void GraphicsDevice::SetViewport(int _x, int _y, int _w, int _h);
+void GraphicsDevice::SetProjection(Math::Mat4 *_matrix);
+void GraphicsDevice::SetModelView(Math::Mat4 *_matrix);
+void GraphicsDevice::Translate(Math::Vec3f _translate);
+void GraphicsDevice::SwapBuffers();
+
+// Texture
+Graphics::Texture* GraphicsDevice::CreateEmptyTexture(int _Width, int _Height
+                                                     , TextureFormatStorage _Format = TEX_FORMAT_RGBA);
+Graphics::Texture* GraphicsDevice::CreateTexture(const char* _filepath);
+Graphics::Texture* GraphicsDevice::CreateTexture(Resource::Image* _Image);
+Graphics::Texture* GraphicsDevice::CreateTextureFromData(const unsigned char* _datachunk, int _width
+                                                        , int _height, int _channels);
+Graphics::Texture* GraphicsDevice::BindTexture(Texture* _texture);
+Graphics::Texture* GraphicsDevice::BindTexture(Texture* _texture
+                                              , unsigned int _texture_unit);
+void GraphicsDevice::DestroyTexture(Texture* _texture);
+
+Graphics::Texture* GraphicsDevice::CreateTextureFromFramebuffer();
+Resource::Image* GraphicsDevice::CreateImageFromTexture(Texture* _texture);
+
+Graphics::VertexBuffer* GraphicsDevice::CreateVertexBuffer(VertexBufferLocation _VertexBufferLocation
+                                                          , VertexBufferUsageFlag _VertexBufferUsageFlag);
+void GraphicsDevice::DestroyVertexBuffer(VertexBuffer* _pVertexBuffer);
+void GraphicsDevice::DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount);
+
+// Model
+Graphics::Model* GraphicsDevice::CreateModel(const char* _FilePath);
+Graphics::Model* GraphicsDevice::CreateModel(Resource::Mesh* _Mesh);
+
+// Buffers
+Graphics::RenderBuffer* GraphicsDevice::CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height);
+void GraphicsDevice::DestroyRenderBuffer(RenderBuffer* _pRenderBuffer);
+void GraphicsDevice::BindRenderBuffer(RenderBuffer* _pRenderBuffer);
+void GraphicsDevice::UnbindRenderBuffer();
+
+Graphics::FrameBufferObject* GraphicsDevice::CreateFrameBufferObject();
+void GraphicsDevice::DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject);
+Graphics::FrameBufferObject* GraphicsDevice::BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject);
+void GraphicsDevice::UnbindFrameBufferObject();
+
+Graphics::Shader* GraphicsDevice::CreateShader(const char* _Ident, const char* _VertexShader, const char* _FragmentShader);
+void GraphicsDevice::DestroyShader(Shader* _Shader);
+Graphics::Shader* GraphicsDevice::BindShader(Shader* _Shader);
+void GraphicsDevice::SetUniformi(Shader* _Shader, const char* _name, int _value);
+void GraphicsDevice::SetUniformf(Shader* _Shader, const char* _name, float _value);
+void GraphicsDevice::SetUniformVec2(Shader* _Shader, const char* _name, const Math::Vec2f* _value);
+void GraphicsDevice::SetUniformVec3(Shader* _Shader, const char* _name, const Math::Vec3f* _value);
+void GraphicsDevice::SetUniformVec3v(Shader* _Shader, const char* _name, unsigned count, const Math::Vec3f* _value);
+void GraphicsDevice::SetUniformVec4(Shader* _Shader, const char* _name, const Math::Vec4f* _value);
+void GraphicsDevice::SetUniformVec4v(Shader* _Shader, const char* _name, unsigned count, const Math::Vec4f* _value);
+void GraphicsDevice::SetUniformMat4(Shader* _Shader, const char* _name, const Math::Mat4* _value);
+----
+
+.WindowSpecifications
+----
+struct WindowSpecifications
+{
+    int Width;
+    int Height;
+    int ColorBits;
+    int AlphaBits;
+    int DepthBits;
+    int StencilBits;
+    int FSAASamples;
+    bool Fullscreen;
+    bool Resizeable;
+    bool VerticalSync;
+};
+----
+
+.Window
+----
+typedef void(*WindowSizeCallback)(int _Width, int _Height);
+
+bool Window::Open();
+bool Window::Close();
+void Window::Swap();
+
+void Window::SetResizeCallback(WindowSizeCallback fun);
+void Window::SetTitle(const char *_title);
+
+int Window::GetFPS();
+int Window::GetWidth();
+int Window::GetHeight();
+float Window::GetAspectRatio();
+
+bool Window::IsOpen();
+----
+
+.Vertex Buffer
+----
+----
+
+.Framebuffer
+----
+----
+
+.Renderbuffer
+----
+----
+
+.Texture
+----
+----
+
+.Shader
+----
+----
+
 
 Input
 -----
