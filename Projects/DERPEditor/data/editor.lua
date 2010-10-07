@@ -68,7 +68,6 @@ local aoe = gfx.rawtexture(128, 512,512,4,massivedump)
 --print(tostring(client:recv().data))
 client:disconnect()]]
 
-
 --[[local test = net.createserver()
 for k,v in pairs(debug.getmetatable(test.instance)) do
   print(k,v)
@@ -118,28 +117,6 @@ local poopline = {}
 ----------------------------------------------
 -- create workspace
 ----------------------------------------------
--- create top widget stack
---   ie. menubar, console, toolbar, tabbar
---[[
-local topstack = gui:create_verticalstack(0,0,app.width,10)
-
-console = gui:create_console(0,0,app.width,100,false)
-toolbar = gui:create_horizontalpanel(0,0,app.width,40, app.width)
-local testinput = gui:create_textinput(20,8,200)
-toolbar:addwidget(testinput)
-
--- add topstack widgets
-topstack:addwidget(menubar)
-topstack:addwidget(toolbar)
-topstack:addwidget(console)
-
-----------------------------------------------
--- create status bar
-local statusbar = gui:create_statusbar(0,app.height,app.width, editor.name .. " v" .. editor.version)
-gui.statusbar = statusbar
-]]
-
-----------------------------------------------
 local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
 
 local menu_container = derp:create_menu(0,0,app.width,40)
@@ -160,6 +137,10 @@ local workspace_area = derp:create_workspace(0,0,app.width,app.height)
 workspace_area.widget_type = "workspace area 01"
 
 local inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
+
+inspector:addwidget(derp:create_slider(0,0,100,0,1))
+
+inspector:resize_abs(250,app.height-100)
 
 local right_padding_container = derp:create_block(app.width-20,40,20,app.height-60)
 right_padding_container.widget_type = "right padding"
@@ -190,6 +171,10 @@ derp:init()
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()
+
+local r,g,b = RGB_to_HSV(0.0,1.0,0.0,25,1.0,1.0)
+
+print(r,g,b)
 
 function update()
   gui:update()

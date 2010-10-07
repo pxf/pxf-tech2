@@ -100,3 +100,15 @@ function draw_spline(points,segments,w)
     draw_line_segment(v[1]-2, v[2]-2, v[1]+2, v[2]+2, 2)
   end
 end
+
+
+
+function create_spline(control_points, w)
+  local spline = {control_points = control_points, width = w}
+  
+  return spline
+end
+
+
+
+
