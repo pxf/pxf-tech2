@@ -7,6 +7,8 @@ This document does not cover 100% of the API as the engine still is in heavy dev
 provide a brief overview of the engine design and some code snippets that explains basic usage. For details,
 check the header files. Most of them should be easy to understand.
 
+This document should be more of a general usage guide than a specification of the API, we are not quite there yet though.
+
 *TODO:* Add syntax highlighting with pygments or source-highlight
 
 Build system
@@ -330,24 +332,157 @@ bool Window::IsOpen();
 
 .Vertex Buffer
 ----
+/**
+ * VertexBuffer location types
+ * VB_LOCATION_SYS is stored in system memory
+ * VB_LOCATION_GPU is stored in GPU memory
+ */
+enum VertexBufferLocation
+{
+    VB_LOCATION_SYS,
+    VB_LOCATION_GPU
+};
+
+/**
+ * VertexBuffer attributes
+ */
+enum VertexBufferAttribute
+{
+    VB_VERTEX_DATA = 1,
+    VB_NORMAL_DATA = 2,
+    VB_TEXCOORD_DATA = 4,
+    VB_COLOR_DATA = 8,
+    VB_INDEX_DATA = 16,
+    VB_EDGEFLAG_DATA = 32,
+};
+
+/**
+ * Vertex buffer usage flags (used for GPU located memory)
+ */
+
+enum VertexBufferUsageFlag
+{
+    VB_USAGE_STATIC_DRAW = 1,
+    VB_USAGE_STATIC_READ = 2,
+    VB_USAGE_STATIC_COPY = 4,
+    VB_USAGE_DYNAMIC_DRAW = 8,
+    VB_USAGE_DYNAMIC_READ = 16,
+    VB_USAGE_DYNAMIC_COPY = 32,
+    VB_USAGE_STREAM_DRAW = 64,
+    VB_USAGE_STREAM_READ = 128,
+    VB_USAGE_STREAM_COPY = 256
+};
+
+/**
+ * Vertex buffer access flags, specifies what type of access when
+ * mapping gpu memory data.
+ */
+enum VertexBufferAccessFlag
+{
+    VB_ACCESS_READ_ONLY = 1,
+    VB_ACCESS_WRITE_ONLY = 2,
+    VB_ACCESS_READ_WRITE = 4
+};
+
+enum VertexBufferPrimitiveType { 
+    VB_PRIMITIVE_NONE   = 0,
+    VB_PRIMITIVE_POINTS = 1, 
+    VB_PRIMITIVE_LINES,
+    VB_PRIMITIVE_LINE_LOOP,
+    VB_PRIMITIVE_LINE_STRIP,
+    VB_PRIMITIVE_TRIANGLES,
+    VB_PRIMITIVE_TRIANGLE_STRIP,
+    VB_PRIMITIVE_TRIANGLE_FAN,
+    VB_PRIMITIVE_QUADS,
+    VB_PRIMITIVE_QUAD_STRIP
+};
+----
+
+----
+void VertexBuffer::CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize);
+void VertexBuffer::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32 _VertexSize); 
+voidVertexBuffer::(void* _Buffer, uint32 _Count, uint32 _Offset);
+void* VertexBuffer::MapData(VertexBufferAccessFlag _AccessFlag);
+void VertexBuffer::UnmapData();
+void VertexBuffer::SetData(VertexBufferAttribute _AttribType, uint8 _StrideOffset, uint8 _NumComponents);
+uint8 VertexBuffer::GetStrideOffset(VertexBufferAttribute _AttribType);
+uint8 VertexBuffer::GetTypeSize(VertexBufferAttribute _AttribType);
+uint32 VertexBuffer::GetVertexCount() const;
+uint32 VertexBuffer::GetByteCount() const;
+void VertexBuffer::SetPrimitive(VertexBufferPrimitiveType _PrimitiveType);
+VertexBufferPrimitiveType VertexBuffer::GetPrimitive();
 ----
 
 .Framebuffer
 ----
+void FramebufferObject::Attach(Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps) = 0;
+void FramebufferObject::Attach(RenderBuffer* _Buffer, const unsigned _Attachment) = 0;
+void FramebufferObject::Detach(const unsigned _Attachment) = 0;
+void FramebufferObject::DetachAll() = 0;
+int  FramebufferObject::GetNumColorAttachment() { return m_NumColorAttachment; }
+bool FramebufferObject::GetUseDepthAttachment() { return m_UseDepthAttachment; }
+bool FramebufferObject::GetUseStencilAttachment() { return m_UseStencilAttachment; }
+bool FramebufferObject::IsComplete() { return m_Complete; }
 ----
 
 .Renderbuffer
 ----
+int  RenderBuffer::GetWidth();
+int  RenderBuffer::GetHeight();
+bool RenderBuffer::Ready();
 ----
 
 .Texture
 ----
+enum TextureFilter
+{
+    // valid for min & mag
+    TEX_FILTER_NEAREST = 0,
+    TEX_FILTER_LINEAR,
+
+    // valid only for min, obviously.
+    TEX_FILTER_LINEAR_MIPMAP_LINEAR,
+    TEX_FILTER_LINEAR_MIPMAP_NEAREST,
+    TEX_FILTER_NEAREST_MIPMAP_LINEAR,
+    TEX_FILTER_NEAREST_MIPMAP_NEAREST
+};
+
+enum TextureClampMethod
+{
+    TEX_CLAMP,
+    TEX_CLAMP_TO_EDGE,
+    TEX_REPEAT
+};
+
+enum TextureFormatStorage
+{
+    TEX_FORMAT_RGB,
+    TEX_FORMAT_RGBA,
+    TEX_FORMAT_R,
+    TEX_FORMAT_G,
+    TEX_FORMAT_B,
+    TEX_FORMAT_A
+};
+----
+----
+void Texture::Load(const char* _filepath) = 0;
+void Texture::LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels);
+void Texture::Unload();
+void Texture::Reload();
+int Texture::GetWidth();
+int Texture::GetHeight();
+int Texture::GetChannels();
+void Texture::SetMagFilter(TextureFilter _Filter);
+void Texture::SetMinFilter(TextureFilter _Filter);
+void Texture::SetClampMethod(TextureClampMethod _Method);
+unsigned int Texture::GetTextureID();
+Math::Vec4f Texture::CreateTextureSubset(float _x1, float _y1, float _x2, float _y2);
 ----
 
 .Shader
 ----
+bool Shader::IsValid();
 ----
-
 
 Input
 -----
