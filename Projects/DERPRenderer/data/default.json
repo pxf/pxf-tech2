@@ -152,13 +152,10 @@
                   uniform float script1;
                   void main()
                   {
-/*
                     if (gl_TexCoord[0].s > 0.5)
                         gl_FragColor = texture2D(texture3, gl_TexCoord[0].st);
                     else
                         gl_FragColor = texture2D(texture2, gl_TexCoord[0].st);
-*/
-gl_FragColor = vec4(1.0);
                   }",
                   "width" : 512,
                   "height" : 512

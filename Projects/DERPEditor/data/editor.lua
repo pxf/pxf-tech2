@@ -19,10 +19,13 @@ net.addtag("pipeline")
 net.addtag("preview")
 net.addtag("profiling")
 net.addtag("log")
-local client = net.createclient()
---client:connect("localhost", 7005)
+
+local fakenet = {connect = function () end, disconnect = function () end, send = function () end, recv = function () end}
+
+local client = fakenet--net.createclient()
+client:connect("localhost", 7005)
 --client:recv()
-local aoe = {"pipeline", [[[{"blockName" : "PipelineTree",
+client:send("pipeline", [[[{"blockName" : "PipelineTree",
 "blockType" : "PipelineTree",
 "blockData" : { "root" : "output1" }
 },
@@ -58,15 +61,16 @@ gl_FragColor = vec4(1.0);// - texture2D(texture1, gl_TexCoord[0].st);
 }
 }
 ]
-]]}
---[[print(string.byte(tostring(client:recv().data), 1))
+]])
+--print(string.byte(tostring(client:recv().data), 1))
 
-local massivedump = client:recv().data
-print("Massive dump: " .. massivedump)
+--local massivedump = client:recv().data
+--print("Massive dump: " .. massivedump)
 
-local aoe = gfx.rawtexture(128, 512,512,4,massivedump)
+--local aoe = gfx.rawtexture(128, 512,512,4,massivedump)
+
 --print(tostring(client:recv().data))
-client:disconnect()]]
+client:disconnect()
 
 --[[local test = net.createserver()
 for k,v in pairs(debug.getmetatable(test.instance)) do
@@ -112,7 +116,7 @@ local window_menu = {{"Inspector",{toggle = false, tooltip = "Show/Hide inspecto
 					 {"Navigator",{toggle = false, tooltip = "Show/Hide navigator.", onclick = function() end}}
 					}
 
-local poopline = {}
+
 
 ----------------------------------------------
 -- create workspace
@@ -179,10 +183,6 @@ print(r,g,b)
 function update()
   gui:update()
   
-  local mx,my = inp.getmousepos()
-  if (inp.isbuttondown(inp.MOUSE_LEFT)) then
-    table.insert(poopline, {mx,my})
-  end
 end
 
 function draw(force)
