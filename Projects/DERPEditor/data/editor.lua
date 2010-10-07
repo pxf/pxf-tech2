@@ -142,7 +142,7 @@ workspace_area.widget_type = "workspace area 01"
 
 local inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
 
-inspector:addwidget(derp:create_slider(0,0,100,0,1))
+--inspector:addwidget(derp:create_slider(0,0,100,0,1))
 
 inspector:resize_abs(250,app.height-100)
 
@@ -175,10 +175,6 @@ derp:init()
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()
-
-local r,g,b = RGB_to_HSV(0.0,1.0,0.0,25,1.0,1.0)
-
-print(r,g,b)
 
 function update()
   gui:update()

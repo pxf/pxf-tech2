@@ -379,6 +379,12 @@ function derp:create_workspacecamera(x,y,w,h)
 	cam.shortcuts = { 	{ name = "copy", keys = {inp.LCTRL, "C"}, was_pressed = false, onpress = function () print("Lets copy dat floppy!") end},
 						{ name = "deselect", keys = {inp.ESC}, was_pressed = false, onpress = function () derp.active_workspace:set_activecomp(nil) end },
 						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
+						{ name = "ctrl select move", keys = {inp.LCTRL}, mouse = {inp.MOUSE_LEFT}, was_pressed = false, 
+							onpress = function () 
+								local mx,my = cam:coord_transform(inp.getmousepos())
+								derp.active_tool.current:action({tag = "ctrl select", x = mx, y = my})
+								print("dick")
+							end},
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
 						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
@@ -737,10 +743,6 @@ function derp:create_workspace(x,y,w,h,from_path)
 		if derp.active_tool.current then
 			derp.active_tool.current:action({tag = "mouserelease", x = x, y = y, button = button})
 		end
-		
-		--[[if (button == inp.MOUSE_RIGHT) then
-			derp.ws_menu:show(x,y)
-		end]]
 	end
 	
 	return wid
@@ -1082,19 +1084,95 @@ function derp:create_toolbar(x,y,w,h)
 	end
 	
 	function move_select:action(action)
-		if action.tag == "mousepush" then
-			if not derp.active_workspace.component_data.active_widgets then
-				local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+		if action.tag == "ctrl select" then
+			local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+			
+			print("fags")
+			
+			if hit then
+				local found = false
 				
-				if hit then
+				for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
+					if v == hit then
+						found = true
+						break
+					end
+				end
+				
+				if not found then
+					table.insert(derp.active_workspace.component_data.active_widgets,hit)
+					derp.active_workspace:set_activecomp(derp.active_workspace.component_data.active_widgets)
+				end
+			end	
+		elseif action.tag == "mousepush" then
+			local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+			
+			if hit then
+				local found = false
+				if derp.active_workspace.component_data.active_widgets then
+					for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
+						if v == hit then
+							found = true
+							break
+						end
+					end
+				end
+				
+				if not found then
 					derp.active_workspace:set_activecomp({hit})
-				end	
+				end
+			else
+				derp.active_workspace:set_activecomp(nil)
 			end
 		elseif action.tag == "drag" then
 			if derp.active_workspace.component_data.active_widgets then
+				local rect = {x0,y0,x1,y1}
 				for k,v in pairs(derp.active_workspace.component_data.active_widgets) do
-					v.x = v.x + action.dx
-					v.y = v.y + action.dy
+					local x0 = v.x - v.w * 0.5
+					local x1 = v.x + v.w * 0.5
+					local y0 = v.y - v.h * 0.5
+					local y1 = v.y + v.h * 0.5
+				
+					if not (rect.x0 and rect.x1 and rect.y0 and rect.y1) then
+						rect.x0 = x0
+						rect.x1 = x1
+						rect.y0 = y0
+						rect.y1 = y1
+					end
+					
+					if x0 < rect.x0 then
+						rect.x0 = x0
+					end
+					
+					if x1 > rect.x1 then
+						rect.x1 = x1
+					end
+					
+					if y0 < rect.y0 then
+						rect.y0 = y0
+					end
+					
+					if y1 > rect.y1 then
+						rect.y1 = y1
+					end
+				end
+				
+				local cam = derp.active_workspace.cam.drawbox
+				local cx,cy = derp.active_workspace.cam:coord_transform(cam.x,cam.y)
+				local dx = action.dx
+				local dy = action.dy
+				
+				if (rect.x0 + action.dx) < cx or (rect.x1 + action.dx) > (cx + cam.w) then				
+					dx = 0
+				end
+				
+				if (rect.y0 + action.dy) < cy or (rect.y1 + action.dy) > (cy + cam.h) then
+					dy = 0
+				end
+				
+				for k,v in pairs(derp.active_workspace.component_data.active_widgets) do
+					v.x = v.x + dx
+					v.y = v.y + dy
 				end
 				
 				self.moved = true
