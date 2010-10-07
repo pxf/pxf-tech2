@@ -492,6 +492,8 @@ int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
 	lua_setfield(L, -2, "data");
 	lua_pushnumber(L, _Packet->GetTag());
 	lua_setfield(L, -2, "tag");
+	lua_pushnumber(L, _Packet->GetID());
+	lua_setfield(L, -2, "id");
 
 	return 1;
 }
