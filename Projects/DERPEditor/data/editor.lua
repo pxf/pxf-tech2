@@ -22,7 +22,7 @@ net.addtag("log")
 
 local fakenet = {connect = function () end, disconnect = function () end, send = function () end, recv = function () end}
 
-local client = fakenet--net.createclient()
+local client = net.createclient()
 client:connect("localhost", 7005)
 --client:recv()
 client:send("pipeline", [[[{"blockName" : "PipelineTree",
@@ -62,12 +62,27 @@ gl_FragColor = vec4(1.0);// - texture2D(texture1, gl_TexCoord[0].st);
 }
 ]
 ]])
+
+local retry = true
+local aoe = nil
+
+while (retry) do
+  
+  local daaaaata = client:recv()
+  if (tostring(daaaaata.id) == "imgdata") then
+    aoe = gfx.rawtexture(128, 512,512,4, tostring(daaaaata.data))
+    retry = false
+  else
+    print("Got some strange package! :( '" .. tostring(daaaaata.id) .. "'")
+  end
+  
+end
 --print(string.byte(tostring(client:recv().data), 1))
 
 --local massivedump = client:recv().data
 --print("Massive dump: " .. massivedump)
 
---local aoe = gfx.rawtexture(128, 512,512,4,massivedump)
+--local 
 
 --print(tostring(client:recv().data))
 client:disconnect()

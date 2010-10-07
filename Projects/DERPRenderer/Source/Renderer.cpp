@@ -209,14 +209,14 @@ void Renderer::Execute()
 
 		// TODO: Also send some identifier for the last texture.
 		int height = img->Height();
-		m_Net->SendAllID("poop", m_NetTag_Preview, (const char*)&height, 4);
-		m_Net->SendAllID("poop", m_NetTag_Preview, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+		//m_Net->SendAllID("poop", m_NetTag_Preview, (const char*)&height, 4);
+		m_Net->SendAllID("imgdata", m_NetTag_Preview, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 		
 		char* poop = new char[img->Height()*img->Width()*img->Channels()+1];
 		MemoryCopy(poop, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 		poop[img->Height()*img->Width()*img->Channels()] = '\0';
 		
-		printf("SUGER DU EN KUK? : %s\n", poop);
+		//printf("SUGER DU EN KUK? : %s\n", poop);
 		
 		delete [] poop;
 
