@@ -613,7 +613,15 @@ function derp:create_workspace(x,y,w,h,from_path)
 					
 					local r,g,b = gfx.getcolor()
 					gfx.setcolor(0.878431373,0.494117647 ,0.0)
-					draw_spline({{x0,y0},{x0 + (x1 - x0)* 0.25, y0},{x1 - (x1 - x0)*0.25,y1},{x1,y1}}, 60,2)
+					--draw_spline({{x0,y0},{x0+5,y0},{x0 + (x1 - x0)* 0.25, y0},{x1 - (x1 - x0)*0.25,y1},{x1-5,y1},{x1,y1}}, 60,2)
+					draw_spline({{x0,y0},
+										   {x0+5,y0},
+					             {x0+10,y0},
+					             {x0 + ((x1-x0) * 0.25), y0 + ((y1-y0) * 0.25)},
+					             --{x0 + ((x1-x0) / 2), y0 + ((y1-y0) / 2)},
+					             {x1-10,y1},
+					             {x1-5,y1},
+					             {x1,y1}}, 60,2)
 					gfx.setcolor(r,g,b)
 				end
 			
