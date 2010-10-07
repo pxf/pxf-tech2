@@ -246,7 +246,7 @@ int DERPEditor::net_client_send_id(lua_State *L)
 	}
 	else
 	{
-		lua_pushstring(L, "Invalid arguments passed to send function!");
+		lua_pushstring(L, "Invalid arguments passed to send_id function!");
 		lua_error(L);
 	}
 

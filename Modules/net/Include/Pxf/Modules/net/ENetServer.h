@@ -32,6 +32,10 @@ namespace Pxf
 			
 			int CreateClientID();
 
+			Util::Array<Network::Packet*> BufferedPackets;
+
+			void Flush();
+
 		public:
 			ENetServer(Network::NetworkDevice* _NetworkDevice)
 				: NetDev(_NetworkDevice)
