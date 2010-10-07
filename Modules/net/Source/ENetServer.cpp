@@ -183,7 +183,7 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 	ENetPacket *packet;
 	ENetPeer *peer;
 	int IDLength = strlen(_ID);
-	char* NewBuf = new char[_Length+IDLength+3];
+	char* NewBuf = new char[_Length+IDLength+11];
 
 	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
 
