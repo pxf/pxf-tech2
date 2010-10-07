@@ -1080,9 +1080,53 @@ function derp:create_toolbar(x,y,w,h)
 			end
 		elseif action.tag == "drag" then
 			if derp.active_workspace.component_data.active_widgets then
+				local rect = {x0,y0,x1,y1}
 				for k,v in pairs(derp.active_workspace.component_data.active_widgets) do
-					v.x = v.x + action.dx
-					v.y = v.y + action.dy
+					local x0 = v.x - v.w * 0.5
+					local x1 = v.x + v.w * 0.5
+					local y0 = v.y - v.h * 0.5
+					local y1 = v.y + v.h * 0.5
+				
+					if not (rect.x0 and rect.x1 and rect.y0 and rect.y1) then
+						rect.x0 = x0
+						rect.x1 = x1
+						rect.y0 = y0
+						rect.y1 = y1
+					end
+					
+					if x0 < rect.x0 then
+						rect.x0 = x0
+					end
+					
+					if x1 > rect.x1 then
+						rect.x1 = x1
+					end
+					
+					if y0 < rect.y0 then
+						rect.y0 = y0
+					end
+					
+					if y1 > rect.y1 then
+						rect.y1 = y1
+					end
+				end
+				
+				local cam = derp.active_workspace.cam.drawbox
+				local cx,cy = derp.active_workspace.cam:coord_transform(cam.x,cam.y)
+				local dx = action.dx
+				local dy = action.dy
+				
+				if (rect.x0 + action.dx) < cx or (rect.x1 + action.dx) > (cx + cam.w) then				
+					dx = 0
+				end
+				
+				if (rect.y0 + action.dy) < cy or (rect.y1 + action.dy) > (cy + cam.h) then
+					dy = 0
+				end
+				
+				for k,v in pairs(derp.active_workspace.component_data.active_widgets) do
+					v.x = v.x + dx
+					v.y = v.y + dy
 				end
 				
 				self.moved = true
