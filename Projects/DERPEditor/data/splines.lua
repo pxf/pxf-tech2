@@ -47,15 +47,37 @@ function create_spline(control_points, num_segments, w)
   function spline:hit(x,y)
     
     local p1,p2 = nil,nil
+    local p1len,p2len = nil,nil
     
     -- find closest points
     for k,v in pairs(self.segments) do
       local p = {v[1] - x, v[2] - y}
       local len = math.sqrt(p[1]*p[1], p[2]*p[2])
       
-      --if (p1 )
+      if (p1 == nil) then
+        p1 = v
+        p1len = len
+      elseif (p2 == nil) then
+        p2 = v
+        p2len = len
+      else
+        
+        if (len < p1len) then
+          p2 = p1
+          p2len = p2len
+          
+          p1 = v
+          p1len = len
+        elseif (len < p2len) then
+          p2 = v
+          p2len = len
+        end
+        
+      end
       
     end
+    
+    -- LOLLLLLLLLLLLLL
     
     return false
   end
