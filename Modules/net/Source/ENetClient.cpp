@@ -243,7 +243,7 @@ void ENetClient::Flush()
 	Network::Packet *rpack = RecvNonBlocking(0);
 	if (rpack != NULL)
 	{
-		Message("aoeu", "Placing in buffer.");
+//		Message("aoeu", "Placing in buffer.");
 		BufferedPackets.push_back(rpack);
 	}
 }
