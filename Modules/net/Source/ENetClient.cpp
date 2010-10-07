@@ -216,7 +216,7 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 {
 	ENetPacket *packet;
 	int IDLength = strlen(_ID);
-	char* NewBuf = new char[_Length+IDLength+3];
+	char* NewBuf = new char[_Length+IDLength+11];
 
 	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
 
@@ -234,14 +234,14 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 	enet_peer_send(Peer, _Type, packet);
 
 	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
-	/*Network::Packet *rpack = Recv();
+	Network::Packet *rpack = Recv();
 	if (rpack != NULL)
 	{
 		Message("aoeu", "Placing in buffer.");
 		BufferedPackets.push_back(rpack);
-	}*/
+	}
 
-	//enet_packet_destroy(packet);
+	enet_packet_destroy(packet);
 	//delete []NewBuf;
 	
 	return true;
