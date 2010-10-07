@@ -185,6 +185,72 @@ function derp:create_inspector(x,y,w,h)
 	return wid
 end
 
+function RGB_to_HSV(r,g,b,h,s,v)
+	local out = {r,g,b}
+	local VSU = v * s * math.cos(h * math.pi/180)
+	local VSW = v * s * math.sin(h * math.pi/180)
+
+	out.r = (.299*v+.701*VSU+.168*VSW)*r
+        + (.587*v-.587*VSU+.330*VSW)*g
+        + (.114*v-.114*VSU-.497*VSW)*b
+	out.g = (.299*v-.299*VSU-.328*VSW)*r
+        + (.587*v+.413*VSU+.035*VSW)*g
+        + (.114*v-.114*VSU+.292*VSW)*b
+	out.b = (.299*v-.3*VSU+1.25*VSW)*r
+        + (.587*v-.588*VSU-1.05*VSW)*g
+        + (.114*v+.886*VSU-.203*VSW)*b
+	
+	return out.r,out.g,out.b
+end
+
+function derp:create_slider(x,y,w,min,max)
+	local wid = gui:create_basewidget(x,y,w,30)
+	local slide_button = gui:create_basewidget(x + w*0.5,y + 15,10,15)
+	
+	wid.value = (max - min) * 0.5
+	
+	print(wid.value)
+	
+	wid:addwidget(slide_button)
+	
+	function slide_button:mousedrag(dx,dy)
+		if self.drawbox.x + dx > wid.drawbox.x and self.drawbox.x + dx < wid.drawbox.x + wid.drawbox.w then
+			self:needsredraw()
+			self:move_relative(dx,0)
+			
+			self.hitbox.x = self.drawbox.x - self.drawbox.w * 0.5
+			self.hitbox.y = self.drawbox.y - self.drawbox.h * 0.5
+			
+			self:needsredraw()
+		else
+			--self:move_abs(wid.drawbox.x, self.drawbox.y)
+		
+		end
+		
+		local step = wid.drawbox.w / (max - min)
+		local pos = (self.drawbox.x - wid.drawbox.x) / wid.drawbox.w
+		
+		wid.value = pos * (max - min)
+	end
+	
+	function slide_button:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.drawcentered(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,5,5,1,1) -- top
+		end
+	end
+	
+	function wid:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h * 0.5,self.drawbox.w,1,5,5,1,1) -- top	
+			gui:drawfont(tostring(self.value), self.drawbox.x + self.drawbox.w + 2, self.drawbox.y)
+		end
+		
+		slide_button:draw(force)
+	end
+	
+	return wid
+end
+
 function derp:create_workspace_menu()
 	local menu = {
 		{"New Component", 
@@ -238,80 +304,6 @@ function derp:create_workspace_menu()
 	function wid:destroy_callback()
 		self:hide()
 	end
-	
-	function wid:draw(force)
-    if (self.redraw_needed or force) then
-      --gfx.translate(self.drawbox.x, self.drawbox.y)
-    
-		local old_a = gfx.getalpha()
-		
-		gfx.setalpha(0.25)
-		gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-1,#self.menu * self.drawbox.h-1,0,511,128,1)
-		
-		
-		-- borders
-		gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y,self.drawbox.w-1,1,5,5,1,1) -- top
-		gfx.drawtopleft(self.drawbox.x,self.drawbox.y+1,1,#self.menu * self.drawbox.h-1,5,5,1,1)
-		gfx.drawtopleft(self.drawbox.x+self.drawbox.w,self.drawbox.y+1,1,#self.menu *self.drawbox.h-1,5,5,1,1)
-		gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y + self.drawbox.h * #self.menu,self.drawbox.w-1,1,5,5,1,1)
-        
-		gfx.setalpha(old_a)
-              
-      -- loop through all menu items
-	  
-	  gfx.translate(self.drawbox.x, self.drawbox.y)
-      local item_y = 0
-      for k,v in pairs(self.menu) do
-        if (k == self.highlightid) then
-          local r,g,b = gfx.getcolor()
-          
-		  old_a = gfx.getalpha()
-		  gfx.setalpha(0.5)
-		  gfx.setcolor(1.0,1.0,1.0)
-          gfx.drawtopleft(0, item_y, self.drawbox.w, self.itemheight,5,5,1,1)
-          gfx.setcolor(r,g,b)
-		  gfx.setalpha(old_a)
-        end
-        
-        -- item
-        gui:drawfont(v[1], 20, item_y + 12)
-        
-        -- short
-        if not (v[2].shortcut == nil) then
-          local r,g,b = gfx.getcolor()
-          gfx.setcolor(0.5, 0.5, 0.5)
-          gui:drawfont(v[2], self.stdwith-(#v[2]*8), item_y + 12)
-          gfx.setcolor(r,g,b)
-        elseif not (v[2].menu == nil) then
-          gui:drawfont(">", self.stdwith-8, item_y + 12)
-		elseif v[2].toggle then
-		  gui:drawfont("*",10,item_y+14)
-        end
-        
-        item_y = item_y + self.itemheight
-      end
-    
-      gfx.translate(-self.drawbox.x, -self.drawbox.y)
-    end
-  end
-	
-	--[[
-	function wid:draw(force)
-		if ((self.redraw_needed or force) and self.visible) then
-			local old_a = gfx.getalpha()
-			
-			gfx.setalpha(0.5)
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,511,128,1)
-			gfx.setalpha(old_a)
-			
-			-- borders
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,1,1,1)
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,1,1,1)
-			gfx.drawtopleft(self.drawbox.x+self.drawbox.w,self.drawbox.y,1,self.drawbox.h,1,1,1,1)
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,1,1,1)
-		end
-	end
-	]]
 	
 	return wid
 end
