@@ -379,6 +379,12 @@ function derp:create_workspacecamera(x,y,w,h)
 	cam.shortcuts = { 	{ name = "copy", keys = {inp.LCTRL, "C"}, was_pressed = false, onpress = function () print("Lets copy dat floppy!") end},
 						{ name = "deselect", keys = {inp.ESC}, was_pressed = false, onpress = function () derp.active_workspace:set_activecomp(nil) end },
 						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
+						{ name = "ctrl select move", keys = {inp.LCTRL}, mouse = {inp.MOUSE_LEFT}, was_pressed = false, 
+							onpress = function () 
+								local mx,my = cam:coord_transform(inp.getmousepos())
+								derp.active_tool.current:action({tag = "ctrl select", x = mx, y = my})
+								print("dick")
+							end},
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
 						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
@@ -725,10 +731,6 @@ function derp:create_workspace(x,y,w,h,from_path)
 		if derp.active_tool.current then
 			derp.active_tool.current:action({tag = "mouserelease", x = x, y = y, button = button})
 		end
-		
-		--[[if (button == inp.MOUSE_RIGHT) then
-			derp.ws_menu:show(x,y)
-		end]]
 	end
 	
 	return wid
@@ -1070,13 +1072,45 @@ function derp:create_toolbar(x,y,w,h)
 	end
 	
 	function move_select:action(action)
-		if action.tag == "mousepush" then
-			if not derp.active_workspace.component_data.active_widgets then
-				local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+		if action.tag == "ctrl select" then
+			local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+			
+			print("fags")
+			
+			if hit then
+				local found = false
 				
-				if hit then
+				for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
+					if v == hit then
+						found = true
+						break
+					end
+				end
+				
+				if not found then
+					table.insert(derp.active_workspace.component_data.active_widgets,hit)
+					derp.active_workspace:set_activecomp(derp.active_workspace.component_data.active_widgets)
+				end
+			end	
+		elseif action.tag == "mousepush" then
+			local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+			
+			if hit then
+				local found = false
+				if derp.active_workspace.component_data.active_widgets then
+					for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
+						if v == hit then
+							found = true
+							break
+						end
+					end
+				end
+				
+				if not found then
 					derp.active_workspace:set_activecomp({hit})
-				end	
+				end
+			else
+				derp.active_workspace:set_activecomp(nil)
 			end
 		elseif action.tag == "drag" then
 			if derp.active_workspace.component_data.active_widgets then
