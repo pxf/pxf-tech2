@@ -13,60 +13,6 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
---local aoe = gfx.rawtexture(128, 2,2,4,"zaazzaazzaazzaaz")
-net.addtag("pipeline")
-net.addtag("preview")
-net.addtag("profiling")
-net.addtag("log")
-local client = net.createclient()
-client:connect("localhost", 7005)
-client:recv()
-client:send("pipeline", [[[{"blockName" : "PipelineTree",
-"blockType" : "PipelineTree",
-"blockData" : { "root" : "output1" }
-},
-{"blockName" : "auxinput1",
-"blockType" : "AuxComp",
-"blockData" : {"auxType" : "texture",
-"filepath" : "data/derptest.png",
-"minfilter" : "nearest"
-},
-"blockOutput" : [{"name" : "texture1",
-"type" : "texture"}]
-},
-{"blockName" : "output1",
-"blockType" : "Root",
-"blockInput" : [{"block" : "auxinput1", "output" : "texture1"}],
-"blockData" : {"host" : "localhost",
-"port" : "4632",
-"feedback" : true,
-"realtime" : false,
-"shaderVert" : "uniform sampler2D texture1;
-void main(void)
-{
-gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-gl_TexCoord[0] = gl_MultiTexCoord0;
-}",
-"shaderFrag" : "uniform sampler2D texture1;
-void main()
-{
-gl_FragColor = vec4(1.0);// - texture2D(texture1, gl_TexCoord[0].st);
-}",
-"width" : 512,
-"height" : 512
-}
-}
-]
-]])
-print(string.byte(tostring(client:recv().data), 1))
-
-local massivedump = client:recv().data
-print("Massive dump: " .. massivedump)
-
-local aoe = gfx.rawtexture(128, 512,512,4,massivedump)
---print(tostring(client:recv().data))
-client:disconnect()
-
 
 --[[local test = net.createserver()
 for k,v in pairs(debug.getmetatable(test.instance)) do
@@ -115,28 +61,6 @@ local window_menu = {{"Inspector",{toggle = false, tooltip = "Show/Hide inspecto
 ----------------------------------------------
 -- create workspace
 ----------------------------------------------
--- create top widget stack
---   ie. menubar, console, toolbar, tabbar
---[[
-local topstack = gui:create_verticalstack(0,0,app.width,10)
-
-console = gui:create_console(0,0,app.width,100,false)
-toolbar = gui:create_horizontalpanel(0,0,app.width,40, app.width)
-local testinput = gui:create_textinput(20,8,200)
-toolbar:addwidget(testinput)
-
--- add topstack widgets
-topstack:addwidget(menubar)
-topstack:addwidget(toolbar)
-topstack:addwidget(console)
-
-----------------------------------------------
--- create status bar
-local statusbar = gui:create_statusbar(0,app.height,app.width, editor.name .. " v" .. editor.version)
-gui.statusbar = statusbar
-]]
-
-----------------------------------------------
 local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
 
 local menu_container = derp:create_menu(0,0,app.width,40)
@@ -157,6 +81,10 @@ local workspace_area = derp:create_workspace(0,0,app.width,app.height)
 workspace_area.widget_type = "workspace area 01"
 
 local inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
+
+inspector:addwidget(derp:create_slider(0,0,100,0,1))
+
+inspector:resize_abs(250,app.height-100)
 
 local right_padding_container = derp:create_block(app.width-20,40,20,app.height-60)
 right_padding_container.widget_type = "right padding"
@@ -187,6 +115,10 @@ derp:init()
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()
+
+local r,g,b = RGB_to_HSV(0.0,1.0,0.0,25,1.0,1.0)
+
+print(r,g,b)
 
 function update()
   gui:update()
