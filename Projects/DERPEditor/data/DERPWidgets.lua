@@ -365,24 +365,100 @@ end
 
 function derp:create_navigator(x,y,w,h)
 	local wid = gui:create_basewidget(x,y,w,h)
-	wid.x_step = derp.active_workspace.cam.drawbox.w / wid.drawbox.w 
-	wid.y_step = derp.active_workspace.cam.drawbox.h / wid.drawbox.h
+	local cam = derp.active_workspace.cam				
+	local ws_aspectratio = 581 / 476
+	local da_w = w*0.9
+	local da_h = 0.9 * h / ws_aspectratio
 	
-	function wid:mousepress(x,y)
-		
+	local draw_area = gui:create_basewidget((wid.drawbox.w - da_w) / 2,(wid.drawbox.h - da_h) / 2,da_w,da_h)
+	draw_area.x_step = cam.drawbox.w / draw_area.drawbox.w 
+	draw_area.y_step = cam.drawbox.h / draw_area.drawbox.h
+	
+	draw_area.navbox = {
+					x = - (cam.drawbox.x / draw_area.x_step),
+					y = -(cam.drawbox.y / draw_area.y_step),
+					w = (581 / cam.drawbox.w) * draw_area.drawbox.w,
+					h = (476 / cam.drawbox.h) * draw_area.drawbox.h  }
+	
+	wid:addwidget(draw_area)
+	
+	function draw_area:update()
+		-- move navbox
 	end
 	
-	function wid:mousedrag(dx,dy)
-		derp.active_workspace.cam:move_relative(-dx * self.x_step,-dy * self.y_step)
+	function draw_area:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.translate(wid.drawbox.x,wid.drawbox.y)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,5,1,1,1) -- solid bg
+			
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			gfx.drawtopleft(self.navbox.x,self.navbox.y,self.navbox.w,1,1,5,1,1) -- solid bg
+			gfx.drawtopleft(self.navbox.x,self.navbox.y,1,self.navbox.h,1,5,1,1) -- solid bg
+			gfx.drawtopleft(self.navbox.x + self.navbox.w,self.navbox.y,1,self.navbox.h,1,5,1,1) -- solid bg
+			gfx.drawtopleft(self.navbox.x,self.navbox.y + self.navbox.h,self.navbox.w,1,1,5,1,1) -- solid bg
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+			gfx.translate(-wid.drawbox.x,-wid.drawbox.y)
+		end
+	end
+	
+	function draw_area:mousepush(x,y)
+		-- determine where
+		local rel_x = x - self.drawbox.x - wid.drawbox.x
+		local rel_y = y - self.drawbox.y - wid.drawbox.y
+		
+		local mx = rel_x * self.x_step
+		local my = rel_y * self.y_step
+	
+		self.navbox.x = rel_x
+		self.navbox.y = rel_y
+		
+		if mx > cam.drawbox.w - 752 then
+			mx = cam.drawbox.w-752
+			self.navbox.x = self.drawbox.w-self.navbox.w
+		end
+		
+		if my > cam.drawbox.h - 576 then
+			my = cam.drawbox.h - 576
+			self.navbox.y = self.drawbox.h-self.navbox.h
+		end
+		
+		cam:move_abs(-mx,-my)
+	end
+	
+	function draw_area:mousedrag(dx,dy)
+		local x = -dx * self.x_step
+		local y = -dy * self.y_step
+	
+		cam:move_relative(x,y)
+		
+		if self.navbox.x + dx < 0 then
+			self.navbox.x = 0
+		elseif self.navbox.x + dx > self.drawbox.w - self.navbox.w then
+			self.navbox.x = self.drawbox.w - self.navbox.w
+		else
+			self.navbox.x = self.navbox.x + dx
+		end
+		
+		if self.navbox.y + dy < 0 then
+			self.navbox.y = 0
+		elseif self.navbox.y + dy > self.drawbox.h - self.navbox.h then
+			self.navbox.y = self.drawbox.h - self.navbox.h
+		else
+			self.navbox.y = self.navbox.y + dy
+		end
+		
+		
+		print(self.navbox.x,self.navbox.y)
 	end
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,1,1,1) -- solid bg
-			
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1) -- solid bg
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,5,1,1) -- solid bg
 		end
+		
+		draw_area:draw(force)
 	end
 	
 	return wid
