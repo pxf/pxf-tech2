@@ -192,9 +192,14 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 
 bool ENetClient::Send(const int _Type, const char* _Buf, const int _Length)
 {
-	ENetPacket *packet;
+	return SendID("und", _Type, _Buf, _Length);
 
-	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
+/*	ENetPacket *packet;
+	char* NewBuf = new char[6+_Length];
+
+	sprintf(NewBuf, "%c00000000%s\0", 0, _Length, _Buf);
+
+	packet = enet_packet_create(NewBuf, 6+_Length, ENET_PACKET_FLAG_RELIABLE);
 
 	if (packet == NULL)
 	{
@@ -206,7 +211,7 @@ bool ENetClient::Send(const int _Type, const char* _Buf, const int _Length)
 
 	Flush();
 
-	return true;
+	return true;*/
 }
 
 bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, const int _Length)
@@ -242,9 +247,6 @@ void ENetClient::Flush()
 	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
 	Network::Packet *rpack = RecvNonBlocking(0);
 	if (rpack != NULL)
-	{
-//		Message("aoeu", "Placing in buffer.");
 		BufferedPackets.push_back(rpack);
-	}
 }
 
