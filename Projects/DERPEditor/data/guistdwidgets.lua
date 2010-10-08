@@ -746,6 +746,10 @@ function gui:create_menu(x,y,menu)
     end
     
     self:superdestroy()
+	
+	if self.destroy_callback then
+		self:destroy_callback()
+	end
   end
   
   function wid:mouseover(mx,my)
@@ -780,7 +784,7 @@ function gui:create_menu(x,y,menu)
           gui:spawn_submenu(t_menu_root, -- "menu root"
                             self, -- "menu parent"
                             self.drawbox.x+self.drawbox.w, -- x position
-                            self.drawbox.y+(i-1)*self.itemheight+self.itemheight/2, -- y position
+                            self.drawbox.y+(i-1)*self.itemheight, -- y position
                             self.menu[i][2].menu) -- menu table
           
         end
@@ -836,7 +840,8 @@ function gui:create_menu(x,y,menu)
           gui:spawn_submenu(t_menu_root, -- "menu root"
                             self, -- "menu parent"
                             self.drawbox.x+self.drawbox.w, -- x position
-                            self.drawbox.y+(i-1)*self.itemheight+self.itemheight/2, -- y position
+							self.drawbox.y, -- y position
+                            --self.drawbox.y+(i-1)*self.itemheight+self.itemheight/2, -- y position
                             self.menu[i][2].menu) -- menu table
           
         end
@@ -854,40 +859,38 @@ function gui:create_menu(x,y,menu)
   wid.superdraw = wid.draw
   function wid:draw(force)
     if (self.redraw_needed or force) then
+		local old_a = gfx.getalpha()
+		
+		gfx.setalpha(0.8)
+		gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,510, 0, 1, 128)
+		
+		
+		-- borders
+		local r,g,b = gfx.getcolor()
+		gfx.setcolor(0.278431373,0.215686275,0.0941176471)
+		
+		gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y,self.drawbox.w-1,1,5,5,1,1) -- top
+		gfx.drawtopleft(self.drawbox.x,self.drawbox.y+1,1,self.drawbox.h-1,5,5,1,1)
+		gfx.drawtopleft(self.drawbox.x+self.drawbox.w,self.drawbox.y+1,1,self.drawbox.h-1,5,5,1,1)
+		gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y + self.drawbox.h,self.drawbox.w-1,1,5,5,1,1)
+		
+		gfx.setalpha(old_a)
+		gfx.setcolor(r,g,b)
+		
       gfx.translate(self.drawbox.x, self.drawbox.y)
-    
-      -- bg
-      gfx.drawtopleft(2, 0, self.drawbox.w-4, self.drawbox.h,
-                      40,6,1,1)
-                    
-      gfx.drawtopleft(0, 2, self.drawbox.w, self.drawbox.h-4,
-                      40,6,1,1)
-                      
-      -- topleft
-      gfx.drawtopleft(0, 0, 2, 2,
-                      35,0,2,2)
-      
-      -- topright
-      gfx.drawtopleft(self.drawbox.w-2, 0, 2, 2,
-                      45,0,2,2)
-      
-      -- bottomleft
-      gfx.drawtopleft(0, self.drawbox.h-2, 2, 2,
-                      35,10,2,2)
-
-      -- bottomright
-      gfx.drawtopleft(self.drawbox.w-2, self.drawbox.h-2, 2, 2,
-                      45,10,2,2)
                       
       -- loop through all menu items
       local item_y = 0
       for k,v in pairs(self.menu) do
         if (k == self.highlightid) then
-          local r,g,b = gfx.getcolor()
-          gfx.setcolor(0.2,0.2,0.2)
-          gfx.drawtopleft(0, item_y+2, self.drawbox.w, self.itemheight-4,
-                          20,1,1,1)
+          r,g,b = gfx.getcolor()
+		  old_a = gfx.getalpha()
+		  gfx.setalpha(0.6)
+          gfx.setcolor(1.0,1.0,1.0)
+          gfx.drawtopleft(1, item_y+1, self.drawbox.w-1, self.itemheight-1,
+                          21,5,1,1)
           gfx.setcolor(r,g,b)
+		  gfx.setalpha(old_a)
         end
         
         -- item
@@ -909,14 +912,10 @@ function gui:create_menu(x,y,menu)
       end
     
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
-      
-      --self:superdraw(force)
-      
     end
   end
   
   return wid
-  --gui.widgets:addwidget(wid)
 end
 
 -- creates a menu
@@ -953,7 +952,7 @@ function gui:create_menubar(x,y,w,menus)
           end
         
           -- get correct spawn position
-          local offset = 0
+          local offset = 20
           for k,v in pairs(self.menus) do          
             if (self.menus[i] == v) then
               break
@@ -1006,7 +1005,7 @@ function gui:create_menubar(x,y,w,menus)
           end
 
           -- get correct spawn position
-          local offset = 0
+          local offset = 20
           for k,v in pairs(self.menus) do          
             if (self.menus[i] == v) then
               break
@@ -1033,25 +1032,40 @@ function gui:create_menubar(x,y,w,menus)
   function wid:draw(force)
     if (self.redraw_needed or force) then
       gfx.translate(self.drawbox.x, self.drawbox.y)
-    
-      -- bg
-      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
-                      40,6,1,1)
-                      
+      local old_a = gfx.getalpha()            
                     
       -- loop through all menu items
-      local item_x = 0
+      local item_x = 20
       for k,v in pairs(self.menus) do
         if (k == self.highlightid) then
-          local r,g,b = gfx.getcolor()
-          gfx.setcolor(0.2,0.2,0.2)
-          gfx.drawtopleft(item_x, 0, (#v[1]*8) + self.stdpadding, self.drawbox.h,
-                          20,1,1,1)
-          gfx.setcolor(r,g,b)
-        end
-        
-        -- item
-        gui:drawcenteredfont(v[1], item_x + ((#v[1]*8) + self.stdpadding) / 2, 15)
+          
+		  gfx.setalpha(0.8)
+		  
+		  local w = (#v[1]*8) + self.stdpadding
+		  
+			gfx.drawtopleft(item_x,self.drawbox.y,w,self.drawbox.h,510, 0, 1, 128)
+			-- borders
+			local r,g,b = gfx.getcolor()
+			gfx.setcolor(0.278431373,0.215686275,0.0941176471)
+			
+			gfx.drawtopleft(item_x+1,self.drawbox.y,w-1,1,5,5,1,1) -- top
+			gfx.drawtopleft(item_x,self.drawbox.y+1,1,self.drawbox.h-1,5,5,1,1)
+			gfx.drawtopleft(item_x+w,self.drawbox.y+1,1,self.drawbox.h-1,5,5,1,1)
+			gfx.drawtopleft(item_x+1,self.drawbox.y + self.drawbox.h,w-1,1,5,5,1,1)
+			
+			gfx.setalpha(old_a)
+			gfx.setcolor(r,g,b)
+
+          gfx.setalpha(old_a)
+		  
+		  gui:drawcenteredfont(v[1], item_x + ((#v[1]*8) + self.stdpadding) / 2, 15)
+        else
+			-- item
+			local r,g,b = gfx.getcolor()
+			gfx.setcolor(0.278431373,0.215686275,0.0941176471)
+			gui:drawcenteredfont(v[1], item_x + ((#v[1]*8) + self.stdpadding) / 2, 15)
+			gfx.setcolor(r,g,b)
+		end
         
         item_x = item_x + self.stdpadding + (#v[1]*8)
       end

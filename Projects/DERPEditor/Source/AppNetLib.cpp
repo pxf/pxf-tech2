@@ -246,7 +246,7 @@ int DERPEditor::net_client_send_id(lua_State *L)
 	}
 	else
 	{
-		lua_pushstring(L, "Invalid arguments passed to send function!");
+		lua_pushstring(L, "Invalid arguments passed to send_id function!");
 		lua_error(L);
 	}
 
@@ -492,6 +492,8 @@ int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
 	lua_setfield(L, -2, "data");
 	lua_pushnumber(L, _Packet->GetTag());
 	lua_setfield(L, -2, "tag");
+	lua_pushstring(L, _Packet->GetID());
+	lua_setfield(L, -2, "id");
 
 	return 1;
 }
@@ -516,7 +518,6 @@ int DERPEditor::net_packet_delete(lua_State *L)
 
 int DERPEditor::luaopen_appnet(lua_State *L)
 {
-  
 	const luaL_reg appnetlib[] = {
 		{"createserver", net_createserver},
 		{"createclient", net_createclient},

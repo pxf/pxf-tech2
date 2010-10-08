@@ -13,7 +13,6 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
---local aoe = gfx.rawtexture(128, 2,2,4,"zaazzaazzaazzaaz")
 
 --[[local test = net.createserver()
 for k,v in pairs(debug.getmetatable(test.instance)) do
@@ -62,28 +61,6 @@ local window_menu = {{"Inspector",{toggle = false, tooltip = "Show/Hide inspecto
 ----------------------------------------------
 -- create workspace
 ----------------------------------------------
--- create top widget stack
---   ie. menubar, console, toolbar, tabbar
---[[
-local topstack = gui:create_verticalstack(0,0,app.width,10)
-
-console = gui:create_console(0,0,app.width,100,false)
-toolbar = gui:create_horizontalpanel(0,0,app.width,40, app.width)
-local testinput = gui:create_textinput(20,8,200)
-toolbar:addwidget(testinput)
-
--- add topstack widgets
-topstack:addwidget(menubar)
-topstack:addwidget(toolbar)
-topstack:addwidget(console)
-
-----------------------------------------------
--- create status bar
-local statusbar = gui:create_statusbar(0,app.height,app.width, editor.name .. " v" .. editor.version)
-gui.statusbar = statusbar
-]]
-
-----------------------------------------------
 local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
 
 local menu_container = derp:create_menu(0,0,app.width,40)
@@ -95,8 +72,6 @@ left_padding_container.border.right = true
 local center_main_toolbar = derp:create_toolbar(20,40,app.width-40,40)
 local testinput = gui:create_textinput(0,8,200)
 
---center_main_toolbar:addwidget(testinput)
-
 local workspace_tabs = derp:create_workspace_tabs(20,80,app.width-290,20)
 workspace_tabs.widget_type = "workspace tabs"
 
@@ -104,6 +79,11 @@ local workspace_area = derp:create_workspace(0,0,app.width,app.height)
 workspace_area.widget_type = "workspace area 01"
 
 local inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
+
+--inspector:addwidget(testinput)
+--inspector:addwidget(derp:create_slider(0,0,100,0,1))
+
+inspector:resize_abs(250,app.height-100)
 
 local right_padding_container = derp:create_block(app.width-20,40,20,app.height-60)
 right_padding_container.widget_type = "right padding"
@@ -119,6 +99,8 @@ ws01 = workspace_tabs:addtab("workspace01",workspace_area)
 
 local workspace_frames = derp:create_workspaceframe(20,100,app.width-290,app.height-121)
 
+local navigator = derp:create_navigator(app.width-421,app.height-172,150,150)
+
 gui.widgets:addwidget(workspace_area)
 gui.widgets:addwidget(menu_container)
 gui.widgets:addwidget(left_padding_container)
@@ -128,6 +110,7 @@ gui.widgets:addwidget(center_main_toolbar)
 gui.widgets:addwidget(workspace_tabs)
 gui.widgets:addwidget(inspector)
 gui.widgets:addwidget(workspace_frames)
+gui.widgets:addwidget(navigator)
 
 derp:init()
 

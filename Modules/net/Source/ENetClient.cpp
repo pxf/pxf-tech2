@@ -82,12 +82,7 @@ Pxf::Network::Packet* ENetClient::Recv()
 	if (BufferedPackets.size() > 0)
 	{
 		Network::Packet* bpack = BufferedPackets.front();
-		//BufferedPackets.erase(BufferedPackets.begin());
-
-		for (int i=0; i < BufferedPackets.size(); i++)
-			Message("packet", "packet %d: %s", i, BufferedPackets[i]->GetData());
-
-		Message("aoeu", "Taking from buffer! %s", bpack->GetData());
+		BufferedPackets.erase(BufferedPackets.begin());
 
 		return bpack;
 	}
@@ -110,12 +105,14 @@ Pxf::Network::Packet* ENetClient::Recv()
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetClient", "Client %d. Packet received from %s on channel %u. Length %u."
 				, Ident, event.peer->data, event.channelID, event.packet->dataLength);
+			/*
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetClient", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
+			*/
 
 			packet = (Network::Packet*)new ENetDataPacket(
 				(char*)event.packet->data
@@ -167,12 +164,14 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetClient", "Client %d. Packet received from %s on channel %u. Length %u."
 				, Ident, event.peer->data, event.channelID, event.packet->dataLength);
+			/*
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetClient", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
+			*/
 
 			packet = new ENetDataPacket(
 				(char*)event.packet->data
@@ -197,9 +196,14 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 
 bool ENetClient::Send(const int _Type, const char* _Buf, const int _Length)
 {
-	ENetPacket *packet;
+	return SendID("und", _Type, _Buf, _Length);
 
-	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
+/*	ENetPacket *packet;
+	char* NewBuf = new char[6+_Length];
+
+	sprintf(NewBuf, "%c00000000%s\0", 0, _Length, _Buf);
+
+	packet = enet_packet_create(NewBuf, 6+_Length, ENET_PACKET_FLAG_RELIABLE);
 
 	if (packet == NULL)
 	{
@@ -209,14 +213,16 @@ bool ENetClient::Send(const int _Type, const char* _Buf, const int _Length)
 
 	enet_peer_send(Peer, _Type, packet);
 
-	return true;
+	Flush();
+
+	return true;*/
 }
 
 bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, const int _Length)
 {
 	ENetPacket *packet;
 	int IDLength = strlen(_ID);
-	char* NewBuf = new char[_Length+IDLength+3];
+	char* NewBuf = new char[_Length+IDLength+11];
 
 	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
 
@@ -233,16 +239,18 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 
 	enet_peer_send(Peer, _Type, packet);
 
-	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
-	/*Network::Packet *rpack = Recv();
-	if (rpack != NULL)
-	{
-		Message("aoeu", "Placing in buffer.");
-		BufferedPackets.push_back(rpack);
-	}*/
-
-	//enet_packet_destroy(packet);
-	//delete []NewBuf;
+	Flush();
+	
+	delete []NewBuf;
 	
 	return true;
 }
+
+void ENetClient::Flush()
+{
+	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
+	Network::Packet *rpack = RecvNonBlocking(0);
+	if (rpack != NULL)
+		BufferedPackets.push_back(rpack);
+}
+

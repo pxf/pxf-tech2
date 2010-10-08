@@ -32,6 +32,9 @@ namespace Pxf
 			virtual int GetLength();
 			virtual int GetTag();
 			virtual char* GetID();
+
+			virtual bool PushObject(const int _Type, const void* _Buffer, unsigned int _Size);
+			virtual bool ReadObject(void* _Buffer, const int _Pos);
 		};
 	}
 }

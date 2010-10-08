@@ -17,6 +17,12 @@ function derp:printstack()
 	end
 end
 
+function derp:print_activedata()
+	local ws = basic_serialize(self.active_workspace.component_data,0)
+	
+	print(ws)
+end	
+
 function derp:push_workspace(ws)	
 	ws.workspace_stack.counter = ws.workspace_stack.counter + 1
 	
@@ -90,6 +96,9 @@ function derp:load(filename)
 end
 
 function derp:set_activetool(tool)
+	if tool and not tool.toggle then
+		return
+	end
 
 	if self.active_tool.current then
 		self.active_tool.last = self.active_tool.current
@@ -182,6 +191,72 @@ function derp:create_inspector(x,y,w,h)
 	return wid
 end
 
+function RGB_to_HSV(r,g,b,h,s,v)
+	local out = {r,g,b}
+	local VSU = v * s * math.cos(h * math.pi/180)
+	local VSW = v * s * math.sin(h * math.pi/180)
+
+	out.r = (.299*v+.701*VSU+.168*VSW)*r
+        + (.587*v-.587*VSU+.330*VSW)*g
+        + (.114*v-.114*VSU-.497*VSW)*b
+	out.g = (.299*v-.299*VSU-.328*VSW)*r
+        + (.587*v+.413*VSU+.035*VSW)*g
+        + (.114*v-.114*VSU+.292*VSW)*b
+	out.b = (.299*v-.3*VSU+1.25*VSW)*r
+        + (.587*v-.588*VSU-1.05*VSW)*g
+        + (.114*v+.886*VSU-.203*VSW)*b
+	
+	return out.r,out.g,out.b
+end
+
+function derp:create_slider(x,y,w,min,max)
+	local wid = gui:create_basewidget(x,y,w,30)
+	local slide_button = gui:create_basewidget(x + w*0.5,y + 15,10,15)
+	
+	wid.value = (max - min) * 0.5
+	
+	--print(wid.value)
+	
+	wid:addwidget(slide_button)
+	
+	function slide_button:mousedrag(dx,dy)
+		if self.drawbox.x + dx > wid.drawbox.x and self.drawbox.x + dx < wid.drawbox.x + wid.drawbox.w then
+			self:needsredraw()
+			self:move_relative(dx,0)
+			
+			self.hitbox.x = self.drawbox.x - self.drawbox.w * 0.5
+			self.hitbox.y = self.drawbox.y - self.drawbox.h * 0.5
+			
+			self:needsredraw()
+		else
+			--self:move_abs(wid.drawbox.x, self.drawbox.y)
+		
+		end
+		
+		local step = wid.drawbox.w / (max - min)
+		local pos = (self.drawbox.x - wid.drawbox.x) / wid.drawbox.w
+		
+		wid.value = pos * (max - min)
+	end
+	
+	function slide_button:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.drawcentered(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,5,5,1,1) -- top
+		end
+	end
+	
+	function wid:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h * 0.5,self.drawbox.w,1,5,5,1,1) -- top	
+			gui:drawfont(tostring(self.value), self.drawbox.x + self.drawbox.w + 2, self.drawbox.y)
+		end
+		
+		slide_button:draw(force)
+	end
+	
+	return wid
+end
+
 function derp:create_workspace_menu()
 	local menu = {
 		{"New Component", 
@@ -206,13 +281,13 @@ function derp:create_workspace_menu()
 			
 	local wid = gui:create_menu(0,0,menu)
 	
+	wid.super_menu = wid.menu
 	wid.widget_type = "workspace menu"
 	wid.visible = false
 	
 	function wid:show()
 		if self.visible then
 			self:hide()
-			print("hey")
 		end
 		
 		local x,y = inp.getmousepos()
@@ -228,26 +303,13 @@ function derp:create_workspace_menu()
 		self.visible = false
 		gui.widgets:removewidget(self)
 		
+		gui.focuswidget = derp.active_workspace.cam
 		derp:set_activetool(derp.active_tool.last)
 	end
 	
-	--[[
-	function wid:draw(force)
-		if ((self.redraw_needed or force) and self.visible) then
-			local old_a = gfx.getalpha()
-			
-			gfx.setalpha(0.5)
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,511,128,1)
-			gfx.setalpha(old_a)
-			
-			-- borders
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,1,1,1)
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,1,1,1)
-			gfx.drawtopleft(self.drawbox.x+self.drawbox.w,self.drawbox.y,1,self.drawbox.h,1,1,1,1)
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.drawbox.h,self.drawbox.w,1,1,1,1,1)
-		end
+	function wid:destroy_callback()
+		self:hide()
 	end
-	]]
 	
 	return wid
 end
@@ -301,6 +363,35 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 	return wid
 end
 
+function derp:create_navigator(x,y,w,h)
+	local wid = gui:create_basewidget(x,y,w,h)
+	wid.x_step = derp.active_workspace.cam.drawbox.w / wid.drawbox.w 
+	wid.y_step = derp.active_workspace.cam.drawbox.h / wid.drawbox.h
+	
+	function wid:mousepress(x,y)
+		
+	end
+	
+	function wid:mousedrag(dx,dy)
+		derp.active_workspace.cam:move_relative(-dx * self.x_step,-dy * self.y_step)
+	end
+	
+	function wid:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,1,1,1) -- solid bg
+			
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,1,1,5,1,1) -- solid bg
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h,1,5,1,1) -- solid bg
+		end
+	end
+	
+	return wid
+end
+
+function new_socket(comp,type,socket)
+	return {comp = comp, type = type, socket = socket}
+end
+
 function derp:create_workspacecamera(x,y,w,h)
 	local cam = gui:create_basewidget(x,y,w*2,h*2)
 	cam.widget_type = "workspace camera"
@@ -317,29 +408,76 @@ function derp:create_workspacecamera(x,y,w,h)
 		return x + self.drawbox.x + self.drawbox.w * 0.5,y + self.drawbox.y + self.drawbox.h * 0.5
 	end
 	
-	local socket_a = nil
+	cam.socket_a = nil
+	cam.comp_drag = false
 	
 	cam.shortcuts = { 	{ name = "copy", keys = {inp.LCTRL, "C"}, was_pressed = false, onpress = function () print("Lets copy dat floppy!") end},
 						{ name = "deselect", keys = {inp.ESC}, was_pressed = false, onpress = function () derp.active_workspace:set_activecomp(nil) end },
 						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
+						{ name = "print data", keys = {"P"},was_pressed = false, onpress = function () derp:print_activedata() end },
+						{ name = "ctrl select move", keys = {inp.LCTRL}, mouse = {inp.MOUSE_LEFT}, was_pressed = false, 
+							onpress = function () 
+								local mx,my = cam:coord_transform(inp.getmousepos())
+								derp.active_tool.current:action({tag = "ctrl select", x = mx, y = my})
+							end},
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
+						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
+							onpress = function ()
+								derp.ws_menu.menu = derp.ws_menu.super_menu	
+								derp.ws_menu:show() 
+							end},
+						{ name = "deconnect components", keys = {inp.LSHIFT}, mouse = {inp.MOUSE_RIGHT}, was_pressed = false, 
+							onpress = function () 
+								derp:set_activetool(nil)
+								cam.socket_a = derp.active_workspace:socket_hittest(cam:coord_transform(inp.getmousepos()))
+								
+								if cam.socket_a then								
+									-- find all connections from this socket
+									local menu = { }
+									
+									for k,v in pairs(derp.active_workspace.component_data.edges) do
+										if (v[1].comp == cam.socket_a.comp and v[1].socket == cam.socket_a.socket and v[1].type == cam.socket_a.type) or
+											(v[2].comp == cam.socket_a.comp and v[2].socket == cam.socket_a.socket and v[2].type == cam.socket_a.type) then
+											
+											local tag = "connection " .. v[1].comp.id .. "." .. v[1].socket .. " to " .. v[2].comp.id .. "." .. v[2].socket
+											table.insert(menu,{tag, { onclick = 
+												function () 
+													v[1].comp.outputs[v[1].socket] = v[1].comp.outputs[v[1].socket] - 1
+													v[2].comp.inputs[v[2].socket] = v[2].comp.inputs[v[2].socket] - 1
+													
+													derp.active_workspace.component_data.edges[k] = nil
+													
+													derp:push_workspace(derp.active_workspace)
+												end}})
+										end
+										
+									end
+									
+									if #menu > 0 then
+										derp.ws_menu.menu = menu
+									end
+									
+									cam.socket_a = nil
+								end
+							end,
+							onrelease = function ()
+								derp:set_activetool(derp.active_tool.last)
+							end},
 						{ name = "shift drag", keys = {inp.LSHIFT}, mouse = {inp.MOUSE_LEFT}, was_pressed = false, 
 							onpress = function () 
 								-- override current tool
 								derp:set_activetool(nil)
-								local mx,my = inp.getmousepos()
-								local x,y = cam:coord_transform(mx,my)
-								socket_a = derp.active_workspace:socket_hittest(x,y)
+								cam.socket_a = derp.active_workspace:socket_hittest(cam:coord_transform(inp.getmousepos()))
+								cam.comp_drag = true
 							end,
 							onrelease = function () 
 								-- local hit
 								derp:set_activetool(derp.active_tool.last)
-								local mx,my = inp.getmousepos()
-								local x,y = cam:coord_transform(mx,my)
-								local socket_b = derp.active_workspace:socket_hittest(x,y)
+								local socket_b = derp.active_workspace:socket_hittest(cam:coord_transform(inp.getmousepos()))
 								
-								derp.active_workspace:add_connection(socket_a,socket_b)
-								socket_a = nil
+								derp.active_workspace:add_connection(cam.socket_a,socket_b)
+								cam.socket_a = nil
+								cam.comp_drag = false
 							end },
 						{ name = "move ws",keys = {inp.SPACE}, was_pressed = false, 
 							onpress = function () 
@@ -348,30 +486,61 @@ function derp:create_workspacecamera(x,y,w,h)
 							onrelease = function () 
 								derp:set_activetool(derp.active_tool.last)
 							end },
-						{ name = "redo",keys = {inp.LCTRL, inp.LSHIFT, "Z"}, was_pressed = false, onpress = function () print("REDO") derp.active_workspace:redo() end},
+						{ name = "redo",keys = {inp.LCTRL, "Y"}, was_pressed = false, onpress = function () print("REDO") derp.active_workspace:redo() end},
 						{ name = "undo",keys = {inp.LCTRL, "Z"}, was_pressed = false, onpress = function () print("UNDO") derp.active_workspace:undo() end},
 						{ name = "delete", keys = {inp.BACKSPACE}, was_pressed = false, 
 							onpress = function ()  
 								if #derp.active_workspace.component_data.active_widgets > 0 then
-									local save_ws = false
 								
 									for i,wid in pairs(derp.active_workspace.component_data.active_widgets) do
-										for k,v in pairs(derp.active_workspace.component_data.nodes) do
-											if wid.id == v.id then
-												table.remove(derp.active_workspace.component_data.nodes,k)
-												save_ws = true
+										for k,v in pairs(derp.active_workspace.component_data.edges) do
+											if v[1].comp.id == wid.id then
+												-- wid is connected to an input
+												v[2].comp.inputs[v[2].socket] = v[2].comp.inputs[v[2].socket] - 1
+												derp.active_workspace.component_data.edges[k] = nil
+											elseif v[2].comp.id == wid.id then
+												-- wid is connected to an output
+												v[1].comp.outputs[v[1].socket] = v[1].comp.outputs[v[1].socket] - 1
+												derp.active_workspace.component_data.edges[k] = nil
 											end
 										end
+									
+										derp.active_workspace.component_data.nodes[wid.id] = nil
 									end
 									
 									derp.active_workspace.component_data.active_widgets = { }
-									
-									if save_ws then
-										derp:push_workspace(derp.active_workspace)
-									end
+									derp:push_workspace(derp.active_workspace)
 								end
 							end},
 					}
+	
+	cam.super_move_relative = cam.move_relative
+	function cam:move_relative(dx,dy)
+		self:needsredraw()
+			
+		-- static values should be dynamically evaluated to ensure resizeability..
+		if ((self.drawbox.x + dx) > 20) then
+			self.drawbox.x = 20
+			self.hitbox.x = 20
+		elseif ((self.drawbox.x + dx) < (-self.drawbox.w + 752)) then
+			self.drawbox.x = -self.drawbox.w + 752
+			self.hitbox.x = -self.drawbox.w + 752
+		else
+			self:super_move_relative(dx,0)
+		end
+		
+		if ((self.drawbox.y + dy) > 102) then
+			self.drawbox.y = 102
+			self.hitbox.y = 102
+		elseif ((self.drawbox.y + dy) < (-self.drawbox.h + 576)) then
+			self.drawbox.y = -self.drawbox.h + 576
+			self.hitbox.y = -self.drawbox.h + 576
+		else
+			self:super_move_relative(0,dy)
+		end
+
+		self:needsredraw()
+	end
 	
 	function cam:mousedrag(mx,my)
 		if derp.active_tool.current then 
@@ -417,7 +586,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	wid.component_data = { active_widgets = {}, nodes = {} , edges = { } }
 	wid.saved = true
-	wid.id_counter = 0
+	wid.id_counter = 1
 	wid.workspace_stack = { max_size = 10, counter = 0, stack = {} }
 	
 	if from_path then
@@ -442,24 +611,39 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	function wid:add_connection(socket_a,socket_b)
 		if socket_a and socket_b then
-			if socket_a.type == "output" and socket_b.type == "input" and socket_a.comp ~= socket_b.comp then
-				socket_a.comp.outputs[socket_a.socket] = 1
-				socket_b.comp.inputs[socket_b.socket] = 1
-				
-				local found = false
-				
-				for k,v in pairs(self.component_data.edges) do
-					if (v[1].comp == socket_a.comp) and (v[1].socket == socket_a.socket)
-						and (v[2].comp == socket_b.comp) and (v[2].socket == socket_b.socket) then
-						found = true
-						break
-					end
+			if (socket_a.type == socket_b.type) or (socket_a.comp == socket_b.comp) then 
+				return nil
+			end
+		
+			-- determine wether or not we need to switch sockets
+			if socket_a.type == "input" and socket_b.type == "output" then
+				-- switcharoo
+				local socket_tmp = socket_a
+				socket_a = socket_b
+				socket_b = socket_tmp
+			end
+	
+			-- check if input socket is connected
+			if socket_b.comp.inputs[socket_b.socket] > 0 then
+				return nil
+			end
+	
+			socket_a.comp.outputs[socket_a.socket] = socket_a.comp.outputs[socket_a.socket] + 1
+			socket_b.comp.inputs[socket_b.socket] = socket_b.comp.inputs[socket_b.socket] + 1
+			
+			local found = false
+			
+			for k,v in pairs(self.component_data.edges) do
+				if (v[1].comp == socket_a.comp) and (v[1].socket == socket_a.socket)
+					and (v[2].comp == socket_b.comp) and (v[2].socket == socket_b.socket) then
+					found = true
+					break
 				end
-				
-				if not found then
-					table.insert(self.component_data.edges,{socket_a,socket_b})
-					derp:push_workspace(self)
-				end
+			end
+			
+			if not found then
+				table.insert(self.component_data.edges,{socket_a,socket_b})
+				derp:push_workspace(self)
 			end
 		end
 	end
@@ -512,6 +696,23 @@ function derp:create_workspace(x,y,w,h,from_path)
 					gfx.setcolor(r,g,b)
 				end
 			
+				if self.cam.comp_drag and self.cam.socket_a then
+					local x0 = self.cam.socket_a.comp.x
+					local y0 = self.cam.socket_a.comp.y
+					
+					if self.cam.socket_a.type == "output" then
+						x0 = x0 + self.cam.socket_a.comp.w * 0.5 - 8
+						y0 = y0 - self.cam.socket_a.comp.h * 0.5 + (self.cam.socket_a.socket-1)*16 + 8
+					else
+						x0 = x0 - self.cam.socket_a.comp.w * 0.5 + 8
+						y0 = y0 - self.cam.socket_a.comp.h * 0.5 + (self.cam.socket_a.socket-1)*16 + 8
+					end
+					
+					local x1,y1 = self.cam:coord_transform(inp.getmousepos())
+
+					draw_spline({{x0,y0},{x0 + (x1 - x0)*0.25,y0},{x1 - (x1-x0)*0.25,y1},{x1,y1}},60,2)
+				end
+			
 				gfx.translate(-self.cam.drawbox.w*0.5 - self.cam.drawbox.x,-self.cam.drawbox.h*0.5 - self.cam.drawbox.y)
 			end
 		end
@@ -527,11 +728,26 @@ function derp:create_workspace(x,y,w,h,from_path)
 			
 			if ws then
 				self.component_data = loadstring("return" .. ws)()
+				
+				local edges = {}
+				for k,v in pairs (self.component_data.edges) do
+					local socket_a = new_socket(self.component_data.nodes[v[1].comp.id],v[1].type,v[1].socket)
+					local socket_b = new_socket(self.component_data.nodes[v[2].comp.id],v[2].type,v[2].socket)
+				
+					table.insert(edges,{socket_a,socket_b})
+				end
+				self.component_data.edges = edges
+				
+				-- rebuild active widget data
+				self.component_data.active_widgets = { }
+				for k,v in pairs(self.component_data.nodes) do
+					if v.active then
+						table.insert(self.component_data.active_widgets,v)
+					end
+				end
 			else
 				self.component_data = { active_widgets = {}, nodes = {}, edges = {}}
 			end
-			
-			--derp:printstack()
 		end
 	end
 	
@@ -543,13 +759,29 @@ function derp:create_workspace(x,y,w,h,from_path)
 			
 			self.component_data = loadstring("return" .. ws)()
 			
-			--derp:printstack()
+			-- rebuild edge data
+			local edges = {}
+			for k,v in pairs (self.component_data.edges) do
+				local socket_a = new_socket(self.component_data.nodes[v[1].comp.id],v[1].type,v[1].socket)
+				local socket_b = new_socket(self.component_data.nodes[v[2].comp.id],v[2].type,v[2].socket)
+			
+				table.insert(edges,{socket_a,socket_b})
+			end
+			self.component_data.edges = edges
+			
+			-- rebuild active widget data
+			self.component_data.active_widgets = { }
+			for k,v in pairs(self.component_data.nodes) do
+				if v.active then
+					table.insert(self.component_data.active_widgets,v)
+				end
+			end
 		end
 	end
 	
 	function wid:addcomponent(x,y,ctype)
 		local new_comp = { x = x, y = y, w = 100, h = 100, type = ctype,id = self.id_counter, inputs = { 0,0,0 }, outputs = { 0,0,0 } }
-		table.insert(self.component_data.nodes,new_comp)
+		self.component_data.nodes[self.id_counter] = new_comp
 		self.id_counter = self.id_counter + 1
 
 		self:set_activecomp( {new_comp} )
@@ -572,11 +804,11 @@ function derp:create_workspace(x,y,w,h,from_path)
 			
 			if mx >= (hit.x - hit.w * 0.5) and mx <= (hit.x - hit.w * 0.5 + 16) then
 				if socket_id <= #hit.inputs then
-					return {comp = hit,type = "input",socket = socket_id} --hit.inputs[socket_id] { cid = hit.id, 
+					return new_socket(hit,"input",socket_id)
 				end
 			elseif mx <= (hit.x + hit.w * 0.5) and mx >= (hit.x + hit.w * 0.5 - 16) then
 				if socket_id <= #hit.outputs then
-					return {comp = hit,type = "output",socket = socket_id} --hit.outputs[socket_id]
+					return new_socket(hit,"output",socket_id)
 				end
 			end
 		else
@@ -585,18 +817,18 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:custom_hittest(mx,my)		
-		for i = #self.component_data.nodes, 1, -1 do
-			local v = self.component_data.nodes[i]
-			
+		local hit = nil
+	
+		for k,v in pairs(self.component_data.nodes) do
 			if v then
 				if mx >= (v.x - v.w * 0.5) and mx <= (v.x + v.w * 0.5) 
 					and my >= (v.y - v.h * 0.5) and my <= (v.y + v.h * 0.5) then
-					return v
+					hit = v
 				end
 			end
 		end
 		
-		return nil
+		return hit
 	end
 	
 	function wid:mousepush(mx,my,button)
@@ -610,10 +842,6 @@ function derp:create_workspace(x,y,w,h,from_path)
 	function wid:mouserelease(x,y,button)
 		if derp.active_tool.current then
 			derp.active_tool.current:action({tag = "mouserelease", x = x, y = y, button = button})
-		end
-		
-		if (button == inp.MOUSE_RIGHT) then
-			derp.ws_menu:show(x,y)
 		end
 	end
 	
@@ -701,6 +929,7 @@ function derp:base_tool(w,h,s,t,name, onclick)
 	local tool = gui:create_basewidget(0,0,40,40)	-- determine from size of toolbar mayhabps?	
 	tool.highlight = false
 	tool.selected = false
+	tool.toggle = true
 	tool.super_find_mousehit = tool.find_mousehit
 	tool.icon_properties = { w = w, h = h, s = s,t = t }
 	tool.onclick = onclick
@@ -813,15 +1042,19 @@ function derp:create_toolbar(x,y,w,h)
 				if derp.active_workspace then
 					derp.active_workspace:undo()
 				end
+				derp:set_activetool(derp.active_tool.last)
 			end
 			)
+	undo.toggle = false
 	redo = derp:base_tool(28,24,2,127,"redo",
 			function () 
 				derp:set_activetool(nil)
 				if derp.active_workspace then
 					derp.active_workspace:redo()
 				end
+				derp:set_activetool(derp.active_tool.last)
 			end)
+	redo.toggle = false
 	select_rect = derp:base_tool(24,24,1,36,"square select")
 	move_select = derp:base_tool(24,17,1,61,"move/select")
 	move_ws = derp:base_tool(21,21,1,79,"move workspace")
@@ -855,31 +1088,7 @@ function derp:create_toolbar(x,y,w,h)
 			local mx = action.dx
 			local my = action.dy
 			
-			local cam = derp.active_workspace.cam
-		
-			cam:needsredraw()
-			
-			if ((cam.drawbox.x + mx) > 20) then
-				cam.drawbox.x = 20
-				cam.hitbox.x = 20
-			elseif ((cam.drawbox.x + mx) < (-cam.drawbox.w + 752)) then
-				cam.drawbox.x = -cam.drawbox.w + 752
-				cam.hitbox.x = -cam.drawbox.w + 752
-			else
-				cam:move_relative(mx,0)
-			end
-			
-			if ((cam.drawbox.y + my) > 102) then
-				cam.drawbox.y = 102
-				cam.hitbox.y = 102
-			elseif ((cam.drawbox.y + my) < (-cam.drawbox.h + 576)) then
-				cam.drawbox.y = -cam.drawbox.h + 576
-				cam.hitbox.y = -cam.drawbox.h + 576
-			else
-				cam:move_relative(0,my)
-			end
-
-			cam:needsredraw()
+			derp.active_workspace.cam:move_relative(mx,my)
 		end
 	end
 	
@@ -923,7 +1132,7 @@ function derp:create_toolbar(x,y,w,h)
 			end
 			
 			
-			derp.active_workspace.component_data.active_widgets = nil
+			derp.active_workspace.component_data.active_widgets = {}
 			
 			for k,v in pairs (derp.active_workspace.component_data.nodes) do
 				-- bounds check
@@ -953,19 +1162,93 @@ function derp:create_toolbar(x,y,w,h)
 	end
 	
 	function move_select:action(action)
-		if action.tag == "mousepush" then
-			if not derp.active_workspace.component_data.active_widgets then
-				local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+		if action.tag == "ctrl select" then
+			local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+			
+			if hit then
+				local found = false
 				
-				if hit then
+				for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
+					if v == hit then
+						found = true
+						break
+					end
+				end
+				
+				if not found then
+					table.insert(derp.active_workspace.component_data.active_widgets,hit)
+					derp.active_workspace:set_activecomp(derp.active_workspace.component_data.active_widgets)
+				end
+			end	
+		elseif action.tag == "mousepush" then
+			local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+			
+			if hit then
+				local found = false
+				if derp.active_workspace.component_data.active_widgets then
+					for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
+						if v == hit then
+							found = true
+							break
+						end
+					end
+				end
+				
+				if not found then
 					derp.active_workspace:set_activecomp({hit})
-				end	
+				end
+			else
+				derp.active_workspace:set_activecomp(nil)
 			end
 		elseif action.tag == "drag" then
 			if derp.active_workspace.component_data.active_widgets then
+				local rect = {x0,y0,x1,y1}
 				for k,v in pairs(derp.active_workspace.component_data.active_widgets) do
-					v.x = v.x + action.dx
-					v.y = v.y + action.dy
+					local x0 = v.x - v.w * 0.5
+					local x1 = v.x + v.w * 0.5
+					local y0 = v.y - v.h * 0.5
+					local y1 = v.y + v.h * 0.5
+				
+					if not (rect.x0 and rect.x1 and rect.y0 and rect.y1) then
+						rect.x0 = x0
+						rect.x1 = x1
+						rect.y0 = y0
+						rect.y1 = y1
+					end
+					
+					if x0 < rect.x0 then
+						rect.x0 = x0
+					end
+					
+					if x1 > rect.x1 then
+						rect.x1 = x1
+					end
+					
+					if y0 < rect.y0 then
+						rect.y0 = y0
+					end
+					
+					if y1 > rect.y1 then
+						rect.y1 = y1
+					end
+				end
+				
+				local cam = derp.active_workspace.cam.drawbox
+				local cx,cy = derp.active_workspace.cam:coord_transform(cam.x,cam.y)
+				local dx = action.dx
+				local dy = action.dy
+				
+				if (rect.x0 + action.dx) < cx or (rect.x1 + action.dx) > (cx + cam.w) then				
+					dx = 0
+				end
+				
+				if (rect.y0 + action.dy) < cy or (rect.y1 + action.dy) > (cy + cam.h) then
+					dy = 0
+				end
+				
+				for k,v in pairs(derp.active_workspace.component_data.active_widgets) do
+					v.x = v.x + dx
+					v.y = v.y + dy
 				end
 				
 				self.moved = true

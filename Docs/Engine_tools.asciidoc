@@ -1,0 +1,15 @@
+pxf-tech2 engine
+================
+
+Tools
+------
+This document should contain the tools available in Base/* and Utils/*
+
+Timer
+~~~~~~
+----
+Timer t;
+t.Start();
+t.Stop();
+t.Interval() -> millisecs
+----

@@ -41,6 +41,14 @@ bool ENetServer::Shutdown()
 
 Pxf::Network::Packet* ENetServer::Recv()
 {
+	if (BufferedPackets.size() > 0)
+	{
+		Network::Packet* bpack = BufferedPackets.front();
+		BufferedPackets.erase(BufferedPackets.begin());
+
+		return bpack;
+	}
+
 	ENetEvent event;
 
 	/* Loop until we hit an error. */
@@ -65,12 +73,14 @@ Pxf::Network::Packet* ENetServer::Recv()
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
 				, (int)event.peer->data, event.channelID, event.packet->dataLength);
+			/*
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetServer", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
+			*/
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
@@ -90,6 +100,14 @@ Pxf::Network::Packet* ENetServer::Recv()
 
 Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 {
+	if (BufferedPackets.size() > 0)
+	{
+		Network::Packet* bpack = BufferedPackets.front();
+		BufferedPackets.erase(BufferedPackets.begin());
+
+		return bpack;
+	}
+
 	ENetEvent event;
 	int stopTime = Platform::GetTime() + _Timeout;
 
@@ -116,12 +134,14 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
 				, (int)event.peer->data, event.channelID, event.packet->dataLength);
+			/*
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetServer", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
+			*/
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
@@ -141,6 +161,7 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 
 bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 {
+	// TODO: Change this.
 	ENetPacket *packet;
 
 	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
@@ -149,11 +170,16 @@ bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 	enet_packet_destroy(packet);
 	enet_host_flush(Server);
 
+	Flush();
+
 	return true;
 }
 
 bool ENetServer::SendAll(const int _Type, const char* _Buf)
 {
+	return SendAllID("und", _Type, _Buf, strlen(_Buf));
+
+	/*
 	ENetPacket *packet;
 	ENetPeer *peer;
 
@@ -161,21 +187,26 @@ bool ENetServer::SendAll(const int _Type, const char* _Buf)
 
 	enet_host_broadcast(Server, _Type, packet);
 
+	Flush();
+
 	return true;
+	*/
 }
 
 bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
 {
-	ENetPacket *packet;
-	ENetPeer *peer;
+	return SendAllID("und", _Type, _Buf, _Length);
 
-//	Message("ENetServer", "Packet size: %d", _Length);
+/*	ENetPacket *packet;
+	ENetPeer *peer;
 
 	packet = enet_packet_create(_Buf, _Length, ENET_PACKET_FLAG_RELIABLE);
 
 	enet_host_broadcast(Server, _Type, packet);
 
-	return true;
+	Flush();
+
+	return true;*/
 }
 
 bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length)
@@ -183,13 +214,12 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 	ENetPacket *packet;
 	ENetPeer *peer;
 	int IDLength = strlen(_ID);
-	char* NewBuf = new char[_Length+IDLength+3];
+	char* NewBuf = new char[_Length+IDLength+11];
 
 	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
 
 	memcpy((NewBuf+1), &IDLength, 4);
 	memcpy((NewBuf+1+4+IDLength), &_Length, 4);
-	//printf("deb: %s\n", (NewBuf+1+4+IDLength+4));
 
 	packet = enet_packet_create(NewBuf, 11+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
 
@@ -200,9 +230,21 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 	}
 	enet_host_broadcast(Server, _Type, packet);
 
-	enet_host_flush(Server);
-
-	//delete NewBuf;
+	Flush();
+	
+	delete []NewBuf;
 
 	return true;
 }
+
+void ENetServer::Flush()
+{
+	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
+	Network::Packet *rpack = RecvNonBlocking(0);
+	if (rpack != NULL)
+	{
+//		Message("aoeu", "Placing in buffer.");
+		BufferedPackets.push_back(rpack);
+	}
+}
+

@@ -32,6 +32,8 @@ namespace Pxf
 			Network::NetworkDevice* NetDev;
 			
 			Util::Array<Network::Packet*> BufferedPackets;
+
+			void Flush();
 			
 		public:
 			//ENetClient(const char* _Host, const int _Port);
