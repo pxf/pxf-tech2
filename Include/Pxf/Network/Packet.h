@@ -17,11 +17,32 @@ namespace Pxf
 			virtual int GetTag() = 0;
 			virtual char* GetID() = 0;
 
-			/*
-			virtual bool AddInt(const int _Int) = 0;
-			virtual bool AddString(const char* _String) = 0;
-			virtual bool AddVoid(const void* _Void, const int _Length) = 0;
-			*/
+			virtual bool PushObject(const int _Type, const void* _Buffer, unsigned int _Size) = 0;
+			virtual bool ReadObject(void* _Buffer, const int _Pos) = 0;
+
+			/* TYPES:
+			 * 0 = int
+			 * 1 = float
+			 * 2 = char*
+			 */ 
+			virtual bool PushInt(const int _Int)
+			{
+				return PushObject(0, &_Int, sizeof(int));
+			}
+
+			virtual bool PushFloat(const float _Float)
+			{
+				return PushObject(1, &_Float, sizeof(float));
+			}
+
+			virtual bool PushString(const char* _Buffer, unsigned int _Size)
+			{
+				return PushObject(2, _Buffer, _Size);
+			}
+
+			template<typename T> T GetObject(const int _Pos) 
+				{ T v; ReadObject(&v, _Pos); return v; }
+			int ObjectType(const int _Pos);
 		};
 	}
 }

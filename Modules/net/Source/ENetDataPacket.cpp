@@ -76,3 +76,13 @@ char* ENetDataPacket::GetID()
 {
 	return ID;
 }
+
+bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned int _Size)
+{
+	return true;
+}
+
+bool ENetDataPacket::ReadObject(void* _Buffer, const int _Pos)
+{
+	return true;
+}
