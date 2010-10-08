@@ -492,7 +492,7 @@ int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
 	lua_setfield(L, -2, "data");
 	lua_pushnumber(L, _Packet->GetTag());
 	lua_setfield(L, -2, "tag");
-	lua_pushnumber(L, _Packet->GetID());
+	lua_pushstring(L, _Packet->GetID());
 	lua_setfield(L, -2, "id");
 
 	return 1;
@@ -518,7 +518,6 @@ int DERPEditor::net_packet_delete(lua_State *L)
 
 int DERPEditor::luaopen_appnet(lua_State *L)
 {
-  
 	const luaL_reg appnetlib[] = {
 		{"createserver", net_createserver},
 		{"createclient", net_createclient},
