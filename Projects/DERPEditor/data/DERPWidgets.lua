@@ -17,6 +17,12 @@ function derp:printstack()
 	end
 end
 
+function derp:print_activedata()
+	local ws = basic_serialize(self.active_workspace.component_data,0)
+	
+	print(ws)
+end	
+
 function derp:push_workspace(ws)	
 	ws.workspace_stack.counter = ws.workspace_stack.counter + 1
 	
@@ -408,6 +414,7 @@ function derp:create_workspacecamera(x,y,w,h)
 	cam.shortcuts = { 	{ name = "copy", keys = {inp.LCTRL, "C"}, was_pressed = false, onpress = function () print("Lets copy dat floppy!") end},
 						{ name = "deselect", keys = {inp.ESC}, was_pressed = false, onpress = function () derp.active_workspace:set_activecomp(nil) end },
 						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
+						{ name = "print data", keys = {"P"},was_pressed = false, onpress = function () derp:print_activedata() end },
 						{ name = "ctrl select move", keys = {inp.LCTRL}, mouse = {inp.MOUSE_LEFT}, was_pressed = false, 
 							onpress = function () 
 								local mx,my = cam:coord_transform(inp.getmousepos())
@@ -416,7 +423,7 @@ function derp:create_workspacecamera(x,y,w,h)
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
 						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
-								derp.ws_menu.menu = derp.ws_menu.super_menu
+								derp.ws_menu.menu = derp.ws_menu.super_menu	
 								derp.ws_menu:show() 
 							end},
 						{ name = "deconnect components", keys = {inp.LSHIFT}, mouse = {inp.MOUSE_RIGHT}, was_pressed = false, 
@@ -604,24 +611,39 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	function wid:add_connection(socket_a,socket_b)
 		if socket_a and socket_b then
-			if socket_a.type == "output" and socket_b.type == "input" and socket_a.comp ~= socket_b.comp then
-				socket_a.comp.outputs[socket_a.socket] = socket_a.comp.outputs[socket_a.socket] + 1
-				socket_b.comp.inputs[socket_b.socket] = socket_b.comp.inputs[socket_b.socket] + 1
-				
-				local found = false
-				
-				for k,v in pairs(self.component_data.edges) do
-					if (v[1].comp == socket_a.comp) and (v[1].socket == socket_a.socket)
-						and (v[2].comp == socket_b.comp) and (v[2].socket == socket_b.socket) then
-						found = true
-						break
-					end
+			if (socket_a.type == socket_b.type) or (socket_a.comp == socket_b.comp) then 
+				return nil
+			end
+		
+			-- determine wether or not we need to switch sockets
+			if socket_a.type == "input" and socket_b.type == "output" then
+				-- switcharoo
+				local socket_tmp = socket_a
+				socket_a = socket_b
+				socket_b = socket_tmp
+			end
+	
+			-- check if input socket is connected
+			if socket_b.comp.inputs[socket_b.socket] > 0 then
+				return nil
+			end
+	
+			socket_a.comp.outputs[socket_a.socket] = socket_a.comp.outputs[socket_a.socket] + 1
+			socket_b.comp.inputs[socket_b.socket] = socket_b.comp.inputs[socket_b.socket] + 1
+			
+			local found = false
+			
+			for k,v in pairs(self.component_data.edges) do
+				if (v[1].comp == socket_a.comp) and (v[1].socket == socket_a.socket)
+					and (v[2].comp == socket_b.comp) and (v[2].socket == socket_b.socket) then
+					found = true
+					break
 				end
-				
-				if not found then
-					table.insert(self.component_data.edges,{socket_a,socket_b})
-					derp:push_workspace(self)
-				end
+			end
+			
+			if not found then
+				table.insert(self.component_data.edges,{socket_a,socket_b})
+				derp:push_workspace(self)
 			end
 		end
 	end
@@ -706,11 +728,26 @@ function derp:create_workspace(x,y,w,h,from_path)
 			
 			if ws then
 				self.component_data = loadstring("return" .. ws)()
+				
+				local edges = {}
+				for k,v in pairs (self.component_data.edges) do
+					local socket_a = new_socket(self.component_data.nodes[v[1].comp.id],v[1].type,v[1].socket)
+					local socket_b = new_socket(self.component_data.nodes[v[2].comp.id],v[2].type,v[2].socket)
+				
+					table.insert(edges,{socket_a,socket_b})
+				end
+				self.component_data.edges = edges
+				
+				-- rebuild active widget data
+				self.component_data.active_widgets = { }
+				for k,v in pairs(self.component_data.nodes) do
+					if v.active then
+						table.insert(self.component_data.active_widgets,v)
+					end
+				end
 			else
 				self.component_data = { active_widgets = {}, nodes = {}, edges = {}}
 			end
-			
-			--derp:printstack()
 		end
 	end
 	
@@ -722,8 +759,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 			
 			self.component_data = loadstring("return" .. ws)()
 			
+			-- rebuild edge data
 			local edges = {}
-			
 			for k,v in pairs (self.component_data.edges) do
 				local socket_a = new_socket(self.component_data.nodes[v[1].comp.id],v[1].type,v[1].socket)
 				local socket_b = new_socket(self.component_data.nodes[v[2].comp.id],v[2].type,v[2].socket)
@@ -732,6 +769,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 			end
 			self.component_data.edges = edges
 			
+			-- rebuild active widget data
 			self.component_data.active_widgets = { }
 			for k,v in pairs(self.component_data.nodes) do
 				if v.active then
@@ -766,11 +804,11 @@ function derp:create_workspace(x,y,w,h,from_path)
 			
 			if mx >= (hit.x - hit.w * 0.5) and mx <= (hit.x - hit.w * 0.5 + 16) then
 				if socket_id <= #hit.inputs then
-					return new_socket(hit,"input",socket_id) --hit.inputs[socket_id] { cid = hit.id, 
+					return new_socket(hit,"input",socket_id)
 				end
 			elseif mx <= (hit.x + hit.w * 0.5) and mx >= (hit.x + hit.w * 0.5 - 16) then
 				if socket_id <= #hit.outputs then
-					return new_socket(hit,"output",socket_id) --hit.outputs[socket_id]
+					return new_socket(hit,"output",socket_id)
 				end
 			end
 		else
@@ -1094,7 +1132,7 @@ function derp:create_toolbar(x,y,w,h)
 			end
 			
 			
-			derp.active_workspace.component_data.active_widgets = nil
+			derp.active_workspace.component_data.active_widgets = {}
 			
 			for k,v in pairs (derp.active_workspace.component_data.nodes) do
 				-- bounds check
