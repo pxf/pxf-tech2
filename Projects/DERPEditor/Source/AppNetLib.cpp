@@ -518,7 +518,6 @@ int DERPEditor::net_packet_delete(lua_State *L)
 
 int DERPEditor::luaopen_appnet(lua_State *L)
 {
-  
 	const luaL_reg appnetlib[] = {
 		{"createserver", net_createserver},
 		{"createclient", net_createclient},
