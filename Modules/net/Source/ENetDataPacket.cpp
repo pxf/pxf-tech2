@@ -36,7 +36,7 @@ ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length
 	else
 	{
 		ID = new char[4];
-		strcpy(ID, "UND\0");
+		strcpy(ID, "und\0");
 		Data = new char[_Length+1];
 		strcpy(Data, _Data);
 		Length = _Length;
@@ -75,4 +75,14 @@ int ENetDataPacket::GetTag()
 char* ENetDataPacket::GetID()
 {
 	return ID;
+}
+
+bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned int _Size)
+{
+	return true;
+}
+
+bool ENetDataPacket::ReadObject(void* _Buffer, const int _Pos)
+{
+	return true;
 }
