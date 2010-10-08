@@ -82,12 +82,7 @@ Pxf::Network::Packet* ENetClient::Recv()
 	if (BufferedPackets.size() > 0)
 	{
 		Network::Packet* bpack = BufferedPackets.front();
-		//BufferedPackets.erase(BufferedPackets.begin());
-
-		for (int i=0; i < BufferedPackets.size(); i++)
-			Message("packet", "packet %d: %s", i, BufferedPackets[i]->GetData());
-
-		Message("aoeu", "Taking from buffer! %s", bpack->GetData());
+		BufferedPackets.erase(BufferedPackets.begin());
 
 		return bpack;
 	}
@@ -209,6 +204,8 @@ bool ENetClient::Send(const int _Type, const char* _Buf, const int _Length)
 
 	enet_peer_send(Peer, _Type, packet);
 
+	Flush();
+
 	return true;
 }
 
@@ -233,16 +230,21 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 
 	enet_peer_send(Peer, _Type, packet);
 
-	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
-	Network::Packet *rpack = Recv();
-	if (rpack != NULL)
-	{
-		Message("aoeu", "Placing in buffer.");
-		BufferedPackets.push_back(rpack);
-	}
-
-	enet_packet_destroy(packet);
-	//delete []NewBuf;
+	Flush();
+	
+	delete []NewBuf;
 	
 	return true;
 }
+
+void ENetClient::Flush()
+{
+	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
+	Network::Packet *rpack = RecvNonBlocking(0);
+	if (rpack != NULL)
+	{
+//		Message("aoeu", "Placing in buffer.");
+		BufferedPackets.push_back(rpack);
+	}
+}
+
