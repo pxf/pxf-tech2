@@ -73,12 +73,14 @@ Pxf::Network::Packet* ENetServer::Recv()
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
 				, (int)event.peer->data, event.channelID, event.packet->dataLength);
+			/*
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetServer", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
+			*/
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
@@ -132,12 +134,14 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
 				, (int)event.peer->data, event.channelID, event.packet->dataLength);
+			/*
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetServer", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
+			*/
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data

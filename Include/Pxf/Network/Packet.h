@@ -16,6 +16,12 @@ namespace Pxf
 			virtual int GetLength() = 0;
 			virtual int GetTag() = 0;
 			virtual char* GetID() = 0;
+
+			/*
+			virtual bool AddInt(const int _Int) = 0;
+			virtual bool AddString(const char* _String) = 0;
+			virtual bool AddVoid(const void* _Void, const int _Length) = 0;
+			*/
 		};
 	}
 }
