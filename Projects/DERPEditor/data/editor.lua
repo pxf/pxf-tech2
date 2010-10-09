@@ -1,3 +1,4 @@
+require("data/vecmath")
 require("data/splines")
 require("data/guibase")
 require("data/guistdwidgets")
@@ -176,6 +177,14 @@ gui.widgets:addwidget(navigator)
 
 derp:init()
 
+local tvec1 = vec(1,2)
+local tvec2 = vec(2,1)
+local tvec3 = tvec1 + tvec2
+print("len: " .. tvec3:len(), " cross: " .. tvec3:cross())
+for k,v in pairs(tvec3) do
+  print(k,v)
+end
+
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()
@@ -189,11 +198,11 @@ function draw(force)
   gui:draw(force)
   
   -- test line drawing:
-  local line = create_spline({{100,200},{100,200},{200,100},{300,300},{400,200},{400,500}}, 60,5)
+  local line = create_spline({{100,200},{100,200},{200,100},{300,300},{400,200},{400,500}}, 60,2)
   line:update()
   local r,g,b = gfx.getcolor()
   local mx,my = inp.getmousepos()
-  if (line:hit(mx,my,10)) then
+  if (line:hit(mx,my,5)) then
     gfx.setcolor(1,0,0)
   else
     gfx.setcolor(1,1,1)
