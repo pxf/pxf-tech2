@@ -15,6 +15,29 @@ extern "C" {
 
 using namespace Pxf;
 
+#define MIDI_CLOCK      0xf8
+#define MIDI_ACTIVE     0xfe
+#define MIDI_STATUS_MASK 0x80
+#define MIDI_SYSEX      0xf0
+#define MIDI_EOX        0xf7
+#define MIDI_START      0xFA
+#define MIDI_STOP       0xFC
+#define MIDI_CONTINUE   0xFB
+#define MIDI_F9         0xF9
+#define MIDI_FD         0xFD
+#define MIDI_RESET      0xFF
+#define MIDI_NOTE_ON    0x90
+#define MIDI_NOTE_OFF   0x80
+#define MIDI_CHANNEL_AT 0xD0
+#define MIDI_POLY_AT    0xA0
+#define MIDI_PROGRAM    0xC0
+#define MIDI_CONTROL    0xB0
+#define MIDI_PITCHBEND  0xE0
+#define MIDI_MTC        0xF1
+#define MIDI_SONGPOS    0xF2
+#define MIDI_SONGSEL    0xF3
+#define MIDI_TUNE       0xF6
+
 int main(int argc, char* argv[])
 {
 	Kernel* kernel = Kernel::GetInstance();
@@ -62,6 +85,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	
+	Pm_SetFilter(input_stream, PM_FILT_SYSTEMCOMMON);
 	
 	PmEvent events[64];
 	while(true)
@@ -71,7 +95,10 @@ int main(int argc, char* argv[])
 		{
 			PmMessage message = events[i].message;
 			PmTimestamp timestamp = events[i].timestamp;
-			kernel->Log(midi|Logger::IS_DEBUG, "msg: %d, ms: %d", message, timestamp);
+			unsigned char status = Pm_MessageStatus(message);
+			unsigned char data1 = Pm_MessageData1(message);
+			unsigned char data2 = Pm_MessageData2(message);
+			kernel->Log(midi|Logger::IS_DEBUG, "[%dms] status: 0x%x, data1: %d, data2: %d", timestamp, status, data1, data2);
 		}
 	}
 	
