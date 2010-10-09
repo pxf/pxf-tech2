@@ -12,7 +12,7 @@ function draw_line_segment(x1,y1,x2,y2,w)
   local oldtex = gfx.bindtexture(0)
   local cx,cy = 0,0
   local len = 0
-  local a = 0
+  local a = math.pi
   
   -- calc line center
   cx = ((x2 - x1) / 2)
@@ -23,7 +23,9 @@ function draw_line_segment(x1,y1,x2,y2,w)
   
   if (len > 0.5) then  
     -- calc angle
-    a = math.atan(cy/cx)
+    if not (cx == 0) then
+      a = math.atan(cy/cx)
+    end
   
     gfx.translate(x1 + cx, y1 + cy)
     gfx.rotate(a)
@@ -57,6 +59,7 @@ function create_spline(control_points, num_segments, w)
     end
     
     local p1,p2 = nil,nil
+    local k1,k2 = 0,0
     local p1len,p2len = nil,nil
     
     -- find closest points
@@ -67,30 +70,32 @@ function create_spline(control_points, num_segments, w)
       if (p1 == nil) then
         p1 = v
         p1len = len
+        k1 = k
       elseif (p2 == nil) then
         p2 = v
         p2len = len
+        k2 = k
       else
         
         if (len < p1len) then
           p2 = p1
           p2len = p2len
+          k2 = k1
           
           p1 = v
           p1len = len
-        elseif (len < p2len) then
-          p2 = v
-          p2len = len
+          k1 = k
         end
         
       end
       
     end
     
+    
     -- get distance (from (x,y)) to line segment (betweed p1 and p2)
     local d = math.abs( (p2[1] - p1[1]) * (p1[2] - y) - (p1[1] - x) * (p2[2] - p1[2]) ) / math.sqrt(math.pow(p2[1] - p1[1],2) + math.pow(p2[2] - p1[2],2))
     if (d <= r) then
-      print("d = " .. tostring(d))
+      print("d = " .. tostring(d) .. " k1 = " .. tostring(k1) .. " k2 = " .. tostring(k2))
       return true
     end
     
@@ -103,7 +108,7 @@ function create_spline(control_points, num_segments, w)
     
     -- get current point
     local delta = val * (num_points - 1) + 1
-    local current_point = clamp(math.floor(delta), 1, num_points)
+    local current_point = clamp(math.floor(delta), 1, num_points-1)
     
     local p0 = self.control_points[clamp(current_point - 1, 1, num_points)]
     local p1 = self.control_points[clamp(current_point + 0, 1, num_points)]
@@ -132,7 +137,7 @@ function create_spline(control_points, num_segments, w)
   
   -- update spline segments
   function spline:update()
-    self.segments = {}--{self.control_points[1]}
+    self.segments = {self.control_points[1]}
     local step = 1.0 / self.num_segments
     local t = 0.0
     
@@ -141,7 +146,6 @@ function create_spline(control_points, num_segments, w)
       table.insert(self.segments, new_p)
       t = t + step
     end
-    print("first: " .. self.segments[1][1] .. "," .. self.segments[1][2])
     table.insert(self.segments, self.control_points[#self.control_points])
     
   end
@@ -151,9 +155,9 @@ function create_spline(control_points, num_segments, w)
     draw_line(self.segments, self.width)
 
     -- debug draw control points
-    for k,v in pairs(self.control_points) do
+    --[[for k,v in pairs(self.control_points) do
       draw_line_segment(v[1]-3, v[2], v[1], v[2], 6)
-    end
+    end]]
   end
   
   return spline

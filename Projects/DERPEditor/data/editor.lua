@@ -177,14 +177,6 @@ gui.widgets:addwidget(navigator)
 
 derp:init()
 
-local tvec1 = vec(1,2)
-local tvec2 = vec(2,1)
-local tvec3 = tvec1 + tvec2
-print("len: " .. tvec3:len(), " cross: " .. tvec3:cross())
-for k,v in pairs(tvec3) do
-  print(k,v)
-end
-
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()
@@ -198,7 +190,7 @@ function draw(force)
   gui:draw(force)
   
   -- test line drawing:
-  local line = create_spline({{100,200},{100,200},{200,100},{300,300},{400,200},{400,500}}, 60,2)
+  local line = create_spline({{100,200},{200,100},{300,300},{400,200},{400,500}}, 30,2)
   line:update()
   local r,g,b = gfx.getcolor()
   local mx,my = inp.getmousepos()
