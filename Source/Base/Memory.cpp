@@ -15,7 +15,7 @@ void *Pxf::MemoryAllocateArray(unsigned n, unsigned len)
 	return calloc(n, len);
 }
 
-void *Pxf::ReAllocate(void *p, unsigned size)
+void *Pxf::MemoryReAllocate(void *p, unsigned size)
 {
 	return realloc(p, size);
 }

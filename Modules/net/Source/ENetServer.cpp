@@ -73,12 +73,14 @@ Pxf::Network::Packet* ENetServer::Recv()
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
 				, (int)event.peer->data, event.channelID, event.packet->dataLength);
+			/*
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetServer", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
+			*/
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
@@ -132,12 +134,14 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
 				, (int)event.peer->data, event.channelID, event.packet->dataLength);
+			/*
 			if (event.packet->dataLength > MAX_PACKET_SIZE)
 			{
 				Message("ENetServer", "Packet too large (%u > %d), throwing."
 					, event.packet->dataLength, MAX_PACKET_SIZE);
 				continue;
 			}
+			*/
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
@@ -157,6 +161,7 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 
 bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 {
+	// TODO: Change this.
 	ENetPacket *packet;
 
 	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
@@ -172,6 +177,9 @@ bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 
 bool ENetServer::SendAll(const int _Type, const char* _Buf)
 {
+	return SendAllID("und", _Type, _Buf, strlen(_Buf));
+
+	/*
 	ENetPacket *packet;
 	ENetPeer *peer;
 
@@ -182,11 +190,14 @@ bool ENetServer::SendAll(const int _Type, const char* _Buf)
 	Flush();
 
 	return true;
+	*/
 }
 
 bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
 {
-	ENetPacket *packet;
+	return SendAllID("und", _Type, _Buf, _Length);
+
+/*	ENetPacket *packet;
 	ENetPeer *peer;
 
 	packet = enet_packet_create(_Buf, _Length, ENET_PACKET_FLAG_RELIABLE);
@@ -195,7 +206,7 @@ bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
 
 	Flush();
 
-	return true;
+	return true;*/
 }
 
 bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length)

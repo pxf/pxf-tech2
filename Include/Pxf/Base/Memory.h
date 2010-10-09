@@ -10,7 +10,7 @@ void *MemoryAllocate(unsigned len);
 /* Alloate a buffer with n items of size len */
 void *MemoryAllocateArray(unsigned n, unsigned len);  
 /* Re-allocate buffer p with size 'size' */
-void *ReAllocate(void *p, unsigned size);     
+void *MemoryReAllocate(void *p, unsigned size);     
 /* Free memory at p */
 void MemoryFree(void *p);
 /**/
