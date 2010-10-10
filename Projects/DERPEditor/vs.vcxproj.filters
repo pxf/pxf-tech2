@@ -538,6 +538,9 @@
     <ClInclude Include="..\..\Modules\snd\Include\Pxf\Modules\snd\snd.h">
       <Filter>Modules\snd\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Network\NetworkDefs.h">
+      <Filter>Framework\Header Files\Pxf\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\test.ctm">

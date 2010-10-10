@@ -1,3 +1,5 @@
+require("data/vecmath")
+require("data/splines")
 require("data/guibase")
 require("data/guistdwidgets")
 require("data/specwindows")
@@ -13,12 +15,71 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
+--local aoe = gfx.rawtexture(128, 2,2,4,"zaazzaazzaazzaaz")
+net.addtag("pipeline")
+net.addtag("preview")
+net.addtag("profiling")
+net.addtag("log")
 
---[[local test = net.createserver()
-for k,v in pairs(debug.getmetatable(test.instance)) do
-  print(k,v)
-end
---test.instance = nil]]
+local fakenet = {connect = function () end, disconnect = function () end, send = function () end, recv = function () end}
+
+local client = fakenet--net.createclient()
+client:connect("localhost", 7005)
+--client:recv()
+client:send("pipeline", [[[{"blockName" : "PipelineTree",
+"blockType" : "PipelineTree",
+"blockData" : { "root" : "output1" }
+},
+{"blockName" : "auxinput1",
+"blockType" : "AuxComp",
+"blockData" : {"auxType" : "texture",
+"filepath" : "data/derptest.png",
+"minfilter" : "nearest"
+},
+"blockOutput" : [{"name" : "texture1",
+"type" : "texture"}]
+},
+{"blockName" : "output1",
+"blockType" : "Root",
+"blockInput" : [{"block" : "auxinput1", "output" : "texture1"}],
+"blockData" : {"host" : "localhost",
+"port" : "4632",
+"feedback" : true,
+"realtime" : false,
+"shaderVert" : "uniform sampler2D texture1;
+void main(void)
+{
+gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+gl_TexCoord[0] = gl_MultiTexCoord0;
+}",
+"shaderFrag" : "uniform sampler2D texture1;
+void main()
+{
+gl_FragColor = vec4(1.0);// - texture2D(texture1, gl_TexCoord[0].st);
+}",
+"width" : 512,
+"height" : 512
+}
+}
+]
+]])
+--[[
+local retry = true
+local aoe = nil
+
+while (retry) do
+  
+  local daaaaata = client:recv()
+  if (tostring(daaaaata.id) == "imgdata") then
+    aoe = gfx.rawtexture(128, 512,512,4, tostring(daaaaata.data))
+    retry = false
+  else
+    print("Got some strange package! :( '" .. tostring(daaaaata.id) .. "'")
+  end
+  
+end]]
+
+--client:disconnect()
 
 ----------------------------------------------
 -- setup menus
@@ -57,7 +118,9 @@ local window_menu = {{"Inspector",{toggle = false, tooltip = "Show/Hide inspecto
 							end }},
 					 {"Navigator",{toggle = false, tooltip = "Show/Hide navigator.", onclick = function() end}}
 					}
-                   
+
+
+
 ----------------------------------------------
 -- create workspace
 ----------------------------------------------
@@ -120,15 +183,28 @@ gfx.redrawneeded()
 
 function update()
   gui:update()
+  
 end
 
 function draw(force)
   gui:draw(force)
   
   -- test line drawing:
-  --draw_spline({{100,200},{100,200},{200,100},{300,300},{400,200},{400,500}}, 60,2)
+  local line = create_spline({{100,200},{200,100},{300,300},{400,200},{400,500}}, 30,2)
+  line:update()
+  local r,g,b = gfx.getcolor()
+  local mx,my = inp.getmousepos()
+  if (line:hit(mx,my,5)) then
+    gfx.setcolor(1,0,0)
+  else
+    gfx.setcolor(1,1,1)
+  end
+  line:draw()
+  gfx.setcolor(r,g,b)
   
   --aoe:draw(200,200,300,200,300,300,200,300)
   
-  --draw_spline({{100,200},{200,100},{300,300},{400,200}}, 30,1)
+  --[[if (#poopline > 3) then
+    draw_spline(poopline, 100,2)
+  end]]
 end

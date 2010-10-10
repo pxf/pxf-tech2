@@ -149,6 +149,7 @@
     <ClInclude Include="..\..\Include\Pxf\Math\Vector.h" />
     <ClInclude Include="..\..\Include\Pxf\Module.h" />
     <ClInclude Include="..\..\Include\Pxf\Network\Client.h" />
+    <ClInclude Include="..\..\Include\Pxf\Network\NetworkDefs.h" />
     <ClInclude Include="..\..\Include\Pxf\Network\NetworkDevice.h" />
     <ClInclude Include="..\..\Include\Pxf\Network\Packet.h" />
     <ClInclude Include="..\..\Include\Pxf\Network\Server.h" />
