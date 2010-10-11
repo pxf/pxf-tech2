@@ -8,7 +8,7 @@ function spawn_aboutwindow()
   function memory_panel:update()
     if (os.clock() - self.last_update > 0.1) then
       memory_panel.last_update = os.clock()
-      memory_panel.label_text = "Memory usage: " .. tostring(app.getmemusage()/1024/1024) .. "MB"
+      memory_panel.label_text = "Memory usage: " .. string.sub(tostring(app.getmemusage()/1024/1024), 1, 5) .. "MB"
     end
   end
   
