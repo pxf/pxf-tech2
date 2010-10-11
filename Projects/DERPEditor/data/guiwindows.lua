@@ -141,6 +141,11 @@ function gui:create_window(x,y,w,h,modal,label)
 	  if (self.redraw_needed or force) then
 	    local oldtex = gfx.bindtexture(0)
   		gfx.translate(self.drawbox.x,self.drawbox.y)
+  		
+  		local r,g,b = gfx.getcolor()
+  		gfx.setcolor(1,0,0)
+  		gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h)
+  		gfx.setcolor(r,g,b)
 	
   		for k,v in pairs(self.childwidgets) do
   			v:draw(force)
