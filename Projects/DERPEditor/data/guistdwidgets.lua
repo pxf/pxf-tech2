@@ -371,7 +371,7 @@ function gui:create_labelpanel(x,y,w,h,text)
 	return base_widget
 end
 
-function gui:create_movablewindow(x,y,w,h,label)
+function gui:create_movablewindow(x,y,w,h,modal,label)
 	local base_window = gui:create_movablepanel(x,y,w,h)
 	local minimize_button = gui:create_staticpanel(w-40,0,20,20)
 	local close_button = gui:create_staticpanel(w-20,0,20,20)
