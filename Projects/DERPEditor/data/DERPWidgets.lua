@@ -380,11 +380,8 @@ function derp:create_navigator(x,y,w,h)
 					w = (581 / cam.drawbox.w) * draw_area.drawbox.w,
 					h = (476 / cam.drawbox.h) * draw_area.drawbox.h  }
 	
+	wid.draw_area = draw_area
 	wid:addwidget(draw_area)
-	
-	function draw_area:update()
-		-- move navbox
-	end
 	
 	function draw_area:draw(force)
 		if (self.redraw_needed or force) then
@@ -392,13 +389,27 @@ function derp:create_navigator(x,y,w,h)
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,5,1,1,1) -- solid bg
 			
 			gfx.translate(self.drawbox.x,self.drawbox.y)
-			gfx.drawtopleft(self.navbox.x,self.navbox.y,self.navbox.w,1,1,5,1,1) -- solid bg
-			gfx.drawtopleft(self.navbox.x,self.navbox.y,1,self.navbox.h,1,5,1,1) -- solid bg
-			gfx.drawtopleft(self.navbox.x + self.navbox.w,self.navbox.y,1,self.navbox.h,1,5,1,1) -- solid bg
-			gfx.drawtopleft(self.navbox.x,self.navbox.y + self.navbox.h,self.navbox.w,1,1,5,1,1) -- solid bg
+			local a = gfx.getalpha()
+			gfx.setalpha(0.6)
+			gfx.drawtopleft(self.navbox.x,self.navbox.y,self.navbox.w,self.navbox.h,1,5,1,1) -- solid bg
+			--gfx.drawtopleft(self.navbox.x,self.navbox.y,1,self.navbox.h,1,5,1,1) -- solid bg
+			--gfx.drawtopleft(self.navbox.x + self.navbox.w,self.navbox.y,1,self.navbox.h,1,5,1,1) -- solid bg
+			--gfx.drawtopleft(self.navbox.x,self.navbox.y + self.navbox.h,self.navbox.w,1,1,5,1,1) -- solid bg
+			gfx.setalpha(a)
 			gfx.translate(-self.drawbox.x,-self.drawbox.y)
 			gfx.translate(-wid.drawbox.x,-wid.drawbox.y)
 		end
+	end
+	
+	function draw_area:calc_navbox()
+		-- calculate position from cam
+		local x = - ( (cam.drawbox.x - 20) / draw_area.x_step)
+		local y = - ( (cam.drawbox.y - 102) / draw_area.y_step)
+		
+		self.navbox.x = x
+		self.navbox.y = y
+		
+		print(x,y)
 	end
 	
 	function draw_area:mousepush(x,y)
@@ -408,21 +419,17 @@ function derp:create_navigator(x,y,w,h)
 		
 		local mx = rel_x * self.x_step
 		local my = rel_y * self.y_step
-	
-		self.navbox.x = rel_x
-		self.navbox.y = rel_y
 		
 		if mx > cam.drawbox.w - 752 then
 			mx = cam.drawbox.w-752
-			self.navbox.x = self.drawbox.w-self.navbox.w
 		end
 		
 		if my > cam.drawbox.h - 576 then
 			my = cam.drawbox.h - 576
-			self.navbox.y = self.drawbox.h-self.navbox.h
 		end
 		
 		cam:move_abs(-mx,-my)
+		self:calc_navbox()
 	end
 	
 	function draw_area:mousedrag(dx,dy)
@@ -430,25 +437,7 @@ function derp:create_navigator(x,y,w,h)
 		local y = -dy * self.y_step
 	
 		cam:move_relative(x,y)
-		
-		if self.navbox.x + dx < 0 then
-			self.navbox.x = 0
-		elseif self.navbox.x + dx > self.drawbox.w - self.navbox.w then
-			self.navbox.x = self.drawbox.w - self.navbox.w
-		else
-			self.navbox.x = self.navbox.x + dx
-		end
-		
-		if self.navbox.y + dy < 0 then
-			self.navbox.y = 0
-		elseif self.navbox.y + dy > self.drawbox.h - self.navbox.h then
-			self.navbox.y = self.drawbox.h - self.navbox.h
-		else
-			self.navbox.y = self.navbox.y + dy
-		end
-		
-		
-		print(self.navbox.x,self.navbox.y)
+		self:calc_navbox()
 	end
 	
 	function wid:draw(force)
@@ -460,6 +449,8 @@ function derp:create_navigator(x,y,w,h)
 		
 		draw_area:draw(force)
 	end
+	
+	self.navigator = wid
 	
 	return wid
 end
@@ -621,6 +612,7 @@ function derp:create_workspacecamera(x,y,w,h)
 	function cam:mousedrag(mx,my)
 		if derp.active_tool.current then 
 			derp.active_tool.current:action({tag = "drag", dx = mx, dy = my})
+			derp.navigator.draw_area:calc_navbox()
 		end
 	end
 	
@@ -628,6 +620,7 @@ function derp:create_workspacecamera(x,y,w,h)
 		local x,y = self:coord_transform(mx,my)
 		
 		self.parent:mousepush(x,y,button)
+		--derp.navigator.draw_area:calc_navbox()
 	end
 	
 	function cam:mouserelease(mx,my,button)
@@ -769,14 +762,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 					local r,g,b = gfx.getcolor()
 					gfx.setcolor(0.878431373,0.494117647 ,0.0)
 					--draw_spline({{x0,y0},{x0+5,y0},{x0 + (x1 - x0)* 0.25, y0},{x1 - (x1 - x0)*0.25,y1},{x1-5,y1},{x1,y1}}, 60,2)
-					local line = create_spline({{x0,y0},
-										                  {x0+5,y0},
-					                            {x0+10,y0},
-					                            {x0 + ((x1-x0) * 0.25), y0 + ((y1-y0) * 0.25)},
-					                            --{x0 + ((x1-x0) / 2), y0 + ((y1-y0) / 2)},
-					                            {x1-10,y1},
-					                            {x1-5,y1},
-					                            {x1,y1}}, 60,2)
+					local line = create_spline({{x0,y0},{x0 + (x1-x0)*0.25,y0},{x1-(x1-x0)*0.25,y1},{x1,y1}},60,2)
 					line:update()
 					line:draw()
 					gfx.setcolor(r,g,b)
@@ -796,7 +782,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 					
 					local x1,y1 = self.cam:coord_transform(inp.getmousepos())
 
-					local line = create_spline({{x0,y0},{x0+10,y0},{x1-x0,y1-y0},{x1-10,y1},{x1,y1}},60,2)
+					local line = create_spline({{x0,y0},{x0 + (x1-x0)*0.25,y0},{x1-(x1-x0)*0.25,y1},{x1,y1}},60,2)
 					line:update()
 					line:draw()
 				end
