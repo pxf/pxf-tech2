@@ -14,7 +14,14 @@ end
 
 function gui.windows:remove(wnd)
   -- remove from window list
-  table.remove(self.windowlist, wnd)
+  local i = nil
+  for k,v in pairs(self.windowlist) do
+    if v == wnd then
+      i = k
+      break
+    end
+  end
+  table.remove(self.windowlist, k)
 end
 
 function gui.windows:setactive(wnd)
@@ -47,7 +54,7 @@ function gui:create_window(x,y,w,h,modal,label)
 	local window = gui:create_basewidget(x,y,w,h)
 	local window_label = gui:create_labelpanel(0,0,w-40,20, label)
 	local window_panel = gui:create_basewidget(0,20,w,h-20)
-	local window_closebutton = gui:create_simplebutton(w-20,0,20,20,"x",function() print("lol close") end)
+	local window_closebutton = gui:create_simplebutton(w-20,0,20,20,"x",function(self) self.parent:destroy() end)
 	local window_sizebutton = gui:create_simplebutton(w-40,0,20,20,"v",function() print("lol min/max") end)
 	window.panel = window_panel
 	window.label = window_label
@@ -158,6 +165,13 @@ function gui:create_window(x,y,w,h,modal,label)
   end
   window_panel.mousepush = window.mousepush
 	window_label.mousepush = window.mousepush
+	
+	-- change so that destroy also removes the window from the window list
+	window.superdestroy = window.destroy
+	function window:destroy()
+	  self:superdestroy()
+	  gui.windows:remove(self)
+  end
 	
 	function window_panel:draw(force)
 	  if (self.redraw_needed or force) then
