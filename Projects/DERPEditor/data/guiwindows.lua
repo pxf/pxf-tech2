@@ -55,10 +55,13 @@ end
 -- standard window gui widget
 function gui:create_window(x,y,w,h,modal,label)
 	local window = gui:create_basewidget(x,y,w,h)
-	local window_label = gui:create_labelpanel(0,0,w-40,20, label)
-	local window_panel = gui:create_basewidget(0,20,w,h-20)
-	local window_closebutton = gui:create_simplebutton(w-20,0,20,20,"x",function(self) self.parent:destroy() end)
-	local window_sizebutton = gui:create_simplebutton(w-40,0,20,20,"v",function() print("lol min/max") end)
+	window.title_height = 24
+	local window_label = gui:create_labelpanel(0,0,w-40,window.title_height, label)
+	local window_panel = gui:create_basewidget(0,window.title_height,w,h-window.title_height)
+	local window_closebutton = gui:create_simplebutton(w-window.title_height,0,window.title_height,window.title_height,"x",
+	                                                   function(self) self.parent:destroy() end)
+	local window_sizebutton = gui:create_simplebutton(w-window.title_height*2,0,window.title_height,window.title_height,"v",
+	                                                  function() print("lol min/max") end)
 	window.panel = window_panel
 	window.label = window_label
 	
@@ -182,8 +185,6 @@ function gui:create_window(x,y,w,h,modal,label)
 	function window_panel:draw(force)
 	  if (self.redraw_needed or force) then
   		gfx.translate(self.drawbox.x,self.drawbox.y)
-  		
-  		gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h)
 	
   		for k,v in pairs(self.childwidgets) do
   			v:draw(force)
@@ -195,20 +196,25 @@ function gui:create_window(x,y,w,h,modal,label)
 
 	function window:draw(force)
 	  if (self.redraw_needed or force) then
-	    local oldtex = gfx.bindtexture(0)
   		gfx.translate(self.drawbox.x,self.drawbox.y)
   		
-  		local r,g,b = gfx.getcolor()
-  		gfx.setcolor(1,0,0)
-  		gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h)
-  		gfx.setcolor(r,g,b)
+  		-- bg
+  		gfx.drawtopleft(1, 1, self.drawbox.w-2, self.drawbox.h-2, 2, 2, 1, 1)
+  		
+  		-- borders
+  		gfx.drawtopleft(1,0,self.drawbox.w-2,1,1,5,1,1) -- top
+  		gfx.drawtopleft(self.drawbox.w-1,1,1,self.drawbox.h-2,1,5,1,1) -- right
+  		gfx.drawtopleft(1,self.drawbox.w-1,self.drawbox.w-2,1,1,5,1,1) -- bottom
+  		gfx.drawtopleft(0,1,1,self.drawbox.h-2,1,5,1,1) -- right
+  		
+  		-- titlebar
+  		gfx.drawtopleft(1, 1, self.drawbox.w-2, window.title_height-2, 508, 1, 1, 100)
 	
   		for k,v in pairs(self.childwidgets) do
   			v:draw(force)
   		end
 
   		gfx.translate(-self.drawbox.x,-self.drawbox.y)
-  		gfx.bindtexture(oldtex)
   	end
 	end
 	

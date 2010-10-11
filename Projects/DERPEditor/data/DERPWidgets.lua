@@ -1357,10 +1357,12 @@ function derp:create_toolbar(x,y,w,h)
 	end
 	
 	function draggies:mousedrag(mx,my)
+	  self.parent:needsredraw()
 		self.parent:move_relative(mx,my)
 		self.parent.drag = true
 		
 		if not self.parent.drag_removed then
+		  self.parent:needsredraw(true)
 		  self.parent.prev_owner = self.parent.parent
 			self.parent.parent:removewidget(self.parent)
 			
@@ -1372,6 +1374,7 @@ function derp:create_toolbar(x,y,w,h)
 			
 			self.parent.drag_removed = true
 		end
+		self.parent:needsredraw()
 	end
 	
 	function draggies:mouserelease(dx,dy,button)

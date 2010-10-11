@@ -95,9 +95,13 @@ function gui:create_basewidget(x,y,w,h)
   
   -----------------------------------
   -- redraw functions
-  function wid:needsredraw()
-    local x,y = self:find_abspos(self)
-    gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
+  function wid:needsredraw(full)
+    if (full) then
+      gui:redraw()
+    else
+      local x,y = self:find_abspos(self)
+      gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
+    end
     self.redraw_needed = true
     
     -- notify parent
@@ -317,10 +321,14 @@ end
 
 gui.redrawrects = {}
 function gui:redraw(x,y,w,h)
-  self.widgets:find_redrawhit(x,y,x+w,y+h)
-  gfx.redrawneeded(x,y,w,h)
-  --print("redraw area: " .. tostring(x) .." " .. tostring(y) .. " " .. tostring(w) .." " .. tostring(h))
-  table.insert(gui.redrawrects, 1, {x,y,w,h})
+  if x == nil then
+    gfx.redrawneeded()
+  else
+    self.widgets:find_redrawhit(x,y,x+w,y+h)
+    gfx.redrawneeded(x,y,w,h)
+    --print("redraw area: " .. tostring(x) .." " .. tostring(y) .. " " .. tostring(w) .." " .. tostring(h))
+    table.insert(gui.redrawrects, 1, {x,y,w,h})
+  end
   --gfx.redrawneeded()
 end
 
