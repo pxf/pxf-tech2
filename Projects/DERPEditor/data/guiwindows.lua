@@ -25,27 +25,30 @@ function gui.windows:remove(wnd)
 end
 
 function gui.windows:setactive(wnd)
-  -- remove from window list
-  local i = nil
-  for k,v in pairs(self.windowlist) do
-    if v == wnd then
-      i = k
-      break
+  -- if not the top window is modal, then change active window
+  if not (self.windowlist[1].modal) then
+    -- remove from window list
+    local i = nil
+    for k,v in pairs(self.windowlist) do
+      if v == wnd then
+        i = k
+        break
+      end
     end
-  end
-  table.remove(self.windowlist, k)
-  -- ... and re-insert it at the top
-  table.insert(self.windowlist, 1, wnd)
+    table.remove(self.windowlist, k)
+    -- ... and re-insert it at the top
+    table.insert(self.windowlist, 1, wnd)
   
-  -- do the same for root widget list
-  for k,v in pairs(gui.widgets.childwidgets) do
-    if v == wnd then
-      i = k
-      break
+    -- do the same for root widget list
+    for k,v in pairs(gui.widgets.childwidgets) do
+      if v == wnd then
+        i = k
+        break
+      end
     end
+    table.remove(gui.widgets.childwidgets, i)
+    table.insert(gui.widgets.childwidgets, wnd)
   end
-  table.remove(gui.widgets.childwidgets, i)
-  table.insert(gui.widgets.childwidgets, wnd)
 end
 
 ---------------------------------------
@@ -58,6 +61,9 @@ function gui:create_window(x,y,w,h,modal,label)
 	local window_sizebutton = gui:create_simplebutton(w-40,0,20,20,"v",function() print("lol min/max") end)
 	window.panel = window_panel
 	window.label = window_label
+	
+	-- if the window is in modal mode ( = this window needs to close before we continue)
+	window.modal = modal
 	
 	--local minimize_button = gui:create_staticpanel(w-40,0,20,20)
 	--local close_button = gui:create_staticpanel(w-20,0,20,20)
