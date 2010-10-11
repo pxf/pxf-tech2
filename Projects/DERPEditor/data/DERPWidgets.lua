@@ -696,7 +696,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 					local line = create_spline({{x0,y0},
 										                  {x0+5,y0},
 					                            {x0+10,y0},
-					                            {x0 + ((x1-x0) * 0.25), y0 + ((y1-y0) * 0.25)},
+					                            --{x0 + ((x1-x0) * 0.25), y0 + ((y1-y0) * 0.25)},
 					                            --{x0 + ((x1-x0) / 2), y0 + ((y1-y0) / 2)},
 					                            {x1-10,y1},
 					                            {x1-5,y1},
@@ -720,7 +720,12 @@ function derp:create_workspace(x,y,w,h,from_path)
 					
 					local x1,y1 = self.cam:coord_transform(inp.getmousepos())
 
-					local line = create_spline({{x0,y0},{x0+10,y0},{x1-x0,y1-y0},{x1-10,y1},{x1,y1}},60,2)
+					local line = create_spline({{x0,y0},
+					                            {x0,y0},
+					                            {x0+10,y0},
+					                            {x1-10,y1},
+					                            {x1,y1},
+					                            {x1,y1}},60,2)
 					line:update()
 					line:draw()
 				end

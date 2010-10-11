@@ -15,7 +15,6 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
---local aoe = gfx.rawtexture(128, 2,2,4,"zaazzaazzaazzaaz")
 net.addtag("pipeline")
 net.addtag("preview")
 net.addtag("profiling")
@@ -190,7 +189,7 @@ function draw(force)
   gui:draw(force)
   
   -- test line drawing:
-  local line = create_spline({{100,200},{200,100},{300,300},{400,200},{400,500}}, 30,2)
+  --[[local line = create_spline({{100,200},{200,100},{300,300},{400,200},{400,500}}, 30,2)
   line:update()
   local r,g,b = gfx.getcolor()
   local mx,my = inp.getmousepos()
@@ -200,7 +199,7 @@ function draw(force)
     gfx.setcolor(1,1,1)
   end
   line:draw()
-  gfx.setcolor(r,g,b)
+  gfx.setcolor(r,g,b)]]
   
   --aoe:draw(200,200,300,200,300,300,200,300)
   
