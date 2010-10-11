@@ -718,8 +718,3 @@ int GetLength();
 int GetTag();
 char* GetID();
 ----
-
-
-Math
-----
-See Pxf/Math/(Math|Vector|Matrix).h. This will probably be replaced with the Sony Vector Math Library later.
