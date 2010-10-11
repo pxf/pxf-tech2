@@ -2,6 +2,7 @@
 #define _PXF_NETWORK_ENETPACKET_H_
 
 #include <Pxf/Network/Packet.h>
+#include <Pxf/Network/NetworkDefs.h>
 
 #include <Pxf/Modules/net/ENetDevice.h>
 
