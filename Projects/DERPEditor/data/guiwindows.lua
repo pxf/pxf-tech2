@@ -19,21 +19,36 @@ end
 
 function gui.windows:setactive(wnd)
   -- remove from window list
-  table.remove(self.windowlist, wnd)
+  local i = nil
+  for k,v in pairs(self.windowlist) do
+    if v == wnd then
+      i = k
+      break
+    end
+  end
+  table.remove(self.windowlist, k)
   -- ... and re-insert it at the top
   table.insert(self.windowlist, 1, wnd)
   
   -- do the same for root widget list
-  table.remove(gui.widgets.childwidgets, wnd)
-  table.insert(widgets.childwidgets, wnd)
+  for k,v in pairs(gui.widgets.childwidgets) do
+    if v == wnd then
+      i = k
+      break
+    end
+  end
+  table.remove(gui.widgets.childwidgets, i)
+  table.insert(gui.widgets.childwidgets, wnd)
 end
 
 ---------------------------------------
 -- standard window gui widget
 function gui:create_window(x,y,w,h,modal,label)
 	local window = gui:create_basewidget(x,y,w,h)
-	local window_label = gui:create_labelpanel(0,0,w,20, label)
+	local window_label = gui:create_labelpanel(0,0,w-40,20, label)
 	local window_panel = gui:create_basewidget(0,20,w,h-20)
+	local window_closebutton = gui:create_simplebutton(w-20,0,20,20,"x",function() print("lol close") end)
+	local window_sizebutton = gui:create_simplebutton(w-40,0,20,20,"v",function() print("lol min/max") end)
 	window.panel = window_panel
 	window.label = window_label
 	
@@ -123,6 +138,27 @@ function gui:create_window(x,y,w,h,modal,label)
 		end
 	end]]
 	
+	-- hackety-hack to get all child widgets to be able to move the window
+	function window:mousedrag(dx,dy,button)
+		if (button == inp.MOUSE_LEFT) then
+			window:needsredraw()
+			window.drawbox.x = window.drawbox.x + dx
+			window.drawbox.y = window.drawbox.y + dy
+			window.hitbox.x = window.hitbox.x + dx
+			window.hitbox.y = window.hitbox.y + dy
+			window:needsredraw()
+		end
+	end
+	window_panel.mousedrag = window.mousedrag
+	window_label.mousedrag = window.mousedrag
+	
+	-- set current window active if window gets active
+	function window:mousepush(mx,my,button)
+    gui.windows:setactive(window)
+  end
+  window_panel.mousepush = window.mousepush
+	window_label.mousepush = window.mousepush
+	
 	function window_panel:draw(force)
 	  if (self.redraw_needed or force) then
   		gfx.translate(self.drawbox.x,self.drawbox.y)
@@ -161,6 +197,10 @@ function gui:create_window(x,y,w,h,modal,label)
 	
 	-- add panel to window widget
 	window:addwidget(window_panel)
+	
+	-- add top buttons to window
+	window:addwidget(window_closebutton)
+	window:addwidget(window_sizebutton)
 
 	return window
 end
