@@ -339,7 +339,7 @@ function gui:create_labelpanel(x,y,w,h,text)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		gui:drawfont(self.label_text, x + 8, y + self.drawbox.h / 2)
+		gui:drawfont(self.label_text, x + 12, y + self.drawbox.h / 2)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
