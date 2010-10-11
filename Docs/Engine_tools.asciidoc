@@ -5,11 +5,377 @@ Tools
 ------
 This document should contain the tools available in Base/* and Utils/*
 
+Types
+-----
+This file
+----
+Pxf/Base/Types.h
+----
+typedefs for the built-in types, should be the same size for
+the most common platforms/compilers.
+----
+uint8
+int8
+uint16
+int16
+uint32
+int32
+uint64
+int64
+fp32
+fp64
+----
+
+Configuration
+-------------
+This file
+----
+Pxf/Base/Config.h
+----
+contains macros which makes it simple to check what operating system,
+compiler, architecture we are compiling for.
+
+The following defines are always set
+----
+CONF_FAMILY_STRING
+CONF_PLATFORM_STRING
+CONF_COMPILER_STRING
+CONF_ARCH_STRING
+----
+
+The following may or may not be defined, it depends on the environment.
+----
+CONF_FAMILY_WINDOWS
+CONF_PLATFORM_WIN64
+CONF_PLATFORM_WIN32
+
+CONF_FAMILY_UNIX
+CONF_PLATFORM_FREEBSD
+CONF_PLATFORM_LINUX
+CONF_PLATFORM_MACOSX
+CONF_PLATFORM_UNKNOWN
+
+CONF_CPU_ENDIAN_LITTLE
+CONF_CPU_ENDIAN_BIG
+
+CONF_ARCH_IA32
+CONF_ARCH_IA64
+CONF_ARCH_AMD64
+CONF_ARCH_PPC
+
+CONF_COMPILER_MSVC
+CONF_COMPILER_GCC
+CONF_COMPILER_UNKNOWN
+----
+
+Debug
+-----
+In the following file
+----
+Pxf/Base/Debug.h
+----
+
+We have two useful macros, namely
+[source, cpp]
+----
+PXF_STATIC_ASSERT(expression, message)
+----
+for compile time assertions. assertions with this will throw some unreadable
+error message, so test it once to see what it looks like.
+
+And we also have a regular run-time assertion.
+[source, cpp]
+----
+PXF_ASSERT(expression, message)
+----
+
+A simple log-wrapper is available aswell, this is the previous logger
+used, before kernel->Log. This might be removed later.
+[source, cpp]
+----
+Pxf::Message(const char* subsystem, const char* messagefmt, ...)
+----
+
+Hash
+----
+Hash data using the super fast hash algorithm
+[source,cpp]
+----
+unsigned long Hash(const char *data, int len);
+----
+
+Simple hash for pointers
+[source, cpp]
+----
+unsigned long HashPtr(void *ptr);
+----
+
+Logger
+------
+Contains the logger base class.
+
+The following method needs to be implemented for each new logger
+[source,cpp]
+----
+virtual bool WriteImpl(unsigned int _Tag, const char** _TagTable, unsigned int _TagTableSize, const char* _SrcBuffer, unsigned int _SrcLength);
+----
+--
+* _Tag contains both flags and id
+** mask out id with _Tag & 0x0000FFFF
+** check flag with _Tag & Logger::IS_DEBUG etc
+* _TagTable contains a name for the id in _Tag
+* _TagTableSize is the size of _TagTable
+* _SrcBuffer is the source buffer containing the log string
+* _SrcLength is the length of _SrcBuffer
+--
+
+
+Flag enums
+----
+Logger::IS_DEBUG
+Logger::IS_INFORMATION
+Logger::IS_WARNING
+Logger::IS_CRITICAL
+----
+
+Memory
+------
+void *MemoryAllocate(unsigned len);      
+void *MemoryAllocateArray(unsigned n, unsigned len);  
+void *MemoryReAllocate(void *p, unsigned size);     
+void  MemoryFree(void *p);
+void  MemoryCopy(void *dest, const void *src, unsigned length);
+void  MemoryMove(void *dest, const void *src, unsigned length);
+void  MemoryZero(void *dest, unsigned length);
+void  MemorySet(void *dest, char what, unsigned length);
+int   MemoryCompare(const void *buff1, const void *buff2, unsigned length);
+
+Path
+----
+[source, cpp]
+----
+const char* PathExt(const char* _FilePath);
+----
+
+Platform
+--------
+Get time in ms
+[source, cpp]
+----
+int64 Platform::GetTime();
+----
+
+Random
+------
+
+[source, cpp]
+----
+void RandSetSeed(unsigned long seed);
+unsigned long RandUI32();
+long RandI32();
+double RandFP64();
+float RandFP32();
+----
+
+
+SharedLibrary
+-------------
+
+[source, cpp]
+----
+class SharedLibrary
+{
+public:
+		SharedLibrary();
+		~SharedLibrary();
+		bool Load(const char* _File);
+		bool Close();
+		void* LookupName(const char* _Name);
+		char* GetError();
+		const char* GetFilePath() const;
+}
+----
+
+Stream
+------
+FileStream, MemoryStream
+
+String
+------
+String manipulation functions
+[source, cpp]
+----
+char *StringCopy(char *dest, const char *src, unsigned count);
+char *StringCat(char *dest, const char *src, unsigned count);
+char *StringPadLeft(char *dest, const char *src, int width, char pad_char);
+char *StringPadRight(char *dest, const char *src, int width, char pad_char);
+char *StringPadCenter(char *dest, const char *src, int width, char pad_char);
+----
+
+String manipulaton functions which returns malloced memory
+[source, cpp]
+----
+char *StringDuplicate(const char *str);
+char* StringDuplicateF(const char *format, ...);
+char *StringSub(const char *str, int start, int length);
+char *StringConcat(const char *str1, const char *str2);
+char *DuplicateReplaceChar(const char *str, const char find, const char replace);
+char *DuplicateReplaceString(const char *str, const char *find, const char *replace);
+----
+
+String manipulaton functions which modifies input string
+[source, cpp]
+----
+void ReplaceChar(char *str, const char find, const char replace);
+void ReplaceString(char *str, const char *find, const char *replace);
+void StringToLower(char *str);
+void StringToUpper(char *str);
+void StringRollLeft(char *str);
+void StringRollRight(char *str);
+----
+
+String find functions
+[source, cpp]
+----
+const char *StringFind(const char *target, const char *find);
+const char *StringFindI(const char *target, const char *find);
+const char *StringFind(const char *target, const char find);
+const char *StringFindI(const char *target, const char find);
+const char *StringFind2(const char *target, const char find, const char alt);
+const char *StringFindRev2(const char *target, const char find, const char alt);
+const char *StringFindRev(const char *target, const char *find);
+const char *StringFindRevI(const char *target, const char *find);
+const char *StringFindRev(const char *target, const char find);
+const char *StringFindRevI(const char *target, const char find);
+----
+
+String compare functions
+[source, cpp]
+----
+int StringCompare(const char *str1, const char *str2);
+int StringCompare(const char *str1, const char *str2, unsigned count);
+int StringCompareI(const char *str1, const char *str2);
+int StringCompareI(const char *str1, const char *str2, unsigned count);
+bool IsPrefix(const char *str, const char *prefix);
+bool IsPrefixI(const char *str, const char *prefix);
+bool IsSuffix(const char *str, const char *suffix);
+bool IsSuffixI(const char *str, const char *suffix);
+bool IsWhitespace(const char c);
+bool IsAlpha(const char c);
+bool IsNumeric(const char c);
+bool IsAlphanumeric(const char c);
+----
+
+String convertion functions
+[source, cpp]
+----
+int StringToInteger(const char *number);
+double StringToDouble(const char *number);
+----
+
+Other string functions
+[source, cpp]
+----
+int StringLength(const char *str);
+int StringCount(const char *target, const char *str); 
+const char *SkipWhitespace(const char *str);
+----
+
+
 Timer
-~~~~~~
+-----
+
+[source, cpp]
+----
+class Timer
+{
+private:
+	uint64 m_Start;
+	uint64 m_Stop;
+public:
+	Timer();
+	void Start();
+	void Stop();
+	uint64 Interval();
+};
+----
+
+Usage
+[source, cpp]
 ----
 Timer t;
 t.Start();
 t.Stop();
 t.Interval() -> millisecs
+----
+
+Utils
+-----
+This file
+----
+Pxf/Base/Utils.h
+----
+Macros
+[source, cpp]
+----
+// Used for packing maj/min version numbers into an integer
+#define PXF_PACKSHORT2(maj, min) ((((uint32)(maj)) << 16) | (min))
+
+#define PXF_ELEMENTS_OF(t) (sizeof((t))/sizeof((t)[0]))
+#define PXF_OFFSET_OF(s,m) (size_t)&reinterpret_cast<const volatile char&>((((s *)0)->m))
+----
+
+Functions
+[source, cpp]
+----
+	template<typename T> 
+	void SafeDelete(T& _Ptr);
+
+	template<typename T> 
+	void SafeDeleteArray(T& _Ptr);
+	
+	int FormatArgumentList(char* _Dest, const char** _Format);
+	int Format(char* _Dest, const char* _Format, ...);
+
+	template <typename T> 
+	void Swap(T& a, T& b);
+	
+	template <typename T> 
+	T Abs(const T& a);
+
+	template<typename T1, typename T2> 
+	T1 Max(const T1& a, const T2& b);
+
+	template<typename T1, typename T2> 
+	T1 Min(const T1& a,const T2& b);
+
+	template <typename T1, typename T2, typename T3> 
+	T1 Clamp(const T1& value, const T2& min, const T3& max);
+	
+	uint8 BitReverse8(uint8 v);
+
+	uint32 PackShort2(uint16 _Maj, uint16 _Min);
+	void UnpackShort2(uint32 _Encoded, uint16* _pMaj, uint16* _pMin);
+
+	uint16 Merge2(char a, char b);
+	uint32  Merge4(char a, char b, char c, char d);
+	bool IsPow2(uint32 v);
+	bool IsEven(uint32 v);
+
+	uint16 Byteswap16(uint16 v);
+	uint32 Byteswap32(uint32 v);
+
+	template<typename T> 
+	void SetBit(T* _value, unsigned _bit);
+	
+	template<typename T> 
+	void ClearBit(T* _value, unsigned _bit);
+
+	template<typename T> 
+	static T ByteswapArb(const T& t);
+
+	template <typename T> inline T ByteswapBtoN(const T& t);
+	template <typename T> inline T ByteswapNtoB(const T& t);
+	template <typename T> inline T ByteswapLtoN(const T& t);
+	template <typename T> inline T ByteswapNtoL(const T& t);
 ----

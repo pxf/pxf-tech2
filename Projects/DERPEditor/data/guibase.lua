@@ -3,6 +3,10 @@ gui.snap_to_grid = false
 gui.grid_size = 100
 
 ----------------------------------------------
+-- require window handling extension
+require("data/guiwindows")
+
+----------------------------------------------
 -- base classes for widgets
 
 function gui:create_basewidget(x,y,w,h)

@@ -339,7 +339,7 @@ function gui:create_labelpanel(x,y,w,h,text)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		gui:drawfont(self.label_text, x, y)
+		gui:drawfont(self.label_text, x + 8, y + self.drawbox.h / 2)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
@@ -371,108 +371,6 @@ function gui:create_labelpanel(x,y,w,h,text)
 	return base_widget
 end
 
-function gui:create_movablewindow(x,y,w,h,label)
-	local base_window = gui:create_movablepanel(x,y,w,h)
-	local minimize_button = gui:create_staticpanel(w-40,0,20,20)
-	local close_button = gui:create_staticpanel(w-20,0,20,20)
-	local window_label = gui:create_labelpanel(6,6,0,0,label)
-	local minimize_label_arrow = gui:create_labelpanel(0,0,0,0,">")
-	local close_label_icon = gui:create_labelpanel(6,5,0,0,"x")
-
-	function base_window:destroy_self()
-		self = nil
-	end
-
-	minimize_label_arrow.super_draw = minimize_label_arrow.draw
-	close_label_icon.super_draw = close_label_icon.draw
-
-	local top_container = gui:create_basewidget(0,0,w,20)
-
-	close_button:addwidget(close_label_icon)
-	minimize_button:addwidget(minimize_label_arrow)
-
-	top_container:addwidget(window_label)
-	top_container:addwidget(close_button)
-	top_container:addwidget(minimize_button)
-	
-
-	local window_state = { maximized = 0, minimized = 1 }
-
-	base_window.state = window_state.maximized
-	base_window.height = h
-	base_window:addwidget(top_container)
-
-	base_window.superdraw = base_window.draw
-	
-	function minimize_label_arrow:draw()
-		local move_offset = {x = 0, y = 0}
-		local move_dir = 0
-
-		if (base_window.state == window_state.maximized) then
-			--gfx.rotate(math.pi * 0.5)
-			gfx.translate(move_offset.x + 1,move_offset.y)
-			minimize_label_arrow:super_draw()
-			--gfx.rotate(-math.pi * 0.5)
-			gfx.translate(- (move_offset.x + 1),-move_offset.y)
-		end
-		
-		if (base_window.state == window_state.minimized) then
-			--gfx.rotate(-math.pi * 0.5)
-			gfx.translate(-move_offset.x + 1,-move_offset.y)
-			minimize_label_arrow:super_draw()
-			--gfx.rotate(math.pi * 0.5)
-			gfx.translate(move_offset.x - 1,move_offset.y)
-		end
-	end
-
-	function base_window:minimize()
-	  self:needsredraw()
-		self.drawbox.h = 20
-		self.hitbox.h = 20
-		self.state = window_state.minimized
-		self:needsredraw()
-		--snd.stopsound(balls_id)
-	end
-
-	function base_window:maximize()
-	  self:needsredraw()
-		self.drawbox.h = self.height
-		self.drawbox.h = self.height
-		self.state = window_state.maximized
-		self:needsredraw()
-		--snd.playsound(balls_id,true)
-	end
-
-	function minimize_button:mouserelease(mx,my,button)
-		if (button == inp.MOUSE_LEFT) then
-			if (base_window.state == window_state.minimized) then
-				base_window:maximize()
-			else
-				base_window:minimize()
-			end
-		end
-	end
-
-	function close_button:mouserelease(mx,my,button)
-		if (button == inp.MOUSE_LEFT) then
-			base_window:destroy()
-		end
-	end
-
-	function base_window:draw()
-		self:superdraw()
-
-		gfx.translate(self.hitbox.x,self.hitbox.y)
-	
-		for k,v in pairs(self.childwidgets) do
-			v:draw()
-		end
-
-		gfx.translate(-self.hitbox.x,-self.hitbox.y)
-	end
-
-	return base_window
-end
 
 function gui:create_staticpanel(x,y,w,h)
 	local base_widget = gui:create_basewidget(x,y,w,h)
