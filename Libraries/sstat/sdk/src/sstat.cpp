@@ -252,56 +252,97 @@ long int sstat_memoryusage()
    return ret_val;
 }
 
+gboolean destroy_dialog(gpointer data)
+{
+	gtk_widget_destroy((GtkWidget*)data);
+	gtk_main_quit();
+}
+
 int sstat_savefiledialog(char* _filename)
 {
+	gtk_init_check(NULL, NULL);
+
 	GtkWidget* dialog;
 
-	dialog = gtk_file_chooser_dialog_new("Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+	dialog = gtk_file_chooser_dialog_new(
+		"Save File"
+		, NULL
+		, GTK_FILE_CHOOSER_ACTION_SAVE
+		, GTK_STOCK_CANCEL
+		, GTK_RESPONSE_CANCEL
+		, GTK_STOCK_SAVE
+		, GTK_RESPONSE_ACCEPT
+		, NULL
+	);
 
    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
    {
       char *g_filename;
       g_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
-		strncpy(_filename, g_filename, strlen(g_filename));
+		strncpy(_filename, g_filename, strlen(g_filename)+1);
 
       g_free(g_filename);
    }
 	else
 	{
-		gtk_widget_destroy(dialog);
+		g_signal_connect(GTK_DIALOG(dialog), "destroy", G_CALLBACK(gtk_main_quit), GTK_DIALOG(dialog));
+		g_timeout_add(10, destroy_dialog, dialog);
+
+		gtk_main();
 
 		return -1;
 	}
 
-	gtk_widget_destroy(dialog);
+	g_signal_connect(GTK_DIALOG(dialog), "destroy", G_CALLBACK(gtk_main_quit), GTK_DIALOG(dialog));
+	g_timeout_add(10, destroy_dialog, dialog);
+
+	gtk_main();
 
 	return 0;
 }
 
 int sstat_openfiledialog(char* _filename)
 {
+	gtk_init(NULL, NULL);
+
 	GtkWidget* dialog;
 
-	dialog = gtk_file_chooser_dialog_new("Open File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+	dialog = gtk_file_chooser_dialog_new(
+		"Open File"
+		, NULL
+		, GTK_FILE_CHOOSER_ACTION_OPEN
+		, GTK_STOCK_CANCEL
+		, GTK_RESPONSE_CANCEL
+		, GTK_STOCK_OPEN
+		, GTK_RESPONSE_ACCEPT
+		, NULL
+	);
 
    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
    {
       char *g_filename;
       g_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
-		strncpy(_filename, g_filename, strlen(g_filename));
+		strncpy(_filename, g_filename, strlen(g_filename)+1);
 
       g_free(g_filename);
    }
 	else
 	{
-		gtk_widget_destroy(dialog);
+		g_signal_connect(GTK_DIALOG(dialog), "destroy", G_CALLBACK(gtk_main_quit), GTK_DIALOG(dialog));
+		g_timeout_add(10, destroy_dialog, dialog);
+
+		gtk_main();
 
 		return -1;
 	}
 
-	gtk_widget_destroy(dialog);
+	g_signal_connect(GTK_DIALOG(dialog), "destroy", G_CALLBACK(gtk_main_quit), GTK_DIALOG(dialog));
+	g_timeout_add(10, destroy_dialog, dialog);
+
+	gtk_main();
+
 
 	return 0;
 }
