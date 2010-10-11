@@ -9,14 +9,13 @@ check the header files. Most of them should be easy to understand.
 
 This document should be more of a general usage guide than a specification of the API, we are not quite there yet though.
 
-*TODO:* Add syntax highlighting with pygments or source-highlight
-
 Build system
 ------------
 The engine uses the build system http://matricks.github.com/bam/[bam]. We have a customized
 build file that resolves module and library dependencies in a simple way for each project.
 
 .Example build-file for a simple project
+[source, lua]
 ----
 Import("../../PxfBuild.lua")
 project = NewProject("example-project")
@@ -75,6 +74,8 @@ General
 ^^^^^^^
 The kernel is the main component in *pxf-tech2*. The kernel is a singleton, and you can get
 the instance by calling
+
+[source, cpp]
 ----
 Kernel* Kernel::GetInstance();
 ----
@@ -83,6 +84,7 @@ Modules
 ^^^^^^^
 With the kernel, we can register external modules (.dll, .so, .dynlib depending on your platform)
 .Example of registering a module
+[source, cpp]
 ----
 kernel->RegisterModule("snd", Pxf::System::SYSTEM_TYPE_AUDIODEVICE | Pxf::System::SYSTEM_TYPE_RESOURCELOADER);
 ----
@@ -140,12 +142,14 @@ and the image loader has
 Resource Management
 ~~~~~~~~~~~~~~~~~~~
 The kernel manages a resource manager available with
+[source, cpp]
 ----
 Resource::ResourceManager* Kernel::GetResourceManager();
 ----
 
 The resource manager keeps a table of loaded resources, and does some simple reference counting to remove resources from memory when they aren't being used.
 From a usage perspective this works rather simple. As an example, I will load an audio sample:
+[source, cpp]
 ----
 Resource::ResourceManager* res = kernel->GetResourceManager();
 
@@ -165,6 +169,7 @@ res->Release(snd);
 ----
 
 It's a bit trickier to create a resource manually, but this is how it's currently done.
+[source, cpp]
 ----
 const char ogg_data[] = "...";
 Resource::SoundLoader* snd_ldr = res->FindResourceLoader<Resource::SoundLoader>("ogg");
@@ -174,6 +179,7 @@ Resource::Sound* snd = snd_ldr->CreateFrom(ogg_data, sizeof(ogg_data)/sizeof(ogg
 Simpler methods might be added at a later time.
 
 To see what modules are loaded, we can dump them to screen using
+[source, cpp]
 ----
 res->DumpResourceLoaders();
 ----
@@ -182,22 +188,26 @@ Audio
 -----
 Initialize the audio-device. _BufferSize is the number of frames to process at a time. There is less audio latency with
 lower buffer size, as long as the sound card can keep up. _MaxVoices is the maximum number of simultaniously playing sounds.
+[source, cpp]
 ----
 bool AudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices);
 ----
 
 Register a sound with the engine, return identifier used for controlling the sound.
+[source, cpp]
 ----
 int AudioDevice::RegisterSound(const char* _Filename);
 int AudioDevice::RegisterSound(Resource::Sound* _Sound);
 ----
 
 Look-up sound id based on sound instance
+[source, cpp]
 ----
 int AudioDevice::GetSoundID(const Resource::Sound* _Sound);
 ----
 
 Unregister sound
+[source, cpp]
 ----
 void AudioDevice::UnregisterSound(int _Id);
 void AudioDevice::UnregisterSound(const Resource::Sound* _Sound);
@@ -206,6 +216,7 @@ void AudioDevice::UnregisterSound(const Resource::Sound* _Sound);
 Playback controls
 
 .Play
+[source, cpp]
 ----
 void AudioDevice::Play(int _SoundID, bool _Loop = false);
 ----
@@ -219,6 +230,7 @@ Behaviour for different states of _SoundID
 
 .Other
 Stop or pause individual or all voices.
+[source, cpp]
 ----
 void AudioDevice::Stop(int _SoundID);
 void AudioDevice::StopAll();
@@ -227,6 +239,7 @@ void AudioDevice::PauseAll();
 ----
 
 Dump audio device information to the logger
+[source, cpp]
 ----
 void AudioDevice::DumpInfo();
 ----
@@ -236,6 +249,7 @@ Graphics
 For now, see **Pxf/Graphics/*.h**. Still very much a work-in-progress. See **Projects/DERPRenderer** for advanced usage.
 
 .GraphicsDevice
+[source, cpp]
 ----
 Graphics::Window* GraphicsDevice::OpenWindow(WindowSpecifications* _pWindowSpecs);
 void GraphicsDevice::CloseWindow();
@@ -295,6 +309,7 @@ void GraphicsDevice::SetUniformMat4(Shader* _Shader, const char* _name, const Ma
 ----
 
 .WindowSpecifications
+[source, cpp]
 ----
 struct WindowSpecifications
 {
@@ -312,6 +327,7 @@ struct WindowSpecifications
 ----
 
 .Window
+[source, cpp]
 ----
 typedef void(*WindowSizeCallback)(int _Width, int _Height);
 
@@ -331,6 +347,7 @@ bool Window::IsOpen();
 ----
 
 .Vertex Buffer
+[source, cpp]
 ----
 /**
  * VertexBuffer location types
@@ -398,22 +415,24 @@ enum VertexBufferPrimitiveType {
 };
 ----
 
+[source, cpp]
 ----
-void VertexBuffer::CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize);
-void VertexBuffer::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32 _VertexSize); 
-voidVertexBuffer::(void* _Buffer, uint32 _Count, uint32 _Offset);
-void* VertexBuffer::MapData(VertexBufferAccessFlag _AccessFlag);
-void VertexBuffer::UnmapData();
-void VertexBuffer::SetData(VertexBufferAttribute _AttribType, uint8 _StrideOffset, uint8 _NumComponents);
-uint8 VertexBuffer::GetStrideOffset(VertexBufferAttribute _AttribType);
-uint8 VertexBuffer::GetTypeSize(VertexBufferAttribute _AttribType);
+void   VertexBuffer::CreateNewBuffer(uint32 _NumVertices, uint32 _VertexSize);
+void   VertexBuffer::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32 _VertexSize); 
+void   VertexBuffer::UpdateData(void* _Buffer, uint32 _Count, uint32 _Offset);
+void*  VertexBuffer::MapData(VertexBufferAccessFlag _AccessFlag);
+void   VertexBuffer::UnmapData();
+void   VertexBuffer::SetData(VertexBufferAttribute _AttribType, uint8 _StrideOffset, uint8 _NumComponents);
+uint8  VertexBuffer::GetStrideOffset(VertexBufferAttribute _AttribType);
+uint8  VertexBuffer::GetTypeSize(VertexBufferAttribute _AttribType);
 uint32 VertexBuffer::GetVertexCount() const;
 uint32 VertexBuffer::GetByteCount() const;
-void VertexBuffer::SetPrimitive(VertexBufferPrimitiveType _PrimitiveType);
+void   VertexBuffer::SetPrimitive(VertexBufferPrimitiveType _PrimitiveType);
 VertexBufferPrimitiveType VertexBuffer::GetPrimitive();
 ----
 
 .Framebuffer
+[source, cpp]
 ----
 void FramebufferObject::Attach(Texture* _Texture, const unsigned _Attachment, bool _GenMipmaps) = 0;
 void FramebufferObject::Attach(RenderBuffer* _Buffer, const unsigned _Attachment) = 0;
@@ -426,6 +445,7 @@ bool FramebufferObject::IsComplete() { return m_Complete; }
 ----
 
 .Renderbuffer
+[source, cpp]
 ----
 int  RenderBuffer::GetWidth();
 int  RenderBuffer::GetHeight();
@@ -433,6 +453,7 @@ bool RenderBuffer::Ready();
 ----
 
 .Texture
+[source, cpp]
 ----
 enum TextureFilter
 {
@@ -464,6 +485,8 @@ enum TextureFormatStorage
     TEX_FORMAT_A
 };
 ----
+
+[source, cpp]
 ----
 void Texture::Load(const char* _filepath) = 0;
 void Texture::LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels);
@@ -480,6 +503,7 @@ Math::Vec4f Texture::CreateTextureSubset(float _x1, float _y1, float _x2, float 
 ----
 
 .Shader
+[source, cpp]
 ----
 bool Shader::IsValid();
 ----
@@ -487,6 +511,7 @@ bool Shader::IsValid();
 Input
 -----
 The input system is rather simple. The first thing that must be done before you can get any input is to call
+[source, cpp]
 ----
 void InputDevice::Update();
 ----
@@ -495,18 +520,21 @@ This should be done at least once per frame.
 Keyboard input
 ~~~~~~~~~~~~~~
 Returns true if the key is down
+[source, cpp]
 ----
 bool InputDevice::IsKeyDown(int _key);
 ----
 
 When a key is pressed, it's stored internally within the input device
 The key and char value can be fetched with the following methods
+[source, cpp]
 ----
 int InputDevice::GetLastKey();
 int InputDevice::GetLastChar();
 ----
 
 You have to manually reset these after each frame, or when you are done with them
+[source, cpp]
 ----
 void InputDevice::ClearLastKey();
 void InputDevice::ClearLastChar();
@@ -515,6 +543,7 @@ void InputDevice::ClearLastChar();
 Mouse input
 ~~~~~~~~~~~
 Same as above, but for mouse buttons.
+[source, cpp]
 ----
 bool InputDevice::IsButtonDown(int _button);
 int InputDevice::GetLastButton();
@@ -522,18 +551,21 @@ void InputDevice::ClearLastButton();
 ----
 
 Set/get active mouse mode
+[source, cpp]
 ----
 Input::MouseMode InputDevice::GetMouseMode();
 void InputDevice::SetMouseMode(MouseMode _Mode);
 ----
 
 Get mouse position (either absolute or relative to the previous frame; depending on mouse mode)
+[source, cpp]
 ----
 void InputDevice::GetMousePos(int *x, int *y);
 void InputDevice::SetMousePos(int x, int y);
 ----
 
 Set visibility of the system cursor
+[source, cpp]
 ----
 void InputDevice::ShowCursor(bool _show);
 ----
@@ -636,6 +668,7 @@ Network
 -------
 
 .Network::NetworkDevice
+[source, cpp]
 ----
 Server* CreateServer();
 Client* CreateClient();
@@ -651,6 +684,7 @@ Util::Array<char*>* GetTags();
 ----
 
 .Network::Client
+[source, cpp]
 ----
 bool Connect(const char* _Host, const int _Port);
 bool Disconnect();
@@ -662,6 +696,7 @@ bool Send(const int _Type, const char* _Buf);
 ----
 
 .Network::Server
+[source, cpp]
 ----
 bool Bind(const int _Port);
 bool Shutdown();
@@ -675,6 +710,7 @@ bool SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Le
 ----
 
 .Network::Packet
+[source, cpp]
 ----
 char* GetData();
 int GetSender();

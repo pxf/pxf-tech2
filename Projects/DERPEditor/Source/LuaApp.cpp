@@ -77,7 +77,7 @@ void LuaApp::Init()
 {
   m_RedrawMode = LUAAPP_REDRAWMODE_FULL;
   
-  m_MaxQuadCount = 2048;
+  m_MaxQuadCount = 2048*2;
   m_DepthStep = (LUAAPP_DEPTH_RANGE / m_MaxQuadCount);
   
   m_QuadBatches[m_QuadBatchCount] = new QuadBatch(m_MaxQuadCount, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);

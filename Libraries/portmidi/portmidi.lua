@@ -12,8 +12,6 @@ if family == "unix" then
         library:AddSystemFramework("CoreServices");
         platform_src = "source_osx"
     else
-        -- Not really sure what to link with, please fix if this won't link on linux!
---        library:AddSystemLibrary("lalsa")
         library:AddSystemLibrary("asound")
         platform_src = "source_alsa"
     end
