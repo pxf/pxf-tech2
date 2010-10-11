@@ -208,7 +208,7 @@ int sstat_openfiledialog(char* _filename)
 #include <ios>
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <string.h>
 #include <gtk/gtk.h>
 
 //void process_mem_usage(double& vm_usage, double& resident_set)
@@ -263,18 +263,18 @@ int sstat_savefiledialog(char* _filename)
       char *g_filename;
       g_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
-		strncpy(filename, g_filename, strlen(g_filename));
+		strncpy(_filename, g_filename, strlen(g_filename));
 
-      g_free(filename);
+      g_free(g_filename);
    }
 	else
 	{
-		gtk_destroy_widget(dialog);
+		gtk_widget_destroy(dialog);
 
 		return -1;
 	}
 
-	gtk_destroy_widget(dialog);
+	gtk_widget_destroy(dialog);
 
 	return 0;
 }
@@ -290,18 +290,18 @@ int sstat_openfiledialog(char* _filename)
       char *g_filename;
       g_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
-		strncpy(filename, g_filename, strlen(g_filename));
+		strncpy(_filename, g_filename, strlen(g_filename));
 
-      g_free(filename);
+      g_free(g_filename);
    }
 	else
 	{
-		gtk_destroy_widget(dialog);
+		gtk_widget_destroy(dialog);
 
 		return -1;
 	}
 
-	gtk_destroy_widget(dialog);
+	gtk_widget_destroy(dialog);
 
 	return 0;
 }
