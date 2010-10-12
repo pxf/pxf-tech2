@@ -1,3 +1,5 @@
+require("data/DERPComponents")
+
 derp = {}
 derp.active_workspace = nil
 derp.active_tool = { last = nil, current = nil }
@@ -258,7 +260,28 @@ function derp:create_slider(x,y,w,min,max)
 end
 
 function derp:create_workspace_menu()
-	local menu = {
+  local component_menu = {}
+  for group,types in pairs(derp_components) do
+    
+    local type_menu = {}
+    for blocktype,v in pairs(types) do
+      if not (blocktype == "name") then
+        table.insert(type_menu, {tostring(v.name), {tooltip = "lol sup", onclick = function()
+                                                                                     local x,y = self.active_workspace.cam:coord_transform(inp.getmousepos())
+                                                                                     self.active_workspace:addcomponent(v:new_block(x,y))
+                                                                                   end
+                                                   }
+                                }
+                    )
+      end
+    end
+    
+    local sub_menu = {tostring(types.name), {menu = type_menu}}
+    table.insert(component_menu, sub_menu)
+  end
+  local menu = {{"New component", {menu = component_menu}}}
+  
+	--[[local menu = {
 		{"New Component", 
 			{
 				menu = {
@@ -277,7 +300,7 @@ function derp:create_workspace_menu()
 				}
 			}
 	   }
-	}
+	}]]
 			
 	local wid = gui:create_menu(0,0,menu)
 	
@@ -853,8 +876,9 @@ function derp:create_workspace(x,y,w,h,from_path)
 		end
 	end
 	
-	function wid:addcomponent(x,y,ctype)
-		local new_comp = { x = x, y = y, w = 100, h = 100, type = ctype,id = self.id_counter, inputs = { 0,0,0 }, outputs = { 0,0,0 } }
+	function wid:addcomponent(compdata)
+		local new_comp = compdata--{ x = x, y = y, w = 100, h = 100, type = ctype,id = self.id_counter, inputs = { 0,0,0 }, outputs = { 0,0,0 } }
+		new_comp.id = self.id_counter
 		self.component_data.nodes[self.id_counter] = new_comp
 		self.id_counter = self.id_counter + 1
 

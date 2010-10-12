@@ -351,7 +351,8 @@ function gui:set_focus(wid)
 end
 
 function gui:drawcenteredfont(str,x,y)
-  local x2 = x - ((#str-1) * 8) / 2
+  local len = #string.gsub(str, "%^%(.-%){(.-)}", "%1")
+  local x2 = x - ((len-1) * 8) / 2
   local y2 = y + (4 / 2) - 1
   gui:drawfont(str, x2, y2)
 end
@@ -365,36 +366,68 @@ function gui:drawfont(str,x,y)
 	local char_w = 8
 	local line_h = 16
 	
+	-- newline stuff
 	local start_x = x
 	local current_x = 0
 	local current_y = 0
+	
+	-- color stuff
+	local char_skip = 0
+	local color_old = {1,1,1}
+	local color_length = -1
 	
 	local char_counter = 0
 	local euro_next = false
 	
 	for i=1,strlen do
-	  -- calculate tex coords
-	  local index = string.byte(str, i)
-	  if (index == 195) then
-	    -- found special char
-	    euro_next = true
-	  elseif (index == 10) then
-	    current_x = start_x
-	    current_y = current_y + line_h
-    else	  
-  	    -- draw quad
-  	    if (euro_next) then
-  	      euro_next = false
-  	      index = index + 32
-	      else
-	        index = index - 32
-	      end
-    	  local s = math.fmod(index, 16) * 16
-    	  local t = math.floor(index / 16) * 16
-  	    gfx.drawcentered(current_x, current_y, 16, 16, s, t, 16, 16)
-  	    current_x = current_x + char_w
-  	    char_counter = char_counter + 1
+	  if (char_skip > 0) then
+	    char_skip = char_skip - 1
+    else
+      if (color_length > 0) then
+        color_length = color_length - 1
+      end
+      
+      if (color_length == 0) then
+        -- reset old color
+        gfx.setcolor(color_old[1],color_old[2],color_old[3])
+        color_length = -1
+      else      
+    	  -- calculate tex coords
+    	  local index = string.byte(str, i)
+    	  if (index == 195) then
+    	    -- found special char
+    	    euro_next = true
+    	  elseif (index == 10) then
+    	    -- newline
+    	    current_x = start_x
+    	    current_y = current_y + line_h
+    	  elseif (index == 94) then
+    	    -- color change
+  	      local start,j,r,g,b,s = string.find(string.sub(str, i), "%((.-),(.-),(.-)%){(.-)}") 
+  	      if start then
+  	        color_length = #s+1
+  	        color_old[1],color_old[2],color_old[3] = gfx.getcolor()
+  	        gfx.setcolor(tonumber(r), tonumber(g), tonumber(b))
+	        
+  	        -- find out how many chars to skip
+    	      char_skip = #("(" .. r .. "," .. g .. "," .. b .. "){")
+          end
+        else	  
+      	    -- draw quad
+      	    if (euro_next) then
+      	      euro_next = false
+      	      index = index + 32
+    	      else
+    	        index = index - 32
+    	      end
+        	  local s = math.fmod(index, 16) * 16
+        	  local t = math.floor(index / 16) * 16
+      	    gfx.drawcentered(current_x, current_y, 16, 16, s, t, 16, 16)
+      	    current_x = current_x + char_w
+      	    char_counter = char_counter + 1
     
+        end
+      end
     end
 	end
 	
