@@ -330,6 +330,45 @@ function gui:create_console(x,y,w,h,open_state)
   return wid
 end
 
+function gui:create_centeredmultiline_label(x,y,w,h,lines)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+	base_widget.lines = lines
+
+	base_widget.superdraw = base_widget.draw
+	function base_widget:draw()
+		gfx.translate(self.drawbox.x,self.drawbox.y)
+
+    for k,v in pairs(self.lines) do
+      gui:drawcenteredfont(v, self.drawbox.w / 2, 12+16*(k-1))
+    end
+
+		gfx.translate(-self.drawbox.x,-self.drawbox.y)
+
+		base_widget:superdraw()
+	end
+
+	return base_widget
+end
+
+function gui:create_centeredlabelpanel(x,y,w,h,text)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+	base_widget.label_text = text
+
+	base_widget.superdraw = base_widget.draw
+	function base_widget:draw()
+		gfx.translate(self.drawbox.x,self.drawbox.y)
+
+		gui:drawcenteredfont(self.label_text, self.drawbox.w / 2, 12)
+
+		gfx.translate(-self.drawbox.x,-self.drawbox.y)
+
+		base_widget:superdraw()
+	end
+
+	return base_widget
+end
+
+
 function gui:create_labelpanel(x,y,w,h,text)
 	local base_widget = gui:create_basewidget(x,y,w,h)
 	base_widget.label_text = text
@@ -339,7 +378,7 @@ function gui:create_labelpanel(x,y,w,h,text)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		gui:drawfont(self.label_text, x + 12, y + self.drawbox.h / 2)
+		gui:drawfont(self.label_text, 12, self.drawbox.h / 2)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
@@ -505,8 +544,8 @@ function gui:create_movablepanel(x,y,w,h)
 	return base_widget
 end
 
--- simple button aoeu
-function gui:create_simplebutton(x,y,w,h,label,action)
+-- simple button with label
+function gui:create_labelbutton(x,y,w,h,label,action)
   local wid = gui:create_basewidget(x,y,w,h)
   wid.action = action
   wid.label = label
@@ -587,6 +626,60 @@ function gui:create_simplebutton(x,y,w,h,label,action)
   
   return wid
 end
+
+-- simple button with icon
+function gui:create_iconbutton(x,y,w,h,icon_coords,action)
+  local wid = gui:create_basewidget(x,y,w,h)
+  wid.action = action
+  wid.icon_coords = icon_coords
+  wid.state = 0 -- 0 = up, 1 = down
+  
+  function wid:mouserelease(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      self:action(mx,my,button)
+    end
+    self.state = 0
+    self:needsredraw()
+  end
+  
+  function wid:mousepush(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      self.state = 1
+      self:needsredraw()
+    end
+  end
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- bg
+      --[[if (self.state == 0) then
+        gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
+                        512,1,1,254)
+      else
+        gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
+                        510,1,0,254)
+      end]]
+      --gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h, 2, 2, 1, 1)
+      
+      -- icon
+      if (self.state == 0) then
+        gfx.drawcentered(self.drawbox.w / 2, self.drawbox.h / 2, wid.icon_coords[3], wid.icon_coords[4]
+                       , wid.icon_coords[1], wid.icon_coords[2], wid.icon_coords[3], wid.icon_coords[4]) -- texcoords
+      else
+        gfx.drawcentered(self.drawbox.w / 2+1, self.drawbox.h / 2+1, wid.icon_coords[3], wid.icon_coords[4]
+                       , wid.icon_coords[1], wid.icon_coords[2], wid.icon_coords[3], wid.icon_coords[4]) -- texcoords
+      end
+    
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+    end
+  end
+  
+  return wid
+end
+
 
 -- spawns a menu in the root of the widget tree
 function gui:spawn_menu(x,y,menu)

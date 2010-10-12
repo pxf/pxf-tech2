@@ -54,14 +54,21 @@ end
 ---------------------------------------
 -- standard window gui widget
 function gui:create_window(x,y,w,h,modal,label)
-	local window = gui:create_basewidget(x,y,w,h)
+  local shadow_size = 8
+	local window = gui:create_basewidget(x-shadow_size,y-shadow_size,w+shadow_size,h+shadow_size)
 	window.title_height = 24
+	window.shadow_size = shadow_size
+	
+	-- sub-panels
 	local window_label = gui:create_labelpanel(0,0,w-40,window.title_height, label)
 	local window_panel = gui:create_basewidget(0,window.title_height,w,h-window.title_height)
-	local window_closebutton = gui:create_simplebutton(w-window.title_height,0,window.title_height,window.title_height,"x",
+	
+	-- buttons
+	local window_closebutton = gui:create_iconbutton(w-window.title_height-shadow_size,0,window.title_height,window.title_height,{21,11,8,8},
 	                                                   function(self) self.parent:destroy() end)
-	local window_sizebutton = gui:create_simplebutton(w-window.title_height*2,0,window.title_height,window.title_height,"v",
+	local window_sizebutton = gui:create_iconbutton(w-window.title_height*2-shadow_size,0,window.title_height,window.title_height,{0,0,2,2},
 	                                                  function() print("lol min/max") end)
+	
 	window.panel = window_panel
 	window.label = window_label
 	
@@ -198,22 +205,39 @@ function gui:create_window(x,y,w,h,modal,label)
 	  if (self.redraw_needed or force) then
   		gfx.translate(self.drawbox.x,self.drawbox.y)
   		
+  		-- shadow
+  		gfx.drawtopleft(0, 0, 18, 18, 31, 9, 18, 18) -- topleft
+  		gfx.drawtopleft(self.drawbox.w - 18, 0, 18, 18, 49, 9, 18, 18) -- topright
+  		gfx.drawtopleft(0, self.drawbox.h-18, 18, 18, 31, 27, 18, 18) -- bottomleft
+  		gfx.drawtopleft(self.drawbox.w - 18, self.drawbox.h-18, 18, 18, 49, 27, 18, 18) -- bottomright
+  		
+  		gfx.drawtopleft(18, 0, self.drawbox.w-18*2, 18, 49, 9, 1, 18) -- top
+  		gfx.drawtopleft(self.drawbox.w-18, 18, 18, self.drawbox.h-18*2, 49, 27, 18, 1) -- right
+  		gfx.drawtopleft(18, self.drawbox.h-18, self.drawbox.w-18*2, 18, 49, 27, 1, 18) -- bottom
+  		gfx.drawtopleft(0, 18, 18, self.drawbox.h-18*2, 31, 27, 18, 1) -- left
+  		
+  		gfx.translate(self.shadow_size, self.shadow_size)
+  		
   		-- bg
-  		gfx.drawtopleft(1, 1, self.drawbox.w-2, self.drawbox.h-2, 2, 2, 1, 1)
+  		local a = gfx.getalpha()
+  		gfx.setalpha(0.9)
+  		gfx.drawtopleft(1, 1, self.drawbox.w-2-self.shadow_size*2, self.drawbox.h-2-self.shadow_size*2, 2, 2, 1, 1)
+  		gfx.setalpha(a)
   		
   		-- borders
-  		gfx.drawtopleft(1,0,self.drawbox.w-2,1,1,5,1,1) -- top
-  		gfx.drawtopleft(self.drawbox.w-1,1,1,self.drawbox.h-2,1,5,1,1) -- right
-  		gfx.drawtopleft(1,self.drawbox.w-1,self.drawbox.w-2,1,1,5,1,1) -- bottom
-  		gfx.drawtopleft(0,1,1,self.drawbox.h-2,1,5,1,1) -- right
+  		gfx.drawtopleft(1,0,self.drawbox.w-2-self.shadow_size*2,1,1,5,1,1) -- top
+  		gfx.drawtopleft(self.drawbox.w-1-self.shadow_size*2,1,1,self.drawbox.h-2-self.shadow_size*2,1,5,1,1) -- right
+  		gfx.drawtopleft(1,self.drawbox.h-1-self.shadow_size*2,self.drawbox.w-2-self.shadow_size*2,1,1,5,1,1) -- bottom
+  		gfx.drawtopleft(0,1,1,self.drawbox.h-2-self.shadow_size*2,1,5,1,1) -- right
   		
   		-- titlebar
-  		gfx.drawtopleft(1, 1, self.drawbox.w-2, window.title_height-2, 508, 1, 1, 100)
+  		gfx.drawtopleft(1, 1, self.drawbox.w-self.shadow_size*2-2, window.title_height-2, 508, 1, 0, 128)
 	
   		for k,v in pairs(self.childwidgets) do
   			v:draw(force)
   		end
-
+  		
+  		gfx.translate(-self.shadow_size, -self.shadow_size)
   		gfx.translate(-self.drawbox.x,-self.drawbox.y)
   	end
 	end

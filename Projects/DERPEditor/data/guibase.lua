@@ -363,6 +363,11 @@ function gui:drawfont(str,x,y)
   gfx.translate(x, y)
 	local strlen = #str
 	local char_w = 8
+	local line_h = 16
+	
+	local start_x = x
+	local current_x = 0
+	local current_y = 0
 	
 	local char_counter = 0
 	local euro_next = false
@@ -373,6 +378,9 @@ function gui:drawfont(str,x,y)
 	  if (index == 195) then
 	    -- found special char
 	    euro_next = true
+	  elseif (index == 10) then
+	    current_x = start_x
+	    current_y = current_y + line_h
     else	  
   	    -- draw quad
   	    if (euro_next) then
@@ -383,7 +391,8 @@ function gui:drawfont(str,x,y)
 	      end
     	  local s = math.fmod(index, 16) * 16
     	  local t = math.floor(index / 16) * 16
-  	    gfx.drawcentered((char_counter)*char_w, 0, 16, 16, s, t, 16, 16)
+  	    gfx.drawcentered(current_x, current_y, 16, 16, s, t, 16, 16)
+  	    current_x = current_x + char_w
   	    char_counter = char_counter + 1
     
     end
