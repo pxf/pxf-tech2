@@ -227,11 +227,11 @@ function gui:create_window(x,y,w,h,modal,label)
   		-- borders
   		gfx.drawtopleft(1,0,self.drawbox.w-2-self.shadow_size*2,1,1,5,1,1) -- top
   		gfx.drawtopleft(self.drawbox.w-1-self.shadow_size*2,1,1,self.drawbox.h-2-self.shadow_size*2,1,5,1,1) -- right
-  		gfx.drawtopleft(1,self.drawbox.w-1-self.shadow_size*2,self.drawbox.w-2-self.shadow_size*2,1,1,5,1,1) -- bottom
+  		gfx.drawtopleft(1,self.drawbox.h-1-self.shadow_size*2,self.drawbox.w-2-self.shadow_size*2,1,1,5,1,1) -- bottom
   		gfx.drawtopleft(0,1,1,self.drawbox.h-2-self.shadow_size*2,1,5,1,1) -- right
   		
   		-- titlebar
-  		gfx.drawtopleft(1, 1, self.drawbox.w-self.shadow_size*2, window.title_height-2, 508, 1, 1, 100)
+  		gfx.drawtopleft(1, 1, self.drawbox.w-self.shadow_size*2-2, window.title_height-2, 508, 1, 0, 128)
 	
   		for k,v in pairs(self.childwidgets) do
   			v:draw(force)

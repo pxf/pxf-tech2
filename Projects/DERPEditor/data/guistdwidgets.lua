@@ -330,6 +330,45 @@ function gui:create_console(x,y,w,h,open_state)
   return wid
 end
 
+function gui:create_centeredmultiline_label(x,y,w,h,lines)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+	base_widget.lines = lines
+
+	base_widget.superdraw = base_widget.draw
+	function base_widget:draw()
+		gfx.translate(self.drawbox.x,self.drawbox.y)
+
+    for k,v in pairs(self.lines) do
+      gui:drawcenteredfont(v, self.drawbox.w / 2, 12+16*(k-1))
+    end
+
+		gfx.translate(-self.drawbox.x,-self.drawbox.y)
+
+		base_widget:superdraw()
+	end
+
+	return base_widget
+end
+
+function gui:create_centeredlabelpanel(x,y,w,h,text)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+	base_widget.label_text = text
+
+	base_widget.superdraw = base_widget.draw
+	function base_widget:draw()
+		gfx.translate(self.drawbox.x,self.drawbox.y)
+
+		gui:drawcenteredfont(self.label_text, self.drawbox.w / 2, 12)
+
+		gfx.translate(-self.drawbox.x,-self.drawbox.y)
+
+		base_widget:superdraw()
+	end
+
+	return base_widget
+end
+
+
 function gui:create_labelpanel(x,y,w,h,text)
 	local base_widget = gui:create_basewidget(x,y,w,h)
 	base_widget.label_text = text
@@ -339,7 +378,7 @@ function gui:create_labelpanel(x,y,w,h,text)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		gui:drawfont(self.label_text, x + 12, y + self.drawbox.h / 2)
+		gui:drawfont(self.label_text, 12, self.drawbox.h / 2)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
