@@ -867,11 +867,6 @@ function gui:create_menu(x,y,menu)
 		gfx.drawtopleft(1,self.drawbox.h-1,self.drawbox.w-2,1,5,5,1,1) -- bottom
 		gfx.drawtopleft(0,1,1,self.drawbox.h-2,5,5,1,1) -- right
 		
-		--gfx.drawtopleft(1,0,self.drawbox.w-2,1,5,5,1,1) -- top
-		--gfx.drawtopleft(0,1,1,self.drawbox.h-2,5,5,1,1)
-		--gfx.drawtopleft(self.drawbox.w-1,self.drawbox.y+1,1,self.drawbox.h-2,5,5,1,1)
-		--gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y + self.drawbox.h,self.drawbox.w-2,1,5,5,1,1)
-		
 		gfx.setalpha(old_a)
 		gfx.setcolor(r,g,b)
 		

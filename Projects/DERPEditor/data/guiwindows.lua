@@ -74,6 +74,24 @@ function gui:create_window(x,y,w,h,modal,label)
 	
 	-- if the window is in modal mode ( = this window needs to close before we continue)
 	window.modal = modal
+	if (modal) then
+	  local dimmer = gui:create_basewidget(0,0,app.width / 2,app.height)
+	  
+	  function dimmer:draw(force)
+	    if (self.redraw_needed or force) then
+  	    local a = gfx.getalpha()
+  	    local r,g,b = gfx.getcolor()
+  	    gfx.setcolor(0,0,0)
+  	    gfx.setalpha(0.2)
+  	    gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h, 5,5,1,1)
+  	    gfx.setcolor(r,g,b)
+  	    gfx.setalpha(a)
+      end
+    end
+	  
+	  window.dimmer = dimmer
+	  gui.widgets:addwidget(dimmer)
+  end
 	
 	--local minimize_button = gui:create_staticpanel(w-40,0,20,20)
 	--local close_button = gui:create_staticpanel(w-20,0,20,20)
@@ -185,6 +203,12 @@ function gui:create_window(x,y,w,h,modal,label)
 	-- change so that destroy also removes the window from the window list
 	window.superdestroy = window.destroy
 	function window:destroy()
+	  
+	  -- if modal, remove dimmer
+	  if (self.modal) then
+	    self.dimmer:destroy()
+    end
+	  
 	  self:superdestroy()
 	  gui.windows:remove(self)
   end

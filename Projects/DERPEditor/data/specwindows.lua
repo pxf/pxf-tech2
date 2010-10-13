@@ -1,7 +1,8 @@
 function spawn_aboutwindow()
-  local short_info = {"^(1,0.4,0.4){D}^(0.4,1,0.4){E}^(0.4,0.4,1){R}^(1,0.4,0.4){P} Editor is a bla bla bla,"
-                     ,"yada yada yada."
-                     ,"You might need to take a dump in your bed."}
+  local short_info = { "^(1,0.4,0.4){D}^(0.4,1,0.4){E}^(0.4,0.4,1){R}^(1,0.4,0.4){P} Editor is a bla bla bla,"
+                     , "yada yada yada."
+                     , "You might need to take a dump in your bed."
+                     }
   
   local about_window = gui:create_window(200,120,400,250, true, "About")
   local shortinfo_panel = gui:create_centeredmultiline_label(0,0,400,60,short_info)
@@ -20,4 +21,12 @@ function spawn_aboutwindow()
   end
   
   gui.windows:add(about_window)
+end
+
+function spawn_settingswindow()
+  local settings_window = gui:create_window(200,120,400,250, true, "Application Settings")
+  --local shortinfo_panel = gui:create_centeredmultiline_label(0,0,400,60,short_info)
+  --about_window.panel:addwidget(shortinfo_panel)
+  
+  gui.windows:add(settings_window)
 end
