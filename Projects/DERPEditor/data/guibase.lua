@@ -181,7 +181,7 @@ function gui:create_basewidget(x,y,w,h)
   ----------------------------------
   
   function wid:draw(force)
-  	if self.visible then
+  	if (self.redraw_needed or force) and self.visible then
 		
   		if (gui.draw_debug_rects) then
   			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, 1, 5, 5, 1, 1) -- top

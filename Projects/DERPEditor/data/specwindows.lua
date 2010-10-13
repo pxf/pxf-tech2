@@ -4,7 +4,7 @@ function spawn_aboutwindow()
                      , "You might need to take a dump in your bed."
                      }
   
-  local about_window = gui:create_window(200,120,400,250, true, "About")
+  local about_window = gui:create_window(app.width / 2 - 200,app.height / 2 - 125,400,250, true, "About")
   local shortinfo_panel = gui:create_centeredmultiline_label(0,0,400,60,short_info)
   local memory_panel = gui:create_labelpanel(0,60,400,20,"Memory usage: unknown")
   

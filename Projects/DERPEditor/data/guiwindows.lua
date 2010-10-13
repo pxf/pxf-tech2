@@ -8,6 +8,10 @@ function gui.windows:add(wnd)
   -- add window to top of list
   table.insert(self.windowlist, 1, wnd)
   
+  if (wnd.modal) then
+    gui.widgets:addwidget(wnd.dimmer)
+  end
+  
   -- add to widget root
   gui.widgets:addwidget(wnd)
 end
@@ -58,16 +62,19 @@ function gui:create_window(x,y,w,h,modal,label)
 	local window = gui:create_basewidget(x-shadow_size,y-shadow_size,w+shadow_size,h+shadow_size)
 	window.title_height = 24
 	window.shadow_size = shadow_size
+	window.state = "full" -- "full" or "compact"
+	window.full_height = h+shadow_size
+	window.compact_height = window.title_height+shadow_size*2
 	
 	-- sub-panels
 	local window_label = gui:create_labelpanel(0,0,w-40,window.title_height, label)
-	local window_panel = gui:create_basewidget(0,window.title_height,w,h-window.title_height)
+	local window_panel = gui:create_basewidget(0,window.title_height+shadow_size,w,h-window.title_height)
 	
 	-- buttons
-	local window_closebutton = gui:create_iconbutton(w-window.title_height-shadow_size,0,window.title_height,window.title_height,{21,11,8,8},
+	local window_closebutton = gui:create_iconbutton(w-window.title_height-shadow_size,shadow_size,window.title_height,window.title_height,{21,11,8,8},
 	                                                   function(self) self.parent:destroy() end)
-	local window_sizebutton = gui:create_iconbutton(w-window.title_height*2-shadow_size,0,window.title_height,window.title_height,{0,0,2,2},
-	                                                  function() print("lol min/max") end)
+	local window_sizebutton = gui:create_iconbutton(w-window.title_height*2-shadow_size,shadow_size,window.title_height,window.title_height,{22,21,7,3},
+	                                                  function(self) self.parent:toggle_state() end)
 	
 	window.panel = window_panel
 	window.label = window_label
@@ -75,14 +82,14 @@ function gui:create_window(x,y,w,h,modal,label)
 	-- if the window is in modal mode ( = this window needs to close before we continue)
 	window.modal = modal
 	if (modal) then
-	  local dimmer = gui:create_basewidget(0,0,app.width / 2,app.height)
+	  local dimmer = gui:create_basewidget(0,0,app.width,app.height)
 	  
 	  function dimmer:draw(force)
 	    if (self.redraw_needed or force) then
   	    local a = gfx.getalpha()
   	    local r,g,b = gfx.getcolor()
   	    gfx.setcolor(0,0,0)
-  	    gfx.setalpha(0.2)
+  	    gfx.setalpha(0.4)
   	    gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h, 5,5,1,1)
   	    gfx.setcolor(r,g,b)
   	    gfx.setalpha(a)
@@ -90,7 +97,23 @@ function gui:create_window(x,y,w,h,modal,label)
     end
 	  
 	  window.dimmer = dimmer
-	  gui.widgets:addwidget(dimmer)
+	  --gui.widgets:addwidget(dimmer)
+  end
+  
+  function window:toggle_state()
+    if (self.state == "full") then
+      -- toggle to compact
+      self.state = "compact"
+      self.panel.visible = false
+      self:resize_abs(self.drawbox.w, self.compact_height)
+      --print("toggling to compact")
+    else
+      -- toggle to full
+      self.state = "full"
+      self.panel.visible = true
+      self:resize_abs(self.drawbox.w, self.full_height)
+      --print("toggling to full")
+    end
   end
 	
 	--local minimize_button = gui:create_staticpanel(w-40,0,20,20)
@@ -213,6 +236,7 @@ function gui:create_window(x,y,w,h,modal,label)
 	  gui.windows:remove(self)
   end
 	
+	--[[window_panel.super_draw = window_panel.draw
 	function window_panel:draw(force)
 	  if (self.redraw_needed or force) then
   		gfx.translate(self.drawbox.x,self.drawbox.y)
@@ -223,7 +247,7 @@ function gui:create_window(x,y,w,h,modal,label)
 
   		gfx.translate(-self.drawbox.x,-self.drawbox.y)
   	end
-	end
+	end]]
 
 	function window:draw(force)
 	  if (self.redraw_needed or force) then
