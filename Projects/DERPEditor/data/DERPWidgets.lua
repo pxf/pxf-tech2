@@ -668,6 +668,75 @@ function derp:create_workspacecamera(x,y,w,h)
 	return cam
 end
 
+
+function derp:create_workspace(x,y,w,h,from_path)
+	local checkers_texture = gfx.loadtexture(1,"data/checkers.png")
+	local wid = gui:create_basewidget(x,y,w,h)
+	wid.widget_type = "workspace"
+	wid.super_draw = wid.draw
+	
+	wid.id_counter = 1
+	wid.component_data = { active_widgets = {}, nodes = {} , edges = { } }
+	wid.workspace_stack = { counter = 0, stack = {} }
+	
+	if from_path then
+		wid.component_data = derp:load(from_path)
+	end
+	
+	function wid:draw(force)
+		if (self.redraw_needed or force) then
+			local old_alpha = gfx.getalpha()
+			gfx.setalpha(0.25)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,5,1,1) -- solid bg
+			gfx.setalpha(old_alpha)
+			
+			local old_tex = gfx.bindtexture(checkers_texture)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*0.75)	-- checkers
+			gfx.bindtexture(old_tex)
+		end
+	end
+	
+	function wid:undo()
+		-- decrement pointer
+		if self.workspace_stack.counter ~= 0 then
+			self.workspace_stack.counter = self.workspace_stack.counter - 1
+		
+			-- retreive from workspace stack
+			local ws = self.workspace_stack.stack[self.workspace_stack.counter]
+			
+			if ws then
+				self.component_data = loadstring("return" .. ws)()
+			end
+		end
+	end
+	
+	function wid:redo()
+		if self.workspace_stack.counter ~= #self.workspace_stack.stack then
+			self.workspace_stack.counter = self.workspace_stack.counter + 1
+			
+			local ws = self.workspace_stack.stack[self.workspace_stack.counter]
+			
+			self.component_data = loadstring("return" .. ws)()
+		end
+	end
+	
+	function wid:resize_callback(w,h)
+		self.drawbox.h = self.drawbox.h - h
+		self.hitbox.h = self.drawbox.h
+	end
+	
+	function wid:mousepush(mx,my,button)
+		
+	end
+	
+	function wid:mouserelease(x,y,button)
+
+	end
+	
+	return wid
+end
+
+--[[
 function derp:create_workspace(x,y,w,h,from_path)
 	local wid = gui:create_basewidget(x,y,w,h)
 	wid.widget_type = "workspace"
@@ -945,6 +1014,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	return wid
 end
+
+]]
 
 function derp:create_workspacecontainer(x,y,w,h)
 	local wid = gui:create_verticalstack(x,y,w,h)

@@ -161,7 +161,7 @@ ws01 = workspace_tabs:addtab("workspace01",workspace_area)
 
 local workspace_frames = derp:create_workspaceframe(20,100,app.width-290,app.height-121)
 
-local navigator = derp:create_navigator(app.width-421,app.height-172,150,150)
+--local navigator = derp:create_navigator(app.width-421,app.height-172,150,150)
 
 gui.widgets:addwidget(workspace_area)
 gui.widgets:addwidget(menu_container)
@@ -172,7 +172,7 @@ gui.widgets:addwidget(center_main_toolbar)
 gui.widgets:addwidget(workspace_tabs)
 gui.widgets:addwidget(inspector)
 gui.widgets:addwidget(workspace_frames)
-gui.widgets:addwidget(navigator)
+--gui.widgets:addwidget(navigator)
 
 derp:init()
 
