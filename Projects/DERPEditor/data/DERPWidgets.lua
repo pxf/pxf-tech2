@@ -583,9 +583,9 @@ function derp:create_workspacecamera(x,y,w,h)
 						{ name = "undo",keys = {inp.LCTRL, "Z"}, was_pressed = false, onpress = function () print("UNDO") derp.active_workspace:undo() end},
 						{ name = "delete", keys = {inp.BACKSPACE}, was_pressed = false, 
 							onpress = function ()  
-								if #derp.active_workspace.component_data.active_widgets > 0 then
+								if #derp.active_workspace.component_data.active_components > 0 then
 								
-									for i,wid in pairs(derp.active_workspace.component_data.active_widgets) do
+									for i,wid in pairs(derp.active_workspace.component_data.active_components) do
 										for k,v in pairs(derp.active_workspace.component_data.edges) do
 											if v[1].comp.id == wid.id then
 												-- wid is connected to an input
@@ -601,7 +601,7 @@ function derp:create_workspacecamera(x,y,w,h)
 										derp.active_workspace.component_data.nodes[wid.id] = nil
 									end
 									
-									derp.active_workspace.component_data.active_widgets = { }
+									derp.active_workspace.component_data.active_components = { }
 									derp:push_workspace(derp.active_workspace)
 								end
 							end},
@@ -675,6 +675,8 @@ function derp:create_basecomponentblock(component_data)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
 	
+	wid.id = component_data.id
+	wid.widget_type = "component " .. wid.id
 	wid.super_draw = wid.draw
 	function wid:draw(force)
 		if self.redraw_needed or force then
@@ -724,7 +726,16 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.component_data = { active_components = {}, components = {}}
 	wid.workspace_stack = { counter = 0, stack = {} }
 	
-	wid.shortcuts = { { name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
+	wid.shortcuts = { 	{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
+						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
+						{ name = "move ws",keys = {inp.SPACE}, was_pressed = false, 
+							onpress = function () 
+								derp:set_activetool(move_ws) 
+							end, 
+							onrelease = function () 
+								derp:set_activetool(derp.active_tool.last)
+							end },
+						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
 								derp.ws_menu.menu = derp.ws_menu.super_menu	
 								derp.ws_menu:show() 
@@ -757,6 +768,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 		local id = "wid " .. wid.id_counter 
 		self.component_data.components[id] = comp
 		comp.id = id
+		wid.id_counter = wid.id_counter + 1
 		
 		local new_comp = derp_components[comp.group][comp.type]:create_widget(comp)
 		self:addwidget(new_comp)
@@ -867,7 +879,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.cam = derp:create_workspacecamera(0,0,w,h)
 	wid:addwidget(wid.cam)
 	
-	wid.component_data = { active_widgets = {}, nodes = {} , edges = { } }
+	wid.component_data = { active_components = {}, nodes = {} , edges = { } }
 	wid.saved = true
 	wid.id_counter = 1
 	wid.workspace_stack = { max_size = 10, counter = 0, stack = {} }
@@ -877,8 +889,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:set_activecomp(comp)
-		if self.component_data.active_widgets then
-			for k,v in pairs(self.component_data.active_widgets) do
+		if self.component_data.active_components then
+			for k,v in pairs(self.component_data.active_components) do
 				v.active = false
 			end
 		end
@@ -889,7 +901,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 			end
 		end
 		
-		self.component_data.active_widgets = comp
+		self.component_data.active_components = comp
 	end
 	
 	function wid:add_connection(socket_a,socket_b)
@@ -1027,14 +1039,14 @@ function derp:create_workspace(x,y,w,h,from_path)
 				self.component_data.edges = edges
 				
 				-- rebuild active widget data
-				self.component_data.active_widgets = { }
+				self.component_data.active_components = { }
 				for k,v in pairs(self.component_data.nodes) do
 					if v.active then
-						table.insert(self.component_data.active_widgets,v)
+						table.insert(self.component_data.active_components,v)
 					end
 				end
 			else
-				self.component_data = { active_widgets = {}, nodes = {}, edges = {}}
+				self.component_data = { active_components = {}, nodes = {}, edges = {}}
 			end
 		end
 	end
@@ -1058,10 +1070,10 @@ function derp:create_workspace(x,y,w,h,from_path)
 			self.component_data.edges = edges
 			
 			-- rebuild active widget data
-			self.component_data.active_widgets = { }
+			self.component_data.active_components = { }
 			for k,v in pairs(self.component_data.nodes) do
 				if v.active then
-					table.insert(self.component_data.active_widgets,v)
+					table.insert(self.component_data.active_components,v)
 				end
 			end
 		end
@@ -1431,14 +1443,15 @@ function derp:create_toolbar(x,y,w,h)
 									  self.new_drag.y1 - derp.active_workspace.drawbox.y)
 				
 				if hit then
-					table.insert(hits,hit)
+					table.insert(hits,v)
+					print(v.widget_type)
 				end
 			end
 			
-			derp.active_workspace.component_data.active_widgets = hits
+			derp.active_workspace.component_data.active_components = hits
 			
 			if #hits > 0 then
-				derp:push_workspace(derp.active_workspace)
+				--derp:push_workspace(derp.active_workspace)
 			end
 			
 			gui.widgets:removewidget(self.draw_rect)
@@ -1452,7 +1465,7 @@ function derp:create_toolbar(x,y,w,h)
 			if hit then
 				local found = false
 				
-				for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
+				for k,v in pairs (derp.active_workspace.component_data.active_components) do
 					if v == hit then
 						found = true
 						break
@@ -1460,8 +1473,8 @@ function derp:create_toolbar(x,y,w,h)
 				end
 				
 				if not found then
-					table.insert(derp.active_workspace.component_data.active_widgets,hit)
-					derp.active_workspace:set_activecomp(derp.active_workspace.component_data.active_widgets)
+					table.insert(derp.active_workspace.component_data.active_components,hit)
+					derp.active_workspace:set_activecomp(derp.active_workspace.component_data.active_components)
 				end
 			end
 		elseif action.tag == "mousepush" then
@@ -1469,12 +1482,30 @@ function derp:create_toolbar(x,y,w,h)
 			local y = action.y - derp.active_workspace.drawbox.y
 			print(x,y)
 			
-			local hit = derp.active_workspace:find_mousehit(x,y) 
-		
-			if hit then
-				print("hit: " .. hit.widget_type)
+			local hit = nil
+			
+			for k,v in pairs(derp.active_workspace.childwidgets) do
+				if(v:hittest(x,y,x,y)) then
+					hit = v
+				end
 			end
 			
+			if hit then
+				local found = false
+				
+				for k,v in pairs(derp.active_workspace.component_data.active_components) do
+					if v == hit then
+						found = true
+						break
+					end
+				end
+				
+				if not found then
+					derp.active_workspace.component_data.active_components = {hit}
+				end
+			else
+				derp.active_workspace.component_data.active_components = {}
+			end	
 			
 			--[[
 			local hit = derp.active_workspace:hittest(action.x - derp.active_workspace.drawbox.x,action.y-derp.active_workspace.drawbox.y) 
@@ -1483,8 +1514,8 @@ function derp:create_toolbar(x,y,w,h)
 				local found = false
 				local find_k = -1
 				
-				if derp.active_workspace.component_data.active_widgets then
-					for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
+				if derp.active_workspace.component_data.active_components then
+					for k,v in pairs (derp.active_workspace.component_data.active_components) do
 						if v == hit then
 							find_k = k
 							found = true
@@ -1501,9 +1532,16 @@ function derp:create_toolbar(x,y,w,h)
 				derp.active_workspace:set_activecomp(nil)
 			end ]]
 		elseif action.tag == "drag" then
-			if derp.active_workspace.component_data.active_widgets then
+			if derp.active_workspace.component_data.active_components then
+				for k,v in pairs(derp.active_workspace.component_data.active_components) do
+					v:move_relative(action.dx,action.dy)
+				end
+			end
+		
+			--[[
+			if derp.active_workspace.component_data.active_components then
 				local rect = {x0,y0,x1,y1}
-				for k,v in pairs(derp.active_workspace.component_data.active_widgets) do
+				for k,v in pairs(derp.active_workspace.component_data.active_components) do
 					local x0 = v.x - v.w * 0.5
 					local x1 = v.x + v.w * 0.5
 					local y0 = v.y - v.h * 0.5
@@ -1546,13 +1584,14 @@ function derp:create_toolbar(x,y,w,h)
 					dy = 0
 				end
 				
-				for k,v in pairs(derp.active_workspace.component_data.active_widgets) do
+				for k,v in pairs(derp.active_workspace.component_data.active_components) do
 					v.x = v.x + dx
 					v.y = v.y + dy
 				end
 				
 				self.moved = true
 			end
+			]]
 		elseif action.tag == "mouserelease" then
 			if self.moved then
 				derp:push_workspace(derp.active_workspace)
