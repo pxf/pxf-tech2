@@ -266,8 +266,9 @@ function derp:create_workspace_menu()
     local type_menu = {}
     for blocktype,v in pairs(types) do
       if not (blocktype == "name") then
-        table.insert(type_menu, {tostring(v.name), {tooltip = "lol sup", onclick = function()
-                                                                                     local x,y = self.active_workspace.cam:coord_transform(inp.getmousepos())
+        table.insert(type_menu, {tostring(v.name), {tooltip = "lol sup", 
+onclick = function()
+                                                                                     local x,y = inp.getmousepos()
                                                                                      self.active_workspace:addcomponent(v:new_block(x,y))
                                                                                    end
                                                    }
@@ -668,6 +669,41 @@ function derp:create_workspacecamera(x,y,w,h)
 	return cam
 end
 
+function derp:create_basecomponentblock(x,y,w,h)
+	local wid = gui:create_basewidget(x,y,w,h)
+	
+	function wid:draw(force)
+		if self.redraw_needed or force then
+			local r,g,b = gfx.getcolor()
+			gfx.setcolor(1.0,1.0,1.0)
+			local old_tex = gfx.bindtexture(0)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,5,1,1) -- solid bg
+			gfx.bindtexture(old_tex)
+			gfx.setcolor(r,g,b)
+		end
+	end
+	
+	function wid:mousepush(mx,my,button)
+		if derp.active_tool.current then
+		
+		end
+		--derp.active_tool(action 
+	end
+	
+	function wid:mouserelease(x,y,button)
+		if derp.active_tool.current then
+		
+		end
+	end
+	
+	function wid:mousedrag(mx,my)
+		if derp.active_tool.current then
+			derp.active_tool.current:action({tag = "drag", dx = mx, dy = my, widget = self})
+		end
+	end
+	
+	return wid
+end
 
 function derp:create_workspace(x,y,w,h,from_path)
 	local checkers_texture = gfx.loadtexture(1,"data/checkers.png")
@@ -676,8 +712,14 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.super_draw = wid.draw
 	
 	wid.id_counter = 1
-	wid.component_data = { active_widgets = {}, nodes = {} , edges = { } }
+	wid.component_data = { active_components = {}, components = {}}
 	wid.workspace_stack = { counter = 0, stack = {} }
+	
+	wid.shortcuts = { { name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
+							onpress = function ()
+								derp.ws_menu.menu = derp.ws_menu.super_menu	
+								derp.ws_menu:show() 
+							end} }
 	
 	if from_path then
 		wid.component_data = derp:load(from_path)
@@ -693,7 +735,18 @@ function derp:create_workspace(x,y,w,h,from_path)
 			local old_tex = gfx.bindtexture(checkers_texture)
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*0.75)	-- checkers
 			gfx.bindtexture(old_tex)
+			
+			self:super_draw(force)
 		end
+	end
+	
+	function wid:addcomponent(comp)
+		local id = "wid " .. wid.id_counter 
+		self.component_data.components[id] = comp
+		comp.id = id
+		
+		local new_comp = derp_components[comp.group][comp.type]:create_widget(comp)
+		self:addwidget(new_comp)
 	end
 	
 	function wid:undo()
@@ -726,11 +779,21 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:mousepush(mx,my,button)
+		if derp.active_tool.current then
 		
+		end
 	end
 	
 	function wid:mouserelease(x,y,button)
-
+		if derp.active_tool.current then
+		
+		end
+	end
+	
+	function wid:mousedrag(mx,my)
+		if derp.active_tool.current then
+			derp.active_tool.current:action({tag = "drag", dx = mx, dy = my, widget = self})
+		end
 	end
 	
 	return wid
@@ -1257,7 +1320,7 @@ function derp:create_toolbar(x,y,w,h)
 			local mx = action.dx
 			local my = action.dy
 			
-			derp.active_workspace.cam:move_relative(mx,my)
+			derp.active_workspace:move_relative(mx,my)
 		end
 	end
 	

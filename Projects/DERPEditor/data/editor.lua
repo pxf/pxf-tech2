@@ -137,7 +137,7 @@ local testinput = gui:create_textinput(0,8,200)
 local workspace_tabs = derp:create_workspace_tabs(20,80,app.width-290,20)
 workspace_tabs.widget_type = "workspace tabs"
 
-local workspace_area = derp:create_workspace(0,0,app.width,app.height)
+local workspace_area = derp:create_workspace(0,0,app.width*2,app.height*2)
 workspace_area.widget_type = "workspace area 01"
 
 local inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
