@@ -41,6 +41,20 @@ int DERPEditor::gfx_loadtexture (lua_State *L) {
   return 0;
 }
 
+int DERPEditor::gfx_loadidentity (lua_State *L) {
+  // gfx.loadidentity() -- reset matrix
+  if (lua_gettop(L) == 0)
+  {
+    LuaApp* inst = LuaApp::GetInstance();
+		inst->m_TransformMatrix = Pxf::Math::Mat4::Identity;
+    return 0;
+  } else {
+    lua_pushstring(L, "Invalid argument passed to loadidentity function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int DERPEditor::gfx_rawtexture (lua_State *L) {
   // new_raw_texture = gfx.rawtexture(quad_number, width, height, channels, data)
   if (lua_gettop(L) == 5)
@@ -373,6 +387,7 @@ int DERPEditor::gfx_drawtopleft (lua_State *L) {
 int DERPEditor::luaopen_appgraphics (lua_State *L) {
   const luaL_reg appgraphicslib[] = {
     {"_redrawneeded",   gfx__redrawneeded},
+    {"loadidentity",   gfx_loadidentity},
     {"loadtexture",   gfx_loadtexture},
     {"rawtexture",   gfx_rawtexture},
     {"bindtexture",   gfx_bindtexture},
