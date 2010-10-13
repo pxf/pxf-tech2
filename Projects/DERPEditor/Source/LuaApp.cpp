@@ -222,7 +222,7 @@ bool LuaApp::Update()
   if (m_Reboot)
   {
     CleanUp();
-    return Boot();
+    Boot();
   }
   
   m_TimerUpdate.Start();
@@ -244,17 +244,17 @@ bool LuaApp::Update()
       
       if (m_inp->IsButtonDown(Input::MOUSE_LEFT))
       {
-        if (my > 300 + 34 &&
-            my < 300 + 34 + 26)
+        if (my > m_win->GetHeight()/2 + 34 &&
+            my < m_win->GetHeight()/2 + 34 + 26)
         {
           // reboot button
-          if (mx > 400 - 105 &&
-              mx < 400 + 22)
+          if (mx > m_win->GetWidth()/2 - 105 &&
+              mx < m_win->GetWidth()/2 + 22)
               Reboot();
         
           // quit button
-          if (mx > 400 + 52 &&
-              mx < 400 + 108)
+          if (mx > m_win->GetWidth()/2 + 52 &&
+              mx < m_win->GetWidth()/2 + 108)
               m_Shutdown = true;
           
         }
@@ -405,7 +405,7 @@ void LuaApp::Draw()
         
       }  
     } else {
-      Math::Mat4 prjmat = Math::Mat4::Ortho(-400, 400, 300, -300, -1000.0f, 1000.0f);
+      Math::Mat4 prjmat = Math::Mat4::Ortho(-m_win->GetWidth()/2, m_win->GetWidth()/2, m_win->GetHeight()/2, -m_win->GetHeight()/2, -1000.0f, 1000.0f);
       m_gfx->SetProjection(&prjmat);
       glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -735,7 +735,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	
 	function wid:mousepush(mx,my,button)
-		ol()
+    
 	end
 	
 	function wid:mouserelease(x,y,button)
