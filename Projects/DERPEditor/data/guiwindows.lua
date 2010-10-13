@@ -5,6 +5,18 @@
 gui.windows = {windowlist = {}}
 
 function gui.windows:add(wnd)
+  -- see if window is already open
+  for k,v in pairs(self.windowlist) do
+    if v.id == wnd.id then
+      
+      -- already open!
+      -- set focus instead
+      gui.windows:setactive(v)
+      
+      return
+    end
+  end
+  
   -- add window to top of list
   table.insert(self.windowlist, 1, wnd)
   
@@ -57,9 +69,10 @@ end
 
 ---------------------------------------
 -- standard window gui widget
-function gui:create_window(x,y,w,h,modal,label)
+function gui:create_window(id,x,y,w,h,modal,label)
   local shadow_size = 8
 	local window = gui:create_basewidget(x-shadow_size,y-shadow_size,w+shadow_size*2,h+shadow_size*2)
+	window.id = id
 	window.title_height = 24
 	window.shadow_size = shadow_size
 	window.state = "full" -- "full" or "compact"
