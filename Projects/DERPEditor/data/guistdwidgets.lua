@@ -852,23 +852,30 @@ function gui:create_menu(x,y,menu)
     if (self.redraw_needed or force) then
 		local old_a = gfx.getalpha()
 		
+		gfx.translate(self.drawbox.x, self.drawbox.y)
+		
 		gfx.setalpha(0.8)
-		gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,510, 0, 1, 128)
+		gfx.drawtopleft(1,1,self.drawbox.w-2,self.drawbox.h-2,510, 0, 1, 128)
 		
 		
 		-- borders
 		local r,g,b = gfx.getcolor()
 		gfx.setcolor(0.278431373,0.215686275,0.0941176471)
 		
-		gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y,self.drawbox.w-1,1,5,5,1,1) -- top
-		gfx.drawtopleft(self.drawbox.x,self.drawbox.y+1,1,self.drawbox.h-1,5,5,1,1)
-		gfx.drawtopleft(self.drawbox.x+self.drawbox.w,self.drawbox.y+1,1,self.drawbox.h-1,5,5,1,1)
-		gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y + self.drawbox.h,self.drawbox.w-1,1,5,5,1,1)
+		gfx.drawtopleft(1,0,self.drawbox.w-2,1,5,5,1,1) -- top
+		gfx.drawtopleft(self.drawbox.w-1,1,1,self.drawbox.h-2,5,5,1,1) -- right
+		gfx.drawtopleft(1,self.drawbox.h-1,self.drawbox.w-2,1,5,5,1,1) -- bottom
+		gfx.drawtopleft(0,1,1,self.drawbox.h-2,5,5,1,1) -- right
+		
+		--gfx.drawtopleft(1,0,self.drawbox.w-2,1,5,5,1,1) -- top
+		--gfx.drawtopleft(0,1,1,self.drawbox.h-2,5,5,1,1)
+		--gfx.drawtopleft(self.drawbox.w-1,self.drawbox.y+1,1,self.drawbox.h-2,5,5,1,1)
+		--gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y + self.drawbox.h,self.drawbox.w-2,1,5,5,1,1)
 		
 		gfx.setalpha(old_a)
 		gfx.setcolor(r,g,b)
 		
-      gfx.translate(self.drawbox.x, self.drawbox.y)
+      
                       
       -- loop through all menu items
       local item_y = 0
@@ -1072,11 +1079,11 @@ end
 
 -- creates a menu
 function gui:create_textinput(x,y,w,masked)
-  local wid = gui:create_basewidget(x,y,w,30)
+  local wid = gui:create_basewidget(x,y,w,20)
   wid.masked = masked -- passwords etc
-  wid.stdheight = 30
+  wid.stdheight = 20
   wid.selectionheight = 16
-  wid.stdpadding = 20
+  wid.stdpadding = 10
   wid.value = ""
   wid.state = "normal"
   wid.selection = {start = 0, finish = nil, direction = 0}
@@ -1301,11 +1308,22 @@ function gui:create_textinput(x,y,w,masked)
   function wid:draw(force)
     if (self.redraw_needed or force) then
       gfx.translate(self.drawbox.x, self.drawbox.y)
-      local oldtex = gfx.bindtexture(0)
-    
+      
       -- bg
-      gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
-                      40,6,1,1)
+      --gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h,
+      --                40,6,1,1)
+      
+      -- bg
+  		gfx.drawtopleft(1, 1, self.drawbox.w-2, self.drawbox.h-2, 2, 2, 1, 1)
+  		
+  		-- borders
+  		gfx.drawtopleft(1,0,self.drawbox.w-2,1,1,5,1,1) -- top
+  		gfx.drawtopleft(self.drawbox.w-1,1,1,self.drawbox.h-2,1,5,1,1) -- right
+  		gfx.drawtopleft(1,self.drawbox.h-1,self.drawbox.w-2,1,1,5,1,1) -- bottom
+  		gfx.drawtopleft(0,1,1,self.drawbox.h-2,1,5,1,1) -- right
+      
+      
+      local oldtex = gfx.bindtexture(0)
                       
       local out_str = self.value
       

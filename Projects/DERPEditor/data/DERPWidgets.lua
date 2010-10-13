@@ -669,17 +669,22 @@ function derp:create_workspacecamera(x,y,w,h)
 	return cam
 end
 
-function derp:create_basecomponentblock(x,y,w,h)
-	local wid = gui:create_basewidget(x,y,w,h)
+function derp:create_basecomponentblock(component_data)
+	local wid = gui:create_basewidget(component_data.x, component_data.y,
+                                    component_data.w, component_data.h)
 	
+	wid.super_draw = wid.draw
 	function wid:draw(force)
 		if self.redraw_needed or force then
 			local r,g,b = gfx.getcolor()
 			gfx.setcolor(1.0,1.0,1.0)
 			local old_tex = gfx.bindtexture(0)
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,5,1,1) -- solid bg
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,1,5,1,1) -- solid bg
 			gfx.bindtexture(old_tex)
 			gfx.setcolor(r,g,b)
+			
+			-- draw chlid widgets
+			self:super_draw(force)
 		end
 	end
 	
@@ -697,9 +702,11 @@ function derp:create_basecomponentblock(x,y,w,h)
 	end
 	
 	function wid:mousedrag(mx,my)
+	  self.parent:needsredraw()
 		if derp.active_tool.current then
 			derp.active_tool.current:action({tag = "drag", dx = mx, dy = my, widget = self})
 		end
+		self.parent:needsredraw()
 	end
 	
 	return wid
@@ -797,10 +804,29 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:mousedrag(mx,my)
+	  self:needsredraw()
 		if derp.active_tool.current then
 			derp.active_tool.current:action({tag = "drag", dx = mx, dy = my, widget = self})
 		end
+		self:needsredraw()
 	end
+	
+	function wid:needsredraw(full)
+    if (full) then
+      gui:redraw()
+    else
+      --local x,y = self:find_abspos(self)
+      --gui:redraw(x, y, self.drawbox.w, self.drawbox.h)
+      -- hack so that only the visible workspace is redrawn
+      gui:redraw(21, 101, 733, 478)
+    end
+    self.redraw_needed = true
+    
+    -- notify parent
+    if not (self.parent == nil) then
+      self.parent:childisredrawn()
+    end
+  end
 	
 	return wid
 end
