@@ -266,9 +266,11 @@ function derp:create_workspace_menu()
     local type_menu = {}
     for blocktype,v in pairs(types) do
       if not (blocktype == "name") then
-        table.insert(type_menu, {tostring(v.name), {tooltip = "lol sup", 
-onclick = function()
+        table.insert(type_menu, {tostring(v.name), {tooltip = "lol sup", onclick = function()
                                                                                      local x,y = inp.getmousepos()
+																					 x = x - self.active_workspace.drawbox.x
+																					 y = y - self.active_workspace.drawbox.y
+																					 
                                                                                      self.active_workspace:addcomponent(v:new_block(x,y))
                                                                                    end
                                                    }
@@ -685,9 +687,8 @@ function derp:create_basecomponentblock(x,y,w,h)
 	
 	function wid:mousepush(mx,my,button)
 		if derp.active_tool.current then
-		
+			derp.active_tool.current:action({tag = "mousepush", x = mx, y = my, button = button, widget = self})
 		end
-		--derp.active_tool(action 
 	end
 	
 	function wid:mouserelease(x,y,button)
@@ -710,6 +711,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	local wid = gui:create_basewidget(x,y,w,h)
 	wid.widget_type = "workspace"
 	wid.super_draw = wid.draw
+	wid.super_move_relative = wid.move_relative
 	
 	wid.id_counter = 1
 	wid.component_data = { active_components = {}, components = {}}
@@ -777,22 +779,47 @@ function derp:create_workspace(x,y,w,h,from_path)
 		end
 	end
 	
+	function wid:move_relative(dx,dy)
+		self:needsredraw()
+			
+		-- static values should be dynamically evaluated to ensure resizeability..
+		if ((self.drawbox.x + dx) > 20) then
+			self.drawbox.x = 20
+			self.hitbox.x = 20
+		elseif ((self.drawbox.x + dx) < (-self.drawbox.w + 752)) then
+			self.drawbox.x = -self.drawbox.w + 752
+			self.hitbox.x = -self.drawbox.w + 752
+		else
+			self:super_move_relative(dx,0)
+		end
+		
+		if ((self.drawbox.y + dy) > 102) then
+			self.drawbox.y = 102
+			self.hitbox.y = 102
+		elseif ((self.drawbox.y + dy) < (-self.drawbox.h + 576)) then
+			self.drawbox.y = -self.drawbox.h + 576
+			self.hitbox.y = -self.drawbox.h + 576
+		else
+			self:super_move_relative(0,dy)
+		end
+
+		self:needsredraw()
+	end
+	
 	function wid:resize_callback(w,h)
 		self.drawbox.h = self.drawbox.h - h
 		self.hitbox.h = self.drawbox.h
 	end
 	
-	
-	
 	function wid:mousepush(mx,my,button)
 		if derp.active_tool.current then
-		
+			derp.active_tool.current:action({tag = "mousepush", x = mx, y = my, button = button, widget = self})
 		end
 	end
 	
-	function wid:mouserelease(x,y,button)
+	function wid:mouserelease(mx,my,button)
 		if derp.active_tool.current then
-		
+			derp.active_tool.current:action({tag = "mouserelease", x = mx, y = my, button = button, widget = self})
 		end
 	end
 	
@@ -1342,7 +1369,7 @@ function derp:create_toolbar(x,y,w,h)
 	function select_rect:action(action)
 		if action.tag == "mousepush" then
 			gui.widgets:addwidget(select_rect.draw_rect)
-			gui.focuswidget = derp.active_workspace.cam
+			gui.focuswidget = derp.active_workspace
 		
 			self.new_drag = { x0 = action.x, y0 = action.y, x1 = action.x, y1 = action.y }
 			
@@ -1369,32 +1396,25 @@ function derp:create_toolbar(x,y,w,h)
 				self.new_drag.y1 = tmp
 			end
 			
+			local hits = {}
 			
-			derp.active_workspace.component_data.active_widgets = {}
-			
-			for k,v in pairs (derp.active_workspace.component_data.nodes) do
-				-- bounds check
-				v.active = false
+			for k,v in pairs(derp.active_workspace.childwidgets) do
+				local hit = v:hittest(self.new_drag.x0 - derp.active_workspace.drawbox.x,
+									  self.new_drag.y0 - derp.active_workspace.drawbox.y,
+									  self.new_drag.x1 - derp.active_workspace.drawbox.x,
+									  self.new_drag.y1 - derp.active_workspace.drawbox.y)
 				
-				if self.new_drag.x0 > (v.x + v.w*0.5) then
-				elseif self.new_drag.x1 < (v.x - v.w*0.5) then
-				elseif self.new_drag.y0 > (v.y +v.h*0.5) then
-				elseif self.new_drag.y1 < (v.y - v.h*0.5) then
-				else
-					if not derp.active_workspace.component_data.active_widgets then
-						derp.active_workspace.component_data.active_widgets = {}
-					end
-					
-					table.insert(derp.active_workspace.component_data.active_widgets,v)
-					
-					v.active = true
+				if hit then
+					table.insert(hits,hit)
 				end
 			end
 			
-			if derp.active_workspace.component_data.active_widgets then
+			derp.active_workspace.component_data.active_widgets = hits
+			
+			if #hits > 0 then
 				derp:push_workspace(derp.active_workspace)
 			end
-
+			
 			gui.widgets:removewidget(self.draw_rect)
 		end
 	end
@@ -1417,15 +1437,30 @@ function derp:create_toolbar(x,y,w,h)
 					table.insert(derp.active_workspace.component_data.active_widgets,hit)
 					derp.active_workspace:set_activecomp(derp.active_workspace.component_data.active_widgets)
 				end
-			end	
+			end
 		elseif action.tag == "mousepush" then
-			local hit = derp.active_workspace:custom_hittest(action.x,action.y) 
+			local x = action.x - derp.active_workspace.drawbox.x
+			local y = action.y - derp.active_workspace.drawbox.y
+			print(x,y)
+			
+			local hit = derp.active_workspace:find_mousehit(x,y) 
+		
+			if hit then
+				print("hit: " .. hit.widget_type)
+			end
+			
+			
+			--[[
+			local hit = derp.active_workspace:hittest(action.x - derp.active_workspace.drawbox.x,action.y-derp.active_workspace.drawbox.y) 
 			
 			if hit then
 				local found = false
+				local find_k = -1
+				
 				if derp.active_workspace.component_data.active_widgets then
 					for k,v in pairs (derp.active_workspace.component_data.active_widgets) do
 						if v == hit then
+							find_k = k
 							found = true
 							break
 						end
@@ -1433,11 +1468,12 @@ function derp:create_toolbar(x,y,w,h)
 				end
 				
 				if not found then
+					print(find_k)
 					derp.active_workspace:set_activecomp({hit})
 				end
 			else
 				derp.active_workspace:set_activecomp(nil)
-			end
+			end ]]
 		elseif action.tag == "drag" then
 			if derp.active_workspace.component_data.active_widgets then
 				local rect = {x0,y0,x1,y1}

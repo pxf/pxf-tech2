@@ -32,7 +32,7 @@ end
 
 function derp_components.aux.floatconstant:create_widget(component_data)
   print(component_data.x, component_data.y)
-  local wid = derp:create_basecomponentblock(0,0,--component_data.x, component_data.y,
+  local wid = derp:create_basecomponentblock(component_data.x, component_data.y,
                                              component_data.w, component_data.h)
   return wid
 end
