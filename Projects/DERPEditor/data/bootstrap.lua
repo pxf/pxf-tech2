@@ -94,11 +94,12 @@ function _runtimeerror(str)
 end
 
 function draw_runtimeerror()
+  gfx.loadidentity()
   gfx.bindtexture(runtimeerror_tex)
   --gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
   gfx.setcolor(1,1,1)
-  gfx.drawcentered(400,300,512,256)
-  panic.text_box(error_lines, 400 - 230, 300 - 42, 500, 100, 4, 1)
+  gfx.drawcentered(app.width / 2, app.height / 2,512,256)
+  panic.text_box(error_lines, app.width / 2 - 230, 300 - 42, 460, 100, 4, 1)
 end
 
 -- debug text drawing system

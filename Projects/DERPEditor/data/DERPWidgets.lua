@@ -683,16 +683,23 @@ function derp:create_workspace(x,y,w,h,from_path)
 		wid.component_data = derp:load(from_path)
 	end
 	
+	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
+		  
+		  -- draw background
 			local old_alpha = gfx.getalpha()
 			gfx.setalpha(0.25)
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,5,1,1) -- solid bg
 			gfx.setalpha(old_alpha)
 			
 			local old_tex = gfx.bindtexture(checkers_texture)
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*0.75)	-- checkers
+			local aspect = app.height/app.width
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*aspect)	-- checkers
 			gfx.bindtexture(old_tex)
+			
+			-- draw child components
+			self:super_draw(force)
 		end
 	end
 	
@@ -725,8 +732,10 @@ function derp:create_workspace(x,y,w,h,from_path)
 		self.hitbox.h = self.drawbox.h
 	end
 	
+	
+	
 	function wid:mousepush(mx,my,button)
-		
+		ol()
 	end
 	
 	function wid:mouserelease(x,y,button)
