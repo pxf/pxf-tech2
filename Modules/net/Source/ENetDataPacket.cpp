@@ -7,8 +7,21 @@
 using namespace Pxf::Modules;
 using namespace Pxf;
 
+// Package packet - multiple objects.
+ENetDataPacket::ENetDataPacket(const int _Sender, const int _Tag)
+{
+	m_Package = true;
+	Data = NULL;
+	m_PackageLength = 0;
+	Sender = _Sender;
+	Tag = _Tag;
+}
+
+// Normal packet - single object.
 ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag)
 {
+	m_Package = false;
+
 	printf("Packet creation. length: %d\n", _Length);
 	if (*_Data == '\0')
 	{
@@ -79,6 +92,9 @@ char* ENetDataPacket::GetID()
 
 bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned int _Size)
 {
+	char* NewData = new char[m_PackageLength + _Size];
+	
+
 	return true;
 }
 

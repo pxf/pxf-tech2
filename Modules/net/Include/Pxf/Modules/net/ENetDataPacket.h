@@ -1,5 +1,5 @@
-#ifndef _PXF_NETWORK_ENETPACKET_H_
-#define _PXF_NETWORK_ENETPACKET_H_
+#ifndef _PXF_NETWORK_ENETDATAPACKET_H_
+#define _PXF_NETWORK_ENETDATAPACKET_H_
 
 #include <Pxf/Network/Packet.h>
 #include <Pxf/Network/NetworkDefs.h>
@@ -24,7 +24,11 @@ namespace Pxf
 			int Tag;
 			char* ID;
 
+			bool m_Package;
+			int m_PackageLength;
+
 		public:
+			ENetDataPacket(const int _Sender, const int _Tag);
 			ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag);
 			virtual ~ENetDataPacket();
 
@@ -40,4 +44,4 @@ namespace Pxf
 	}
 }
 
-#endif /* _PXF_NETWORK_PACKET_H_ */
+#endif /* _PXF_NETWORK_ENETDATAPACKET_H_ */
