@@ -18,16 +18,17 @@ namespace Pxf
 		class ENetDataPacket : public Pxf::Network::Packet
 		{
 		private:
-			char* Data;
-			int Sender;
-			int Length;
-			int Tag;
-			char* ID;
+			char* m_Data;
+			int m_Sender;
+			int m_Length;
+			int m_Tag;
+			char* m_ID;
 
 			bool m_Package;
 			int m_PackageLength;
 
 		public:
+			ENetDataPacket(const char* _Data);
 			ENetDataPacket(const int _Sender, const int _Tag);
 			ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag);
 			virtual ~ENetDataPacket();
