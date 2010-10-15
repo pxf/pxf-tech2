@@ -272,10 +272,9 @@ function derp:create_workspace_menu()
       if not (blocktype == "name") then
         table.insert(type_menu, {tostring(v.name), {tooltip = "lol sup", onclick = function()
                                                                                      local x,y = inp.getmousepos()
-																					 x = x - self.active_workspace.drawbox.x
-																					 y = y - self.active_workspace.drawbox.y
-																					 
-                                                                                     self.active_workspace:addcomponent(v:new_block(x,y))
+																					                                           x = x - self.active_workspace.drawbox.x
+																					                                           y = y - self.active_workspace.drawbox.y
+                                                                                     self.active_workspace:addcomponent(v:new_block(self.active_workspace,x,y))
                                                                                    end
                                                    }
                                 }
@@ -693,6 +692,9 @@ function derp:create_basecomponentblock(component_data)
 			
 			-- draw chlid widgets
 			self:super_draw(force)
+			
+			-- Draw connections
+			
 		end
 	end
 	
@@ -716,6 +718,9 @@ function derp:create_basecomponentblock(component_data)
 		self.parent:needsredraw()
 	end
 	
+	-------------------------------
+	-- Connections
+	
 	return wid
 end
 
@@ -727,6 +732,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.super_move_relative = wid.move_relative
 	
 	wid.id_counter = 1
+	wid.output_counter = 1
 	wid.component_data = { active_components = {}, components = {}}
 	wid.workspace_stack = { counter = 0, stack = {} }
 	
@@ -750,6 +756,21 @@ function derp:create_workspace(x,y,w,h,from_path)
 		wid.component_data = derp:load(from_path)
 	end
 	
+	function wid:gen_new_blockname(blacktype)
+	  local new_name = "block_" .. tostring(blacktype) .. "_" .. tostring(self.id_counter)
+	  self.id_counter = self.id_counter + 1
+	  return new_name
+  end
+	
+	function wid:gen_new_outputname()
+	  local new_name = "output" .. tostring(self.output_counter)
+	  self.output_counter = self.output_counter + 1
+	  return new_name
+  end
+  
+  function wid:attach_input_connection(remote_block, remote_output)
+    
+  end
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
@@ -770,10 +791,10 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:addcomponent(comp)
-		local id = "wid " .. wid.id_counter 
+		local id = self:gen_new_blockname(comp.group) --"wid" .. wid.id_counter 
 		self.component_data.components[id] = comp
 		comp.id = id
-		wid.id_counter = wid.id_counter + 1
+		--wid.id_counter = wid.id_counter + 1
 		
 		local new_comp = derp_components[comp.group][comp.type]:create_widget(comp)
 		self:addwidget(new_comp,id)

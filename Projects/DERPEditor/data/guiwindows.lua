@@ -20,6 +20,7 @@ function gui.windows:add(wnd)
   -- add window to top of list
   table.insert(self.windowlist, 1, wnd)
   
+  -- if window is modal, the add the dimmer widget first
   if (wnd.modal) then
     gui.widgets:addwidget(wnd.dimmer)
   end
@@ -41,30 +42,27 @@ function gui.windows:remove(wnd)
 end
 
 function gui.windows:setactive(wnd)
-  -- if not the top window is modal, then change active window
-  if not (self.windowlist[1].modal) then
-    -- remove from window list
-    local i = nil
-    for k,v in pairs(self.windowlist) do
-      if v == wnd then
-        i = k
-        break
-      end
+  -- remove from window list
+  local i = nil
+  for k,v in pairs(self.windowlist) do
+    if v == wnd then
+      i = k
+      break
     end
-    table.remove(self.windowlist, k)
-    -- ... and re-insert it at the top
-    table.insert(self.windowlist, 1, wnd)
-  
-    -- do the same for root widget list
-    for k,v in pairs(gui.widgets.childwidgets) do
-      if v == wnd then
-        i = k
-        break
-      end
-    end
-    table.remove(gui.widgets.childwidgets, i)
-    table.insert(gui.widgets.childwidgets, wnd)
   end
+  table.remove(self.windowlist, k)
+  -- ... and re-insert it at the top
+  table.insert(self.windowlist, 1, wnd)
+
+  -- do the same for root widget list
+  for k,v in pairs(gui.widgets.childwidgets) do
+    if v == wnd then
+      i = k
+      break
+    end
+  end
+  table.remove(gui.widgets.childwidgets, i)
+  table.insert(gui.widgets.childwidgets, wnd) -- insert at bottom of list
 end
 
 ---------------------------------------
@@ -249,8 +247,8 @@ function gui:create_window(id,x,y,w,h,modal,label)
 	    self.dimmer:destroy()
     end
 	  
-	  self:superdestroy()
 	  gui.windows:remove(self)
+	  self:superdestroy()
   end
 	
 	--[[window_panel.super_draw = window_panel.draw
