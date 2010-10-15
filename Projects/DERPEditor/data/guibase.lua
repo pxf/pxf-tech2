@@ -170,7 +170,7 @@ function gui:create_basewidget(x,y,w,h)
 
   end
   
-  function wid:resize_callback(w,h)
+  function wid:resize_callback(w,h,edge)
   	for k,v in pairs(self.childwidgets) do
   		v:resize_callback(w,h)
   	end
@@ -246,7 +246,7 @@ function gui:create_basewidget(x,y,w,h)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
       for k,v in pairs(self.childwidgets) do
-        if not (v == nil) then
+        if v then
           local htest = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
           if htest then
             thit = htest

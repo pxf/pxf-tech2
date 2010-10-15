@@ -22,7 +22,7 @@ inline float Rad2Deg(float rad)
 	return (rad * 180.0f) / PI;
 }
 
-inline bool nearValue(float t, float value)
+inline bool NearValue(float t, float value)
 {
 	return fabsf((t-value) / ((value == 0.0f) ? 1.0f : value)) < 1e-6f;
 }

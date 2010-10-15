@@ -37,6 +37,7 @@ function derp_components.aux.floatconstant:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data)
   local textinput = gui:create_textinput(10,10,80,false)
   wid.textinput = textinput
+  textinput.widget_type = "comp text input"
   wid:addwidget(textinput)
   
   return wid
