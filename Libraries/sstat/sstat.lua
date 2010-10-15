@@ -4,6 +4,7 @@ library = NewLibrary("sstat")
 
 if family == "windows" then
     library:AddSystemLibrary("psapi")
+    library:AddSystemLibrary("comdlg32")
 end
 
 if family == "unix" then
