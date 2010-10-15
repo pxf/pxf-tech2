@@ -95,15 +95,19 @@ function gui:create_horizontalpanel(x,y,w,h,max)
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
-      --for k,v in pairs(self.childwidgets) do
-      for i = #self.childwidgets, 1, -1 do
-        local v = self.childwidgets[i]
-        thit = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
-        
-        if not (thit == nil) then
-          -- we hit a child widget, return this one instead
-          return thit
+      for k,v in pairs(self.childwidgets) do
+      --for i = #self.childwidgets, 1, -1 do
+        --local v = self.childwidgets[i]
+        local htest = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
+        if htest then
+          thit = htest
         end
+        
+      end
+      
+      if not (thit == nil) then
+        -- we hit a child widget, return this one instead
+        return thit
       end
       
       return self
@@ -129,7 +133,7 @@ function gui:create_verticalstack(x,y,w,h)
     offsety = offsety + cwid.drawbox.h
     self:resize_abs(self.drawbox.w, offsety)
 	
-	table.insert(self.childwidgets, cwid)
+	  table.insert(self.childwidgets, cwid)
   end
   
   function wid:child_resized(cwid)
@@ -209,7 +213,8 @@ function gui:create_horizontalstack(x,y,w,h)
 	end
 	
 	if find_k then
-		self.childwidgets[find_k] = nil
+		--self.childwidgets[find_k] = nil
+		table.remove(self.childwidgets, find_k)
 		
 		local offset_x = 0
 		for k,v in pairs(self.childwidgets) do
@@ -388,17 +393,21 @@ function gui:create_labelpanel(x,y,w,h,text)
 	function base_widget:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
-      --for k,v in pairs(self.childwidgets) do
-      for i = #self.childwidgets, 1, -1 do
-        local v = self.childwidgets[i]
+      for k,v in pairs(self.childwidgets) do
+      --for i = #self.childwidgets, 1, -1 do
+        --local v = self.childwidgets[i]
         if not (v == nil) then
-          thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+          local htest = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+          if htest then
+            thit = htest
+          end
         end
         
-        if not (thit == nil) then
-          -- we hit a child widget, return this one instead
-          return thit
-        end
+      end
+      
+      if not (thit == nil) then
+        -- we hit a child widget, return this one instead
+        return thit
       end
       
       return nil
