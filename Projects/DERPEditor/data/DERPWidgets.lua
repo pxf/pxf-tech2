@@ -679,16 +679,16 @@ function derp:create_basecomponentblock(component_data)
 		end
 	end
 	
-	--[[
+	
 	function wid:mousepush(mx,my,button)
 		if derp.active_tool.current then
 			derp.active_tool.current:action({tag = "mousepush", x = mx, y = my, button = button, widget = self})
 		end
 	end
 	
-	function wid:mouserelease(x,y,button)
+	function wid:mouserelease(mx,my,button)
 		if derp.active_tool.current then
-		
+			derp.active_tool.current:action({tag = "mouserelease", x = mx, y = my, button = button, widget = self})
 		end
 	end
 	
@@ -698,7 +698,7 @@ function derp:create_basecomponentblock(component_data)
 			derp.active_tool.current:action({tag = "drag", dx = mx, dy = my, widget = self})
 		end
 		self.parent:needsredraw()
-	end]]
+	end
 	
 	-------------------------------
 	-- Connections
@@ -1591,29 +1591,21 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 				end
 			end
 		elseif action.tag == "mousepush" then
-			local x = action.x - derp.active_workspace.drawbox.x
-			local y = action.y - derp.active_workspace.drawbox.y
-			
-			local mx,my = inp.getmousepos()
-			
-			--local hit = "component "
-			
-			--"component "
-			
-			local hit = string.find(gui.focuswidget.widget_type,"component ")
+			local w = action.widget
+			local hit = string.find(w.widget_type,"component %a")
 			
 			if hit then
 				local found = false
 				
 				for k,v in pairs(derp.active_workspace.component_data.active_components) do
-					if v == hit.id then
+					if v == w.id then
 						found = true
 						break
 					end
 				end
 				
 				if not found then
-					derp.active_workspace.component_data.active_components = {hit.id}
+					derp.active_workspace.component_data.active_components = {w.id}
 					derp:push_workspace(derp.active_workspace)
 				end
 			else
