@@ -131,7 +131,8 @@ menu_container:addwidget(menubar)
 local left_padding_container = derp:create_block(0,40,20,app.height-60, "left padding")
 left_padding_container.border.right = true
 
-local center_main_toolbar = derp:create_toolbar(20,40,app.width-40,40)
+local center_main_toolbar = derp:create_horizontal_toolbar(20,40,app.width-40,40)
+--center_main_toolbar:set_state("horizontal")
 local testinput = gui:create_textinput(0,8,200)
 
 local workspace_tabs = derp:create_workspace_tabs(20,80,app.width-290,20)

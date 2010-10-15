@@ -169,9 +169,9 @@ function gui:create_basewidget(x,y,w,h)
 
   end
   
-  function wid:resize_callback(w,h)
+  function wid:resize_callback(w,h,edge)
 	for k,v in pairs(self.childwidgets) do
-		v:resize_callback(w,h)
+		v:resize_callback(w,h,edge)
 	end
   end
   
@@ -247,11 +247,11 @@ function gui:create_basewidget(x,y,w,h)
       --for k,v in pairs(self.childwidgets) do
       for i = #self.childwidgets, 1, -1 do
         local v = self.childwidgets[i]
-        if not (v == nil) then
+        if v then
           thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
         end
         
-        if not (thit == nil) then
+        if thit then
           -- we hit a child widget, return this one instead
           return thit
         end
