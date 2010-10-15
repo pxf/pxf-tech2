@@ -379,3 +379,76 @@ Functions
 	template <typename T> inline T ByteswapLtoN(const T& t);
 	template <typename T> inline T ByteswapNtoL(const T& t);
 ----
+
+
+Math
+----
+File
+----
+Pxf/Math/Math.h
+----
+
+Convert degrees to radians
+[source, c++]
+----
+float Deg2Rad(float deg);
+----
+
+Convert radians to degrees
+[source, c++]
+----
+float Rad2Deg(float rad);
+----
+
+Check if a float value t is near equal to value
+[source, c++]
+----
+bool NearValue(float t, float value);
+----
+
+Transform value from one range to another range
+[source, c++]
+----
+template <typename T>
+T TransformRange(T value, T in_min, T in_max, T out_min, T out_max);
+----
+
+Returns the absolute value of a
+[source, c++]
+----
+template <typename T> 
+T Abs(const T& a);
+----
+
+Returns the biggest of a and b
+[source, c++]
+----
+template<typename T> 
+T Max(const T& a, const T& b);
+----
+
+Returns the smallest of a and b
+[source, c++]
+----
+template<typename T> 
+T Min(const T& a,const T& b);
+----
+
+Clamps value between min and max
+[source, c++]
+----
+template <typename T> 
+T Clamp(const T& value, const T& min, const T& max);
+----
+
+These files
+----
+Pxf/Math/Vector.h
+Pxf/Math/Matrix.h
+Pxf/Math/Quaternion.h
+----
+define vector 2D- and 3D-vectors, 4x4 matrix and quaternions. Will most likely be replaced
+with the sony vector math library later on.
+
+
+
