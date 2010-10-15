@@ -4,7 +4,7 @@ function spawn_aboutwindow()
                      , "You might need to take a dump in your bed."
                      }
   
-  local about_window = gui:create_window(app.width / 2 - 200,app.height / 2 - 125,400,250, true, "About")
+  local about_window = gui:create_window("aboutdialog", app.width / 2 - 200,app.height / 2 - 125,400,250, false, "About")
   local shortinfo_panel = gui:create_centeredmultiline_label(0,0,400,60,short_info)
   local memory_panel = gui:create_labelpanel(0,60,400,20,"Memory usage: unknown")
   
@@ -24,9 +24,17 @@ function spawn_aboutwindow()
 end
 
 function spawn_settingswindow()
-  local settings_window = gui:create_window(200,120,400,250, true, "Application Settings")
+  local settings_window = gui:create_window("settingsdialog", app.width / 2 - 200,app.height / 2 - 200,400,400, false, "Application Settings")
   --local shortinfo_panel = gui:create_centeredmultiline_label(0,0,400,60,short_info)
   --about_window.panel:addwidget(shortinfo_panel)
+  --[[{"Settings", {menu = {{"GUI Settings", {menu = {{"Switch render mode", {tooltip = "Switch rendermodes; Fullscreen or stencil redraw.", onclick = function () if (app.rendermode == app.REDRAWMODE_FULL) then app.setrenderoption(app.REDRAWMODE_NORMAL) else app.setrenderoption(app.REDRAWMODE_FULL) end end}},
+                                                   {"Show/hide redraw areas", {tooltip = "Show or hide redraw rectangles.", onclick = function () gui:toggle_show_redraw() end}}
+                                                  }
+                                          }
+                        }}
+                }
+   }]]
+   
   
   gui.windows:add(settings_window)
 end

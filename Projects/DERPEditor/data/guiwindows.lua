@@ -5,9 +5,22 @@
 gui.windows = {windowlist = {}}
 
 function gui.windows:add(wnd)
+  -- see if window is already open
+  for k,v in pairs(self.windowlist) do
+    if v.id == wnd.id then
+      
+      -- already open!
+      -- set focus instead
+      gui.windows:setactive(v)
+      
+      return
+    end
+  end
+  
   -- add window to top of list
   table.insert(self.windowlist, 1, wnd)
   
+  -- if window is modal, the add the dimmer widget first
   if (wnd.modal) then
     gui.widgets:addwidget(wnd.dimmer)
   end
@@ -29,37 +42,35 @@ function gui.windows:remove(wnd)
 end
 
 function gui.windows:setactive(wnd)
-  -- if not the top window is modal, then change active window
-  if not (self.windowlist[1].modal) then
-    -- remove from window list
-    local i = nil
-    for k,v in pairs(self.windowlist) do
-      if v == wnd then
-        i = k
-        break
-      end
+  -- remove from window list
+  local i = nil
+  for k,v in pairs(self.windowlist) do
+    if v == wnd then
+      i = k
+      break
     end
-    table.remove(self.windowlist, k)
-    -- ... and re-insert it at the top
-    table.insert(self.windowlist, 1, wnd)
-  
-    -- do the same for root widget list
-    for k,v in pairs(gui.widgets.childwidgets) do
-      if v == wnd then
-        i = k
-        break
-      end
-    end
-    table.remove(gui.widgets.childwidgets, i)
-    table.insert(gui.widgets.childwidgets, wnd)
   end
+  table.remove(self.windowlist, k)
+  -- ... and re-insert it at the top
+  table.insert(self.windowlist, 1, wnd)
+
+  -- do the same for root widget list
+  for k,v in pairs(gui.widgets.childwidgets) do
+    if v == wnd then
+      i = k
+      break
+    end
+  end
+  table.remove(gui.widgets.childwidgets, i)
+  table.insert(gui.widgets.childwidgets, wnd) -- insert at bottom of list
 end
 
 ---------------------------------------
 -- standard window gui widget
-function gui:create_window(x,y,w,h,modal,label)
+function gui:create_window(id,x,y,w,h,modal,label)
   local shadow_size = 8
-	local window = gui:create_basewidget(x-shadow_size,y-shadow_size,w+shadow_size,h+shadow_size)
+	local window = gui:create_basewidget(x-shadow_size,y-shadow_size,w+shadow_size*2,h+shadow_size*2)
+	window.id = id
 	window.title_height = 24
 	window.shadow_size = shadow_size
 	window.state = "full" -- "full" or "compact"
@@ -67,15 +78,17 @@ function gui:create_window(x,y,w,h,modal,label)
 	window.compact_height = window.title_height+shadow_size*2
 	
 	-- sub-panels
-	local window_label = gui:create_labelpanel(0,0,w-40,window.title_height, label)
-	local window_panel = gui:create_basewidget(0,window.title_height+shadow_size,w,h-window.title_height)
+	local window_label = gui:create_labelpanel(shadow_size,shadow_size,w-40-shadow_size*2,window.title_height, label)
+	local window_panel = gui:create_basewidget(shadow_size,window.title_height+shadow_size,w,h-window.title_height)
 	
 	-- buttons
-	local window_closebutton = gui:create_iconbutton(w-window.title_height-shadow_size,shadow_size,window.title_height,window.title_height,{21,11,8,8},
-	                                                   function(self) self.parent:destroy() end)
-	local window_sizebutton = gui:create_iconbutton(w-window.title_height*2-shadow_size,shadow_size,window.title_height,window.title_height,{22,21,7,3},
-	                                                  function(self) self.parent:toggle_state() end)
+	local window_closebutton = gui:create_iconbutton(w-window.title_height+shadow_size,shadow_size,window.title_height,window.title_height,{21,11,8,8},
+	                                                 function(self) self.parent:destroy() end)
+	local window_sizebutton = gui:create_iconbutton(w-window.title_height*2+shadow_size,shadow_size,window.title_height,window.title_height,{22,21,7,3},
+	                                                 function(self) self.parent:toggle_state() end)
 	
+	window.closebutton = window_closebutton
+	window.sizebutton = window_sizebutton
 	window.panel = window_panel
 	window.label = window_label
 	
@@ -106,12 +119,14 @@ function gui:create_window(x,y,w,h,modal,label)
       self.state = "compact"
       self.panel.visible = false
       self:resize_abs(self.drawbox.w, self.compact_height)
+      self.sizebutton.icon_coords = {22,25,7,7}
       --print("toggling to compact")
     else
       -- toggle to full
       self.state = "full"
       self.panel.visible = true
       self:resize_abs(self.drawbox.w, self.full_height)
+      self.sizebutton.icon_coords = {22,21,7,3}
       --print("toggling to full")
     end
   end
@@ -232,8 +247,8 @@ function gui:create_window(x,y,w,h,modal,label)
 	    self.dimmer:destroy()
     end
 	  
-	  self:superdestroy()
 	  gui.windows:remove(self)
+	  self:superdestroy()
   end
 	
 	--[[window_panel.super_draw = window_panel.draw
@@ -281,11 +296,12 @@ function gui:create_window(x,y,w,h,modal,label)
   		-- titlebar
   		gfx.drawtopleft(1, 1, self.drawbox.w-self.shadow_size*2-2, window.title_height-2, 508, 1, 0, 128)
 	
+	    gfx.translate(-self.shadow_size, -self.shadow_size)
+	    
   		for k,v in pairs(self.childwidgets) do
   			v:draw(force)
   		end
   		
-  		gfx.translate(-self.shadow_size, -self.shadow_size)
   		gfx.translate(-self.drawbox.x,-self.drawbox.y)
   	end
 	end

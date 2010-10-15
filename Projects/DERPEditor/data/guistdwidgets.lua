@@ -665,10 +665,10 @@ function gui:create_iconbutton(x,y,w,h,icon_coords,action)
       
       -- icon
       if (self.state == 0) then
-        gfx.drawtopleft(self.drawbox.w / 2.0 - self.icon_coords[3] / 2.0, self.drawbox.h / 2.0 - self.icon_coords[4] / 2.0, self.icon_coords[3], self.icon_coords[4]
+        gfx.drawcentered(self.drawbox.w / 2, self.drawbox.h / 2, self.icon_coords[3], self.icon_coords[4]
                         , self.icon_coords[1], self.icon_coords[2], self.icon_coords[3], self.icon_coords[4]) -- texcoords
       else
-        gfx.drawtopleft(self.drawbox.w / 2.0+1, self.drawbox.h / 2.0+1, self.icon_coords[3], self.icon_coords[4]
+        gfx.drawcentered(self.drawbox.w / 2 + 1, self.drawbox.h / 2 + 1, self.icon_coords[3], self.icon_coords[4]
                         , self.icon_coords[1], self.icon_coords[2], self.icon_coords[3], self.icon_coords[4]) -- texcoords
       end
     

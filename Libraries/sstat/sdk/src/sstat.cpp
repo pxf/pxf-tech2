@@ -4,6 +4,7 @@
 
 #include <windows.h>
 #include <psapi.h>
+#include <Commdlg.h>
 
 
 long int sstat_memoryusage()
@@ -31,14 +32,32 @@ long int sstat_memoryusage()
 
 int sstat_savefiledialog(char* _filename)
 {
-	// TODO: Fix me!
-	return -1;
+	OPENFILENAME info;
+	_filename[0] = 0;
+	ZeroMemory(&info, sizeof(info));
+	info.lStructSize = sizeof(info);
+	info.hwndOwner = 0;
+	info.lpstrFilter = 0;
+	info.lpstrFile = _filename;
+	info.nMaxFile = MAX_PATH;
+	info.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY |OFN_OVERWRITEPROMPT;
+	bool ret = GetSaveFileName(&info);
+	return !ret;
 }
 
 int sstat_openfiledialog(char* _filename)
 {
-	// TODO: Fix me 2! lols
-  return -1;
+	OPENFILENAME info;
+	_filename[0] = 0;
+	ZeroMemory(&info, sizeof(info));
+	info.lStructSize = sizeof(info);
+	info.hwndOwner = 0;
+	info.lpstrFilter = 0;
+	info.lpstrFile = _filename;
+	info.nMaxFile = MAX_PATH;
+	info.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	bool ret = GetOpenFileName(&info);
+	return !ret;
 }
 
 #elif defined (MACOSX) || defined (__APPLE__)
