@@ -383,59 +383,60 @@ Functions
 
 Math
 ----
-File
+
+This file
 ----
 Pxf/Math/Math.h
 ----
 
 Convert degrees to radians
-[source, c++]
+[source, cpp]
 ----
 float Deg2Rad(float deg);
 ----
 
 Convert radians to degrees
-[source, c++]
+[source, cpp]
 ----
 float Rad2Deg(float rad);
 ----
 
 Check if a float value t is near equal to value
-[source, c++]
+[source, cpp]
 ----
 bool NearValue(float t, float value);
 ----
 
 Transform value from one range to another range
-[source, c++]
+[source, cpp]
 ----
 template <typename T>
 T TransformRange(T value, T in_min, T in_max, T out_min, T out_max);
 ----
 
 Returns the absolute value of a
-[source, c++]
+[source, cpp]
 ----
 template <typename T> 
 T Abs(const T& a);
 ----
 
 Returns the biggest of a and b
-[source, c++]
+[source, cpp]
 ----
 template<typename T> 
 T Max(const T& a, const T& b);
 ----
 
 Returns the smallest of a and b
-[source, c++]
+[source, cpp]
 ----
 template<typename T> 
 T Min(const T& a,const T& b);
 ----
 
 Clamps value between min and max
-[source, c++]
+[source, cpp]
 ----
 template <typename T> 
 T Clamp(const T& value, const T& min, const T& max);
