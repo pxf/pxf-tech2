@@ -990,11 +990,91 @@ http://www.gnu.org/software/src-highlite -->
         <span style="font-weight: bold"><span style="color: #0000FF">template</span></span> <span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">typename</span></span> <span style="color: #008080">T</span><span style="color: #990000">&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">inline</span></span> <span style="color: #008080">T</span> <span style="font-weight: bold"><span style="color: #000000">ByteswapNtoL</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> t<span style="color: #990000">);</span></tt></pre></div></div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_math">Math</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This file</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>Pxf/Math/Math.h</tt></pre>
+</div></div>
+<div class="paragraph"><p>Convert degrees to radians</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.3
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #009900">float</span> <span style="font-weight: bold"><span style="color: #000000">Deg2Rad</span></span><span style="color: #990000">(</span><span style="color: #009900">float</span> deg<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Convert radians to degrees</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.3
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #009900">float</span> <span style="font-weight: bold"><span style="color: #000000">Rad2Deg</span></span><span style="color: #990000">(</span><span style="color: #009900">float</span> rad<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Check if a float value t is near equal to value</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.3
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #009900">bool</span> <span style="font-weight: bold"><span style="color: #000000">NearValue</span></span><span style="color: #990000">(</span><span style="color: #009900">float</span> t<span style="color: #990000">,</span> <span style="color: #009900">float</span> value<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Transform value from one range to another range</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.3
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">template</span></span> <span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">typename</span></span> <span style="color: #008080">T</span><span style="color: #990000">&gt;</span>
+<span style="color: #008080">T</span> <span style="font-weight: bold"><span style="color: #000000">TransformRange</span></span><span style="color: #990000">(</span><span style="color: #008080">T</span> value<span style="color: #990000">,</span> <span style="color: #008080">T</span> in_min<span style="color: #990000">,</span> <span style="color: #008080">T</span> in_max<span style="color: #990000">,</span> <span style="color: #008080">T</span> out_min<span style="color: #990000">,</span> <span style="color: #008080">T</span> out_max<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Returns the absolute value of a</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.3
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">template</span></span> <span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">typename</span></span> <span style="color: #008080">T</span><span style="color: #990000">&gt;</span>
+<span style="color: #008080">T</span> <span style="font-weight: bold"><span style="color: #000000">Abs</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> a<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Returns the biggest of a and b</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.3
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">template</span></span><span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">typename</span></span> <span style="color: #008080">T</span><span style="color: #990000">&gt;</span>
+<span style="color: #008080">T</span> <span style="font-weight: bold"><span style="color: #000000">Max</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> a<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> b<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Returns the smallest of a and b</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.3
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">template</span></span><span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">typename</span></span> <span style="color: #008080">T</span><span style="color: #990000">&gt;</span>
+<span style="color: #008080">T</span> <span style="font-weight: bold"><span style="color: #000000">Min</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> a<span style="color: #990000">,</span><span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> b<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Clamps value between min and max</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.3
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">template</span></span> <span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">typename</span></span> <span style="color: #008080">T</span><span style="color: #990000">&gt;</span>
+<span style="color: #008080">T</span> <span style="font-weight: bold"><span style="color: #000000">Clamp</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> value<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> min<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> T<span style="color: #990000">&amp;</span> max<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>These files</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>Pxf/Math/Vector.h
+Pxf/Math/Matrix.h
+Pxf/Math/Quaternion.h</tt></pre>
+</div></div>
+<div class="paragraph"><p>define vector 2D- and 3D-vectors, 4x4 matrix and quaternions. Will most likely be replaced
+with the sony vector math library later on.</p></div>
+</div>
+</div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2010-10-11 18:33:16 UTC
+Last updated 2010-10-15 18:54:49 UTC
 </div>
 </div>
 </body>
