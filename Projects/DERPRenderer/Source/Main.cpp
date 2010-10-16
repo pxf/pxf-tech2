@@ -59,9 +59,6 @@ int main()
 
 	unsigned main_tag = kernel->CreateTag("Main");
 
-	kernel->Log(main_tag | Logger::IS_CRITICAL, "Honk %s", "Tonk");
-	kernel->Log(main_tag | Logger::IS_DEBUG, "Honk %s", "Tonk LOL");
-
 	// Just load everything
 	kernel->RegisterModule("pri", 0xFFFF, true);
 	kernel->RegisterModule("img", 0xFFFF, true);
