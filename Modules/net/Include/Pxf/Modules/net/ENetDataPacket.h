@@ -24,12 +24,15 @@ namespace Pxf
 			int m_Tag;
 			char* m_ID;
 
+			// Package:
+			// 	0000tag00000000data00000000data
 			bool m_Package;
 			int m_PackageLength;
+			int m_ObjectsBegin;
+			bool m_ReadOnly;
 
 		public:
-			ENetDataPacket(const char* _Data);
-			ENetDataPacket(const int _Sender, const int _Tag);
+			ENetDataPacket(const char* _ID, const int _Sender, const int _Tag);
 			ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag);
 			virtual ~ENetDataPacket();
 
@@ -41,6 +44,8 @@ namespace Pxf
 
 			virtual bool PushObject(const int _Type, const void* _Buffer, unsigned int _Size);
 			virtual bool ReadObject(void* _Buffer, const int _Pos);
+
+			virtual int ObjectType(const int _Pos);
 		};
 	}
 }

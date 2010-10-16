@@ -56,6 +56,8 @@ namespace Pxf
 			
 			virtual int AddTag(char* _Name);
 			virtual Util::Array<char*>* GetTags();
+
+			virtual Network::Packet* CreateEmptyPacket(const char* _ID, const int _Tag);
 		};
 	}
 }

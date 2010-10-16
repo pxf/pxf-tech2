@@ -42,7 +42,7 @@ namespace Pxf
 
 			template<typename T> T GetObject(const int _Pos) 
 				{ T v; ReadObject(&v, _Pos); return v; }
-			int ObjectType(const int _Pos);
+			virtual int ObjectType(const int _Pos) = 0;
 		};
 	}
 }
