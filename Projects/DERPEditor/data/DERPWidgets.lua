@@ -274,7 +274,7 @@ function derp:create_workspace_menu()
     local type_menu = {}
     for blocktype,v in pairs(types) do
       if not (blocktype == "name") then
-        table.insert(type_menu, {tostring(v.name), {tooltip = "lol sup", onclick = function()
+        table.insert(type_menu, {tostring(v.name), {tooltip = "Add " .. tostring(v.name), onclick = function()
                                                                                      --local x,y = inp.getmousepos()
 																					 local x = self.addcomppos.x
 																					 local y = self.addcomppos.y
@@ -756,7 +756,7 @@ function derp:create_connectionoutput(id,x,y)
     if htest then
       if (htest.widget_type == "connection_input") then
         --print("Trying to add connection from output '" .. self.output_id .. "' to input '" .. htest.input_id .. "'")
-        htest.parent:add_connection(self.parent.component_id, self.output_id, htest.input_id)
+        htest.parent:add_connection(self.parent.component_id, self.output_id, self.parent.data.type, htest.input_id)
       end
     end
     self.parent.temp_connection = nil
@@ -868,8 +868,8 @@ function derp:create_basecomponentblock(component_data)
   wid:addwidget(wid.activate_button)
 	
 	-- how to create new connections
-	function wid:add_connection(from_block, from_output, to_id)
-	  table.insert(self.data.connections_in, {block = from_block, output = from_output, input = to_id})
+	function wid:add_connection(from_block, from_output, type_output, to_id)
+	  table.insert(self.data.connections_in, {block = from_block, output = from_output, type = type_output, input = to_id})
   end
   
   -- find connection socket with output name
