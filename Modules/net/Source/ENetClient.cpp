@@ -256,7 +256,8 @@ bool ENetClient::SendPacket(Network::Packet* _Packet)
 	char* ptr;
 
 	sprintf(NewBuf, "%c0000%s", 1, ID);
-	MemoryCopy(NewBuf+1, strlen(ID), 4);
+	int IDLength = strlen(ID);
+	MemoryCopy(NewBuf+1, &IDLength, 4);
 
 	ptr = (NewBuf+1+4+strlen(ID));
 
