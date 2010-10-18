@@ -45,6 +45,7 @@ namespace Derp
 		int m_Width, m_Height;
 		Pxf::Graphics::FrameBufferObject* m_FBO;
 		Pxf::Network::Server* m_Net;
+		Pxf::Network::NetworkDevice* m_NetDevice;
 		char* m_JsonData;
 		unsigned int m_JsonDataSize;
 		

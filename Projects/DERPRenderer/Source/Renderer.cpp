@@ -26,13 +26,13 @@ Renderer::Renderer(unsigned int _port)
 	, m_JsonData(0)
 {
 	// Set tags for network.
-	Network::NetworkDevice* _net = Pxf::Kernel::GetInstance()->GetNetworkDevice();
-	m_NetTag_Pipeline = _net->AddTag("pipeline");
-	m_NetTag_Preview = _net->AddTag("preview");
-	m_NetTag_Profiling = _net->AddTag("profiling");
+	m_NetDevice = Pxf::Kernel::GetInstance()->GetNetworkDevice();
+	m_NetTag_Pipeline = m_NetDevice->AddTag("pipeline");
+	m_NetTag_Preview = m_NetDevice->AddTag("preview");
+	m_NetTag_Profiling = m_NetDevice->AddTag("profiling");
 	
-	unsigned netlogtag = _net->AddTag("log");
-	m_Net = _net->CreateServer();
+	unsigned netlogtag = m_NetDevice->AddTag("log");
+	m_Net = m_NetDevice->CreateServer();
 	m_Net->Bind(_port);
 	Pxf::Kernel::GetInstance()->RegisterLogger(new RemoteLogWriter(m_Net, netlogtag));
 
@@ -184,6 +184,7 @@ void Renderer::Execute()
 {
 	Network::Packet* packet = m_Net->RecvNonBlocking(0);
 	if (packet != NULL)
+	{
 		if (packet->GetTag() == m_NetTag_Pipeline)
 		{
 			CleanUp();
@@ -199,6 +200,7 @@ void Renderer::Execute()
 			BuildGraph();
 			
 		}
+	}
 	
 	if (m_RootBlock)
 	{
@@ -210,15 +212,25 @@ void Renderer::Execute()
 		// TODO: Also send some identifier for the last texture.
 		int height = img->Height();
 		//m_Net->SendAllID("poop", m_NetTag_Preview, (const char*)&height, 4);
-		m_Net->SendAllID("imgdata", m_NetTag_Preview, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 		
-		char* poop = new char[img->Height()*img->Width()*img->Channels()+1];
+		Network::Packet* imgpacket = m_NetDevice->CreateEmptyPacket("imgdata", m_NetTag_Preview);
+		imgpacket->PushInt(img->Width());
+		imgpacket->PushInt(img->Height());
+		imgpacket->PushInt(img->Channels());
+		printf("size lols: %i\n", img->Height()*img->Width()*img->Channels());
+		imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+		
+		m_Net->SendAllPacket(imgpacket);
+		
+		//m_Net->SendAllID("imgdata", m_NetTag_Preview, (const void*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+		
+		/*char* poop = new char[img->Height()*img->Width()*img->Channels()+1];
 		MemoryCopy(poop, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 		poop[img->Height()*img->Width()*img->Channels()] = '\0';
 		
 		//printf("SUGER DU EN KUK? : %s\n", poop);
 		
-		delete [] poop;
+		delete [] poop;*/
 
 		delete img;
 	} else {

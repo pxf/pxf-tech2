@@ -80,7 +80,7 @@ function derp_components.output.simple:create_widget(component_data)
     else
       
       -- send our pipeline
-      client:send("pipeline", final_json)
+      self.parent.parent.client:send("pipeline", final_json)
       
     end
     
@@ -93,8 +93,11 @@ function derp_components.output.simple:create_widget(component_data)
       if (self.client:connected()) then
         print("connected")
         local indata = self.client:recv_noblock(0)
-        for k,v in pairs(indata) do
-          print(k,v)
+        if indata then
+          print("got packet")
+          --[[for k,v in pairs(indata) do
+            print(k,v)
+          end]]
         end
       end
   end
