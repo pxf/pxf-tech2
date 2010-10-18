@@ -246,6 +246,36 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 	return true;
 }
 
+bool ENetClient::SendPacket(Network::Packet* _Packet)
+{
+	ENetPacket *packet;
+
+	char* ID = _Packet->GetID();
+	char* NewBuf = new char[1+strlen(ID)+_Packet->GetLength()];
+	char* ptr;
+
+	sprintf(NewBuf, "%c0000%s", 1, ID);
+	ptr = (NewBuf+1+4+strlen(ID));
+
+	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
+
+	packet = enet_packet_create(NewBuf, 1+strlen(ID)+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetClient", "Unable to create packet for sending.");
+		return false;
+	}
+
+	enet_peer_send(Peer, _Packet->GetTag(), packet);
+
+	Flush();
+
+	delete []NewBuf;
+
+	return true;
+}
+
 void ENetClient::Flush()
 {
 	// Force send the packet. Since *_flush doesn't work, we have to do it this way.

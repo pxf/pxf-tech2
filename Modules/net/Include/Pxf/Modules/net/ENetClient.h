@@ -9,6 +9,7 @@
 #include <Pxf/Base/Platform.h>
 
 #include <Pxf/Util/Array.h>
+#include <Pxf/Base/Memory.h>
 
 #include <enet/enet.h>
 #include <string.h>
@@ -49,7 +50,7 @@ namespace Pxf
 			virtual Network::Packet* RecvNonBlocking(const int _Timeout);
 			virtual bool Send(const int _Type, const char* _Buf, const int _Length);
 			virtual bool SendID(const char* _ID, const int _Type, const char* _Buf, const int _Length);
-			
+			virtual bool SendPacket(Network::Packet* _Packet);
 		};
 	}
 }

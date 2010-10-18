@@ -25,7 +25,7 @@ namespace Pxf
 			char* m_ID;
 
 			// Package:
-			// 	0000tag00000000data00000000data
+			// 	0000id00000000data00000000data
 			bool m_Package;
 			int m_PackageLength;
 			int m_ObjectsBegin;

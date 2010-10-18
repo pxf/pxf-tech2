@@ -254,6 +254,55 @@ int DERPEditor::net_client_send_id(lua_State *L)
 	return 0;
 }
 
+/*int DERPEditor::net_client_send_packet(lua_State *L)
+{
+	if (lua_gettop(L) == 3)
+	{
+		lua_getfield(L, -2, "instance");
+		Client* client = *(Client**)lua_touserdata(L, -1);
+		lau_getfield(L, -2, "instance");
+		Packet* packet = *(Packet**)lua_touserdata(L, -1);
+
+//		int channel = packet->GetTag();
+		if (lua_isstring(L, -3))
+		{
+			// Fetch the number connected to the string.
+			Util::Array<char*>* tags = LuaApp::GetInstance()->m_net->GetTags();
+
+			int i;
+			for (i=0; i < tags->size(); i++)
+			{
+				if (strcmp((*tags)[i], lua_tolstring(L, -3, NULL)) == 0)
+					// Found it.
+					break;
+			}
+
+			if (i == tags->size())
+				// Couldn't find it.
+				channel = 0;
+			else
+				channel = i;
+
+			const char* message = lua_tolstring(L, -2, NULL);
+			client->Send(channel, message, strlen(message));
+		}
+		else if (lua_isnumber(L, -3))
+		{
+			const char* message = lua_tolstring(L, -2, NULL);
+			client->Send(lua_tonumber(L, -3), message, strlen(message));
+		}
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to send function!");
+		lua_error(L);
+	}
+
+	return 0;
+}*/
+
 int DERPEditor::net_client_recv(lua_State *L)
 {
 	if (lua_gettop(L) == 1)
@@ -489,8 +538,11 @@ int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
 	lua_setfield(L, -2, "instance");
 	lua_pushnumber(L, _Packet->GetSender());
 	lua_setfield(L, -2, "sender");
-	lua_pushlstring(L, _Packet->GetData(), _Packet->GetLength());
-	lua_setfield(L, -2, "data");
+	if (_Packet->GetData() != NULL)
+	{
+		lua_pushlstring(L, _Packet->GetData(), _Packet->GetLength());
+		lua_setfield(L, -2, "data");
+	}
 	lua_pushnumber(L, _Packet->GetTag());
 	lua_setfield(L, -2, "tag");
 	lua_pushstring(L, _Packet->GetID());
