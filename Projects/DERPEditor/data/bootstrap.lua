@@ -44,7 +44,8 @@ function split(str, pat)
 end
 
 function escape_backslashes(str)
-  return string.gsub(str, "\\", "\\\\")
+  local res = string.gsub(str, "\\", "\\\\")
+  return res
 end
 
 function point_hittest(px,py, x0,y0, x1,y1 )
