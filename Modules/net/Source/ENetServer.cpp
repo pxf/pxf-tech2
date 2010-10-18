@@ -247,6 +247,7 @@ bool ENetServer::SendAllPacket(Network::Packet* _Packet)
 	char* ptr;
 
 	sprintf(NewBuf, "%c0000%s", 1, ID);
+	MemoryCopy(NewBuf+1, ID, strlen(ID));
 	ptr = (NewBuf+1+4+strlen(ID));
 
 	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
