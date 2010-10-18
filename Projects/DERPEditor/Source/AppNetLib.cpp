@@ -108,7 +108,7 @@ int DERPEditor::net_createclient(lua_State *L)
 		lua_setfield(L, -2, "send_packet");
 
 		lua_pushcfunction(L, net_client_connected);
-		lua_setfield(L, -2, "send_connected");
+		lua_setfield(L, -2, "connected");
 
 		return 1;
 	}
