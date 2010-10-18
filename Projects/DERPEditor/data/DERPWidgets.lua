@@ -750,6 +750,19 @@ function derp:create_basecomponentblock(component_data)
 	wid.id = component_data.id
 	wid.widget_type = "component " .. wid.id
 	
+	-- find body y pos
+	----
+	-- FIXME: This forks up if we add inputs/outputs dynamically
+	----
+	--[[local body_ypos = 0
+	if (component_data.inputs > #component_data.outputs) then
+	  body_ypos = component_data.inputs * 32 + 32
+  else
+    body_ypos = #component_data.outputs * 32 + 32
+  end
+	wid.bodypanel = gui:create_basewidget(0,body_ypos,component_data.w,component_data.h-body_ypos)
+	wid:addwidget(wid.bodypanel)]]
+	
 	-- temporary unfinished connection
 	wid.temp_connection = nil
 	
