@@ -1,7 +1,11 @@
 function spawn_error_dialog(msg)
-  local error_dialog = gui:create_window("errordialog", app.width / 2 - 250,app.height / 2 - 125, 500,100, true, "Error")
-  local msg_panel = gui:create_centeredmultiline_label(0,10,500,70,msg)
+  local error_dialog = gui:create_window("errordialog"..msg[1], app.width / 2 - 250,app.height / 2 - 75, 500,120, true, "Error")
+  local msg_panel = gui:create_centeredmultiline_label(0,10,500,100,msg)
   error_dialog.panel:addwidget(msg_panel)
+  
+  -- ok button
+  local button = gui:create_labelbutton(210,60,90,30,"Ok", function(self) self.parent.parent:destroy() end)
+  error_dialog.panel:addwidget(button)
 
   gui.windows:add(error_dialog)
 end

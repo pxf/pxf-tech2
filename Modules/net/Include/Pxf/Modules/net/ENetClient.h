@@ -9,6 +9,7 @@
 #include <Pxf/Base/Platform.h>
 
 #include <Pxf/Util/Array.h>
+#include <Pxf/Base/Memory.h>
 
 #include <enet/enet.h>
 #include <string.h>
@@ -30,6 +31,8 @@ namespace Pxf
 			ENetHost *Client;
 			ENetPeer *Peer;
 			Network::NetworkDevice* NetDev;
+
+			bool _Connected;
 			
 			Util::Array<Network::Packet*> BufferedPackets;
 
@@ -39,6 +42,9 @@ namespace Pxf
 			//ENetClient(const char* _Host, const int _Port);
 			ENetClient(Network::NetworkDevice* _NetworkDevice)
 				: NetDev(_NetworkDevice)
+				, _Connected(false)
+				, Client(NULL)
+				, Peer(NULL)
 			{}
 
 			virtual bool Connect(const char* _Host, const int _Port);
@@ -49,7 +55,7 @@ namespace Pxf
 			virtual Network::Packet* RecvNonBlocking(const int _Timeout);
 			virtual bool Send(const int _Type, const char* _Buf, const int _Length);
 			virtual bool SendID(const char* _ID, const int _Type, const char* _Buf, const int _Length);
-			
+			virtual bool SendPacket(Network::Packet* _Packet);
 		};
 	}
 }

@@ -23,6 +23,7 @@ namespace Pxf
 			virtual bool SendAll(const int _Type, const char* _Buf) = 0;
 			virtual bool SendAllL(const int _Type, const char* _Buf, const int _Length) = 0;
 			virtual bool SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length) = 0;
+			virtual bool SendAllPacket(Packet* _Packet) = 0;
 		};
 	}
 }
