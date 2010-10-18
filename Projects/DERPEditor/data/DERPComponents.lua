@@ -46,7 +46,9 @@ function derp_components.output.simple:create_widget(component_data)
   wid:addwidget(hostinput)
   
   -- render button
-  local renderbutton = gui:create_labelbutton(10,40,100,30,"Render", function(...) print(...) end)
+  local renderbutton = gui:create_labelbutton(10,40,100,30,"Render", function(self,mx,my,button)
+                                                                        print(derp_components.output.simple:generate_json(self.parent.parent.data))
+                                                                      end)
   wid.renderbutton = renderbutton
   wid:addwidget(renderbutton)
   
@@ -54,7 +56,50 @@ function derp_components.output.simple:create_widget(component_data)
 end
 
 function derp_components.output.simple:generate_json(component_data)
-  return "LOL TODO"
+  local input_array = {}
+  local input_array_shader = {}
+  
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+  end
+  
+  local first_texture = nil
+  for k,v in pairs(component_data.connections_in) do
+    if (v.type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+      
+    end
+  end
+  
+  if (first_texture == nil) then
+    spawn_error_dialog({"Output block needs at least one input!"})
+  end
+  
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Root",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"host" : "]] .. tostring(component_data.id) .. [[",
+                    "port" : "4632",
+                    "feedback" : true,
+                    "realtime" : false,
+                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    void main()
+                    {
+                      gl_FragColor = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                    }",
+                    "width" : 512,
+                    "height" : 512
+                   }
+    }]]
+  
+  return jsonstring
 end
 
 function derp_components.output.simple:spawn_inspector(component_data)
@@ -115,8 +160,8 @@ function derp_components.aux.texture:create_widget(component_data)
   local browsebutton = gui:create_labelbutton(10,10,150,30,"Browse", function(self)
                                                                         local new_filepath = app.opendialog()
                                                                         if (new_filepath) then
-                                                                          self.parent.filepathwidget.label_text = new_filepath
-                                                                          self.parent.data.texturefilepath = new_filepath
+                                                                          self.parent.parent.filepathwidget.label_text = new_filepath
+                                                                          self.parent.parent.data.texturefilepath = new_filepath
                                                                           
                                                                           derp:push_active_workspace()
                                                                         end
@@ -128,7 +173,17 @@ function derp_components.aux.texture:create_widget(component_data)
 end
 
 function derp_components.aux.texture:generate_json(component_data)
-  return "LOL TODO"
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "AuxComp",
+     "blockData" : {"auxType" : "texture",
+                    "filepath" : "]] .. tostring(component_data.texturefilepath) .. [[",
+                    "minfilter" : "nearest"
+                   },
+     "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
+                       "type" : "texture"}]
+    }]]
+  
+  return jsonstring
 end
 
 function derp_components.aux.texture:spawn_inspector(component_data)
