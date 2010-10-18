@@ -22,6 +22,12 @@ namespace DERPEditor
 	// packet
 	int net_packet_push(lua_State *L, Pxf::Network::Packet* _Packet);
 	int net_packet_delete(lua_State *L);
+	// TODO:
+	int net_packet_create_empty(lua_State *L);
+	int net_packet_get_object(lua_State *L);
+	int net_packet_push_object(lua_State *L);
+	int net_packet_get_object_size(lua_State *L); // maybe
+	int net_packet_get_object_type(lua_State *L); // maybe
 
 	// server functions
 	int net_server_bind(lua_State *L);

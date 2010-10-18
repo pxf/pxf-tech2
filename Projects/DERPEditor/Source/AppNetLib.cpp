@@ -514,6 +514,22 @@ int DERPEditor::net_packet_delete(lua_State *L)
 	return 0;
 }
 
+int DERPEditor::net_packet_create_empty(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to create_empty function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
 
 
 int DERPEditor::luaopen_appnet(lua_State *L)
