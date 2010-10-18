@@ -27,7 +27,7 @@ derp_components.aux.floatconstant = { name = "Constant: Float"
                                     , tooltip = "Create a block that outputs a constant float value."
                                     }
 function derp_components.aux.floatconstant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 100, group = "aux", type = "floatconstant", inputs = 1, outputs = { workspace:gen_new_outputname() } }
+  local block = { x = x, y = y, w = 100, h = 100, group = "aux", type = "floatconstant", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.constvalue = 0.0
   return block
@@ -57,7 +57,7 @@ derp_components.aux.vec2constant = { name = "Constant: Vec2"
                                     , tooltip = "Create a block that outputs a constant vec2 value."
                                     }
 function derp_components.aux.vec2constant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 100, group = "aux", type = "vec2constant", inputs = 0, outputs = { workspace:gen_new_outputname() } }
+  local block = { x = x, y = y, w = 100, h = 100, group = "aux", type = "vec2constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
   block.constvalue = {0.0, 0.0}

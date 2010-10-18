@@ -7,26 +7,26 @@
 using namespace Pxf::Modules;
 using namespace Pxf;
 
-// Filled package packet - multiple objects.
-ENetDataPacket::ENetDataPacket(const char* _Data)
-{
-	// TODO:
-}
-
 // Empty package packet - multiple objects.
-ENetDataPacket::ENetDataPacket(const int _Sender, const int _Tag)
+ENetDataPacket::ENetDataPacket(const char* _ID, const int _Sender, const int _Tag)
 {
 	m_Package = true;
+	m_ReadOnly = false;
 	m_Data = NULL;
+	m_ID = new char[strlen(_ID)+1];
+	MemoryCopy(m_ID, _ID, strlen(_ID)+1);
 	m_PackageLength = 0;
 	m_Sender = _Sender;
 	m_Tag = _Tag;
+
+	m_ObjectsBegin = 0;
 }
 
-// Filled normal packet - single object.
+// Filled normal/package packet - single object.
 ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length, const int _Tag)
 {
 	m_Package = false;
+	m_ReadOnly = true;
 
 	//printf("Packet creation. length: %d\n", _Length);
 	if (*_Data == '\0')
@@ -52,13 +52,29 @@ ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length
 
 		m_Length = DataLength;
 	}
+	else if (*_Data == '\1')
+	{ 
+		m_Package = true;
+		int IDLength;
+
+		MemoryCopy(&IDLength, _Data, sizeof(IDLength));
+		m_ID = new char[IDLength];
+		MemoryCopy(m_ID, (_Data+sizeof(IDLength)), IDLength);
+
+		m_Data = new char[_Length];
+		MemoryCopy(m_Data, _Data, _Length);
+
+		m_Package = true;
+		m_PackageLength = _Length;
+	}
 	else
 	{
-		m_ID = new char[4];
+		printf("UNDEFINED.\n");
+/*		m_ID = new char[4];
 		strcpy(m_ID, "und\0");
 		m_Data = new char[_Length+1];
 		strcpy(m_Data, _Data);
-		m_Length = _Length;
+		m_Length = _Length;*/
 	}
 
 	m_Sender = _Sender;
@@ -101,9 +117,10 @@ char* ENetDataPacket::GetID()
 
 bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned int _Size)
 {
-	m_PackageLength += _Size + sizeof(_Type) + sizeof(_Size);
-	char* NewData = new char[m_PackageLength];
+	char* NewData = new char[m_PackageLength+sizeof(_Type)+sizeof(_Size)+_Size];
+	MemoryCopy(NewData, m_Data, m_PackageLength);
 	char* ptr = (NewData+m_PackageLength);
+	m_PackageLength += _Size + sizeof(_Type) + sizeof(_Size);
 
 	// _Type, Size, _Buffer
 	MemoryCopy(ptr, &_Type, sizeof(_Type));
@@ -112,7 +129,8 @@ bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned i
 	ptr += sizeof(_Size);
 	MemoryCopy(ptr, _Buffer, _Size);
 
-	delete []m_Data;
+	if (m_Data != NULL)
+		delete []m_Data;
 	m_Data = NewData;
 
 	return true;
@@ -120,5 +138,77 @@ bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned i
 
 bool ENetDataPacket::ReadObject(void* _Buffer, const int _Pos)
 {
+	char* ptr = (m_Data+m_ObjectsBegin);
+	int Size, Type, Pos;
+
+	for(Pos=0; Pos<=_Pos; Pos++)
+	{
+		// Out of bounds.
+		if ((ptr-m_Data) >= m_PackageLength)
+			return false;
+			
+		MemoryCopy(&Type, ptr, sizeof(Type));
+		ptr += sizeof(Type);
+		MemoryCopy(&Size, ptr, sizeof(Size));
+		ptr += sizeof(Size);
+
+		if (Pos == _Pos)
+		{
+			MemoryCopy(_Buffer, ptr, Size);
+			return true;
+		}
+		else
+			ptr += Size;
+	}
+	
 	return true;
 }
+
+int ENetDataPacket::ObjectType(const int _Pos)
+{
+	char* ptr = (m_Data+m_ObjectsBegin);
+	int Size, Type, Pos;
+
+	for(Pos=0; Pos<=_Pos; Pos++)
+	{
+		// Out of bounds.
+		if ((ptr-m_Data) >= m_PackageLength)
+			return -1;
+			
+		MemoryCopy(&Type, ptr, sizeof(Type));
+		ptr += sizeof(Type);
+		MemoryCopy(&Size, ptr, sizeof(Size));
+		ptr += sizeof(Size);
+		ptr += Size;
+
+		if (Pos == _Pos)
+			return Type;
+	}
+	
+	return 0;
+}
+
+int ENetDataPacket::ObjectSize(const int _Pos)
+{
+	char* ptr = (m_Data+m_ObjectsBegin);
+	int Size, Type, Pos;
+
+	for(Pos=0; Pos<=_Pos; Pos++)
+	{
+		// Out of bounds.
+		if ((ptr-m_Data) >= m_PackageLength)
+			return -1;
+			
+		MemoryCopy(&Type, ptr, sizeof(Type));
+		ptr += sizeof(Type);
+		MemoryCopy(&Size, ptr, sizeof(Size));
+		ptr += sizeof(Size);
+		ptr += Size;
+
+		if (Pos == _Pos)
+			return Size;
+	}
+	
+	return 0;
+}
+
