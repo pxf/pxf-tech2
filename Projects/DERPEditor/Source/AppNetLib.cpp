@@ -101,8 +101,11 @@ int DERPEditor::net_createclient(lua_State *L)
 		lua_setfield(L, -2, "recv_noblock");
 		lua_pushcfunction(L, net_client_disconnect);
 		lua_setfield(L, -2, "disconnect");
+		// TODO: Put these two in send instead.
 		lua_pushcfunction(L, net_client_send_id);
 		lua_setfield(L, -2, "send_id");
+		lua_pushcfunction(L, net_client_send_packet);
+		lua_setfield(L, -2, "send_packet");
 
 		return 1;
 	}
@@ -254,43 +257,16 @@ int DERPEditor::net_client_send_id(lua_State *L)
 	return 0;
 }
 
-/*int DERPEditor::net_client_send_packet(lua_State *L)
+int DERPEditor::net_client_send_packet(lua_State *L)
 {
-	if (lua_gettop(L) == 3)
+	if (lua_gettop(L) == 2)
 	{
 		lua_getfield(L, -2, "instance");
 		Client* client = *(Client**)lua_touserdata(L, -1);
-		lau_getfield(L, -2, "instance");
+		lua_getfield(L, -2, "instance");
 		Packet* packet = *(Packet**)lua_touserdata(L, -1);
 
-//		int channel = packet->GetTag();
-		if (lua_isstring(L, -3))
-		{
-			// Fetch the number connected to the string.
-			Util::Array<char*>* tags = LuaApp::GetInstance()->m_net->GetTags();
-
-			int i;
-			for (i=0; i < tags->size(); i++)
-			{
-				if (strcmp((*tags)[i], lua_tolstring(L, -3, NULL)) == 0)
-					// Found it.
-					break;
-			}
-
-			if (i == tags->size())
-				// Couldn't find it.
-				channel = 0;
-			else
-				channel = i;
-
-			const char* message = lua_tolstring(L, -2, NULL);
-			client->Send(channel, message, strlen(message));
-		}
-		else if (lua_isnumber(L, -3))
-		{
-			const char* message = lua_tolstring(L, -2, NULL);
-			client->Send(lua_tonumber(L, -3), message, strlen(message));
-		}
+		client->SendPacket(packet);
 
 		return 0;
 	}
@@ -301,7 +277,7 @@ int DERPEditor::net_client_send_id(lua_State *L)
 	}
 
 	return 0;
-}*/
+}
 
 int DERPEditor::net_client_recv(lua_State *L)
 {
