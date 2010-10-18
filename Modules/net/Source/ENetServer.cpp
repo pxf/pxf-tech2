@@ -3,6 +3,7 @@
 
 using namespace Pxf::Modules;
 using namespace Pxf::Util;
+using namespace Pxf;
 
 int ENetServer::CreateClientID()
 {
