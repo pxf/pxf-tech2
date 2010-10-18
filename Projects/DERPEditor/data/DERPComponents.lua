@@ -121,8 +121,12 @@ function derp_components.output.simple:generate_json(component_data)
     -- get json for the leaf/input
     local tmpblock = derp.active_workspace:get_block(v.block)
     local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
-    for k2,v2 in pairs(tmpdict) do
-      table.insert(final_jsondata, v2)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
     end
   end
   
