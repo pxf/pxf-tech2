@@ -973,7 +973,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 				self.childwidgets = { }
 				
 				for k,v in pairs(self.component_data.components) do
-					self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+					--self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+					self:addwidget(derp_components[v.group][v.type]:create_widget(v),v.id)
 				end
 			else
 				self.childwidgets = { }
@@ -994,7 +995,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 			self.childwidgets = { }
 				
 			for k,v in pairs(self.component_data.components) do
-				self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+				--self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+				self:addwidget(derp_components[v.group][v.type]:create_widget(v),v.id)
 			end
 		end
 	end
