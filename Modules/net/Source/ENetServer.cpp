@@ -237,6 +237,36 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 	return true;
 }
 
+bool ENetServer::SendAllPacket(Network::Packet* _Packet)
+{
+	ENetPacket *packet;
+
+	char* ID = _Packet->GetID();
+	char* NewBuf = new char[1+strlen(ID)+_Packet->GetLength()];
+	char* ptr;
+
+	sprintf(NewBuf, "%c0000%s", 1, ID);
+	ptr = (NewBuf+1+4+strlen(ID));
+
+	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
+
+	packet = enet_packet_create(NewBuf, 1+strlen(ID)+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
+
+	enet_host_broadcast(Server, _Packet->GetTag(), packet);
+
+	Flush();
+
+	delete []NewBuf;
+
+	return true;
+}
+
 void ENetServer::Flush()
 {
 	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
