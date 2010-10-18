@@ -25,6 +25,10 @@ function derp:print_activedata()
 	print(ws)
 end	
 
+function derp:push_active_workspace()
+  derp:push_workspace(derp.active_workspace)
+end
+
 function derp:push_workspace(ws)	
 	ws.workspace_stack.counter = ws.workspace_stack.counter + 1
 	
@@ -801,6 +805,19 @@ function derp:create_basecomponentblock(component_data)
 	
 	wid.io_height = math.max(wid.data.inputs,#wid.data.outputs)*14+7
 	
+	-- find body y pos
+	----
+	-- FIXME: This forks up if we add inputs/outputs dynamically
+	----
+	--[[local body_ypos = 0
+	if (component_data.inputs > #component_data.outputs) then
+	  body_ypos = component_data.inputs * 32 + 32
+  else
+    body_ypos = #component_data.outputs * 32 + 32
+  end
+	wid.bodypanel = gui:create_basewidget(0,body_ypos,component_data.w,component_data.h-body_ypos)
+	wid:addwidget(wid.bodypanel)]]
+	
 	-- temporary unfinished connection
 	wid.temp_connection = nil
 	
@@ -1102,7 +1119,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 				self.childwidgets = { }
 				
 				for k,v in pairs(self.component_data.components) do
-					self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+					--self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+					self:addwidget(derp_components[v.group][v.type]:create_widget(v),v.id)
 				end
 			else
 				self.childwidgets = { }
@@ -1123,7 +1141,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 			self.childwidgets = { }
 				
 			for k,v in pairs(self.component_data.components) do
-				self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+				--self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+				self:addwidget(derp_components[v.group][v.type]:create_widget(v),v.id)
 			end
 		end
 	end
