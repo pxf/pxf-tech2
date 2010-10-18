@@ -56,6 +56,7 @@ namespace Pxf
 				return v;
 			}
 			virtual int ObjectType(const int _Pos) = 0;
+			virtual int ObjectSize(const int _Pos) = 0;
 		};
 	}
 }

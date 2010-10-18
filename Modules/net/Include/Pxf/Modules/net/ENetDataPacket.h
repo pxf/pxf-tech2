@@ -46,6 +46,7 @@ namespace Pxf
 			virtual bool ReadObject(void* _Buffer, const int _Pos);
 
 			virtual int ObjectType(const int _Pos);
+			virtual int ObjectSize(const int _Pos);
 		};
 	}
 }

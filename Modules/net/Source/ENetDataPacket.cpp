@@ -188,3 +188,27 @@ int ENetDataPacket::ObjectType(const int _Pos)
 	return 0;
 }
 
+int ENetDataPacket::ObjectSize(const int _Pos)
+{
+	char* ptr = (m_Data+m_ObjectsBegin);
+	int Size, Type, Pos;
+
+	for(Pos=0; Pos<=_Pos; Pos++)
+	{
+		// Out of bounds.
+		if ((ptr-m_Data) >= m_PackageLength)
+			return -1;
+			
+		MemoryCopy(&Type, ptr, sizeof(Type));
+		ptr += sizeof(Type);
+		MemoryCopy(&Size, ptr, sizeof(Size));
+		ptr += sizeof(Size);
+		ptr += Size;
+
+		if (Pos == _Pos)
+			return Size;
+	}
+	
+	return 0;
+}
+
