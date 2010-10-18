@@ -86,7 +86,7 @@ function gui:create_window(id,x,y,w,h,modal,label)
 	window.title_height = 24
 	window.shadow_size = shadow_size
 	window.state = "full" -- "full" or "compact"
-	window.full_height = h+shadow_size
+	window.full_height = h+shadow_size+shadow_size
 	window.compact_height = window.title_height+shadow_size*2
 	
 	-- sub-panels

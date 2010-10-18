@@ -40,15 +40,54 @@ end
 function derp_components.output.simple:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data)
   
+  wid.client = net.createclient()
+  
   -- host input
-  local hostinput = gui:create_textinput(10,10,100,false,component_data.remotehost)
+  function host_changed(self)
+    self.parent.parent.data.remotehost = self.value
+    print("host changed to: " .. self.value)
+    derp:push_active_workspace()
+  end
+  local hostinput = gui:create_textinput(10,10,100,false,component_data.remotehost,host_changed)
   wid.hostinput = hostinput
   wid:addwidget(hostinput)
   
+  -- function that generates the pipeline-json-data
+  function render_func(self,mx,my,button)
+  
+    -- get json for the tree
+    local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.data)
+    
+    if not output_blocks_json then
+      return
+    end
+    
+    -- add pipeline specific data
+    table.insert(output_blocks_json, [[{"blockName" : "PipelineTree",
+       "blockType" : "PipelineTree",
+       "blockData" : { "root" : "]] .. tostring(self.parent.parent.data.id) .. [[" }
+      }]])
+    
+    -- concat and return!
+    local final_json = "[" .. table.concat(output_blocks_json, ",") .. "]"
+    print(final_json)
+    
+    -- connect to server
+    local connect_fail = self.parent.parent.client:connect(self.parent.parent.data.remotehost, 7005)
+    if connect_fail then
+      spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.data.remotehost) .. "'.",
+                          "Reason; '" .. connect_fail .. "'"})
+    end
+    
+    --return final_json
+  end
+  
+  function wid:update()
+      
+  end
+  
   -- render button
-  local renderbutton = gui:create_labelbutton(10,40,100,30,"Render", function(self,mx,my,button)
-                                                                        print(derp_components.output.simple:generate_json(self.parent.parent.data))
-                                                                      end)
+  local renderbutton = gui:create_labelbutton(10,40,100,30,"Render", render_func)
   wid.renderbutton = renderbutton
   wid:addwidget(renderbutton)
   
@@ -56,11 +95,19 @@ function derp_components.output.simple:create_widget(component_data)
 end
 
 function derp_components.output.simple:generate_json(component_data)
+  local final_jsondata = {}
   local input_array = {}
   local input_array_shader = {}
   
   for k,v in pairs(component_data.connections_in) do
     table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+    
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    for k2,v2 in pairs(tmpdict) do
+      table.insert(final_jsondata, v2)
+    end
   end
   
   local first_texture = nil
@@ -73,13 +120,13 @@ function derp_components.output.simple:generate_json(component_data)
   end
   
   if (first_texture == nil) then
-    spawn_error_dialog({"Output block needs at least one input!"})
+    return spawn_error_dialog({"Output block needs at least one input!"})
   end
   
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "Root",
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
-     "blockData" : {"host" : "]] .. tostring(component_data.id) .. [[",
+     "blockData" : {"host" : "]] .. tostring(component_data.remotehost) .. [[",
                     "port" : "4632",
                     "feedback" : true,
                     "realtime" : false,
@@ -99,7 +146,9 @@ function derp_components.output.simple:generate_json(component_data)
                    }
     }]]
   
-  return jsonstring
+  table.insert(final_jsondata, jsonstring)
+  
+  return final_jsondata
 end
 
 function derp_components.output.simple:spawn_inspector(component_data)
@@ -156,16 +205,18 @@ function derp_components.aux.texture:create_widget(component_data)
   wid.filepathwidget = filepathwidget
   wid:addwidget(filepathwidget)
   
+  function browse_func(self)
+    local new_filepath = app.opendialog()
+    if (new_filepath) then
+      self.parent.parent.filepathwidget.label_text = new_filepath
+      self.parent.parent.data.texturefilepath = new_filepath
+
+      derp:push_active_workspace()
+    end
+  end
+  
   -- browse button
-  local browsebutton = gui:create_labelbutton(10,10,150,30,"Browse", function(self)
-                                                                        local new_filepath = app.opendialog()
-                                                                        if (new_filepath) then
-                                                                          self.parent.parent.filepathwidget.label_text = new_filepath
-                                                                          self.parent.parent.data.texturefilepath = new_filepath
-                                                                          
-                                                                          derp:push_active_workspace()
-                                                                        end
-                                                                      end)
+  local browsebutton = gui:create_labelbutton(10,10,150,30,"Browse", browse_func)
   wid.browsebutton = browsebutton
   wid:addwidget(browsebutton)
   
@@ -183,7 +234,7 @@ function derp_components.aux.texture:generate_json(component_data)
                        "type" : "texture"}]
     }]]
   
-  return jsonstring
+  return {jsonstring}
 end
 
 function derp_components.aux.texture:spawn_inspector(component_data)
