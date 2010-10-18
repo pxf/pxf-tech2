@@ -58,6 +58,10 @@ function derp_components.output.simple:create_widget(component_data)
     -- get json for the tree
     local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.data)
     
+    if not output_blocks_json then
+      return
+    end
+    
     -- add pipeline specific data
     table.insert(output_blocks_json, [[{"blockName" : "PipelineTree",
        "blockType" : "PipelineTree",
@@ -69,9 +73,10 @@ function derp_components.output.simple:create_widget(component_data)
     print(final_json)
     
     -- connect to server
-    local connect_fail = self.client:connect(self.parent.parent.data.remotehost, 7005)
+    local connect_fail = self.parent.parent.client:connect(self.parent.parent.data.remotehost, 7005)
     if connect_fail then
-      spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.data.remotehost) .. "'."})
+      spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.data.remotehost) .. "'.",
+                          "Reason; '" .. connect_fail .. "'"})
     end
     
     --return final_json
@@ -115,7 +120,7 @@ function derp_components.output.simple:generate_json(component_data)
   end
   
   if (first_texture == nil) then
-    spawn_error_dialog({"Output block needs at least one input!"})
+    return spawn_error_dialog({"Output block needs at least one input!"})
   end
   
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
