@@ -85,6 +85,13 @@ function derp_components.output.simple:create_widget(component_data)
   wid.superupdate = wid.update
   function wid:update()
       self:superupdate()
+      if (self.client:connected()) then
+        print("connected")
+        local indata = self.client:recv_noblock(0)
+        for k,v in pairs(indata) do
+          print(k,v)
+        end
+      end
   end
   
   -- render button
