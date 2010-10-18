@@ -31,6 +31,8 @@ namespace Pxf
 			ENetHost *Client;
 			ENetPeer *Peer;
 			Network::NetworkDevice* NetDev;
+
+			bool _Connected;
 			
 			Util::Array<Network::Packet*> BufferedPackets;
 
@@ -40,6 +42,9 @@ namespace Pxf
 			//ENetClient(const char* _Host, const int _Port);
 			ENetClient(Network::NetworkDevice* _NetworkDevice)
 				: NetDev(_NetworkDevice)
+				, _Connected(false)
+				, Client(NULL)
+				, Peer(NULL)
 			{}
 
 			virtual bool Connect(const char* _Host, const int _Port);
