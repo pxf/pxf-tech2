@@ -107,6 +107,9 @@ int DERPEditor::net_createclient(lua_State *L)
 		lua_pushcfunction(L, net_client_send_packet);
 		lua_setfield(L, -2, "send_packet");
 
+		lua_pushcfunction(L, net_client_connected);
+		lua_setfield(L, -2, "send_connected");
+
 		return 1;
 	}
 	else
@@ -129,7 +132,7 @@ int DERPEditor::net_client_connect(lua_State *L)
 
 		if (!ret)
 		{
-			lua_pushstring(L, "Couldn't connect");
+			lua_pushstring(L, "Couldn't connect.");
 			return 1;
 		}
 
@@ -138,6 +141,26 @@ int DERPEditor::net_client_connect(lua_State *L)
 	else
 	{
 		lua_pushstring(L, "Invalid arguments passed to connect function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int DERPEditor::net_client_connected(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		lua_getfield(L, -1, "instance");
+		Client* client = *(Client**)lua_touserdata(L, -1);
+
+		lua_pushboolean(L, (bool)client->Connected());
+
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to connected function!");
 		lua_error(L);
 	}
 

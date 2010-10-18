@@ -34,7 +34,8 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 	if (enet_host_service(Client, &event, 5000) > 0 &&
 		event.type == ENET_EVENT_TYPE_CONNECT)
 	{
-		Message("ENetClient", "Connection established. Client %d.", Ident);
+//		Message("ENetClient", "Connection established. Client %d.", Ident);
+		_Connected = true;
 		return true;
 	}
 	else
@@ -74,7 +75,7 @@ bool ENetClient::Disconnect()
 
 bool ENetClient::Connected()
 {
-	return true;
+	return _Connected;
 }
 
 Pxf::Network::Packet* ENetClient::Recv()
@@ -92,7 +93,7 @@ Pxf::Network::Packet* ENetClient::Recv()
 	Network::Packet* packet;
 	int retcode;
 
-	Message("ENetClient", "Recv()...");
+//	Message("ENetClient", "Recv()...");
 
 	while ((retcode = enet_host_service(Client, &event, 1000)) >= 0)
 	{
@@ -130,7 +131,7 @@ Pxf::Network::Packet* ENetClient::Recv()
 		}
 	}
 
-	Message("ENetClient", "Recv() stop. %d - %d", event.type, retcode);
+//	Message("ENetClient", "Recv() stop. %d - %d", event.type, retcode);
 
 	return NULL;
 }
@@ -150,7 +151,7 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 	int retcode;
 	int stopTime = Platform::GetTime() + _Timeout;
 
-	Message("ENetClient", "Recv()...");
+//	Message("ENetClient", "Recv()...");
 	
 	while ((retcode = enet_host_service(Client, &event, stopTime-Platform::GetTime())) >= 0)
 	{
@@ -189,7 +190,7 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 		}
 	}
 
-	Message("ENetClient", "Recv() stop. %d - %d", event.type, retcode);
+//	Message("ENetClient", "Recv() stop. %d - %d", event.type, retcode);
 
 	return NULL;
 }
