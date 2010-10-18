@@ -1108,6 +1108,7 @@ function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = functi
   wid.selectionheight = 16
   wid.stdpadding = 10
   wid.value = ""
+  wid.old_value = nil
   if (stdvalue) then
     wid.value = stdvalue
   end
@@ -1212,9 +1213,14 @@ function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = functi
   
   function wid:lostfocus(wid)
     self.state = "normal"
-    if (self.changed) then
-      self:changed()
+    
+    --if (self.changed) then
+    if self.old_value and self.old_value ~= self.value then
+      if (self.changed) then
+        self:changed()
+      end
     end
+    self.old_value = self.value
     self:needsredraw()
   end
   
