@@ -43,6 +43,10 @@ function split(str, pat)
    return t
 end
 
+function escape_backslashes(str)
+  return string.gsub(str, "\\", "\\\\")
+end
+
 function point_hittest(px,py, x0,y0, x1,y1 )
   if px < x0 then
     return false

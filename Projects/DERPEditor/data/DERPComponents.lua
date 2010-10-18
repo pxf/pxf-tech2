@@ -162,7 +162,7 @@ function derp_components.output.simple:generate_json(component_data)
                    }
     }]]
   
-  table.insert(final_jsondata, jsonstring)
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
   
   return final_jsondata
 end
@@ -250,7 +250,7 @@ function derp_components.aux.texture:generate_json(component_data)
                        "type" : "texture"}]
     }]]
   
-  return {jsonstring}
+  return {escape_backslashes(jsonstring)}
 end
 
 function derp_components.aux.texture:spawn_inspector(component_data)
