@@ -77,6 +77,11 @@ function derp_components.output.simple:create_widget(component_data)
     if connect_fail then
       spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.data.remotehost) .. "'.",
                           "Reason; '" .. connect_fail .. "'"})
+    else
+      
+      -- send our pipeline
+      client:send("pipeline", final_json)
+      
     end
     
     --return final_json
