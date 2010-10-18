@@ -48,7 +48,7 @@ function derp_components.output.simple:create_widget(component_data)
     print("host changed to: " .. self.value)
     derp:push_active_workspace()
   end
-  local hostinput = gui:create_textinput(10,10,100,false,component_data.remotehost,host_changed)
+  local hostinput = gui:create_textinput(10,10,80,false,component_data.remotehost,host_changed)
   wid.hostinput = hostinput
   wid:addwidget(hostinput)
   
@@ -82,8 +82,9 @@ function derp_components.output.simple:create_widget(component_data)
     --return final_json
   end
   
+  wid.superupdate = wid.update
   function wid:update()
-      
+      self:superupdate()
   end
   
   -- render button
