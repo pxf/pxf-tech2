@@ -38,7 +38,7 @@ function derp_components.output.simple:new_block(workspace,x,y)
 end
 
 function derp_components.output.simple:create_widget(component_data)
-  local wid = derp:create_basecomponentblock(component_data)
+  local wid = derp:create_basecomponentblock(component_data,1,0)
   
   wid.client = net.createclient()
   
@@ -211,7 +211,7 @@ function derp_components.aux.texture:new_block(workspace,x,y)
 end
 
 function derp_components.aux.texture:create_widget(component_data)
-  local wid = derp:create_basecomponentblock(component_data)
+  local wid = derp:create_basecomponentblock(component_data,2,2)
   
   -- filepath
   local filepathwidget = gui:create_centeredlabelpanel(0,80,170,50,component_data.texturefilepath)
