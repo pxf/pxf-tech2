@@ -655,8 +655,31 @@ function derp:create_workspacecamera(x,y,w,h)
 	return cam
 end
 
+function derp:create_addconnectionbutton(onclick,x,y)
+	local wid = gui:create_basewidget(x,y,12,12)
+	
+	function wid:mousepush(x,y,button)
+		if onclick then
+			onclick()
+		end
+	end
+	
+	function wid:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+
+			gfx.drawtopleft(0,1,12,12,1,205,12,12) -- bg
+			gfx.drawtopleft(3,4,6,6,4,219,6,6) -- add cross
+
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+		end
+	end	
+	
+	return wid
+end
+
 function derp:create_connectioninput(id,x,y)
-  local wid = gui:create_basewidget(x, y, 32, 32)
+  local wid = gui:create_basewidget(x, y, 12, 12)
   wid.widget_type = "connection_input"
   wid.input_id = id
   
@@ -667,6 +690,10 @@ function derp:create_connectioninput(id,x,y)
     if self.redraw_needed or force then
       gfx.translate(self.drawbox.x,self.drawbox.y)
       
+	  gfx.drawtopleft(0,1,12,12,1,205,12,12)
+	  
+	  --[[
+	  
       local r,g,b = gfx.getcolor()
       local oldtex = gfx.bindtexture(0)
       gfx.setcolor(1,0,0)
@@ -675,6 +702,8 @@ function derp:create_connectioninput(id,x,y)
       
       gfx.bindtexture(oldtex)
       gfx.setcolor(r,g,b)
+	  
+	  ]]
       
       gfx.translate(-self.drawbox.x,-self.drawbox.y)
     end
@@ -689,7 +718,7 @@ function derp:create_connectioninput(id,x,y)
 end
 
 function derp:create_connectionoutput(id,x,y)
-  local wid = gui:create_basewidget(x, y, 32, 32)
+  local wid = gui:create_basewidget(x, y, 12, 12)
   wid.output_id = id
   wid.widget_type = "connection_output"
   
@@ -699,7 +728,10 @@ function derp:create_connectionoutput(id,x,y)
     
     if self.redraw_needed or force then
       gfx.translate(self.drawbox.x,self.drawbox.y)
+	  
+	  gfx.drawtopleft(0,1,12,12,1,205,12,12)
       
+	  --[[
       local r,g,b = gfx.getcolor()
       local oldtex = gfx.bindtexture(0)
       gfx.setcolor(0,1,0)
@@ -707,7 +739,7 @@ function derp:create_connectionoutput(id,x,y)
       gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h)
       
       gfx.bindtexture(oldtex)
-      gfx.setcolor(r,g,b)
+      gfx.setcolor(r,g,b)]]
       
       gfx.translate(-self.drawbox.x,-self.drawbox.y)
     end
@@ -742,12 +774,18 @@ function derp:create_basecomponentblock(component_data)
 	
 	-- create input/output widgets
   for i=1,component_data.inputs do
-    wid:addwidget(derp:create_connectioninput(i, 0,i*32))
+    wid:addwidget(derp:create_connectioninput(i, -6,i*14))
   end
   
   for i=1,#component_data.outputs do
-    wid:addwidget(derp:create_connectionoutput(component_data.outputs[i], component_data.w-32, i*32))
+    wid:addwidget(derp:create_connectionoutput(component_data.outputs[i], component_data.w-6, i*14))
   end
+  
+  -- add-input component
+  wid:addwidget(derp:create_addconnectionbutton(nil,-6,(component_data.inputs+1)*14))
+  
+  -- add-input component
+  wid:addwidget(derp:create_addconnectionbutton(nil,component_data.w-6,(#component_data.outputs+1)*14))
 	
 	-- how to create new connections
 	function wid:add_connection(from_block, from_output, to_id)
