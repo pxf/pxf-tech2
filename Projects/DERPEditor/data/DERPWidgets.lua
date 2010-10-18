@@ -655,12 +655,117 @@ function derp:create_workspacecamera(x,y,w,h)
 	return cam
 end
 
+function derp:create_connectioninput(id,x,y)
+  local wid = gui:create_basewidget(x, y, 32, 32)
+  wid.widget_type = "connection_input"
+  wid.input_id = id
+  
+  wid.superdraw = wid.draw
+  function wid:draw(force)
+    self:superdraw(force)
+    
+    if self.redraw_needed or force then
+      gfx.translate(self.drawbox.x,self.drawbox.y)
+      
+      local r,g,b = gfx.getcolor()
+      local oldtex = gfx.bindtexture(0)
+      gfx.setcolor(1,0,0)
+      
+      gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h)
+      
+      gfx.bindtexture(oldtex)
+      gfx.setcolor(r,g,b)
+      
+      gfx.translate(-self.drawbox.x,-self.drawbox.y)
+    end
+    
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    print("released input")
+  end
+  
+  return wid
+end
+
+function derp:create_connectionoutput(id,x,y)
+  local wid = gui:create_basewidget(x, y, 32, 32)
+  wid.output_id = id
+  wid.widget_type = "connection_output"
+  
+  wid.superdraw = wid.draw
+  function wid:draw(force)
+    self:superdraw(force)
+    
+    if self.redraw_needed or force then
+      gfx.translate(self.drawbox.x,self.drawbox.y)
+      
+      local r,g,b = gfx.getcolor()
+      local oldtex = gfx.bindtexture(0)
+      gfx.setcolor(0,1,0)
+      
+      gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h)
+      
+      gfx.bindtexture(oldtex)
+      gfx.setcolor(r,g,b)
+      
+      gfx.translate(-self.drawbox.x,-self.drawbox.y)
+    end
+    
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    -- see if we found a input to connect to
+    local htest = self.parent.parent:find_mousehit(mx,my,mx,my)
+    if htest then
+      if (htest.widget_type == "connection_input") then
+        --print("Trying to add connection from output '" .. self.output_id .. "' to input '" .. htest.input_id .. "'")
+        htest.parent:add_connection(self.parent.component_id, self.output_id, htest.input_id)
+      end
+    end
+  end
+  
+  function wid:mousedrag(mx,my,button)
+    print(mx,my,button)
+  end
+  
+  return wid
+end
+
 function derp:create_basecomponentblock(component_data)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
 	
+	wid.data = component_data
 	wid.id = component_data.id
 	wid.widget_type = "component " .. wid.id
+	
+	-- create input/output widgets
+  for i=1,component_data.inputs do
+    wid:addwidget(derp:create_connectioninput(i, 0,i*32))
+  end
+  
+  for i=1,#component_data.outputs do
+    wid:addwidget(derp:create_connectionoutput(component_data.outputs[i], component_data.w-32, i*32))
+  end
+	
+	-- how to create new connections
+	function wid:add_connection(from_block, from_output, to_id)
+	  table.insert(self.data.connections_in, {block = from_block, output = from_output, input = to_id})
+  end
+  
+  -- find connection socket with output name
+  function wid:get_outputsocket(socketname)
+    for k,v in pairs(self.childwidgets) do
+      if v.output_id and v.output_id == socketname then
+        return v
+      end
+    end
+    
+    -- didnt find output socket
+    return nil
+  end
+	
 	wid.super_draw = wid.draw
 	function wid:draw(force)
 		if self.redraw_needed or force then
@@ -671,11 +776,31 @@ function derp:create_basecomponentblock(component_data)
 			gfx.bindtexture(old_tex)
 			gfx.setcolor(r,g,b)
 			
+			------------------------
 			-- draw chlid widgets
 			self:super_draw(force)
 			
+			------------------------
 			-- Draw connections
-			
+			for k,v in pairs(self.data.connections_in) do
+			  
+			  -- find end position (input-socket on this component, since we show incomming connections)
+        local endx,endy = self.drawbox.x,self.drawbox.y
+        
+        -- find start position (ie. output-socket on remote component)
+        local startwid = self.parent:get_block(v.block)
+        local startsocket = startwid:get_outputsocket(v.output)
+        local startx,starty = startwid.drawbox.x,startwid.drawbox.y
+        startx = startx + startwid.drawbox.w
+        
+        -- find y-position on both sockets
+        endy = endy + v.input * 32 + 16
+        starty = starty + startsocket.drawbox.y + 16
+
+        local new_line = create_spline({{startx,starty}, {endx,endy}}, 30, 4)
+        new_line:update()
+        new_line:draw()
+			end
 		end
 	end
 	
@@ -753,7 +878,18 @@ function derp:create_workspace(x,y,w,h,from_path)
   end
   
   function wid:attach_input_connection(remote_block, remote_output)
-    
+    table.insert(connections_in, {block = remote_block, output = remote_output})
+  end
+	
+	-- function to lookup a block by id
+	function wid:get_block(block_id)
+	  for k,v in pairs(self.childwidgets) do
+	    if (v.component_id == block_id) then
+	      return v
+      end
+	  end
+	  print("Could not find '" .. block_id .. "'")
+	  return nil
   end
 	
 	function wid:draw(force)
@@ -781,6 +917,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 		--wid.id_counter = wid.id_counter + 1
 		
 		local new_comp = derp_components[comp.group][comp.type]:create_widget(comp)
+		new_comp.component_id = id
 		self:addwidget(new_comp,id)
 		
 		derp:push_workspace(self)
@@ -1362,8 +1499,6 @@ function derp:base_tool(w,h,s,t,name, onclick)
 	return tool
 end
 
-
-
 function derp:create_toolbar_movecontainer()
 	local wid = gui:create_basewidget(0,0,app.width,app.height)
 	wid.super_draw = wid.draw
@@ -1372,7 +1507,6 @@ function derp:create_toolbar_movecontainer()
 	function create_arrow(x,y,w,h,s,t)
 		local arrow = gui:create_basewidget(x + app.width*0.5,y + app.height*0.5,w,h)
 		
-		print(x,y)
 		
 		function arrow:draw(force)
 			if self.redraw_needed or force then

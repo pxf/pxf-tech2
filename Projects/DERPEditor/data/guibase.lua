@@ -93,7 +93,6 @@ function gui:create_basewidget(x,y,w,h)
   -- store key shortcuts in a table
   wid.shortcuts = {} -- { { keys = {inp.LSHIFT, 'C'}, onpress = function () print("LOL SUP") end} }
   
-  
   -----------------------------------
   -- redraw functions
   function wid:needsredraw(full)
