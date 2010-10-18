@@ -124,8 +124,14 @@ int DERPEditor::net_client_connect(lua_State *L)
 	{
 		lua_getfield(L, -3, "instance");
 		Client* client = *(Client**)lua_touserdata(L, -1);
-		client->Connect(lua_tolstring(L, -3, NULL), lua_tonumber(L, -2));
-		Message("aoeu", "connecting to %s", lua_tolstring(L, -3, NULL));
+		bool ret = client->Connect(lua_tolstring(L, -3, NULL), lua_tonumber(L, -2));
+//		Message("aoeu", "connecting to %s", lua_tolstring(L, -3, NULL));
+
+		if (!ret)
+		{
+			lua_pushstring(L, "Couldn't connect");
+			return 1;
+		}
 
 		return 0;
 	}
