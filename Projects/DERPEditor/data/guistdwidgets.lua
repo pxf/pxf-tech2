@@ -363,7 +363,13 @@ function gui:create_centeredlabelpanel(x,y,w,h,text)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		gui:drawcenteredfont(self.label_text, self.drawbox.w / 2, 12)
+    local maxlen = math.ceil(self.drawbox.w / 12) - 3
+    local shortlabel = string.sub(self.label_text,-maxlen)
+    if (#shortlabel < #self.label_text) then
+      shortlabel = "..." .. shortlabel
+    end
+
+		gui:drawcenteredfont(shortlabel, self.drawbox.w / 2, 12)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
@@ -1094,8 +1100,9 @@ function gui:create_menubar(x,y,w,menus)
 end
 
 -- creates a menu
-function gui:create_textinput(x,y,w,masked,stdvalue)
+function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = function to be called once changed
   local wid = gui:create_basewidget(x,y,w,20)
+  wid.changed = changed
   wid.masked = masked -- passwords etc
   wid.stdheight = 20
   wid.selectionheight = 16
@@ -1205,6 +1212,9 @@ function gui:create_textinput(x,y,w,masked,stdvalue)
   
   function wid:lostfocus(wid)
     self.state = "normal"
+    if (self.changed) then
+      self:changed()
+    end
     self:needsredraw()
   end
   
