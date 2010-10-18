@@ -118,6 +118,7 @@ char* ENetDataPacket::GetID()
 bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned int _Size)
 {
 	char* NewData = new char[m_PackageLength+sizeof(_Type)+sizeof(_Size)+_Size];
+	MemoryCopy(NewData, m_Data, m_PackageLength);
 	char* ptr = (NewData+m_PackageLength);
 	m_PackageLength += _Size + sizeof(_Type) + sizeof(_Size);
 
@@ -152,7 +153,12 @@ bool ENetDataPacket::ReadObject(void* _Buffer, const int _Pos)
 		ptr += sizeof(Size);
 
 		if (Pos == _Pos)
+		{
 			MemoryCopy(_Buffer, ptr, Size);
+			return true;
+		}
+		else
+			ptr += Size;
 	}
 	
 	return true;
@@ -173,6 +179,7 @@ int ENetDataPacket::ObjectType(const int _Pos)
 		ptr += sizeof(Type);
 		MemoryCopy(&Size, ptr, sizeof(Size));
 		ptr += sizeof(Size);
+		ptr += Size;
 
 		if (Pos == _Pos)
 			return Type;

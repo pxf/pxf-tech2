@@ -37,11 +37,24 @@ namespace Pxf
 
 			virtual bool PushString(const char* _Buffer, unsigned int _Size)
 			{
-				return PushObject(2, _Buffer, _Size);
+				return PushObject(2, _Buffer, _Size+1);
+			}
+
+			template<typename T> T GetArray(const int _Size, const int _Pos)
+			{
+				char* v = new char[_Size];
+
+				ReadObject(v, _Pos);
+				return v;
 			}
 
 			template<typename T> T GetObject(const int _Pos) 
-				{ T v; ReadObject(&v, _Pos); return v; }
+			{ 
+				T v;
+				ReadObject(&v, _Pos);
+					
+				return v;
+			}
 			virtual int ObjectType(const int _Pos) = 0;
 		};
 	}
