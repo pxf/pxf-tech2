@@ -221,6 +221,7 @@ void Renderer::Execute()
 		
 		m_Net->SendAllPacket(imgpacket);
 
+		delete imgpacket;
 		delete img;
 	} else {
 		Message("Renderer", "Failed to execute root block since it's NULL.");
