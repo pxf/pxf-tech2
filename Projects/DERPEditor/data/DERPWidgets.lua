@@ -1472,6 +1472,14 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 	select_rect = derp:base_tool(24,24,1,36,"square select")
 	move_select = derp:base_tool(24,17,1,61,"move/select")
 	move_ws = derp:base_tool(21,21,1,79,"move workspace")
+	delete_wid = derp:base_tool(14,14,30,63,"delete widget",
+			function () 
+				derp:set_activetool(nil)
+				if derp.active_workspace then
+
+				end
+				derp:set_activetool(derp.active_tool.last)
+			end)
 	
 	self:set_activetool(move_ws)
 	
@@ -1494,6 +1502,7 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 	wid:addwidget(move_ws)
 	wid:addwidget(move_select)
 	wid:addwidget(select_rect)
+	wid:addwidget(delete_wid)
 	
 	local move_container = derp:create_toolbar_movecontainer()
 	
