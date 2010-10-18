@@ -128,7 +128,8 @@ bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned i
 	ptr += sizeof(_Size);
 	MemoryCopy(ptr, _Buffer, _Size);
 
-	delete []m_Data;
+	if (m_Data != NULL)
+		delete []m_Data;
 	m_Data = NewData;
 
 	return true;
@@ -157,14 +158,26 @@ bool ENetDataPacket::ReadObject(void* _Buffer, const int _Pos)
 	return true;
 }
 
-/*bool ENetDataPacket::SetID(const char* ID)
-{
-	char* NewData = new char[];
-	MemoryCopy(m_Data, ID, strlen(ID)):
-}*/
-
 int ENetDataPacket::ObjectType(const int _Pos)
 {
+	char* ptr = (m_Data+m_ObjectsBegin);
+	int Size, Type, Pos;
+
+	for(Pos=0; Pos<=_Pos; Pos++)
+	{
+		// Out of bounds.
+		if ((ptr-m_Data) >= m_PackageLength)
+			return -1;
+			
+		MemoryCopy(&Type, ptr, sizeof(Type));
+		ptr += sizeof(Type);
+		MemoryCopy(&Size, ptr, sizeof(Size));
+		ptr += sizeof(Size);
+
+		if (Pos == _Pos)
+			return Type;
+	}
+	
 	return 0;
 }
 
