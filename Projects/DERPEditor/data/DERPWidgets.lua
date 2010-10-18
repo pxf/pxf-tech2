@@ -723,10 +723,20 @@ function derp:create_connectionoutput(id,x,y)
         htest.parent:add_connection(self.parent.component_id, self.output_id, htest.input_id)
       end
     end
+    self.parent.temp_connection = nil
   end
   
   function wid:mousedrag(mx,my,button)
-    print(mx,my,button)
+    -- get mouse position relative to parent widget
+    local x,y = inp.getmousepos()
+    x = x - self.parent.parent.drawbox.x
+    y = y - self.parent.parent.drawbox.y
+    
+    -- find spline start on output widget
+    local startx,starty = self.parent.drawbox.x + self.drawbox.x + 32, self.parent.drawbox.y + self.drawbox.y + 16
+    
+    -- create our spline
+    self.parent.temp_connection = create_spline({{startx,starty}, {x,y}}, 30, 4)
   end
   
   return wid
@@ -739,6 +749,9 @@ function derp:create_basecomponentblock(component_data)
 	wid.data = component_data
 	wid.id = component_data.id
 	wid.widget_type = "component " .. wid.id
+	
+	-- temporary unfinished connection
+	wid.temp_connection = nil
 	
 	-- create input/output widgets
   for i=1,component_data.inputs do
@@ -796,11 +809,20 @@ function derp:create_basecomponentblock(component_data)
         -- find y-position on both sockets
         endy = endy + v.input * 32 + 16
         starty = starty + startsocket.drawbox.y + 16
-
+        
+        -- create spline from output-socket/-widget to ourself
+        -- TODO: This should only be done once, when the connection is created
         local new_line = create_spline({{startx,starty}, {endx,endy}}, 30, 4)
         new_line:update()
         new_line:draw()
 			end
+			
+			-----------------------
+			-- Draw temporary connection (ie. a connection that is not connected to anything yet)
+			if self.temp_connection then
+        self.temp_connection:update()
+        self.temp_connection:draw()
+		  end
 		end
 	end
 	
