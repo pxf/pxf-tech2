@@ -66,6 +66,7 @@ ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length
 
 		m_Package = true;
 		m_PackageLength = _Length;
+		m_ObjectsBegin = 1+4+IDLength;
 	}
 	else
 	{
@@ -89,6 +90,7 @@ ENetDataPacket::~ENetDataPacket()
 
 char* ENetDataPacket::GetData()
 {
+//	return (m_Package) ? NULL : m_Data;
 	return m_Data;
 }
 
