@@ -217,21 +217,11 @@ void Renderer::Execute()
 		imgpacket->PushInt(img->Width());
 		imgpacket->PushInt(img->Height());
 		imgpacket->PushInt(img->Channels());
-		printf("size lols: %i\n", img->Height()*img->Width()*img->Channels());
 		imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 		
 		m_Net->SendAllPacket(imgpacket);
-		
-		//m_Net->SendAllID("imgdata", m_NetTag_Preview, (const void*)img->Ptr(), img->Height()*img->Width()*img->Channels());
-		
-		/*char* poop = new char[img->Height()*img->Width()*img->Channels()+1];
-		MemoryCopy(poop, (const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
-		poop[img->Height()*img->Width()*img->Channels()] = '\0';
-		
-		//printf("SUGER DU EN KUK? : %s\n", poop);
-		
-		delete [] poop;*/
 
+		delete imgpacket;
 		delete img;
 	} else {
 		Message("Renderer", "Failed to execute root block since it's NULL.");
