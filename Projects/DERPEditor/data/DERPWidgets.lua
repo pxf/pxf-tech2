@@ -25,6 +25,10 @@ function derp:print_activedata()
 	print(ws)
 end	
 
+function derp:push_active_workspace()
+  derp:push_workspace(derp.active_workspace)
+end
+
 function derp:push_workspace(ws)	
 	ws.workspace_stack.counter = ws.workspace_stack.counter + 1
 	

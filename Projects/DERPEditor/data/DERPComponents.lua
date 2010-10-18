@@ -115,12 +115,10 @@ function derp_components.aux.texture:create_widget(component_data)
   local browsebutton = gui:create_labelbutton(10,100,150,30,"Browse", function(self)
                                                                         local new_filepath = app.opendialog()
                                                                         if (new_filepath) then
-                                                                          local shortname = string.sub(new_filepath,-15)
-                                                                          if (#shortname < #new_filepath) then
-                                                                            shortname = "..." .. shortname
-                                                                          end
-                                                                          self.parent.filepathwidget.label_text = shortname
+                                                                          self.parent.filepathwidget.label_text = new_filepath
                                                                           self.parent.data.texturefilepath = new_filepath
+                                                                          
+                                                                          derp:push_active_workspace()
                                                                         end
                                                                       end)
   wid.browsebutton = browsebutton
