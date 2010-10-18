@@ -32,6 +32,8 @@ long int sstat_memoryusage()
 
 int sstat_savefiledialog(char* _filename)
 {
+	char oldpath[MAX_PATH];
+	GetCurrentDirectoryA(MAX_PATH, oldpath);
 	OPENFILENAME info;
 	_filename[0] = 0;
 	ZeroMemory(&info, sizeof(info));
@@ -42,11 +44,14 @@ int sstat_savefiledialog(char* _filename)
 	info.nMaxFile = MAX_PATH;
 	info.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY |OFN_OVERWRITEPROMPT;
 	bool ret = GetSaveFileName(&info);
+	SetCurrentDirectoryA(oldpath);
 	return !ret;
 }
 
 int sstat_openfiledialog(char* _filename)
 {
+	char oldpath[MAX_PATH];
+	GetCurrentDirectoryA(MAX_PATH, oldpath);
 	OPENFILENAME info;
 	_filename[0] = 0;
 	ZeroMemory(&info, sizeof(info));
@@ -56,7 +61,8 @@ int sstat_openfiledialog(char* _filename)
 	info.lpstrFile = _filename;
 	info.nMaxFile = MAX_PATH;
 	info.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-	bool ret = GetOpenFileName(&info);
+	bool ret = GetOpenFileName(&info); // thanks for changing the cwd
+	SetCurrentDirectoryA(oldpath);
 	return !ret;
 }
 

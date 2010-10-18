@@ -659,8 +659,31 @@ function derp:create_workspacecamera(x,y,w,h)
 	return cam
 end
 
+function derp:create_addconnectionbutton(onclick,x,y)
+	local wid = gui:create_basewidget(x,y,12,12)
+	
+	function wid:mousepush(x,y,button)
+		if onclick then
+			onclick()
+		end
+	end
+	
+	function wid:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+
+			gfx.drawtopleft(0,1,12,12,1,205,12,12) -- bg
+			gfx.drawtopleft(3,4,6,6,4,219,6,6) -- add cross
+
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+		end
+	end	
+	
+	return wid
+end
+
 function derp:create_connectioninput(id,x,y)
-  local wid = gui:create_basewidget(x, y, 32, 32)
+  local wid = gui:create_basewidget(x, y, 12, 12)
   wid.widget_type = "connection_input"
   wid.input_id = id
   
@@ -671,6 +694,10 @@ function derp:create_connectioninput(id,x,y)
     if self.redraw_needed or force then
       gfx.translate(self.drawbox.x,self.drawbox.y)
       
+	  gfx.drawtopleft(0,1,12,12,1,205,12,12)
+	  
+	  --[[
+	  
       local r,g,b = gfx.getcolor()
       local oldtex = gfx.bindtexture(0)
       gfx.setcolor(1,0,0)
@@ -679,6 +706,8 @@ function derp:create_connectioninput(id,x,y)
       
       gfx.bindtexture(oldtex)
       gfx.setcolor(r,g,b)
+	  
+	  ]]
       
       gfx.translate(-self.drawbox.x,-self.drawbox.y)
     end
@@ -693,7 +722,7 @@ function derp:create_connectioninput(id,x,y)
 end
 
 function derp:create_connectionoutput(id,x,y)
-  local wid = gui:create_basewidget(x, y, 32, 32)
+  local wid = gui:create_basewidget(x, y, 12, 12)
   wid.output_id = id
   wid.widget_type = "connection_output"
   
@@ -703,7 +732,10 @@ function derp:create_connectionoutput(id,x,y)
     
     if self.redraw_needed or force then
       gfx.translate(self.drawbox.x,self.drawbox.y)
+	  
+	  gfx.drawtopleft(0,1,12,12,1,205,12,12)
       
+	  --[[
       local r,g,b = gfx.getcolor()
       local oldtex = gfx.bindtexture(0)
       gfx.setcolor(0,1,0)
@@ -711,7 +743,7 @@ function derp:create_connectionoutput(id,x,y)
       gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h)
       
       gfx.bindtexture(oldtex)
-      gfx.setcolor(r,g,b)
+      gfx.setcolor(r,g,b)]]
       
       gfx.translate(-self.drawbox.x,-self.drawbox.y)
     end
@@ -750,9 +782,28 @@ function derp:create_basecomponentblock(component_data)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
 	
+	wid.active = true
 	wid.data = component_data
 	wid.id = component_data.id
 	wid.widget_type = "component " .. wid.id
+	wid.activate_button = gui:create_basewidget(0,0,10,10)
+	wid.add_input_button = derp:create_addconnectionbutton(
+					function()
+						wid.data.inputs = wid.data.inputs + 1
+						wid.add_input_button:move_relative(0,14)
+						wid:calc_ioheight()
+						wid:super_addwidget(derp:create_connectioninput(wid.data.inputs, -6,(wid.data.inputs-1)*14 + 26))
+					end
+					,-6,component_data.inputs*14 + 26)
+	wid.add_output_button = derp:create_addconnectionbutton(function()
+						wid.add_output_button:move_relative(0,14)
+						local new_name = derp.active_workspace:gen_new_outputname()
+						table.insert(wid.data.outputs,new_name)
+						wid:calc_ioheight()
+						wid:super_addwidget(derp:create_connectionoutput(new_name, component_data.w-6, (#wid.data.outputs-1)*14 + 26))
+					end,component_data.w-6,#component_data.outputs*14 + 26)
+	
+	wid.io_height = math.max(wid.data.inputs,#wid.data.outputs)*14+7
 	
 	-- find body y pos
 	----
@@ -772,12 +823,49 @@ function derp:create_basecomponentblock(component_data)
 	
 	-- create input/output widgets
   for i=1,component_data.inputs do
-    wid:addwidget(derp:create_connectioninput(i, 0,i*32))
+    wid:addwidget(derp:create_connectioninput(i, -6,(i-1)*14 + 26))
   end
   
   for i=1,#component_data.outputs do
-    wid:addwidget(derp:create_connectionoutput(component_data.outputs[i], component_data.w-32, i*32))
+    wid:addwidget(derp:create_connectionoutput(component_data.outputs[i], component_data.w-6, (i-1)*14 + 26))
   end
+  
+  function wid.activate_button:draw(force)	
+	if self.redraw_needed or force then
+		if wid.active then
+			gfx.drawtopleft(3, 2, 5, 5,1,232,5,5) -- top-left corner
+		else
+			gfx.drawtopleft(3, 2, 5, 5,7,232,5,5) -- top-left corner
+		end
+	end
+  end
+
+  wid.body = gui:create_basewidget(0,26 + wid.io_height,wid.data.w,wid.data.h)
+  
+  function wid:calc_ioheight()
+		local old_io_height = self.io_height
+		self.io_height = math.max(self.data.inputs,#self.data.outputs)*14+7
+		self:resize_abs(self.drawbox.w,26+self.io_height+self.data.h)
+		self.body:move_relative(0,self.io_height - old_io_height) 
+	end
+
+
+  
+  wid:calc_ioheight()
+  wid:addwidget(wid.body)
+  
+  function wid.activate_button:mousepush(x,y,button)
+	wid.active = not wid.active
+  end
+  
+  -- add-input component
+  wid:addwidget(wid.add_input_button)
+  
+  -- add-input component
+  wid:addwidget(wid.add_output_button)
+  
+  -- add activate button
+  wid:addwidget(wid.activate_button)
 	
 	-- how to create new connections
 	function wid:add_connection(from_block, from_output, type_output, to_id)
@@ -796,15 +884,60 @@ function derp:create_basecomponentblock(component_data)
     return nil
   end
 	
+	wid.super_addwidget = wid.addwidget
+	
+	function wid:addwidget(cwid) 
+		--cwid:move_relative(0,self.io_height + 26)
+	
+		self.body:addwidget(cwid)
+		--self:super_addwidget(cwid)
+	end
+	
 	wid.super_draw = wid.draw
 	function wid:draw(force)
 		if self.redraw_needed or force then
+			
+			-- TODO: Replace individual parts frames with a single frame to reduce draw calls..
+			
+			-- HEADER
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, 2, 2,1,227,2,2) -- top-left corner
+			gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2, self.drawbox.y, 2, 2,4,227,2,2) -- top-right corner
+			gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y, self.drawbox.w-4, 1,3,227,1,1) -- top frame
+			gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y+1, self.drawbox.w-4, 1,506, 0, 1, 1) -- top frame 2
+			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+2, self.drawbox.w-2, 24,506, 1, 1, 127) -- bg
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+25,self.drawbox.w,1,3,227, 1,1) -- bottom frame
+			
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			
+			--gfx.scale(0.8)
+			gui:drawfont("^(0.878431373, 0.494117647,0){" .. self.data.id .."}",20,9)
+			--gfx.scale(1 / 0.8)
+			
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+			-- INPUT/OUTPUT BODY
+			-- move calculations to add buttons			
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+26,self.drawbox.w,self.io_height,7,227, 1,1) -- bg
+			
+			-- BODY
+			local body_height = self.data.h
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+26 + self.io_height,self.drawbox.w,body_height-1,1,1, 1,1) -- bg
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+26 + self.io_height,self.drawbox.w,1,1,5, 1,1) -- top
+			
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h-2,2,2,1,230,2,2) -- bottom left
+			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-2,self.drawbox.y+self.drawbox.h-2,2,2,4,230,2,2) -- bottom right
+			
+			-- LEFT/RIGHT frames
+			gfx.drawtopleft(self.drawbox.x+self.drawbox.w-1,self.drawbox.y+2,1,self.drawbox.h-4,3,227, 1,1) -- right frame
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+2,1,self.drawbox.h-4,3,227, 1,1) -- right frame
+			gfx.drawtopleft(self.drawbox.x + 2,self.drawbox.y+self.drawbox.h-1,self.drawbox.w - 4,1,1,5, 1,1) -- bottom
+			--[[
 			local r,g,b = gfx.getcolor()
 			gfx.setcolor(1.0,1.0,1.0)
 			local old_tex = gfx.bindtexture(0)
 			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,1,5,1,1) -- solid bg
 			gfx.bindtexture(old_tex)
 			gfx.setcolor(r,g,b)
+			]]
 			
 			------------------------
 			-- draw chlid widgets
@@ -814,24 +947,24 @@ function derp:create_basecomponentblock(component_data)
 			-- Draw connections
 			for k,v in pairs(self.data.connections_in) do
 			  
-			  -- find end position (input-socket on this component, since we show incomming connections)
-        local endx,endy = self.drawbox.x,self.drawbox.y
-        
-        -- find start position (ie. output-socket on remote component)
-        local startwid = self.parent:get_block(v.block)
-        local startsocket = startwid:get_outputsocket(v.output)
-        local startx,starty = startwid.drawbox.x,startwid.drawbox.y
-        startx = startx + startwid.drawbox.w
-        
-        -- find y-position on both sockets
-        endy = endy + v.input * 32 + 16
-        starty = starty + startsocket.drawbox.y + 16
-        
-        -- create spline from output-socket/-widget to ourself
-        -- TODO: This should only be done once, when the connection is created
-        local new_line = create_spline({{startx,starty}, {endx,endy}}, 30, 4)
-        new_line:update()
-        new_line:draw()
+				-- find end position (input-socket on this component, since we show incomming connections)
+				local endx,endy = self.drawbox.x,self.drawbox.y
+				
+				-- find start position (ie. output-socket on remote component)
+				local startwid = self.parent:get_block(v.block)
+				local startsocket = startwid:get_outputsocket(v.output)
+				local startx,starty = startwid.drawbox.x,startwid.drawbox.y
+				startx = startx + startwid.drawbox.w
+				
+				-- find y-position on both sockets
+				endy = endy + v.input * 32 + 16
+				starty = starty + startsocket.drawbox.y + 16
+				
+				-- create spline from output-socket/-widget to ourself
+				-- TODO: This should only be done once, when the connection is created
+				local new_line = create_spline({{startx,starty}, {endx,endy}}, 30, 4)
+				new_line:update()
+				new_line:draw()
 			end
 			
 			-----------------------
@@ -842,7 +975,6 @@ function derp:create_basecomponentblock(component_data)
 		  end
 		end
 	end
-	
 	
 	function wid:mousepush(mx,my,button)
 		if derp.active_tool.current then
@@ -862,6 +994,18 @@ function derp:create_basecomponentblock(component_data)
 			derp.active_tool.current:action({tag = "drag", dx = mx, dy = my, widget = self})
 		end
 		self.parent:needsredraw()
+	end
+	
+	function wid.body:mousepush(mx,my,button) 
+		wid:mousepush(mx,my,button)
+	end
+	
+	function wid.body:mousedrag(mx,my) 
+		wid:mousedrag(mx,my)
+	end
+	
+	function wid.body:mouserelease(mx,my,button)
+		wid:mouserelease(mx,my,button)
 	end
 	
 	-------------------------------
@@ -905,7 +1049,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:gen_new_blockname(blacktype)
-	  local new_name = "block_" .. tostring(blacktype) .. "_" .. tostring(self.id_counter)
+	  local new_name = "Block_" .. tostring(blacktype) .. "_" .. tostring(self.id_counter)
 	  self.id_counter = self.id_counter + 1
 	  return new_name
   end
@@ -1647,6 +1791,14 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 	select_rect = derp:base_tool(24,24,1,36,"square select")
 	move_select = derp:base_tool(24,17,1,61,"move/select")
 	move_ws = derp:base_tool(21,21,1,79,"move workspace")
+	delete_wid = derp:base_tool(14,14,30,63,"delete widget",
+			function () 
+				derp:set_activetool(nil)
+				if derp.active_workspace then
+
+				end
+				derp:set_activetool(derp.active_tool.last)
+			end)
 	
 	self:set_activetool(move_ws)
 	
@@ -1669,6 +1821,7 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 	wid:addwidget(move_ws)
 	wid:addwidget(move_select)
 	wid:addwidget(select_rect)
+	wid:addwidget(delete_wid)
 	
 	local move_container = derp:create_toolbar_movecontainer()
 	

@@ -29,7 +29,7 @@ derp_components.output.simple = { name = "Ouput: Simple"
                                 , tooltip = "Create a block that can render one texture on a remote machine."
                                 }
 function derp_components.output.simple:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 120, h = 150, group = "output", type = "simple", inputs = 1, outputs = {}, connections_in = {} }
+  local block = { x = x, y = y, w = 150, h = 80, group = "output", type = "simple", inputs = 1, outputs = {}, connections_in = {} }
   
   -- specific values
   block.remotehost = "localhost"
@@ -41,13 +41,13 @@ function derp_components.output.simple:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data)
   
   -- host input
-  local hostinput = gui:create_textinput(10,70,100,false,component_data.remotehost)
+  local hostinput = gui:create_textinput(10,10,100,false,component_data.remotehost)
   wid.hostinput = hostinput
   wid:addwidget(hostinput)
   
   -- render button
-  local renderbutton = gui:create_labelbutton(10,100,100,30,"Render", function(self,mx,my,button)
-                                                                        print(derp_components.output.simple:generate_json(self.parent.data))
+  local renderbutton = gui:create_labelbutton(10,40,100,30,"Render", function(self,mx,my,button)
+                                                                        print(derp_components.output.simple:generate_json(self.parent.parent.data))
                                                                       end)
   wid.renderbutton = renderbutton
   wid:addwidget(renderbutton)
@@ -112,7 +112,7 @@ derp_components.aux.floatconstant = { name = "Constant: Float"
                                     , tooltip = "Create a block that outputs a constant float value."
                                     }
 function derp_components.aux.floatconstant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 100, group = "aux", type = "floatconstant", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 100, h = 40, group = "aux", type = "floatconstant", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.constvalue = 0.0
   return block
@@ -142,7 +142,7 @@ derp_components.aux.texture = { name = "Texture"
                                 , tooltip = "Create a block that outputs static texture."
                               }
 function derp_components.aux.texture:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 150, group = "aux", type = "texture", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 50, group = "aux", type = "texture", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.texturefilepath = ""
   return block
@@ -152,16 +152,16 @@ function derp_components.aux.texture:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data)
   
   -- filepath
-  local filepathwidget = gui:create_centeredlabelpanel(0,70,170,50,component_data.texturefilepath)
+  local filepathwidget = gui:create_centeredlabelpanel(0,80,170,50,component_data.texturefilepath)
   wid.filepathwidget = filepathwidget
   wid:addwidget(filepathwidget)
   
   -- browse button
-  local browsebutton = gui:create_labelbutton(10,100,150,30,"Browse", function(self)
+  local browsebutton = gui:create_labelbutton(10,10,150,30,"Browse", function(self)
                                                                         local new_filepath = app.opendialog()
                                                                         if (new_filepath) then
-                                                                          self.parent.filepathwidget.label_text = new_filepath
-                                                                          self.parent.data.texturefilepath = new_filepath
+                                                                          self.parent.parent.filepathwidget.label_text = new_filepath
+                                                                          self.parent.parent.data.texturefilepath = new_filepath
                                                                           
                                                                           derp:push_active_workspace()
                                                                         end
@@ -196,7 +196,7 @@ derp_components.aux.vec2constant = { name = "Constant: Vec2"
                                     , tooltip = "Create a block that outputs a constant vec2 value."
                                     }
 function derp_components.aux.vec2constant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 100, group = "aux", type = "vec2constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 100, h = 30, group = "aux", type = "vec2constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
   block.constvalue = {0.0, 0.0}
