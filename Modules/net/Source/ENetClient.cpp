@@ -252,7 +252,7 @@ bool ENetClient::SendPacket(Network::Packet* _Packet)
 	ENetPacket *packet;
 
 	char* ID = _Packet->GetID();
-	char* NewBuf = new char[1+strlen(ID)+_Packet->GetLength()];
+	char* NewBuf = new char[1+4+strlen(ID)+_Packet->GetLength()];
 	char* ptr;
 
 	sprintf(NewBuf, "%c0000%s", 1, ID);
@@ -260,7 +260,7 @@ bool ENetClient::SendPacket(Network::Packet* _Packet)
 
 	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
 
-	packet = enet_packet_create(NewBuf, 1+strlen(ID)+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(NewBuf, 1+4+strlen(ID)+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
 
 	if (packet == NULL)
 	{
