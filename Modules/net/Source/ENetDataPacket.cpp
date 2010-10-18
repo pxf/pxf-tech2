@@ -101,7 +101,7 @@ int ENetDataPacket::GetSender()
 
 int ENetDataPacket::GetLength()
 {
-	if (m_Package)
+	if (!m_Package)
 		return m_Length;
 	else
 		return m_PackageLength;
