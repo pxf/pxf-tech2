@@ -243,7 +243,7 @@ bool ENetServer::SendAllPacket(Network::Packet* _Packet)
 	ENetPacket *packet;
 
 	char* ID = _Packet->GetID();
-	char* NewBuf = new char[1+strlen(ID)+_Packet->GetLength()];
+	char* NewBuf = new char[1+4+strlen(ID)+_Packet->GetLength()];
 	char* ptr;
 
 	sprintf(NewBuf, "%c0000%s", 1, ID);
