@@ -40,6 +40,7 @@ namespace DERPEditor
 
 	// client functions
 	int net_client_connect(lua_State *L);
+	int net_client_connected(lua_State *L);
 	int net_client_disconnect(lua_State *L);
 	int net_client_send(lua_State *L);
 	int net_client_send_str(lua_State *L);

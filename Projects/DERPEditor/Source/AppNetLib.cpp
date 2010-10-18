@@ -144,6 +144,26 @@ int DERPEditor::net_client_connect(lua_State *L)
 	return 0;
 }
 
+int DERPEditor::net_client_connected(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		lua_getfield(L, -3, "instance");
+		Client* client = *(Client**)lua_touserdata(L, -1);
+
+		lua_pushboolean(L, (bool)client->Connected());
+
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to connect function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
 int DERPEditor::net_client_disconnect(lua_State *L)
 {
 	if (lua_gettop(L) == 1)
