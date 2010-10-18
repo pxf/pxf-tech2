@@ -821,13 +821,6 @@ function derp:create_basecomponentblock(component_data)
 	-- temporary unfinished connection
 	wid.temp_connection = nil
 	
-	function wid:calc_ioheight()
-		self.io_height = math.max(self.data.inputs,#self.data.outputs)*14+7
-	
-		
-		self:resize_abs(self.drawbox.w,26+self.io_height+self.data.h)
-	end
-	
 	-- create input/output widgets
   for i=1,component_data.inputs do
     wid:addwidget(derp:create_connectioninput(i, -6,(i-1)*14 + 26))
@@ -846,10 +839,19 @@ function derp:create_basecomponentblock(component_data)
 		end
 	end
   end
+
+  wid.body = gui:create_basewidget(0,26 + wid.io_height,wid.data.w,wid.data.h)
+  
+  function wid:calc_ioheight()
+		local old_io_height = self.io_height
+		self.io_height = math.max(self.data.inputs,#self.data.outputs)*14+7
+		self:resize_abs(self.drawbox.w,26+self.io_height+self.data.h)
+		self.body:move_relative(0,self.io_height - old_io_height) 
+	end
+
+
   
   wid:calc_ioheight()
-  
-  wid.body = gui:create_basewidget(0,26 + wid.io_height,wid.data.w,wid.data.h)
   wid:addwidget(wid.body)
   
   function wid.activate_button:mousepush(x,y,button)
@@ -907,9 +909,9 @@ function derp:create_basecomponentblock(component_data)
 			
 			gfx.translate(self.drawbox.x,self.drawbox.y)
 			
-			gfx.scale(0.8)
+			--gfx.scale(0.8)
 			gui:drawfont("^(0.878431373, 0.494117647,0){" .. self.data.id .."}",20,9)
-			gfx.scale(1 / 0.8)
+			--gfx.scale(1 / 0.8)
 			
 			gfx.translate(-self.drawbox.x,-self.drawbox.y)
 			-- INPUT/OUTPUT BODY
