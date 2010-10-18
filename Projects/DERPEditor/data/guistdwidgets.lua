@@ -580,16 +580,28 @@ function gui:create_labelbutton(x,y,w,h,label,action)
       gfx.translate(self.drawbox.x, self.drawbox.y)
     
       -- bg
-      if (self.state == 0) then
+			gfx.drawtopleft(2,2,self.drawbox.w-4,self.drawbox.h-4, 507,0,0,128) -- upper left corner
+      --[[if (self.state == 0) then
         gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
                         512,1,1,254)
       else
         gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
                         510,1,0,254)
-      end
+      end]]
+      
+      -- draw borders
+			gfx.drawtopleft(0, 0, 2, 2, 5,10,2,2) -- upper left corner
+			gfx.drawtopleft(self.drawbox.w - 2, 0, 2, 2,10,10,2,2) -- upper right corner
+			gfx.drawtopleft(0, self.drawbox.h-2, 2, 2,5,15,2,2) -- lower left corner
+			gfx.drawtopleft(self.drawbox.w-2,self.drawbox.h-2,2,2,10,15,2,2) -- lower right corner
+			
+			gfx.drawtopleft(0,2,2,self.drawbox.h-4,5,12,2,1) -- left frame	
+			gfx.drawtopleft(self.drawbox.w-2,2,2,self.drawbox.h-4,10,12,2,1) -- right frame	
+			gfx.drawtopleft(2,0,self.drawbox.w-4,2,7,10,1,2) -- upper frame
+			gfx.drawtopleft(2,self.drawbox.h - 2,self.drawbox.w-4,2,7,15,1,2) -- lower frame)
                     
       -- topleft
-      gfx.drawtopleft(0, 0, 4, 4,
+      --[[gfx.drawtopleft(0, 0, 4, 4,
                       0,0,4,4)
     
       -- topright
@@ -619,7 +631,7 @@ function gui:create_labelbutton(x,y,w,h,label,action)
                     
       -- right
       gfx.drawtopleft(self.drawbox.w-4, 4, 4, self.drawbox.h-8,
-                      10,7,4,1)
+                      10,7,4,1)]]
       
       -- label
       if (self.state == 0) then
@@ -1082,13 +1094,16 @@ function gui:create_menubar(x,y,w,menus)
 end
 
 -- creates a menu
-function gui:create_textinput(x,y,w,masked)
+function gui:create_textinput(x,y,w,masked,stdvalue)
   local wid = gui:create_basewidget(x,y,w,20)
   wid.masked = masked -- passwords etc
   wid.stdheight = 20
   wid.selectionheight = 16
   wid.stdpadding = 10
   wid.value = ""
+  if (stdvalue) then
+    wid.value = stdvalue
+  end
   wid.state = "normal"
   wid.selection = {start = 0, finish = nil, direction = 0}
   wid.viewstart = 0
