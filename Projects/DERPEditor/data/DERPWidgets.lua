@@ -778,7 +778,7 @@ function derp:create_connectionoutput(id,x,y)
   return wid
 end
 
-function derp:create_basecomponentblock(component_data)
+function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
 	
@@ -789,18 +789,23 @@ function derp:create_basecomponentblock(component_data)
 	wid.activate_button = gui:create_basewidget(0,0,10,10)
 	wid.add_input_button = derp:create_addconnectionbutton(
 					function()
-						wid.data.inputs = wid.data.inputs + 1
-						wid.add_input_button:move_relative(0,14)
-						wid:calc_ioheight()
-						wid:super_addwidget(derp:create_connectioninput(wid.data.inputs, -6,(wid.data.inputs-1)*14 + 26))
+						if wid.data.inputs ~= max_inputs then
+							wid.data.inputs = wid.data.inputs + 1
+							wid.add_input_button:move_relative(0,14)
+							wid:calc_ioheight()
+							wid:super_addwidget(derp:create_connectioninput(wid.data.inputs, -6,(wid.data.inputs-1)*14 + 26))
+						end
 					end
 					,-6,component_data.inputs*14 + 26)
-	wid.add_output_button = derp:create_addconnectionbutton(function()
-						wid.add_output_button:move_relative(0,14)
-						local new_name = derp.active_workspace:gen_new_outputname()
-						table.insert(wid.data.outputs,new_name)
-						wid:calc_ioheight()
-						wid:super_addwidget(derp:create_connectionoutput(new_name, component_data.w-6, (#wid.data.outputs-1)*14 + 26))
+	wid.add_output_button = derp:create_addconnectionbutton(
+					function()
+						if #wid.data.outputs ~= max_ouputs then
+							wid.add_output_button:move_relative(0,14)
+							local new_name = derp.active_workspace:gen_new_outputname()
+							table.insert(wid.data.outputs,new_name)
+							wid:calc_ioheight()
+							wid:super_addwidget(derp:create_connectionoutput(new_name, component_data.w-6, (#wid.data.outputs-1)*14 + 26))
+						end
 					end,component_data.w-6,#component_data.outputs*14 + 26)
 	
 	wid.io_height = math.max(wid.data.inputs,#wid.data.outputs)*14+7
@@ -849,8 +854,6 @@ function derp:create_basecomponentblock(component_data)
 		self.body:move_relative(0,self.io_height - old_io_height) 
 	end
 
-
-  
   wid:calc_ioheight()
   wid:addwidget(wid.body)
   
@@ -858,11 +861,17 @@ function derp:create_basecomponentblock(component_data)
 	wid.active = not wid.active
   end
   
-  -- add-input component
-  wid:addwidget(wid.add_input_button)
+  --wid.minimize_button = gui:create_basewidget(
   
   -- add-input component
-  wid:addwidget(wid.add_output_button)
+  if max_inputs ~= 0 then
+	wid:addwidget(wid.add_input_button)
+  end
+  
+  -- add-input component
+  if max_outputs ~= then
+	wid:addwidget(wid.add_output_button)
+  end
   
   -- add activate button
   wid:addwidget(wid.activate_button)
