@@ -5,6 +5,7 @@
 #include <Pxf/Base/Utils.h>
 
 #include <Pxf/Network/NetworkDevice.h>
+#include <Pxf/Network/Packet.h>
 
 #include <string.h>
 
@@ -494,6 +495,10 @@ int DERPEditor::net_packet_push(lua_State *L, Packet* _Packet)
 	lua_setfield(L, -2, "tag");
 	lua_pushstring(L, _Packet->GetID());
 	lua_setfield(L, -2, "id");
+	lua_pushcfunction(L, net_packet_push_object);
+	lua_setfield(L, -2, "push_object");
+	lua_pushcfunction(L, net_packet_get_object);
+	lua_setfield(L, -2, "get_object");
 
 	return 1;
 }
@@ -514,13 +519,19 @@ int DERPEditor::net_packet_delete(lua_State *L)
 	return 0;
 }
 
+// create_packet((int)tag, (char*)id)
 int DERPEditor::net_packet_create_empty(lua_State *L)
 {
-	if (lua_gettop(L) == 1)
+	if (lua_gettop(L) == 2)
 	{
-		
+		Packet* packet = LuaApp::GetInstance()->m_net->CreateEmptyPacket(
+			(char*)lua_tolstring(L, -1, NULL) // Id
+			, (int)lua_tonumber(L, -2) // Tag
+		);
 
-		return 0;
+		net_packet_push(L, packet);
+
+		return 1;
 	}
 	else
 	{
@@ -531,6 +542,75 @@ int DERPEditor::net_packet_create_empty(lua_State *L)
 	return 0;
 }
 
+// packet:push_object(object)
+int DERPEditor::net_packet_push_object(lua_State *L)
+{
+	if (lua_gettop(L) == 2)
+	{
+		lua_getfield(L, -2, "instance");
+		Packet* packet = *(Packet**)lua_touserdata(L, -1);
+
+		if (lua_isnumber(L, -2))
+		{
+			const int n = lua_tonumber(L, -2);
+			packet->PushInt(n);
+		}
+		else if (lua_isstring(L, -2))
+		{
+			const char* str = lua_tolstring(L, -2, NULL);
+			packet->PushString(str, strlen(str));
+		}
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to push_object function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+// packet:get_object((int)pos)
+int DERPEditor::net_packet_get_object(lua_State *L)
+{
+	if (lua_gettop(L) == 2)
+	{
+		lua_getfield(L, -2, "instance");
+		Packet* packet = *(Packet**)lua_touserdata(L, -1);
+
+		int pos = lua_tonumber(L, -2);
+		int type = packet->ObjectType(pos);
+
+		switch (type)
+		{
+			case 0:
+			{
+				int n = packet->GetObject<int>(pos);
+				lua_pushnumber(L, n);
+				return 1;
+				break;
+			}
+			case 2:
+			{
+				char* str = packet->GetArray<char*>(packet->ObjectSize(pos), pos);
+				lua_pushstring(L, str);
+				return 1;
+				break;
+			}
+		}
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to get_object function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
 
 int DERPEditor::luaopen_appnet(lua_State *L)
 {
@@ -539,6 +619,7 @@ int DERPEditor::luaopen_appnet(lua_State *L)
 		{"createclient", net_createclient},
 		{"addtag", net_addtag},
 		{"gettags", net_gettags},
+		{"create_packet", net_packet_create_empty},
 		{NULL, NULL}
 	};
 
