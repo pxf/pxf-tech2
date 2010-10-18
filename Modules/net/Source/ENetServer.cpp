@@ -251,7 +251,7 @@ bool ENetServer::SendAllPacket(Network::Packet* _Packet)
 
 	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
 
-	packet = enet_packet_create(NewBuf, 1+strlen(ID)+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(NewBuf, 1+4+strlen(ID)+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
 
 	if (packet == NULL)
 	{
