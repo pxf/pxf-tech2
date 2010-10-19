@@ -370,7 +370,7 @@ function gui:create_multiline_label(x,y,w,h,lines)
       if (len > max_len) then
         out_str = string.sub(out_str, 1, max_len)
       end
-      gui:drawfont(out_str, 12, 12+16*(k-1))
+      gui:drawfont(tostring(out_str), 12, 12+16*(k-1))
     end
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)

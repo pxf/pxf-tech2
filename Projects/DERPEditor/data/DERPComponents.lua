@@ -56,7 +56,7 @@ function derp_components.output.simple:create_widget(component_data)
   function render_func(self,mx,my,button)
   
     -- get json for the tree
-    local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.data)
+    local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
     
     if not output_blocks_json then
       return
@@ -65,7 +65,7 @@ function derp_components.output.simple:create_widget(component_data)
     -- add pipeline specific data
     table.insert(output_blocks_json, [[{"blockName" : "PipelineTree",
        "blockType" : "PipelineTree",
-       "blockData" : { "root" : "]] .. tostring(self.parent.parent.data.id) .. [[" }
+       "blockData" : { "root" : "]] .. tostring(self.parent.parent.parent.data.id) .. [[" }
       }]])
     
     -- concat and return!
@@ -73,15 +73,15 @@ function derp_components.output.simple:create_widget(component_data)
     print(final_json)
     
     -- connect to server
-    local connect_fail = self.parent.parent.client:connect(self.parent.parent.data.remotehost, 7005)
+    local connect_fail = self.parent.parent.parent.client:connect(self.parent.parent.parent.data.remotehost, 7005)
     if connect_fail then
-      spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.data.remotehost) .. "'.",
+      spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.parent.data.remotehost) .. "'.",
                           "Reason; '" .. connect_fail .. "'"})
     else
       
       -- send our pipeline
       --local new_packet = net.create_packet("", "pipeline" )
-      self.parent.parent.client:send("pipeline", final_json)
+      self.parent.parent.parent.client:send("pipeline", final_json)
       
     end
     

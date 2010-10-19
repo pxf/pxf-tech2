@@ -1,6 +1,7 @@
 #include "AppGraphicsLib.h"
 
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Stream.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
@@ -65,6 +66,11 @@ int DERPEditor::gfx_rawtexture (lua_State *L) {
 		// Get char-pointer
 		lua_getfield(L, 5, "instance");
 		const unsigned char* t_data = (const unsigned char*)lua_touserdata(L, -1);
+		
+		FileStream s;
+		s.OpenWriteBinary("imgdata.raw");
+		s.Write(t_data, lua_tonumber(L, 2) * lua_tonumber(L, 3) * lua_tonumber(L, 4));
+		s.Close();
 		
 		// Setup table to return
 		lua_newtable(L);
