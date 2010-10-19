@@ -32,7 +32,7 @@ namespace Pxf
 			ENetPeer *Peer;
 			Network::NetworkDevice* NetDev;
 
-			bool _Connected;
+			bool m_Connected;
 			
 			Util::Array<Network::Packet*> BufferedPackets;
 
@@ -42,7 +42,7 @@ namespace Pxf
 			//ENetClient(const char* _Host, const int _Port);
 			ENetClient(Network::NetworkDevice* _NetworkDevice)
 				: NetDev(_NetworkDevice)
-				, _Connected(false)
+				, m_Connected(false)
 				, Client(NULL)
 				, Peer(NULL)
 			{}

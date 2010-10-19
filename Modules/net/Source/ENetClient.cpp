@@ -35,7 +35,7 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 		event.type == ENET_EVENT_TYPE_CONNECT)
 	{
 //		Message("ENetClient", "Connection established. Client %d.", Ident);
-		_Connected = true;
+		m_Connected = true;
 		return true;
 	}
 	else
@@ -77,7 +77,7 @@ bool ENetClient::Disconnect()
 
 bool ENetClient::Connected()
 {
-	return _Connected;
+	return m_Connected;
 }
 
 Pxf::Network::Packet* ENetClient::Recv()
