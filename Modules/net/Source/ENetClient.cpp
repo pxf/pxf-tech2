@@ -35,7 +35,7 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 		event.type == ENET_EVENT_TYPE_CONNECT)
 	{
 //		Message("ENetClient", "Connection established. Client %d.", Ident);
-		_Connected = true;
+		m_Connected = true;
 		return true;
 	}
 	else
@@ -61,6 +61,7 @@ bool ENetClient::Disconnect()
 			
 		case ENET_EVENT_TYPE_DISCONNECT:
 			Message("ENetClient", "Disconnected successfully.");
+			m_Connected = false;
 			return true;
 		}
 	}
@@ -69,13 +70,14 @@ bool ENetClient::Disconnect()
 	Peer = NULL;
 
 	Message("ENetClient", "Force quit. Sowwy server.");
+	m_Connected = false;
 
 	return false;
 }
 
 bool ENetClient::Connected()
 {
-	return _Connected;
+	return m_Connected;
 }
 
 Pxf::Network::Packet* ENetClient::Recv()
