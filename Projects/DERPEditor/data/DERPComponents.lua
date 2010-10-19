@@ -99,9 +99,9 @@ function derp_components.output.simple:create_widget(component_data)
           if (indata.id == "imgdata") then
             
             local w,h,c = indata:get_object(0), indata:get_object(1), indata:get_object(2)
-            local imgdata = indata:get_object(3)
+            local imgdata = indata:get_object(3, true)
             print("size: " .. tostring(#imgdata) .. " should be: " .. tostring(w*h*c))
-            self.previewtex = gfx.rawtexture(128, w,h,c, tostring(imgdata))
+            self.previewtex = gfx.rawtexture(128, w,h,c, imgdata)
             spawn_preview_window(self.previewtex)
             
             self.client:disconnect()

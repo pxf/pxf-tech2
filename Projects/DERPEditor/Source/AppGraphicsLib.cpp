@@ -64,6 +64,10 @@ int DERPEditor::gfx_rawtexture (lua_State *L) {
 		// Setup table to return
 		lua_newtable(L);
 		TexturedQuadBatch** new_raw_tex = (TexturedQuadBatch**)lua_newuserdata(L, sizeof(TexturedQuadBatch*));
+		
+		// Get char-pointer
+		lua_getfield(L, 5, "instance");
+		const unsigned char* t_data = (const unsigned char*)lua_touserdata(L, -1);
 	
 		// Create quadbatch
     LuaApp* inst = LuaApp::GetInstance();
@@ -74,7 +78,7 @@ int DERPEditor::gfx_rawtexture (lua_State *L) {
                                          lua_tonumber(L, 2),
                                          lua_tonumber(L, 3),
                                          lua_tonumber(L, 4),
-                                         (const unsigned char*)lua_touserdata(L, 5),
+                                         t_data,
                                          &(inst->m_CurrentDepth),
                                          &(inst->m_CurrentColor),
                                          &(inst->m_TransformMatrix)

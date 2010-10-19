@@ -13,12 +13,12 @@ end
 function spawn_log_window(msg)
   local window = gui:create_window("logwindow", app.width / 2 - 250,app.height / 2 - 75, 400,300, false, "Log")
   
-  local log_panel = gui:create_multiline_label(0,10,290,400,{})
+  local log_panel = gui:create_multiline_label(0,0,290,400,{})
   window.panel:addwidget(log_panel)
   
   function log_panel:update()
     self.lines = {}
-    for i=#backlog.data,#backlog.data-10,-1 do
+    for i=#backlog.data,#backlog.data-14,-1 do
       if i < 1 then
         break
       end
