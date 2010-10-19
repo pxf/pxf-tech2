@@ -198,6 +198,28 @@ void Renderer::Execute()
 			
 			LoadJson();
 			BuildGraph();
+
+			if (m_RootBlock)
+			{
+				m_RootBlock->ResetPerformed();
+				m_RootBlock->Execute();
+
+				Resource::Image* img = m_gfx->CreateImageFromTexture(GetResult());
+				Network::Packet* imgpacket = m_NetDevice->CreateEmptyPacket("imgdata", m_NetTag_Preview);
+				imgpacket->PushInt(img->Width());
+				imgpacket->PushInt(img->Height());
+				imgpacket->PushInt(img->Channels());
+				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+
+				m_Net->SendAllPacket(imgpacket);
+
+				delete imgpacket;
+				delete img;
+			}
+			else
+			{
+				Message("Renderer", "Failed to execute root block since it's NULL.");
+			}
 			
 		}
 	}
@@ -206,24 +228,9 @@ void Renderer::Execute()
 	{
 		m_RootBlock->ResetPerformed();
 		m_RootBlock->Execute();
-		
-		Resource::Image* img = m_gfx->CreateImageFromTexture(GetResult());
-
-		// TODO: Also send some identifier for the last texture.
-		int height = img->Height();
-		//m_Net->SendAllID("poop", m_NetTag_Preview, (const char*)&height, 4);
-		
-		Network::Packet* imgpacket = m_NetDevice->CreateEmptyPacket("imgdata", m_NetTag_Preview);
-		imgpacket->PushInt(img->Width());
-		imgpacket->PushInt(img->Height());
-		imgpacket->PushInt(img->Channels());
-		imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
-		
-		m_Net->SendAllPacket(imgpacket);
-
-		delete imgpacket;
-		delete img;
-	} else {
+	}
+	else
+	{
 		Message("Renderer", "Failed to execute root block since it's NULL.");
 	}
 	
