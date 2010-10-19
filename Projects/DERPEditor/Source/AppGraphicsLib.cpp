@@ -74,7 +74,7 @@ int DERPEditor::gfx_rawtexture (lua_State *L) {
                                          lua_tonumber(L, 2),
                                          lua_tonumber(L, 3),
                                          lua_tonumber(L, 4),
-                                         (const unsigned char*)lua_tostring(L, 5),
+                                         (const unsigned char*)lua_touserdata(L, 5),
                                          &(inst->m_CurrentDepth),
                                          &(inst->m_CurrentColor),
                                          &(inst->m_TransformMatrix)
@@ -105,7 +105,20 @@ int DERPEditor::gfx_rawtex_delete(lua_State *L)
 	if (lua_gettop(L) == 1)
 	{
 		// TODO: Remove shieeeeeeeeeeeet
-		printf("IMMA BIN REMOVIN\n");
+		//printf("IMMA BIN REMOVIN\n");
+		TexturedQuadBatch** tqb = (TexturedQuadBatch**)lua_touserdata(L, 1);
+		LuaApp* inst = LuaApp::GetInstance();
+		Util::Array<TexturedQuadBatch*>::iterator iter;
+		for(iter = inst->m_RawTextureQB.begin(); iter != inst->m_RawTextureQB.end(); ++iter)
+		{
+			if (*iter == *tqb)
+			{
+				break;
+			}
+		}
+		inst->m_RawTextureQB.erase(iter);
+		delete *tqb;
+		
 		return 0;
 	}
 	else
