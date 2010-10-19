@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Stream.h>
 #include <Pxf/Base/Memory.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Debug.h>
@@ -212,6 +213,11 @@ void Renderer::Execute()
 				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 
 				m_Net->SendAllPacket(imgpacket);
+				
+				FileStream s;
+				s.OpenWriteBinary("imgdata.raw");
+				s.Write((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+				s.Close();
 
 				delete imgpacket;
 				delete img;

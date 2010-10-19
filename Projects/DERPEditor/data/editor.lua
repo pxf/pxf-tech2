@@ -102,8 +102,9 @@ local about_menu = {{"Test Save Dialog", {onclick = function () print("Save to: 
                     {"Memory usage", {onclick = function () print("Memory usage: " .. tostring(app.getmemusage()/1024/1024) .. "MB") end}},
                     {"About DERPEditor", {onclick = function () spawn_aboutwindow() end}}
                    }
-				   
-local window_menu = {{"Inspector",{toggle = false, tooltip = "Show/Hide inspector panel.", onclick = function() end}},
+                   
+local window_menu = {{"Log window", {onclick = function () spawn_log_window() end}},
+           {"Inspector",{toggle = false, tooltip = "Show/Hide inspector panel.", onclick = function() end}},
 					 {"Toolbar",{toggle = true, tooltip = "Show/Hide Toolbar.",
 						onclick = 
 							function(self) 

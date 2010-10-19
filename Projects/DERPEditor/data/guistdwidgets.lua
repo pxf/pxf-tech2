@@ -355,6 +355,32 @@ function gui:create_centeredmultiline_label(x,y,w,h,lines)
 	return base_widget
 end
 
+function gui:create_multiline_label(x,y,w,h,lines)
+	local base_widget = gui:create_basewidget(x,y,w,h)
+	base_widget.lines = lines
+
+	base_widget.superdraw = base_widget.draw
+	function base_widget:draw()
+		gfx.translate(self.drawbox.x,self.drawbox.y)
+
+    local max_len = math.floor(w / 6)
+    for k,v in pairs(self.lines) do
+      local len = gui:get_font_length(v)
+      local out_str = v
+      if (len > max_len) then
+        out_str = string.sub(out_str, 1, max_len)
+      end
+      gui:drawfont(tostring(out_str), 12, 12+16*(k-1))
+    end
+
+		gfx.translate(-self.drawbox.x,-self.drawbox.y)
+
+		base_widget:superdraw()
+	end
+
+	return base_widget
+end
+
 function gui:create_centeredlabelpanel(x,y,w,h,text)
 	local base_widget = gui:create_basewidget(x,y,w,h)
 	base_widget.label_text = text
