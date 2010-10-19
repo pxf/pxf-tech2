@@ -807,7 +807,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	local header = gui:create_basewidget(0,0,wid.drawbox.w,26)
 	local content = gui:create_basewidget(0,26,wid.drawbox.w,component_data.h + io_height + 18)
-	local body = gui:create_basewidget(0,26+io_height,component_data.h,component_data.w)
+	local body = gui:create_basewidget(0,26+io_height,component_data.w,component_data.h)
 	local minimize_button = gui:create_basewidget(wid.drawbox.w - 12,0,12,8)
 	local activate_button = gui:create_basewidget(0,0,10,10)
 	local body_minimize_button = gui:create_basewidget(0,0,12,12)
