@@ -1,6 +1,8 @@
 #include "AppNetLib.h"
 
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Stream.h>
+#include <Pxf/Base/Memory.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
@@ -635,8 +637,8 @@ int DERPEditor::net_packet_get_object(lua_State *L)
 	if (lua_gettop(L) == 2 || lua_gettop(L) == 3)
 	{
 		bool raw = false;
-		if (lua_isboolean(L, -1))
-			raw = lua_toboolean(L, -1);
+		if (lua_gettop(L) == 3)
+			raw = lua_toboolean(L, 3);
 
 		lua_getfield(L, 1, "instance");
 		Packet* packet = *(Packet**)lua_touserdata(L, -1);
@@ -692,6 +694,8 @@ int DERPEditor::net_raw_data_push(lua_State *L, void* _Data, int _Size)
 
 //	*packet = _Packet;
 	*data = _Data;
+	//*data = new char[_Size];
+	//MemoryCopy(*data, _Data, _Size);
 
 	lua_setfield(L, -2, "instance");
 
