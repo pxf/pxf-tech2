@@ -34,7 +34,7 @@ Renderer::Renderer(unsigned int _port)
 	unsigned netlogtag = m_NetDevice->AddTag("log");
 	m_Net = m_NetDevice->CreateServer();
 	m_Net->Bind(_port);
-	Pxf::Kernel::GetInstance()->RegisterLogger(new RemoteLogWriter(m_Net, netlogtag));
+	Pxf::Kernel::GetInstance()->RegisterLogger(new RemoteLogWriter(m_NetDevice, m_Net, netlogtag));
 
 	
   // Load default blocks

@@ -4,7 +4,8 @@
 #include <Pxf/Base/Logger.h>
 
 namespace Pxf {
-	namespace Network { class Server; }
+	namespace Network { class NetworkDevice;
+	                    class Server; }
 }
 
 namespace Derp
@@ -12,11 +13,13 @@ namespace Derp
 	class RemoteLogWriter : public Pxf::Logger
 	{
 	protected:
+		Pxf::Network::NetworkDevice* m_Device;
 		Pxf::Network::Server* m_Server;
 		unsigned m_NetLogTag;
 	public:
-		RemoteLogWriter(Pxf::Network::Server* _Server, unsigned _NetLogTag)
-			: m_Server(_Server)
+		RemoteLogWriter(Pxf::Network::NetworkDevice* _Device, Pxf::Network::Server* _Server, unsigned _NetLogTag)
+			: m_Device(_Device)
+			, m_Server(_Server)
 			, m_NetLogTag(_NetLogTag)
 		{}
 

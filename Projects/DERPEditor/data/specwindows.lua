@@ -33,14 +33,17 @@ function spawn_log_window(msg)
   gui.windows:add(window)
 end
 
-function spawn_preview_window(previewtex)
-  local preview_dialog = gui:create_window("previewdialog", app.width / 2 - 250,app.height / 2 - 75, 512,512, true, "Preview")
+function spawn_preview_window(previewtex, w,h)
+  local preview_dialog = gui:create_window("previewdialog", app.width / 2 - w/2,app.height / 2 - h/2, w,w, true, "Preview")
+  preview_dialog.prevdata = {w = w, h = h, tex = previewtex}
   
   preview_dialog.sdraw = preview_dialog.draw
   function preview_dialog:draw(force)
     self:sdraw()
     
-    previewtex:draw(0,0,512,0,512,512,0,512)
+    gfx.translate(self.drawbox.x,self.drawbox.y)
+    self.prevdata.tex:draw(0,0,self.prevdata.w,0,self.prevdata.w,self.prevdata.h,0,self.prevdata.h)
+    gfx.translate(-self.drawbox.x,-self.drawbox.y)
   end
   
   -- ok button

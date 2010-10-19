@@ -1,7 +1,9 @@
 #include <RemoteLogWriter.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/String.h>
+#include <Pxf/Network/NetworkDevice.h>
 #include <Pxf/Network/Server.h>
+#include <Pxf/Network/Packet.h>
 
 bool Derp::RemoteLogWriter::WriteImpl(unsigned int _Tag, const char** _TagTable
 					, unsigned int _TagTableSize, const char* _SrcBuffer
@@ -17,20 +19,27 @@ bool Derp::RemoteLogWriter::WriteImpl(unsigned int _Tag, const char** _TagTable
 
 
 	// Should format and add debug/warning/critical-flags
-	char buff[4096];
+	//char buff[4096];
 	const char* type = 0;
 	if (_Tag & Logger::IS_DEBUG)
 		type = "debug";
 	else if (_Tag & Logger::IS_INFORMATION)
-		type = "info";
+		type = "information";
 	else if (_Tag & Logger::IS_WARNING)
-		type = "warn";
+		type = "warning";
 	else if (_Tag & Logger::IS_CRITICAL)
-		type = "fatal";
+		type = "critical";
+	else
+		type = "unknown";
 
-	Pxf::Format(buff, "%s | %s", type, _SrcBuffer);
+	//Pxf::Format(buff, "(%s) %s | %s", TagName, type, _SrcBuffer);
+	//m_Server->SendAllID("rlog", m_NetLogTag, buff, Pxf::StringLength(buff));
 
-	m_Server->SendAllL(m_NetLogTag, _SrcBuffer, Pxf::StringLength(buff));
+	Pxf::Network::Packet* logpacket = m_Device->CreateEmptyPacket("rlog", m_NetLogTag);
+	logpacket->PushString(TagName, Pxf::StringLength(TagName) + 1);
+	logpacket->PushString(type, Pxf::StringLength(type) + 1);
+	logpacket->PushString(_SrcBuffer, Pxf::StringLength(_SrcBuffer) + 1);
+	m_Server->SendAllPacket(logpacket);
 
 	return true;
 }
