@@ -905,6 +905,10 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		content.io_height = math.max(self.data.inputs,#self.data.outputs)*14+7
 		
 		self:resize_abs(self.drawbox.w,header.drawbox.h+content.io_height+self.data.h + 18)
+		
+		--self.hitbox.x = self.hitbox.x - 7
+		--self.hitbox.w = self.hitbox.w + 7
+		
 		content:resize_abs(self.drawbox.w,content.io_height+self.data.h + 18)
 		body:move_abs(0,content.io_height)
 		
