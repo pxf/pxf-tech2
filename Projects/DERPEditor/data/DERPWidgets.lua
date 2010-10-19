@@ -856,13 +856,11 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	for i=1,component_data.inputs do
 		local v = derp:create_connectioninput(i, -6,(i-1)*14)
 		content:addwidget(v)
-		print(v.drawbox.y)
 	end
   
 	for i=1,#component_data.outputs do
 		local v = derp:create_connectionoutput(component_data.outputs[i], wid.drawbox.w-6, (i-1)*14)
 		content:addwidget(v)
-		print(v.drawbox.y)
 	end
 	
 	-- ADD WIDGETS
@@ -943,24 +941,41 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		if self.redraw_needed or force then
 			gfx.translate(self.drawbox.x,self.drawbox.y)
 			-- HEADER
-
+			gfx.drawtopleft(2,self.drawbox.y+1, self.drawbox.w-4, 1,506, 0, 1, 1) -- top frame 2
+			gfx.drawtopleft(1,self.drawbox.y+2, self.drawbox.w-2, 24,506, 1, 1, 127) -- bg
+			
 			local t = 220
 			
 			if wid.selected then
 				t = 219
 				gfx.drawtopleft(0, 0, 2, 2,12,227,2,2) -- top-left corner
 				gfx.drawtopleft(self.drawbox.w-2, 0, 2, 2,15,227,2,2) -- top-right corner
+				
+				if wid.state == "minimized" then
+					gfx.drawtopleft(0,self.drawbox.h-2,2,2,12,230,2,2) -- bottom left
+					gfx.drawtopleft(self.drawbox.w-2,self.drawbox.h-2,2,2,15,230,2,2) -- bottom right
+				end
 			else
 				gfx.drawtopleft(0, 0, 2, 2,1,227,2,2) -- top-left corner
 				gfx.drawtopleft(self.drawbox.w-2, 0, 2, 2,4,227,2,2) -- top-right corner
+				
+				if wid.state == "minimized" then
+					gfx.drawtopleft(0,24,2,2,1,230,2,2) -- bottom left
+					gfx.drawtopleft(self.drawbox.w-2,self.drawbox.h-2,2,2,4,230,2,2) -- bottom right
+				end
 			end
-			
-			gfx.drawtopleft(2,self.drawbox.y+1, self.drawbox.w-4, 1,506, 0, 1, 1) -- top frame 2
-			gfx.drawtopleft(1,self.drawbox.y+2, self.drawbox.w-2, 24,506, 1, 1, 127) -- bg
+
 			gfx.drawtopleft(2,self.drawbox.y, self.drawbox.w-4, 1,1,t,1,1) -- top frame
-			gfx.drawtopleft(0,self.drawbox.y+25,self.drawbox.w,1,1,220, 1,1) -- bottom frame
-			gfx.drawtopleft(0,self.drawbox.y+2,1,self.drawbox.h-2,1,t,1,1) -- left frame
-			gfx.drawtopleft(self.drawbox.w-1,2,1,self.drawbox.h-2,1,t,1,1) -- right frame
+			
+			if (wid.state == "minimized") then
+				gfx.drawtopleft(2,self.drawbox.y+25,self.drawbox.w-4,1,1,t, 1,1) -- bottom frame
+				gfx.drawtopleft(0,self.drawbox.y+2,1,self.drawbox.h-4,1,t,1,1) -- left frame
+				gfx.drawtopleft(self.drawbox.w-1,2,1,self.drawbox.h-4,1,t,1,1) -- right frame
+			else
+				gfx.drawtopleft(0,self.drawbox.y+25,self.drawbox.w,1,1,220, 1,1) -- bottom fram
+				gfx.drawtopleft(0,self.drawbox.y+2,1,self.drawbox.h-2,1,t,1,1) -- left frame
+				gfx.drawtopleft(self.drawbox.w-1,2,1,self.drawbox.h-2,1,t,1,1) -- right frame
+			end
 			
 			
 			--gfx.scale(0.8)
@@ -993,23 +1008,26 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	function body_minimize_button:mousepush(mx,my,button)		
 		
 		if body.state == "minimized" then
-			body.state = "maximized"
-			body.visible = true
-			wid.data.h = wid.old_data_h
+			body.state = "maximize_animation"
+			
+			animation_control.endy = wid.data.h
+			animation_control.dy = 1
+			animation_control.y = 0
+			animation_control.speed = 5
+			
 		elseif body.state == "maximized" then
 			animation_control.endy = -wid.data.h
 			animation_control.dy = -1
 			animation_control.y = 0
-			animation_control.speed = 2
+			animation_control.speed = 5
 			
 			body.state = "minimize_animation"
 			body.visible = false
+			
 		else
 			
 			--wid.data.h = 0
 		end
-		
-		wid:calc_height()
 	end
 	
 	function body_minimize_button:draw(force)
@@ -1024,23 +1042,38 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		end
 	end
 	
-	function content:update()
+	function content:update()	
 		if body.state == "minimize_animation" then
+			local dy = animation_control.dy*animation_control.speed
+			
 			if animation_control.y <= animation_control.endy then
 				body.state = "minimized"
+				self:resize_relative(0,animation_control.y - animation_control.endy)
+				body_minimize_button:move_relative(0,animation_control.y - animation_control.endy)
 			else
-				self:resize_relative(0,animation_control.dy*animation_control.speed )
-				body_minimize_button:move_relative(0,animation_control.dy*animation_control.speed)
-				animation_control.y = animation_control.y + (animation_control.dy * animation_control.speed)
+				self:resize_relative(0,dy)
+				body_minimize_button:move_relative(0,dy)
+				animation_control.y = animation_control.y + dy
 			end
-			--wid:calc_height()
-			--wid:resize_relative(0,-content.drawbox.h * )
+		elseif body.state == "maximize_animation" then
+			local dy = animation_control.dy*animation_control.speed
+					
+			if animation_control.y >= animation_control.endy then
+				body.state = "maximized"
+				body.visible = true
+				self:resize_relative(0,animation_control.y - animation_control.endy)
+				body_minimize_button:move_relative(0,animation_control.y - animation_control.endy)
+			else
+				self:resize_relative(0,dy)
+				body_minimize_button:move_relative(0,dy)
+				animation_control.y = animation_control.y + dy
+			end
 		end
 	end
 	
 	function minimize_button:mousepush(mx,my,button)
 		if wid.state == "maximized" then
-			wid.state = "minimize"
+			wid.state = "minimized"
 			wid:resize_relative(0,-content.drawbox.h)
 		else
 			wid.state = "maximized"
