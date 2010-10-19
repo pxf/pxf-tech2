@@ -77,6 +77,12 @@ function derp_components.output.simple:create_widget(component_data)
     if connect_fail then
       spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.data.remotehost) .. "'.",
                           "Reason; '" .. connect_fail .. "'"})
+    else
+      
+      -- send our pipeline
+      --local new_packet = net.create_packet("", "pipeline" )
+      self.parent.parent.client:send("pipeline", final_json)
+      
     end
     
     --return final_json
@@ -85,6 +91,29 @@ function derp_components.output.simple:create_widget(component_data)
   wid.superupdate = wid.update
   function wid:update()
       self:superupdate()
+      if (self.client:connected()) then
+        print("connected")
+        local indata = self.client:recv_noblock(0)
+        if indata then
+          print("got packet: " .. tostring(indata.id))
+          if (indata.id == "imgdata") then
+            
+            local w,h,c = indata:get_object(0), indata:get_object(1), indata:get_object(2)
+            local imgdata = indata:get_object(3)
+            print("size: " .. tostring(#imgdata) .. " should be: " .. tostring(w*h*c))
+            self.previewtex = gfx.rawtexture(128, w,h,c, tostring(imgdata))
+            spawn_preview_window(self.previewtex)
+            
+            self.client:disconnect()
+          elseif indata.id == "rlog" then
+            local sys, what, msg = indata:get_object(0), indata:get_object(1), indata:get_object(2)
+            print(sys, what, msg)
+          end
+          --[[for k,v in pairs(indata) do
+            print(k,v)
+          end]]
+        end
+      end
   end
   
   -- render button
@@ -106,8 +135,12 @@ function derp_components.output.simple:generate_json(component_data)
     -- get json for the leaf/input
     local tmpblock = derp.active_workspace:get_block(v.block)
     local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
-    for k2,v2 in pairs(tmpdict) do
-      table.insert(final_jsondata, v2)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
     end
   end
   
@@ -147,7 +180,7 @@ function derp_components.output.simple:generate_json(component_data)
                    }
     }]]
   
-  table.insert(final_jsondata, jsonstring)
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
   
   return final_jsondata
 end
@@ -234,8 +267,12 @@ function derp_components.aux.texture:generate_json(component_data)
      "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
                        "type" : "texture"}]
     }]]
+    
+  if (component_data.texturefilepath == "") then
+    return spawn_error_dialog({"Missing texture filepath in block '" .. component_data.id .. "'!"})
+  end
   
-  return {jsonstring}
+  return {escape_backslashes(jsonstring)}
 end
 
 function derp_components.aux.texture:spawn_inspector(component_data)
