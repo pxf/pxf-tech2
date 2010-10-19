@@ -80,6 +80,7 @@ function derp_components.output.simple:create_widget(component_data)
     else
       
       -- send our pipeline
+      --local new_packet = net.create_packet("", "pipeline" )
       self.parent.parent.client:send("pipeline", final_json)
       
     end
@@ -94,7 +95,17 @@ function derp_components.output.simple:create_widget(component_data)
         print("connected")
         local indata = self.client:recv_noblock(0)
         if indata then
-          print("got packet")
+          print("got packet: " .. tostring(indata.id))
+          if (indata.id == "imgdata") then
+            
+            local w,h,c = indata:get_object(0), indata:get_object(1), indata:get_object(2)
+            local imgdata = indata:get_object(3)
+            print("size: " .. tostring(#imgdata) .. " should be: " .. tostring(w*h*c))
+            self.previewtex = gfx.rawtexture(128, w,h,c, tostring(imgdata))
+            spawn_preview_window(self.previewtex)
+            
+            self.client:disconnect()
+          end
           --[[for k,v in pairs(indata) do
             print(k,v)
           end]]

@@ -10,6 +10,23 @@ function spawn_error_dialog(msg)
   gui.windows:add(error_dialog)
 end
 
+function spawn_preview_window(previewtex)
+  local preview_dialog = gui:create_window("previewdialog", app.width / 2 - 250,app.height / 2 - 75, 512,512, true, "Preview")
+  
+  preview_dialog.sdraw = preview_dialog.draw
+  function preview_dialog:draw(force)
+    self:sdraw()
+    
+    previewtex:draw(0,0,512,0,512,512,0,512)
+  end
+  
+  -- ok button
+  local button = gui:create_labelbutton(210,60,90,30,"Ok", function(self) self.parent.parent:destroy() end)
+  preview_dialog.panel:addwidget(button)
+
+  gui.windows:add(preview_dialog)
+end
+
 
 function spawn_aboutwindow()
   local short_info = { "^(1,0.4,0.4){D}^(0.4,1,0.4){E}^(0.4,0.4,1){R}^(1,0.4,0.4){P} Editor is a bla bla bla,"
