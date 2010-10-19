@@ -61,13 +61,14 @@ int DERPEditor::gfx_rawtexture (lua_State *L) {
   // new_raw_texture = gfx.rawtexture(quad_number, width, height, channels, data)
   if (lua_gettop(L) == 5)
   {
-		// Setup table to return
-		lua_newtable(L);
-		TexturedQuadBatch** new_raw_tex = (TexturedQuadBatch**)lua_newuserdata(L, sizeof(TexturedQuadBatch*));
-		
+	
 		// Get char-pointer
 		lua_getfield(L, 5, "instance");
 		const unsigned char* t_data = (const unsigned char*)lua_touserdata(L, -1);
+		
+		// Setup table to return
+		lua_newtable(L);
+		TexturedQuadBatch** new_raw_tex = (TexturedQuadBatch**)lua_newuserdata(L, sizeof(TexturedQuadBatch*));
 	
 		// Create quadbatch
     LuaApp* inst = LuaApp::GetInstance();
