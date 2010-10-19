@@ -65,12 +65,7 @@ int DERPEditor::gfx_rawtexture (lua_State *L) {
 	
 		// Get char-pointer
 		lua_getfield(L, 5, "instance");
-		const unsigned char* t_data = (const unsigned char*)lua_touserdata(L, -1);
-		
-		FileStream s;
-		s.OpenWriteBinary("imgdata.raw");
-		s.Write(t_data, lua_tonumber(L, 2) * lua_tonumber(L, 3) * lua_tonumber(L, 4));
-		s.Close();
+		const unsigned char** t_data = (const unsigned char**)lua_touserdata(L, -1);
 		
 		// Setup table to return
 		lua_newtable(L);
@@ -85,7 +80,7 @@ int DERPEditor::gfx_rawtexture (lua_State *L) {
                                          lua_tonumber(L, 2),
                                          lua_tonumber(L, 3),
                                          lua_tonumber(L, 4),
-                                         t_data,
+                                         *t_data,
                                          &(inst->m_CurrentDepth),
                                          &(inst->m_CurrentColor),
                                          &(inst->m_TransformMatrix)
