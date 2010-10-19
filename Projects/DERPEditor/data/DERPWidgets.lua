@@ -780,7 +780,7 @@ end
 function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
-
+	
 	local length = #component_data.id*8 + 20
 	
 	if length > (wid.drawbox.w - 12) then
@@ -905,16 +905,10 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		content.io_height = math.max(self.data.inputs,#self.data.outputs)*14+7
 		
 		self:resize_abs(self.drawbox.w,header.drawbox.h+content.io_height+self.data.h + 18)
-		
-		--self.hitbox.x = self.hitbox.x - 7
-		--self.hitbox.w = self.hitbox.w + 7
-		
 		content:resize_abs(self.drawbox.w,content.io_height+self.data.h + 18)
 		body:move_abs(0,content.io_height)
 		
 		body_minimize_button:move_abs(content.drawbox.w - 12,content.drawbox.h - 12)
-		
-		--print(wid.drawbox.h,content.drawbox.h,body_minimize_button.drawbox.y)
 	end
 	
 	wid:calc_height()
@@ -929,7 +923,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	function wid:draw(force)
 		gfx.translate(self.hitbox.x,self.hitbox.y)
 			-- HEADER
-		gfx.drawtopleft(0, 0, self.drawbox.w,self.drawbox.h,5,5,1,1) -- top-left corner
+		gfx.drawtopleft(0, 0, self.hitbox.w,self.hitbox.h,5,5,1,1) -- top-left corner
 		gfx.translate(-self.hitbox.x,-self.hitbox.y)
 		
 		self:super_draw(force)
@@ -941,14 +935,25 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		if self.redraw_needed or force then
 			gfx.translate(self.drawbox.x,self.drawbox.y)
 			-- HEADER
-			gfx.drawtopleft(0, 0, 2, 2,1,227,2,2) -- top-left corner
-			gfx.drawtopleft(self.drawbox.w-2, 0, 2, 2,4,227,2,2) -- top-right corner
-			gfx.drawtopleft(2,self.drawbox.y, self.drawbox.w-4, 1,3,227,1,1) -- top frame
+
+			local t = 220
+			
+			if wid.selected then
+				t = 219
+				gfx.drawtopleft(0, 0, 2, 2,12,227,2,2) -- top-left corner
+				gfx.drawtopleft(self.drawbox.w-2, 0, 2, 2,15,227,2,2) -- top-right corner
+			else
+				gfx.drawtopleft(0, 0, 2, 2,1,227,2,2) -- top-left corner
+				gfx.drawtopleft(self.drawbox.w-2, 0, 2, 2,4,227,2,2) -- top-right corner
+			end
+			
 			gfx.drawtopleft(2,self.drawbox.y+1, self.drawbox.w-4, 1,506, 0, 1, 1) -- top frame 2
 			gfx.drawtopleft(1,self.drawbox.y+2, self.drawbox.w-2, 24,506, 1, 1, 127) -- bg
-			gfx.drawtopleft(0,self.drawbox.y+25,self.drawbox.w,1,3,227, 1,1) -- bottom frame
-			gfx.drawtopleft(0,self.drawbox.y+2,1,self.drawbox.h-2,3,227,1,1) -- left frame
-			gfx.drawtopleft(self.drawbox.w-1,2,1,self.drawbox.h-2,3,227,1,1) -- right frame
+			gfx.drawtopleft(2,self.drawbox.y, self.drawbox.w-4, 1,1,t,1,1) -- top frame
+			gfx.drawtopleft(0,self.drawbox.y+25,self.drawbox.w,1,1,220, 1,1) -- bottom frame
+			gfx.drawtopleft(0,self.drawbox.y+2,1,self.drawbox.h-2,1,t,1,1) -- left frame
+			gfx.drawtopleft(self.drawbox.w-1,2,1,self.drawbox.h-2,1,t,1,1) -- right frame
+			
 			
 			--gfx.scale(0.8)
 			gui:drawfont("^(0.878431373, 0.494117647,0){" .. wid.data.id .."}",20,9)
@@ -1029,21 +1034,33 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	function content:draw(force)
 		if (self.redraw_needed or force) and (wid.state == "maximized") then
+			
+			local t = 220
+			
+			
+			
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.io_height,7,227, 1,1) -- bg
 			
 			local body_height = self.parent.data.h
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.io_height,self.drawbox.w,self.drawbox.h - self.io_height,1,1, 1,1) -- bg
 			
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h-2,2,2,1,230,2,2) -- bottom left
-			gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2,self.drawbox.y+self.drawbox.h-2,2,2,4,230,2,2) -- bottom right
 			
+			if wid.selected then
+				t = 219
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h-2,2,2,12,230,2,2) -- bottom left
+				gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2,self.drawbox.y+self.drawbox.h-2,2,2,15,230,2,2) -- bottom right
+			else
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h-2,2,2,1,230,2,2) -- bottom left
+				gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2,self.drawbox.y+self.drawbox.h-2,2,2,4,230,2,2) -- bottom right
+			end
 			
 			gfx.drawtopleft(self.drawbox.x,wid.drawbox.h-18,self.drawbox.w,16,505,0,1,126) -- bg
 			gfx.drawtopleft(2,self.drawbox.y+self.drawbox.h-2,self.drawbox.w-4,1,505,127,1,1) -- bg
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.io_height - 1,self.drawbox.w,1,1,5, 1,1) -- top
-			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h-2,1,5, 1,1) -- top
-			gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 1,self.drawbox.y,1,self.drawbox.h-2,1,5, 1,1) -- top
-			gfx.drawtopleft(self.drawbox.x + 2,self.drawbox.y + self.drawbox.h-1,self.drawbox.w-4,1,1,5, 1,1) -- top
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.io_height - 1,self.drawbox.w,1,1,5, 1,1) -- top frame
+			
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,1,self.drawbox.h-2,1,t,1,1) -- left frame
+			gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 1,self.drawbox.y,1,self.drawbox.h-2,1,t, 1,1) -- right frame
+			gfx.drawtopleft(self.drawbox.x + 2,self.drawbox.y + self.drawbox.h-1,self.drawbox.w-4,1,1,t, 1,1) -- bottom frame
 			
 			for k,v in pairs(self.parent.data.connections_in) do
 				
@@ -2335,7 +2352,10 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 									  self.new_drag.y1 - derp.active_workspace.drawbox.y)
 				
 				if hit then
+					v.selected = true
 					table.insert(hits,v.id)
+				else
+					v.selected = false
 				end
 			end
 			
@@ -2380,14 +2400,21 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 					if v == w.id then
 						found = true
 						break
+					else
+						derp.active_workspace.childwidgets[v].selected = false
 					end
 				end
 				
 				if not found then
+					w.selected = true
 					derp.active_workspace.component_data.active_components = {w.id}
 					derp:push_workspace(derp.active_workspace)
 				end
 			else
+				for k,v in pairs(derp.active_workspace.component_data.active_components) do
+					derp.active_workspace.childwidgets[v].selected = false
+				end
+				
 				derp.active_workspace.component_data.active_components = {}
 			end	
 			
