@@ -104,3 +104,10 @@ Packet* ENetDevice::CreateEmptyPacket(const char* _ID, const int _Tag)
 
 	return packet;
 }
+
+Packet* ENetDevice::CreatePacket(char* _Data, const int _Tag, const int _Length, const int _Sender)
+{
+	Packet* packet = new ENetDataPacket(_Data, _Sender, _Length, _Tag);
+
+	return packet;
+}

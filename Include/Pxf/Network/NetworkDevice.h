@@ -38,6 +38,7 @@ namespace Network
 		virtual Util::Array<char*>* GetTags() = 0;
 
 		virtual Packet* CreateEmptyPacket(const char* _ID, const int _Tag) = 0;
+		virtual Packet* CreatePacket(char* _Data, const int _Tag, const int _Length, const int _Sender) = 0;
 	};
 }
 }
