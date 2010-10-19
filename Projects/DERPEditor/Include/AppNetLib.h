@@ -50,6 +50,10 @@ namespace DERPEditor
 	int net_client_recv_noblock(lua_State *L);
 	int net_client_delete(lua_State *L);
 
+	// net_raw functions
+	int net_raw_data_push(lua_State *L, void* _Data, int _Size);
+	int net_raw_data_delete(lua_State *L);
+
 	// Register lib
 	int luaopen_appnet(lua_State *L);
 } /* DERPEditor */
