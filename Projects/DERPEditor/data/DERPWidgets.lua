@@ -980,20 +980,28 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	wid.old_data_h = component_data.h
 	
+	local animation_control = { endy,y,dy,speed }
+	
 	function body_minimize_button:mousepush(mx,my,button)		
+		
 		if body.state == "minimized" then
 			body.state = "maximized"
 			body.visible = true
 			wid.data.h = wid.old_data_h
-		else
-			body.state = "minimized"
+		elseif body.state == "maximized" then
+			animation_control.endy = -wid.data.h
+			animation_control.dy = -1
+			animation_control.y = 0
+			animation_control.speed = 2
+			
+			body.state = "minimize_animation"
 			body.visible = false
-			wid.data.h = 0
+		else
+			
+			--wid.data.h = 0
 		end
 		
 		wid:calc_height()
-		
-		--self:move_abs(wid.drawbox.w - 12,wid.drawbox.h - 12)
 	end
 	
 	function body_minimize_button:draw(force)
@@ -1008,9 +1016,23 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		end
 	end
 	
+	function content:update()
+		if body.state == "minimize_animation" then
+			if animation_control.y <= animation_control.endy then
+				body.state = "minimized"
+			else
+				self:resize_relative(0,animation_control.dy*animation_control.speed )
+				body_minimize_button:move_relative(0,animation_control.dy*animation_control.speed)
+				animation_control.y = animation_control.y + (animation_control.dy * animation_control.speed)
+			end
+			--wid:calc_height()
+			--wid:resize_relative(0,-content.drawbox.h * )
+		end
+	end
+	
 	function minimize_button:mousepush(mx,my,button)
 		if wid.state == "maximized" then
-			wid.state = "minimized"
+			wid.state = "minimize"
 			wid:resize_relative(0,-content.drawbox.h)
 		else
 			wid.state = "maximized"
@@ -1037,8 +1059,6 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 			
 			local t = 220
 			
-			
-			
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.io_height,7,227, 1,1) -- bg
 			
 			local body_height = self.parent.data.h
@@ -1054,7 +1074,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 				gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2,self.drawbox.y+self.drawbox.h-2,2,2,4,230,2,2) -- bottom right
 			end
 			
-			gfx.drawtopleft(self.drawbox.x,wid.drawbox.h-18,self.drawbox.w,16,505,0,1,126) -- bg
+			gfx.drawtopleft(self.drawbox.x,26+self.drawbox.h-18,self.drawbox.w,16,505,0,1,126) -- bg
 			gfx.drawtopleft(2,self.drawbox.y+self.drawbox.h-2,self.drawbox.w-4,1,505,127,1,1) -- bg
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y + self.io_height - 1,self.drawbox.w,1,1,5, 1,1) -- top frame
 			
@@ -2262,11 +2282,24 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 	delete_wid = derp:base_tool(14,14,30,63,"delete widget",
 			function () 
 				derp:set_activetool(nil)
+				
 				if derp.active_workspace then
-
+					local changed = false
+					
+					for k,v in pairs(derp.active_workspace.component_data.active_components) do
+						derp.active_workspace.childwidgets[v] = nil
+						v = nil
+						changed = true
+					end
+					
+					if changed then
+						derp:push_workspace(derp.active_workspace)
+					end	
 				end
+				
 				derp:set_activetool(derp.active_tool.last)
 			end)
+	delete_wid.toggle = false	
 	
 	self:set_activetool(move_ws)
 	
@@ -2397,15 +2430,17 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 				local found = false
 				
 				for k,v in pairs(derp.active_workspace.component_data.active_components) do
-					if v == w.id then
+					if (v == w.id) then
 						found = true
 						break
-					else
-						derp.active_workspace.childwidgets[v].selected = false
 					end
 				end
 				
 				if not found then
+					for k,v in pairs(derp.active_workspace.component_data.active_components) do
+						derp.active_workspace.childwidgets[v].selected = false
+					end
+					
 					w.selected = true
 					derp.active_workspace.component_data.active_components = {w.id}
 					derp:push_workspace(derp.active_workspace)
