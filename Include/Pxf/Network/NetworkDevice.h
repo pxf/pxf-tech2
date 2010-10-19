@@ -15,6 +15,7 @@ namespace Network
 {
 	class Server;
 	class Client;
+	class Packet;
 
 	class NetworkDevice : public Pxf::System
 	{
@@ -35,6 +36,9 @@ namespace Network
 		
 		virtual int AddTag(char* _Name) = 0;
 		virtual Util::Array<char*>* GetTags() = 0;
+
+		virtual Packet* CreateEmptyPacket(const char* _ID, const int _Tag) = 0;
+		virtual Packet* CreatePacket(char* _Data, const int _Tag, const int _Length, const int _Sender) = 0;
 	};
 }
 }

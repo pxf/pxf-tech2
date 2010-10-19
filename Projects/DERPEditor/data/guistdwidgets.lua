@@ -95,15 +95,19 @@ function gui:create_horizontalpanel(x,y,w,h,max)
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
-      --for k,v in pairs(self.childwidgets) do
-      for i = #self.childwidgets, 1, -1 do
-        local v = self.childwidgets[i]
-        thit = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
-        
-        if not (thit == nil) then
-          -- we hit a child widget, return this one instead
-          return thit
+      for k,v in pairs(self.childwidgets) do
+      --for i = #self.childwidgets, 1, -1 do
+        --local v = self.childwidgets[i]
+        local htest = v:find_mousehit(mx - (self.hitbox.x + self.offset), my - self.hitbox.y)
+        if htest then
+          thit = htest
         end
+        
+      end
+      
+      if not (thit == nil) then
+        -- we hit a child widget, return this one instead
+        return thit
       end
       
       return self
@@ -129,7 +133,7 @@ function gui:create_verticalstack(x,y,w,h)
     offsety = offsety + cwid.drawbox.h
     self:resize_abs(self.drawbox.w, offsety)
 	
-	table.insert(self.childwidgets, cwid)
+	  table.insert(self.childwidgets, cwid)
   end
   
   function wid:child_resized(cwid)
@@ -209,7 +213,8 @@ function gui:create_horizontalstack(x,y,w,h)
 	end
 	
 	if find_k then
-		self.childwidgets[find_k] = nil
+		--self.childwidgets[find_k] = nil
+		table.remove(self.childwidgets, find_k)
 		
 		local offset_x = 0
 		for k,v in pairs(self.childwidgets) do
@@ -358,7 +363,13 @@ function gui:create_centeredlabelpanel(x,y,w,h,text)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-		gui:drawcenteredfont(self.label_text, self.drawbox.w / 2, 12)
+    local maxlen = math.ceil(self.drawbox.w / 12) - 3
+    local shortlabel = string.sub(self.label_text,-maxlen)
+    if (#shortlabel < #self.label_text) then
+      shortlabel = "..." .. shortlabel
+    end
+
+		gui:drawcenteredfont(shortlabel, self.drawbox.w / 2, 12)
 
 		gfx.translate(-self.drawbox.x,-self.drawbox.y)
 
@@ -388,17 +399,21 @@ function gui:create_labelpanel(x,y,w,h,text)
 	function base_widget:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
-      --for k,v in pairs(self.childwidgets) do
-      for i = #self.childwidgets, 1, -1 do
-        local v = self.childwidgets[i]
+      for k,v in pairs(self.childwidgets) do
+      --for i = #self.childwidgets, 1, -1 do
+        --local v = self.childwidgets[i]
         if not (v == nil) then
-          thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+          local htest = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+          if htest then
+            thit = htest
+          end
         end
         
-        if not (thit == nil) then
-          -- we hit a child widget, return this one instead
-          return thit
-        end
+      end
+      
+      if not (thit == nil) then
+        -- we hit a child widget, return this one instead
+        return thit
       end
       
       return nil
@@ -571,16 +586,28 @@ function gui:create_labelbutton(x,y,w,h,label,action)
       gfx.translate(self.drawbox.x, self.drawbox.y)
     
       -- bg
-      if (self.state == 0) then
+			gfx.drawtopleft(2,2,self.drawbox.w-4,self.drawbox.h-4, 507,0,0,128) -- upper left corner
+      --[[if (self.state == 0) then
         gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
                         512,1,1,254)
       else
         gfx.drawtopleft(2, 2, self.drawbox.w-4, self.drawbox.h-4,
                         510,1,0,254)
-      end
+      end]]
+      
+      -- draw borders
+			gfx.drawtopleft(0, 0, 2, 2, 5,10,2,2) -- upper left corner
+			gfx.drawtopleft(self.drawbox.w - 2, 0, 2, 2,10,10,2,2) -- upper right corner
+			gfx.drawtopleft(0, self.drawbox.h-2, 2, 2,5,15,2,2) -- lower left corner
+			gfx.drawtopleft(self.drawbox.w-2,self.drawbox.h-2,2,2,10,15,2,2) -- lower right corner
+			
+			gfx.drawtopleft(0,2,2,self.drawbox.h-4,5,12,2,1) -- left frame	
+			gfx.drawtopleft(self.drawbox.w-2,2,2,self.drawbox.h-4,10,12,2,1) -- right frame	
+			gfx.drawtopleft(2,0,self.drawbox.w-4,2,7,10,1,2) -- upper frame
+			gfx.drawtopleft(2,self.drawbox.h - 2,self.drawbox.w-4,2,7,15,1,2) -- lower frame)
                     
       -- topleft
-      gfx.drawtopleft(0, 0, 4, 4,
+      --[[gfx.drawtopleft(0, 0, 4, 4,
                       0,0,4,4)
     
       -- topright
@@ -610,7 +637,7 @@ function gui:create_labelbutton(x,y,w,h,label,action)
                     
       -- right
       gfx.drawtopleft(self.drawbox.w-4, 4, 4, self.drawbox.h-8,
-                      10,7,4,1)
+                      10,7,4,1)]]
       
       -- label
       if (self.state == 0) then
@@ -1073,13 +1100,18 @@ function gui:create_menubar(x,y,w,menus)
 end
 
 -- creates a menu
-function gui:create_textinput(x,y,w,masked)
+function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = function to be called once changed
   local wid = gui:create_basewidget(x,y,w,20)
+  wid.changed = changed
   wid.masked = masked -- passwords etc
   wid.stdheight = 20
   wid.selectionheight = 16
   wid.stdpadding = 10
   wid.value = ""
+  wid.old_value = nil
+  if (stdvalue) then
+    wid.value = stdvalue
+  end
   wid.state = "normal"
   wid.selection = {start = 0, finish = nil, direction = 0}
   wid.viewstart = 0
@@ -1181,6 +1213,14 @@ function gui:create_textinput(x,y,w,masked)
   
   function wid:lostfocus(wid)
     self.state = "normal"
+    
+    --if (self.changed) then
+    if self.old_value and self.old_value ~= self.value then
+      if (self.changed) then
+        self:changed()
+      end
+    end
+    self.old_value = self.value
     self:needsredraw()
   end
   

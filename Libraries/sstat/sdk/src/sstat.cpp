@@ -4,6 +4,7 @@
 
 #include <windows.h>
 #include <psapi.h>
+#include <Commdlg.h>
 
 
 long int sstat_memoryusage()
@@ -31,14 +32,38 @@ long int sstat_memoryusage()
 
 int sstat_savefiledialog(char* _filename)
 {
-	// TODO: Fix me!
-	return -1;
+	char oldpath[MAX_PATH];
+	GetCurrentDirectoryA(MAX_PATH, oldpath);
+	OPENFILENAME info;
+	_filename[0] = 0;
+	ZeroMemory(&info, sizeof(info));
+	info.lStructSize = sizeof(info);
+	info.hwndOwner = 0;
+	info.lpstrFilter = 0;
+	info.lpstrFile = _filename;
+	info.nMaxFile = MAX_PATH;
+	info.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY |OFN_OVERWRITEPROMPT;
+	bool ret = GetSaveFileName(&info);
+	SetCurrentDirectoryA(oldpath);
+	return !ret;
 }
 
 int sstat_openfiledialog(char* _filename)
 {
-	// TODO: Fix me 2! lols
-  return -1;
+	char oldpath[MAX_PATH];
+	GetCurrentDirectoryA(MAX_PATH, oldpath);
+	OPENFILENAME info;
+	_filename[0] = 0;
+	ZeroMemory(&info, sizeof(info));
+	info.lStructSize = sizeof(info);
+	info.hwndOwner = 0;
+	info.lpstrFilter = 0;
+	info.lpstrFile = _filename;
+	info.nMaxFile = MAX_PATH;
+	info.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	bool ret = GetOpenFileName(&info); // thanks for changing the cwd
+	SetCurrentDirectoryA(oldpath);
+	return !ret;
 }
 
 #elif defined (MACOSX) || defined (__APPLE__)

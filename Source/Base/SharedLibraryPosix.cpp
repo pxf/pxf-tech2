@@ -4,7 +4,7 @@
 
 #include <Pxf/Base/SharedLibrary.h>
 #include <string.h>
-
+#include <cstdio>
 #include <dlfcn.h>
 
 Pxf::SharedLibrary::SharedLibrary()
@@ -32,6 +32,10 @@ bool Pxf::SharedLibrary::Load(const char* _File)
 	m_Path[len] = 0;
 	
 	m_pHandle = dlopen(_File, RTLD_NOW);
+	
+	if (m_pHandle == 0)
+		printf("Error loading shared library: %s", dlerror());
+	
 	return m_pHandle != 0;
 }
 

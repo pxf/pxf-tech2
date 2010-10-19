@@ -51,6 +51,7 @@ namespace Pxf
 			virtual bool SendAll(const int _Type, const char* _Buf);
 			virtual bool SendAllL(const int _Type, const char* _Buf, const int _Length);
 			virtual bool SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length);
+			virtual bool SendAllPacket(Network::Packet* _Packet);
 		};
 	}
 }

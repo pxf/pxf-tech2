@@ -3,8 +3,10 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
-
+#include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Modules/pri/OpenGL.h>
+
+using namespace Pxf;
 
 int DERPEditor::gfx__redrawneeded (lua_State *L) {
   // gxf.redrawneeded(x,y,w,h) -- x,y,h,w optional, otherwise = full redraw
@@ -383,6 +385,92 @@ int DERPEditor::gfx_drawtopleft (lua_State *L) {
   return 0;
 }
 
+int DERPEditor::gfx_createshader(lua_State *L)
+{
+	if (lua_gettop(L) == 3)
+	{
+		lua_newtable(L);
+		Pxf::Graphics::Shader** shdr = (Pxf::Graphics::Shader**)lua_newuserdata(L, sizeof(Pxf::Graphics::Shader*));
+
+		const char* ident = lua_tostring(L, 1);
+		const char* vshader = lua_tostring(L, 2);
+		const char* fshader = lua_tostring(L, 3);
+		*shdr = LuaApp::GetInstance()->m_gfx->CreateShader(ident, vshader, fshader);
+		
+		// Set metatable
+		luaL_getmetatable(L, "gfx.shader");
+		lua_setmetatable(L, -2);
+
+		// Set member functions
+		lua_setfield(L, -2, "instance");
+		lua_pushcfunction(L, gfx_bindshader);
+		lua_setfield(L, -2, "bind");
+		lua_pushcfunction(L, gfx_setuniformf);
+		lua_setfield(L, -2, "setuniformf");
+
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to createshader function!");
+		lua_error(L);
+	}
+	return 0;
+}
+
+int DERPEditor::gfx_bindshader(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		lua_getfield(L, 1, "instance");
+		Graphics::Shader* shdr = *(Graphics::Shader**)lua_touserdata(L, -1);
+		//Graphics::Shader* old = LuaApp::GetInstance()->m_gfx->BindShader(shdr); // fix l8r
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to bindshader function!");
+		lua_error(L);
+	}
+	return 0;
+}
+
+int DERPEditor::gfx_setuniformf(lua_State *L)
+{
+	if (lua_gettop(L) == 3)
+	{
+		lua_getfield(L, 1, "instance");
+		Graphics::Shader* shdr = *(Graphics::Shader**)lua_touserdata(L, -1);
+		const char* name = lua_tostring(L, 2);
+		float value = (float)lua_tonumber(L, 3);
+		LuaApp::GetInstance()->m_gfx->SetUniformf(shdr, name, value);
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to setuniformf function!");
+		lua_error(L);
+	}
+	return 0;
+}
+
+int DERPEditor::gfx_deleteshader(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		// TODO: Remove shieeeeeeeeeeeet
+		printf("IMMA BIN REMOVIN ZE SHADER\n");
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to delete function! (of shader)");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
 
 int DERPEditor::luaopen_appgraphics (lua_State *L) {
   const luaL_reg appgraphicslib[] = {
@@ -399,6 +487,8 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
     {"getalpha",   gfx_getalpha},
     {"setalpha",   gfx_setalpha},
     {"setclearcolor",   gfx_setclearcolor},
+
+	{"createshader",   gfx_createshader},
     
     {"drawcentered",   gfx_drawcentered},
     {"drawquad",   gfx_drawquad},
@@ -414,6 +504,12 @@ int DERPEditor::luaopen_appgraphics (lua_State *L) {
 	lua_pushcfunction(L, gfx_rawtex_delete);
 	lua_settable(L, -3);
 	
+	// set __gc for gfx.shader
+	luaL_newmetatable(L, "gfx.shader");
+	lua_pushstring(L, "__gc");
+	lua_pushcfunction(L, gfx_deleteshader);
+	lua_settable(L, -3);
+
   /*lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
   lua_pushnumber(L, HUGE_VAL);

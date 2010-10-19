@@ -21,6 +21,7 @@ namespace Pxf
 		class NetworkDevice;
 		class Server;
 		class Client;
+		class Packet;
 	}
 
 	namespace Modules
@@ -56,6 +57,9 @@ namespace Pxf
 			
 			virtual int AddTag(char* _Name);
 			virtual Util::Array<char*>* GetTags();
+
+			virtual Network::Packet* CreateEmptyPacket(const char* _ID, const int _Tag);
+			virtual Network::Packet* CreatePacket(char* _Data, const int _Tag, const int _Length, const int _Sender);
 		};
 	}
 }

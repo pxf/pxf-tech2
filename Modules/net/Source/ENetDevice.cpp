@@ -1,4 +1,5 @@
 #include <Pxf/Modules/net/ENetDevice.h>
+#include <Pxf/Base/Memory.h>
 
 #include <iterator>
 
@@ -85,7 +86,8 @@ void ENetDevice::KillClient(const int _ClientIdent)
 int ENetDevice::AddTag(char* _Name)
 {
 	char* tmp = new char[strlen(_Name)+1];
-	strcpy(tmp, _Name);
+	MemoryCopy(tmp, _Name, strlen(_Name));
+//	strcpy(tmp, _Name);
 	Tags.push_back(tmp);
 
 	return Tags.size()-1;
@@ -94,4 +96,18 @@ int ENetDevice::AddTag(char* _Name)
 Util::Array<char*>* ENetDevice::GetTags()
 {
 	return &Tags;
+}
+
+Packet* ENetDevice::CreateEmptyPacket(const char* _ID, const int _Tag)
+{
+	Packet* packet = new ENetDataPacket(_ID, 0, _Tag);
+
+	return packet;
+}
+
+Packet* ENetDevice::CreatePacket(char* _Data, const int _Tag, const int _Length, const int _Sender)
+{
+	Packet* packet = new ENetDataPacket(_Data, _Sender, _Length, _Tag);
+
+	return packet;
 }

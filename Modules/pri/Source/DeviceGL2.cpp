@@ -145,7 +145,9 @@ Texture* DeviceGL2::BindTexture(Texture* _texture)
 	if (_texture == NULL)
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
 	} else {
+		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
 	}
 	PXFGLCHECK("DeviceGL2::BindTexture/End");

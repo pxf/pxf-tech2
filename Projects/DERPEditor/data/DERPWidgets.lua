@@ -25,6 +25,10 @@ function derp:print_activedata()
 	print(ws)
 end	
 
+function derp:push_active_workspace()
+  derp:push_workspace(derp.active_workspace)
+end
+
 function derp:push_workspace(ws)	
 	ws.workspace_stack.counter = ws.workspace_stack.counter + 1
 	
@@ -270,12 +274,13 @@ function derp:create_workspace_menu()
     local type_menu = {}
     for blocktype,v in pairs(types) do
       if not (blocktype == "name") then
-        table.insert(type_menu, {tostring(v.name), {tooltip = "lol sup", onclick = function()
-                                                                                     local x,y = inp.getmousepos()
-																					 x = x - self.active_workspace.drawbox.x
-																					 y = y - self.active_workspace.drawbox.y
-																					 
-                                                                                     self.active_workspace:addcomponent(v:new_block(x,y))
+        table.insert(type_menu, {tostring(v.name), {tooltip = "Add " .. tostring(v.name), onclick = function()
+                                                                                     --local x,y = inp.getmousepos()
+																					 local x = self.addcomppos.x
+																					 local y = self.addcomppos.y
+																					                                           x = x - self.active_workspace.drawbox.x
+																					                                           y = y - self.active_workspace.drawbox.y
+                                                                                     self.active_workspace:addcomponent(v:new_block(self.active_workspace,x,y))
                                                                                    end
                                                    }
                                 }
@@ -287,27 +292,6 @@ function derp:create_workspace_menu()
     table.insert(component_menu, sub_menu)
   end
   local menu = {{"New component", {menu = component_menu}}}
-  
-	--[[local menu = {
-		{"New Component", 
-			{
-				menu = {
-					{"Aux", { onclick = function () 
-								local x,y = self.active_workspace.cam:coord_transform(inp.getmousepos())
-								self.active_workspace:addcomponent(x,y,"aux") 
-							end, tooltip = "Creates a new Aux component"}},
-					{"Render", { onclick = function () 
-								local x,y = self.active_workspace.cam:coord_transform(inp.getmousepos())
-								self.active_workspace:addcomponent(x,y,"render") 
-							end, tooltip = "Creates a new Render component"}},
-					{"Output", { onclick = function () 
-								local x,y = self.active_workspace.cam:coord_transform(inp.getmousepos())
-								self.active_workspace:addcomponent(x,y,"output") 
-							end, tooltip = "Creates a new Output component"}}
-				}
-			}
-	   }
-	}]]
 			
 	local wid = gui:create_menu(0,0,menu)
 	
@@ -675,24 +659,380 @@ function derp:create_workspacecamera(x,y,w,h)
 	return cam
 end
 
-function derp:create_basecomponentblock(component_data)
+function derp:create_addconnectionbutton(onclick,x,y)
+	local wid = gui:create_basewidget(x,y,12,12)
+	wid.active = true
+	
+	function wid:mousepush(x,y,button)
+		if onclick then
+			onclick()
+		end
+	end
+	
+	function wid:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+
+			gfx.drawtopleft(0,1,12,12,1,205,12,12) -- bg
+			
+			if self.active then
+				gfx.drawtopleft(3,4,6,6,4,219,6,6) -- add cross
+			else 
+				gfx.drawtopleft(3,4,6,6,11,219,6,6) -- add cross
+			end
+
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+		end
+	end	
+	
+	return wid
+end
+
+function derp:create_connectioninput(id,x,y)
+  local wid = gui:create_basewidget(x, y, 12, 12)
+  wid.widget_type = "connection_input"
+  wid.input_id = id
+  
+  wid.superdraw = wid.draw
+  function wid:draw(force)
+    self:superdraw(force)
+    
+    if self.redraw_needed or force then
+      gfx.translate(self.drawbox.x,self.drawbox.y)
+      
+	  gfx.drawtopleft(0,1,12,12,1,205,12,12)
+      
+      gfx.translate(-self.drawbox.x,-self.drawbox.y)
+    end
+    
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    print("released input")
+  end
+  
+  return wid
+end
+
+function derp:create_connectionoutput(id,x,y)
+  local wid = gui:create_basewidget(x, y, 12, 12)
+  wid.output_id = id
+  wid.widget_type = "connection_output"
+  
+  wid.superdraw = wid.draw
+  function wid:draw(force)
+    self:superdraw(force)
+    
+    if self.redraw_needed or force then
+      gfx.translate(self.drawbox.x,self.drawbox.y)
+	  
+	  gfx.drawtopleft(0,1,12,12,1,205,12,12)
+      
+	  --[[
+      local r,g,b = gfx.getcolor()
+      local oldtex = gfx.bindtexture(0)
+      gfx.setcolor(0,1,0)
+      
+      gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h)
+      
+      gfx.bindtexture(oldtex)
+      gfx.setcolor(r,g,b)]]
+      
+      gfx.translate(-self.drawbox.x,-self.drawbox.y)
+    end
+    
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    -- see if we found a input to connect to
+    local htest = self.parent.parent:find_mousehit(mx,my,mx,my)
+    if htest then
+      if (htest.widget_type == "connection_input") then
+        --print("Trying to add connection from output '" .. self.output_id .. "' to input '" .. htest.input_id .. "'")
+        htest.parent:add_connection(self.parent.component_id, self.output_id, self.parent.data.type, htest.input_id)
+      end
+    end
+    self.parent.temp_connection = nil
+  end
+  
+  function wid:mousedrag(mx,my,button)
+    -- get mouse position relative to parent widget
+    local x,y = inp.getmousepos()
+    x = x - self.parent.parent.drawbox.x
+    y = y - self.parent.parent.drawbox.y
+    
+    -- find spline start on output widget
+    local startx,starty = self.parent.drawbox.x + self.drawbox.x + 32, self.parent.drawbox.y + self.drawbox.y + 16
+    
+    -- create our spline
+    self.parent.temp_connection = create_spline({{startx,starty}, {x,y}}, 30, 4)
+  end
+  
+  return wid
+end
+
+function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
+	-- 12
+	local length = #component_data.id*8 + 20
 	
+	if length > (wid.drawbox.w - 12) then
+		length = length - (wid.drawbox.w-12)
+		wid:resize_relative(length,0)
+	end
+	
+	if not max_inputs then
+		max_inputs = 0
+	end
+	
+	if not max_outputs then
+		max_outputs = 0
+	end
+	
+	wid.active = true
+	wid.data = component_data
 	wid.id = component_data.id
 	wid.widget_type = "component " .. wid.id
+	wid.activate_button = gui:create_basewidget(0,0,10,10)
+	wid.add_input_button = derp:create_addconnectionbutton(
+					function()
+						if wid.data.inputs ~= max_inputs then
+							wid.data.inputs = wid.data.inputs + 1
+							wid.add_input_button:move_relative(0,14)
+							wid:calc_ioheight()
+							wid:super_addwidget(derp:create_connectioninput(wid.data.inputs, -6,(wid.data.inputs-1)*14 + 26))
+							
+							if wid.data.inputs == max_inputs then
+								wid.add_input_button.active = false
+							end
+							
+						end
+					end
+					,-6,component_data.inputs*14 + 26)
+	
+	wid.add_output_button = nil
+	wid.add_output_button = derp:create_addconnectionbutton(
+					function()
+						if #wid.data.outputs ~= max_outputs then
+							wid.add_output_button:move_relative(0,14)
+							local new_name = derp.active_workspace:gen_new_outputname()
+							table.insert(wid.data.outputs,new_name)
+							wid:calc_ioheight()
+							wid:super_addwidget(derp:create_connectionoutput(new_name, wid.drawbox.w-6, (#wid.data.outputs-1)*14 + 26))
+							
+							if #wid.data.outputs == max_outputs then
+								wid.add_output_button.active = false
+							end
+						end
+					end,component_data.w-6,#component_data.outputs*14 + 26)
+	
+	wid.io_height = math.max(wid.data.inputs,#wid.data.outputs)*14+7
+	
+	-- find body y pos
+	----
+	-- FIXME: This forks up if we add inputs/outputs dynamically
+	----
+	--[[local body_ypos = 0
+	if (component_data.inputs > #component_data.outputs) then
+	  body_ypos = component_data.inputs * 32 + 32
+  else
+    body_ypos = #component_data.outputs * 32 + 32
+  end
+	wid.bodypanel = gui:create_basewidget(0,body_ypos,component_data.w,component_data.h-body_ypos)
+	wid:addwidget(wid.bodypanel)]]
+	
+	-- temporary unfinished connection
+	wid.temp_connection = nil
+	
+	-- create input/output widgets
+  for i=1,component_data.inputs do
+    wid:addwidget(derp:create_connectioninput(i, -6,(i-1)*14 + 26))
+  end
+  
+  for i=1,#component_data.outputs do
+    wid:addwidget(derp:create_connectionoutput(component_data.outputs[i], wid.drawbox.w-6, (i-1)*14 + 26))
+  end
+  
+  function wid.activate_button:draw(force)	
+	if self.redraw_needed or force then
+		if wid.active then
+			gfx.drawtopleft(3, 2, 5, 5,1,232,5,5) -- top-left corner
+		else
+			gfx.drawtopleft(3, 2, 5, 5,7,232,5,5) -- top-left corner
+		end
+	end
+  end
+
+  wid.body = gui:create_basewidget(0,26 + wid.io_height,wid.data.w,wid.data.h)
+  wid.body_minimize_button = gui:create_basewidget(wid.drawbox.w - 12,wid.drawbox.h - 12,12,12)
+  
+  function wid:calc_ioheight()
+		local old_io_height = self.io_height
+		self.io_height = math.max(self.data.inputs,#self.data.outputs)*14+7
+		
+		self:resize_abs(self.drawbox.w,26+self.io_height+self.data.h + 18)
+		self.body:move_relative(0,self.io_height - old_io_height) 
+		self.body_minimize_button:move_abs(self.drawbox.w - 12,self.drawbox.h - 12)
+	end
+
+  wid:calc_ioheight()
+  wid:addwidget(wid.body)
+  
+  function wid.activate_button:mousepush(x,y,button)
+	wid.active = not wid.active
+  end
+  
+  wid.minimize_button = gui:create_basewidget(wid.drawbox.w - 12,0,12,8)
+  
+  -- add-input component
+  if max_inputs > 0 and wid.data.inputs < max_inputs then
+	wid:addwidget(wid.add_input_button)
+  end
+  
+  -- add-input component
+  if max_outputs > 0 and #wid.data.outputs < max_outputs then
+	wid:addwidget(wid.add_output_button)
+  end
+  
+  -- add activate button
+  wid:addwidget(wid.activate_button)
+  
+  -- add minimize button
+  wid:addwidget(wid.minimize_button)
+  
+  -- add body minimize button
+  wid:addwidget(wid.body_minimize_button)
+	
+	-- how to create new connections
+	function wid:add_connection(from_block, from_output, type_output, to_id)
+	  table.insert(self.data.connections_in, {block = from_block, output = from_output, type = type_output, input = to_id})
+  end
+  
+  -- find connection socket with output name
+  function wid:get_outputsocket(socketname)
+    for k,v in pairs(self.childwidgets) do
+      if v.output_id and v.output_id == socketname then
+        return v
+      end
+    end
+    
+    -- didnt find output socket
+    return nil
+  end
+	
+	wid.super_addwidget = wid.addwidget
+	
+	function wid:addwidget(cwid) 
+		--cwid:move_relative(0,self.io_height + 26)
+	
+		self.body:addwidget(cwid)
+		--self:super_addwidget(cwid)
+	end
+	
+	function wid.body_minimize_button:draw(force)
+		if self.redraw_needed or force then
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			gfx.drawtopleft(2,1, 5, 7,1,242,5,7) -- top-left corner
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+		end
+	end
+	
+	function wid.minimize_button:draw(force)
+		if self.redraw_needed or force then
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			gfx.drawtopleft(2,3, 5, 2,1,239,1,1) -- top-left corner
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+		end
+	end
+	
 	wid.super_draw = wid.draw
 	function wid:draw(force)
 		if self.redraw_needed or force then
+			
+			-- TODO: Replace individual parts frames with a single frame to reduce draw calls..
+			
+			-- HEADER
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, 2, 2,1,227,2,2) -- top-left corner
+			gfx.drawtopleft(self.drawbox.x+self.drawbox.w-2, self.drawbox.y, 2, 2,4,227,2,2) -- top-right corner
+			gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y, self.drawbox.w-4, 1,3,227,1,1) -- top frame
+			gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y+1, self.drawbox.w-4, 1,506, 0, 1, 1) -- top frame 2
+			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+2, self.drawbox.w-2, 24,506, 1, 1, 127) -- bg
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+25,self.drawbox.w,1,3,227, 1,1) -- bottom frame
+			
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			
+			--gfx.scale(0.8)
+			gui:drawfont("^(0.878431373, 0.494117647,0){" .. self.data.id .."}",20,9)
+			--gfx.scale(1 / 0.8)
+			
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+			-- INPUT/OUTPUT BODY
+			-- move calculations to add buttons			
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+26,self.drawbox.w,self.io_height,7,227, 1,1) -- bg
+			
+			-- BODY
+			local body_height = self.data.h
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+26 + self.io_height,self.drawbox.w,body_height,1,1, 1,1) -- bg
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+26 + self.io_height,self.drawbox.w,1,1,5, 1,1) -- top
+			
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h-2,2,2,1,230,2,2) -- bottom left
+			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-2,self.drawbox.y+self.drawbox.h-2,2,2,4,230,2,2) -- bottom right
+			
+			-- BODY TOOLBAR
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h-18,self.drawbox.w,16,505,1,0,126) -- bg
+			gfx.drawtopleft(self.drawbox.x+2,self.drawbox.y+self.drawbox.h-2,self.drawbox.w-4,1,505,127,1,1) -- bg
+			
+			-- LEFT/RIGHT frames
+			gfx.drawtopleft(self.drawbox.x+self.drawbox.w-1,self.drawbox.y+2,1,self.drawbox.h-4,3,227, 1,1) -- right frame
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+2,1,self.drawbox.h-4,3,227, 1,1) -- right frame
+			gfx.drawtopleft(self.drawbox.x + 2,self.drawbox.y+self.drawbox.h-1,self.drawbox.w - 4,1,1,5, 1,1) -- bottom
+			
+			
+			
+			--[[
 			local r,g,b = gfx.getcolor()
 			gfx.setcolor(1.0,1.0,1.0)
 			local old_tex = gfx.bindtexture(0)
 			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h,1,5,1,1) -- solid bg
 			gfx.bindtexture(old_tex)
 			gfx.setcolor(r,g,b)
+			]]
 			
+			------------------------
 			-- draw chlid widgets
 			self:super_draw(force)
+			
+			------------------------
+			-- Draw connections
+			for k,v in pairs(self.data.connections_in) do
+			  
+				-- find end position (input-socket on this component, since we show incomming connections)
+				local endx,endy = self.drawbox.x,self.drawbox.y
+				
+				-- find start position (ie. output-socket on remote component)
+				local startwid = self.parent:get_block(v.block)
+				local startsocket = startwid:get_outputsocket(v.output)
+				local startx,starty = startwid.drawbox.x,startwid.drawbox.y
+				startx = startx + startwid.drawbox.w
+				
+				-- find y-position on both sockets
+				endy = endy + v.input * 32 + 16
+				starty = starty + startsocket.drawbox.y + 16
+				
+				-- create spline from output-socket/-widget to ourself
+				-- TODO: This should only be done once, when the connection is created
+				local new_line = create_spline({{startx,starty}, {endx,endy}}, 30, 4)
+				new_line:update()
+				new_line:draw()
+			end
+			
+			-----------------------
+			-- Draw temporary connection (ie. a connection that is not connected to anything yet)
+			if self.temp_connection then
+        self.temp_connection:update()
+        self.temp_connection:draw()
+		  end
 		end
 	end
 	
@@ -702,9 +1042,9 @@ function derp:create_basecomponentblock(component_data)
 		end
 	end
 	
-	function wid:mouserelease(x,y,button)
+	function wid:mouserelease(mx,my,button)
 		if derp.active_tool.current then
-		
+			derp.active_tool.current:action({tag = "mouserelease", x = mx, y = my, button = button, widget = self})
 		end
 	end
 	
@@ -715,6 +1055,21 @@ function derp:create_basecomponentblock(component_data)
 		end
 		self.parent:needsredraw()
 	end
+	
+	function wid.body:mousepush(mx,my,button) 
+		wid:mousepush(mx,my,button)
+	end
+	
+	function wid.body:mousedrag(mx,my) 
+		wid:mousedrag(mx,my)
+	end
+	
+	function wid.body:mouserelease(mx,my,button)
+		wid:mouserelease(mx,my,button)
+	end
+	
+	-------------------------------
+	-- Connections
 	
 	return wid
 end
@@ -727,6 +1082,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.super_move_relative = wid.move_relative
 	
 	wid.id_counter = 1
+	wid.output_counter = 1
 	wid.component_data = { active_components = {}, components = {}}
 	wid.workspace_stack = { counter = 0, stack = {} }
 	
@@ -742,6 +1098,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 							end },
 						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
+								local x,y = inp.getmousepos()
+								derp.addcomppos = {x = x, y = y }
 								derp.ws_menu.menu = derp.ws_menu.super_menu	
 								derp.ws_menu:show() 
 							end} }
@@ -750,6 +1108,32 @@ function derp:create_workspace(x,y,w,h,from_path)
 		wid.component_data = derp:load(from_path)
 	end
 	
+	function wid:gen_new_blockname(blacktype)
+	  local new_name = "Block_" .. tostring(blacktype) .. "_" .. tostring(self.id_counter)
+	  self.id_counter = self.id_counter + 1
+	  return new_name
+  end
+	
+	function wid:gen_new_outputname()
+	  local new_name = "output" .. tostring(self.output_counter)
+	  self.output_counter = self.output_counter + 1
+	  return new_name
+  end
+  
+  function wid:attach_input_connection(remote_block, remote_output)
+    table.insert(connections_in, {block = remote_block, output = remote_output})
+  end
+	
+	-- function to lookup a block by id
+	function wid:get_block(block_id)
+	  for k,v in pairs(self.childwidgets) do
+	    if (v.component_id == block_id) then
+	      return v
+      end
+	  end
+	  print("Could not find '" .. block_id .. "'")
+	  return nil
+  end
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
@@ -770,12 +1154,13 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:addcomponent(comp)
-		local id = "wid " .. wid.id_counter 
+		local id = self:gen_new_blockname(comp.group) --"wid" .. wid.id_counter 
 		self.component_data.components[id] = comp
 		comp.id = id
-		wid.id_counter = wid.id_counter + 1
+		--wid.id_counter = wid.id_counter + 1
 		
 		local new_comp = derp_components[comp.group][comp.type]:create_widget(comp)
+		new_comp.component_id = id
 		self:addwidget(new_comp,id)
 		
 		derp:push_workspace(self)
@@ -796,8 +1181,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 				self.childwidgets = { }
 				
 				for k,v in pairs(self.component_data.components) do
-					print(v.id)
-					self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+					--self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+					self:addwidget(derp_components[v.group][v.type]:create_widget(v),v.id)
 				end
 			else
 				self.childwidgets = { }
@@ -818,8 +1203,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 			self.childwidgets = { }
 				
 			for k,v in pairs(self.component_data.components) do
-				print(v.id)
-				self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+				--self.childwidgets[v.id] = derp_components[v.group][v.type]:create_widget(v)
+				self:addwidget(derp_components[v.group][v.type]:create_widget(v),v.id)
 			end
 		end
 	end
@@ -1359,7 +1744,86 @@ function derp:base_tool(w,h,s,t,name, onclick)
 	return tool
 end
 
-function derp:create_toolbar(x,y,w,h)
+function derp:create_toolbar_movecontainer()
+	local wid = gui:create_basewidget(0,0,app.width,app.height)
+	wid.super_draw = wid.draw
+	wid.widget_type = "move container"
+	
+	function create_arrow(x,y,w,h,s,t)
+		local arrow = gui:create_basewidget(x + app.width*0.5,y + app.height*0.5,w,h)
+		
+		
+		function arrow:draw(force)
+			if self.redraw_needed or force then
+				gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,s,t,self.drawbox.w,self.drawbox.h)
+			end
+		end
+		
+		return arrow
+	end
+	
+	local left = create_arrow(-24,-11,13,23,2,165)
+	local right = create_arrow(12,-11,13,23,37,165)
+	local top = create_arrow(-11,-24,23,13,15,152)
+	local bottom = create_arrow(-11,12,23,13,15,188)
+	
+	left.widget_type = "left arrow"
+	right.widget_type = "right arrow"
+	top.widget_type = "top arrow"
+	bottom.widget_type = "bottom arrow"
+	
+	wid:addwidget(left)
+	wid:addwidget(right)
+	wid:addwidget(top)
+	wid:addwidget(bottom)
+	
+	function wid:draw(force)
+		if self.redraw_needed or force then
+			local a = gfx.getalpha()
+			
+			gfx.setalpha(0.6)
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,9,1,1,1)
+			gfx.setalpha(a)
+			
+			self:super_draw(true)
+		end
+	end
+	
+	return wid
+end
+
+function derp:create_toolbar()
+	local wid = gui:create_basewidget(0,0,0,0)
+	local horizontal = self:create_horizontal_toolbar(20,40,app.width-40,40)
+	local vertical = nil
+	
+	wid.current_state = horizontal
+	
+	wid:addwidget(horizontal)
+	
+	function wid:draw(force)
+		if self.needsredraw or force then
+			for k,v in pairs(self.childwidgets) do
+				v:draw(force)
+			end
+		end
+	end
+	
+	function wid:set_state(state)
+		if state == "horizontal" then
+			self.current_state = self.horizontal
+			self:move_abs(horizontal.drawbox.x,horizontal.drawbox.y)
+			self:resize_abs(horizontal.drawbox.w,horizontal.drawbox.h)
+		else
+			self.current_state = self.vertical
+			self:resize_abs(vertical.drawbox.w,vertical.drawbox.h)
+		end
+	end
+	
+	return wid
+end
+
+function derp:create_horizontal_toolbar(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	local draggies = gui:create_basewidget(0,0,25,40)
 	local separator = gui:create_basewidget(0,0,10,40)
@@ -1387,6 +1851,14 @@ function derp:create_toolbar(x,y,w,h)
 	select_rect = derp:base_tool(24,24,1,36,"square select")
 	move_select = derp:base_tool(24,17,1,61,"move/select")
 	move_ws = derp:base_tool(21,21,1,79,"move workspace")
+	delete_wid = derp:base_tool(14,14,30,63,"delete widget",
+			function () 
+				derp:set_activetool(nil)
+				if derp.active_workspace then
+
+				end
+				derp:set_activetool(derp.active_tool.last)
+			end)
 	
 	self:set_activetool(move_ws)
 	
@@ -1409,6 +1881,9 @@ function derp:create_toolbar(x,y,w,h)
 	wid:addwidget(move_ws)
 	wid:addwidget(move_select)
 	wid:addwidget(select_rect)
+	wid:addwidget(delete_wid)
+	
+	local move_container = derp:create_toolbar_movecontainer()
 	
 		
 	function move_ws:action(action)
@@ -1420,7 +1895,7 @@ function derp:create_toolbar(x,y,w,h)
 			derp.active_workspace:move_relative(mx,my)
 		end
 	end
-	
+
 	function select_rect.draw_rect:draw(force)
 		if (self.redrawneeded or force) then
 			local a = gfx.getalpha()
@@ -1504,29 +1979,21 @@ function derp:create_toolbar(x,y,w,h)
 				end
 			end
 		elseif action.tag == "mousepush" then
-			local x = action.x - derp.active_workspace.drawbox.x
-			local y = action.y - derp.active_workspace.drawbox.y
-			
-			local hit = nil
-			
-			for k,v in pairs(derp.active_workspace.childwidgets) do
-				if(v:hittest(x,y,x,y)) then
-					hit = v
-				end
-			end
+			local w = action.widget
+			local hit = string.find(w.widget_type,"component %a")
 			
 			if hit then
 				local found = false
 				
 				for k,v in pairs(derp.active_workspace.component_data.active_components) do
-					if v == hit.id then
+					if v == w.id then
 						found = true
 						break
 					end
 				end
 				
 				if not found then
-					derp.active_workspace.component_data.active_components = {hit.id}
+					derp.active_workspace.component_data.active_components = {w.id}
 					derp:push_workspace(derp.active_workspace)
 				end
 			else
@@ -1654,42 +2121,54 @@ function derp:create_toolbar(x,y,w,h)
 		end
 	end
 	
+	local drawlocations = { top = { x = 20,y=40, resize_w = 0, resize_h = -draggies.drawbox.h+1, location = "top"},
+							bottom = { x = 20, y = 40, resize_w = 0, resize_h = -draggies.drawbox.h+1, location = "bottom"} } 
+	draggies.drawlocation = drawlocations.top
+	
+	function draggies:mousepush(mx,my)
+		gui.widgets:addwidget(move_container)
+		
+		self.parent:needsredraw()
+		self.parent.prev_owner = self.parent.parent
+		self.parent.parent:removewidget(self.parent)
+		
+		self.parent.parent:resize_callback(self.drawlocation.resize_w,self.drawlocation.resize_h)
+		
+		gui.widgets:addwidget(self.parent)
+		
+		self.parent:move_abs(mx,my)
+	end
+	
 	function draggies:mousedrag(mx,my)
 	  self.parent:needsredraw()
 		self.parent:move_relative(mx,my)
-		self.parent.drag = true
-		
-		if not self.parent.drag_removed then
-		  self.parent:needsredraw(true)
-		  self.parent.prev_owner = self.parent.parent
-			self.parent.parent:removewidget(self.parent)
-			
-			self.parent.parent:resize_callback(0,-wid.drawbox.h+1)
-			gui.widgets:addwidget(self.parent)
-			
-			x,y = inp.getmousepos()
-			self.parent:move_abs(x,y)
-			
-			self.parent.drag_removed = true
-		end
 		self.parent:needsredraw()
 	end
 	
 	function draggies:mouserelease(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
-			self.parent.drag = false
+			
+			local x,y = inp.getmousepos()
+			local hit = move_container:find_mousehit(x,y)
+			
+			if hit.widget_type == "top arrow" then
+				self.drawlocation = drawlocations.top
+			elseif hit.widget_type == "left arrow" then
+				self.drawlocation = drawlocations.left
+			end
+			
 			gui.widgets:removewidget(self.parent)
+			gui.widgets:removewidget(move_container)
+			
 
 			table.insert(self.parent.prev_owner.childwidgets,self.parent)
 			gui:set_focus(self.parent)
 			
 			-- determine where to put toolbar, for now just put it back..
-			self.parent:move_abs(20,40)
-			self.parent.parent:resize_callback(0,wid.drawbox.h-1)
+			self.parent:move_abs(self.drawlocation.x,self.drawlocation.y)
+			self.parent.parent:resize_callback(-self.drawlocation.resize_w,-self.drawlocation.resize_h,self.drawlocation.location)
 			
 			self.parent.parent:needsredraw()
-			
-			self.parent.drag_removed = false
 		end
 	end
 	
@@ -1720,6 +2199,8 @@ function derp:create_toolbar(x,y,w,h)
 			end
 			
 			self:super_draw(force)
+			
+			--move_container:draw(force)
 		end
 	end
 	return wid

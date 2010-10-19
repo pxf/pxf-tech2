@@ -6,26 +6,33 @@ gui.windows = {windowlist = {}}
 
 function gui.windows:add(wnd)
   -- see if window is already open
-  for k,v in pairs(self.windowlist) do
-    if v.id == wnd.id then
+  local was_active = false
+  for k,v in pairs(gui.windows.windowlist) do
+  --for i=1,#gui.windows.windowlist do
+    --local v = gui.windows.windowlist[i]
+    if v and (v.winid == wnd.winid) then
       
+      was_active = true
       -- already open!
       -- set focus instead
       gui.windows:setactive(v)
       
-      return
+      break
     end
   end
   
-  -- add window to top of list
-  table.insert(self.windowlist, 1, wnd)
+  if not was_active then
+    -- add window to top of list
+    table.insert(self.windowlist, 1, wnd)
   
-  if (wnd.modal) then
-    gui.widgets:addwidget(wnd.dimmer)
+    -- if window is modal, the add the dimmer widget first
+    if (wnd.modal) then
+      gui.widgets:addwidget(wnd.dimmer)
+    end
+  
+    -- add to widget root
+    gui.widgets:addwidget(wnd)
   end
-  
-  -- add to widget root
-  gui.widgets:addwidget(wnd)
 end
 
 function gui.windows:remove(wnd)
@@ -37,34 +44,37 @@ function gui.windows:remove(wnd)
       break
     end
   end
-  table.remove(self.windowlist, k)
+  --table.remove(self.windowlist, k)
+  self.windowlist[i] = nil
 end
 
 function gui.windows:setactive(wnd)
-  -- if not the top window is modal, then change active window
-  if not (self.windowlist[1].modal) then
-    -- remove from window list
-    local i = nil
-    for k,v in pairs(self.windowlist) do
-      if v == wnd then
-        i = k
-        break
-      end
+  -- remove from window list
+  local i = nil
+  --[[for k,v in pairs(self.windowlist) do
+    if v == wnd then
+      i = k
+      break
     end
-    table.remove(self.windowlist, k)
-    -- ... and re-insert it at the top
-    table.insert(self.windowlist, 1, wnd)
-  
-    -- do the same for root widget list
-    for k,v in pairs(gui.widgets.childwidgets) do
-      if v == wnd then
-        i = k
-        break
-      end
-    end
-    table.remove(gui.widgets.childwidgets, i)
-    table.insert(gui.widgets.childwidgets, wnd)
   end
+  table.remove(self.windowlist, k)]]
+  --gui.windows:remove(wnd)
+  -- ... and re-insert it at the top
+  --table.insert(self.windowlist, 1, wnd)
+
+  -- do the same for root widget list
+  i = 1
+  for k,v in pairs(gui.widgets.childwidgets) do
+    if v == wnd then
+      --i = k
+      break
+    end
+    i = i + 1
+  end
+  table.remove(gui.widgets.childwidgets, i)
+  --gui.widgets.childwidgets[i] = nil
+  gui.widgets:addwidget(wnd)
+  --table.insert(gui.widgets.childwidgets, wnd) -- insert at bottom of list
 end
 
 ---------------------------------------
@@ -72,11 +82,11 @@ end
 function gui:create_window(id,x,y,w,h,modal,label)
   local shadow_size = 8
 	local window = gui:create_basewidget(x-shadow_size,y-shadow_size,w+shadow_size*2,h+shadow_size*2)
-	window.id = id
+	window.winid = id
 	window.title_height = 24
 	window.shadow_size = shadow_size
 	window.state = "full" -- "full" or "compact"
-	window.full_height = h+shadow_size
+	window.full_height = h+shadow_size+shadow_size
 	window.compact_height = window.title_height+shadow_size*2
 	
 	-- sub-panels
@@ -249,8 +259,8 @@ function gui:create_window(id,x,y,w,h,modal,label)
 	    self.dimmer:destroy()
     end
 	  
-	  self:superdestroy()
 	  gui.windows:remove(self)
+	  self:superdestroy()
   end
 	
 	--[[window_panel.super_draw = window_panel.draw

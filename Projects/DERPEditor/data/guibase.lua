@@ -30,6 +30,7 @@ function gui:create_basewidget(x,y,w,h)
     
     -- destroy self from parent
     if self.parent then
+      --self.parent:removewidget(self)
       local deletek = nil
       for k,v in pairs(self.parent.childwidgets) do
         if v == self then
@@ -49,17 +50,17 @@ function gui:create_basewidget(x,y,w,h)
   function wid:addwidget(cwid,key)
     cwid.parent = self
 	
-	if key then
-		self.childwidgets[key] = cwid
-	else
-		table.insert(self.childwidgets, cwid)
-	end
+  	if key then
+  		self.childwidgets[key] = cwid
+  	else
+  		table.insert(self.childwidgets, cwid)
+  	end
 	
     gui:set_focus(cwid)
     cwid:needsredraw()
   end
   
-  	function wid:removewidget(cwid)
+  function wid:removewidget(cwid)
 		local find_k = nil
 		
 		if not cwid then
@@ -91,7 +92,6 @@ function gui:create_basewidget(x,y,w,h)
   -----------------------------------
   -- store key shortcuts in a table
   wid.shortcuts = {} -- { { keys = {inp.LSHIFT, 'C'}, onpress = function () print("LOL SUP") end} }
-  
   
   -----------------------------------
   -- redraw functions
@@ -169,10 +169,10 @@ function gui:create_basewidget(x,y,w,h)
 
   end
   
-  function wid:resize_callback(w,h)
-	for k,v in pairs(self.childwidgets) do
-		v:resize_callback(w,h)
-	end
+  function wid:resize_callback(w,h,edge)
+  	for k,v in pairs(self.childwidgets) do
+  		v:resize_callback(w,h)
+  	end
   end
   
   
@@ -206,9 +206,9 @@ function gui:create_basewidget(x,y,w,h)
   end
   
   function wid:hittest(x0,y0,x1,y1)
-	if not self.visible then
-		return false
-	end
+  	if not self.visible then
+  		return false
+  	end
 	
     if (x1 < self.hitbox.x) then
       return false
@@ -224,9 +224,9 @@ function gui:create_basewidget(x,y,w,h)
   end
   
   function wid:hittest_d(x0,y0,x1,y1) -- drawbox hittest
- 	if not self.visible then
-		return false
-	end
+   	if not self.visible then
+  		return false
+  	end
 	
     if (x1 < self.drawbox.x) then
       return false
@@ -244,17 +244,20 @@ function gui:create_basewidget(x,y,w,h)
   function wid:find_mousehit(mx,my)
     if (self:hittest(mx,my,mx,my)) then
       local thit = nil
-      --for k,v in pairs(self.childwidgets) do
-      for i = #self.childwidgets, 1, -1 do
-        local v = self.childwidgets[i]
-        if not (v == nil) then
-          thit = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+      for k,v in pairs(self.childwidgets) do
+        if v then
+          local htest = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+          if htest then
+            thit = htest
+          end
         end
         
-        if not (thit == nil) then
-          -- we hit a child widget, return this one instead
-          return thit
-        end
+        
+      end
+      
+      if not (thit == nil) then
+        -- we hit a child widget, return this one instead
+        return thit
       end
       
       return self
