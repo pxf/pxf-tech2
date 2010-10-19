@@ -632,12 +632,16 @@ int DERPEditor::net_packet_push_object(lua_State *L)
 // packet:get_object((int)pos)
 int DERPEditor::net_packet_get_object(lua_State *L)
 {
-	if (lua_gettop(L) == 2)
+	if (lua_gettop(L) == 2 || lua_gettop(L) == 3)
 	{
-		lua_getfield(L, -2, "instance");
+		bool raw = false;
+		if (lua_isboolean(L, -1))
+			raw = lua_toboolean(L, -1);
+
+		lua_getfield(L, 1, "instance");
 		Packet* packet = *(Packet**)lua_touserdata(L, -1);
 
-		int pos = lua_tonumber(L, -2);
+		int pos = lua_tonumber(L, 2);
 		int type = packet->ObjectType(pos);
 
 		switch (type)
@@ -651,7 +655,11 @@ int DERPEditor::net_packet_get_object(lua_State *L)
 			}
 			case 2:
 			{
-				char* str = packet->GetArray<char*>(packet->ObjectSize(pos), pos);
+				int strl = packet->ObjectSize(pos);
+				char* str = packet->GetArray<char*>(strl, pos);
+				if (raw)
+					return net_raw_data_push(L, str, strl);
+
 				lua_pushstring(L, str);
 				return 1;
 				break;
@@ -668,6 +676,44 @@ int DERPEditor::net_packet_get_object(lua_State *L)
 
 	return 0;
 }
+
+//
+// ------------- RAW_DATA
+//
+
+int DERPEditor::net_raw_data_push(lua_State *L, void* _Data, int _Size)
+{
+	lua_newtable(L);
+
+//	Packet** packet = (Packet**)lua_newuserdata(L, sizeof(Packet*));
+	void** data = (void**)lua_newuserdata(L, _Size);
+	luaL_getmetatable(L, "net.raw_data");
+	lua_setmetatable(L, -2);
+
+//	*packet = _Packet;
+	*data = _Data;
+
+	lua_setfield(L, -2, "instance");
+
+	return 1;
+}
+
+int DERPEditor::net_raw_data_delete(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		delete (*(char**)lua_touserdata(L, 1));
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to delete function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
 
 int DERPEditor::luaopen_appnet(lua_State *L)
 {
@@ -698,6 +744,12 @@ int DERPEditor::luaopen_appnet(lua_State *L)
 	luaL_newmetatable(L, "net.packet");
 	lua_pushstring(L, "__gc");
 	lua_pushcfunction(L, net_packet_delete);
+	lua_settable(L, -3); 
+
+	// set __gc for net.packet
+	luaL_newmetatable(L, "net.raw_data");
+	lua_pushstring(L, "__gc");
+	lua_pushcfunction(L, net_raw_data_delete);
 	lua_settable(L, -3); 
 
 	return 1;
