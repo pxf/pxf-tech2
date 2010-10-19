@@ -56,7 +56,7 @@ function derp_components.output.simple:create_widget(component_data)
   function render_func(self,mx,my,button)
   
     -- get json for the tree
-    local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.data)
+    local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
     
     if not output_blocks_json then
       return
@@ -65,7 +65,7 @@ function derp_components.output.simple:create_widget(component_data)
     -- add pipeline specific data
     table.insert(output_blocks_json, [[{"blockName" : "PipelineTree",
        "blockType" : "PipelineTree",
-       "blockData" : { "root" : "]] .. tostring(self.parent.parent.data.id) .. [[" }
+       "blockData" : { "root" : "]] .. tostring(self.parent.parent.parent.data.id) .. [[" }
       }]])
     
     -- concat and return!
@@ -73,15 +73,15 @@ function derp_components.output.simple:create_widget(component_data)
     print(final_json)
     
     -- connect to server
-    local connect_fail = self.parent.parent.client:connect(self.parent.parent.data.remotehost, 7005)
+    local connect_fail = self.parent.parent.parent.client:connect(self.parent.parent.parent.data.remotehost, 7005)
     if connect_fail then
-      spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.data.remotehost) .. "'.",
+      spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.parent.data.remotehost) .. "'.",
                           "Reason; '" .. connect_fail .. "'"})
     else
       
       -- send our pipeline
       --local new_packet = net.create_packet("", "pipeline" )
-      self.parent.parent.client:send("pipeline", final_json)
+      self.parent.parent.parent.client:send("pipeline", final_json)
       
     end
     
@@ -99,9 +99,9 @@ function derp_components.output.simple:create_widget(component_data)
           if (indata.id == "imgdata") then
             
             local w,h,c = indata:get_object(0), indata:get_object(1), indata:get_object(2)
-            local imgdata = indata:get_object(3)
+            local imgdata = indata:get_object(3, true)
             print("size: " .. tostring(#imgdata) .. " should be: " .. tostring(w*h*c))
-            self.previewtex = gfx.rawtexture(128, w,h,c, tostring(imgdata))
+            self.previewtex = gfx.rawtexture(128, w,h,c, imgdata)
             spawn_preview_window(self.previewtex)
             
             self.client:disconnect()
@@ -242,8 +242,8 @@ function derp_components.aux.texture:create_widget(component_data)
   function browse_func(self)
     local new_filepath = app.opendialog()
     if (new_filepath) then
-      self.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.data.texturefilepath = new_filepath
+      self.parent.parent.parent.filepathwidget.label_text = new_filepath
+      self.parent.parent.parent.data.texturefilepath = new_filepath
 
       derp:push_active_workspace()
     end

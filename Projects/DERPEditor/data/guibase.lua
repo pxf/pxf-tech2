@@ -354,10 +354,15 @@ function gui:set_focus(wid)
 end
 
 function gui:drawcenteredfont(str,x,y)
-  local len = #string.gsub(str, "%^%(.-%){(.-)}", "%1")
+  local len = gui:get_font_length(str)
   local x2 = x - ((len-1) * 8) / 2
   local y2 = y + (4 / 2) - 1
   gui:drawfont(str, x2, y2)
+end
+
+function gui:get_font_length(str)
+  local len = #string.gsub(str, "%^%(.-%){(.-)}", "%1")
+  return len
 end
 
 function gui:drawfont(str,x,y)
@@ -476,7 +481,7 @@ end
 
 function gui:init()
   self.themetex = gfx.loadtexture(2048*2, "data/guitheme_brown.png")
-  self.font = gfx.loadtexture(1024, "data/charmap_monaco_shadow.png")
+  self.font = gfx.loadtexture(1024*4, "data/charmap_monaco_shadow.png")
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
   self.use_customcursor = true

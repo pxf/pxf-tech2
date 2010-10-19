@@ -61,6 +61,7 @@ bool ENetClient::Disconnect()
 			
 		case ENET_EVENT_TYPE_DISCONNECT:
 			Message("ENetClient", "Disconnected successfully.");
+			m_Connected = false;
 			return true;
 		}
 	}
@@ -69,6 +70,7 @@ bool ENetClient::Disconnect()
 	Peer = NULL;
 
 	Message("ENetClient", "Force quit. Sowwy server.");
+	m_Connected = false;
 
 	return false;
 }
