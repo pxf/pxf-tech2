@@ -242,8 +242,8 @@ function derp_components.aux.texture:create_widget(component_data)
   function browse_func(self)
     local new_filepath = app.opendialog()
     if (new_filepath) then
-      self.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.data.texturefilepath = new_filepath
+      self.parent.parent.parent.filepathwidget.label_text = new_filepath
+      self.parent.parent.parent.data.texturefilepath = new_filepath
 
       derp:push_active_workspace()
     end
