@@ -10,6 +10,29 @@ function spawn_error_dialog(msg)
   gui.windows:add(error_dialog)
 end
 
+function spawn_log_window(msg)
+  local window = gui:create_window("logwindow", app.width / 2 - 250,app.height / 2 - 75, 400,300, false, "Log")
+  
+  local log_panel = gui:create_multiline_label(0,10,290,400,{})
+  window.panel:addwidget(log_panel)
+  
+  function log_panel:update()
+    self.lines = {}
+    for i=#backlog.data,#backlog.data-10,-1 do
+      if i < 1 then
+        break
+      end
+      table.insert(self.lines, backlog.data[i])
+    end
+  end
+  
+  -- ok button
+  --local button = gui:create_labelbutton(210,60,90,30,"Ok", function(self) self.parent.parent:destroy() end)
+  --window.panel:addwidget(button)
+
+  gui.windows:add(window)
+end
+
 function spawn_preview_window(previewtex)
   local preview_dialog = gui:create_window("previewdialog", app.width / 2 - 250,app.height / 2 - 75, 512,512, true, "Preview")
   

@@ -48,6 +48,22 @@ function escape_backslashes(str)
   return res
 end
 
+----------------------------
+-- logging functionality
+backlog = {data = {}, max = 1024}
+function backlog:print(...)
+  table.insert(self.data, (...))
+  if (#self.data > self.max) then
+    table.remove(self.data, 1)
+  end
+end
+
+_print = print
+function print(...)
+  _print(...)
+  backlog:print(...)
+end
+
 function point_hittest(px,py, x0,y0, x1,y1 )
   if px < x0 then
     return false
