@@ -105,6 +105,9 @@ function derp_components.output.simple:create_widget(component_data)
             spawn_preview_window(self.previewtex)
             
             self.client:disconnect()
+          elseif indata.id == "rlog" then
+            local sys, what, msg = indata:get_object(0), indata:get_object(1), indata:get_object(2)
+            print(sys, what, msg)
           end
           --[[for k,v in pairs(indata) do
             print(k,v)
