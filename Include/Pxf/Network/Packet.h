@@ -42,9 +42,11 @@ namespace Pxf
 
 			template<typename T> T GetArray(const int _Size, const int _Pos)
 			{
-				char* v = new char[_Size];
+				char* v = new char[_Size+1];
 
 				ReadObject(v, _Pos);
+				v[_Size] = '\0';
+
 				return v;
 			}
 

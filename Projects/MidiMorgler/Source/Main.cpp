@@ -91,6 +91,13 @@ int main(int argc, char* argv[])
 	while(true)
 	{
 		int num = Pm_Read(input_stream, events, 64);
+		
+		if (num < 0)
+		{
+			kernel->Log(midi|Logger::IS_CRITICAL, "Error opening stream: %s", Pm_GetErrorText((PmError)num));
+			break;
+		}
+		
 		for(int i = 0; i < num; i++)
 		{
 			PmMessage message = events[i].message;

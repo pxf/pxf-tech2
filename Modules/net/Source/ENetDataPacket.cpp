@@ -57,16 +57,17 @@ ENetDataPacket::ENetDataPacket(char* _Data, const int _Sender, const int _Length
 		m_Package = true;
 		int IDLength;
 
-		MemoryCopy(&IDLength, _Data, sizeof(IDLength));
-		m_ID = new char[IDLength];
-		MemoryCopy(m_ID, (_Data+sizeof(IDLength)), IDLength);
+		MemoryCopy(&IDLength, _Data+1, sizeof(IDLength));
+		m_ID = new char[IDLength+1];
+		MemoryCopy(m_ID, (_Data+5), IDLength);
+		m_ID[IDLength] = '\0';
 
 		m_Data = new char[_Length];
 		MemoryCopy(m_Data, _Data, _Length);
 
 		m_Package = true;
 		m_PackageLength = _Length;
-		m_ObjectsBegin = 1+4+IDLength;
+		m_ObjectsBegin = 5+IDLength;
 	}
 	else
 	{
