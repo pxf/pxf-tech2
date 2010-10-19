@@ -83,7 +83,8 @@ end]]
 ----------------------------------------------
 -- setup menus
 local file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = function () app.reboot() end}},
-				   {"Save As...", {tooltip = "Save current workspace to file...", onclick = function() local filename = app.savedialog("workspace.derp"); if not (filename == nil) then derp:save(filename,derp.active_workspace) else print("Did not save!") end end}},--function () derp:save(derp.active_workspace.widget_type,derp.active_workspace) end}}, -- this should open dialog etc
+				           {"Open...", {tooltip = "Open previous workspace from file...", onclick = function() local filename = app.opendialog(); if not (filename == nil) then derp:open_workspace(filename,derp.active_workspace) else print("Did not open!") end end}},
+				           {"Save As...", {tooltip = "Save current workspace to file...", onclick = function() local filename = app.savedialog("workspace.derp"); if not (filename == nil) then derp:save(filename,derp.active_workspace) else print("Did not save!") end end}},
                    {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () app.quit() end}},
                   }
 local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C", onclick = function () print("copy!!") end}},
