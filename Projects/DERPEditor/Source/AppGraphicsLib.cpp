@@ -22,8 +22,14 @@ int DERPEditor::gfx__redrawneeded (lua_State *L) {
 
 int DERPEditor::gfx_loadtexture (lua_State *L) {
   // new_texture = gfx.loadtexture(123, "file.png") -- 123 = max quads count
-  if (lua_gettop(L) == 2)
+  if (lua_gettop(L) == 2 || lua_gettop(L) == 3)
   {
+		bool tlinear = false;
+		if (lua_gettop(L) == 3)
+		{
+			tlinear = lua_toboolean(L, 3);
+		}
+	
     LuaApp* inst = LuaApp::GetInstance();
     int quadcount = lua_tointeger(L, 1);
     inst->m_MaxQuadCount += quadcount;
@@ -32,8 +38,8 @@ int DERPEditor::gfx_loadtexture (lua_State *L) {
                                                                         lua_tostring(L, 2),
                                                                         &(inst->m_CurrentDepth),
                                                                         &(inst->m_CurrentColor),
-                                                                        &(inst->m_TransformMatrix)
-                                                                        );
+                                                                        &(inst->m_TransformMatrix),
+                                                                        tlinear);
     lua_pushnumber(L, inst->m_QuadBatchCount); // push qb index as result
     inst->m_QuadBatchCount++;
     return 1;

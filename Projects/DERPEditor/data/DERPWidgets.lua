@@ -981,6 +981,9 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 			
 			--gfx.scale(0.8)
 			gui:drawfont("^(0.878431373, 0.494117647,0){" .. wid.data.id .."}",20,9)
+			gfx.scale(0.8)
+			gui:drawfont("^(0.8, 0.8, 0.8){" .. derp_components[wid.data.group][wid.data.type].name .. "}",24,24)
+			gfx.scale(1.0 / 0.8)
 			--gfx.scale(1 / 0.8)
 			gfx.translate(-self.drawbox.x,-self.drawbox.y)
 			
