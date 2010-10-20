@@ -126,6 +126,10 @@ local window_menu = {{"Log window", {onclick = function () spawn_log_window() en
 ----------------------------------------------
 -- create workspace
 ----------------------------------------------
+inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
+workspace_tabs = derp:create_workspace_tabs(20,80,app.width-290,20)
+workspace_frames = derp:create_workspaceframe(20,100,app.width-290,app.height-121)
+
 local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
 
 local menu_container = derp:create_menu(0,0,app.width,40)
@@ -134,17 +138,15 @@ menu_container:addwidget(menubar)
 local left_padding_container = derp:create_block(0,40,20,app.height-60, "left padding")
 left_padding_container.border.right = true
 
-local center_main_toolbar = derp:create_horizontal_toolbar(20,40,app.width-40,40)
+local center_main_toolbar = derp:create_toolbar(20,40,app.width-40,40)
 --center_main_toolbar:set_state("horizontal")
 local testinput = gui:create_textinput(0,8,200)
 
-local workspace_tabs = derp:create_workspace_tabs(20,80,app.width-290,20)
+
 workspace_tabs.widget_type = "workspace tabs"
 
 local workspace_area = derp:create_workspace(0,0,app.width*2,app.height*2)
 workspace_area.widget_type = "workspace area 01"
-
-local inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
 
 --inspector:addwidget(testinput)
 --inspector:addwidget(derp:create_slider(0,0,100,0,1))
@@ -162,8 +164,6 @@ gui.statusbar = statusbar_container
 derp.active_workspace = workspace_area
 
 ws01 = workspace_tabs:addtab("workspace01",workspace_area)
-
-local workspace_frames = derp:create_workspaceframe(20,100,app.width-290,app.height-121)
 
 --local navigator = derp:create_navigator(app.width-421,app.height-172,150,150)
 

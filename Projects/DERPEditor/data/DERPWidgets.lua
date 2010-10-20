@@ -1793,7 +1793,7 @@ function derp:create_workspaceframe(x,y,w,h)
 end
 
 function derp:base_tool(w,h,s,t,name, onclick)
-	local tool = gui:create_basewidget(0,0,40,40)	-- determine from size of toolbar mayhabps?	
+	local tool = gui:create_basewidget(0,0,40,40)
 	tool.highlight = false
 	tool.selected = false
 	tool.toggle = true
@@ -1945,41 +1945,10 @@ function derp:create_toolbar_movecontainer()
 	return wid
 end
 
-function derp:create_toolbar()
-	local wid = gui:create_basewidget(0,0,0,0)
-	local horizontal = self:create_horizontal_toolbar(20,40,app.width-40,40)
-	local vertical = nil
-	
-	wid.current_state = horizontal
-	
-	wid:addwidget(horizontal)
-	
-	function wid:draw(force)
-		if self.needsredraw or force then
-			for k,v in pairs(self.childwidgets) do
-				v:draw(force)
-			end
-		end
-	end
-	
-	function wid:set_state(state)
-		if state == "horizontal" then
-			self.current_state = self.horizontal
-			self:move_abs(horizontal.drawbox.x,horizontal.drawbox.y)
-			self:resize_abs(horizontal.drawbox.w,horizontal.drawbox.h)
-		else
-			self.current_state = self.vertical
-			self:resize_abs(vertical.drawbox.w,vertical.drawbox.h)
-		end
-	end
-	
-	return wid
-end
+function derp:create_toolbar(x,y,w,h)
+	local wid = gui:create_basewidget(x,y,w,h)
+	wid.widget_type = "toolbar container"
 
-function derp:create_horizontal_toolbar(x,y,w,h)
-	local wid = gui:create_horizontalstack(x,y,w,h)
-	local draggies = gui:create_basewidget(0,0,25,40)
-	local separator = gui:create_basewidget(0,0,10,40)
 	
 	-------- TOOLS --------
 	undo = derp:base_tool(28,24,1,102,"undo", 
@@ -2024,34 +1993,22 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 				
 				derp:set_activetool(derp.active_tool.last)
 			end)
-	delete_wid.toggle = false	
-	
-	self:set_activetool(move_ws)
-	
-	-----------------------
-	draggies.super_draw = draggies.draw
-	draggies.widget_type = "toolbar drag widget"
-	
-	wid.widget_type = "toolbar"
-	wid.drag_removed = false
-	wid.drag = false
-	wid.prev_owner = nil
+	delete_wid.toggle = false
 	
 	select_rect.draw_rect = gui:create_basewidget(0,0,1,1)
 	select_rect.draw_rect.widget_type = "select rect draw square"
 	
-	wid:addwidget(draggies)
-	wid:addwidget(undo)
-	wid:addwidget(redo)
-	wid:addwidget(separator)
-	wid:addwidget(move_ws)
-	wid:addwidget(move_select)
-	wid:addwidget(select_rect)
-	wid:addwidget(delete_wid)
+	separator = gui:create_basewidget(0,0,10,40)
+	draggies = gui:create_basewidget(0,0,25,40)
+	draggies.super_draw = draggies.draw
+	draggies.widget_type = "toolbar drag widget"
 	
-	local move_container = derp:create_toolbar_movecontainer()
+	move_container = derp:create_toolbar_movecontainer()
 	
-		
+			
+	-- TOOLBAR
+	local toolbar = self:create_horizontal_toolbar(0,0,w,h,"horizontal")
+	
 	function move_ws:action(action)
 		if action.tag == "drag" then
 		
@@ -2278,89 +2235,188 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 		end
 	end
 	
-	function separator:draw(force)
-		if (self.redraw_needed or force) then
-			gfx.drawtopleft(self.drawbox.x + 4,self.drawbox.y + 8,2,24,5,26,2,1)
-		end
-	end
-	
 	function draggies:draw(force)
 		if (self.redraw_needed or force) then
-		  local old_a = gfx.getalpha()
-			if self.drag then 
-				gfx.setalpha(0.7)
-		  end
-			
-			gfx.drawtopleft(4,8,3,25,1,10,3,25)
-			
-			gfx.setalpha(old_a)
+			if toolbar.orientation == "vertical" then
+				gfx.drawtopleft(7,4,25,3,26,1,25,3)
+			else
+				gfx.drawtopleft(4,8,3,25,1,10,3,25)
+			end
 			
 			draggies:super_draw()
 		end
 	end
 	
-	local drawlocations = { top = { x = 20,y=40, resize_w = 0, resize_h = -draggies.drawbox.h+1, location = "top"},
-							bottom = { x = 20, y = 40, resize_w = 0, resize_h = -draggies.drawbox.h+1, location = "bottom"} } 
-	draggies.drawlocation = drawlocations.top
-	
 	function draggies:mousepush(mx,my)
 		gui.widgets:addwidget(move_container)
 		
 		self.parent:needsredraw()
-		self.parent.prev_owner = self.parent.parent
-		self.parent.parent:removewidget(self.parent)
 		
-		self.parent.parent:resize_callback(self.drawlocation.resize_w,self.drawlocation.resize_h)
+		gui.widgets:removewidget(wid)
 		
-		gui.widgets:addwidget(self.parent)
+		gui.widgets:addwidget(wid)
 		
-		self.parent:move_abs(mx,my)
+		wid:move_abs(mx,my)
 	end
 	
 	function draggies:mousedrag(mx,my)
-	  self.parent:needsredraw()
-		self.parent:move_relative(mx,my)
-		self.parent:needsredraw()
+		wid:needsredraw()
+		wid:move_relative(mx,my)
+		wid:needsredraw()
 	end
+	
+	local draw_states = { 	top = { x = 20, y = 40, w = w, h = h, orientation = "horizontal", resize_fun = 
+								function ()
+									inspector:move_abs(app.width-270,80)
+									inspector:resize_abs(250,app.height-100)
+									
+									workspace_tabs:move_abs(20,80)
+									workspace_tabs:resize_abs(app.width-290,20)
+									
+									workspace_frames:move_abs(20,100)
+									workspace_frames:resize_abs(app.width-290,app.height-121)
+								end},
+							bottom = { x = 20, y = app.height - h - 20, w = w, h = h, orientation = "horizontal", resize_fun = 
+								function ()
+									inspector:move_abs(app.width-270,41)
+									inspector:resize_abs(250,app.height-100)
+									
+									workspace_tabs:move_abs(20,41)
+									workspace_tabs:resize_abs(app.width-290,20)
+									
+									workspace_frames:move_abs(20,60)
+									workspace_frames:resize_abs(app.width-290,app.height-120)
+								end},
+							left = { x = 20, y = 40, w = h, h = app.height-60, orientation = "vertical", resize_fun = 
+								function ()
+									inspector:move_abs(app.width-270,41)
+									inspector:resize_abs(250,app.height -61)
+									
+									workspace_tabs:move_abs(59,41)
+									workspace_tabs:resize_abs(app.width-290-39,20)
+									
+									workspace_frames:move_abs(59,61)
+									workspace_frames:resize_abs(app.width - 290 -39,app.height-121 + 39)
+								end},
+							right = { x = app.width-60, y = 40, w = h, h = app.height-60, orientation = "vertical", resize_fun = 
+								function ()
+									inspector:move_abs(app.width-309,41)
+									inspector:resize_abs(250,app.height -61)
+									
+									
+									workspace_tabs:move_abs(20,41)
+									workspace_tabs:resize_abs(app.width-290-39,20)
+									
+									workspace_frames:move_abs(20,61)
+									workspace_frames:resize_abs(app.width - 290 -39,app.height-121 + 39) 
+								end} }
 	
 	function draggies:mouserelease(dx,dy,button)
 		if (button == inp.MOUSE_LEFT) then
+			wid:needsredraw()
 			
 			local x,y = inp.getmousepos()
-			local hit = move_container:find_mousehit(x,y)
+			local hit = move_container:find_mousehit(x,y)			
 			
-			if hit.widget_type == "top arrow" then
-				self.drawlocation = drawlocations.top
-			elseif hit.widget_type == "left arrow" then
-				self.drawlocation = drawlocations.left
-			end
-			
-			gui.widgets:removewidget(self.parent)
+			gui.widgets:removewidget(wid)
 			gui.widgets:removewidget(move_container)
 			
-
-			table.insert(self.parent.prev_owner.childwidgets,self.parent)
-			gui:set_focus(self.parent)
+			gui.widgets:addwidget(wid)
+			gui:set_focus(wid)
 			
-			-- determine where to put toolbar, for now just put it back..
-			self.parent:move_abs(self.drawlocation.x,self.drawlocation.y)
-			self.parent.parent:resize_callback(-self.drawlocation.resize_w,-self.drawlocation.resize_h,self.drawlocation.location)
+			if hit.widget_type == "top arrow" then
+				wid:set_state(draw_states.top)
+			elseif hit.widget_type == "left arrow" then
+				wid:set_state(draw_states.left)
+			elseif hit.widget_type == "right arrow" then
+				wid:set_state(draw_states.right)
+			elseif hit.widget_type == "bottom arrow" then
+				wid:set_state(draw_states.bottom)
+			else
+				print(wid.state)
+				wid:set_state(wid.state)
+			end
 			
-			self.parent.parent:needsredraw()
+			wid:needsredraw()
 		end
+	end
+	
+	function separator:draw(force)
+		if (self.redraw_needed or force) then
+			if toolbar.orientation == "vertical" then
+				gfx.drawtopleft(self.drawbox.x + 8,self.drawbox.y + 4,24, 2,5,28,1,2)
+			else
+				gfx.drawtopleft(self.drawbox.x + 4,self.drawbox.y + 8, 2,24,5,26,2,1)
+			end
+		end
+	end
+	
+	
+	wid.old_orientation = toolbar.orientation
+
+	function wid:set_state(drawstate)	
+		wid:removewidget(toolbar)
+		
+		if wid.old_orientation ~= drawstate.orientation then
+			draggies:resize_abs(draggies.drawbox.h,draggies.drawbox.w)
+			separator:resize_abs(separator.drawbox.h,separator.drawbox.w)
+			wid.old_orientation = drawstate.orientation
+		end
+		
+		toolbar = derp:create_horizontal_toolbar(0,0,drawstate.w,drawstate.h,drawstate.orientation)
+		self:move_abs(drawstate.x,drawstate.y)
+		self:resize_abs(drawstate.w,drawstate.h)
+		
+		drawstate:resize_fun()
+		
+		wid:addwidget(toolbar)
+		
+		self.state = drawstate
+	end
+	
+	wid:set_state(draw_states.top)
+	
+	return wid
+end
+
+function derp:create_horizontal_toolbar(x,y,w,h,orientation)
+	local wid = nil
+	
+	if orientation == "vertical" then
+		wid = gui:create_verticalstack(x,y,w,h)
+	else
+		wid = gui:create_horizontalstack(x,y,w,h)
+	end
+	
+	wid.orientation = orientation
+
+	-----------------------
+	wid.widget_type = "toolbar"
+	
+	wid:addwidget(draggies)
+	wid:addwidget(undo)
+	wid:addwidget(redo)
+	wid:addwidget(separator)
+	wid:addwidget(move_ws)
+	wid:addwidget(move_select)
+	wid:addwidget(select_rect)
+	wid:addwidget(delete_wid)
+	
+	if orientation == "vertical" then
+		wid:resize_abs(w,h)
 	end
 	
 	wid.super_draw = wid.draw
 	function wid:draw(force)	
 		if (self.redraw_needed or force) then
-			if self.drag then 
-				gfx.setalpha(0.5)
-			end
-			
 			-- DRAW BG
 			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 9, 1, 1, 1)
 			
-			gfx.drawtopleft(self.drawbox.x+2, self.drawbox.y+2, self.drawbox.w-4, self.drawbox.h-4, 510, 0, 1, 127)
+			if self.orientation == "vertical" then
+				gfx.drawtopleft(self.drawbox.x+2, self.drawbox.y+2, self.drawbox.w-4, self.drawbox.h-4, 0, 510, 127, 1)
+			else
+				gfx.drawtopleft(self.drawbox.x+2, self.drawbox.y+2, self.drawbox.w-4, self.drawbox.h-4, 510, 0, 1, 127)
+			end
 			
 			-- DRAW BORDERS
 			-- TOP
@@ -2372,13 +2428,7 @@ function derp:create_horizontal_toolbar(x,y,w,h)
 			-- RIGHT
 			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-2, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
 			
-			if self.drag then
-				gfx.setalpha(1.0)
-			end
-			
 			self:super_draw(force)
-			
-			--move_container:draw(force)
 		end
 	end
 	return wid
