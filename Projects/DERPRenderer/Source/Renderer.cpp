@@ -198,10 +198,8 @@ void Renderer::Execute()
 			char* filename = packet->GetArray<char*>(packet->ObjectSize(1), 1);
 			unsigned long datalen = packet->GetObject<unsigned long>(2);
 			char* data = packet->GetArray<char*>(packet->ObjectSize(3) ,3);
-			char hashstr[9] = {0};
-			Format(hashstr, "%X", hash);
 			char location[256];
-			Format(location, "datacache/%s_%s", hashstr, filename);
+			Format(location, "datacache/%X_%s", (unsigned int)hash, filename);
 			Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Saving data to cache: %s", location);
 			FileStream stream;
 			stream.OpenWriteBinary(location);

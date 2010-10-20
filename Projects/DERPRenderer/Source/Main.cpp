@@ -60,8 +60,6 @@ int main()
 
 	unsigned main_tag = kernel->CreateTag("Main");
 
-	kernel->Log(0, "%s", Pxf::PathFileName("D:\\honk.jpg"));
-
 	// Just load everything
 	kernel->RegisterModule("pri", 0xFFFF, true);
 	kernel->RegisterModule("img", 0xFFFF, true);
