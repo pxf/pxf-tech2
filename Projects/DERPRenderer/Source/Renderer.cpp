@@ -213,7 +213,7 @@ void Renderer::Execute()
 					imgpacket->PushInt(img->Channels());
 					imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 
-					m_Net->SendAllPacket(imgpacket);
+					m_Net->SendPacket(packet->GetSender(), imgpacket);
 
 					delete imgpacket;
 					delete img;
