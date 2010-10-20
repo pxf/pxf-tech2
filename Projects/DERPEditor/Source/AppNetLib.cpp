@@ -109,8 +109,11 @@ int DERPEditor::net_send_texture(lua_State *L)
 		Network::NetworkDevice* n = LuaApp::GetInstance()->m_net;
 		int num = n->NumClients();
 
-		for (;num>=0;num--)
-			n->GetClient(num-1)->SendPacket(packet);
+		for (;num>0;num--)
+		{
+			Network::Client* c = n->GetClient(num-1);
+			c->SendPacket(packet);
+		}
 
 		delete packet;
 		delete data;

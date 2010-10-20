@@ -94,8 +94,8 @@ function derp_components.output.simple:create_widget(component_data)
                           "Reason; '" .. connect_fail .. "'"})
     else
       
-      --local testp = net.create_packet("", "datacache")
-      
+      net.send_texture("data/guitheme.png")
+
       -- send our pipeline
       --local new_packet = net.create_packet("", "pipeline" )
       self.parent.parent.parent.client:send("pipeline", final_json)
