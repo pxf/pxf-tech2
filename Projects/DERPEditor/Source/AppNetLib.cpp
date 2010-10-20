@@ -119,7 +119,7 @@ int DERPEditor::net_send_texture(lua_State *L)
 		delete data;
 
 		char ret[256];
-		Format(ret, "datacache/%X_%s\0", hash, filename);
+		Format(ret, "%X_%s\0", hash, filename);
 
 		lua_pushstring(L, ret);
 		
