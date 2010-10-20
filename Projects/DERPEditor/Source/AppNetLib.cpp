@@ -5,6 +5,9 @@
 #include <Pxf/Base/Memory.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Path.h>
+
+#include <Pxf/Base/Hash.h>
 
 #include <Pxf/Network/NetworkDevice.h>
 #include <Pxf/Network/Packet.h>
@@ -71,6 +74,55 @@ int DERPEditor::net_gettags(lua_State *L)
 	else
 	{
 		lua_pushstring(L, "Invalid arguments passed to gettags function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int DERPEditor::net_send_texture(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		const char* path = lua_tostring(L, 1);
+		FileStream s;
+
+		if (!s.OpenReadBinary(path))
+			return 0;
+
+		unsigned fsize = s.GetSize();
+		char* data = new char[fsize];
+		s.Read(data, fsize);
+		unsigned long hash = Hash(data, fsize);
+		s.Close();
+
+		Packet* packet = LuaApp::GetInstance()->m_net->CreateEmptyPacket("", 1 /* datacache */);
+
+		// hash, filename, datalen, data
+		packet->PushInt(hash);
+		const char* filename = PathFileName(path);
+		packet->PushString(filename, strlen(filename)+1);
+		packet->PushInt(fsize);
+		packet->PushString(data, fsize);
+
+//		net_packet_push(L, packet);
+		Network::NetworkDevice* n = LuaApp::GetInstance()->m_net;
+		int num = n->NumClients();
+
+		for (;num>0;num--)
+		{
+			Network::Client* c = n->GetClient(num-1);
+			c->SendPacket(packet);
+		}
+
+		delete packet;
+		delete data;
+		
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to send_texture function!");
 		lua_error(L);
 	}
 
@@ -727,6 +779,7 @@ int DERPEditor::luaopen_appnet(lua_State *L)
 		{"addtag", net_addtag},
 		{"gettags", net_gettags},
 		{"create_packet", net_packet_create_empty},
+		{"send_texture", net_send_texture},
 		{NULL, NULL}
 	};
 
