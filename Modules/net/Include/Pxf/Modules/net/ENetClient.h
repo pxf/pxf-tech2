@@ -27,24 +27,24 @@ namespace Pxf
 		class ENetClient : public Pxf::Network::Client
 		{
 		private:
-			ENetAddress Address;
-			ENetHost *Client;
-			ENetPeer *Peer;
-			Network::NetworkDevice* NetDev;
+			ENetAddress m_Address;
+			ENetHost *m_Client;
+			ENetPeer *m_Peer;
+			Network::NetworkDevice* m_NetDev;
 
 			bool m_Connected;
 			
-			Util::Array<Network::Packet*> BufferedPackets;
+			Util::Array<Network::Packet*> m_BufferedPackets;
 
 			void Flush();
 			
 		public:
 			//ENetClient(const char* _Host, const int _Port);
 			ENetClient(Network::NetworkDevice* _NetworkDevice)
-				: NetDev(_NetworkDevice)
+				: m_NetDev(_NetworkDevice)
 				, m_Connected(false)
-				, Client(NULL)
-				, Peer(NULL)
+				, m_Client(NULL)
+				, m_Peer(NULL)
 			{}
 
 			virtual bool Connect(const char* _Host, const int _Port);

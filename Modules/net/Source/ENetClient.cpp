@@ -7,12 +7,12 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 {
 	ENetEvent event;
 
-	enet_address_set_host(&Address, _Host);
-	Address.port = _Port;
+	enet_address_set_host(&m_Address, _Host);
+	m_Address.port = _Port;
 
-	Client = enet_host_create(NULL, 1, NetDev->GetTags()->size(), 0, 0);
+	m_Client = enet_host_create(NULL, 1, m_NetDev->GetTags()->size(), 0, 0);
 
-	if (Client == NULL)
+	if (m_Client == NULL)
 	{
 		Message("ENetClient", "No available peers for an ENet connection.");
 		return false;
@@ -23,15 +23,15 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 	Message("ENetClient", "Enabling range-coder compression.");
 #endif
 
-	Peer = enet_host_connect(Client, &Address, NetDev->GetTags()->size(), 0);
+	m_Peer = enet_host_connect(m_Client, &m_Address, m_NetDev->GetTags()->size(), 0);
 
-	if (Peer == NULL)
+	if (m_Peer == NULL)
 	{
 		Message("ENetClient", "Unable to connect to server.");
 		return false;
 	}
 
-	if (enet_host_service(Client, &event, 5000) > 0 &&
+	if (enet_host_service(m_Client, &event, 5000) > 0 &&
 		event.type == ENET_EVENT_TYPE_CONNECT)
 	{
 //		Message("ENetClient", "Connection established. Client %d.", Ident);
@@ -49,9 +49,9 @@ bool ENetClient::Disconnect()
 {
 	ENetEvent event;
 
-	enet_peer_disconnect(Peer, 0);
+	enet_peer_disconnect(m_Peer, 0);
 
-	while (enet_host_service(Client, &event, 5000) > 0)
+	while (enet_host_service(m_Client, &event, 5000) > 0)
 	{
 		switch (event.type)
 		{
@@ -66,8 +66,8 @@ bool ENetClient::Disconnect()
 		}
 	}
 	
-	enet_peer_reset(Peer);
-	Peer = NULL;
+	enet_peer_reset(m_Peer);
+	m_Peer = NULL;
 
 	Message("ENetClient", "Force quit. Sowwy server.");
 	m_Connected = false;
@@ -82,10 +82,10 @@ bool ENetClient::Connected()
 
 Pxf::Network::Packet* ENetClient::Recv()
 {
-	if (BufferedPackets.size() > 0)
+	if (m_BufferedPackets.size() > 0)
 	{
-		Network::Packet* bpack = BufferedPackets.front();
-		BufferedPackets.erase(BufferedPackets.begin());
+		Network::Packet* bpack = m_BufferedPackets.front();
+		m_BufferedPackets.erase(m_BufferedPackets.begin());
 
 		return bpack;
 	}
@@ -97,7 +97,7 @@ Pxf::Network::Packet* ENetClient::Recv()
 
 //	Message("ENetClient", "Recv()...");
 
-	while ((retcode = enet_host_service(Client, &event, 1000)) >= 0)
+	while ((retcode = enet_host_service(m_Client, &event, 1000)) >= 0)
 	{
 		switch(event.type)
 		{
@@ -140,10 +140,10 @@ Pxf::Network::Packet* ENetClient::Recv()
 
 Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 {
-	if (BufferedPackets.size() > 0)
+	if (m_BufferedPackets.size() > 0)
 	{
-		Network::Packet* bpack = BufferedPackets.front();
-		BufferedPackets.erase(BufferedPackets.begin());
+		Network::Packet* bpack = m_BufferedPackets.front();
+		m_BufferedPackets.erase(m_BufferedPackets.begin());
 
 		return bpack;
 	}
@@ -155,7 +155,7 @@ Pxf::Network::Packet* ENetClient::RecvNonBlocking(const int _Timeout)
 
 //	Message("ENetClient", "Recv()...");
 	
-	while ((retcode = enet_host_service(Client, &event, stopTime-Platform::GetTime())) >= 0)
+	while ((retcode = enet_host_service(m_Client, &event, stopTime-Platform::GetTime())) >= 0)
 	{
 		switch(event.type)
 		{
@@ -240,7 +240,7 @@ bool ENetClient::SendID(const char* _ID, const int _Type, const char* _Buf, cons
 		return false;
 	}
 
-	enet_peer_send(Peer, _Type, packet);
+	enet_peer_send(m_Peer, _Type, packet);
 
 	Flush();
 	
@@ -273,7 +273,7 @@ bool ENetClient::SendPacket(Network::Packet* _Packet)
 		return false;
 	}
 
-	enet_peer_send(Peer, _Packet->GetTag(), packet);
+	enet_peer_send(m_Peer, _Packet->GetTag(), packet);
 
 	Flush();
 
@@ -287,6 +287,6 @@ void ENetClient::Flush()
 	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
 	Network::Packet *rpack = RecvNonBlocking(0);
 	if (rpack != NULL)
-		BufferedPackets.push_back(rpack);
+		m_BufferedPackets.push_back(rpack);
 }
 
