@@ -139,7 +139,7 @@ bool ENetDataPacket::PushObject(const int _Type, const void* _Buffer, unsigned i
 	return true;
 }
 
-bool ENetDataPacket::ReadObject(void* _Buffer, const int _Pos)
+bool ENetDataPacket::ReadObject(void* _Buffer, const int _BufferSize, const int _Pos)
 {
 	char* ptr = (m_Data+m_ObjectsBegin);
 	int Size, Type, Pos;
@@ -157,6 +157,8 @@ bool ENetDataPacket::ReadObject(void* _Buffer, const int _Pos)
 
 		if (Pos == _Pos)
 		{
+			if (Size > _BufferSize)
+				return false;
 			MemoryCopy(_Buffer, ptr, Size);
 			return true;
 		}

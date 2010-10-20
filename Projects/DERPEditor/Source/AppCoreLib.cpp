@@ -1,6 +1,6 @@
 #include "AppCoreLib.h"
 #include <Pxf/Base/Hash.h>
-
+#include <Pxf/Base/Path.h>
 #include <sstat.h>
 
 int DERPEditor::app_getwindimensions(lua_State *L)
@@ -154,6 +154,30 @@ int DERPEditor::util_hashfile(lua_State *L)
 	}
 	lua_pushinteger(L, ret);
 	return 1;
+}
+
+int DERPEditor::util_pathext(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		const char* filename = lua_tostring(L, 1);
+		const char* ext = Pxf::PathExt(filename);
+		lua_pushstring(L, ext);
+		return 1;
+	}
+	return 0;
+}
+
+int DERPEditor::util_pathfilename(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		const char* filename = lua_tostring(L, 1);
+		const char* name = Pxf::PathFileName(filename);
+		lua_pushstring(L, name);
+		return 1;
+	}
+	return 0;
 }
 
 int DERPEditor::luaopen_appcore (lua_State *L) {
