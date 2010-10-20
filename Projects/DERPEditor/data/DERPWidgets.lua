@@ -700,7 +700,11 @@ function derp:create_connectioninput(id,x,y)
     if self.redraw_needed or force then
       gfx.translate(self.drawbox.x,self.drawbox.y)
       
-	  gfx.drawtopleft(0,1,12,12,1,205,12,12)
+	  if self.connected then
+		gfx.drawtopleft(0,1,12,12,16,205,12,12)
+	  else
+	    gfx.drawtopleft(0,1,12,12,1,205,12,12)
+	  end
       
       gfx.translate(-self.drawbox.x,-self.drawbox.y)
     end
@@ -726,7 +730,11 @@ function derp:create_connectionoutput(id,x,y)
     if self.redraw_needed or force then
       gfx.translate(self.drawbox.x,self.drawbox.y)
 	  
-	  gfx.drawtopleft(0,1,12,12,1,205,12,12)
+	  if self.connected then
+		gfx.drawtopleft(0,1,12,12,16,205,12,12)
+	  else
+	    gfx.drawtopleft(0,1,12,12,1,205,12,12)
+	  end
       
       gfx.translate(-self.drawbox.x,-self.drawbox.y)
     end
@@ -754,24 +762,15 @@ function derp:create_connectionoutput(id,x,y)
     -- get mouse position relative to parent widget
     local x,y = inp.getmousepos()
     -- find spline start on output widget
-	
-	--print(self.drawbox.x,self.drawbox.y,self.parent.parent.drawbox.x)
-	
 	local w = self.parent.parent
 	
-	--x = x - w.drawbox.x
-    --y = y - w.drawbox.y
+	local startx,starty = w.drawbox.x + w.drawbox.w,w.drawbox.y + self.drawbox.y + 7 + 26
 	
-	x = x - derp.active_workspace.drawbox.x - w.drawbox.x
-    y = y - derp.active_workspace.drawbox.y - w.drawbox.y	
+	x = x - derp.active_workspace.drawbox.x
+	y = y - derp.active_workspace.drawbox.y
 	
-	print(w.widget_type)
-	
-    --local startx,starty = self.parent.parent.drawbox.x + self.drawbox.x + 7, self.parent.parent.drawbox.y + self.drawbox.y + 7
-	local startx,starty = self.drawbox.x + 7,self.drawbox.y + 7 + 26
-    
     -- create our spline
-    self.parent.temp_connection = create_spline({{startx,starty}, {x,y}}, 30, 4)
+    self.parent.temp_connection = create_spline({{startx,starty}, {x,y}}, 30, 2)
   end
   
   return wid
@@ -902,8 +901,19 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	end
 	
 	function wid:add_connection(from_block, from_output, type_output, to_id)
-	  print(from_block, from_output, type_output, to_id)
+		--print(from_block, from_output, type_output, to_id)
 		table.insert(self.data.connections_in, {block = from_block, output = from_output, type = type_output, input = to_id})
+		
+		local startwid = derp.active_workspace:get_block(from_block)
+		local startsocket = startwid:get_outputsocket(from_output)
+		
+		startsocket.connected = true
+
+		for k,v in pairs(self.content.childwidgets) do
+			if v.input_id and v.input_id == to_id then
+				v.connected = true
+			end
+		end	
 	end
 	
 	function wid:calc_height()
@@ -926,16 +936,39 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	wid.super_draw = wid.draw
 	
-	--[[
-	function wid:draw(force)
-		gfx.translate(self.hitbox.x,self.hitbox.y)
-			-- HEADER
-		gfx.drawtopleft(0, 0, self.hitbox.w,self.hitbox.h,5,5,1,1) -- top-left corner
-		gfx.translate(-self.hitbox.x,-self.hitbox.y)
+	function wid:draw_connection(force)
+		if self.redraw_needed or force then
+			gfx.translate(self.drawbox.x,self.drawbox.y)
 		
-		self:super_draw(force)
+			for k,v in pairs(self.data.connections_in) do
+				local startwid = self.parent:get_block(v.block)
+				local startsocket = startwid:get_outputsocket(v.output)
+				local startx,starty
+				
+				if self.state == "maximized" then
+					local endx,endy = -(self.drawbox.x - startwid.drawbox.x) + startwid.drawbox.w,-(self.drawbox.y - startwid.drawbox.y) + startsocket.drawbox.y + 7 + header.drawbox.h
+				
+					startx,starty = 0, (v.input-1)* 14 + 7 + header.drawbox.h-- startsocket.drawbox.y + 7
+				
+					-- create spline from output-socket/-widget to ourself
+					-- TODO: This should only be done once, when the connection is created
+					local new_line = create_spline({{startx,starty},{endx,endy}}, 30, 2)
+					new_line:update()
+					new_line:draw()
+				end
+			end	
+			
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+			
+			-----------------------
+			-- Draw temporary connection (ie. a connection that is not connected to anything yet)
+			if content.temp_connection then
+				content.temp_connection:update()
+				content.temp_connection:draw()
+			end
+		end
 	end
-	]]
+
 	
 	header.super_draw = header.draw
 	function header:draw(force)
@@ -1103,7 +1136,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	function content:draw(force)
 		if (self.redraw_needed or force) and (wid.state == "maximized") then
-			
+				
 			local t = 220
 			
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.io_height,7,227, 1,1) -- bg
@@ -1129,33 +1162,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 			gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 1,self.drawbox.y,1,self.drawbox.h-2,1,t, 1,1) -- right frame
 			gfx.drawtopleft(self.drawbox.x + 2,self.drawbox.y + self.drawbox.h-1,self.drawbox.w-4,1,1,t, 1,1) -- bottom frame
 			
-			for k,v in pairs(self.parent.data.connections_in) do
-				
-				--print("i has connection: " .. tostring(v.block) .. " output: " .. tostring(v.output))
-				local startwid = self.parent.parent:get_block(v.block)
-				local startsocket = startwid:get_outputsocket(v.output)
-				local startx,starty
-				
-				if self.parent.state == "maximized" then
-					startx,starty = self.drawbox.x - (self.parent.drawbox.x - startwid.drawbox.x) + self.drawbox.w,self.drawbox.y - (self.parent.drawbox.y - startwid.drawbox.y) + startsocket.drawbox.y + 7
-					local endx,endy = self.drawbox.x,self.drawbox.y + (v.input - 1) * 14 + 7
-				
-					-- create spline from output-socket/-widget to ourself
-					-- TODO: This should only be done once, when the connection is created
-					local new_line = create_spline({{startx,starty},{endx,endy}}, 30, 4)
-					new_line:update()
-					new_line:draw()
-				end
-			end
-			
-			-----------------------
-			-- Draw temporary connection (ie. a connection that is not connected to anything yet)
-			if self.temp_connection then
-				self.temp_connection:update()
-				self.temp_connection:draw()
-			end
-			
-			self:super_draw(force)
+			self:super_draw(force)	
 		end
 	end
 	
@@ -1296,6 +1303,13 @@ function derp:create_workspace(x,y,w,h,from_path)
 			local aspect = app.height/app.width
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,0,0,500,500*aspect)	-- checkers
 			gfx.bindtexture(old_tex)
+
+			-- draw all connections
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			for k,v in pairs(self.childwidgets) do
+				v:draw_connection(force)
+			end
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
 			
 			self:super_draw(force)
 		end
