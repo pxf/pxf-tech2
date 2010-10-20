@@ -758,12 +758,13 @@ end
 
 -- creates a menu
 function gui:create_menu(x,y,menu)
-  local wid = gui:create_basewidget(x,y,200,10)
+  local stdwidth = 200
+  local wid = gui:create_basewidget(x,y,stdwidth,10)
   wid.widget_type = "menu"
   wid.menu_parent = nil
   wid.menu_child = nil
   wid.menu_root = nil
-  wid.stdwith = 200
+  wid.stdwith = stdwidth
   wid.itemheight = 24
   wid.menu = menu
   wid.highlightid = 0

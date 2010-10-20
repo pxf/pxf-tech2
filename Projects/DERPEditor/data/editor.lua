@@ -90,15 +90,35 @@ end]]
 
 file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = 
 									function () 	
-										--ws = derp.active_workspace
-										--derp:save("recent_workspace.derp",derp.active_workspace)
-										derp:store_settings()
 										app.reboot() 
 									end}},
-			   {"Open...", {tooltip = "Open previous workspace from file...", onclick = function() local filename = app.opendialog(); if not (filename == nil) then derp:open_workspace(filename,derp.active_workspace) else print("Did not open!") end end}},
-			   {"Open Recent...",{ menu = { }
+				{"New", {tooltip = "Create a new workspace", onclick = 
+									function() 
+										derp:new_workspace(app.width*2,app.height*2)
+									end}},
+			   {"Open...", {tooltip = "Open previous workspace from file...", onclick = 
+									function() 
+										local filename = app.opendialog()
+										
+										if not (filename == nil) then 
+											derp:open_workspace(filename,derp.active_workspace)
+										else 
+											print("Did not open!") 
+										end 
+									end}},
+			   {"Open Recent...",{ menu = {  }
 							}},
-			   {"Save As...", {tooltip = "Save current workspace to file...", onclick = function() local filename = app.savedialog("workspace.derp"); if not (filename == nil) then derp:save(filename,derp.active_workspace) else print("Did not save!") end end}},
+			   {"Save As...", {tooltip = "Save current workspace to file...", onclick = 
+									function() 
+										local filename = app.savedialog("workspace.derp")
+										
+										if not (filename == nil) then 
+											derp:save(filename,derp.active_workspace) 
+											derp:add_recent_file(filename)
+										else 
+											print("Did not save!") 
+										end 
+									end}},
                {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () derp:store_settings() app.quit() end}},
                   }
 local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C", onclick = function () print("copy!!") end}},
