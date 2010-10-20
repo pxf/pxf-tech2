@@ -50,14 +50,14 @@ function gui:create_basewidget(x,y,w,h)
   function wid:addwidget(cwid,key)
     cwid.parent = self
 	
+	gui:set_focus(cwid)
+    cwid:needsredraw()
+	
   	if key then
   		self.childwidgets[key] = cwid
   	else
   		table.insert(self.childwidgets, cwid)
   	end
-	
-    gui:set_focus(cwid)
-    cwid:needsredraw()
   end
   
   function wid:removewidget(cwid)
