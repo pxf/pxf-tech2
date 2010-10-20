@@ -214,6 +214,7 @@ end
 
 function derp_components.render.geometry:generate_json(component_data)
 
+  local final_jsondata = {}
   local input_array = {}
   local input_array_shader = {}
 
@@ -270,7 +271,9 @@ function derp_components.render.geometry:generate_json(component_data)
      "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
     }]]
   
-  return {escape_backslashes(jsonstring)}
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
+  
+  return final_jsondata
 end
 
 function derp_components.render.geometry:spawn_inspector(component_data)
@@ -317,7 +320,9 @@ function derp_components.aux.model:create_widget(component_data)
 end
 
 function derp_components.aux.model:generate_json(component_data)
+  print("should send: " .. component_data.modelfilepath)
   local new_filename = net.send_file(component_data.modelfilepath)
+  print("sent file, got new filename: " .. new_filename)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",
      "blockData" : {"auxType" : "model",
@@ -378,7 +383,10 @@ function derp_components.aux.texture:create_widget(component_data)
 end
 
 function derp_components.aux.texture:generate_json(component_data)
+  print("should send: " .. component_data.texturefilepath)
   local new_filename = net.send_file(component_data.texturefilepath)
+  print("sent file, got new filename: " .. new_filename)
+  
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",
      "blockData" : {"auxType" : "texture",
