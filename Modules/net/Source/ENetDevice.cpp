@@ -111,3 +111,8 @@ Packet* ENetDevice::CreatePacket(char* _Data, const int _Tag, const int _Length,
 
 	return packet;
 }
+
+int ENetDevice::NumClients()
+{
+	return Clients.size();
+}

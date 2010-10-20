@@ -25,6 +25,8 @@ namespace DERPEditor
 	int app__getrenderoption(lua_State *L);
 
 	int util_hashfile(lua_State *L);
+	int util_pathext(lua_State *L);
+	int util_pathfilename(lua_State *L);
 
     // Register lib
     int luaopen_appcore (lua_State *L);

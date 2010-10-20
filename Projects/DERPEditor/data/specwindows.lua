@@ -34,21 +34,21 @@ function spawn_log_window(msg)
 end
 
 function spawn_preview_window(previewtex, w,h)
-  local preview_dialog = gui:create_window("previewdialog", app.width / 2 - w/2,app.height / 2 - h/2, w,w, true, "Preview")
+  local preview_dialog = gui:create_window("previewdialog" .. tostring(math.random()), app.width / 2 - w/2,app.height / 2 - h/2, w+20,h+40, false, "Preview")
   preview_dialog.prevdata = {w = w, h = h, tex = previewtex}
   
   preview_dialog.sdraw = preview_dialog.draw
   function preview_dialog:draw(force)
-    self:sdraw()
+    self:sdraw(force)
     
-    gfx.translate(self.drawbox.x,self.drawbox.y)
+    gfx.translate(self.drawbox.x+20,self.drawbox.y+40)
     self.prevdata.tex:draw(0,0,self.prevdata.w,0,self.prevdata.w,self.prevdata.h,0,self.prevdata.h)
-    gfx.translate(-self.drawbox.x,-self.drawbox.y)
+    gfx.translate(-(self.drawbox.x+20),-(self.drawbox.y+40))
   end
   
   -- ok button
-  local button = gui:create_labelbutton(210,60,90,30,"Ok", function(self) self.parent.parent:destroy() end)
-  preview_dialog.panel:addwidget(button)
+  --[[local button = gui:create_labelbutton(210,60,90,30,"Ok", function(self) self.parent.parent:destroy() end)
+  preview_dialog.panel:addwidget(button)]]
 
   gui.windows:add(preview_dialog)
 end

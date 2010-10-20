@@ -6,6 +6,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Logger.h>
 
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Network/NetworkDevice.h>
@@ -39,6 +40,7 @@ Renderer::Renderer(unsigned int _port)
 	m_Net->Bind(_port);
 	Pxf::Kernel::GetInstance()->RegisterLogger(new RemoteLogWriter(m_NetDevice, m_Net, netlogtag));
 
+	m_LogTag = Pxf::Kernel::GetInstance()->CreateTag("renderer");
 	
   // Load default blocks
 	LoadFromFile("data/default.json");
@@ -149,7 +151,8 @@ void Renderer::LoadJson()
 				m_Blocks.insert( std::make_pair(root[i]["blockName"].asString(), newrenderblock));
 
 			} else {
-				Message("Renderer", "Unknown block type: %s", root[i]["blockType"].asCString());
+				Kernel::GetInstance()->Log(m_LogTag | Logger::IS_CRITICAL, "Unknown block type: %s", root[i]["blockType"].asCString());
+
 			}
 		}
 		
@@ -163,7 +166,7 @@ void Renderer::LoadJson()
 		
 		
 	} else {
-    Message("Renderer", "Error while loading JSON data.");
+		Kernel::GetInstance()->Log(m_LogTag | Logger::IS_CRITICAL, "Error while loading JSON data.");
 	}
 }
 
@@ -179,7 +182,7 @@ void Renderer::BuildGraph()
 		m_RootBlock->BuildGraph();
 		
 	} else {
-		Message("Renderer", "Trying to build pipeline graph, but unknown root.");
+		Kernel::GetInstance()->Log(m_LogTag | Logger::IS_CRITICAL, "Trying to build pipeline graph, but unknown root.");
 	}
 }
 
@@ -192,13 +195,14 @@ void Renderer::Execute()
 		if (packet->GetTag() == m_NetTag_Datacache)
 		{
 			unsigned long hash = packet->GetObject<unsigned long>(0);
-			const char* filename = packet->GetObject<const char*>(1);
+			char* filename = packet->GetArray<char*>(packet->ObjectSize(1), 1);
 			unsigned long datalen = packet->GetObject<unsigned long>(2);
-			const char* data = packet->GetObject<const char*>(4);
+			char* data = packet->GetArray<char*>(packet->ObjectSize(3) ,3);
 			char hashstr[9] = {0};
 			Format(hashstr, "%X", hash);
 			char location[256];
 			Format(location, "datacache/%s_%s", hashstr, filename);
+			Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Saving data to cache: %s", location);
 			FileStream stream;
 			stream.OpenWriteBinary(location);
 			stream.Write(data, datalen);
@@ -213,7 +217,7 @@ void Renderer::Execute()
 			m_JsonData = new char[m_JsonDataSize];
 			StringCopy(m_JsonData, packet->GetData(), m_JsonDataSize);
 			
-			Message("Renderer", "Got new pipeline data, loading JSON and building graph: %s", m_JsonData);
+			Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Got new pipeline data, loading JSON and building graph: %s", m_JsonData);
 			
 			
 			LoadJson();
@@ -233,6 +237,7 @@ void Renderer::Execute()
 					imgpacket->PushInt(img->Channels());
 					imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 
+					Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending final image to client '%d'", packet->GetSender());
 					m_Net->SendPacket(packet->GetSender(), imgpacket);
 
 					delete imgpacket;
@@ -241,7 +246,8 @@ void Renderer::Execute()
 			}
 			else
 			{
-				Message("Renderer", "Failed to execute root block since it's NULL.");
+				Kernel::GetInstance()->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to execute root block since it's NULL.");
+
 			}
 			
 		}
@@ -254,7 +260,7 @@ void Renderer::Execute()
 	}
 	else
 	{
-		Message("Renderer", "Failed to execute root block since it's NULL.");
+		Kernel::GetInstance()->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to execute root block since it's NULL.");
 	}
 	
 }

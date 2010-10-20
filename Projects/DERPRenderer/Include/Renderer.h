@@ -57,6 +57,7 @@ namespace Derp
 		Pxf::Resource::Json* m_doc;
 		Pxf::Resource::JsonLoader* m_jsonloader;
 		Json::Value root; // json-root
+		unsigned m_LogTag;
 		
 		Pxf::Graphics::GraphicsDevice *m_gfx;
 		

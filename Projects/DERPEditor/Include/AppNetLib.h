@@ -19,6 +19,7 @@ namespace DERPEditor
 	int net_createclient(lua_State *L);
 	int net_addtag(lua_State *L);
 	int net_gettags(lua_State *L);
+	int net_send_texture(lua_State *L);
 
 	// packet
 	int net_packet_push(lua_State *L, Pxf::Network::Packet* _Packet);
