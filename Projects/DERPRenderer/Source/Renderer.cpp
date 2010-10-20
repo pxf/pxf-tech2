@@ -1,9 +1,11 @@
 #include "Renderer.h"
 
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Stream.h>
 #include <Pxf/Base/Memory.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Base/Utils.h>
 
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Network/NetworkDevice.h>
@@ -28,6 +30,7 @@ Renderer::Renderer(unsigned int _port)
 	// Set tags for network.
 	m_NetDevice = Pxf::Kernel::GetInstance()->GetNetworkDevice();
 	m_NetTag_Pipeline = m_NetDevice->AddTag("pipeline");
+	m_NetTag_Datacache = m_NetDevice->AddTag("datacache");
 	m_NetTag_Preview = m_NetDevice->AddTag("preview");
 	m_NetTag_Profiling = m_NetDevice->AddTag("profiling");
 	
@@ -185,7 +188,24 @@ void Renderer::Execute()
 	Network::Packet* packet = m_Net->RecvNonBlocking(0);
 	if (packet != NULL)
 	{
-		if (packet->GetTag() == m_NetTag_Pipeline)
+		// Some sort of data we need for rendering future pipeline
+		if (packet->GetTag() == m_NetTag_Datacache)
+		{
+			unsigned long hash = packet->GetObject<unsigned long>(0);
+			const char* filename = packet->GetObject<const char*>(1);
+			unsigned long datalen = packet->GetObject<unsigned long>(2);
+			const char* data = packet->GetObject<const char*>(4);
+			char hashstr[9] = {0};
+			Format(hashstr, "%X", hash);
+			char location[256];
+			Format(location, "datacache/%s_%s", hashstr, filename);
+			FileStream stream;
+			stream.OpenWriteBinary(location);
+			stream.Write(data, datalen);
+			stream.Close();
+		}
+		// New pipeline to render
+		else if (packet->GetTag() == m_NetTag_Pipeline)
 		{
 			CleanUp();
 			

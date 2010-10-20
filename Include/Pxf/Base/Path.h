@@ -4,6 +4,7 @@
 namespace Pxf
 {
 	const char* PathExt(const char* _FilePath);
+	const char* PathFileName(const char* _FilePath);
 }
 
 #endif

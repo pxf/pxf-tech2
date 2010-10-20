@@ -1,4 +1,5 @@
 #include "AppCoreLib.h"
+#include <Pxf/Base/Hash.h>
 
 #include <sstat.h>
 
@@ -143,6 +144,18 @@ int DERPEditor::app__getrenderoption(lua_State *L)
   return 0;
 }
 
+int DERPEditor::util_hashfile(lua_State *L)
+{
+	unsigned long ret = 0;
+	if (lua_gettop(L) == 1)
+	{
+		const char* filename = lua_tostring(L, 1);
+		ret = Pxf::HashFile(filename);
+	}
+	lua_pushinteger(L, ret);
+	return 1;
+}
+
 int DERPEditor::luaopen_appcore (lua_State *L) {
   const luaL_reg appcorelib[] = {
     {"reboot",   app_reboot},
@@ -153,8 +166,10 @@ int DERPEditor::luaopen_appcore (lua_State *L) {
     {"getmemusage",   app_getmemusage},
     {"savedialog",   app_savedialog},
     {"opendialog",   app_opendialog},
+	
+	{"hashfile", util_hashfile},
     
-    {"_setrenderoption",   app__setrenderoption},
+	{"_setrenderoption",   app__setrenderoption},
     {"_getrenderoption",   app__getrenderoption},
     {NULL, NULL}
     };

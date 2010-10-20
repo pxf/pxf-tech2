@@ -16,6 +16,7 @@ editor.version = "0.1"
 gui:init()
 
 net.addtag("pipeline")
+net.addtag("datacache")
 net.addtag("preview")
 net.addtag("profiling")
 net.addtag("log")

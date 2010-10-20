@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <Pxf/Kernel.h>
+#include <Pxf/Base/Path.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Timer.h>
@@ -58,6 +59,8 @@ int main()
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 
 	unsigned main_tag = kernel->CreateTag("Main");
+
+	kernel->Log(0, "%s", Pxf::PathFileName("D:\\honk.jpg"));
 
 	// Just load everything
 	kernel->RegisterModule("pri", 0xFFFF, true);

@@ -1,4 +1,5 @@
 #include <Pxf/Base/Hash.h>
+#include <Pxf/Base/Stream.h>
 
 /******************************************************************************
 * Hash functions
@@ -56,6 +57,19 @@ unsigned long Pxf::Hash(const char *data, int len)
 	hash ^= hash << 25;
 	hash += hash >> 6;
 
+	return hash;
+}
+
+unsigned long Pxf::HashFile(const char* _FileName)
+{
+	FileStream s;
+	if (!s.OpenReadBinary(_FileName))
+		return 0;
+	unsigned size = s.GetSize();
+	char* data = new char[size];
+	s.Read(data, size);
+	unsigned long hash = Hash(data, size);
+	s.Close();
 	return hash;
 }
 
