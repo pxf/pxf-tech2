@@ -497,8 +497,8 @@ function derp_components.aux.vec3constant:create_widget(component_data)
     print("script changed to: " .. self.value)
     derp:push_active_workspace()
   end
-  local scriptlabel = gui:create_labelpanel(5,10,8*7,20,"Script:")
-  local scriptinput = gui:create_textinput(10+8*7,10,180-8*7,false,component_data.script,script_changed)
+  local scriptlabel = gui:create_labelpanel(5,10,8*8,20,"Script:")
+  local scriptinput = gui:create_textinput(10+8*8,10,180-8*8,false,component_data.script,script_changed)
   wid.scriptinput = scriptinput
   wid:addwidget(scriptlabel)
   wid:addwidget(scriptinput)            
