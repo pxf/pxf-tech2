@@ -5,9 +5,40 @@ derp.active_workspace = nil
 derp.active_tool = { last = nil, current = nil }
 derp.ws_menu = nil
 
+derp.settings = { recent_files = { push = 
+						function (fname) 
+							if #self.files < self.max_files then
+								table.insert(self.files,fname)
+							end
+						end, max_files = 10, files = { "a","b" } } }
+
 function derp:init()
 	self.ws_menu = derp:create_workspace_menu()
 	self.ready = true
+
+	self.settings = self:load_settings()
+	
+	self.recent_files = self:create_recent_files_menu()
+end
+
+function derp:create_recent_files_menu()
+	
+	local menu_tbl = { }
+	
+	for k,v in pairs(derp.settings.recent_files.files) do
+		table.insert(menu_tbl, {v, {tooltip = "Open " .. v, onclick = function ()  end}} )
+	end
+	
+	local menu = gui:create_menu(0,0,menu_tbl)
+	
+	for k,v in pairs(file_menu) do
+		if v[1] == "Open Recent..." then	
+			--v[2].menu = menu--{"Ronk", {tooltip = "Open ", onclick = function ()  end}}
+		end
+	end
+	
+	return menu
+	--{"Open recent files", {tooltip = "Open File", onclick = function ()  end}}}
 end
 
 function derp:printstack()
@@ -24,6 +55,23 @@ function derp:print_activedata()
 	
 	print(ws)
 end	
+
+function derp:load_settings()
+	return self:load("editor_settings")
+end
+
+function derp:store_settings()
+	local str = basic_serialize(derp.settings,0)
+	
+	local fname = "editor_settings"
+	local file = io.output(fname,"w")
+	
+	print("saving to file: " .. fname)
+	
+	io.write(str)
+	
+	file:close()
+end
 
 function derp:push_active_workspace()
   derp:push_workspace(derp.active_workspace)
@@ -316,8 +364,6 @@ function derp:create_workspace_menu()
 	function wid:hide()
 		self.visible = false
 		gui.widgets:removewidget(self)
-		
-		gui.focuswidget = derp.active_workspace.cam
 		derp:set_activetool(derp.active_tool.last)
 	end
 	
@@ -1042,28 +1088,37 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	local animation_control = { endy,y,dy,speed }
 	
-	function body_minimize_button:mousepush(mx,my,button)		
-		
-		if body.state == "minimized" then
-			body.state = "maximize_animation"
+	function body:set_state(state) 
+		print(self.state,state)
+		if self.state == state then
+			return nil
+		end
+	
+		if state == "maximized" then
+			self.state = "maximize_animation"
 			
 			animation_control.endy = wid.data.h
 			animation_control.dy = 1
 			animation_control.y = 0
 			animation_control.speed = 5
-			
-		elseif body.state == "maximized" then
+		elseif state == "minimized" then
 			animation_control.endy = -wid.data.h
 			animation_control.dy = -1
 			animation_control.y = 0
 			animation_control.speed = 5
 			
-			body.state = "minimize_animation"
-			body.visible = false
+			self.state = "minimize_animation"
+			self.visible = false
+		end
+	end
+	
+	function body_minimize_button:mousepush(mx,my,button)		
+		
+		if body.state == "minimized" then
+			body:set_state("maximized")
 			
-		else
-			
-			--wid.data.h = 0
+		elseif body.state == "maximized" then
+			body:set_state("minimized")
 		end
 	end
 	
@@ -1110,13 +1165,23 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		end
 	end
 	
+	function wid:set_state(state)
+		if state == "maximized" then
+			self:resize_relative(0,content.drawbox.h)
+		elseif state == "minimized" then
+			self:resize_relative(0,-content.drawbox.h)
+		else
+			return nil
+		end
+		
+		self.state = state
+	end
+	
 	function minimize_button:mousepush(mx,my,button)
 		if wid.state == "maximized" then
-			wid.state = "minimized"
-			wid:resize_relative(0,-content.drawbox.h)
+			wid:set_state("minimized")
 		else
-			wid.state = "maximized"
-			wid:resize_relative(0,content.drawbox.h)
+			wid:set_state("maximized")
 		end
 	end
 	
@@ -1356,12 +1421,24 @@ function derp:create_workspace(x,y,w,h,from_path)
 	function wid:load_new_componentdata(data)			
 		self.component_data = data
 		self.childwidgets = { }
-		
+
+		local id = 0
+
 		for k,v in pairs(self.component_data.components) do
-		  local new_wid = derp_components[v.group][v.type]:create_widget(v)
-		  new_wid.component_id = v.id
+			local new_wid = derp_components[v.group][v.type]:create_widget(v)
+			new_wid.component_id = v.id
 			self:addwidget(new_wid,v.id)
+			
+			print(v.id)
+			
+			local id_num = tonumber(string.match(v.id,"%d"))
+			
+			if id_num > id then
+				id = id_num
+			end
 		end
+		
+		self.id_counter = id + 1
 	end
 	
 	function wid:redo()

@@ -82,16 +82,60 @@ end]]
 --client:disconnect()
 
 ----------------------------------------------
+
+--local ws = nil
+
 -- setup menus
-local file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = function () app.reboot() end}},
-				           {"Open...", {tooltip = "Open previous workspace from file...", onclick = function() local filename = app.opendialog(); if not (filename == nil) then derp:open_workspace(filename,derp.active_workspace) else print("Did not open!") end end}},
-				           {"Save As...", {tooltip = "Save current workspace to file...", onclick = function() local filename = app.savedialog("workspace.derp"); if not (filename == nil) then derp:save(filename,derp.active_workspace) else print("Did not save!") end end}},
-                   {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () app.quit() end}},
+
+
+file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = 
+									function () 	
+										--ws = derp.active_workspace
+										--derp:save("recent_workspace.derp",derp.active_workspace)
+										derp:store_settings()
+										app.reboot() 
+									end}},
+			   {"Open...", {tooltip = "Open previous workspace from file...", onclick = function() local filename = app.opendialog(); if not (filename == nil) then derp:open_workspace(filename,derp.active_workspace) else print("Did not open!") end end}},
+			   {"Open Recent...",{ menu = { }
+							}},
+			   {"Save As...", {tooltip = "Save current workspace to file...", onclick = function() local filename = app.savedialog("workspace.derp"); if not (filename == nil) then derp:save(filename,derp.active_workspace) else print("Did not save!") end end}},
+               {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () derp:store_settings() app.quit() end}},
                   }
 local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C", onclick = function () print("copy!!") end}},
                    {"Paste", {tooltip = "Paste render block.", shortcut = "Ctrl-V", onclick = function () print("paste!!") end}},
+				   {"Minimize all", {tooltip = "Minimize all components.", shortcut = "Alt-A", onclick = 
+						function () 
+							for k,v in pairs(derp.active_workspace.childwidgets) do
+								v:set_state("minimized")
+							end
+						end}},
+					{"Maximize all", {tooltip = "Maximize all components.", shortcut = "Alt-A", onclick = 
+						function () 
+							for k,v in pairs(derp.active_workspace.childwidgets) do
+								v:set_state("maximized")
+							end
+						end}},
+					{"Minimize all bodies", {tooltip = "Minimize all component bodies.", shortcut = "Alt-A", onclick = 
+						function () 
+							for k,v in pairs(derp.active_workspace.childwidgets) do
+								v.body:set_state("minimized")
+							end
+						end}},
+					{"Maximize all bodies", {tooltip = "Maximize all component bodies.", shortcut = "Alt-A", onclick = 
+						function () 
+							for k,v in pairs(derp.active_workspace.childwidgets) do
+								v.body:set_state("maximized")
+							end
+						end}},
                    {"Settings", {tooltip = "Show settings dialog.", onclick = spawn_settingswindow}},
-                   {"Quick Settings", {menu = {{"GUI Settings", {menu = {{"Switch render mode", {tooltip = "Switch rendermodes; Fullscreen or stencil redraw.", onclick = function () if (app.rendermode == app.REDRAWMODE_FULL) then app.setrenderoption(app.REDRAWMODE_NORMAL) else app.setrenderoption(app.REDRAWMODE_FULL) end end}},
+                   {"Quick Settings", {menu = {{"GUI Settings", {menu = {{"Switch render mode", {tooltip = "Switch rendermodes; Fullscreen or stencil redraw.", onclick = 
+							function () 
+								if (app.rendermode == app.REDRAWMODE_FULL) then 
+									app.setrenderoption(app.REDRAWMODE_NORMAL) 
+								else 
+									app.setrenderoption(app.REDRAWMODE_FULL) 
+								end 
+							end}},
                                                                    {"Show/hide redraw areas", {tooltip = "Show or hide redraw rectangles.", onclick = function () gui:toggle_show_redraw() end}}
                                                                   }
                                                           }
@@ -182,6 +226,8 @@ derp.top_layer_id = #gui.widgets.childwidgets
 --gui.widgets:addwidget(navigator)
 
 derp:init()
+
+--derp:open_workspace("recent_workspace.derp",ws)
 
 ----------------------------------------------
 -- initial draw
