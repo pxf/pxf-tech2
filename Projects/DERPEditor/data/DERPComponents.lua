@@ -315,6 +315,7 @@ function derp_components.aux.texture:generate_json(component_data)
      "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
                        "type" : "texture"}]
     }]]
+	 net.send_texture(component_data.texturefilepath)
     
   if (component_data.texturefilepath == "") then
     return spawn_error_dialog({"Missing texture filepath in block '" .. component_data.id .. "'!"})
