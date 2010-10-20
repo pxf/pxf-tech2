@@ -480,7 +480,7 @@ derp_components.aux.vec3constant = { name = "Script: Vec3"
                                     , tooltip = "Create a block that outputs a script that returns a vec3 value."
                                     }
 function derp_components.aux.vec3constant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 30, group = "aux", type = "vec3constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 200, h = 30, group = "aux", type = "vec3constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
   block.script = ""
@@ -497,8 +497,8 @@ function derp_components.aux.vec3constant:create_widget(component_data)
     print("script changed to: " .. self.value)
     derp:push_active_workspace()
   end
-  local scriptlabel = gui:create_labelpanel(5,10,8*6,20,"Script:")
-  local scriptinput = gui:create_textinput(10+8*6,10,150-8*6,false,component_data.script,script_changed)
+  local scriptlabel = gui:create_labelpanel(5,10,8*7,20,"Script:")
+  local scriptinput = gui:create_textinput(10+8*7,10,180-8*7,false,component_data.script,script_changed)
   wid.scriptinput = scriptinput
   wid:addwidget(scriptlabel)
   wid:addwidget(scriptinput)            
