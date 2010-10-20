@@ -18,7 +18,7 @@ function spawn_log_window(msg)
   
   function log_panel:update()
     self.lines = {}
-    for i=#backlog.data,#backlog.data-14,-1 do
+    for i=#backlog.data,#backlog.data-15,-1 do
       if i < 1 then
         break
       end

@@ -217,12 +217,12 @@ int DERPEditor::net_client_send(lua_State *L)
 				channel = i;
 
 			const char* message = lua_tolstring(L, -2, NULL);
-			client->Send(channel, message, strlen(message));
+			client->Send(channel, message, strlen(message)+1);
 		}
 		else if (lua_isnumber(L, -3))
 		{
 			const char* message = lua_tolstring(L, -2, NULL);
-			client->Send(lua_tonumber(L, -3), message, strlen(message));
+			client->Send(lua_tonumber(L, -3), message, strlen(message)+1);
 		}
 
 		return 0;
@@ -268,13 +268,13 @@ int DERPEditor::net_client_send_id(lua_State *L)
 
 			const char* message = lua_tolstring(L, -2, NULL);
 			const char* id = lua_tolstring(L, -4, NULL);
-			client->SendID(id, channel, message, strlen(message));
+			client->SendID(id, channel, message, strlen(message)+1);
 		}
 		else if (lua_isnumber(L, -3))
 		{
 			const char* message = lua_tolstring(L, -2, NULL);
 			client->SendID(lua_tolstring(L, -4, NULL), lua_tonumber(L, -3)
-				, message, strlen(message));
+				, message, strlen(message)+1);
 		}
 
 		return 0;

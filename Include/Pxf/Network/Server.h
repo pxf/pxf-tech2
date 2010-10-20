@@ -19,7 +19,15 @@ namespace Pxf
 
 			virtual Packet* Recv() = 0;
 			virtual Packet* RecvNonBlocking(const int _Timeout) = 0;
+
+			virtual int NumClients() = 0;
+			
+			// Single target.
 			virtual bool Send(const int _Client, const int _Type, const char* _Buf) = 0;
+			virtual bool SendID(const int _Client, const char* _ID, const int _Type, const char* _Buf, const int _Length) = 0;
+			virtual bool SendPacket(const int _Client, Network::Packet* _Packet) = 0;
+
+			// Broadcast targets.
 			virtual bool SendAll(const int _Type, const char* _Buf) = 0;
 			virtual bool SendAllL(const int _Type, const char* _Buf, const int _Length) = 0;
 			virtual bool SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length) = 0;

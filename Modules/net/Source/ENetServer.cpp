@@ -14,20 +14,20 @@ int ENetServer::CreateClientID()
 
 bool ENetServer::Bind(const int _Port)
 {
-	Address.host = ENET_HOST_ANY;
-	Address.port = _Port;
+	m_Address.host = ENET_HOST_ANY;
+	m_Address.port = _Port;
 
 //	Message("ENetServer", "Ident %d %d", Ident, NetDev->GetTags()->size());
-	Server = enet_host_create(&Address, 1, NetDev->GetTags()->size(), 0, 0);
+	m_Server = enet_host_create(&m_Address, 1, m_NetDev->GetTags()->size(), 0, 0);
 
 #if COMPRESSION == 1
 	enet_host_compress_with_range_coder(Server);
 	Message("ENetServer", "Enabling range-coder compression.");
 #endif
 
-	if (Server == NULL)
+	if (m_Server == NULL)
 	{
-		Message("ENetServer", "Could not bind to localhost:%d", Address.port);
+		Message("ENetServer", "Could not bind to localhost:%d", m_Address.port);
 		return false;
 	}
 
@@ -42,10 +42,10 @@ bool ENetServer::Shutdown()
 
 Pxf::Network::Packet* ENetServer::Recv()
 {
-	if (BufferedPackets.size() > 0)
+	if (m_BufferedPackets.size() > 0)
 	{
-		Network::Packet* bpack = BufferedPackets.front();
-		BufferedPackets.erase(BufferedPackets.begin());
+		Network::Packet* bpack = m_BufferedPackets.front();
+		m_BufferedPackets.erase(m_BufferedPackets.begin());
 
 		return bpack;
 	}
@@ -53,7 +53,7 @@ Pxf::Network::Packet* ENetServer::Recv()
 	ENetEvent event;
 
 	/* Loop until we hit an error. */
-	while (enet_host_service(Server, &event, 1000) >= 0)
+	while (enet_host_service(m_Server, &event, 1000) >= 0)
 	{
 		switch(event.type)
 		{
@@ -63,9 +63,11 @@ Pxf::Network::Packet* ENetServer::Recv()
 
 		case ENET_EVENT_TYPE_DISCONNECT:
 			Message("ENetServer", "Client disconnected: %d.", (int)event.peer->data);
+			m_Clients--;
 			break;
 
 		case ENET_EVENT_TYPE_CONNECT:
+			m_Clients++;
 			Message("ENetServer", "Client connected: %x:%u."
 				, event.peer->address.host, event.peer->address.port);
 			event.peer->data = (void*)CreateClientID();
@@ -101,10 +103,10 @@ Pxf::Network::Packet* ENetServer::Recv()
 
 Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 {
-	if (BufferedPackets.size() > 0)
+	if (m_BufferedPackets.size() > 0)
 	{
-		Network::Packet* bpack = BufferedPackets.front();
-		BufferedPackets.erase(BufferedPackets.begin());
+		Network::Packet* bpack = m_BufferedPackets.front();
+		m_BufferedPackets.erase(m_BufferedPackets.begin());
 
 		return bpack;
 	}
@@ -113,7 +115,7 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 	int stopTime = Platform::GetTime() + _Timeout;
 
 	/* Loop until we hit an error or timeout. */
-	while (enet_host_service(Server, &event, stopTime - Platform::GetTime()) >= 0)
+	while (enet_host_service(m_Server, &event, stopTime - Platform::GetTime()) >= 0)
 	{
 		switch(event.type)
 		{
@@ -124,12 +126,14 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 
 		case ENET_EVENT_TYPE_DISCONNECT:
 			Message("ENetServer", "Client disconnected: %d.", (int)event.peer->data);
+			m_Clients--;
 			break;
 
 		case ENET_EVENT_TYPE_CONNECT:
 			Message("ENetServer", "Client connected: %x:%u."
 				, event.peer->address.host, event.peer->address.port);
 			event.peer->data = (void*)CreateClientID();
+			m_Clients++;
 			break;
 
 		case ENET_EVENT_TYPE_RECEIVE:
@@ -162,16 +166,88 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 
 bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 {
-	// TODO: Change this.
 	ENetPacket *packet;
+	char ID[] = "und\0";
+	int Length = strlen(_Buf)+1;
+	int IDLength = strlen(ID)+1;
+	char* NewBuf = new char[Length+IDLength+10];
 
-	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
+	sprintf(NewBuf, "%c0000%s0000%s\0", 0, ID, _Buf);
 
-	enet_peer_send(&Server->peers[_Client], _Type, packet);
-	enet_packet_destroy(packet);
-	enet_host_flush(Server);
+	memcpy((NewBuf+1), &IDLength, 4);
+	memcpy((NewBuf+5+IDLength), &Length, 4);
+
+	packet = enet_packet_create(NewBuf, 10+IDLength+Length, ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
+	enet_peer_send(&m_Server->peers[_Client], _Type, packet);
 
 	Flush();
+	
+	delete []NewBuf;
+
+	return true;
+}
+
+bool ENetServer::SendID(const int _Client, const char* _ID, const int _Type, const char* _Buf, const int _Length)
+{
+	ENetPacket *packet;
+	int IDLength = strlen(_ID)+1;
+	char* NewBuf = new char[_Length+IDLength+10];
+
+	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
+
+	memcpy((NewBuf+1), &IDLength, 4);
+	memcpy((NewBuf+5+IDLength), &_Length, 4);
+
+	packet = enet_packet_create(NewBuf, 10+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
+	enet_peer_send(&m_Server->peers[_Client], _Type, packet);
+
+	Flush();
+	
+	delete []NewBuf;
+
+	return true;
+}
+
+bool ENetServer::SendPacket(const int _Client, Network::Packet* _Packet)
+{
+	ENetPacket *packet;
+
+	char* ID = _Packet->GetID();
+	int IDLength = strlen(ID)+1;
+	char* NewBuf = new char[5+IDLength+_Packet->GetLength()];
+	char* ptr;
+
+	sprintf(NewBuf, "%c0000%s", 1, ID);
+	MemoryCopy(NewBuf+1, &IDLength, 4);
+	ptr = (NewBuf+5+IDLength);
+
+	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
+
+	packet = enet_packet_create(NewBuf, 5+IDLength+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
+
+	enet_peer_send(&m_Server->peers[_Client], _Packet->GetTag(), packet);
+
+	Flush();
+
+	delete []NewBuf;
 
 	return true;
 }
@@ -179,35 +255,11 @@ bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 bool ENetServer::SendAll(const int _Type, const char* _Buf)
 {
 	return SendAllID("und", _Type, _Buf, strlen(_Buf));
-
-	/*
-	ENetPacket *packet;
-	ENetPeer *peer;
-
-	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
-
-	enet_host_broadcast(Server, _Type, packet);
-
-	Flush();
-
-	return true;
-	*/
 }
 
 bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
 {
 	return SendAllID("und", _Type, _Buf, _Length);
-
-/*	ENetPacket *packet;
-	ENetPeer *peer;
-
-	packet = enet_packet_create(_Buf, _Length, ENET_PACKET_FLAG_RELIABLE);
-
-	enet_host_broadcast(Server, _Type, packet);
-
-	Flush();
-
-	return true;*/
 }
 
 bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length)
@@ -229,7 +281,7 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 		Message("ENetServer", "Unable to create packet for sending.");
 		return false;
 	}
-	enet_host_broadcast(Server, _Type, packet);
+	enet_host_broadcast(m_Server, _Type, packet);
 
 	Flush();
 	
@@ -243,17 +295,17 @@ bool ENetServer::SendAllPacket(Network::Packet* _Packet)
 	ENetPacket *packet;
 
 	char* ID = _Packet->GetID();
-	char* NewBuf = new char[1+4+strlen(ID)+_Packet->GetLength()];
+	int IDLength = strlen(ID)+1;
+	char* NewBuf = new char[5+IDLength+_Packet->GetLength()];
 	char* ptr;
 
 	sprintf(NewBuf, "%c0000%s", 1, ID);
-	int IDLength = strlen(ID);
 	MemoryCopy(NewBuf+1, &IDLength, 4);
-	ptr = (NewBuf+1+4+strlen(ID));
+	ptr = (NewBuf+5+IDLength);
 
 	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
 
-	packet = enet_packet_create(NewBuf, 1+4+strlen(ID)+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(NewBuf, 5+IDLength+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
 
 	if (packet == NULL)
 	{
@@ -261,13 +313,17 @@ bool ENetServer::SendAllPacket(Network::Packet* _Packet)
 		return false;
 	}
 
-	enet_host_broadcast(Server, _Packet->GetTag(), packet);
+	enet_host_broadcast(m_Server, _Packet->GetTag(), packet);
 
 	Flush();
-
 	delete []NewBuf;
 
 	return true;
+}
+
+int ENetServer::NumClients()
+{
+	return m_Clients;
 }
 
 void ENetServer::Flush()
@@ -276,8 +332,7 @@ void ENetServer::Flush()
 	Network::Packet *rpack = RecvNonBlocking(0);
 	if (rpack != NULL)
 	{
-//		Message("aoeu", "Placing in buffer.");
-		BufferedPackets.push_back(rpack);
+		m_BufferedPackets.push_back(rpack);
 	}
 }
 
