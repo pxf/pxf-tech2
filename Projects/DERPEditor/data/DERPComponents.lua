@@ -75,7 +75,7 @@ function derp_components.output.simple:create_widget(component_data)
 
       -- concat and return!
       local final_json = "[" .. table.concat(output_blocks_json, ",") .. "]"
-      --print(final_json)
+      print("json data to send: " .. final_json)
 
 
       --return final_json
