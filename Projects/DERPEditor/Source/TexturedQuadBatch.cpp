@@ -11,27 +11,43 @@ using namespace DERPEditor;
 using namespace Pxf::Graphics;
 using namespace Pxf::Math;
 
-TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, const char* _texture_filepath, float* _currentdepth, Pxf::Math::Vec4f* _currentcolor, Pxf::Math::Mat4* _transformmatrix) :
+TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, const char* _texture_filepath, float* _currentdepth, Pxf::Math::Vec4f* _currentcolor, Pxf::Math::Mat4* _transformmatrix, bool _linear) :
     QuadBatch(_size, _currentdepth, _currentcolor, _transformmatrix)
 {
     m_TextureFilepath = _texture_filepath;
     
     // Load texture
     m_Texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture(m_TextureFilepath);
-    m_Texture->SetMagFilter(TEX_FILTER_NEAREST);
-    m_Texture->SetMinFilter(TEX_FILTER_NEAREST);
+		if (_linear)
+		{
+			m_Texture->SetMagFilter(TEX_FILTER_LINEAR);
+	    m_Texture->SetMinFilter(TEX_FILTER_LINEAR);
+		}
+		else
+		{
+			m_Texture->SetMagFilter(TEX_FILTER_NEAREST);
+	    m_Texture->SetMinFilter(TEX_FILTER_NEAREST);
+		}
     m_Texture->SetClampMethod(TEX_REPEAT);//TEX_CLAMP_TO_EDGE);
 }
 
-TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, int _width, int _height, int _channels, const unsigned char* _texture_data, float* _currentdepth, Pxf::Math::Vec4f* _currentcolor, Pxf::Math::Mat4* _transformmatrix) :
+TexturedQuadBatch::TexturedQuadBatch(unsigned int _size, int _width, int _height, int _channels, const unsigned char* _texture_data, float* _currentdepth, Pxf::Math::Vec4f* _currentcolor, Pxf::Math::Mat4* _transformmatrix, bool _linear) :
     QuadBatch(_size, _currentdepth, _currentcolor, _transformmatrix)
 {
     //m_TextureFilepath = _texture_filepath;
     
     // Load texture
     m_Texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData(_texture_data, _width, _height, _channels);
-    m_Texture->SetMagFilter(TEX_FILTER_NEAREST);
-    m_Texture->SetMinFilter(TEX_FILTER_NEAREST);
+		if (_linear)
+		{
+			m_Texture->SetMagFilter(TEX_FILTER_LINEAR);
+	    m_Texture->SetMinFilter(TEX_FILTER_LINEAR);
+		}
+		else
+		{
+			m_Texture->SetMagFilter(TEX_FILTER_NEAREST);
+	    m_Texture->SetMinFilter(TEX_FILTER_NEAREST);
+		}
     m_Texture->SetClampMethod(TEX_CLAMP_TO_EDGE);
 }
 

@@ -481,7 +481,7 @@ end
 
 function gui:init()
   self.themetex = gfx.loadtexture(2048*2, "data/guitheme_brown.png")
-  self.font = gfx.loadtexture(1024*4, "data/charmap_monaco_shadow.png")
+  self.font = gfx.loadtexture(1024*4, "data/charmap_monaco_shadow.png", true)
   self.mouse = {pushed = false, buttonid = nil, lastpos = {x=0,y=0}}
   
   self.use_customcursor = true

@@ -69,40 +69,44 @@ function derp_components.output.simple:create_widget(component_data)
   
   -- function that generates the pipeline-json-data
   function render_func(self,mx,my,button)
-  
-    -- get json for the tree
-    local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
-    
-    if not output_blocks_json then
-      return
-    end
-    
-    -- add pipeline specific data
-    table.insert(output_blocks_json, [[{"blockName" : "PipelineTree",
-       "blockType" : "PipelineTree",
-       "blockData" : { "root" : "]] .. tostring(self.parent.parent.parent.data.id) .. [[" }
-      }]])
-    
-    -- concat and return!
-    local final_json = "[" .. table.concat(output_blocks_json, ",") .. "]"
-    print(final_json)
-    
+
     -- connect to server
     local connect_fail = self.parent.parent.parent.client:connect(self.parent.parent.parent.data.remotehost, tonumber(self.parent.parent.parent.data.remoteport))
     if connect_fail then
       spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.parent.data.remotehost) .. "'.",
                           "Reason; '" .. connect_fail .. "'"})
     else
-      
-      net.send_texture("data/guitheme.png")
+    
+      -- get json for the tree
+      local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
+
+      if not output_blocks_json then
+        return
+      end
+
+      -- add pipeline specific data
+      table.insert(output_blocks_json, [[{"blockName" : "PipelineTree",
+         "blockType" : "PipelineTree",
+         "blockData" : { "root" : "]] .. tostring(self.parent.parent.parent.data.id) .. [[" }
+        }]])
+
+      -- concat and return!
+      local final_json = "[" .. table.concat(output_blocks_json, ",") .. "]"
+      --print(final_json)
+
+
+      --return final_json
+    
+      --net.send_texture("data/guitheme.png")
 
       -- send our pipeline
       --local new_packet = net.create_packet("", "pipeline" )
       self.parent.parent.parent.client:send("pipeline", final_json)
-      
-    end
     
-    --return final_json
+    end
+
+  
+    
   end
   
   wid.superupdate = wid.update
@@ -210,7 +214,7 @@ end
 -------------------------------------------------------------------------------
 -- Aux::model (constant)
 derp_components.aux.model = { name = "CTM Model"
-                                , tooltip = "Create a block that outputs model geometry."
+                              , tooltip = "Create a block that outputs model geometry."
                               }
 function derp_components.aux.model:new_block(workspace,x,y)
   local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "model", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
