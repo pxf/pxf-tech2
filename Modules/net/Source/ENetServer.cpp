@@ -63,9 +63,11 @@ Pxf::Network::Packet* ENetServer::Recv()
 
 		case ENET_EVENT_TYPE_DISCONNECT:
 			Message("ENetServer", "Client disconnected: %d.", (int)event.peer->data);
+			m_Clients--;
 			break;
 
 		case ENET_EVENT_TYPE_CONNECT:
+			m_Clients++;
 			Message("ENetServer", "Client connected: %x:%u."
 				, event.peer->address.host, event.peer->address.port);
 			event.peer->data = (void*)CreateClientID();
@@ -124,12 +126,14 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 
 		case ENET_EVENT_TYPE_DISCONNECT:
 			Message("ENetServer", "Client disconnected: %d.", (int)event.peer->data);
+			m_Clients--;
 			break;
 
 		case ENET_EVENT_TYPE_CONNECT:
 			Message("ENetServer", "Client connected: %x:%u."
 				, event.peer->address.host, event.peer->address.port);
 			event.peer->data = (void*)CreateClientID();
+			m_Clients++;
 			break;
 
 		case ENET_EVENT_TYPE_RECEIVE:

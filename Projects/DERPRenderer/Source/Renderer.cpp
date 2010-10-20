@@ -204,17 +204,20 @@ void Renderer::Execute()
 				m_RootBlock->ResetPerformed();
 				m_RootBlock->Execute();
 
-				Resource::Image* img = m_gfx->CreateImageFromTexture(GetResult());
-				Network::Packet* imgpacket = m_NetDevice->CreateEmptyPacket("imgdata", m_NetTag_Preview);
-				imgpacket->PushInt(img->Width());
-				imgpacket->PushInt(img->Height());
-				imgpacket->PushInt(img->Channels());
-				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+				if (m_Net->NumClients() > 0)
+				{
+					Resource::Image* img = m_gfx->CreateImageFromTexture(GetResult());
+					Network::Packet* imgpacket = m_NetDevice->CreateEmptyPacket("imgdata", m_NetTag_Preview);
+					imgpacket->PushInt(img->Width());
+					imgpacket->PushInt(img->Height());
+					imgpacket->PushInt(img->Channels());
+					imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 
-				m_Net->SendAllPacket(imgpacket);
+					m_Net->SendAllPacket(imgpacket);
 
-				delete imgpacket;
-				delete img;
+					delete imgpacket;
+					delete img;
+				}
 			}
 			else
 			{
