@@ -112,7 +112,10 @@ int DERPEditor::net_send_file(lua_State *L)
 		for (;num>0;num--)
 		{
 			Network::Client* c = n->GetClient(num-1);
-			c->SendPacket(packet);
+			if (c)
+				c->SendPacket(packet);
+			else
+				Kernel::GetInstance()->Log(0, "Trying to send to invalid client.");
 		}
 
 		delete packet;

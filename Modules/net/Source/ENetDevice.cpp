@@ -26,8 +26,12 @@ ENetDevice::~ENetDevice()
 Server* ENetDevice::CreateServer()
 {
 	ENetServer* server = new ENetServer(this);
-	Servers.push_back(server);
 	server->Ident = ChildID++;
+
+	printf("LOL SCAPACITY %d\n", Servers.capacity());
+	for (int i=0;i<Servers.capacity();i++)
+		if (Servers[i] == NULL)
+			Servers[i] = server;
 
 	return (Server*)server;
 }
@@ -35,8 +39,12 @@ Server* ENetDevice::CreateServer()
 Client* ENetDevice::CreateClient()
 {
 	ENetClient* client = new ENetClient(this);
-	Clients.push_back(client);
 	client->Ident = ChildID++;
+
+	printf("LOL CCAPACITY %d\n", Clients.capacity());
+	for (int i=0;i<Clients.capacity();i++)
+		if (Clients[i] == NULL)
+			Clients[i] = client;
 
 	return (Client*)client;
 }
