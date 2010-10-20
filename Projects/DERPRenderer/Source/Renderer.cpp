@@ -195,9 +195,9 @@ void Renderer::Execute()
 		if (packet->GetTag() == m_NetTag_Datacache)
 		{
 			unsigned long hash = packet->GetObject<unsigned long>(0);
-			const char* filename = packet->GetObject<const char*>(1);
+			char* filename = packet->GetArray<char*>(packet->ObjectSize(1), 1);
 			unsigned long datalen = packet->GetObject<unsigned long>(2);
-			const char* data = packet->GetObject<const char*>(4);
+			char* data = packet->GetArray<char*>(packet->ObjectSize(3) ,3);
 			char hashstr[9] = {0};
 			Format(hashstr, "%X", hash);
 			char location[256];
