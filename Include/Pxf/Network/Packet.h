@@ -18,7 +18,7 @@ namespace Pxf
 			virtual char* GetID() = 0;
 
 			virtual bool PushObject(const int _Type, const void* _Buffer, unsigned int _Size) = 0;
-			virtual bool ReadObject(void* _Buffer, const int _Pos) = 0;
+			virtual bool ReadObject(void* _Buffer, const int _BufferSize, const int _Pos) = 0;
 
 			/* TYPES:
 			 * 0 = int
@@ -42,10 +42,9 @@ namespace Pxf
 
 			template<typename T> T GetArray(const int _Size, const int _Pos)
 			{
-				char* v = new char[_Size+1];
+				char* v = new char[_Size];
 
-				ReadObject(v, _Pos);
-				v[_Size] = '\0';
+				ReadObject(v, _Size, _Pos);
 
 				return v;
 			}
@@ -53,7 +52,7 @@ namespace Pxf
 			template<typename T> T GetObject(const int _Pos) 
 			{ 
 				T v;
-				ReadObject(&v, _Pos);
+				ReadObject(&v, ObjectSize(_Pos), _Pos);
 					
 				return v;
 			}

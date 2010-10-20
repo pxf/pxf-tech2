@@ -43,7 +43,7 @@ namespace Pxf
 			virtual char* GetID();
 
 			virtual bool PushObject(const int _Type, const void* _Buffer, unsigned int _Size);
-			virtual bool ReadObject(void* _Buffer, const int _Pos);
+			virtual bool ReadObject(void* _Buffer, const int _BufferSize, const int _Pos);
 
 			virtual int ObjectType(const int _Pos);
 			virtual int ObjectSize(const int _Pos);
