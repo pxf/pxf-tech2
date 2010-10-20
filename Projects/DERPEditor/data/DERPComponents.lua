@@ -155,6 +155,10 @@ function derp_components.output.simple:generate_json(component_data)
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
       
+    elseif (v.type == "geometry") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+
     end
   end
   
