@@ -363,7 +363,7 @@ function gui:create_multiline_label(x,y,w,h,lines)
 	function base_widget:draw()
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
-    local max_len = math.floor(w / 6)
+    local max_len = math.floor(w / 8)
     for k,v in pairs(self.lines) do
       local len = gui:get_font_length(v)
       local out_str = v
