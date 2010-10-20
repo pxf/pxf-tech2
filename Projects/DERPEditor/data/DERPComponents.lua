@@ -208,6 +208,127 @@ function derp_components.output.simple:spawn_inspector(component_data)
 end
 
 -------------------------------------------------------------------------------
+-- Aux::model (constant)
+derp_components.aux.model = { name = "CTM Model"
+                                , tooltip = "Create a block that outputs model geometry."
+                              }
+function derp_components.aux.model:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "model", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  -- specific values
+  block.modelfilepath = ""
+  return block
+end
+
+function derp_components.aux.model:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,0,1)
+  
+  -- filepath
+  local filepathwidget = gui:create_centeredlabelpanel(0,5,170,50,component_data.modelfilepath)
+  wid.filepathwidget = filepathwidget
+  wid:addwidget(filepathwidget)
+  
+  function browse_func(self)
+    local new_filepath = app.opendialog()
+    if (new_filepath) then
+      self.parent.parent.parent.filepathwidget.label_text = new_filepath
+      self.parent.parent.parent.data.modelfilepath = new_filepath
+
+      derp:push_active_workspace()
+    end
+  end
+  
+  -- browse button
+  local browsebutton = gui:create_labelbutton(10,30,150,30,"Browse", browse_func)
+  wid.browsebutton = browsebutton
+  wid:addwidget(browsebutton)
+  
+  return wid
+end
+
+function derp_components.aux.model:generate_json(component_data)
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "AuxComp",
+     "blockData" : {"auxType" : "model",
+                    "filepath" : "]] .. tostring(component_data.texturefilepath) .. [[",
+                    "minfilter" : "nearest"
+                   },
+     "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
+                       "type" : "geometry"}]
+    }]]
+    
+  if (component_data.texturefilepath == "") then
+    return spawn_error_dialog({"Missing model filepath in block '" .. component_data.id .. "'!"})
+  end
+  
+  return {escape_backslashes(jsonstring)}
+end
+
+function derp_components.aux.model:spawn_inspector(component_data)
+  return "LOL TODO"
+end
+
+-------------------------------------------------------------------------------
+-- Aux::texture (constant)
+derp_components.aux.texture = { name = "Texture"
+                                , tooltip = "Create a block that outputs static texture."
+                              }
+function derp_components.aux.texture:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "texture", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  -- specific values
+  block.texturefilepath = ""
+  return block
+end
+
+function derp_components.aux.texture:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,0,1)
+  
+  -- filepath
+  local filepathwidget = gui:create_centeredlabelpanel(0,5,170,50,component_data.texturefilepath)
+  wid.filepathwidget = filepathwidget
+  wid:addwidget(filepathwidget)
+  
+  function browse_func(self)
+    local new_filepath = app.opendialog()
+    if (new_filepath) then
+      self.parent.parent.parent.filepathwidget.label_text = new_filepath
+      self.parent.parent.parent.data.texturefilepath = new_filepath
+
+      derp:push_active_workspace()
+    end
+  end
+  
+  -- browse button
+  local browsebutton = gui:create_labelbutton(10,30,150,30,"Browse", browse_func)
+  wid.browsebutton = browsebutton
+  wid:addwidget(browsebutton)
+  
+  return wid
+end
+
+function derp_components.aux.texture:generate_json(component_data)
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "AuxComp",
+     "blockData" : {"auxType" : "texture",
+                    "filepath" : "]] .. tostring(component_data.texturefilepath) .. [[",
+                    "minfilter" : "nearest"
+                   },
+     "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
+                       "type" : "texture"}]
+    }]]
+    
+  if (component_data.texturefilepath == "") then
+    return spawn_error_dialog({"Missing texture filepath in block '" .. component_data.id .. "'!"})
+  end
+  
+  return {escape_backslashes(jsonstring)}
+end
+
+function derp_components.aux.texture:spawn_inspector(component_data)
+  return "LOL TODO"
+end
+
+
+-------------------------------------------------------------------------------
 -- Aux::float (constant)
 derp_components.aux.floatconstant = { name = "Constant: Float"
                                     , tooltip = "Create a block that outputs a constant float value."
@@ -237,65 +358,6 @@ function derp_components.aux.floatconstant:spawn_inspector(component_data)
   return "LOL TODO"
 end
 
--------------------------------------------------------------------------------
--- Aux::texture (constant)
-derp_components.aux.texture = { name = "Texture"
-                                , tooltip = "Create a block that outputs static texture."
-                              }
-function derp_components.aux.texture:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 50, group = "aux", type = "texture", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
-  -- specific values
-  block.texturefilepath = ""
-  return block
-end
-
-function derp_components.aux.texture:create_widget(component_data)
-  local wid = derp:create_basecomponentblock(component_data,2,2)
-  
-  -- filepath
-  local filepathwidget = gui:create_centeredlabelpanel(0,80,170,50,component_data.texturefilepath)
-  wid.filepathwidget = filepathwidget
-  wid:addwidget(filepathwidget)
-  
-  function browse_func(self)
-    local new_filepath = app.opendialog()
-    if (new_filepath) then
-      self.parent.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.parent.data.texturefilepath = new_filepath
-
-      derp:push_active_workspace()
-    end
-  end
-  
-  -- browse button
-  local browsebutton = gui:create_labelbutton(10,10,150,30,"Browse", browse_func)
-  wid.browsebutton = browsebutton
-  wid:addwidget(browsebutton)
-  
-  return wid
-end
-
-function derp_components.aux.texture:generate_json(component_data)
-  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
-     "blockType" : "AuxComp",
-     "blockData" : {"auxType" : "texture",
-                    "filepath" : "]] .. tostring(component_data.texturefilepath) .. [[",
-                    "minfilter" : "nearest"
-                   },
-     "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
-                       "type" : "texture"}]
-    }]]
-    
-  if (component_data.texturefilepath == "") then
-    return spawn_error_dialog({"Missing texture filepath in block '" .. component_data.id .. "'!"})
-  end
-  
-  return {escape_backslashes(jsonstring)}
-end
-
-function derp_components.aux.texture:spawn_inspector(component_data)
-  return "LOL TODO"
-end
 
 -------------------------------------------------------------------------------
 -- Aux::float (constant)
