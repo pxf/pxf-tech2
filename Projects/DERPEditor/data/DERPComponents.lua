@@ -121,7 +121,9 @@ function derp_components.output.simple:create_widget(component_data)
             self.client:disconnect()
           elseif indata.id == "rlog" then
             local sys, what, msg = indata:get_object(0), indata:get_object(1), indata:get_object(2)
-            print(sys, what, msg)
+            --print(sys, what, msg)
+            msg = string.gsub(msg, "%d+", "^(1,0.6,0.6){%1}")
+            print("[^(1,0.6,0.6){" .. tostring(sys) .."}] " .. tostring(msg))
           end
           --[[for k,v in pairs(indata) do
             print(k,v)
