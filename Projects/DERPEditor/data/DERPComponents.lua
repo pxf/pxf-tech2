@@ -204,7 +204,7 @@ derp_components.render.geometry = { name = "Geometry renderer"
                               , tooltip = "Create a block that inputs geometry and renders to a texture."
                               }
 function derp_components.render.geometry:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", inputs = 2, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", inputs = 4, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.modelfilepath = ""
   return block
@@ -254,8 +254,8 @@ function derp_components.render.geometry:generate_json(component_data)
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
      "blockData" : {"width" : 512,
                     "height" : 512,
-  						//"cameraPosition" : "script2",
-  						//"cameraLookAt" : "script3",
+  						"cameraPosition" : "]] .. tostring(component_data.connections_in[1]) .. [[",
+  						"cameraLookAt" : "]] .. tostring(component_data.connections_in[2]) .. [[",
   						"cameraFov" : 45.0,
                     "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     varying vec3 n;
@@ -471,5 +471,59 @@ function derp_components.aux.vec2constant:generate_json(component_data)
 end
 
 function derp_components.aux.vec2constant:spawn_inspector(component_data)
+  return "LOL TODO"
+end
+
+-------------------------------------------------------------------------------
+-- Aux::vec3 (constant)
+derp_components.aux.vec3constant = { name = "Script: Vec3"
+                                    , tooltip = "Create a block that outputs a script that returns a vec3 value."
+                                    }
+function derp_components.aux.vec3constant:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 100, h = 30, group = "aux", type = "vec3constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  
+  -- specific values
+  block.script = ""
+  
+  return block
+end
+
+function derp_components.aux.vec3constant:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data)
+  
+  -- script input
+  function script_changed(self)
+    self.parent.parent.parent.data.script = self.value
+    print("script changed to: " .. self.value)
+    derp:push_active_workspace()
+  end
+  local scriptlabel = gui:create_labelpanel(5,10,8*6,20,"Script:")
+  local scriptinput = gui:create_textinput(10+8*6,10,150-8*6,false,component_data.script,script_changed)
+  wid.scriptinput = scriptinput
+  wid:addwidget(scriptlabel)
+  wid:addwidget(scriptinput)            
+  
+  return wid
+end
+
+function derp_components.aux.vec3constant:generate_json(component_data)
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "AuxComp",
+     "blockData" : {"auxType" : "script",
+                    "src" : "]] .. tostring(component_data.script) .. [["
+                   },
+     "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
+                       "type" : "vec3"}]
+    }]]
+	 
+    
+  if (component_data.texturefilepath == "") then
+    return spawn_error_dialog({"Missing texture filepath in block '" .. component_data.id .. "'!"})
+  end
+  
+  return {escape_backslashes(jsonstring)}
+end
+
+function derp_components.aux.vec3constant:spawn_inspector(component_data)
   return "LOL TODO"
 end
