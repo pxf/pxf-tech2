@@ -114,7 +114,9 @@ void AuxiliaryBlock::BuildGraph()
 			{
 				if (m_AuxType == AUXILIARY_MODEL)
 				{
-					Graphics::Model* model = m_gfx->CreateModel(m_AuxData);
+					char filepath[256] = {0};
+					Format(filepath, "datacache/%s", m_AuxData);
+					Graphics::Model* model = m_gfx->CreateModel(filepath);
 					m_Outputs.insert( std::make_pair((*iter).first, (void*)model) );
 				} else {
 					Message("AuxiliaryBlock",  "Incompatable auxiliary type and output type.");

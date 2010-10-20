@@ -12,7 +12,7 @@
   {"blockName" : "auxinput1",
    "blockType" : "AuxComp",
    "blockData" : {"auxType" : "texture",
-                  "filepath" : "data/derptest.png",
+                  "filepath" : "10828EF0_derptest.png",
                   "minfilter" : "nearest"
                  },
    "blockOutput" : [{"name" : "texture1",
@@ -31,7 +31,7 @@
   {"blockName" : "auxinput3",
    "blockType" : "AuxComp",
    "blockData" : {"auxType" : "model",
-                  "filepath" : "data/teapot.ctm"
+                  "filepath" : "82CAA962_teapot.ctm"
                  },
    "blockOutput" : [{"name" : "geo1",
                      "type" : "geometry"}]
