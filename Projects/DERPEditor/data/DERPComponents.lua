@@ -1,26 +1,9 @@
 derp_components = {}
 derp_components.aux = {name = "Auxiliary Blocks"}
 derp_components.output = {name = "Output Blocks"}
---derp_components.render = {}
+derp_components.render = {name = "Render Blocks"}
 --derp_components.postprocess = {}
 --derp_components.output = {}
-
--- Aux::Script
---[[derp_components.aux.script = { name = "Generic Script Block"
-                             , tooltip = "Create a generic Lua script block."
-                             }
-function derp_components.aux.script:new_block(x,y)
-  local block = { x = x, y = y, w = 100, h = 100, group = "aux", type = "script", inputs = {}, outputs = { 0 } }
-  return block
-end
-
-function derp_components.aux.script:generate_json(component_data)
-  return "LOL TODO"
-end
-
-function derp_components.aux.script:draw(component_data)
-  -- TODO: draw component in workspace
-end]]
 
 
 -------------------------------------------------------------------------------
@@ -212,6 +195,90 @@ function derp_components.output.simple:spawn_inspector(component_data)
 end
 
 -------------------------------------------------------------------------------
+-- Renderer::geometry
+derp_components.render.geometry = { name = "Geometry renderer"
+                              , tooltip = "Create a block that inputs geometry and renders to a texture."
+                              }
+function derp_components.render.geometry:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", inputs = 2, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  -- specific values
+  block.modelfilepath = ""
+  return block
+end
+
+function derp_components.render.geometry:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,2,1)
+  
+  return wid
+end
+
+function derp_components.render.geometry:generate_json(component_data)
+
+  local input_array = {}
+  local input_array_shader = {}
+
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+  
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
+    end
+  end
+
+  local first_texture = nil
+  for k,v in pairs(component_data.connections_in) do
+    if (v.type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+    end
+  end
+
+  if (first_texture == nil) then
+    return spawn_error_dialog({"Output block needs at least one input!"})
+  end
+
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Render",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"width" : 512,
+                    "height" : 512,
+  						//"cameraPosition" : "script2",
+  						//"cameraLookAt" : "script3",
+  						"cameraFov" : 45.0,
+                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    varying vec3 n;
+  						      void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  							      n = gl_Normal;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    varying vec3 n;
+                    void main()
+                    {
+  							      gl_FragColor = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                    }"
+                   },
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
+    }]]
+  
+  return {escape_backslashes(jsonstring)}
+end
+
+function derp_components.render.geometry:spawn_inspector(component_data)
+  return "LOL TODO"
+end
+
+
+-------------------------------------------------------------------------------
 -- Aux::model (constant)
 derp_components.aux.model = { name = "CTM Model"
                               , tooltip = "Create a block that outputs model geometry."
@@ -250,10 +317,11 @@ function derp_components.aux.model:create_widget(component_data)
 end
 
 function derp_components.aux.model:generate_json(component_data)
+  local new_filename = net.send_file(component_data.modelfilepath)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",
      "blockData" : {"auxType" : "model",
-                    "filepath" : "]] .. tostring(component_data.texturefilepath) .. [[",
+                    "filepath" : "]] .. tostring(new_filename) .. [[",
                     "minfilter" : "nearest"
                    },
      "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
@@ -310,16 +378,17 @@ function derp_components.aux.texture:create_widget(component_data)
 end
 
 function derp_components.aux.texture:generate_json(component_data)
+  local new_filename = net.send_file(component_data.texturefilepath)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",
      "blockData" : {"auxType" : "texture",
-                    "filepath" : "]] .. tostring(component_data.texturefilepath) .. [[",
+                    "filepath" : "]] .. tostring(new_filename) .. [[",
                     "minfilter" : "nearest"
                    },
      "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
                        "type" : "texture"}]
     }]]
-	 net.send_texture(component_data.texturefilepath)
+	 
     
   if (component_data.texturefilepath == "") then
     return spawn_error_dialog({"Missing texture filepath in block '" .. component_data.id .. "'!"})
