@@ -26,19 +26,23 @@ namespace Pxf
 		class ENetServer : public Pxf::Network::Server
 		{
 		private:
-			ENetAddress Address;
-			ENetHost *Server;
-			Network::NetworkDevice* NetDev;
+			ENetAddress m_Address;
+			ENetHost *m_Server;
+			Network::NetworkDevice* m_NetDev;
 			
 			int CreateClientID();
 
-			Util::Array<Network::Packet*> BufferedPackets;
+			Util::Array<Network::Packet*> m_BufferedPackets;
 
 			void Flush();
 
+			int m_Clients;
+
 		public:
 			ENetServer(Network::NetworkDevice* _NetworkDevice)
-				: NetDev(_NetworkDevice)
+				: m_NetDev(_NetworkDevice)
+				, m_Server(NULL)
+				, m_Clients(0)
 			{}
 			virtual ~ENetServer(){};
 			
@@ -47,6 +51,8 @@ namespace Pxf
 			
 			virtual Network::Packet* Recv();
 			virtual Network::Packet* RecvNonBlocking(const int _Timeout);
+
+			virtual int NumClients();
 
 			// Single target.
 			virtual bool Send(const int _Client, const int _Type, const char* _Buf);

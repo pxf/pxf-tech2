@@ -14,20 +14,20 @@ int ENetServer::CreateClientID()
 
 bool ENetServer::Bind(const int _Port)
 {
-	Address.host = ENET_HOST_ANY;
-	Address.port = _Port;
+	m_Address.host = ENET_HOST_ANY;
+	m_Address.port = _Port;
 
 //	Message("ENetServer", "Ident %d %d", Ident, NetDev->GetTags()->size());
-	Server = enet_host_create(&Address, 1, NetDev->GetTags()->size(), 0, 0);
+	m_Server = enet_host_create(&m_Address, 1, m_NetDev->GetTags()->size(), 0, 0);
 
 #if COMPRESSION == 1
 	enet_host_compress_with_range_coder(Server);
 	Message("ENetServer", "Enabling range-coder compression.");
 #endif
 
-	if (Server == NULL)
+	if (m_Server == NULL)
 	{
-		Message("ENetServer", "Could not bind to localhost:%d", Address.port);
+		Message("ENetServer", "Could not bind to localhost:%d", m_Address.port);
 		return false;
 	}
 
@@ -42,10 +42,10 @@ bool ENetServer::Shutdown()
 
 Pxf::Network::Packet* ENetServer::Recv()
 {
-	if (BufferedPackets.size() > 0)
+	if (m_BufferedPackets.size() > 0)
 	{
-		Network::Packet* bpack = BufferedPackets.front();
-		BufferedPackets.erase(BufferedPackets.begin());
+		Network::Packet* bpack = m_BufferedPackets.front();
+		m_BufferedPackets.erase(m_BufferedPackets.begin());
 
 		return bpack;
 	}
@@ -53,7 +53,7 @@ Pxf::Network::Packet* ENetServer::Recv()
 	ENetEvent event;
 
 	/* Loop until we hit an error. */
-	while (enet_host_service(Server, &event, 1000) >= 0)
+	while (enet_host_service(m_Server, &event, 1000) >= 0)
 	{
 		switch(event.type)
 		{
@@ -101,10 +101,10 @@ Pxf::Network::Packet* ENetServer::Recv()
 
 Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 {
-	if (BufferedPackets.size() > 0)
+	if (m_BufferedPackets.size() > 0)
 	{
-		Network::Packet* bpack = BufferedPackets.front();
-		BufferedPackets.erase(BufferedPackets.begin());
+		Network::Packet* bpack = m_BufferedPackets.front();
+		m_BufferedPackets.erase(m_BufferedPackets.begin());
 
 		return bpack;
 	}
@@ -113,7 +113,7 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 	int stopTime = Platform::GetTime() + _Timeout;
 
 	/* Loop until we hit an error or timeout. */
-	while (enet_host_service(Server, &event, stopTime - Platform::GetTime()) >= 0)
+	while (enet_host_service(m_Server, &event, stopTime - Platform::GetTime()) >= 0)
 	{
 		switch(event.type)
 		{
@@ -180,7 +180,7 @@ bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 		Message("ENetServer", "Unable to create packet for sending.");
 		return false;
 	}
-	enet_peer_send(&Server->peers[_Client], _Type, packet);
+	enet_peer_send(&m_Server->peers[_Client], _Type, packet);
 
 	Flush();
 	
@@ -207,7 +207,7 @@ bool ENetServer::SendID(const int _Client, const char* _ID, const int _Type, con
 		Message("ENetServer", "Unable to create packet for sending.");
 		return false;
 	}
-	enet_peer_send(&Server->peers[_Client], _Type, packet);
+	enet_peer_send(&m_Server->peers[_Client], _Type, packet);
 
 	Flush();
 	
@@ -239,7 +239,7 @@ bool ENetServer::SendPacket(const int _Client, Network::Packet* _Packet)
 		return false;
 	}
 
-	enet_peer_send(&Server->peers[_Client], _Packet->GetTag(), packet);
+	enet_peer_send(&m_Server->peers[_Client], _Packet->GetTag(), packet);
 
 	Flush();
 
@@ -277,7 +277,7 @@ bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, c
 		Message("ENetServer", "Unable to create packet for sending.");
 		return false;
 	}
-	enet_host_broadcast(Server, _Type, packet);
+	enet_host_broadcast(m_Server, _Type, packet);
 
 	Flush();
 	
@@ -309,12 +309,17 @@ bool ENetServer::SendAllPacket(Network::Packet* _Packet)
 		return false;
 	}
 
-	enet_host_broadcast(Server, _Packet->GetTag(), packet);
+	enet_host_broadcast(m_Server, _Packet->GetTag(), packet);
 
 	Flush();
 	delete []NewBuf;
 
 	return true;
+}
+
+int ENetServer::NumClients()
+{
+	return m_Clients;
 }
 
 void ENetServer::Flush()
@@ -323,7 +328,7 @@ void ENetServer::Flush()
 	Network::Packet *rpack = RecvNonBlocking(0);
 	if (rpack != NULL)
 	{
-		BufferedPackets.push_back(rpack);
+		m_BufferedPackets.push_back(rpack);
 	}
 }
 
