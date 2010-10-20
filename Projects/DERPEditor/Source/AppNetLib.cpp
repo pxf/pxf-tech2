@@ -80,7 +80,7 @@ int DERPEditor::net_gettags(lua_State *L)
 	return 0;
 }
 
-int DERPEditor::net_send_texture(lua_State *L)
+int DERPEditor::net_send_file(lua_State *L)
 {
 	if (lua_gettop(L) == 1)
 	{
@@ -119,7 +119,7 @@ int DERPEditor::net_send_texture(lua_State *L)
 		delete data;
 
 		char ret[256];
-		Format(ret, "datacache/%X_%s\0", hash, filename);
+		Format(ret, "%X_%s\0", hash, filename);
 
 		lua_pushstring(L, ret);
 		
@@ -784,7 +784,7 @@ int DERPEditor::luaopen_appnet(lua_State *L)
 		{"addtag", net_addtag},
 		{"gettags", net_gettags},
 		{"create_packet", net_packet_create_empty},
-		{"send_texture", net_send_texture},
+		{"send_file", net_send_file},
 		{NULL, NULL}
 	};
 
