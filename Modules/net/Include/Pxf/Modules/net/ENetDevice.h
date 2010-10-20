@@ -60,6 +60,8 @@ namespace Pxf
 
 			virtual Network::Packet* CreateEmptyPacket(const char* _ID, const int _Tag);
 			virtual Network::Packet* CreatePacket(char* _Data, const int _Tag, const int _Length, const int _Sender);
+
+			virtual int NumClients();
 		};
 	}
 }
