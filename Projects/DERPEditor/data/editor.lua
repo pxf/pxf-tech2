@@ -177,6 +177,8 @@ gui.widgets:addwidget(center_main_toolbar)
 gui.widgets:addwidget(workspace_tabs)
 gui.widgets:addwidget(inspector)
 gui.widgets:addwidget(workspace_frames)
+
+derp.top_layer_id = #gui.widgets.childwidgets
 --gui.widgets:addwidget(navigator)
 
 derp:init()

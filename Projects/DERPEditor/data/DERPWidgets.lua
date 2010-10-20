@@ -2033,7 +2033,7 @@ function derp:create_toolbar(x,y,w,h)
 	
 	function select_rect:action(action)
 		if action.tag == "mousepush" then
-			gui.widgets:addwidget(select_rect.draw_rect)
+			gui.widgets:addwidget(select_rect.draw_rect,derp.top_layer_id)
 			gui.focuswidget = derp.active_workspace
 		
 			self.new_drag = { x0 = action.x, y0 = action.y, x1 = action.x, y1 = action.y }
@@ -2251,13 +2251,21 @@ function derp:create_toolbar(x,y,w,h)
 	end
 	
 	function draggies:mousepush(mx,my)
+		draggies.front = gui.widgets.childwidgets[#gui.widgets.childwidgets]
+		
 		gui.widgets:addwidget(move_container)
+		gui.widgets:removewidget(wid)
+		gui.widgets:addwidget(wid)
+		
+		local w = gui.widgets.childwidgets
+	
+		for k,v in pairs(w) do
+			if v == wid then
+				self.save_k = k
+			end
+		end
 		
 		self.parent:needsredraw()
-		
-		gui.widgets:removewidget(wid)
-		
-		gui.widgets:addwidget(wid)
 		
 		wid:move_abs(mx,my)
 	end
@@ -2321,10 +2329,11 @@ function derp:create_toolbar(x,y,w,h)
 			local x,y = inp.getmousepos()
 			local hit = move_container:find_mousehit(x,y)			
 			
-			gui.widgets:removewidget(wid)
 			gui.widgets:removewidget(move_container)
+			gui.widgets:removewidget(wid)
 			
-			gui.widgets:addwidget(wid)
+			gui.widgets:addwidget(wid,self.save_k)
+			
 			gui:set_focus(wid)
 			
 			if hit.widget_type == "top arrow" then
@@ -2354,7 +2363,6 @@ function derp:create_toolbar(x,y,w,h)
 		end
 	end
 	
-	
 	wid.old_orientation = toolbar.orientation
 
 	function wid:set_state(drawstate)	
@@ -2363,6 +2371,7 @@ function derp:create_toolbar(x,y,w,h)
 		if wid.old_orientation ~= drawstate.orientation then
 			draggies:resize_abs(draggies.drawbox.h,draggies.drawbox.w)
 			separator:resize_abs(separator.drawbox.h,separator.drawbox.w)
+
 			wid.old_orientation = drawstate.orientation
 		end
 		
