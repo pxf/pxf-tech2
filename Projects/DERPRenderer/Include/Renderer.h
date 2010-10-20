@@ -50,7 +50,7 @@ namespace Derp
 		unsigned int m_JsonDataSize;
 		
 		
-		int m_NetTag_Pipeline, m_NetTag_Preview, m_NetTag_Profiling;
+		int m_NetTag_Pipeline, m_NetTag_Datacache, m_NetTag_Preview, m_NetTag_Profiling;
 
   private:
     //const char* m_Filepath;

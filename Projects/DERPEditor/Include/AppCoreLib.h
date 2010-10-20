@@ -11,18 +11,20 @@
 
 namespace DERPEditor
 {
-    // lib functions
-    int app_reboot(lua_State *L);
-    int app_quit(lua_State *L);
-    int app_traceback(lua_State *L);
-    int app_getwindimensions(lua_State *L);
+	// lib functions
+	int app_reboot(lua_State *L);
+	int app_quit(lua_State *L);
+	int app_traceback(lua_State *L);
+	int app_getwindimensions(lua_State *L);
 
-		int app_getmemusage(lua_State* L);
-		int app_savedialog(lua_State* L);
-		int app_opendialog(lua_State* L);
-    
-    int app__setrenderoption(lua_State *L);
-    int app__getrenderoption(lua_State *L);
+	int app_getmemusage(lua_State* L);
+	int app_savedialog(lua_State* L);
+	int app_opendialog(lua_State* L);
+
+	int app__setrenderoption(lua_State *L);
+	int app__getrenderoption(lua_State *L);
+
+	int util_hashfile(lua_State *L);
 
     // Register lib
     int luaopen_appcore (lua_State *L);
