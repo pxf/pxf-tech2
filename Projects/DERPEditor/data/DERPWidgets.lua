@@ -919,8 +919,9 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	wid:calc_height()
 	
+	wid.body = body
 	function wid:addwidget(cwid)
-		body:addwidget(cwid)
+		self.body:addwidget(cwid)
 	end
 	
 	wid.super_draw = wid.draw
@@ -1042,7 +1043,9 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		end
 	end
 	
+	content.super_update = content.update
 	function content:update()	
+	  content:super_update()
 		if body.state == "minimize_animation" then
 			local dy = animation_control.dy*animation_control.speed
 			
