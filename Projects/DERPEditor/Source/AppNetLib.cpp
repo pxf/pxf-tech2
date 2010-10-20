@@ -110,7 +110,10 @@ int DERPEditor::net_send_texture(lua_State *L)
 		int num = n->NumClients();
 
 		for (;num>=0;num--)
-			n->GetClient(num)->SendPacket(packet);
+			n->GetClient(num-1)->SendPacket(packet);
+
+		delete packet;
+		delete data;
 		
 		return 0;
 	}
