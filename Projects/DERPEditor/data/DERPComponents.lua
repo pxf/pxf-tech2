@@ -242,7 +242,7 @@ function derp_components.render.geometry:generate_json(component_data)
   end
 
   if (first_texture == nil) then
-    return spawn_error_dialog({"Output block needs at least one input!"})
+    return spawn_error_dialog({"Geometry block needs at least one texture!"})
   end
 
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
