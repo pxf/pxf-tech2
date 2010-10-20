@@ -16,7 +16,7 @@ function derp:init()
 	self.ws_menu = derp:create_workspace_menu()
 	self.ready = true
 
-	--self.settings = self:load_settings()
+	self.settings = self:load_settings()
 	
 	self.recent_files = self:create_recent_files_menu()
 end
