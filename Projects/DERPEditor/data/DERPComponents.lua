@@ -29,10 +29,11 @@ derp_components.output.simple = { name = "Ouput: Simple"
                                 , tooltip = "Create a block that can render one texture on a remote machine."
                                 }
 function derp_components.output.simple:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 150, h = 80, group = "output", type = "simple", inputs = 1, outputs = {}, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 100, group = "output", type = "simple", inputs = 1, outputs = {}, connections_in = {} }
   
   -- specific values
   block.remotehost = "localhost"
+  block.remoteport = 7005
   
   return block
 end
@@ -44,13 +45,27 @@ function derp_components.output.simple:create_widget(component_data)
   
   -- host input
   function host_changed(self)
-    self.parent.parent.data.remotehost = self.value
+    self.parent.parent.parent.data.remotehost = self.value
     print("host changed to: " .. self.value)
     derp:push_active_workspace()
   end
-  local hostinput = gui:create_textinput(10,10,80,false,component_data.remotehost,host_changed)
+  local hostlabel = gui:create_labelpanel(5,10,8*6,20,"Host:")
+  local hostinput = gui:create_textinput(10+8*6,10,150-8*6,false,component_data.remotehost,host_changed)
   wid.hostinput = hostinput
+  wid:addwidget(hostlabel)
   wid:addwidget(hostinput)
+  
+  -- port input
+  function port_changed(self)
+    self.parent.parent.parent.data.remoteport = tonumber(self.value)
+    print("port changed to: " .. self.value)
+    derp:push_active_workspace()
+  end
+  local portlabel = gui:create_labelpanel(5,35,8*6,20,"Port:")
+  local portinput = gui:create_textinput(10+8*6,35,150-8*6,false,tostring(component_data.remoteport),port_changed)
+  wid.portinput = portinput
+  wid:addwidget(portlabel)
+  wid:addwidget(portinput)
   
   -- function that generates the pipeline-json-data
   function render_func(self,mx,my,button)
@@ -73,7 +88,7 @@ function derp_components.output.simple:create_widget(component_data)
     print(final_json)
     
     -- connect to server
-    local connect_fail = self.parent.parent.parent.client:connect(self.parent.parent.parent.data.remotehost, 7005)
+    local connect_fail = self.parent.parent.parent.client:connect(self.parent.parent.parent.data.remotehost, tonumber(self.parent.parent.parent.data.remoteport))
     if connect_fail then
       spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.parent.data.remotehost) .. "'.",
                           "Reason; '" .. connect_fail .. "'"})
@@ -92,7 +107,6 @@ function derp_components.output.simple:create_widget(component_data)
   function wid:update()
       self:superupdate()
       if (self.client:connected()) then
-        print("connected")
         local indata = self.client:recv_noblock(0)
         if indata then
           print("got packet: " .. tostring(indata.id))
@@ -117,7 +131,7 @@ function derp_components.output.simple:create_widget(component_data)
   end
   
   -- render button
-  local renderbutton = gui:create_labelbutton(10,40,100,30,"Render", render_func)
+  local renderbutton = gui:create_labelbutton(10,70,150,30,"Render", render_func)
   wid.renderbutton = renderbutton
   wid:addwidget(renderbutton)
   
