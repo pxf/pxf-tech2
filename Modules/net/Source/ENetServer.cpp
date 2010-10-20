@@ -162,16 +162,88 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 
 bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 {
-	// TODO: Change this.
 	ENetPacket *packet;
+	char ID[] = "und\0";
+	int Length = strlen(_Buf)+1;
+	int IDLength = strlen(ID)+1;
+	char* NewBuf = new char[Length+IDLength+10];
 
-	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
+	sprintf(NewBuf, "%c0000%s0000%s\0", 0, ID, _Buf);
 
+	memcpy((NewBuf+1), &IDLength, 4);
+	memcpy((NewBuf+5+IDLength), &Length, 4);
+
+	packet = enet_packet_create(NewBuf, 10+IDLength+Length, ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
 	enet_peer_send(&Server->peers[_Client], _Type, packet);
-	enet_packet_destroy(packet);
-	enet_host_flush(Server);
 
 	Flush();
+	
+	delete []NewBuf;
+
+	return true;
+}
+
+bool ENetServer::SendID(const int _Client, const char* _ID, const int _Type, const char* _Buf, const int _Length)
+{
+	ENetPacket *packet;
+	int IDLength = strlen(_ID)+1;
+	char* NewBuf = new char[_Length+IDLength+10];
+
+	sprintf(NewBuf, "%c0000%s0000%s\0", 0, _ID, _Buf);
+
+	memcpy((NewBuf+1), &IDLength, 4);
+	memcpy((NewBuf+5+IDLength), &_Length, 4);
+
+	packet = enet_packet_create(NewBuf, 10+IDLength+_Length, ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
+	enet_peer_send(&Server->peers[_Client], _Type, packet);
+
+	Flush();
+	
+	delete []NewBuf;
+
+	return true;
+}
+
+bool ENetServer::SendPacket(const int _Client, Network::Packet* _Packet)
+{
+	ENetPacket *packet;
+
+	char* ID = _Packet->GetID();
+	int IDLength = strlen(ID)+1;
+	char* NewBuf = new char[5+IDLength+_Packet->GetLength()];
+	char* ptr;
+
+	sprintf(NewBuf, "%c0000%s", 1, ID);
+	MemoryCopy(NewBuf+1, &IDLength, 4);
+	ptr = (NewBuf+5+IDLength);
+
+	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
+
+	packet = enet_packet_create(NewBuf, 5+IDLength+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+
+	if (packet == NULL)
+	{
+		Message("ENetServer", "Unable to create packet for sending.");
+		return false;
+	}
+
+	enet_peer_send(&Server->peers[_Client], _Packet->GetTag(), packet);
+
+	Flush();
+
+	delete []NewBuf;
 
 	return true;
 }
@@ -179,35 +251,11 @@ bool ENetServer::Send(const int _Client, const int _Type, const char* _Buf)
 bool ENetServer::SendAll(const int _Type, const char* _Buf)
 {
 	return SendAllID("und", _Type, _Buf, strlen(_Buf));
-
-	/*
-	ENetPacket *packet;
-	ENetPeer *peer;
-
-	packet = enet_packet_create(_Buf, strlen(_Buf)+1, ENET_PACKET_FLAG_RELIABLE);
-
-	enet_host_broadcast(Server, _Type, packet);
-
-	Flush();
-
-	return true;
-	*/
 }
 
 bool ENetServer::SendAllL(const int _Type, const char* _Buf, const int _Length)
 {
 	return SendAllID("und", _Type, _Buf, _Length);
-
-/*	ENetPacket *packet;
-	ENetPeer *peer;
-
-	packet = enet_packet_create(_Buf, _Length, ENET_PACKET_FLAG_RELIABLE);
-
-	enet_host_broadcast(Server, _Type, packet);
-
-	Flush();
-
-	return true;*/
 }
 
 bool ENetServer::SendAllID(const char* _ID, const int _Type, const char* _Buf, const int _Length)
@@ -243,17 +291,17 @@ bool ENetServer::SendAllPacket(Network::Packet* _Packet)
 	ENetPacket *packet;
 
 	char* ID = _Packet->GetID();
-	char* NewBuf = new char[1+4+strlen(ID)+_Packet->GetLength()];
+	int IDLength = strlen(ID)+1;
+	char* NewBuf = new char[5+IDLength+_Packet->GetLength()];
 	char* ptr;
 
 	sprintf(NewBuf, "%c0000%s", 1, ID);
-	int IDLength = strlen(ID);
 	MemoryCopy(NewBuf+1, &IDLength, 4);
-	ptr = (NewBuf+1+4+strlen(ID));
+	ptr = (NewBuf+5+IDLength);
 
 	MemoryCopy(ptr, _Packet->GetData(), _Packet->GetLength());
 
-	packet = enet_packet_create(NewBuf, 1+4+strlen(ID)+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+	packet = enet_packet_create(NewBuf, 5+IDLength+_Packet->GetLength(), ENET_PACKET_FLAG_RELIABLE);
 
 	if (packet == NULL)
 	{
@@ -264,7 +312,6 @@ bool ENetServer::SendAllPacket(Network::Packet* _Packet)
 	enet_host_broadcast(Server, _Packet->GetTag(), packet);
 
 	Flush();
-
 	delete []NewBuf;
 
 	return true;
@@ -276,7 +323,6 @@ void ENetServer::Flush()
 	Network::Packet *rpack = RecvNonBlocking(0);
 	if (rpack != NULL)
 	{
-//		Message("aoeu", "Placing in buffer.");
 		BufferedPackets.push_back(rpack);
 	}
 }
