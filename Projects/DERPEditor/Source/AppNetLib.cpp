@@ -117,8 +117,13 @@ int DERPEditor::net_send_texture(lua_State *L)
 
 		delete packet;
 		delete data;
+
+		char ret[256];
+		Format(ret, "datacache/%X_%s\0", hash, filename);
+
+		lua_pushstring(L, ret);
 		
-		return 0;
+		return 1;
 	}
 	else
 	{
