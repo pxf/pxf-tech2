@@ -4,6 +4,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Debug.h>
+#include <Pxf/Base/Utils.h>
 
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Json.h>
@@ -86,7 +87,9 @@ void AuxiliaryBlock::BuildGraph()
 			
 			if (inputtype == "texture")
 			{
-				Graphics::Texture* toutputtex = m_gfx->CreateTexture(m_AuxData);
+				char filepath[256] = {0};
+				Format(filepath, "datacache/%s", m_AuxData);
+				Graphics::Texture* toutputtex = m_gfx->CreateTexture(filepath);
 				m_Outputs.insert( std::make_pair((*iter).first, (void*)toutputtex) );
 				
 			} else if (inputtype == "float")
