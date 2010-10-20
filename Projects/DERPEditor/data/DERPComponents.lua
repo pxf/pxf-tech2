@@ -254,8 +254,8 @@ function derp_components.render.geometry:generate_json(component_data)
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
      "blockData" : {"width" : 512,
                     "height" : 512,
-  						"cameraPosition" : "]] .. tostring(component_data.connections_in[1]) .. [[",
-  						"cameraLookAt" : "]] .. tostring(component_data.connections_in[2]) .. [[",
+  						"cameraPosition" : "]] .. tostring(component_data.connections_in[1].output) .. [[",
+  						"cameraLookAt" : "]] .. tostring(component_data.connections_in[2].output) .. [[",
   						"cameraFov" : 45.0,
                     "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     varying vec3 n;
