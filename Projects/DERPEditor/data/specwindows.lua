@@ -55,14 +55,15 @@ end
 
 
 function spawn_aboutwindow()
+  local width,height = 400,250
   local short_info = { "^(1,0.4,0.4){D}^(0.4,1,0.4){E}^(0.4,0.4,1){R}^(1,0.4,0.4){P} Editor is a bla bla bla,"
-                     , "yada yada yada."
-                     , "You might need to take a dump in your bed."
+                     , "apa beba cepa."
+                     , "TODO: Put some useful information here."
                      }
   
-  local about_window = gui:create_window("aboutdialog", app.width / 2 - 200,app.height / 2 - 125,400,250, false, "About")
-  local shortinfo_panel = gui:create_centeredmultiline_label(0,0,400,60,short_info)
-  local memory_panel = gui:create_labelpanel(0,60,400,20,"Memory usage: unknown")
+  local about_window = gui:create_window("aboutdialog", app.width / 2 - width/2,app.height / 2 - height/2,width,height, false, "About")
+  local shortinfo_panel = gui:create_centeredmultiline_label(0,0,width,60,short_info)
+  local memory_panel = gui:create_centeredlabelpanel(0,height-65,width-100,20,"Memory usage: unknown")
   
   about_window.panel:addwidget(shortinfo_panel)
   about_window.panel:addwidget(memory_panel)
@@ -75,6 +76,10 @@ function spawn_aboutwindow()
       memory_panel.label_text = "Memory usage: ^(0.4,0.4,1){" .. string.sub(tostring(app.getmemusage()/1024/1024), 1, 5) .. "}MB"
     end
   end
+  
+  -- ok button
+  local button = gui:create_labelbutton(width-100,height-70,80,30,"Close", function(self) self.parent.parent:destroy() end)
+  about_window.panel:addwidget(button)
   
   gui.windows:add(about_window)
 end
