@@ -64,7 +64,8 @@ namespace Derp
 		// internal pipeline representation
 		const char* m_RootName;
 		RootBlock* m_RootBlock;
-		
+
+		unsigned int m_NumRecieved;	
   };
 } /* Derp */
 

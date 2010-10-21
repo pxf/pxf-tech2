@@ -27,6 +27,7 @@ Renderer::Renderer(unsigned int _port)
 	, m_jsonloader(0)
 	, m_doc(0)
 	, m_JsonData(0)
+	, m_NumRecieved(0)
 {
 	// Set tags for network.
 	m_NetDevice = Pxf::Kernel::GetInstance()->GetNetworkDevice();
@@ -207,6 +208,13 @@ void Renderer::Execute()
 				stream.OpenWriteBinary(location);
 				stream.Write(data, datalen);
 				stream.Close();
+
+				m_NumRecieved++;
+				Network::Packet* ackpack = m_NetDevice->CreateEmptyPacket("ackres", m_NetTag_Datacache);
+				ackpack->PushInt(m_NumRecieved);
+				m_Net->SendAllPacket(ackpack);
+				delete ackpack;
+
 			}
 			else if (StringCompare(packet->GetID(), "ack") == 0)
 			{
@@ -245,6 +253,7 @@ void Renderer::Execute()
 					Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending final image to client '%d'", packet->GetSender());
 					m_Net->SendAllPacket(imgpacket);
 
+					m_NumRecieved = 0;
 					delete imgpacket;
 					delete img;
 				}
