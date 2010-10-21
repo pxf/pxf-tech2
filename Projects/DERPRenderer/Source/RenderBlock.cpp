@@ -133,7 +133,7 @@ void AuxiliaryBlock::BuildGraph()
 	}
 }
 
-bool AuxiliaryBlock::Execute()
+bool AuxiliaryBlock::Execute(_SendPreviews)
 {
 	if (!m_IsPerformed)
 	{
@@ -181,7 +181,7 @@ bool AuxiliaryBlock::Execute()
 		}
 	}
 	
-	return Block::Execute();
+	return Block::Execute(_SendPreviews);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -272,13 +272,13 @@ void RenderBlock::ResetPerformed()
 	Block::ResetPerformed();
 }
 
-bool RenderBlock::Execute()
+bool RenderBlock::Execute(_SendPreviews)
 {
 	if (!m_IsPerformed) {
 		// Execute prereqs
 		for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
 		{
-			(*iter).second->Execute();
+			(*iter).second->Execute(_SendPreviews);
 		}
 		
 		m_ProfileTimer.Start();
@@ -440,7 +440,7 @@ bool RenderBlock::Execute()
 		// do something with result m_ProfileTimer.Interval()
 		
 		// Send preview
-		if (m_Renderer->m_Net->NumClients() > 0)
+		if (_SendPreviews)//m_Renderer->m_Net->NumClients() > 0)
 		{
 			for (Util::Map<Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
 			{
@@ -466,7 +466,7 @@ bool RenderBlock::Execute()
 	}
 	
 	// Return
-	return Block::Execute();
+	return Block::Execute(_SendPreviews);
 }
 
 
@@ -546,13 +546,13 @@ void PostProcessBlock::ResetPerformed()
 	Block::ResetPerformed();
 }
 
-bool PostProcessBlock::Execute()
+bool PostProcessBlock::Execute(_SendPreviews)
 {
 	if (!m_IsPerformed) {
 		// Execute prereqs
 		for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
 		{
-			(*iter).second->Execute();
+			(*iter).second->Execute(_SendPreviews);
 		}
 		
 		m_ProfileTimer.Start();
@@ -649,7 +649,7 @@ bool PostProcessBlock::Execute()
 	}
 	
 	// Return
-	return Block::Execute();
+	return Block::Execute(_SendPreviews);
 }
 
 
@@ -717,13 +717,13 @@ void RootBlock::ResetPerformed()
 	Block::ResetPerformed();
 }
 
-bool RootBlock::Execute()
+bool RootBlock::Execute(_SendPreviews)
 {
 	if (!m_IsPerformed) {
 			// Execute prereqs
 		for (Util::Map<Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
 		{
-			(*iter).second->Execute();
+			(*iter).second->Execute(_SendPreviews);
 		}
 
 		// Setup OGL context etc
@@ -808,7 +808,7 @@ bool RootBlock::Execute()
 		m_Renderer->m_FBO->Detach(GL_COLOR_ATTACHMENT0_EXT);
 		
 		// Send preview
-		if (m_Renderer->m_Net->NumClients() > 0)
+		if (_SendPreviews)//m_Renderer->m_Net->NumClients() > 0)
 		{
 			for (Util::Map<Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
 			{
@@ -833,6 +833,6 @@ bool RootBlock::Execute()
 	}
 
 	// Return
-	return Block::Execute();
+	return Block::Execute(_SendPreviews);
 }
 
