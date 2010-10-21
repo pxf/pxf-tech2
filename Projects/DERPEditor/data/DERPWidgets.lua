@@ -4,10 +4,37 @@ derp = {}
 derp.active_workspace = nil
 derp.active_tool = { last = nil, current = nil }
 derp.ws_menu = nil
+derp.settings = { recent_files = { max_files = 10, files = {  } } }
+derp.ws_counter = 0
 
 function derp:init()
 	self.ws_menu = derp:create_workspace_menu()
 	self.ready = true
+
+	self:load_settings()
+	self.recent_files = self:create_recent_files_menu()
+end
+
+function derp:create_recent_files_menu()
+	
+	local menu_tbl = { }
+	
+	local i = 1
+	for k,v in pairs(derp.settings.recent_files.files) do
+		table.insert(menu_tbl, {i .. ": " .. v, {tooltip = "Open " .. v, onclick = 
+									function ()  
+										derp:open_workspace(v,derp.active_workspace)
+									end}} )
+		i = i + 1
+	end
+	
+	for k,v in pairs(file_menu) do
+		if v[1] == "Open Recent..." then
+			v[2].menu = menu_tbl 
+		end
+	end
+	
+	return menu
 end
 
 function derp:printstack()
@@ -24,6 +51,27 @@ function derp:print_activedata()
 	
 	print(ws)
 end	
+
+function derp:load_settings()
+	local file = io.open("data/editor_settings")
+	
+	if file then
+		self.settings = self:load("data/editor_settings")
+	end
+end
+
+function derp:store_settings()
+	local str = basic_serialize(derp.settings,0)
+	
+	local fname = "data/editor_settings"
+	local file = io.output(fname,"w")
+	
+	print("saving to file: " .. fname)
+	
+	io.write(str)
+	
+	file:close()
+end
 
 function derp:push_active_workspace()
   derp:push_workspace(derp.active_workspace)
@@ -90,6 +138,10 @@ end
 
 function derp:load(filename)
 	-- load from file
+	if not filename then
+		return nil
+	end
+	
 	local file = io.input(filename,"r")
 	local retval = nil
 	
@@ -316,8 +368,6 @@ function derp:create_workspace_menu()
 	function wid:hide()
 		self.visible = false
 		gui.widgets:removewidget(self)
-		
-		gui.focuswidget = derp.active_workspace.cam
 		derp:set_activetool(derp.active_tool.last)
 	end
 	
@@ -1042,28 +1092,36 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	local animation_control = { endy,y,dy,speed }
 	
-	function body_minimize_button:mousepush(mx,my,button)		
-		
-		if body.state == "minimized" then
-			body.state = "maximize_animation"
+	function body:set_state(state) 
+		if self.state == state then
+			return nil
+		end
+	
+		if state == "maximized" then
+			self.state = "maximize_animation"
 			
 			animation_control.endy = wid.data.h
 			animation_control.dy = 1
 			animation_control.y = 0
 			animation_control.speed = 5
-			
-		elseif body.state == "maximized" then
+		elseif state == "minimized" then
 			animation_control.endy = -wid.data.h
 			animation_control.dy = -1
 			animation_control.y = 0
 			animation_control.speed = 5
 			
-			body.state = "minimize_animation"
-			body.visible = false
+			self.state = "minimize_animation"
+			self.visible = false
+		end
+	end
+	
+	function body_minimize_button:mousepush(mx,my,button)		
+		
+		if body.state == "minimized" then
+			body:set_state("maximized")
 			
-		else
-			
-			--wid.data.h = 0
+		elseif body.state == "maximized" then
+			body:set_state("minimized")
 		end
 	end
 	
@@ -1110,13 +1168,23 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		end
 	end
 	
+	function wid:set_state(state)
+		if state == "maximized" then
+			self:resize_relative(0,content.drawbox.h)
+		elseif state == "minimized" then
+			self:resize_relative(0,-content.drawbox.h)
+		else
+			return nil
+		end
+		
+		self.state = state
+	end
+	
 	function minimize_button:mousepush(mx,my,button)
 		if wid.state == "maximized" then
-			wid.state = "minimized"
-			wid:resize_relative(0,-content.drawbox.h)
+			wid:set_state("minimized")
 		else
-			wid.state = "maximized"
-			wid:resize_relative(0,content.drawbox.h)
+			wid:set_state("maximized")
 		end
 	end
 	
@@ -1228,9 +1296,39 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	return wid
 end
 
+function derp:add_recent_file(path)
+	for k,v in pairs(self.settings.recent_files.files) do
+		if v == path then
+			self.settings.recent_files.files[k] = nil
+		end
+	end
+
+	table.insert(self.settings.recent_files.files,1,path)
+	self:create_recent_files_menu()
+	self:store_settings()
+end
 
 function derp:open_workspace(path)
-  derp.active_workspace:load_new_componentdata(derp:load(path))
+	self.active_workspace:load_new_componentdata(self:load(path))
+
+	self:add_recent_file(path)
+end
+
+function derp:new_workspace(w,h)
+	local ws = self:create_workspace(0,0,w,h)
+	
+	ws.widget_type = "workspace " .. self.ws_counter
+	self.ws_counter = self.ws_counter + 1
+	
+	if derp.active_workspace then
+		gui.widgets:removewidget(self.active_workspace)
+	end
+	
+	table.insert(gui.widgets.childwidgets,1,ws)
+	ws.parent = gui.widgets
+
+	self.active_workspace = ws
+	return ws
 end
 
 function derp:create_workspace(x,y,w,h,from_path)
@@ -1356,12 +1454,53 @@ function derp:create_workspace(x,y,w,h,from_path)
 	function wid:load_new_componentdata(data)			
 		self.component_data = data
 		self.childwidgets = { }
-		
+
+		local id = 0
+
 		for k,v in pairs(self.component_data.components) do
-		  local new_wid = derp_components[v.group][v.type]:create_widget(v)
-		  new_wid.component_id = v.id
+			local new_wid = derp_components[v.group][v.type]:create_widget(v)
+			new_wid.component_id = v.id
 			self:addwidget(new_wid,v.id)
+			
+			local id_num = tonumber(string.match(v.id,"%d"))
+			
+			if id_num > id then
+				id = id_num
+			end
 		end
+		
+		for k,v in pairs(self.childwidgets) do
+			for _,c in pairs(v.data.connections_in) do
+				local sw = derp.active_workspace:get_block(c.block)
+				local ss = sw:get_outputsocket(c.output)
+				
+				ss.connected = true
+				
+				for _,o in pairs(v.content.childwidgets) do
+					if o.input_id and o.input_id == c.input then
+						o.connected = true
+					end
+				end
+			end
+		end
+		
+		--[[
+		
+				table.insert(self.data.connections_in, {block = from_block, output = from_output, type = type_output, input = to_id})
+		
+		local startwid = derp.active_workspace:get_block(from_block)
+		local startsocket = startwid:get_outputsocket(from_output)
+		
+		startsocket.connected = true
+
+		for k,v in pairs(self.content.childwidgets) do
+			if v.input_id and v.input_id == to_id then
+				v.connected = true
+			end
+		end	]]
+		
+		
+		self.id_counter = id + 1
 	end
 	
 	function wid:redo()
@@ -2007,7 +2146,7 @@ function derp:create_toolbar(x,y,w,h)
 					end
 					
 					if changed then
-						derp:push_workspace(derp.active_workspace)
+						derp:push_active_workspace()
 					end	
 				end
 				
