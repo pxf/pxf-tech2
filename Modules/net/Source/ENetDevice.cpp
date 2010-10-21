@@ -15,9 +15,6 @@ ENetDevice::ENetDevice(Pxf::Kernel* _Kernel)
 	else
 		Message("ENetDevice", "enet initialized.");
 
-	Clients.resize(256);
-	Servers.resize(256);
-	
 	ChildID = 0;
 }
 
@@ -31,9 +28,10 @@ Server* ENetDevice::CreateServer()
 	ENetServer* server = new ENetServer(this);
 	server->Ident = ChildID++;
 
-	for (int i=0;i<Servers.capacity();i++)
+	Servers.push_back(server);
+/*	for (int i=0;i<Servers.capacity();i++)
 		if (Servers[i] == NULL)
-			Servers[i] = server;
+			Servers[i] = server;*/
 
 	return (Server*)server;
 }
@@ -43,9 +41,10 @@ Client* ENetDevice::CreateClient()
 	ENetClient* client = new ENetClient(this);
 	client->Ident = ChildID++;
 
-	for (int i=0;i<Clients.capacity();i++)
+	Clients.push_back(client);
+/*	for (int i=0;i<Clients.capacity();i++)
 		if (Clients[i] == NULL)
-			Clients[i] = client;
+			Clients[i] = client;*/
 
 	return (Client*)client;
 }
@@ -55,6 +54,7 @@ Server* ENetDevice::GetServer(const int _ServerIdent)
 	for (int i=0; i < Servers.size(); i++)
 		if (Servers[i] != NULL && Servers[i]->Ident == _ServerIdent)
 			return Servers[i];
+	
 	return NULL;
 }
 
@@ -63,6 +63,7 @@ Client* ENetDevice::GetClient(const int _ClientIdent)
 	for (int i=0; i < Clients.size(); i++)
 		if (Clients[i] != NULL && Clients[i]->Ident == _ClientIdent)
 			return Clients[i];
+	
 	return NULL;
 }
 
