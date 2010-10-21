@@ -202,6 +202,10 @@ function derp_components.output.simple:generate_json(component_data)
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
 
+    elseif (v.type == "invert") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+
     end
   end
   
@@ -240,6 +244,113 @@ end
 function derp_components.output.simple:spawn_inspector(component_data)
   return "LOL TODO"
 end
+
+
+
+-------------------------------------------------------------------------------
+-- PostProcess::Invert
+derp_components.postprocess.invert = { name = "Post Process: Invert Colors"
+                                , tooltip = "Create a block that inverts the colors of a texture."
+                                }
+function derp_components.postprocess.invert:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", inputs = 1, outputs = {derp:gen_new_outputname()}, connections_in = {} }
+  
+  return block
+end
+
+function derp_components.postprocess.invert:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,1,1)
+  
+  wid.suuuuuuupahdraw = wid.draw
+  function wid:draw(force)
+    self:suuuuuuupahdraw(force)
+    
+    --[[for k,v in pairs(self.data.outputs) do
+      print(k,v)
+    end]]
+    local preview = derp.active_workspace.preview_data[self.data.id]
+    if (preview ~= nil) then
+      gfx.translate(self.drawbox.x,self.drawbox.y-100)
+      preview:draw(0,0,64,0,64,64,0,64)
+      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
+    end
+  end
+  
+  return wid
+end
+
+function derp_components.postprocess.invert:generate_json(component_data)
+  local final_jsondata = {}
+  local input_array = {}
+  local input_array_shader = {}
+  
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+    
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
+    end
+  end
+  
+  local first_texture = nil
+  for k,v in pairs(component_data.connections_in) do
+    if (v.type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+      
+    elseif (v.type == "geometry") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+
+    elseif (v.type == "invert") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+
+    end
+  end
+  
+  if (first_texture == nil) then
+    return spawn_error_dialog({"Output block needs at least one input!"})
+  end
+  
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Post-Process",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"width" : 512,
+                    "height" : 512,
+                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    uniform float script1;
+                    void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    uniform float script1;
+                    void main()
+                    {
+                    	gl_FragData[0] = vec4(1.0) - texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                    }"
+                   },
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
+    },]]
+  
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
+  
+  return final_jsondata
+end
+
+function derp_components.postprocess.invert:spawn_inspector(component_data)
+  return "LOL TODO"
+end
+
 
 -------------------------------------------------------------------------------
 -- Renderer::geometry
