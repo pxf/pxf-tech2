@@ -124,7 +124,7 @@ function derp_components.output.simple:create_widget(component_data)
             msg = string.gsub(msg, "%d+", "^(1,0.6,0.6){%1}")
             print("[^(1,0.6,0.6){" .. tostring(sys) .."}] " .. tostring(msg))
             
-          elseif indata.id = "ackres" then
+          elseif indata.id == "ackres" then
             local remote_counter = indata:get_object(0)
             if (resources_counter == remote_counter) then
               -- sending json to server
