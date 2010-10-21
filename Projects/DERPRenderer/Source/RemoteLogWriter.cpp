@@ -17,9 +17,6 @@ bool Derp::RemoteLogWriter::WriteImpl(unsigned int _Tag, const char** _TagTable
 	else
 		TagName = _TagTable[TagID];
 
-
-	// Should format and add debug/warning/critical-flags
-	//char buff[4096];
 	const char* type = 0;
 	if (_Tag & Logger::IS_DEBUG)
 		type = "debug";
@@ -32,14 +29,12 @@ bool Derp::RemoteLogWriter::WriteImpl(unsigned int _Tag, const char** _TagTable
 	else
 		type = "unknown";
 
-	//Pxf::Format(buff, "(%s) %s | %s", TagName, type, _SrcBuffer);
-	//m_Server->SendAllID("rlog", m_NetLogTag, buff, Pxf::StringLength(buff));
-
 	Pxf::Network::Packet* logpacket = m_Device->CreateEmptyPacket("rlog", m_NetLogTag);
 	logpacket->PushString(TagName, Pxf::StringLength(TagName) + 1);
 	logpacket->PushString(type, Pxf::StringLength(type) + 1);
 	logpacket->PushString(_SrcBuffer, Pxf::StringLength(_SrcBuffer) + 1);
 	m_Server->SendAllPacket(logpacket);
+	delete logpacket;
 
 	return true;
 }

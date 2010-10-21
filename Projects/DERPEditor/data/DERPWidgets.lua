@@ -2,6 +2,7 @@ require("data/DERPComponents")
 
 derp = {}
 derp.active_workspace = nil
+derp.open_workspaces = { history = { }, stack = { }}
 derp.active_tool = { last = nil, current = nil }
 derp.ws_menu = nil
 derp.settings = { recent_files = { max_files = 10, files = {  } } }
@@ -86,7 +87,14 @@ function derp:push_workspace(ws)
 	
 	local str = basic_serialize(ws.component_data,0)
 	
-	--print(str)
+	
+	-- update data
+	
+	for k,v in pairs(self.open_workspaces.stack) do
+		if v.name == ws.name then
+			v.data = ws.component_data
+		end
+	end
 	
 	table.insert(ws.workspace_stack.stack,str)
 end
@@ -326,17 +334,16 @@ function derp:create_workspace_menu()
     local type_menu = {}
     for blocktype,v in pairs(types) do
       if not (blocktype == "name") then
-        table.insert(type_menu, {tostring(v.name), {tooltip = "Add " .. tostring(v.name), onclick = function()
-                                                                                     --local x,y = inp.getmousepos()
-																					 local x = self.addcomppos.x
-																					 local y = self.addcomppos.y
-																					                                           x = x - self.active_workspace.drawbox.x
-																					                                           y = y - self.active_workspace.drawbox.y
-                                                                                     self.active_workspace:addcomponent(v:new_block(self.active_workspace,x,y))
-                                                                                   end
-                                                   }
-                                }
-                    )
+        table.insert(type_menu, {tostring(v.name), {tooltip = "Add " .. tostring(v.name), onclick = 
+			function()
+				local x = self.addcomppos.x
+				local y = self.addcomppos.y
+			    x = x - self.active_workspace.drawbox.x
+			    y = y - self.active_workspace.drawbox.y
+				self.active_workspace:addcomponent(v:new_block(self.active_workspace,x,y))
+			end
+          }	
+		})
       end
     end
     
@@ -378,11 +385,10 @@ function derp:create_workspace_menu()
 	return wid
 end
 
-function derp:create_workspace_tabs(x,y,w,h,workspace)
+function derp:create_workspace_tabs(x,y,w,h)
 	local wid = gui:create_horizontalstack(x,y,w,h)
 	wid.widget_type = "workspace tabs"
 	wid.super_draw = wid.draw
-	wid.workspace = workspace
 	
 	function wid:draw(force)
 		if (self.redraw_needed or force) and self.visible then
@@ -397,11 +403,25 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 		self.drawbox.y = self.drawbox.y + h
 	end
 	
+	function wid:removetab(ws)
+		for k,v in pairs(self.childwidgets) do
+			if v.name == ws.name then
+				self.childwidgets[k] = nil
+			end
+		end
+	end
+	
 	function wid:addtab(name)
-		local ws = gui:create_basewidget(0,0,100,20)
+		local ws = gui:create_basewidget(0,0,130,20)
 		ws.widget_type = "workspace tab " .. #self.childwidgets
-		ws.parent = self
 		ws.super_find_mousehit = ws.find_mousehit
+		ws.name = name
+		ws.drawname = name
+		
+		if #name*10 > ws.drawbox.w then
+			ws.drawname = string.sub(name,#name-ws.drawbox.w/10,#name)  
+		end
+		
 		
 		function ws:draw(force)
 			if (self.redraw_needed or force) then
@@ -409,7 +429,16 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 				-- DRAW BG
 				gfx.drawtopleft(self.drawbox.x,0,self.drawbox.w,self.drawbox.h,9,1,1,1)
 				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,self.drawbox.h,508,0,1,128)
-
+				
+				
+				--gui:drawfont("^(0.878431373, 0.494117647,0){" .. wid.data.id .."}",20,9)
+				--gfx.scale(0.9)
+				--gui:drawfont("^(0.278431373 , 0.215686275,0.0941176471      ){".. name .. "}",self.drawbox.x + 8,10)
+				--gfx.scale(1/0.9)
+				
+				--gfx.scale(0.9)
+				gui:drawfont("^(1,1,1){".. ws.drawname .. "}",self.drawbox.x + 8,12)
+				--gfx.scale(1/0.9)
 				
 				-- DRAW BORDERS
 				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,1,1,5,1,1) -- TOP
@@ -830,6 +859,26 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
 	
+	wid.shortcuts = { { name = "copy", keys = {inp.LCTRL,"C"}, was_pressed = false, onpress = 
+							function () 
+								
+								local tbl = { }
+								
+								for k,v in pairs(derp.active_workspace.component_data.active_components) do
+									table.insert(tbl,v)
+								end	
+								
+								derp.active_workspace.copy_data = tbl
+							end},
+					  { name = "paste", keys = {inp.LCTRL,"V"}, was_pressed = false, onpress = 
+							function () 
+								for k,v in pairs(derp.active_workspace.copy_data) do
+									--self.active_workspace:addcomponent(v:new_block(self.active_workspace,x,y))
+									--derp.active_workspace:add_component(
+								end
+							end},
+					}
+	
 	local length = #component_data.id*8 + 20
 	
 	if length > (wid.drawbox.w - 12) then
@@ -860,6 +909,8 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	local minimize_button = gui:create_basewidget(wid.drawbox.w - 12,0,12,8)
 	local activate_button = gui:create_basewidget(0,0,10,10)
 	local body_minimize_button = gui:create_basewidget(0,0,12,12)
+	
+	header.shortcuts = wid.shortcuts
 	
 	content.io_height = io_height
 	wid.content = content
@@ -994,18 +1045,24 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 				local startwid = self.parent:get_block(v.block)
 				local startsocket = startwid:get_outputsocket(v.output)
 				local startx,starty
+				local endx,endy = -(self.drawbox.x - startwid.drawbox.x) + startwid.drawbox.w,-(self.drawbox.y - startwid.drawbox.y) + startsocket.drawbox.y + 7 + header.drawbox.h
 				
-				if self.state == "maximized" then
-					local endx,endy = -(self.drawbox.x - startwid.drawbox.x) + startwid.drawbox.w,-(self.drawbox.y - startwid.drawbox.y) + startsocket.drawbox.y + 7 + header.drawbox.h
+				startx = 0
+				starty = (v.input-1)* 14 + 7 + header.drawbox.h	
 				
-					startx,starty = 0, (v.input-1)* 14 + 7 + header.drawbox.h-- startsocket.drawbox.y + 7
-				
-					-- create spline from output-socket/-widget to ourself
-					-- TODO: This should only be done once, when the connection is created
-					local new_line = create_spline({{startx,starty},{endx,endy}}, 30, 2)
-					new_line:update()
-					new_line:draw()
+				if startwid.state == "minimized" then
+					endy = -(self.drawbox.y - startwid.drawbox.y) + header.drawbox.h / 2
 				end
+				
+				if self.state == "minimized" then
+					starty = header.drawbox.h / 2
+				end
+				
+				-- create spline from output-socket/-widget to ourself
+				-- TODO: This should only be done once, when the connection is created
+				local new_line = create_spline({{startx,starty},{endx,endy}}, 30, 2)
+				new_line:update()
+				new_line:draw()
 			end	
 			
 			gfx.translate(-self.drawbox.x,-self.drawbox.y)
@@ -1170,9 +1227,9 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	function wid:set_state(state)
 		if state == "maximized" then
-			self:resize_relative(0,content.drawbox.h)
+			self:resize_abs(self.drawbox.w,header.drawbox.h + content.drawbox.h)
 		elseif state == "minimized" then
-			self:resize_relative(0,-content.drawbox.h)
+			self:resize_abs(self.drawbox.w,header.drawbox.h)
 		else
 			return nil
 		end
@@ -1309,9 +1366,101 @@ function derp:add_recent_file(path)
 end
 
 function derp:open_workspace(path)
-	self.active_workspace:load_new_componentdata(self:load(path))
+	-- is file already open?
+	if self.active_workspace then
+		local data = self:load(path)
+	
+		self.active_workspace:load_new_componentdata(data)
+		self.active_workspace.name = path
 
-	self:add_recent_file(path)
+		self:push_wsstack(path,data)
+		self:push_wshistory(path)
+		
+		self:add_recent_file(path)
+		
+		workspace_tabs:addtab(path)
+		self.active_workspace.visible = true
+	end
+end
+
+function derp:push_wshistory(name)
+	-- find and remove in history and push to 
+	for k,v in pairs(self.open_workspaces.history) do
+		if v == name then
+			self.open_workspaces.history[k] = nil
+		end
+	end
+	
+	table.insert(self.open_workspaces.history,name)
+end
+
+function derp:pop_wshistory(name)
+	local next_ws = nil
+	local found = false
+	
+	for i = #self.open_workspaces.history,1,-1 do
+		if self.open_workspaces.history[i] == name then
+			found = true
+			self.open_workspaces.history[i] = nil
+		elseif found then
+			next_ws = self.open_workspaces.history[i]
+			break
+		end
+	end
+	
+	return next_ws
+end
+
+function derp:push_wsstack(name,wsdata)
+	for k,v in pairs(self.open_workspaces.stack) do
+		if v.name == name then
+			self.open_workspaces.stack[k] = nil
+			break
+		end
+	end
+	
+	local tbl = {name = name, data = wsdata}
+	table.insert(self.open_workspaces.stack,tbl)
+	
+end
+
+function derp:pop_wsstack(name)
+	for k,v in pairs(self.open_workspaces.stack) do
+		if v.name == name then
+			self.open_workspaces.stack[k] = nil
+		end
+	end
+end
+
+
+function derp:close_all_workspaces()
+	for k,v in pairs(self.open_workspaces.stack) do
+		self:close_workspace()
+	end
+end
+
+function derp:close_workspace(ws)
+	if not ws then
+		ws = derp.active_workspace
+	end
+	
+	print("closing " .. ws.name)
+
+	workspace_tabs:removetab(ws)
+	local next_ws = self:pop_wshistory(ws.name)
+	self:pop_wsstack(ws.name)
+	
+	if next_ws then
+		for k,v in pairs(self.open_workspaces.stack) do
+			if next_ws == v.name then
+				self.active_workspace:load_new_componentdata(v.data)
+				self.active_workspace.name = next_ws
+			end
+		end
+	else
+		self.active_workspace.visible = false
+		--gui.widgets:removewidget(self.active_workspace)
+	end
 end
 
 function derp:new_workspace(w,h)
@@ -1327,7 +1476,14 @@ function derp:new_workspace(w,h)
 	table.insert(gui.widgets.childwidgets,1,ws)
 	ws.parent = gui.widgets
 
+	ws.name = ws.widget_type
+
 	self.active_workspace = ws
+	workspace_tabs:addtab(ws.widget_type,ws)
+	
+	self:push_wshistory(ws.name)
+	self:push_wsstack(ws.name,{components = { }, active_components = { } })
+	
 	return ws
 end
 
@@ -1342,11 +1498,12 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.id_counter = 1
 	wid.output_counter = 1
 	wid.component_data = { active_components = {}, components = {}}
+	wid.copy_data = { }
 	wid.workspace_stack = { counter = 0, stack = {} }
 	wid.fullscreen = false
 	
 	
-	wid.shortcuts = { 	{ name = "show/hide workspace only", keys = {inp.TAB}, was_pressed = false, onpress = function () wid:toggle_fullscreen() end},
+	wid.shortcuts = {	{ name = "show/hide workspace only", keys = {inp.TAB}, was_pressed = false, onpress = function () wid:toggle_fullscreen() end},
 						{ name = "print data", keys = {"P"},was_pressed = false, onpress = function () derp:print_activedata() end },
 						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
@@ -1380,9 +1537,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 			end
 		else
 			for k,v in pairs(gui.widgets.childwidgets) do
-				if v ~= self then
 					v.visible = true
-				end
 			end
 			
 		end
@@ -1422,7 +1577,7 @@ function derp:create_workspace(x,y,w,h,from_path)
   end
 	
 	function wid:draw(force)
-		if (self.redraw_needed or force) then
+		if (self.redraw_needed or force) and self.visible then
 		  
 		  -- draw background
 			local old_alpha = gfx.getalpha()
@@ -1447,10 +1602,9 @@ function derp:create_workspace(x,y,w,h,from_path)
 	end
 	
 	function wid:addcomponent(comp)
-		local id = self:gen_new_blockname(comp.group) --"wid" .. wid.id_counter 
+		local id = self:gen_new_blockname(comp.group)
 		self.component_data.components[id] = comp
 		comp.id = id
-		--wid.id_counter = wid.id_counter + 1
 		
 		local new_comp = derp_components[comp.group][comp.type]:create_widget(comp)
 		new_comp.component_id = id
@@ -2205,7 +2359,7 @@ function derp:create_toolbar(x,y,w,h)
 	local toolbar = self:create_horizontal_toolbar(0,0,w,h,"horizontal")
 	
 	function move_ws:action(action)
-		if action.tag == "drag" then
+		if action.tag == "drag" and derp.active_workspace then
 		
 			local mx = action.dx
 			local my = action.dy
@@ -2240,41 +2394,44 @@ function derp:create_toolbar(x,y,w,h)
 			
 			self.draw_rect:resize_relative(action.dx,action.dy)
 		elseif action.tag == "mouserelease" then
-			-- sort coords
-			if self.new_drag.x0 > self.new_drag.x1 then
-				local tmp = self.new_drag.x0
-				self.new_drag.x0 = self.new_drag.x1
-				self.new_drag.x1 = tmp
-			end
-			
-			if self.new_drag.y0 > self.new_drag.y1 then
-				local tmp = self.new_drag.y0
-				self.new_drag.y0 = self.new_drag.y1
-				self.new_drag.y1 = tmp
-			end
-			
-			local hits = {}
-			
-			for k,v in pairs(derp.active_workspace.childwidgets) do
-				local hit = v:hittest(self.new_drag.x0 - derp.active_workspace.drawbox.x,
-									  self.new_drag.y0 - derp.active_workspace.drawbox.y,
-									  self.new_drag.x1 - derp.active_workspace.drawbox.x,
-									  self.new_drag.y1 - derp.active_workspace.drawbox.y)
+			if derp.active_workspace then
+				-- sort coords
+				if self.new_drag.x0 > self.new_drag.x1 then
+					local tmp = self.new_drag.x0
+					self.new_drag.x0 = self.new_drag.x1
+					self.new_drag.x1 = tmp
+				end
 				
-				if hit then
-					v.selected = true
-					table.insert(hits,v.id)
-				else
-					v.selected = false
+				if self.new_drag.y0 > self.new_drag.y1 then
+					local tmp = self.new_drag.y0
+					self.new_drag.y0 = self.new_drag.y1
+					self.new_drag.y1 = tmp
+				end
+				
+				local hits = {}
+			
+				for k,v in pairs(derp.active_workspace.childwidgets) do
+					local hit = v:hittest(self.new_drag.x0 - derp.active_workspace.drawbox.x,
+										  self.new_drag.y0 - derp.active_workspace.drawbox.y,
+										  self.new_drag.x1 - derp.active_workspace.drawbox.x,
+										  self.new_drag.y1 - derp.active_workspace.drawbox.y)
+					
+					if hit then
+						v.selected = true
+						table.insert(hits,v.id)
+					else
+						v.selected = false
+					end
+				end
+				
+				
+				derp.active_workspace.component_data.active_components = hits
+				
+				if #hits > 0 then
+					derp:push_workspace(derp.active_workspace)
 				end
 			end
-			
-			derp.active_workspace.component_data.active_components = hits
-			
-			if #hits > 0 then
-				derp:push_workspace(derp.active_workspace)
-			end
-			
+	
 			gui.widgets:removewidget(self.draw_rect)
 		end
 	end
@@ -2327,7 +2484,9 @@ function derp:create_toolbar(x,y,w,h)
 					derp.active_workspace.childwidgets[v].selected = false
 				end
 				
-				derp.active_workspace.component_data.active_components = {}
+				if derp.active_workspace then
+					derp.active_workspace.component_data.active_components = {}
+				end
 			end	
 			
 			--[[

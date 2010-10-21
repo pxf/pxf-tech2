@@ -64,13 +64,13 @@ int main()
 	kernel->RegisterModule("pri", 0xFFFF, true);
 	kernel->RegisterModule("img", 0xFFFF, true);
 	kernel->RegisterModule("mesh", 0xFFFF, true);
-	kernel->RegisterModule("snd", 0xFFFF, true);
+	//kernel->RegisterModule("snd", 0xFFFF, true);
 	kernel->RegisterModule("json", 0xFFFF, true);
 	kernel->RegisterModule("net", 0xFFFF, true);
 	kernel->DumpAvailableModules();
 
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
-	Audio::AudioDevice* snd = kernel->GetAudioDevice();
+	//Audio::AudioDevice* snd = kernel->GetAudioDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	Resource::ResourceManager* res = kernel->GetResourceManager();
 	Network::NetworkDevice* net = kernel->GetNetworkDevice();
@@ -101,8 +101,8 @@ int main()
 		}
 	}
 
-	snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
-				   ,settings["audio"].get("max_voices", 8).asUInt());
+	//snd->Initialize(settings["audio"].get("buffersize", 512).asUInt()
+	//			   ,settings["audio"].get("max_voices", 8).asUInt());
 
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;//renderer->m_Width;//settings["video"].get("width", 800).asInt();
