@@ -102,7 +102,7 @@ int DERPEditor::net_send_file(lua_State *L)
 		unsigned long hash = Hash(data, fsize);
 		s.Close();
 
-		Packet* packet = LuaApp::GetInstance()->m_net->CreateEmptyPacket("", 1 /* datacache */);
+		Packet* packet = LuaApp::GetInstance()->m_net->CreateEmptyPacket("res", 1 /* datacache */);
 
 		// hash, filename, datalen, data
 		packet->PushInt(hash);
@@ -133,7 +133,7 @@ int DERPEditor::net_send_file(lua_State *L)
 	}
 	else
 	{
-		lua_pushstring(L, "Invalid arguments passed to send_texture function!");
+		lua_pushstring(L, "Invalid arguments passed to send_file function!");
 		lua_error(L);
 	}
 

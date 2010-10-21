@@ -194,17 +194,24 @@ void Renderer::Execute()
 		// Some sort of data we need for rendering future pipeline
 		if (packet->GetTag() == m_NetTag_Datacache)
 		{
-			unsigned long hash = packet->GetObject<unsigned long>(0);
-			char* filename = packet->GetArray<char*>(packet->ObjectSize(1), 1);
-			unsigned long datalen = packet->GetObject<unsigned long>(2);
-			char* data = packet->GetArray<char*>(packet->ObjectSize(3) ,3);
-			char location[256];
-			Format(location, "datacache/%X_%s", (unsigned int)hash, filename);
-			Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Saving data to cache: %s", location);
-			FileStream stream;
-			stream.OpenWriteBinary(location);
-			stream.Write(data, datalen);
-			stream.Close();
+			if (StringCompare(packet->GetID(), "res") == 0)
+			{
+				unsigned long hash = packet->GetObject<unsigned long>(0);
+				char* filename = packet->GetArray<char*>(packet->ObjectSize(1), 1);
+				unsigned long datalen = packet->GetObject<unsigned long>(2);
+				char* data = packet->GetArray<char*>(packet->ObjectSize(3) ,3);
+				char location[256];
+				Format(location, "datacache/%X_%s", (unsigned int)hash, filename);
+				Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Saving data to cache: %s", location);
+				FileStream stream;
+				stream.OpenWriteBinary(location);
+				stream.Write(data, datalen);
+				stream.Close();
+			}
+			else if (StringCompare(packet->GetID(), "ack") == 0)
+			{
+				// has_everything_lets_do_some_rendering()
+			}
 		}
 		// New pipeline to render
 		else if (packet->GetTag() == m_NetTag_Pipeline)
