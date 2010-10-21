@@ -11,6 +11,8 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Json.h>
 
+#include <stdlib.h>
+
 using namespace Derp;
 using namespace Pxf;
 
