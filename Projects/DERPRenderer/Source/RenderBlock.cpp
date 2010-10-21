@@ -133,7 +133,7 @@ void AuxiliaryBlock::BuildGraph()
 	}
 }
 
-bool AuxiliaryBlock::Execute(_SendPreviews)
+bool AuxiliaryBlock::Execute(bool _SendPreviews)
 {
 	if (!m_IsPerformed)
 	{
@@ -272,7 +272,7 @@ void RenderBlock::ResetPerformed()
 	Block::ResetPerformed();
 }
 
-bool RenderBlock::Execute(_SendPreviews)
+bool RenderBlock::Execute(bool _SendPreviews)
 {
 	if (!m_IsPerformed) {
 		// Execute prereqs
@@ -546,7 +546,7 @@ void PostProcessBlock::ResetPerformed()
 	Block::ResetPerformed();
 }
 
-bool PostProcessBlock::Execute(_SendPreviews)
+bool PostProcessBlock::Execute(bool _SendPreviews)
 {
 	if (!m_IsPerformed) {
 		// Execute prereqs
@@ -717,7 +717,7 @@ void RootBlock::ResetPerformed()
 	Block::ResetPerformed();
 }
 
-bool RootBlock::Execute(_SendPreviews)
+bool RootBlock::Execute(bool _SendPreviews)
 {
 	if (!m_IsPerformed) {
 			// Execute prereqs
