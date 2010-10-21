@@ -86,8 +86,7 @@ void ENetDevice::KillServer(const int _ServerIdent)
 	while (iter != Servers.end())
 		if ((*iter)->Ident == _ServerIdent)
 		{
-			Servers.erase(iter);
-			iter++;
+			iter = Servers.erase(iter);
 			break;
 		}
 }
@@ -99,8 +98,7 @@ void ENetDevice::KillClient(const int _ClientIdent)
 	while (iter != Clients.end())
 		if ((*iter)->Ident == _ClientIdent)
 		{
-			Clients.erase(iter);
-			iter++;
+			iter = Clients.erase(iter);
 			break;
 		}
 }
