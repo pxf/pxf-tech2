@@ -1494,6 +1494,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.super_draw = wid.draw
 	wid.super_move_relative = wid.move_relative
 	
+	wid.preview_data = {}
 	wid.id_counter = 1
 	wid.output_counter = 1
 	wid.component_data = { active_components = {}, components = {}}
@@ -1556,6 +1557,16 @@ function derp:create_workspace(x,y,w,h,from_path)
   
 	-- function to lookup a block by id
 	function wid:get_block(block_id)
+	  for k,v in pairs(self.childwidgets) do
+	    if (v.component_id == block_id) then
+	      return v
+      end
+	  end
+	  return nil
+  end
+  
+  -- function to lookup a preview texture by block id
+	function wid:get_preview(block_id)
 	  for k,v in pairs(self.childwidgets) do
 	    if (v.component_id == block_id) then
 	      return v

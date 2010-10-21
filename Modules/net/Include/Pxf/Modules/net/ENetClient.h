@@ -46,6 +46,7 @@ namespace Pxf
 				, m_Client(NULL)
 				, m_Peer(NULL)
 			{}
+			virtual ~ENetClient();
 
 			virtual bool Connect(const char* _Host, const int _Port);
 			virtual bool Disconnect();

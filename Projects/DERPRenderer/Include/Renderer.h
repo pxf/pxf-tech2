@@ -51,6 +51,8 @@ namespace Derp
 		
 		
 		int m_NetTag_Pipeline, m_NetTag_Datacache, m_NetTag_Preview, m_NetTag_Profiling;
+		
+		bool m_SendPreviews;
 
   private:
     //const char* m_Filepath;
@@ -64,7 +66,8 @@ namespace Derp
 		// internal pipeline representation
 		const char* m_RootName;
 		RootBlock* m_RootBlock;
-		
+
+		unsigned int m_NumRecieved;	
   };
 } /* Derp */
 

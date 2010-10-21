@@ -390,9 +390,9 @@ function gui:create_centeredlabelpanel(x,y,w,h,text)
 		gfx.translate(self.drawbox.x,self.drawbox.y)
 
     local maxlen = math.ceil(self.drawbox.w / 12) - 3
-    local shortlabel = string.sub(self.label_text,-maxlen)
-    if (#shortlabel < #self.label_text) then
-      shortlabel = "..." .. shortlabel
+    local shortlabel = self.label_text--string.sub(self.label_text,-maxlen)
+    if (maxlen < gui:get_font_length(self.label_text)) then
+      shortlabel = "..." .. string.sub(shortlabel,-maxlen)
     end
 
 		gui:drawcenteredfont(shortlabel, self.drawbox.w / 2, 12)

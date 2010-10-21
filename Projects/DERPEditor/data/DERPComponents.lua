@@ -2,8 +2,17 @@ derp_components = {}
 derp_components.aux = {name = "Auxiliary Blocks"}
 derp_components.output = {name = "Output Blocks"}
 derp_components.render = {name = "Render Blocks"}
+derp_components.postprocess = {name = "Post-Process Blocks"}
 --derp_components.postprocess = {}
 --derp_components.output = {}
+
+
+resources_counter = 0
+net._send_file = net.send_file
+function net.send_file(filepath)
+  resources_counter = resources_counter + 1
+  return net._send_file(filepath)
+end
 
 
 -------------------------------------------------------------------------------
@@ -59,7 +68,12 @@ function derp_components.output.simple:create_widget(component_data)
       spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.parent.data.remotehost) .. "'.",
                           "Reason; '" .. connect_fail .. "'"})
     else
-    
+      -- clear resources_counter
+      resources_counter = 0
+      
+      -- clear previews
+      derp.active_workspace.preview_data = {}
+      
       -- get json for the tree
       local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
 
@@ -76,7 +90,8 @@ function derp_components.output.simple:create_widget(component_data)
       -- concat and return!
       local final_json = "[" .. table.concat(output_blocks_json, ",") .. "]"
       print("json data to send: " .. final_json)
-
+      
+      self.parent.parent.parent.final_pipeline = final_json
 
       --return final_json
     
@@ -84,7 +99,7 @@ function derp_components.output.simple:create_widget(component_data)
 
       -- send our pipeline
       --local new_packet = net.create_packet("", "pipeline" )
-      self.parent.parent.parent.client:send("pipeline", final_json)
+      --self.parent.parent.parent.client:send("pipeline", final_json)
     
     end
 
@@ -101,24 +116,53 @@ function derp_components.output.simple:create_widget(component_data)
           print("got packet: " .. tostring(indata.id))
           if (indata.id == "imgdata") then
             
-            local w,h,c = indata:get_object(0), indata:get_object(1), indata:get_object(2)
-            local imgdata = indata:get_object(3, true)
-            print("size: " .. tostring(#imgdata) .. " should be: " .. tostring(w*h*c))
-            self.previewtex = gfx.rawtexture(128, w,h,c, imgdata)
-            spawn_preview_window(self.previewtex, w,h)
             
-            self.client:disconnect()
+            local block,output = indata:get_object(0), indata:get_object(1)
+            local w,h,c = indata:get_object(2), indata:get_object(3), indata:get_object(4)
+            local imgdata = indata:get_object(5, true)
+            --self.previewtex = gfx.rawtexture(128, w,h,c, imgdata)
+            --spawn_preview_window(self.previewtex, w,h)
+            print("got imgdata for block: " .. block .. " and output: " .. output)
+            derp.active_workspace.preview_data[block .. output] = gfx.rawtexture(128, w,h,c, imgdata)
+            
+            --self.client:disconnect()
           elseif indata.id == "rlog" then
             local sys, what, msg = indata:get_object(0), indata:get_object(1), indata:get_object(2)
             --print(sys, what, msg)
             msg = string.gsub(msg, "%d+", "^(1,0.6,0.6){%1}")
             print("[^(1,0.6,0.6){" .. tostring(sys) .."}] " .. tostring(msg))
+            
+          elseif indata.id == "ackres" then
+            local remote_counter = indata:get_object(0)
+            if (resources_counter == remote_counter) then
+              -- sending json to server
+              self.client:send("pipeline", self.final_pipeline)
+            else
+              print("Server hasn't got all resources yet (" .. tostring(remote_counter) .. " / " .. tostring(resources_counter) .. ").")
+            end
+          else
+            print("Unknown data packet recieved:")
+            for k,v in pairs(indata) do
+              print(k,v)
+            end
           end
-          --[[for k,v in pairs(indata) do
-            print(k,v)
-          end]]
         end
       end
+  end
+  
+  wid.suuuuuuupahdraw = wid.draw
+  function wid:draw(force)
+    self:suuuuuuupahdraw(force)
+    
+    --[[for k,v in pairs(self.data.outputs) do
+      print(k,v)
+    end]]
+    local preview = derp.active_workspace.preview_data[self.data.id]
+    if (preview ~= nil) then
+      gfx.translate(self.drawbox.x,self.drawbox.y-100)
+      preview:draw(0,0,64,0,64,64,0,64)
+      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
+    end
   end
   
   -- render button
@@ -156,6 +200,10 @@ function derp_components.output.simple:generate_json(component_data)
       first_texture = tostring(v.output)
       
     elseif (v.type == "geometry") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+
+    elseif (v.type == "invert") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
 
@@ -198,6 +246,113 @@ function derp_components.output.simple:spawn_inspector(component_data)
   return "LOL TODO"
 end
 
+
+
+-------------------------------------------------------------------------------
+-- PostProcess::Invert
+derp_components.postprocess.invert = { name = "Post Process: Invert Colors"
+                                , tooltip = "Create a block that inverts the colors of a texture."
+                                }
+function derp_components.postprocess.invert:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  
+  return block
+end
+
+function derp_components.postprocess.invert:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,1,1)
+  
+  wid.suuuuuuupahdraw = wid.draw
+  function wid:draw(force)
+    self:suuuuuuupahdraw(force)
+    
+    --[[for k,v in pairs(self.data.outputs) do
+      print(k,v)
+    end]]
+    local preview = derp.active_workspace.preview_data[self.data.id]
+    if (preview ~= nil) then
+      gfx.translate(self.drawbox.x,self.drawbox.y-100)
+      preview:draw(0,0,64,0,64,64,0,64)
+      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
+    end
+  end
+  
+  return wid
+end
+
+function derp_components.postprocess.invert:generate_json(component_data)
+  local final_jsondata = {}
+  local input_array = {}
+  local input_array_shader = {}
+  
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+    
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
+    end
+  end
+  
+  local first_texture = nil
+  for k,v in pairs(component_data.connections_in) do
+    if (v.type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+      
+    elseif (v.type == "geometry") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+
+    elseif (v.type == "invert") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+
+    end
+  end
+  
+  if (first_texture == nil) then
+    return spawn_error_dialog({"Output block needs at least one input!"})
+  end
+  
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Post-Process",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"width" : 512,
+                    "height" : 512,
+                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    uniform float script1;
+                    void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    uniform float script1;
+                    void main()
+                    {
+                    	gl_FragData[0] = vec4(1.0) - texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                    }"
+                   },
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
+    },]]
+  
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
+  
+  return final_jsondata
+end
+
+function derp_components.postprocess.invert:spawn_inspector(component_data)
+  return "LOL TODO"
+end
+
+
 -------------------------------------------------------------------------------
 -- Renderer::geometry
 derp_components.render.geometry = { name = "Geometry renderer"
@@ -212,6 +367,21 @@ end
 
 function derp_components.render.geometry:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,2,1)
+  
+  wid.suuuuuuupahdraw = wid.draw
+  function wid:draw(force)
+    self:suuuuuuupahdraw(force)
+    
+    --[[for k,v in pairs(self.data.outputs) do
+      print(k,v)
+    end]]
+    local preview = derp.active_workspace.preview_data[self.data.id]
+    if (preview ~= nil) then
+      gfx.translate(self.drawbox.x,self.drawbox.y-100)
+      preview:draw(0,0,64,0,64,64,0,64)
+      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
+    end
+  end
   
   return wid
 end
@@ -324,9 +494,9 @@ function derp_components.aux.model:create_widget(component_data)
 end
 
 function derp_components.aux.model:generate_json(component_data)
-  print("should send: " .. component_data.modelfilepath)
+  --print("should send: " .. component_data.modelfilepath)
   local new_filename = net.send_file(component_data.modelfilepath)
-  print("sent file, got new filename: " .. new_filename)
+  --print("sent file, got new filename: " .. new_filename)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",
      "blockData" : {"auxType" : "model",
@@ -387,9 +557,9 @@ function derp_components.aux.texture:create_widget(component_data)
 end
 
 function derp_components.aux.texture:generate_json(component_data)
-  print("should send: " .. component_data.texturefilepath)
+  --print("should send: " .. component_data.texturefilepath)
   local new_filename = net.send_file(component_data.texturefilepath)
-  print("sent file, got new filename: " .. new_filename)
+  --print("sent file, got new filename: " .. new_filename)
   
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",

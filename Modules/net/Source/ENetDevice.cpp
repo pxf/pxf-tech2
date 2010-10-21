@@ -15,9 +15,6 @@ ENetDevice::ENetDevice(Pxf::Kernel* _Kernel)
 	else
 		Message("ENetDevice", "enet initialized.");
 
-	Clients.resize(256);
-	Servers.resize(256);
-	
 	ChildID = 0;
 }
 
@@ -31,9 +28,10 @@ Server* ENetDevice::CreateServer()
 	ENetServer* server = new ENetServer(this);
 	server->Ident = ChildID++;
 
-	for (int i=0;i<Servers.capacity();i++)
+	Servers.push_back(server);
+/*	for (int i=0;i<Servers.capacity();i++)
 		if (Servers[i] == NULL)
-			Servers[i] = server;
+			Servers[i] = server;*/
 
 	return (Server*)server;
 }
@@ -43,9 +41,10 @@ Client* ENetDevice::CreateClient()
 	ENetClient* client = new ENetClient(this);
 	client->Ident = ChildID++;
 
-	for (int i=0;i<Clients.capacity();i++)
+	Clients.push_back(client);
+/*	for (int i=0;i<Clients.capacity();i++)
 		if (Clients[i] == NULL)
-			Clients[i] = client;
+			Clients[i] = client;*/
 
 	return (Client*)client;
 }
@@ -55,6 +54,7 @@ Server* ENetDevice::GetServer(const int _ServerIdent)
 	for (int i=0; i < Servers.size(); i++)
 		if (Servers[i] != NULL && Servers[i]->Ident == _ServerIdent)
 			return Servers[i];
+	
 	return NULL;
 }
 
@@ -63,31 +63,42 @@ Client* ENetDevice::GetClient(const int _ClientIdent)
 	for (int i=0; i < Clients.size(); i++)
 		if (Clients[i] != NULL && Clients[i]->Ident == _ClientIdent)
 			return Clients[i];
+	
 	return NULL;
+}
+
+Util::Array<Network::Client*> ENetDevice::GetClients()
+{
+	return Clients;
+}
+
+Util::Array<Network::Server*> ENetDevice::GetServers()
+{
+	return Servers;
 }
 
 // TODO: These should also kill the actual connections that are open.
 // TODO: Maybe add a ForceKillServer/Client ?
 void ENetDevice::KillServer(const int _ServerIdent)
 {
-	Util::Array<ENetServer*>::iterator iter = Servers.begin();
+	Util::Array<Network::Server*>::iterator iter = Servers.begin();
 	
 	while (iter != Servers.end())
 		if ((*iter)->Ident == _ServerIdent)
 		{
-			Servers.erase(iter);
+			iter = Servers.erase(iter);
 			break;
 		}
 }
 
 void ENetDevice::KillClient(const int _ClientIdent)
 {
-	Util::Array<ENetClient*>::iterator iter = Clients.begin();
+	Util::Array<Network::Client*>::iterator iter = Clients.begin();
 	
 	while (iter != Clients.end())
 		if ((*iter)->Ident == _ClientIdent)
 		{
-			Clients.erase(iter);
+			iter = Clients.erase(iter);
 			break;
 		}
 }

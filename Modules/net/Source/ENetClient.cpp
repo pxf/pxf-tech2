@@ -45,6 +45,12 @@ bool ENetClient::Connect(const char* _Host, const int _Port)
 	}
 }
 
+ENetClient::~ENetClient()
+{
+	m_NetDev->KillClient(Ident);
+	// TODO: Erase all the other things. BufferedPackets etc.
+}
+
 bool ENetClient::Disconnect()
 {
 	ENetEvent event;

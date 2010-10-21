@@ -18,18 +18,18 @@
                     ["output"] = "output2",
 
 },
-                [3] = {
-                    ["input"] = 3,
-                    ["block"] = "Block_aux_3",
-                    ["type"] = "texture",
-                    ["output"] = "output3",
-
-},
                 [4] = {
                     ["input"] = 4,
                     ["block"] = "Block_aux_4",
                     ["type"] = "model",
                     ["output"] = "output4",
+
+},
+                [3] = {
+                    ["input"] = 3,
+                    ["block"] = "Block_aux_3",
+                    ["type"] = "texture",
+                    ["output"] = "output3",
 
 },
 
@@ -39,35 +39,16 @@
             ["y"] = 172,
             ["x"] = 376,
             ["id"] = "Block_render_6",
-            ["h"] = 60,
             ["inputs"] = 4,
+            ["h"] = 60,
             ["outputs"] = {
                 [1] = "output5",
 
 },
 
 },
-        ["Block_aux_1"] = {
-            ["type"] = "vec3constant",
-            ["script"] = "return (math.sin(os.clock()) * 100), 0.0, (math.cos(os.clock()) * 100)",
-            ["connections_in"] = {
-
-},
-            ["group"] = "aux",
-            ["w"] = 200,
-            ["y"] = 148,
-            ["x"] = 58,
-            ["id"] = "Block_aux_1",
-            ["h"] = 30,
-            ["inputs"] = 0,
-            ["outputs"] = {
-                [1] = "output1",
-
-},
-
-},
         ["Block_aux_4"] = {
-            ["modelfilepath"] = "data\\teapot.ctm",
+            ["modelfilepath"] = "D:\\projects\\pxf-tech2\\Projects\\DERPRenderer\\data\\teapot.ctm",
             ["type"] = "model",
             ["connections_in"] = {
 
@@ -77,8 +58,8 @@
             ["y"] = 432,
             ["x"] = 298,
             ["id"] = "Block_aux_4",
-            ["h"] = 60,
             ["inputs"] = 0,
+            ["h"] = 60,
             ["outputs"] = {
                 [1] = "output4",
 
@@ -94,12 +75,31 @@
             ["w"] = 170,
             ["y"] = 390,
             ["x"] = 57,
-            ["texturefilepath"] = "data\\derptest.png",
+            ["texturefilepath"] = "C:\\Users\\Public\\Pictures\\Sample Pictures\\Penguins.jpg",
             ["id"] = "Block_aux_3",
-            ["h"] = 60,
             ["inputs"] = 0,
+            ["h"] = 60,
             ["outputs"] = {
                 [1] = "output3",
+
+},
+
+},
+        ["Block_aux_1"] = {
+            ["type"] = "vec3constant",
+            ["script"] = "return (math.sin(os.clock()) * 100), 0.0, (math.cos(os.clock()) * 100)",
+            ["connections_in"] = {
+
+},
+            ["group"] = "aux",
+            ["w"] = 200,
+            ["y"] = 148,
+            ["x"] = 58,
+            ["id"] = "Block_aux_1",
+            ["inputs"] = 0,
+            ["h"] = 30,
+            ["outputs"] = {
+                [1] = "output1",
 
 },
 
@@ -115,8 +115,8 @@
             ["y"] = 262,
             ["x"] = 58,
             ["id"] = "Block_aux_2",
-            ["h"] = 30,
             ["inputs"] = 0,
+            ["h"] = 30,
             ["outputs"] = {
                 [1] = "output2",
 
@@ -141,9 +141,9 @@
             ["y"] = 152,
             ["x"] = 582,
             ["id"] = "Block_output_5",
-            ["remotehost"] = "localhost",
-            ["h"] = 100,
             ["inputs"] = 1,
+            ["h"] = 100,
+            ["remotehost"] = "mkeyd.net",
             ["outputs"] = {
 
 },

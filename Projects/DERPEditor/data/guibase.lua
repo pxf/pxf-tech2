@@ -608,7 +608,7 @@ function gui:update()
     if (not self.mouse.pushed) then
       --self.activewidget
       self.activewidget = self.widgets:find_mousehit(mx,my)
-      print("new active widget: " .. tostring(self.activewidget) .. " (has type " .. self.activewidget.widget_type .. ")")
+      --print("new active widget: " .. tostring(self.activewidget) .. " (has type " .. self.activewidget.widget_type .. ")")
       
       -- active widget is now the focus widget
       self:set_focus(self.activewidget)
