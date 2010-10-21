@@ -35,8 +35,8 @@ namespace Pxf
 			virtual bool Init()
 				{ return true; }
 
-			Util::Array<ENetServer*> Servers;
-			Util::Array<ENetClient*> Clients;
+			Util::Array<Network::Server*> Servers;
+			Util::Array<Network::Client*> Clients;
 
 			Util::Array<char*> Tags;
 
@@ -51,6 +51,9 @@ namespace Pxf
 
 			virtual Network::Server* GetServer(const int _ServerIdent);
 			virtual Network::Client* GetClient(const int _ClientIdent);
+
+			virtual Util::Array<Network::Client*> GetClients();
+			virtual Util::Array<Network::Server*> GetServers();
 
 			virtual void KillServer(const int _ServerIdent);
 			virtual void KillClient(const int _ClientIdent);

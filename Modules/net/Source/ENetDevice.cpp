@@ -67,28 +67,40 @@ Client* ENetDevice::GetClient(const int _ClientIdent)
 	return NULL;
 }
 
+Util::Array<Network::Client*> ENetDevice::GetClients()
+{
+	return Clients;
+}
+
+Util::Array<Network::Server*> ENetDevice::GetServers()
+{
+	return Servers;
+}
+
 // TODO: These should also kill the actual connections that are open.
 // TODO: Maybe add a ForceKillServer/Client ?
 void ENetDevice::KillServer(const int _ServerIdent)
 {
-	Util::Array<ENetServer*>::iterator iter = Servers.begin();
+	Util::Array<Network::Server*>::iterator iter = Servers.begin();
 	
 	while (iter != Servers.end())
 		if ((*iter)->Ident == _ServerIdent)
 		{
 			Servers.erase(iter);
+			iter++;
 			break;
 		}
 }
 
 void ENetDevice::KillClient(const int _ClientIdent)
 {
-	Util::Array<ENetClient*>::iterator iter = Clients.begin();
+	Util::Array<Network::Client*>::iterator iter = Clients.begin();
 	
 	while (iter != Clients.end())
 		if ((*iter)->Ident == _ClientIdent)
 		{
 			Clients.erase(iter);
+			iter++;
 			break;
 		}
 }

@@ -111,24 +111,21 @@ int DERPEditor::net_send_file(lua_State *L)
 		packet->PushInt(fsize);
 		packet->PushString(data, fsize);
 
-//		net_packet_push(L, packet);
-		Network::NetworkDevice* n = LuaApp::GetInstance()->m_net;
-		int num = n->NumClients();
+		Util::Array<Network::Client*> Clients = LuaApp::GetInstance()->m_net->GetClients();
+		Util::Array<Network::Client*>::iterator iter = Clients.begin();
 
-		for (;num>0;num--)
+		while (iter != Clients.end())
 		{
-			Network::Client* c = n->GetClient(num-1);
-			if (c)
-				c->SendPacket(packet);
-			else
-				Kernel::GetInstance()->Log(0, "Trying to send to invalid client.");
+			printf("Sending to client %d.\n", (*iter)->Ident);
+			(*iter)->SendPacket(packet);
+			iter++;
 		}
 
 		delete packet;
 		delete data;
 
 		char ret[256];
-		Format(ret, "%X_%s\0", hash, filename);
+		Format(ret, "%X_%s", hash, filename);
 
 		lua_pushstring(L, ret);
 		
