@@ -88,7 +88,13 @@ int DERPEditor::net_send_file(lua_State *L)
 		FileStream s;
 
 		if (!s.OpenReadBinary(path))
+		{
+			char msg[4096];
+			Format(msg, "Could not open file to send (send_file): '%s'", path);
+			lua_pushstring(L, msg);
+			lua_error(L);
 			return 0;
+		}
 
 		unsigned fsize = s.GetSize();
 		char* data = new char[fsize];
