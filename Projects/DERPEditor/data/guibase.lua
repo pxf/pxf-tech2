@@ -291,7 +291,6 @@ end
 
 function gui:create_root()
   local rootwid = self:create_basewidget(0, 0, app.width, app.height)
-  rootwid.widget_type = "root"
   
   -- child widget control
   rootwid.super_addwidget = rootwid.addwidget

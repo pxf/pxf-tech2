@@ -184,7 +184,7 @@ function derp:create_menu(x,y,w,h)
 	wid.super_draw = wid.draw
 	
 	function wid:draw(force)
-		if (self.redraw_needed or force) then
+		if (self.redraw_needed or force) and self.visible then
 			
 			-- DRAW BG
 			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 1, 1, 1, 1)
@@ -205,7 +205,7 @@ function derp:create_statusbar(x,y,w,h)
 	
 	wid.sdraw = wid.draw
 	function wid:draw(force) 
-		if (self.redraw_needed or force) then
+		if (self.redraw_needed or force) and self.visible then
 			-- DRAW BG
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,1,1,1,1)	
 			
@@ -225,7 +225,7 @@ function derp:create_inspector(x,y,w,h)
 	wid.super_draw = wid.draw
 	
 	function wid:draw(force)
-		if (self.redraw_needed or force) then
+		if (self.redraw_needed or force) and self.visible then
 			-- DRAW BG
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,9,1,1,1)
 			gfx.drawtopleft(self.drawbox.x+1,self.drawbox.y+1,self.drawbox.w-2,self.drawbox.h-2,1,1,1,1)
@@ -385,7 +385,7 @@ function derp:create_workspace_tabs(x,y,w,h,workspace)
 	wid.workspace = workspace
 	
 	function wid:draw(force)
-		if (self.redraw_needed or force) then
+		if (self.redraw_needed or force) and self.visible then
 			-- DRAW BG
 			gfx.drawtopleft(#self.childwidgets*100 + self.drawbox.x + 1,self.drawbox.y,self.drawbox.w-1 - #self.childwidgets*100,self.drawbox.h,9,5,1,1)
 			
@@ -1342,8 +1342,11 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.output_counter = 1
 	wid.component_data = { active_components = {}, components = {}}
 	wid.workspace_stack = { counter = 0, stack = {} }
+	wid.fullscreen = false
 	
-	wid.shortcuts = { 	{ name = "print data", keys = {"P"},was_pressed = false, onpress = function () derp:print_activedata() end },
+	
+	wid.shortcuts = { 	{ name = "show/hide workspace only", keys = {inp.TAB}, was_pressed = false, onpress = function () wid:toggle_fullscreen() end},
+						{ name = "print data", keys = {"P"},was_pressed = false, onpress = function () derp:print_activedata() end },
 						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
 						{ name = "move ws",keys = {inp.SPACE}, was_pressed = false, 
@@ -1363,6 +1366,25 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	if from_path then
 		wid.component_data = derp:load(from_path)
+	end
+	
+	function wid:toggle_fullscreen()
+		self.fullscreen = not self.fullscreen
+		
+		if self.fullscreen then
+			for k,v in pairs(gui.widgets.childwidgets) do
+				if v ~= self then
+					v.visible = false
+				end
+			end
+		else
+			for k,v in pairs(gui.widgets.childwidgets) do
+				if v ~= self then
+					v.visible = true
+				end
+			end
+			
+		end
 	end
 	
 	function wid:gen_new_blockname(blacktype)
@@ -1925,27 +1947,30 @@ function derp:create_workspaceframe(x,y,w,h)
 	end
 	
 	function wid:draw(force)
-		-- DRAW BORDERS
+		if (self.redraw_needed or force) and self.visible then
+			-- DRAW BORDERS
+			
+			-- OUTER BORDERS
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y,self.drawbox.w,1,9,1,1,1)
+			-- BOTTOM
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h,self.drawbox.w,1,9,1,1,1)
+			-- LEFT
+			gfx.drawtopleft(self.drawbox.x, self.drawbox.y,1,self.drawbox.h,9,1,1,1)
+			-- RIGHT
+			--gfx.drawtopleft(self.drawbox.x + self.drawbox.h, 1,self.drawbox.w,1,9,1,1,1)
+			
+			
+			-- INNER BORDERS
+			-- TOP
+			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,self.drawbox.w-2,1,1,5,1,1)
+			-- BOTTOM
+			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y + self.drawbox.h-1,self.drawbox.w-2,1,1,5,1,1)
+			-- LEFT
+			gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
+			-- RIGHT
+			gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1, self.drawbox.y+1,1,self.drawbox.h-1,1,5,1,1)
 		
-		-- OUTER BORDERS
-		gfx.drawtopleft(self.drawbox.x, self.drawbox.y,self.drawbox.w,1,9,1,1,1)
-		-- BOTTOM
-		gfx.drawtopleft(self.drawbox.x, self.drawbox.y + self.drawbox.h,self.drawbox.w,1,9,1,1,1)
-		-- LEFT
-		gfx.drawtopleft(self.drawbox.x, self.drawbox.y,1,self.drawbox.h,9,1,1,1)
-		-- RIGHT
-		--gfx.drawtopleft(self.drawbox.x + self.drawbox.h, 1,self.drawbox.w,1,9,1,1,1)
-		
-		
-		-- INNER BORDERS
-		-- TOP
-		gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,self.drawbox.w-2,1,1,5,1,1)
-		-- BOTTOM
-		gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y + self.drawbox.h-1,self.drawbox.w-2,1,1,5,1,1)
-		-- LEFT
-		gfx.drawtopleft(self.drawbox.x+1, self.drawbox.y+1,1,self.drawbox.h-2,1,5,1,1)
-		-- RIGHT
-		gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1, self.drawbox.y+1,1,self.drawbox.h-1,1,5,1,1)
+		end
 	end
 	
 	return wid
@@ -2609,7 +2634,7 @@ function derp:create_block(x,y,w,h,type)
 	wid.super_draw = wid.draw
 	
 	function wid:draw(force)
-		if (self.redraw_needed or force) then
+		if (self.redraw_needed or force) and self.visible then
 			
 			-- DRAW BG
 			gfx.drawtopleft(self.drawbox.x, self.drawbox.y, self.drawbox.w, self.drawbox.h, 1, 1, 1, 1)
