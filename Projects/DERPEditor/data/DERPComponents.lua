@@ -2,6 +2,7 @@ derp_components = {}
 derp_components.aux = {name = "Auxiliary Blocks"}
 derp_components.output = {name = "Output Blocks"}
 derp_components.render = {name = "Render Blocks"}
+derp_components.postprocess = {name = "Post-Process Blocks"}
 --derp_components.postprocess = {}
 --derp_components.output = {}
 
@@ -253,7 +254,7 @@ derp_components.postprocess.invert = { name = "Post Process: Invert Colors"
                                 , tooltip = "Create a block that inverts the colors of a texture."
                                 }
 function derp_components.postprocess.invert:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", inputs = 1, outputs = {derp:gen_new_outputname()}, connections_in = {} }
+  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   return block
 end
