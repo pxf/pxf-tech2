@@ -122,7 +122,7 @@ function derp_components.output.simple:create_widget(component_data)
             local imgdata = indata:get_object(5, true)
             --self.previewtex = gfx.rawtexture(128, w,h,c, imgdata)
             --spawn_preview_window(self.previewtex, w,h)
-            print("got imgdata for block: " .. block .. " and output: " .. output)
+            print("got imgdata for block: '" .. block .. output .. "'")
             derp.active_workspace.preview_data[block .. output] = gfx.rawtexture(128, w,h,c, imgdata)
             
             --self.client:disconnect()
@@ -270,7 +270,8 @@ function derp_components.postprocess.invert:create_widget(component_data)
       print(k,v)
     end]]
     local preview = derp.active_workspace.preview_data[self.data.id]
-    if (preview ~= nil) then
+    
+    if (preview) then
       gfx.translate(self.drawbox.x,self.drawbox.y-100)
       preview:draw(0,0,64,0,64,64,0,64)
       gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
@@ -337,11 +338,13 @@ function derp_components.postprocess.invert:generate_json(component_data)
                     uniform float script1;
                     void main()
                     {
-                    	gl_FragData[0] = vec4(1.0) - texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      vec4 c = vec4(1.0) - texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      c.a = 1.0;
+                    	gl_FragData[0] = c;
                     }"
                    },
      "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
-    },]]
+    }]]
   
   table.insert(final_jsondata, escape_backslashes(jsonstring))
   

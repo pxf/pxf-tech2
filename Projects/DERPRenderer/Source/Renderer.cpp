@@ -232,7 +232,8 @@ void Renderer::Execute()
 			m_JsonData = new char[m_JsonDataSize];
 			StringCopy(m_JsonData, packet->GetData(), m_JsonDataSize);
 			
-			Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Got new pipeline data, loading JSON and building graph: %s", m_JsonData);
+			//Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Got new pipeline data, loading JSON and building graph: %s", m_JsonData);
+			Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Got new pipeline data, loading JSON and building graph.");
 			
 			
 			LoadJson();
