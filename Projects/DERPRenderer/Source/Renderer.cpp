@@ -242,6 +242,7 @@ void Renderer::Execute()
 			{
 				m_RootBlock->ResetPerformed();
 				m_RootBlock->Execute(m_SendPreviews);
+				m_SendPreviews = false;
 
 				/*if (m_Net->NumClients() > 0)
 				{
@@ -275,6 +276,7 @@ void Renderer::Execute()
 	{
 		m_RootBlock->ResetPerformed();
 		m_RootBlock->Execute(m_SendPreviews);
+		m_SendPreviews = false;
 	}
 	else
 	{

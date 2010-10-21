@@ -810,8 +810,8 @@ bool RootBlock::Execute(bool _SendPreviews)
 		// Send preview
 		if (_SendPreviews)//m_Renderer->m_Net->NumClients() > 0)
 		{
-			for (Util::Map<Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
-			{
+			/*for (Util::Map<Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
+			{*/
 				//m_Renderer->m_FBO->Attach((Graphics::Texture*)((*iter).second), attach_lut[num_attach], false);
 				//num_attach += 1;
 				Resource::Image* img = m_gfx->CreateImageFromTexture(m_OutputTexture);
@@ -828,7 +828,7 @@ bool RootBlock::Execute(bool _SendPreviews)
 				
 				delete imgpacket;
 				delete img;
-			}
+			//}
 		}
 	}
 
