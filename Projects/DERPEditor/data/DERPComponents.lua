@@ -6,6 +6,14 @@ derp_components.render = {name = "Render Blocks"}
 --derp_components.output = {}
 
 
+resources_counter = 0
+net._send_file = net.send_file
+function net.send_file(filepath)
+  resources_counter = resources_counter + 1
+  return net._send_file(filepath)
+end
+
+
 -------------------------------------------------------------------------------
 -- Output::Simple
 derp_components.output.simple = { name = "Ouput: Simple"
@@ -59,7 +67,9 @@ function derp_components.output.simple:create_widget(component_data)
       spawn_error_dialog({"Failed to connect to '" .. tostring(self.parent.parent.parent.data.remotehost) .. "'.",
                           "Reason; '" .. connect_fail .. "'"})
     else
-    
+      -- clear resources_counter
+      resources_counter = 0
+      
       -- get json for the tree
       local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
 
@@ -76,7 +86,8 @@ function derp_components.output.simple:create_widget(component_data)
       -- concat and return!
       local final_json = "[" .. table.concat(output_blocks_json, ",") .. "]"
       print("json data to send: " .. final_json)
-
+      
+      self.parent.parent.parent.final_pipeline = final_json
 
       --return final_json
     
@@ -84,7 +95,7 @@ function derp_components.output.simple:create_widget(component_data)
 
       -- send our pipeline
       --local new_packet = net.create_packet("", "pipeline" )
-      self.parent.parent.parent.client:send("pipeline", final_json)
+      --self.parent.parent.parent.client:send("pipeline", final_json)
     
     end
 
@@ -103,20 +114,30 @@ function derp_components.output.simple:create_widget(component_data)
             
             local w,h,c = indata:get_object(0), indata:get_object(1), indata:get_object(2)
             local imgdata = indata:get_object(3, true)
-            print("size: " .. tostring(#imgdata) .. " should be: " .. tostring(w*h*c))
             self.previewtex = gfx.rawtexture(128, w,h,c, imgdata)
             spawn_preview_window(self.previewtex, w,h)
             
-            self.client:disconnect()
+            --self.client:disconnect()
           elseif indata.id == "rlog" then
             local sys, what, msg = indata:get_object(0), indata:get_object(1), indata:get_object(2)
             --print(sys, what, msg)
             msg = string.gsub(msg, "%d+", "^(1,0.6,0.6){%1}")
             print("[^(1,0.6,0.6){" .. tostring(sys) .."}] " .. tostring(msg))
+            
+          elseif indata.id = "ackres" then
+            local remote_counter = indata:get_object(0)
+            if (resources_counter == remote_counter) then
+              -- sending json to server
+              self.client:send("pipeline", self.final_pipeline)
+            else
+              print("Server hasn't got all resources yet (" .. tostring(remote_counter) .. " / " .. tostring(resources_counter) .. ").")
+            end
+          else
+            print("Unknown data packet recieved:")
+            for k,v in pairs(indata) do
+              print(k,v)
+            end
           end
-          --[[for k,v in pairs(indata) do
-            print(k,v)
-          end]]
         end
       end
   end
@@ -324,9 +345,9 @@ function derp_components.aux.model:create_widget(component_data)
 end
 
 function derp_components.aux.model:generate_json(component_data)
-  print("should send: " .. component_data.modelfilepath)
+  --print("should send: " .. component_data.modelfilepath)
   local new_filename = net.send_file(component_data.modelfilepath)
-  print("sent file, got new filename: " .. new_filename)
+  --print("sent file, got new filename: " .. new_filename)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",
      "blockData" : {"auxType" : "model",
@@ -387,9 +408,9 @@ function derp_components.aux.texture:create_widget(component_data)
 end
 
 function derp_components.aux.texture:generate_json(component_data)
-  print("should send: " .. component_data.texturefilepath)
+  --print("should send: " .. component_data.texturefilepath)
   local new_filename = net.send_file(component_data.texturefilepath)
-  print("sent file, got new filename: " .. new_filename)
+  --print("sent file, got new filename: " .. new_filename)
   
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",

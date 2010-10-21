@@ -236,7 +236,7 @@ void Renderer::Execute()
 					imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
 
 					Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending final image to client '%d'", packet->GetSender());
-					m_Net->SendPacket(packet->GetSender(), imgpacket);
+					m_Net->SendAllPacket(imgpacket);
 
 					delete imgpacket;
 					delete img;
