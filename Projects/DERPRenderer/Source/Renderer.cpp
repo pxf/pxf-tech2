@@ -241,7 +241,7 @@ void Renderer::Execute()
 				m_RootBlock->ResetPerformed();
 				m_RootBlock->Execute();
 
-				if (m_Net->NumClients() > 0)
+				/*if (m_Net->NumClients() > 0)
 				{
 					Resource::Image* img = m_gfx->CreateImageFromTexture(GetResult());
 					Network::Packet* imgpacket = m_NetDevice->CreateEmptyPacket("imgdata", m_NetTag_Preview);
@@ -256,7 +256,9 @@ void Renderer::Execute()
 					m_NumRecieved = 0;
 					delete imgpacket;
 					delete img;
-				}
+				}*/
+				
+				m_NumRecieved = 0;
 			}
 			else
 			{

@@ -70,6 +70,9 @@ function derp_components.output.simple:create_widget(component_data)
       -- clear resources_counter
       resources_counter = 0
       
+      -- clear previews
+      derp.active_workspace.preview_data = {}
+      
       -- get json for the tree
       local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
 
@@ -112,10 +115,14 @@ function derp_components.output.simple:create_widget(component_data)
           print("got packet: " .. tostring(indata.id))
           if (indata.id == "imgdata") then
             
-            local w,h,c = indata:get_object(0), indata:get_object(1), indata:get_object(2)
-            local imgdata = indata:get_object(3, true)
-            self.previewtex = gfx.rawtexture(128, w,h,c, imgdata)
-            spawn_preview_window(self.previewtex, w,h)
+            
+            local block,output = indata:get_object(0), indata:get_object(1)
+            local w,h,c = indata:get_object(2), indata:get_object(3), indata:get_object(4)
+            local imgdata = indata:get_object(5, true)
+            --self.previewtex = gfx.rawtexture(128, w,h,c, imgdata)
+            --spawn_preview_window(self.previewtex, w,h)
+            print("got imgdata for block: " .. block .. " and output: " .. output)
+            derp.active_workspace.preview_data[block .. output] = gfx.rawtexture(128, w,h,c, imgdata)
             
             --self.client:disconnect()
           elseif indata.id == "rlog" then
@@ -140,6 +147,21 @@ function derp_components.output.simple:create_widget(component_data)
           end
         end
       end
+  end
+  
+  wid.suuuuuuupahdraw = wid.draw
+  function wid:draw(force)
+    self:suuuuuuupahdraw(force)
+    
+    --[[for k,v in pairs(self.data.outputs) do
+      print(k,v)
+    end]]
+    local preview = derp.active_workspace.preview_data[self.data.id]
+    if (preview ~= nil) then
+      gfx.translate(self.drawbox.x,self.drawbox.y-100)
+      preview:draw(0,0,64,0,64,64,0,64)
+      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
+    end
   end
   
   -- render button
@@ -233,6 +255,21 @@ end
 
 function derp_components.render.geometry:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,2,1)
+  
+  wid.suuuuuuupahdraw = wid.draw
+  function wid:draw(force)
+    self:suuuuuuupahdraw(force)
+    
+    --[[for k,v in pairs(self.data.outputs) do
+      print(k,v)
+    end]]
+    local preview = derp.active_workspace.preview_data[self.data.id]
+    if (preview ~= nil) then
+      gfx.translate(self.drawbox.x,self.drawbox.y-100)
+      preview:draw(0,0,64,0,64,64,0,64)
+      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
+    end
+  end
   
   return wid
 end

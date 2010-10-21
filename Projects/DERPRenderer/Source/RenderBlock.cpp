@@ -6,6 +6,8 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 
+#include <Pxf/Resource/Image.h>
+
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Json.h>
 
@@ -434,6 +436,31 @@ bool RenderBlock::Execute()
 		// End block timer
 		m_ProfileTimer.Stop();
 		// do something with result m_ProfileTimer.Interval()
+		
+		// Send preview
+		if (m_Renderer->m_Net->NumClients() > 0)
+		{
+			for (Util::Map<Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
+			{
+				//m_Renderer->m_FBO->Attach((Graphics::Texture*)((*iter).second), attach_lut[num_attach], false);
+				//num_attach += 1;
+				Resource::Image* img = m_gfx->CreateImageFromTexture((Graphics::Texture*)((*iter).second));//GetResult());
+				Network::Packet* imgpacket = m_Renderer->m_NetDevice->CreateEmptyPacket("imgdata", m_Renderer->m_NetTag_Preview);
+				imgpacket->PushString(m_BlockName, strlen(m_BlockName)); // block name
+				imgpacket->PushString("",1);//((String)((*iter).first)).c_str(), ((String)((*iter).first)).size()); // output name
+				imgpacket->PushInt(img->Width());
+				imgpacket->PushInt(img->Height());
+				imgpacket->PushInt(img->Channels());
+				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+
+				//Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending image to client '%d'", packet->GetSender());
+				m_Renderer->m_Net->SendAllPacket(imgpacket);
+				
+				delete imgpacket;
+				delete img;
+			}
+		}
+		
 	}
 	
 	// Return
@@ -777,6 +804,30 @@ bool RootBlock::Execute()
 
 		// Detach texture
 		m_Renderer->m_FBO->Detach(GL_COLOR_ATTACHMENT0_EXT);
+		
+		// Send preview
+		if (m_Renderer->m_Net->NumClients() > 0)
+		{
+			for (Util::Map<Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
+			{
+				//m_Renderer->m_FBO->Attach((Graphics::Texture*)((*iter).second), attach_lut[num_attach], false);
+				//num_attach += 1;
+				Resource::Image* img = m_gfx->CreateImageFromTexture(m_OutputTexture);
+				Network::Packet* imgpacket = m_Renderer->m_NetDevice->CreateEmptyPacket("imgdata", m_Renderer->m_NetTag_Preview);
+				imgpacket->PushString(m_BlockName, strlen(m_BlockName)); // block name
+				imgpacket->PushString("",1);//((String)((*iter).first)).c_str(), ((String)((*iter).first)).size()); // output name
+				imgpacket->PushInt(img->Width());
+				imgpacket->PushInt(img->Height());
+				imgpacket->PushInt(img->Channels());
+				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+
+				//Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending image to client '%d'", packet->GetSender());
+				m_Renderer->m_Net->SendAllPacket(imgpacket);
+				
+				delete imgpacket;
+				delete img;
+			}
+		}
 	}
 
 	// Return
