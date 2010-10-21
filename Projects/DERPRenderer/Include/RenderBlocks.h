@@ -102,7 +102,7 @@ namespace Derp
 		
 		virtual void BuildGraph() {} ;
 		
-		virtual bool Execute() { m_IsPerformed = true; return true; }
+		virtual bool Execute(_SendPreviews = false) { m_IsPerformed = true; return true; }
 		
 		virtual void ResetPerformed() { m_IsPerformed = false; }
 		
@@ -150,7 +150,7 @@ namespace Derp
 		
 		virtual void BuildGraph();
 		
-		virtual bool Execute();
+		virtual bool Execute(_SendPreviews = false);
 		
 		
 	};
@@ -200,7 +200,7 @@ namespace Derp
 
 		virtual void BuildGraph();
 		
-		virtual bool Execute();
+		virtual bool Execute(_SendPreviews = false);
 
 	};
 
@@ -240,7 +240,7 @@ namespace Derp
 
 		virtual void BuildGraph();
 		
-		virtual bool Execute();
+		virtual bool Execute(_SendPreviews = false);
 	};
 	
 	//
@@ -288,7 +288,7 @@ namespace Derp
 
 		virtual void BuildGraph();
 		virtual bool Initialize(Json::Value *node);
-		virtual bool Execute();
+		virtual bool Execute(_SendPreviews = false);
 
 		/*Pxf::Graphics::Texture* GetOutputValue()
 		{

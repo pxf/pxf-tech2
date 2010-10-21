@@ -28,6 +28,7 @@ Renderer::Renderer(unsigned int _port)
 	, m_doc(0)
 	, m_JsonData(0)
 	, m_NumRecieved(0)
+	, m_SendPreviews(false)
 {
 	// Set tags for network.
 	m_NetDevice = Pxf::Kernel::GetInstance()->GetNetworkDevice();
@@ -224,6 +225,7 @@ void Renderer::Execute()
 		// New pipeline to render
 		else if (packet->GetTag() == m_NetTag_Pipeline)
 		{
+			m_SendPreviews = true;
 			CleanUp();
 			
 			m_JsonDataSize = packet->GetLength();
@@ -239,7 +241,7 @@ void Renderer::Execute()
 			if (m_RootBlock)
 			{
 				m_RootBlock->ResetPerformed();
-				m_RootBlock->Execute();
+				m_RootBlock->Execute(m_SendPreviews);
 
 				/*if (m_Net->NumClients() > 0)
 				{
@@ -272,7 +274,7 @@ void Renderer::Execute()
 	if (m_RootBlock)
 	{
 		m_RootBlock->ResetPerformed();
-		m_RootBlock->Execute();
+		m_RootBlock->Execute(m_SendPreviews);
 	}
 	else
 	{
