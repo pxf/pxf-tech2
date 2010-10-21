@@ -15,71 +15,13 @@ editor.version = "0.1"
 -- init GUI
 gui:init()
 
+----------------------------------------------
+-- init net tags
 net.addtag("pipeline")
 net.addtag("datacache")
 net.addtag("preview")
 net.addtag("profiling")
 net.addtag("log")
-
-local fakenet = {connect = function () end, disconnect = function () end, send = function () end, recv = function () end}
-
-local client = fakenet--net.createclient()
-client:connect("localhost", 7005)
---client:recv()
-client:send("pipeline", [[[{"blockName" : "PipelineTree",
-"blockType" : "PipelineTree",
-"blockData" : { "root" : "output1" }
-},
-{"blockName" : "auxinput1",
-"blockType" : "AuxComp",
-"blockData" : {"auxType" : "texture",
-"filepath" : "data/derptest.png",
-"minfilter" : "nearest"
-},
-"blockOutput" : [{"name" : "texture1",
-"type" : "texture"}]
-},
-{"blockName" : "output1",
-"blockType" : "Root",
-"blockInput" : [{"block" : "auxinput1", "output" : "texture1"}],
-"blockData" : {"host" : "localhost",
-"port" : "4632",
-"feedback" : true,
-"realtime" : false,
-"shaderVert" : "uniform sampler2D texture1;
-void main(void)
-{
-gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-gl_TexCoord[0] = gl_MultiTexCoord0;
-}",
-"shaderFrag" : "uniform sampler2D texture1;
-void main()
-{
-gl_FragColor = vec4(1.0);// - texture2D(texture1, gl_TexCoord[0].st);
-}",
-"width" : 512,
-"height" : 512
-}
-}
-]
-]])
---[[
-local retry = true
-local aoe = nil
-
-while (retry) do
-  
-  local daaaaata = client:recv()
-  if (tostring(daaaaata.id) == "imgdata") then
-    aoe = gfx.rawtexture(128, 512,512,4, tostring(daaaaata.data))
-    retry = false
-  else
-    print("Got some strange package! :( '" .. tostring(daaaaata.id) .. "'")
-  end
-  
-end]]
-
---client:disconnect()
 
 ----------------------------------------------
 -- setup menus
