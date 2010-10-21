@@ -1077,7 +1077,7 @@ function gui:create_menubar(x,y,w,menus)
   
   wid.superdraw = wid.draw
   function wid:draw(force)
-    if (self.redraw_needed or force) then
+    if (self.redraw_needed or force) and self.visible then
       gfx.translate(self.drawbox.x, self.drawbox.y)
       local old_a = gfx.getalpha()            
                     

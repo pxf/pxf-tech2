@@ -138,6 +138,7 @@ workspace_tabs = derp:create_workspace_tabs(20,80,app.width-290,20)
 workspace_frames = derp:create_workspaceframe(20,100,app.width-290,app.height-121)
 
 local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
+menubar.widget_type = "menubar"
 
 local menu_container = derp:create_menu(0,0,app.width,40)
 menu_container:addwidget(menubar)
@@ -183,9 +184,9 @@ gui.widgets:addwidget(center_main_toolbar)
 gui.widgets:addwidget(workspace_tabs)
 gui.widgets:addwidget(inspector)
 gui.widgets:addwidget(workspace_frames)
+--gui.widgets:addwidget(navigator)
 
 derp.top_layer_id = #gui.widgets.childwidgets
---gui.widgets:addwidget(navigator)
 
 derp:init()
 
