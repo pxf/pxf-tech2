@@ -50,7 +50,7 @@ file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all script
 									end}},
 			   {"Open Recent...",{ menu = {  }
 							}},
-			   {"Save As...", {tooltip = "Save current workspace to file...", onclick = 
+			   {"Save As...", {tooltip = "Save current workspace to file.", onclick = 
 									function() 
 										local filename = app.savedialog("workspace.derp")
 										
@@ -61,6 +61,16 @@ file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all script
 											print("Did not save!") 
 										end 
 									end}},
+				{"Close...", {tooltip = "Close active workspace", onclick = 
+									function() 
+										derp:close_workspace()
+									end}},
+				--[[
+				{"Close All", {tooltip = "Close all active workspace", onclick = 
+									function() 
+										derp:close_all_workspaces()
+									end}},
+				]]
                {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () derp:store_settings() app.quit() end}},
                   }
 local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C", onclick = function () print("copy!!") end}},
@@ -137,10 +147,10 @@ inspector = derp:create_inspector(app.width-270,80,250,app.height-100)
 workspace_tabs = derp:create_workspace_tabs(20,80,app.width-290,20)
 workspace_frames = derp:create_workspaceframe(20,100,app.width-290,app.height-121)
 
-local menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
+menubar = gui:create_menubar(0,0,app.width,{{"File",file_menu},{"Edit", edit_menu},{"Window", window_menu},{"About", about_menu}})
 menubar.widget_type = "menubar"
 
-local menu_container = derp:create_menu(0,0,app.width,40)
+menu_container = derp:create_menu(0,0,app.width,40)
 menu_container:addwidget(menubar)
 	
 local left_padding_container = derp:create_block(0,40,20,app.height-60, "left padding")
@@ -153,8 +163,8 @@ local testinput = gui:create_textinput(0,8,200)
 
 workspace_tabs.widget_type = "workspace tabs"
 
-local workspace_area = derp:create_workspace(0,0,app.width*2,app.height*2)
-workspace_area.widget_type = "workspace area 01"
+--local workspace_area = derp:create_workspace(0,0,app.width*2,app.height*2)
+--workspace_area.widget_type = "workspace area 01"
 
 --inspector:addwidget(testinput)
 --inspector:addwidget(derp:create_slider(0,0,100,0,1))
@@ -171,11 +181,11 @@ gui.statusbar = statusbar_container
 
 derp.active_workspace = workspace_area
 
-ws01 = workspace_tabs:addtab("workspace01",workspace_area)
+--ws01 = workspace_tabs:addtab("workspace01",workspace_area)
 
 --local navigator = derp:create_navigator(app.width-421,app.height-172,150,150)
 
-gui.widgets:addwidget(workspace_area)
+--gui.widgets:addwidget(workspace_area)
 gui.widgets:addwidget(menu_container)
 gui.widgets:addwidget(left_padding_container)
 gui.widgets:addwidget(right_padding_container)
@@ -189,6 +199,8 @@ gui.widgets:addwidget(workspace_frames)
 derp.top_layer_id = #gui.widgets.childwidgets
 
 derp:init()
+
+derp:new_workspace(app.width*2,app.height*2)
 
 --derp:open_workspace("recent_workspace.derp",ws)
 
