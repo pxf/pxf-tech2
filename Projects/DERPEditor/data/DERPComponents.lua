@@ -262,6 +262,10 @@ end
 function derp_components.postprocess.invert:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1,1)
   
+  local sliderw = derp:create_slider(5,5,175,0,255)
+  wid.sliderw = sliderw
+  wid:addwidget(sliderw)
+  
   wid.suuuuuuupahdraw = wid.draw
   function wid:draw(force)
     self:suuuuuuupahdraw(force)
