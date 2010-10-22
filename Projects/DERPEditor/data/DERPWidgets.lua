@@ -292,6 +292,10 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 	wid:addwidget(slide_button)
 	
 	function wid:setvalue(value)
+		if not value then
+			return nil
+		end
+		
 		if value < min then
 			value = min
 		elseif value > max then

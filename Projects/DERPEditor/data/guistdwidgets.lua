@@ -1384,10 +1384,18 @@ function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = functi
   		gfx.drawtopleft(1, 1, self.drawbox.w-2, self.drawbox.h-2, 2, 2, 1, 1)
   		
   		-- borders
-  		gfx.drawtopleft(1,0,self.drawbox.w-2,1,1,5,1,1) -- top
-  		gfx.drawtopleft(self.drawbox.w-1,1,1,self.drawbox.h-2,1,5,1,1) -- right
-  		gfx.drawtopleft(1,self.drawbox.h-1,self.drawbox.w-2,1,1,5,1,1) -- bottom
-  		gfx.drawtopleft(0,1,1,self.drawbox.h-2,1,5,1,1) -- right
+		
+		if self.state == "input" then
+			gfx.drawtopleft(1,0,self.drawbox.w-2,1,13,1,1,1) -- top
+			gfx.drawtopleft(self.drawbox.w-1,1,1,self.drawbox.h-2,13,1,1,1) -- right
+			gfx.drawtopleft(1,self.drawbox.h-1,self.drawbox.w-2,1,13,1,1,1) -- bottom
+			gfx.drawtopleft(0,1,1,self.drawbox.h-2,13,1,1,1) -- right
+		else
+			gfx.drawtopleft(1,0,self.drawbox.w-2,1,1,5,1,1) -- top
+			gfx.drawtopleft(self.drawbox.w-1,1,1,self.drawbox.h-2,1,5,1,1) -- right
+			gfx.drawtopleft(1,self.drawbox.h-1,self.drawbox.w-2,1,1,5,1,1) -- bottom
+			gfx.drawtopleft(0,1,1,self.drawbox.h-2,1,5,1,1) -- right
+		end
       
       
       local oldtex = gfx.bindtexture(0)

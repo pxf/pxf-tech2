@@ -683,6 +683,8 @@ function derp_components.aux.floatslider:create_widget(component_data)
   wid:addwidget(valinput)
   wid:addwidget(valslider)
   
+  valinput.value = tostring(valslider.value)
+  
   return wid
 end
 
