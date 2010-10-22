@@ -2680,6 +2680,7 @@ function derp:create_toolbar(x,y,w,h)
 				
 				if derp.active_workspace then
 					derp.active_workspace.component_data.active_components = {}
+					derp.active_workspace:attach_inspector(nil)
 				end
 			end	
 			
