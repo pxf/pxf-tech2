@@ -1244,7 +1244,7 @@ function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = functi
     --if (self.changed) then
     if self.old_value and self.old_value ~= self.value then
       if (self.changed) then
-        self:changed()
+        self:changed(self.value)
       end
     end
     self.old_value = self.value
