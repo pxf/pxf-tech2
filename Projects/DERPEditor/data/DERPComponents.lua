@@ -248,14 +248,19 @@ derp_components.postprocess.invert = { name = "Post Process: Invert Colors"
                                 }
 function derp_components.postprocess.invert:new_block(workspace,x,y)
   local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", output_type = "texture", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
-  
+  block.slidervalue = 0
   return block
 end
 
 function derp_components.postprocess.invert:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1,1)
   
-  local sliderw = derp:create_slider(5,5,175,20,0,255)
+  function slider_update(self, value)
+    self.parent.parent.parent.data.slidervalue = value
+    print(value)
+  end
+  
+  local sliderw = derp:create_slider(5,5,175,20,0,1, slider_update)
   wid.sliderw = sliderw
   wid:addwidget(sliderw)
   
@@ -327,7 +332,7 @@ function derp_components.postprocess.invert:generate_json(component_data)
                     uniform float script1;
                     void main()
                     {
-                      vec4 c = vec4(1.0) - texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      vec4 c = vec4(]] .. tostring(component_data.slidervalue) .. [[) - texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
                       c.a = 1.0;
                     	gl_FragData[0] = c;
                     }"
@@ -636,6 +641,8 @@ end
 function derp_components.aux.vec2constant:spawn_inspector(component_data)
   return nil
 end
+
+
 
 -------------------------------------------------------------------------------
 -- Aux::vec3 (constant)

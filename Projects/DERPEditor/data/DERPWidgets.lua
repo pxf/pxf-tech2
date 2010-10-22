@@ -310,8 +310,8 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 		
 		wid.value = pos * (max - min)
 		
-		if (self.on_change) then
-		  self:on_change(wid.value)
+		if (wid.on_change) then
+		  wid:on_change(wid.value)
 	  end
 	end
 	
