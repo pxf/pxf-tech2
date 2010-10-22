@@ -193,6 +193,7 @@ gui.widgets:addwidget(statusbar_container)
 gui.widgets:addwidget(center_main_toolbar)
 gui.widgets:addwidget(workspace_tabs)
 gui.widgets:addwidget(inspector)
+gui.inspector = inspector
 gui.widgets:addwidget(workspace_frames)
 --gui.widgets:addwidget(navigator)
 

@@ -232,6 +232,8 @@ function derp:create_inspector(x,y,w,h)
 	wid.widget_type = "inspector"
 	wid.super_draw = wid.draw
 	
+	
+	
 	function wid:draw(force)
 		if (self.redraw_needed or force) and self.visible then
 			-- DRAW BG
@@ -1363,7 +1365,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 end
 
 function derp:create_baseinspector(component_data)
-	local wid = gui:create_basewidget(0,0,200,400)
+	local wid = gui:create_verticalstack(0,0,200,400)
 	
 	wid.data = component_data
 	
@@ -1373,6 +1375,18 @@ end
 
 function derp:create_texturedinspector(component_data)
 	local wid = derp:create_baseinspector(component_data)
+	
+	-- test render preview
+	wid.sdraw = wid.draw
+	function wid:draw(force)
+	  self:sdraw(force)
+	  
+	  if (derp.active_workspace.preview_data[self.data.id]) then
+  	  gfx.translate(self.drawbox.x,self.drawbox.y)
+	    derp.active_workspace.preview_data[self.data.id]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.w,0,self.drawbox.w)
+  	  gfx.translate(self.drawbox.x,self.drawbox.y)
+    end
+  end
 	
 	return wid
 end
@@ -1599,6 +1613,16 @@ function derp:create_workspace(x,y,w,h,from_path)
 	  end
 	  print("Could not find '" .. block_id .. "'")
 	  return nil
+  end
+  
+  function wid:attach_inspector(inspector)
+    if (gui.inspector.component_inspector) then
+      gui.inspector:removewidget(gui.inspector.component_inspector)
+    end
+    gui.inspector.component_inspector = inspector
+    if (inspector) then
+      gui.inspector:addwidget(inspector)
+    end
   end
 	
 	function wid:draw(force)
@@ -2503,6 +2527,9 @@ function derp:create_toolbar(x,y,w,h)
 					w.selected = true
 					derp.active_workspace.component_data.active_components = {w.id}
 					derp:push_workspace(derp.active_workspace)
+					
+					-- add component inspector
+					derp.active_workspace:attach_inspector(derp_components[w.data.group][w.data.type]:spawn_inspector(w.data))
 				end
 			else
 				for k,v in pairs(derp.active_workspace.component_data.active_components) do
