@@ -31,8 +31,8 @@ namespace Network
 		virtual Server* GetServer(const int _ServerIdent) = 0;
 		virtual Client* GetClient(const int _ClientIdent) = 0;
 
-		virtual Util::Array<Network::Client*> GetClients() = 0;
-		virtual Util::Array<Network::Server*> GetServers() = 0;
+		virtual Util::Array<Network::Client*>& GetClients() = 0;
+		virtual Util::Array<Network::Server*>& GetServers() = 0;
 
 		virtual void KillServer(const int _ServerIdent) = 0;
 		virtual void KillClient(const int _ClientIdent) = 0;

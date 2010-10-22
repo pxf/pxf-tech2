@@ -33,7 +33,8 @@ bool Derp::RemoteLogWriter::WriteImpl(unsigned int _Tag, const char** _TagTable
 	logpacket->PushString(TagName, Pxf::StringLength(TagName) + 1);
 	logpacket->PushString(type, Pxf::StringLength(type) + 1);
 	logpacket->PushString(_SrcBuffer, Pxf::StringLength(_SrcBuffer) + 1);
-	m_Server->SendAllPacket(logpacket);
+	if (m_Server)
+		m_Server->SendAllPacket(logpacket);
 	delete logpacket;
 
 	return true;
