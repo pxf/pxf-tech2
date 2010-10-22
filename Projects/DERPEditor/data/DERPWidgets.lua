@@ -228,7 +228,7 @@ function derp:create_statusbar(x,y,w,h)
 end
 
 function derp:create_inspector(x,y,w,h)
-	local wid = gui:create_verticalstack(x,y,w,h)
+	local wid = gui:create_basewidget(x,y,w,h)
 	wid.widget_type = "inspector"
 	wid.super_draw = wid.draw
 	
@@ -254,11 +254,11 @@ function derp:create_inspector(x,y,w,h)
 		end
 	end
 	
-	function wid:resize_callback(w,h)
+	--[[function wid:resize_callback(w,h)
 		self.drawbox.h = self.drawbox.h - h
 		self.hitbox.h = self.drawbox.h
 		self.drawbox.y = self.drawbox.y + h
-	end
+	end]]
 	
 	return wid
 end
@@ -1440,7 +1440,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 end
 
 function derp:create_baseinspector(component_data)
-	local wid = gui:create_verticalstack(0,0,200,400)
+	local wid = gui:create_verticalstack(20,200,220,400)
 	
 	wid.data = component_data
 	
@@ -1459,7 +1459,7 @@ function derp:create_texturedinspector(component_data)
 	  if (derp.active_workspace.preview_data[self.data.id]) then
   	  gfx.translate(self.drawbox.x,self.drawbox.y)
 	    derp.active_workspace.preview_data[self.data.id]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.w,0,self.drawbox.w)
-  	  gfx.translate(self.drawbox.x,self.drawbox.y)
+  	  gfx.translate(-self.drawbox.x,-self.drawbox.y)
     end
   end
 	

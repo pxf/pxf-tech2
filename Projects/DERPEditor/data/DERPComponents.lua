@@ -260,6 +260,7 @@ function derp_components.postprocess.invert:create_widget(component_data)
   end
   
   local sliderw = derp:create_slider(5,5,175,20,0,1, slider_update)
+  sliderw:setvalue(component_data.slidervalue)
   wid.sliderw = sliderw
   wid:addwidget(sliderw)
   
