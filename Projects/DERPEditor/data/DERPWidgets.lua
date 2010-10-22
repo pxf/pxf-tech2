@@ -279,49 +279,53 @@ function RGB_to_HSV(r,g,b,h,s,v)
 	return out.r,out.g,out.b
 end
 
-function derp:create_slider(x,y,w,min,max)
-	local wid = gui:create_basewidget(x,y,w,30)
-	local slide_button = gui:create_basewidget(x + w*0.5,y + 15,10,15)
+function derp:create_slider(x,y,w,h,min,max)
+	local wid = gui:create_basewidget(x,y,w,h)
+	local slide_button = gui:create_basewidget(w*0.5-5,0,10,h)
 	
 	wid.value = (max - min) * 0.5
+	slide_button.max_pos = w-10
 	
 	--print(wid.value)
 	
 	wid:addwidget(slide_button)
 	
 	function slide_button:mousedrag(dx,dy)
-		if self.drawbox.x + dx > wid.drawbox.x and self.drawbox.x + dx < wid.drawbox.x + wid.drawbox.w then
-			self:needsredraw()
-			self:move_relative(dx,0)
-			
-			self.hitbox.x = self.drawbox.x - self.drawbox.w * 0.5
-			self.hitbox.y = self.drawbox.y - self.drawbox.h * 0.5
-			
-			self:needsredraw()
-		else
-			--self:move_abs(wid.drawbox.x, self.drawbox.y)
+	  -- move slider relative
+		self:needsredraw()
+		self:move_relative(dx,0)
 		
-		end
+		-- sanity check
+		if (self.drawbox.x < 0) then
+		  self:move_abs(0,0)
+	  elseif (self.drawbox.x > self.max_pos) then
+	    self:move_abs(self.max_pos,0)
+    end
+    self:needsredraw()
 		
-		local step = wid.drawbox.w / (max - min)
-		local pos = (self.drawbox.x - wid.drawbox.x) / wid.drawbox.w
+		-- get new value
+		local step = (self.max_pos) / (max - min)
+		local pos = self.drawbox.x / self.max_pos
 		
 		wid.value = pos * (max - min)
 	end
 	
 	function slide_button:draw(force)
 		if (self.redraw_needed or force) then
-			gfx.drawcentered(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,5,5,1,1) -- top
+		  gfx.translate(self.drawbox.x,self.drawbox.y)
+			gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h,5,5,1,1) -- top
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
 		end
 	end
 	
+	wid.super_draw = wid.draw
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h * 0.5,self.drawbox.w,1,5,5,1,1) -- top	
 			gui:drawfont(tostring(self.value), self.drawbox.x + self.drawbox.w + 2, self.drawbox.y)
 		end
 		
-		slide_button:draw(force)
+		self:super_draw(force)
 	end
 	
 	return wid
