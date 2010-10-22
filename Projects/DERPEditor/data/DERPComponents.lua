@@ -257,7 +257,6 @@ function derp_components.postprocess.invert:create_widget(component_data)
   
   function slider_update(self, value)
     self.parent.parent.parent.data.slidervalue = value
-    print(value)
   end
   
   local sliderw = derp:create_slider(5,5,175,20,0,1, slider_update)
@@ -642,7 +641,53 @@ function derp_components.aux.vec2constant:spawn_inspector(component_data)
   return nil
 end
 
+-------------------------------------------------------------------------------
+-- Aux::float (slider)
+derp_components.aux.floatslider = { name = "Slider: float"
+                                    , tooltip = "Create a block that outputs a value depending on slider value"
+                                    }
+function derp_components.aux.floatslider:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 100, h = 60, group = "aux", type = "floatslider", output_type = "float", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  
+  -- specific values
+  block.constvalue = 0.0
+  
+  return block
+end
 
+function derp_components.aux.floatslider:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data)
+  
+  function on_change_textinput(self, value)
+    self.parent.parent.parent.data.constvalue = value
+    print(value)
+  end
+  
+  function on_change_slider(self, value)
+    self.parent.parent.parent.valinput.value = string.sub(tostring(value), 1, 4)
+    print(value)
+  end
+  
+  local vallabel = gui:create_labelpanel(5      , 10 , 8*8     , 20, "Value:")
+  local valinput = gui:create_textinput (10+8*7 , 10 , 100-8*7 , false, component_data.constvalue, on_change_textinput)
+  local valslider   = derp:create_slider(5      , 35 , 110     , 20, 0 , 1, on_change_slider)
+  wid.vallabel = vallabel
+  wid.valinput = valinput
+  wid.valslider = valslider
+  wid:addwidget(vallabel)
+  wid:addwidget(valinput)
+  wid:addwidget(valslider)
+  
+  return wid
+end
+
+function derp_components.aux.floatslider:generate_json(component_data)
+  return nil
+end
+
+function derp_components.aux.floatslider:spawn_inspector(component_data)
+  return nil
+end
 
 -------------------------------------------------------------------------------
 -- Aux::vec3 (constant)
