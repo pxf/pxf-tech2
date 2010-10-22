@@ -80,7 +80,7 @@ namespace Derp
 	public:
 		Block(Renderer* _renderer, BlockType _BlockType)
 			: m_IsPerformed(false) // m_BlockType(_BlockType)
-      , m_Renderer(_renderer)
+			, m_Renderer(_renderer)
 			, m_HasBeenBuilt(false)
 			, m_BlockName(NULL)
 		{
@@ -98,7 +98,7 @@ namespace Derp
 
 		virtual bool Initialize(Json::Value *node) = 0;
 
-		virtual ~Block() {};
+		virtual ~Block(){};
 		
 		virtual void BuildGraph() {} ;
 		
@@ -193,6 +193,17 @@ namespace Derp
 			, m_CameraPosInput(0)
 			, m_CameraLookInput(0)
 		{}
+
+		virtual ~RenderBlock()
+		{
+			if (m_Shader)
+				m_gfx->DestroyShader(m_Shader);
+			if (m_DepthBuffer)
+				delete m_DepthBuffer;
+
+//			for (Pxf::Util::Map<Pxf::Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
+//				delete (*iter).second;
+		}
 		
 		virtual void ResetPerformed();
 
@@ -234,6 +245,17 @@ namespace Derp
 			, m_JsonData(_JsonData)
 		{}
 		
+		virtual ~PostProcessBlock()
+		{
+			if (m_Shader)
+				m_gfx->DestroyShader(m_Shader);
+			if (m_OutputQuad)
+				delete m_OutputQuad;
+
+			for (Pxf::Util::Map<Pxf::Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
+				m_gfx->DestroyTexture((Pxf::Graphics::Texture*)(*iter).second);
+		}
+
 		virtual void ResetPerformed();
 
 		virtual bool Initialize(Json::Value *node);
@@ -282,6 +304,9 @@ namespace Derp
 		virtual ~RootBlock() {
 			delete m_OutputQuad;
 			m_gfx->DestroyShader(m_Shader);
+
+//			for (Pxf::Util::Map<Pxf::Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
+//				delete (*iter).second;
 		}
 		
 		virtual void ResetPerformed();
