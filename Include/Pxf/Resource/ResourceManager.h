@@ -11,6 +11,8 @@
 #include <Pxf/Resource/Chunk.h>
 #include <Pxf/Util/String.h>
 
+// TODO: Handle non-file resources
+
 namespace Pxf {
 namespace Resource
 {   
@@ -42,10 +44,13 @@ namespace Resource
 		}
 
 		template <typename ResourceType>
-		ResourceType* Acquire(const char* _FilePath)
+		ResourceType* Acquire(const char* _FilePath, const char* _ForcedExt = 0)
 		{
 			ResourceBase* resource = NULL;
-			const char* fileext = PathExt(_FilePath);
+
+			const char* fileext = _ForcedExt;
+			if (_ForcedExt == 0)
+				fileext = PathExt(_FilePath);
 			
 			Pxf::Util::Map<Util::String, ResourceBase*>::iterator
 				resit = m_LoadedResources->find(_FilePath);

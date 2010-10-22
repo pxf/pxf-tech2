@@ -18,7 +18,7 @@ bool ENetServer::Bind(const int _Port)
 	m_Address.port = _Port;
 
 //	Message("ENetServer", "Ident %d %d", Ident, NetDev->GetTags()->size());
-	m_Server = enet_host_create(&m_Address, 1, m_NetDev->GetTags()->size(), 0, 0);
+	m_Server = enet_host_create(&m_Address, 32, m_NetDev->GetTags()->size(), 0, 0);
 
 #if COMPRESSION == 1
 	enet_host_compress_with_range_coder(Server);
@@ -76,14 +76,6 @@ Pxf::Network::Packet* ENetServer::Recv()
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
 				, (int)event.peer->data, event.channelID, event.packet->dataLength);
-			/*
-			if (event.packet->dataLength > MAX_PACKET_SIZE)
-			{
-				Message("ENetServer", "Packet too large (%u > %d), throwing."
-					, event.packet->dataLength, MAX_PACKET_SIZE);
-				continue;
-			}
-			*/
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
@@ -139,14 +131,6 @@ Pxf::Network::Packet* ENetServer::RecvNonBlocking(const int _Timeout)
 		case ENET_EVENT_TYPE_RECEIVE:
 			Message("ENetServer", "Packet received from %d on channel %u. Length %u."
 				, (int)event.peer->data, event.channelID, event.packet->dataLength);
-			/*
-			if (event.packet->dataLength > MAX_PACKET_SIZE)
-			{
-				Message("ENetServer", "Packet too large (%u > %d), throwing."
-					, event.packet->dataLength, MAX_PACKET_SIZE);
-				continue;
-			}
-			*/
 
 			ENetDataPacket* packet = new ENetDataPacket(
 				(char*)event.packet->data
