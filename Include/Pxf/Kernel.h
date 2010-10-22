@@ -98,6 +98,13 @@ namespace Pxf {
 		void RegisterLogger(Logger* _logger);
 		void UnregisterLogger(Logger* _logger);
 		void Log(unsigned int _Tag, const char* _Message, ...);
+
+		// TODO: these. We need Log to not use vararg, or Log needs to take a va_list as
+		// second arg. see: http://stackoverflow.com/questions/205529/c-c-passing-variable-number-of-arguments-around
+		//void LogD(unsigned int _Tag, const char* _Message, ...);
+		//void LogI(unsigned int _Tag, const char* _Message, ...);
+		//void LogW(unsigned int _Tag, const char* _Message, ...);
+		//void LogE(unsigned int _Tag, const char* _Message, ...);
 		unsigned int CreateTag(const char* _TagName);
 		unsigned int FindTagID(const char* _TagName);
 
