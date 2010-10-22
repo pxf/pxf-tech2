@@ -21,7 +21,7 @@ derp_components.output.simple = { name = "Ouput: Simple"
                                 , tooltip = "Create a block that can render one texture on a remote machine."
                                 }
 function derp_components.output.simple:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 100, group = "output", type = "simple", inputs = 1, outputs = {}, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 100, group = "output", type = "simple", output_type = "none", inputs = 1, outputs = {}, connections_in = {} }
   
   -- specific values
   block.remotehost = "localhost"
@@ -89,7 +89,6 @@ function derp_components.output.simple:create_widget(component_data)
 
       -- concat and return!
       local final_json = "[" .. table.concat(output_blocks_json, ",") .. "]"
-      print("json data to send: " .. final_json)
       
       self.parent.parent.parent.final_pipeline = final_json
 
@@ -136,6 +135,8 @@ function derp_components.output.simple:create_widget(component_data)
             local remote_counter = indata:get_object(0)
             if (resources_counter == remote_counter) then
               -- sending json to server
+              print("Server has all resources, send JSON data.")
+              print("JSON data to send: " .. self.final_pipeline)
               self.client:send("pipeline", self.final_pipeline)
             else
               print("Server hasn't got all resources yet (" .. tostring(remote_counter) .. " / " .. tostring(resources_counter) .. ").")
@@ -195,18 +196,10 @@ function derp_components.output.simple:generate_json(component_data)
   
   local first_texture = nil
   for k,v in pairs(component_data.connections_in) do
-    if (v.type == "texture") then
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
-      
-    elseif (v.type == "geometry") then
-      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
-      first_texture = tostring(v.output)
-
-    elseif (v.type == "invert") then
-      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
-      first_texture = tostring(v.output)
-
     end
   end
   
@@ -243,7 +236,7 @@ function derp_components.output.simple:generate_json(component_data)
 end
 
 function derp_components.output.simple:spawn_inspector(component_data)
-  return "LOL TODO"
+  return derp:create_texturedinspector(component_data)
 end
 
 
@@ -254,7 +247,7 @@ derp_components.postprocess.invert = { name = "Post Process: Invert Colors"
                                 , tooltip = "Create a block that inverts the colors of a texture."
                                 }
 function derp_components.postprocess.invert:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", output_type = "texture", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   return block
 end
@@ -307,18 +300,10 @@ function derp_components.postprocess.invert:generate_json(component_data)
   
   local first_texture = nil
   for k,v in pairs(component_data.connections_in) do
-    if (v.type == "texture") then
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
-      
-    elseif (v.type == "geometry") then
-      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
-      first_texture = tostring(v.output)
-
-    elseif (v.type == "invert") then
-      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
-      first_texture = tostring(v.output)
-
     end
   end
   
@@ -356,7 +341,7 @@ function derp_components.postprocess.invert:generate_json(component_data)
 end
 
 function derp_components.postprocess.invert:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 
@@ -366,7 +351,7 @@ derp_components.render.geometry = { name = "Geometry renderer"
                               , tooltip = "Create a block that inputs geometry and renders to a texture."
                               }
 function derp_components.render.geometry:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", inputs = 4, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", output_type = "texture", inputs = 4, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.modelfilepath = ""
   return block
@@ -416,7 +401,8 @@ function derp_components.render.geometry:generate_json(component_data)
 
   local first_texture = nil
   for k,v in pairs(component_data.connections_in) do
-    if (v.type == "texture") then
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
     end
@@ -458,7 +444,7 @@ function derp_components.render.geometry:generate_json(component_data)
 end
 
 function derp_components.render.geometry:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 
@@ -468,7 +454,7 @@ derp_components.aux.model = { name = "CTM Model"
                               , tooltip = "Create a block that outputs model geometry."
                               }
 function derp_components.aux.model:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "model", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "model", output_type = "geometry", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.modelfilepath = ""
   return block
@@ -522,7 +508,7 @@ function derp_components.aux.model:generate_json(component_data)
 end
 
 function derp_components.aux.model:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 -------------------------------------------------------------------------------
@@ -531,7 +517,7 @@ derp_components.aux.texture = { name = "Texture"
                                 , tooltip = "Create a block that outputs static texture."
                               }
 function derp_components.aux.texture:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "texture", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "texture", output_type = "texture", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.texturefilepath = ""
   return block
@@ -587,7 +573,7 @@ function derp_components.aux.texture:generate_json(component_data)
 end
 
 function derp_components.aux.texture:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 
@@ -597,7 +583,7 @@ derp_components.aux.floatconstant = { name = "Constant: Float"
                                     , tooltip = "Create a block that outputs a constant float value."
                                     }
 function derp_components.aux.floatconstant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 40, group = "aux", type = "floatconstant", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 100, h = 40, group = "aux", type = "floatconstant", output_type = "float", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.constvalue = 0.0
   return block
@@ -614,11 +600,11 @@ function derp_components.aux.floatconstant:create_widget(component_data)
 end
 
 function derp_components.aux.floatconstant:generate_json(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 function derp_components.aux.floatconstant:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 
@@ -628,7 +614,7 @@ derp_components.aux.vec2constant = { name = "Constant: Vec2"
                                     , tooltip = "Create a block that outputs a constant vec2 value."
                                     }
 function derp_components.aux.vec2constant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 30, group = "aux", type = "vec2constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 100, h = 30, group = "aux", type = "vec2constant", output_type = "vec2", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
   block.constvalue = {0.0, 0.0}
@@ -644,20 +630,20 @@ function derp_components.aux.vec2constant:create_widget(component_data)
 end
 
 function derp_components.aux.vec2constant:generate_json(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 function derp_components.aux.vec2constant:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 -------------------------------------------------------------------------------
 -- Aux::vec3 (constant)
-derp_components.aux.vec3constant = { name = "Script: Vec3"
+derp_components.aux.vec3script = { name = "Script: Vec3"
                                     , tooltip = "Create a block that outputs a script that returns a vec3 value."
                                     }
-function derp_components.aux.vec3constant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 200, h = 30, group = "aux", type = "vec3constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+function derp_components.aux.vec3script:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 200, h = 30, group = "aux", type = "vec3script", output_type = "vec3", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
   block.script = ""
@@ -665,7 +651,7 @@ function derp_components.aux.vec3constant:new_block(workspace,x,y)
   return block
 end
 
-function derp_components.aux.vec3constant:create_widget(component_data)
+function derp_components.aux.vec3script:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data)
   
   -- script input
@@ -683,7 +669,7 @@ function derp_components.aux.vec3constant:create_widget(component_data)
   return wid
 end
 
-function derp_components.aux.vec3constant:generate_json(component_data)
+function derp_components.aux.vec3script:generate_json(component_data)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",
      "blockData" : {"auxType" : "script",
@@ -701,6 +687,72 @@ function derp_components.aux.vec3constant:generate_json(component_data)
   return {escape_backslashes(jsonstring)}
 end
 
-function derp_components.aux.vec3constant:spawn_inspector(component_data)
+function derp_components.aux.vec3script:spawn_inspector(component_data)
   return "LOL TODO"
+end
+
+-------------------------------------------------------------------------------
+-- Aux::vec3 (constant)
+derp_components.aux.vec3constant = { name = "Constant: Vec3"
+                                    , tooltip = "Create a block that outputs a script that returns a vec3 value."
+                                    }
+function derp_components.aux.vec3constant:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 200, h = 85, group = "aux", type = "vec3constant", output_type = "vec3", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  
+  -- specific values
+  block.vals = {"", "", ""}
+  
+  return block
+end
+
+function derp_components.aux.vec3constant:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data)
+  
+  -- script input
+  function script_changed(self)
+  	 self.parent.parent.parent.data.vals[self.ident] = self.value
+    print("vec3." .. self.ident .. " changed to: " .. self.value)
+    derp:push_active_workspace()
+  end
+  local val1label = gui:create_labelpanel(5,10,8*8,20,"Val1:")
+  local val2label = gui:create_labelpanel(5,35,8*8,20,"Val2:")
+  local val3label = gui:create_labelpanel(5,60,8*8,20,"Val3:")
+  local val1input = gui:create_textinput(10+8*8,10,180-8*8,false,component_data.vals[1],script_changed)
+  local val2input = gui:create_textinput(10+8*8,35,180-8*8,false,component_data.vals[2],script_changed)
+  local val3input = gui:create_textinput(10+8*8,60,180-8*8,false,component_data.vals[3],script_changed)
+  val1input.ident = 1
+  val2input.ident = 2
+  val3input.ident = 3
+
+  wid.val1input = val1input
+  wid:addwidget(val1label)
+  wid:addwidget(val2label)
+  wid:addwidget(val3label)
+  wid:addwidget(val1input)
+  wid:addwidget(val2input)
+  wid:addwidget(val3input)
+  
+  return wid
+end
+
+function derp_components.aux.vec3constant:generate_json(component_data)
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "AuxComp",
+     "blockData" : {"auxType" : "script",
+                    "src" : "return ]] .. tostring(table.concat(component_data.vals, ",")) .. [["
+                   },
+     "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
+                       "type" : "vec3"}]
+    }]]
+	 
+    
+  if (component_data.texturefilepath == "") then
+    return spawn_error_dialog({"Missing texture filepath in block '" .. component_data.id .. "'!"})
+  end
+  
+  return {escape_backslashes(jsonstring)}
+end
+
+function derp_components.aux.vec3constant:spawn_inspector(component_data)
+  return nil
 end

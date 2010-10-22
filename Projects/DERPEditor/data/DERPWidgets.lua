@@ -1353,6 +1353,22 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	return wid
 end
 
+function derp:create_baseinspector(component_data)
+	local wid = gui:create_basewidget(0,0,200,400)
+	
+	wid.data = component_data
+	
+	
+	return wid
+end
+
+function derp:create_texturedinspector(component_data)
+	local wid = derp:create_baseinspector(component_data)
+	
+	return wid
+end
+
+
 function derp:add_recent_file(path)
 	for k,v in pairs(self.settings.recent_files.files) do
 		if v == path then

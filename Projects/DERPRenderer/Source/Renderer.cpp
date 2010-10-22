@@ -36,8 +36,8 @@ Renderer::Renderer(unsigned int _port)
 	m_NetTag_Datacache = m_NetDevice->AddTag("datacache");
 	m_NetTag_Preview = m_NetDevice->AddTag("preview");
 	m_NetTag_Profiling = m_NetDevice->AddTag("profiling");
-	
 	unsigned netlogtag = m_NetDevice->AddTag("log");
+	
 	m_Net = m_NetDevice->CreateServer();
 	m_Net->Bind(_port);
 	Pxf::Kernel::GetInstance()->RegisterLogger(new RemoteLogWriter(m_NetDevice, m_Net, netlogtag));
@@ -193,6 +193,7 @@ void Renderer::Execute()
 	Network::Packet* packet = m_Net->RecvNonBlocking(0);
 	if (packet != NULL)
 	{
+		Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Got package: %s", packet->GetID());
 		// Some sort of data we need for rendering future pipeline
 		if (packet->GetTag() == m_NetTag_Datacache)
 		{
@@ -238,6 +239,8 @@ void Renderer::Execute()
 			
 			LoadJson();
 			BuildGraph();
+			
+			m_NumRecieved = 0;
 
 			if (m_RootBlock)
 			{
@@ -262,7 +265,6 @@ void Renderer::Execute()
 					delete img;
 				}*/
 				
-				m_NumRecieved = 0;
 			}
 			else
 			{
