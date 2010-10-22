@@ -235,7 +235,7 @@ function derp_components.output.simple:generate_json(component_data)
 end
 
 function derp_components.output.simple:spawn_inspector(component_data)
-  return "LOL TODO"
+  return derp:create_texturedinspector(component_data)
 end
 
 
@@ -336,7 +336,7 @@ function derp_components.postprocess.invert:generate_json(component_data)
 end
 
 function derp_components.postprocess.invert:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 
@@ -439,7 +439,7 @@ function derp_components.render.geometry:generate_json(component_data)
 end
 
 function derp_components.render.geometry:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 
@@ -503,7 +503,7 @@ function derp_components.aux.model:generate_json(component_data)
 end
 
 function derp_components.aux.model:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 -------------------------------------------------------------------------------
@@ -568,7 +568,7 @@ function derp_components.aux.texture:generate_json(component_data)
 end
 
 function derp_components.aux.texture:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 
@@ -595,11 +595,11 @@ function derp_components.aux.floatconstant:create_widget(component_data)
 end
 
 function derp_components.aux.floatconstant:generate_json(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 function derp_components.aux.floatconstant:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 
@@ -625,11 +625,11 @@ function derp_components.aux.vec2constant:create_widget(component_data)
 end
 
 function derp_components.aux.vec2constant:generate_json(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 function derp_components.aux.vec2constant:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 -------------------------------------------------------------------------------
@@ -683,5 +683,5 @@ function derp_components.aux.vec3constant:generate_json(component_data)
 end
 
 function derp_components.aux.vec3constant:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end

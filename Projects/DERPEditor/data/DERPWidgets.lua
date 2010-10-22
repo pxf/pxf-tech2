@@ -1362,6 +1362,12 @@ function derp:create_baseinspector(component_data)
 	return wid
 end
 
+function derp:create_texturedinspector(component_data)
+	local wid = derp:create_baseinspector(component_data)
+	
+	return wid
+end
+
 
 function derp:add_recent_file(path)
 	for k,v in pairs(self.settings.recent_files.files) do
