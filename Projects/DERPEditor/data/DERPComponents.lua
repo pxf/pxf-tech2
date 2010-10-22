@@ -654,7 +654,7 @@ function derp_components.aux.floatslider:new_block(workspace,x,y)
   local block = { x = x, y = y, w = 100, h = 60, group = "aux", type = "floatslider", output_type = "float", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
-  block.constvalue = 0.0
+  block.constvalue = "0.0"
   
   return block
 end
@@ -664,12 +664,13 @@ function derp_components.aux.floatslider:create_widget(component_data)
   
   function on_change_textinput(self, value)
     self.parent.parent.parent.data.constvalue = value
-    print(value)
+	self.parent.parent.parent.valslider:setvalue(tonumber(value))
+	self.parent.parent.parent.valinput.value = tostring(self.parent.parent.parent.valslider.value)
   end
   
   function on_change_slider(self, value)
     self.parent.parent.parent.valinput.value = string.sub(tostring(value), 1, 4)
-    print(value)
+	--self.parent.parent.parent.data.constvalue = value	
   end
   
   local vallabel = gui:create_labelpanel(5      , 10 , 8*8     , 20, "Value:")

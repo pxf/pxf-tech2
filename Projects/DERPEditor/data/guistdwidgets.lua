@@ -1277,6 +1277,11 @@ function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = functi
         end
         self.backspace = true
         self:needsredraw()
+	
+	  elseif (inp.iskeydown(inp.ENTER)) then
+		if self.changed then
+			self:changed(self.value)
+		end
         
       elseif (inp.iskeydown(inp.DEL)) then
         if not (self.deletekey) then
