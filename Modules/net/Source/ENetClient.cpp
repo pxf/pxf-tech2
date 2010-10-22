@@ -291,7 +291,7 @@ bool ENetClient::SendPacket(Network::Packet* _Packet)
 void ENetClient::Flush()
 {
 	// Force send the packet. Since *_flush doesn't work, we have to do it this way.
-	Network::Packet *rpack = RecvNonBlocking(200);
+	Network::Packet *rpack = RecvNonBlocking(0);
 	if (rpack != NULL)
 		m_BufferedPackets.push_back(rpack);
 }
