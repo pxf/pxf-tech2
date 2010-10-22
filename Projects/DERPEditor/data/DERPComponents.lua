@@ -133,7 +133,7 @@ function derp_components.output.simple:create_widget(component_data)
             
           elseif indata.id == "ackres" then
             local remote_counter = indata:get_object(0)
-            if (resources_counter == remote_counter) then
+            if (resources_counter <= remote_counter) then
               -- sending json to server
               print("Server has all resources, send JSON data.")
               print("JSON data to send: " .. self.final_pipeline)

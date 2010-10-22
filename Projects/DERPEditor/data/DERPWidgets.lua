@@ -1446,8 +1446,62 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	return wid
 end
 
+function derp:create_previewbox(x,y,w,h,component_data)
+	local wid = gui:create_basewidget(x,y,w,h)
+	wid.data = component_data
+	--wid.previewid = preview_id
+	wid.zoompos = nil--{0,0}
+	wid.zoomsize = 8 -- pixels
+	wid.zoomboxsize = 0.2 -- 20% of normal box
+	wid.orginalsize = 512 -- TODO: no magic numbers hello
+	
+	wid.supdate = wid.update
+	function wid:update()
+	  
+  end
+  
+  wid.sdraw = wid.draw
+  function wid:draw(force)
+    self:sdraw(force)
+    if (self.redraw_needed or force) then
+      local previewid = self.data.id
+      if (derp.active_workspace.preview_data[previewid]) then
+        gfx.translate(self.drawbox.x,self.drawbox.y)
+        derp.active_workspace.preview_data[previewid]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.h,0,self.drawbox.h)
+        
+        -- render zoombox
+        if (self.zoompos) then
+          local relzoombox = self.zoomboxsize*self.drawbox.w
+          gfx.translate(self.zoompos[1]-relzoombox/2, self.zoompos[2]-relzoombox/2)
+          local relx,rely = self.zoompos[1], self.zoompos[2]
+          relx = (self.orginalsize / self.drawbox.w) * relx
+          rely = (self.orginalsize / self.drawbox.h) * rely
+          derp.active_workspace.preview_data[previewid]:draw(0,0, self.drawbox.w*self.zoomboxsize,0,self.drawbox.w*self.zoomboxsize,self.drawbox.h*self.zoomboxsize,0,self.drawbox.h*self.zoomboxsize
+                                                            , relx - self.zoomsize / 2, rely - self.zoomsize / 2, self.zoomsize, self.zoomsize)
+          gfx.translate(-(self.zoompos[1]-relzoombox/2), -(self.zoompos[2]-relzoombox/2))
+        end
+        gfx.translate(-self.drawbox.x,-self.drawbox.y)
+      end
+    end
+  end
+  
+  function wid:mousedrag(mx,my,button)
+    local previewid = self.data.id
+    if (derp.active_workspace.preview_data[previewid]) then
+      local x,y = self:find_abspos(self)
+      local mx,my = inp.getmousepos()
+      x = mx - x
+      y = my - y
+      
+      self.zoompos = {x,y}
+    end
+  end
+	
+	return wid
+end
+
 function derp:create_baseinspector(component_data)
-	local wid = gui:create_verticalstack(20,200,220,400)
+	local wid = gui:create_verticalstack(10,150,230,400)
 	
 	wid.data = component_data
 	
@@ -1455,19 +1509,22 @@ function derp:create_baseinspector(component_data)
 	return wid
 end
 
+
 function derp:create_texturedinspector(component_data)
 	local wid = derp:create_baseinspector(component_data)
+	
+	wid:addwidget(derp:create_previewbox(0,0,wid.drawbox.w,wid.drawbox.w,component_data))
 	
 	-- test render preview
 	wid.sdraw = wid.draw
 	function wid:draw(force)
 	  self:sdraw(force)
 	  
-	  if (derp.active_workspace.preview_data[self.data.id]) then
+	  --[[if (derp.active_workspace.preview_data[self.data.id]) then
   	  gfx.translate(self.drawbox.x,self.drawbox.y)
 	    derp.active_workspace.preview_data[self.data.id]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.w,0,self.drawbox.w)
   	  gfx.translate(-self.drawbox.x,-self.drawbox.y)
-    end
+    end]]
   end
 	
 	return wid
