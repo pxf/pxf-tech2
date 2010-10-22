@@ -111,7 +111,7 @@ int DERPEditor::net_send_file(lua_State *L)
 		packet->PushInt(fsize);
 		packet->PushString(data, fsize);
 
-		Util::Array<Network::Client*> Clients = LuaApp::GetInstance()->m_net->GetClients();
+		Util::Array<Network::Client*>& Clients = LuaApp::GetInstance()->m_net->GetClients();
 		Util::Array<Network::Client*>::iterator iter = Clients.begin();
 
 		while (iter != Clients.end())

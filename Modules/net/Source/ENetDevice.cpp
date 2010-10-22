@@ -67,12 +67,12 @@ Client* ENetDevice::GetClient(const int _ClientIdent)
 	return NULL;
 }
 
-Util::Array<Network::Client*> ENetDevice::GetClients()
+Util::Array<Network::Client*>& ENetDevice::GetClients()
 {
 	return Clients;
 }
 
-Util::Array<Network::Server*> ENetDevice::GetServers()
+Util::Array<Network::Server*>& ENetDevice::GetServers()
 {
 	return Servers;
 }

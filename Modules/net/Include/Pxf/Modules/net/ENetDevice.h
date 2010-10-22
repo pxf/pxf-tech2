@@ -52,8 +52,8 @@ namespace Pxf
 			virtual Network::Server* GetServer(const int _ServerIdent);
 			virtual Network::Client* GetClient(const int _ClientIdent);
 
-			virtual Util::Array<Network::Client*> GetClients();
-			virtual Util::Array<Network::Server*> GetServers();
+			virtual Util::Array<Network::Client*>& GetClients();
+			virtual Util::Array<Network::Server*>& GetServers();
 
 			virtual void KillServer(const int _ServerIdent);
 			virtual void KillClient(const int _ClientIdent);

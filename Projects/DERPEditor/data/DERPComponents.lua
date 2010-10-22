@@ -89,7 +89,6 @@ function derp_components.output.simple:create_widget(component_data)
 
       -- concat and return!
       local final_json = "[" .. table.concat(output_blocks_json, ",") .. "]"
-      print("json data to send: " .. final_json)
       
       self.parent.parent.parent.final_pipeline = final_json
 
@@ -136,6 +135,8 @@ function derp_components.output.simple:create_widget(component_data)
             local remote_counter = indata:get_object(0)
             if (resources_counter == remote_counter) then
               -- sending json to server
+              print("Server has all resources, send JSON data.")
+              print("JSON data to send: " .. self.final_pipeline)
               self.client:send("pipeline", self.final_pipeline)
             else
               print("Server hasn't got all resources yet (" .. tostring(remote_counter) .. " / " .. tostring(resources_counter) .. ").")
@@ -634,11 +635,11 @@ end
 
 -------------------------------------------------------------------------------
 -- Aux::vec3 (constant)
-derp_components.aux.vec3constant = { name = "Script: Vec3"
+derp_components.aux.vec3script = { name = "Script: Vec3"
                                     , tooltip = "Create a block that outputs a script that returns a vec3 value."
                                     }
-function derp_components.aux.vec3constant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 200, h = 30, group = "aux", type = "vec3constant", output_type = "vec3", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+function derp_components.aux.vec3script:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 200, h = 30, group = "aux", type = "vec3script", output_type = "vec3", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
   block.script = ""
@@ -646,7 +647,7 @@ function derp_components.aux.vec3constant:new_block(workspace,x,y)
   return block
 end
 
-function derp_components.aux.vec3constant:create_widget(component_data)
+function derp_components.aux.vec3script:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data)
   
   -- script input
@@ -664,11 +665,77 @@ function derp_components.aux.vec3constant:create_widget(component_data)
   return wid
 end
 
-function derp_components.aux.vec3constant:generate_json(component_data)
+function derp_components.aux.vec3script:generate_json(component_data)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "AuxComp",
      "blockData" : {"auxType" : "script",
                     "src" : "]] .. tostring(component_data.script) .. [["
+                   },
+     "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
+                       "type" : "vec3"}]
+    }]]
+	 
+    
+  if (component_data.texturefilepath == "") then
+    return spawn_error_dialog({"Missing texture filepath in block '" .. component_data.id .. "'!"})
+  end
+  
+  return {escape_backslashes(jsonstring)}
+end
+
+function derp_components.aux.vec3script:spawn_inspector(component_data)
+  return "LOL TODO"
+end
+
+-------------------------------------------------------------------------------
+-- Aux::vec3 (constant)
+derp_components.aux.vec3constant = { name = "Constant: Vec3"
+                                    , tooltip = "Create a block that outputs a script that returns a vec3 value."
+                                    }
+function derp_components.aux.vec3constant:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 200, h = 85, group = "aux", type = "vec3constant", output_type = "vec3", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  
+  -- specific values
+  block.vals = {"", "", ""}
+  
+  return block
+end
+
+function derp_components.aux.vec3constant:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data)
+  
+  -- script input
+  function script_changed(self)
+  	 self.parent.parent.parent.data.vals[self.ident] = self.value
+    print("vec3." .. self.ident .. " changed to: " .. self.value)
+    derp:push_active_workspace()
+  end
+  local val1label = gui:create_labelpanel(5,10,8*8,20,"Val1:")
+  local val2label = gui:create_labelpanel(5,35,8*8,20,"Val2:")
+  local val3label = gui:create_labelpanel(5,60,8*8,20,"Val3:")
+  local val1input = gui:create_textinput(10+8*8,10,180-8*8,false,component_data.vals[1],script_changed)
+  local val2input = gui:create_textinput(10+8*8,35,180-8*8,false,component_data.vals[2],script_changed)
+  local val3input = gui:create_textinput(10+8*8,60,180-8*8,false,component_data.vals[3],script_changed)
+  val1input.ident = 1
+  val2input.ident = 2
+  val3input.ident = 3
+
+  wid.val1input = val1input
+  wid:addwidget(val1label)
+  wid:addwidget(val2label)
+  wid:addwidget(val3label)
+  wid:addwidget(val1input)
+  wid:addwidget(val2input)
+  wid:addwidget(val3input)
+  
+  return wid
+end
+
+function derp_components.aux.vec3constant:generate_json(component_data)
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "AuxComp",
+     "blockData" : {"auxType" : "script",
+                    "src" : "return ]] .. tostring(table.concat(component_data.vals, ",")) .. [["
                    },
      "blockOutput" : [{"name" : "]] .. tostring(component_data.outputs[1]) .. [[",
                        "type" : "vec3"}]
