@@ -228,7 +228,7 @@ function derp:create_statusbar(x,y,w,h)
 end
 
 function derp:create_inspector(x,y,w,h)
-	local wid = gui:create_verticalstack(x,y,w,h)
+	local wid = gui:create_basewidget(x,y,w,h)
 	wid.widget_type = "inspector"
 	wid.super_draw = wid.draw
 	
@@ -254,11 +254,11 @@ function derp:create_inspector(x,y,w,h)
 		end
 	end
 	
-	function wid:resize_callback(w,h)
+	--[[function wid:resize_callback(w,h)
 		self.drawbox.h = self.drawbox.h - h
 		self.hitbox.h = self.drawbox.h
 		self.drawbox.y = self.drawbox.y + h
-	end
+	end]]
 	
 	return wid
 end
@@ -292,6 +292,10 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 	wid:addwidget(slide_button)
 	
 	function wid:setvalue(value)
+		if not value then
+			return nil
+		end
+		
 		if value < min then
 			value = min
 		elseif value > max then
@@ -352,7 +356,28 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 	end
 	
 	function wid:mousepush(mx,my,button)
+		local x,y = self:find_abspos(self)
+		x = mx - x
+		y = my - y
 		
+		local step = (slide_button.max_pos) / (max - min)
+		local pos = x / slide_button.max_pos
+		
+		local new_value = pos * (max - min)
+		
+		self:setvalue(new_value)
+		
+		self.drag = true
+	end
+	
+	function wid:mousedrag(dx,dy,button)
+		if self.drag then
+			slide_button:mousedrag(dx,dy)
+		end
+	end
+	
+	function wid:mouserelease(mx,my,button)
+		self.drag = false
 	end
 	
 	return wid
@@ -1419,7 +1444,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 end
 
 function derp:create_baseinspector(component_data)
-	local wid = gui:create_verticalstack(0,0,200,400)
+	local wid = gui:create_verticalstack(20,200,220,400)
 	
 	wid.data = component_data
 	
@@ -1438,7 +1463,7 @@ function derp:create_texturedinspector(component_data)
 	  if (derp.active_workspace.preview_data[self.data.id]) then
   	  gfx.translate(self.drawbox.x,self.drawbox.y)
 	    derp.active_workspace.preview_data[self.data.id]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.w,0,self.drawbox.w)
-  	  gfx.translate(self.drawbox.x,self.drawbox.y)
+  	  gfx.translate(-self.drawbox.x,-self.drawbox.y)
     end
   end
 	
