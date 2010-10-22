@@ -281,7 +281,7 @@ end
 
 function derp:create_slider(x,y,w,min,max)
 	local wid = gui:create_basewidget(x,y,w,30)
-	local slide_button = gui:create_basewidget(x + w*0.5,y + 15,10,15)
+	local slide_button = gui:create_basewidget(x + w*0.5-5,y,10,30)
 	
 	wid.value = (max - min) * 0.5
 	
@@ -311,7 +311,9 @@ function derp:create_slider(x,y,w,min,max)
 	
 	function slide_button:draw(force)
 		if (self.redraw_needed or force) then
-			gfx.drawcentered(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,5,5,1,1) -- top
+		  gfx.translate(self.drawbox.x,self.drawbox.y)
+			gfx.drawtopleft(0,0,self.drawbox.w,self.drawbox.h,5,5,1,1) -- top
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
 		end
 	end
 	
