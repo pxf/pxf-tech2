@@ -21,7 +21,7 @@ derp_components.output.simple = { name = "Ouput: Simple"
                                 , tooltip = "Create a block that can render one texture on a remote machine."
                                 }
 function derp_components.output.simple:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 100, group = "output", type = "simple", inputs = 1, outputs = {}, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 100, group = "output", type = "simple", output_type = "none", inputs = 1, outputs = {}, connections_in = {} }
   
   -- specific values
   block.remotehost = "localhost"
@@ -195,18 +195,10 @@ function derp_components.output.simple:generate_json(component_data)
   
   local first_texture = nil
   for k,v in pairs(component_data.connections_in) do
-    if (v.type == "texture") then
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
-      
-    elseif (v.type == "geometry") then
-      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
-      first_texture = tostring(v.output)
-
-    elseif (v.type == "invert") then
-      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
-      first_texture = tostring(v.output)
-
     end
   end
   
@@ -254,7 +246,7 @@ derp_components.postprocess.invert = { name = "Post Process: Invert Colors"
                                 , tooltip = "Create a block that inverts the colors of a texture."
                                 }
 function derp_components.postprocess.invert:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "invert", output_type = "texture", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   return block
 end
@@ -303,18 +295,10 @@ function derp_components.postprocess.invert:generate_json(component_data)
   
   local first_texture = nil
   for k,v in pairs(component_data.connections_in) do
-    if (v.type == "texture") then
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
-      
-    elseif (v.type == "geometry") then
-      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
-      first_texture = tostring(v.output)
-
-    elseif (v.type == "invert") then
-      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
-      first_texture = tostring(v.output)
-
     end
   end
   
@@ -362,7 +346,7 @@ derp_components.render.geometry = { name = "Geometry renderer"
                               , tooltip = "Create a block that inputs geometry and renders to a texture."
                               }
 function derp_components.render.geometry:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", inputs = 4, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", output_type = "texture", inputs = 4, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.modelfilepath = ""
   return block
@@ -412,7 +396,8 @@ function derp_components.render.geometry:generate_json(component_data)
 
   local first_texture = nil
   for k,v in pairs(component_data.connections_in) do
-    if (v.type == "texture") then
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
     end
@@ -464,7 +449,7 @@ derp_components.aux.model = { name = "CTM Model"
                               , tooltip = "Create a block that outputs model geometry."
                               }
 function derp_components.aux.model:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "model", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "model", output_type = "geometry", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.modelfilepath = ""
   return block
@@ -527,7 +512,7 @@ derp_components.aux.texture = { name = "Texture"
                                 , tooltip = "Create a block that outputs static texture."
                               }
 function derp_components.aux.texture:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "texture", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 60, group = "aux", type = "texture", output_type = "texture", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.texturefilepath = ""
   return block
@@ -593,7 +578,7 @@ derp_components.aux.floatconstant = { name = "Constant: Float"
                                     , tooltip = "Create a block that outputs a constant float value."
                                     }
 function derp_components.aux.floatconstant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 40, group = "aux", type = "floatconstant", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 100, h = 40, group = "aux", type = "floatconstant", output_type = "float", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.constvalue = 0.0
   return block
@@ -624,7 +609,7 @@ derp_components.aux.vec2constant = { name = "Constant: Vec2"
                                     , tooltip = "Create a block that outputs a constant vec2 value."
                                     }
 function derp_components.aux.vec2constant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 30, group = "aux", type = "vec2constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 100, h = 30, group = "aux", type = "vec2constant", output_type = "vec2", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
   block.constvalue = {0.0, 0.0}
@@ -653,7 +638,7 @@ derp_components.aux.vec3constant = { name = "Script: Vec3"
                                     , tooltip = "Create a block that outputs a script that returns a vec3 value."
                                     }
 function derp_components.aux.vec3constant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 200, h = 30, group = "aux", type = "vec3constant", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 200, h = 30, group = "aux", type = "vec3constant", output_type = "vec3", inputs = 0, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   
   -- specific values
   block.script = ""
