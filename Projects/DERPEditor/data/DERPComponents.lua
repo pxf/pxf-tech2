@@ -591,7 +591,7 @@ derp_components.aux.floatconstant = { name = "Constant: Float"
                                     , tooltip = "Create a block that outputs a constant float value."
                                     }
 function derp_components.aux.floatconstant:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 100, h = 40, group = "aux", type = "floatconstant", output_type = "float", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 150, h = 40, group = "aux", type = "floatconstant", output_type = "float", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
   -- specific values
   block.constvalue = 0.0
   return block
@@ -747,7 +747,7 @@ function derp_components.aux.vec3script:generate_json(component_data)
 end
 
 function derp_components.aux.vec3script:spawn_inspector(component_data)
-  return "LOL TODO"
+  return nil
 end
 
 -------------------------------------------------------------------------------

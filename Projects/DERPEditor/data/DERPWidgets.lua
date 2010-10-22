@@ -947,6 +947,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
 	
+	
 	wid.shortcuts = { { name = "copy", keys = {inp.LCTRL,"C"}, was_pressed = false, onpress = 
 							function () 
 								
@@ -967,10 +968,18 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 							end},
 					}
 	
-	local length = #component_data.id*8 + 20
+	wid.data = component_data
+	wid.id = component_data.id
+	wid.widget_type = "component " .. wid.id
+	wid.active = true
+	wid.super_addwidget = wid.addwidget
+	wid.temp_connection = nil 
+	
+	local length = math.max(#component_data.id*8 + 20,#derp_components[wid.data.group][wid.data.type].name*8 + 20)
 	
 	if length > (wid.drawbox.w - 12) then
 		length = length - (wid.drawbox.w-12)
+		
 		wid:resize_relative(length,0)
 		component_data.w = component_data.w + length
 	end
@@ -983,12 +992,6 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		max_outputs = 0
 	end
 									
-	wid.data = component_data
-	wid.id = component_data.id
-	wid.widget_type = "component " .. wid.id
-	wid.active = true
-	wid.super_addwidget = wid.addwidget
-	wid.temp_connection = nil
 	local io_height = math.max(wid.data.inputs,#wid.data.outputs) * 14 + 7
 	
 	local header = gui:create_basewidget(0,0,wid.drawbox.w,26)
@@ -2460,6 +2463,7 @@ function derp:create_toolbar(x,y,w,h)
 					local changed = false
 					
 					for k,v in pairs(derp.active_workspace.component_data.active_components) do
+						
 						derp.active_workspace.childwidgets[v] = nil
 						v = nil
 						changed = true
