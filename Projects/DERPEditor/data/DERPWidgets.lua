@@ -327,6 +327,37 @@ function derp:create_slider(x,y,w,min,max)
 	return wid
 end
 
+function derp:create_basepopupmenu(menu)
+	local wid = gui:create_menu(0,0,menu)
+	wid.visible = false
+
+	function wid:show()
+		if self.visible then
+			self:hide()
+		end
+		
+		local x,y = inp.getmousepos()
+		self:move_abs(x,y)
+			
+		self.visible = true
+		gui.widgets:addwidget(self)
+		
+		derp:set_activetool(nil)
+	end
+	
+	function wid:hide()
+		self.visible = false
+		gui.widgets:removewidget(self)
+		derp:set_activetool(derp.active_tool.last)
+	end
+	
+	function wid:destroy_callback()
+		self:hide()
+	end
+	
+	return wid
+end
+
 function derp:create_workspace_menu()
   local component_menu = {}
   for group,types in pairs(derp_components) do
@@ -352,35 +383,11 @@ function derp:create_workspace_menu()
   end
   local menu = {{"New component", {menu = component_menu}}}
 			
-	local wid = gui:create_menu(0,0,menu)
+	local wid = self:create_basepopupmenu(menu)
 	
 	wid.super_menu = wid.menu
 	wid.widget_type = "workspace menu"
 	wid.visible = false
-	
-	function wid:show()
-		if self.visible then
-			self:hide()
-		end
-		
-		local x,y = inp.getmousepos()
-		self:move_abs(x,y)
-			
-		self.visible = true
-		gui.widgets:addwidget(self)
-		
-		derp:set_activetool(nil)
-	end
-	
-	function wid:hide()
-		self.visible = false
-		gui.widgets:removewidget(self)
-		derp:set_activetool(derp.active_tool.last)
-	end
-	
-	function wid:destroy_callback()
-		self:hide()
-	end
 	
 	return wid
 end
@@ -800,6 +807,7 @@ end
 function derp:create_connectionoutput(id,x,y)
   local wid = gui:create_basewidget(x, y, 12, 12)
   wid.output_id = id
+  wid.connections = { }
   wid.widget_type = "connection_output"
   
   wid.superdraw = wid.draw
@@ -821,35 +829,59 @@ function derp:create_connectionoutput(id,x,y)
   end
   
   function wid:mouserelease(mx,my,button)
-    -- see if we found a input to connect to
-    local htest = self.parent.parent.parent:find_mousehit(mx,my,mx,my)
-	
-    if htest then
-      if (htest.widget_type == "connection_input") then
-        --print("Trying to add connection from output '" .. self.output_id .. "' to input '" .. htest.input_id .. "'")
-        htest.parent.parent:add_connection(self.parent.parent.component_id, self.output_id, self.parent.parent.data.type, htest.input_id)
-      end
-    end
-    self.parent.temp_connection = nil
+	if button == inp.MOUSE_LEFT then
+		-- see if we found a input to connect to
+		local htest = self.parent.parent.parent:find_mousehit(mx,my,mx,my)
+		
+		if htest then
+		  if (htest.widget_type == "connection_input") then
+			--print("Trying to add connection from output '" .. self.output_id .. "' to input '" .. htest.input_id .. "'")
+			htest.parent.parent:add_connection(self.parent.parent.component_id, self.output_id, self.parent.parent.data.type, htest.input_id)
+		  end
+		end
+		self.parent.temp_connection = nil
+	end
   end
   
   function wid:mousepush(mx,my,button)
 	--print(mx,my)
+	if button == inp.MOUSE_RIGHT then
+		if self.connected then
+		
+			local menu = { }
+			for k,v in pairs(self.connections) do
+				print(v.id,v.to_input)
+				
+				local end_wid = derp.active_workspace:get_block(v.id)
+				
+				table.insert(menu,{self.output_id .. " - " .. v.id .. "." .. v.to_input, {tooltip = "Remove connection from " .. self.output_id .. " to " .. v.id, onclick = 
+									function () 	
+									end}})
+			end
+			
+			local basemenu = derp:create_basepopupmenu(menu)
+			
+			derp.ws_menu = basemenu
+			derp.ws_menu:show()
+		end
+	end
   end
   
   function wid:mousedrag(mx,my,button)
-    -- get mouse position relative to parent widget
-    local x,y = inp.getmousepos()
-    -- find spline start on output widget
-	local w = self.parent.parent
-	
-	local startx,starty = w.drawbox.x + w.drawbox.w,w.drawbox.y + self.drawbox.y + 7 + 26
-	
-	x = x - derp.active_workspace.drawbox.x
-	y = y - derp.active_workspace.drawbox.y
-	
-    -- create our spline
-    self.parent.temp_connection = create_spline({{startx,starty}, {x,y}}, 30, 2)
+	if button == inp.MOUSE_LEFT then
+		-- get mouse position relative to parent widget
+		local x,y = inp.getmousepos()
+		-- find spline start on output widget
+		local w = self.parent.parent
+		
+		local startx,starty = w.drawbox.x + w.drawbox.w,w.drawbox.y + self.drawbox.y + 7 + 26
+		
+		x = x - derp.active_workspace.drawbox.x
+		y = y - derp.active_workspace.drawbox.y
+		
+		-- create our spline
+		self.parent.temp_connection = create_spline({{startx,starty}, {x,y}}, 30, 2)
+	end
   end
   
   return wid
@@ -1009,6 +1041,8 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		local startsocket = startwid:get_outputsocket(from_output)
 		
 		startsocket.connected = true
+		
+		table.insert(startsocket.connections,{id = self.id,to_input = to_id})
 
 		for k,v in pairs(self.content.childwidgets) do
 			if v.input_id and v.input_id == to_id then
@@ -1518,7 +1552,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 							onpress = function ()
 								local x,y = inp.getmousepos()
 								derp.addcomppos = {x = x, y = y }
-								derp.ws_menu.menu = derp.ws_menu.super_menu	
+								
+								derp.ws_menu = derp:create_workspace_menu()	
 								derp.ws_menu:show() 
 							end} }
 	
@@ -1662,6 +1697,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 				local ss = sw:get_outputsocket(c.output)
 				
 				ss.connected = true
+				table.insert(ss.connections,{id = v.id,to_input = c.input})
 				
 				for _,o in pairs(v.content.childwidgets) do
 					if o.input_id and o.input_id == c.input then
