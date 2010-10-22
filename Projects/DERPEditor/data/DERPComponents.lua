@@ -331,7 +331,10 @@ function derp_components.postprocess.invert:generate_json(component_data)
                     uniform float script1;
                     void main()
                     {
-                      vec4 c = vec4(]] .. tostring(component_data.slidervalue) .. [[) - texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      float sv = ]] .. tostring(component_data.slidervalue+0.0001) .. [[;
+                      vec4 o = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      vec4 i = vec4(1.0) - o;
+                      vec4 c = i*sv + o*(1.0-sv); 
                       c.a = 1.0;
                     	gl_FragData[0] = c;
                     }"
