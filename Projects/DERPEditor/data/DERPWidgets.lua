@@ -352,7 +352,28 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 	end
 	
 	function wid:mousepush(mx,my,button)
+		local x,y = self:find_abspos(self)
+		x = mx - x
+		y = my - y
 		
+		local step = (slide_button.max_pos) / (max - min)
+		local pos = x / slide_button.max_pos
+		
+		local new_value = pos * (max - min)
+		
+		self:setvalue(new_value)
+		
+		self.drag = true
+	end
+	
+	function wid:mousedrag(dx,dy,button)
+		if self.drag then
+			slide_button:mousedrag(dx,dy)
+		end
+	end
+	
+	function wid:mouserelease(mx,my,button)
+		self.drag = false
 	end
 	
 	return wid
