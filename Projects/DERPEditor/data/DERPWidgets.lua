@@ -279,10 +279,11 @@ function RGB_to_HSV(r,g,b,h,s,v)
 	return out.r,out.g,out.b
 end
 
-function derp:create_slider(x,y,w,h,min,max)
+function derp:create_slider(x,y,w,h,min,max,on_change)
 	local wid = gui:create_basewidget(x,y,w,h)
 	local slide_button = gui:create_basewidget(w*0.5-5,0,10,h)
 	
+	wid.on_change = on_change
 	wid.value = (max - min) * 0.5
 	slide_button.max_pos = w-10
 	
@@ -308,6 +309,10 @@ function derp:create_slider(x,y,w,h,min,max)
 		local pos = self.drawbox.x / self.max_pos
 		
 		wid.value = pos * (max - min)
+		
+		if (self.on_change) then
+		  self:on_change(wid.value)
+	  end
 	end
 	
 	function slide_button:draw(force)
@@ -322,7 +327,7 @@ function derp:create_slider(x,y,w,h,min,max)
 	function wid:draw(force)
 		if (self.redraw_needed or force) then
 			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h * 0.5,self.drawbox.w,1,5,5,1,1) -- top	
-			gui:drawfont(tostring(self.value), self.drawbox.x + self.drawbox.w + 2, self.drawbox.y)
+			--gui:drawfont(tostring(self.value), self.drawbox.x + self.drawbox.w + 2, self.drawbox.y)
 		end
 		
 		self:super_draw(force)
