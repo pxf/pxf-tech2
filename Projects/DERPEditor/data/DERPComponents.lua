@@ -345,7 +345,7 @@ function derp_components.postprocess.invert:generate_json(component_data)
 end
 
 function derp_components.postprocess.invert:spawn_inspector(component_data)
-  return nil
+  return derp:create_texturedinspector(component_data)
 end
 
 
@@ -448,7 +448,7 @@ function derp_components.render.geometry:generate_json(component_data)
 end
 
 function derp_components.render.geometry:spawn_inspector(component_data)
-  return nil
+  return derp:create_texturedinspector(component_data)
 end
 
 
