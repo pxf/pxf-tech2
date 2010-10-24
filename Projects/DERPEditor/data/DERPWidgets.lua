@@ -947,6 +947,7 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	local wid = gui:create_basewidget(component_data.x, component_data.y,
                                     component_data.w, component_data.h)
 	
+	
 	wid.shortcuts = { { name = "copy", keys = {inp.LCTRL,"C"}, was_pressed = false, onpress = 
 							function () 
 								
@@ -967,10 +968,18 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 							end},
 					}
 	
-	local length = #component_data.id*8 + 20
+	wid.data = component_data
+	wid.id = component_data.id
+	wid.widget_type = "component " .. wid.id
+	wid.active = true
+	wid.super_addwidget = wid.addwidget
+	wid.temp_connection = nil 
+	
+	local length = math.max(#component_data.id*8 + 20,#derp_components[wid.data.group][wid.data.type].name*8 + 20)
 	
 	if length > (wid.drawbox.w - 12) then
 		length = length - (wid.drawbox.w-12)
+		
 		wid:resize_relative(length,0)
 		component_data.w = component_data.w + length
 	end
@@ -983,12 +992,6 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 		max_outputs = 0
 	end
 									
-	wid.data = component_data
-	wid.id = component_data.id
-	wid.widget_type = "component " .. wid.id
-	wid.active = true
-	wid.super_addwidget = wid.addwidget
-	wid.temp_connection = nil
 	local io_height = math.max(wid.data.inputs,#wid.data.outputs) * 14 + 7
 	
 	local header = gui:create_basewidget(0,0,wid.drawbox.w,26)
@@ -1443,8 +1446,62 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	return wid
 end
 
+function derp:create_previewbox(x,y,w,h,component_data)
+	local wid = gui:create_basewidget(x,y,w,h)
+	wid.data = component_data
+	--wid.previewid = preview_id
+	wid.zoompos = nil--{0,0}
+	wid.zoomsize = 8 -- pixels
+	wid.zoomboxsize = 0.2 -- 20% of normal box
+	wid.orginalsize = 512 -- TODO: no magic numbers hello
+	
+	wid.supdate = wid.update
+	function wid:update()
+	  
+  end
+  
+  wid.sdraw = wid.draw
+  function wid:draw(force)
+    self:sdraw(force)
+    if (self.redraw_needed or force) then
+      local previewid = self.data.id
+      if (derp.active_workspace.preview_data[previewid]) then
+        gfx.translate(self.drawbox.x,self.drawbox.y)
+        derp.active_workspace.preview_data[previewid]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.h,0,self.drawbox.h)
+        
+        -- render zoombox
+        if (self.zoompos) then
+          local relzoombox = self.zoomboxsize*self.drawbox.w
+          gfx.translate(self.zoompos[1]-relzoombox/2, self.zoompos[2]-relzoombox/2)
+          local relx,rely = self.zoompos[1], self.zoompos[2]
+          relx = (self.orginalsize / self.drawbox.w) * relx
+          rely = (self.orginalsize / self.drawbox.h) * rely
+          derp.active_workspace.preview_data[previewid]:draw(0,0, self.drawbox.w*self.zoomboxsize,0,self.drawbox.w*self.zoomboxsize,self.drawbox.h*self.zoomboxsize,0,self.drawbox.h*self.zoomboxsize
+                                                            , relx - self.zoomsize / 2, rely - self.zoomsize / 2, self.zoomsize, self.zoomsize)
+          gfx.translate(-(self.zoompos[1]-relzoombox/2), -(self.zoompos[2]-relzoombox/2))
+        end
+        gfx.translate(-self.drawbox.x,-self.drawbox.y)
+      end
+    end
+  end
+  
+  function wid:mousedrag(mx,my,button)
+    local previewid = self.data.id
+    if (derp.active_workspace.preview_data[previewid]) then
+      local x,y = self:find_abspos(self)
+      local mx,my = inp.getmousepos()
+      x = mx - x
+      y = my - y
+      
+      self.zoompos = {x,y}
+    end
+  end
+	
+	return wid
+end
+
 function derp:create_baseinspector(component_data)
-	local wid = gui:create_verticalstack(20,200,220,400)
+	local wid = gui:create_verticalstack(10,150,230,400)
 	
 	wid.data = component_data
 	
@@ -1452,19 +1509,22 @@ function derp:create_baseinspector(component_data)
 	return wid
 end
 
+
 function derp:create_texturedinspector(component_data)
 	local wid = derp:create_baseinspector(component_data)
+	
+	wid:addwidget(derp:create_previewbox(0,0,wid.drawbox.w,wid.drawbox.w,component_data))
 	
 	-- test render preview
 	wid.sdraw = wid.draw
 	function wid:draw(force)
 	  self:sdraw(force)
 	  
-	  if (derp.active_workspace.preview_data[self.data.id]) then
+	  --[[if (derp.active_workspace.preview_data[self.data.id]) then
   	  gfx.translate(self.drawbox.x,self.drawbox.y)
 	    derp.active_workspace.preview_data[self.data.id]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.w,0,self.drawbox.w)
   	  gfx.translate(-self.drawbox.x,-self.drawbox.y)
-    end
+    end]]
   end
 	
 	return wid
@@ -2460,6 +2520,7 @@ function derp:create_toolbar(x,y,w,h)
 					local changed = false
 					
 					for k,v in pairs(derp.active_workspace.component_data.active_components) do
+						
 						derp.active_workspace.childwidgets[v] = nil
 						v = nil
 						changed = true
@@ -2619,6 +2680,7 @@ function derp:create_toolbar(x,y,w,h)
 				
 				if derp.active_workspace then
 					derp.active_workspace.component_data.active_components = {}
+					derp.active_workspace:attach_inspector(nil)
 				end
 			end	
 			

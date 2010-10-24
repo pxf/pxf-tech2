@@ -55,8 +55,11 @@ bool AuxiliaryBlock::Initialize(Json::Value *node)
 		m_AuxData = (*node)["blockData"]["src"].asCString();
 		
 		// Setup lua
-		L = luaL_newstate();
-		luaL_openlibs(L);
+		if (!L)
+		{
+			L = luaL_newstate();
+			luaL_openlibs(L);
+		}
 	}
 	else if ((*node)["blockData"]["auxType"].asString() == "model")
 	{
