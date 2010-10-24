@@ -20,6 +20,7 @@ using Util::String;
 
 TextureGL2::TextureGL2(GraphicsDevice* _pDevice)
 	: Texture(_pDevice)
+	, m_TextureID(0)
 	, m_LogTag(0)
 {
 	m_LogTag = m_pDevice->GetKernel()->CreateTag("gfx");

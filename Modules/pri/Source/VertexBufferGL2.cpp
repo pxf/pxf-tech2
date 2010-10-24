@@ -223,6 +223,7 @@ void VertexBufferGL2::CreateFromBuffer(void* _Buffer,uint32 _NumVertices, uint32
 
 void VertexBufferGL2::UpdateData(void* _Buffer, uint32 _Count, uint32 _Offset)
 {
+	PXF_ASSERT(m_IsMapped == false, "Vertex buffer is busy.");
 	PXFGLCHECK("VertexBufferGL2::UpdateData/Start");
 	if (m_VertexBufferLocation == VB_LOCATION_GPU && m_BufferObjectId != 0)
 	{

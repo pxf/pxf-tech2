@@ -53,6 +53,7 @@ namespace Resource {
 		{
 			if (m_CharInfo)
 				return &m_CharInfo[_Char];
+			return 0;
 		}
 
 		inline short GetKernings(const unsigned char _First, const unsigned char _Second) const
@@ -63,6 +64,16 @@ namespace Resource {
 					return m_Kernings[i].amount;
 			}
 			return 0;
+		}
+
+		inline int GetLineHeight() const
+		{
+			return m_LineHeight;
+		}
+
+		inline Resource::Image* GetImage() const
+		{
+			return m_Image;
 		}
 
 		inline bool HasKernings() const

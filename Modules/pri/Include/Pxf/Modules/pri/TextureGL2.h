@@ -18,6 +18,12 @@ namespace Pxf
 		public:
 			TextureGL2(GraphicsDevice* _pDevice);
 			virtual ~TextureGL2();
+
+			bool IsValid()
+			{
+				return m_TextureID != 0;
+			}
+
 			void Load(const char* _filepath);
 			void LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels);
 			void Unload();

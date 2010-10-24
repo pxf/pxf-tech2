@@ -33,6 +33,7 @@ namespace Pxf
 		class FrameBufferObject;
 		class Shader;
 		class Model;
+		class Font;
 		
 		class GraphicsDevice : public System
 		{
@@ -55,6 +56,8 @@ namespace Pxf
 			virtual void Translate(Math::Vec3f _translate) = 0;
 			virtual void SwapBuffers() = 0;
 
+			// Font-stuff
+			virtual float Print(Graphics::Font* _Font, float _X, float _Y, float _Scale, const char* _Text) = 0;
 			// Texture
 			virtual Texture* CreateEmptyTexture(int _Width,int _Height,TextureFormatStorage _Format = TEX_FORMAT_RGBA) = 0;
 			virtual Texture* CreateTexture(const char* _filepath) = 0;

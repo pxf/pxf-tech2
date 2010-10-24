@@ -22,6 +22,7 @@ namespace Input
 
 	virtual bool IsKeyDown(int _key) = 0;
 	virtual bool IsButtonDown(int _button) = 0;
+	virtual unsigned GetButtonStates() = 0;
 
 	virtual int GetLastKey() = 0;
 	virtual int GetLastChar() = 0;

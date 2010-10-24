@@ -38,6 +38,8 @@ namespace Pxf
 		virtual int GetLastKey();
 		virtual int GetLastChar();
 		virtual int GetLastButton();
+		virtual unsigned GetButtonStates();
+
 		virtual void ClearLastKey();
 		virtual void ClearLastChar();
 		virtual void ClearLastButton();
@@ -48,6 +50,7 @@ namespace Pxf
 		virtual void SetMouseMode(Input::MouseMode _Mode);
 		virtual void ShowCursor(bool _show);
 
+		protected:
 		// State vars
 		int last_char;   /* stores last char pressed */
 		int last_key;	/* stores last key pressed (redundant? glfw :E) */
