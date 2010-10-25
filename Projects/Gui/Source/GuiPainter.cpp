@@ -23,10 +23,12 @@ static Vec4f ColorSliderGrabberHighlight(B2F(223, 222, 204));
 
 #undef B2F
 
-void Graphics::DrawButton(void* id, const Rect::Rect_t *rect, Font* _Font, const char* text, bool has_focus, void* extra)
+void Graphics::DrawButton(GraphicsDevice* gfx, Gui* gui, PrimitiveBatch* pb, void* id, const Rect::Rect_t *rect, Font* _Font, const char* text, bool has_focus, void* extra)
 {
-/*
 	(extra);
+
+	if (!_Font)
+		return;
 
 	float text_height;
 	float text_width;
@@ -35,23 +37,23 @@ void Graphics::DrawButton(void* id, const Rect::Rect_t *rect, Font* _Font, const
 	float text_x = rect->x + (rect->w/2) - (text_width/2);
 	float text_y = rect->y + (rect->h/2) - (text_height/2);
 
-	PrimitiveBatch::QuadsBegin();
+	pb->QuadsBegin();
 
 	// Border
-	PrimitiveBatch::SetColor(&ColorBorder);
-	PrimitiveBatch::QuadsDrawTopLeft(rect->x, rect->y, rect->w, rect->h);
+	pb->SetColor(&ColorBorder);
+	pb->QuadsDrawTopLeft(rect->x, rect->y, rect->w, rect->h);
 	
 	// Draw highlight if hot (not if active though)
-	if (Gui::GetHotItem() == id && Gui::GetActiveItem() != id)
-		PrimitiveBatch::SetColor(&ColorButtonHighlight);
+	if (gui->GetHotItem() == id && gui->GetActiveItem() != id)
+		pb->SetColor(&ColorButtonHighlight);
 	else
-		PrimitiveBatch::SetColor(&ColorBase);
-	PrimitiveBatch::QuadsDrawTopLeft(rect->x+1, rect->y+1, rect->w-2.f, rect->h-2.f);
+		pb->SetColor(&ColorBase);
+	pb->QuadsDrawTopLeft(rect->x+1, rect->y+1, rect->w-2.f, rect->h-2.f);
 
 	// Fill button with base color
-	PrimitiveBatch::SetColor(&ColorBase);
-	PrimitiveBatch::QuadsDrawTopLeft(rect->x+2.f, rect->y+2.f, rect->w-3.f, rect->h-3.f);
-	PrimitiveBatch::QuadsEnd();
+	pb->SetColor(&ColorBase);
+	pb->QuadsDrawTopLeft(rect->x+2.f, rect->y+2.f, rect->w-3.f, rect->h-3.f);
+	pb->QuadsEnd();
 
 	// FIXME: This is expensive! LineStripple eats up ~9 FPS
 	// Dotted focus border
@@ -59,19 +61,18 @@ void Graphics::DrawButton(void* id, const Rect::Rect_t *rect, Font* _Font, const
 	{
 		//glLineStipple(1, 0xAAAA);
 		//glEnable(GL_LINE_STIPPLE);
-		PrimitiveBatch::LinesBegin();
-		PrimitiveBatch::SetColor(&ColorFocusBorder);
-		PrimitiveBatch::LinesDrawFrame(rect->x+3, rect->y+3, rect->w-7, rect->h-7);
-		PrimitiveBatch::LinesEnd();
+		pb->LinesBegin();
+		pb->SetColor(&ColorFocusBorder);
+		pb->LinesDrawFrame(rect->x+3, rect->y+3, rect->w-5, rect->h-5);
+		pb->LinesEnd();
 		//glDisable(GL_LINE_STIPPLE);
 	}
 
-	Graphics::Print(_Font, text_x, text_y, 1.f, text);
-	*/
+	gfx->Print(_Font, text_x, text_y, 1.f, text);
 }
 
 
-void Graphics::DrawTextfield(void* id, const Rect::Rect_t* rect, Font* _Font, const char* text, int cursor_pos, bool has_focus, void* extra)
+void Graphics::DrawTextfield(GraphicsDevice* gfx, Gui* gui, PrimitiveBatch* pb, void* id, const Rect::Rect_t* rect, Font* _Font, const char* text, int cursor_pos, bool has_focus, void* extra)
 {
 	/*
 	// Should only draw text that is visible inside the Rect_t.
@@ -99,7 +100,7 @@ void Graphics::DrawTextfield(void* id, const Rect::Rect_t* rect, Font* _Font, co
 	*/
 }
 
-void Graphics::DrawHorizontalSlider(void* id, const Rect::Rect_t *rect, const Rect::Rect_t *grabber, Font* _Font, bool has_focus, void* extra)
+void Graphics::DrawHorizontalSlider(GraphicsDevice* gfx, Gui* gui, PrimitiveBatch* pb, void* id, const Rect::Rect_t *rect, const Rect::Rect_t *grabber, Font* _Font, bool has_focus, void* extra)
 {
 	/*
 	(extra);
@@ -118,7 +119,7 @@ void Graphics::DrawHorizontalSlider(void* id, const Rect::Rect_t *rect, const Re
 	PrimitiveBatch::SetColor(&ColorBorder);
 	PrimitiveBatch::QuadsDrawTopLeft(grabber->x, grabber->y, grabber->w, grabber->h);
 
-	if (Gui::GetActiveItem() == id)
+	if (gui->GetActiveItem() == id)
 		PrimitiveBatch::SetColor(&ColorSliderGrabberHighlight);
 	else
 		PrimitiveBatch::SetColor(&ColorSliderGrabber);

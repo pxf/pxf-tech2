@@ -121,6 +121,22 @@ int main()
 			pb->QuadsEnd();
 
 			gfx->Print(fnt, 100, 100, 0.5f + fabs(sinf(Platform::GetTime()/1000.f)), "test apa bepa !.,?-//=");
+			
+			{
+				static Graphics::Rect::Rect_t rect = {300, 0, 200, 50};
+				if (Gui::INPUT_ACTION & gui.DoButton((void*)'KNP1', &rect, "Quit", 0, 0))
+				{
+					break;
+				}
+			}
+
+			{
+				static Graphics::Rect::Rect_t rect = {300, 200, 200, 50};
+				if (Gui::INPUT_ACTION & gui.DoButton((void*)'KNP2', &rect, "Quit", 0, 0))
+				{
+					break;
+				}
+			}
 
 			inp->ClearLastKey();
 			inp->ClearLastButton();
