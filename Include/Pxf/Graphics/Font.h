@@ -3,6 +3,7 @@
 
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/DeviceResource.h>
+#include <Pxf/Graphics/TextureDefs.h>
 
 namespace Pxf {
 
@@ -30,6 +31,8 @@ public:
 	{
 		return m_Texture;
 	}
+
+	void SetTextureFilters(TextureFilter _MinFilter, TextureFilter _MagFilter);
 
 	const Resource::Font* GetFont() const
 	{

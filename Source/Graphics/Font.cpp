@@ -96,3 +96,12 @@ void Graphics::Font::MeasureString(const char* _Text, float *_Width, float *_Hei
 	if(_Height)
 		*_Height = height;
 }
+
+void Graphics::Font::SetTextureFilters(TextureFilter _MinFilter, TextureFilter _MagFilter)
+{
+	if (m_Texture->IsValid())
+	{
+		m_Texture->SetMagFilter(_MagFilter);
+		m_Texture->SetMinFilter(_MinFilter);
+	}
+}

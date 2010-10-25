@@ -96,6 +96,7 @@ int main()
 
 	Resource::Font* bitmapfont = res->Acquire<Resource::Font>("data/consolas28.pfnt");
 	Graphics::Font* fnt = new Graphics::Font(gfx, bitmapfont);
+	//fnt->SetTextureFilters(TEX_FILTER_NEAREST, TEX_FILTER_NEAREST); // <- crisp font
 
 	// Stack objects must be destroyed before deleting the kernel
 	{
