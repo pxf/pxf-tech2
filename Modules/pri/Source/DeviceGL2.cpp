@@ -144,10 +144,11 @@ float DeviceGL2::Print(Graphics::Font* _Font, float _X, float _Y, float _Scale, 
 	BindTexture((Graphics::Texture*)_Font->GetTexture());
 	glPushAttrib(GL_BLEND);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	m_PrimitiveBatch->QuadsBegin();
 	m_PrimitiveBatch->SetColor(1.f, 1.f, 1.f, 1.f);
+	glTranslatef(0.375f, 0.375f, 0.f);
 	glScalef(_Scale, _Scale, 0.f);
 
 	// round and scale
