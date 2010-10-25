@@ -17,7 +17,25 @@ namespace Graphics {
 	class PrimitiveBatch : public DeviceResource
 	{
 	protected:
+		enum EMode { ENone = 0, EDrawPoints, EDrawLines, EDrawQuads };
+
+		EMode m_CurrentMode;
+
+		struct Vertex
+		{
+			Math::Vec3f pos;
+			Math::Vec2f tex;
+			Math::Vec4f color;
+		};
+
+		 int m_VertexBufferPos;
+
+		Math::Vec4f m_CurrentColors[4];
+		Math::Vec2f m_CurrentTexCoords[4];
+		float m_Rotation;
+
 		VertexBuffer* m_VertexBuffer;
+		Vertex* m_VertexData;
 	public:
 		PrimitiveBatch(GraphicsDevice* _pDevice);
 
@@ -42,6 +60,8 @@ namespace Graphics {
 		void QuadsSetRotation(float angle);
 		void QuadsSetTextureSubset(float tl_u, float tl_v, float br_u, float br_v);
 		void QuadsEnd();
+
+		void Flush();
 
 	}; // PrimitiveBatch
 } // Graphics

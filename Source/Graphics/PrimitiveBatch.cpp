@@ -11,58 +11,42 @@
 using namespace Pxf;
 using namespace Pxf::Graphics;
 
-enum EMode { ENone = 0, EDrawPoints, EDrawLines, EDrawQuads };
-static EMode g_CurrentMode = ENone;
-
-struct Vertex
-{
-	Math::Vec3f pos;
-	Math::Vec2f tex;
-	Math::Vec4f color;
-};
-
-const static int g_BufferSize = 32 * 1024;
-static int g_VertexBufferPos = 0;
-
-static Vertex* g_Vertices;
-static Math::Vec4f g_CurrentColors[4];
-static Math::Vec2f g_CurrentTexCoords[4];
-static float g_Rotation = 0.f;
-
 PrimitiveBatch::PrimitiveBatch(GraphicsDevice* _pDevice)
 	: DeviceResource(_pDevice)
 	, m_VertexBuffer(0)
+	, m_VertexData(0)
+	, m_Rotation(0.0f)
+	, m_VertexBufferPos(0)
+	, m_CurrentMode(ENone)
 {
-	m_VertexBuffer = _pDevice->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_STREAM_COPY);
+	m_VertexBuffer = _pDevice->CreateVertexBuffer(VB_LOCATION_SYS, VB_USAGE_STATIC_COPY);
 
 	m_VertexBuffer->CreateNewBuffer(4 * 1024, sizeof(Vertex));
 	m_VertexBuffer->SetData(VB_VERTEX_DATA, 0, 3);
 	m_VertexBuffer->SetData(VB_TEXCOORD_DATA, sizeof(Math::Vec3f), 2);
 	m_VertexBuffer->SetData(VB_COLOR_DATA, sizeof(Math::Vec2f)+sizeof(Math::Vec3f), 4);
 
-	if (!g_Vertices)
-		g_Vertices = new Vertex[g_BufferSize];
-	g_VertexBufferPos = 0;
-	g_CurrentMode = ENone;
-	g_Rotation = 0.f;
-
 	// set z index of vertices to something low
-	for (int i = 0; i < g_BufferSize; i++)
-		g_Vertices->pos.z = 0.f;
+	m_VertexData = (Vertex*)m_VertexBuffer->MapData(VB_ACCESS_READ_WRITE);
+	for (int i = 0; i < m_VertexBuffer->GetVertexCount(); i++)
+	{
+		m_VertexData[i].pos.z = 0.f;
+	}
+	m_VertexBuffer->UnmapData();
 
 }
 
 PrimitiveBatch::~PrimitiveBatch()
 {
-	SafeDeleteArray(g_Vertices);
+	m_pDevice->DestroyVertexBuffer(m_VertexBuffer);
 }
 
 void PrimitiveBatch::SetColor(float r, float g, float b, float a)
 {
-	g_CurrentColors[0].Set(r, g, b, a);
-	g_CurrentColors[1].Set(r, g, b, a);
-	g_CurrentColors[2].Set(r, g, b, a);
-	g_CurrentColors[3].Set(r, g, b, a);
+	m_CurrentColors[0].Set(r, g, b, a);
+	m_CurrentColors[1].Set(r, g, b, a);
+	m_CurrentColors[2].Set(r, g, b, a);
+	m_CurrentColors[3].Set(r, g, b, a);
 }
 
 void PrimitiveBatch::SetColor(Math::Vec4f* c)
@@ -70,91 +54,92 @@ void PrimitiveBatch::SetColor(Math::Vec4f* c)
 	SetColor(c->r, c->g, c->b, c->a);
 }
 
-void Flush(Graphics::GraphicsDevice* _Device, VertexBuffer* _VertexBuffer)
+void PrimitiveBatch::Flush()
 {	
-	if (g_VertexBufferPos == 0 || g_CurrentMode == ENone)
+	if (m_VertexBufferPos == 0 || m_CurrentMode == ENone)
 		return;
 
-	_VertexBuffer->UpdateData(g_Vertices, g_VertexBufferPos*sizeof(Vertex), 0);
-
-	switch(g_CurrentMode)
+	switch(m_CurrentMode)
 	{
 	case EDrawPoints:
-		_VertexBuffer->SetPrimitive(VB_PRIMITIVE_POINTS);
-		_Device->DrawBuffer(_VertexBuffer, g_VertexBufferPos);
+		m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_POINTS);
+		m_pDevice->DrawBuffer(m_VertexBuffer, m_VertexBufferPos);
 		break;
 	case EDrawLines:
 		// For perfect pixelization...
 		//glTranslatef(0.375, 0.375, 0.);
-		_VertexBuffer->SetPrimitive(VB_PRIMITIVE_LINES);
-		_Device->DrawBuffer(_VertexBuffer, g_VertexBufferPos);
+		m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_LINES);
+		m_pDevice->DrawBuffer(m_VertexBuffer, m_VertexBufferPos);
 		break;
 	case EDrawQuads:
-		_VertexBuffer->SetPrimitive(VB_PRIMITIVE_QUADS);
-		_Device->DrawBuffer(_VertexBuffer, g_VertexBufferPos);
+		m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_QUADS);
+		m_pDevice->DrawBuffer(m_VertexBuffer, m_VertexBufferPos);
 		break;
 	default:
 		PXF_ASSERT(0, "Invalid drawing mode");
 	}
 
-	g_VertexBufferPos = 0;
+	m_VertexBufferPos = 0;
 }
 
 
 void PrimitiveBatch::PointsBegin()
 {
-	PXF_ASSERT(g_CurrentMode == ENone, "Drawing or already in another drawing mode");
-	g_CurrentMode = EDrawPoints;
+	PXF_ASSERT(m_CurrentMode == ENone, "Drawing or already in another drawing mode");
+	m_VertexData = (Vertex*)m_VertexBuffer->MapData(VB_ACCESS_WRITE_ONLY);
+	m_CurrentMode = EDrawPoints;
 	SetColor(1.f,1.f,1.f,1.f);
 }
 
 void PrimitiveBatch::PointsDraw(float x, float y)
 {
-	PXF_ASSERT(g_CurrentMode == EDrawPoints, "Invalid mode for drawing points");
+	PXF_ASSERT(m_CurrentMode == EDrawPoints, "Invalid mode for drawing points");
 
-	g_Vertices[g_VertexBufferPos].pos.x = x;
-	g_Vertices[g_VertexBufferPos].pos.y = y;
-	g_Vertices[g_VertexBufferPos].tex = g_CurrentTexCoords[0];
-	g_Vertices[g_VertexBufferPos].color = g_CurrentColors[0];
+	m_VertexData[m_VertexBufferPos].pos.x = x;
+	m_VertexData[m_VertexBufferPos].pos.y = y;
+	m_VertexData[m_VertexBufferPos].tex = m_CurrentTexCoords[0];
+	m_VertexData[m_VertexBufferPos].color = m_CurrentColors[0];
 
-	g_VertexBufferPos += 1;
-	if (g_VertexBufferPos + 1 >= g_BufferSize)
-		Flush(GetDevice(), m_VertexBuffer);
+	m_VertexBufferPos += 1;
+	if (m_VertexBufferPos + 1 >= m_VertexBuffer->GetVertexCount())
+		Flush();
 
 }
 
 void PrimitiveBatch::PointsEnd()
 {
-	PXF_ASSERT(g_CurrentMode == EDrawPoints, "Invalid mode");
-	Flush(GetDevice(), m_VertexBuffer);
-	g_CurrentMode = ENone;
+	PXF_ASSERT(m_CurrentMode == EDrawPoints, "Invalid mode");
+	m_VertexBuffer->UnmapData();
+	Flush();
+	m_CurrentMode = ENone;
 }
 
 
 void PrimitiveBatch::LinesBegin()
 {
-	PXF_ASSERT(g_CurrentMode == ENone, "Drawing or already in another drawing mode");
-	g_CurrentMode = EDrawLines;
+	PXF_ASSERT(m_CurrentMode == ENone, "Drawing or already in another drawing mode");
+	m_VertexData = (Vertex*)m_VertexBuffer->MapData(VB_ACCESS_WRITE_ONLY);
+	m_CurrentMode = EDrawLines;
 	SetColor(1.f,1.f,1.f,1.f);
 }
 
 void PrimitiveBatch::LinesDraw(float x0, float y0, float x1, float y1)
 {
-	PXF_ASSERT(g_CurrentMode == EDrawLines, "Invalid mode for drawing lines");
+	PXF_ASSERT(m_CurrentMode == EDrawLines, "Invalid mode for drawing lines");
 
-	g_Vertices[g_VertexBufferPos].pos.x = x0;
-	g_Vertices[g_VertexBufferPos].pos.y = y0;
-	g_Vertices[g_VertexBufferPos].tex = g_CurrentTexCoords[0];
-	g_Vertices[g_VertexBufferPos].color = g_CurrentColors[0];
+	m_VertexData[m_VertexBufferPos].pos.x = x0;
+	m_VertexData[m_VertexBufferPos].pos.y = y0;
+	m_VertexData[m_VertexBufferPos].tex = m_CurrentTexCoords[0];
+	m_VertexData[m_VertexBufferPos].color = m_CurrentColors[0];
 
-	g_Vertices[g_VertexBufferPos+1].pos.x = x1;
-	g_Vertices[g_VertexBufferPos+1].pos.y = y1;
-	g_Vertices[g_VertexBufferPos+1].tex = g_CurrentTexCoords[1];
-	g_Vertices[g_VertexBufferPos+1].color = g_CurrentColors[1];
+	m_VertexData[m_VertexBufferPos+1].pos.x = x1;
+	m_VertexData[m_VertexBufferPos+1].pos.y = y1;
+	m_VertexData[m_VertexBufferPos+1].tex = m_CurrentTexCoords[1];
+	m_VertexData[m_VertexBufferPos+1].color = m_CurrentColors[1];
 
-	g_VertexBufferPos += 2;
-	if (g_VertexBufferPos + 2 >= g_BufferSize)
-		Flush(GetDevice(), m_VertexBuffer);
+	m_VertexBufferPos += 2;
+	if (m_VertexBufferPos + 2 >= m_VertexBuffer->GetVertexCount())
+		Flush();
 }
 /*
 	Try: offset top left pixel by 0.5
@@ -170,15 +155,17 @@ void PrimitiveBatch::LinesDrawFrame(float x, float y, float w, float h)
 
 void PrimitiveBatch::LinesEnd()
 {
-	PXF_ASSERT(g_CurrentMode == EDrawLines, "Invalid mode");
-	Flush(GetDevice(), m_VertexBuffer);
-	g_CurrentMode = ENone;
+	PXF_ASSERT(m_CurrentMode == EDrawLines, "Invalid mode");
+	m_VertexBuffer->UnmapData();
+	Flush();
+	m_CurrentMode = ENone;
 }
 
 void PrimitiveBatch::QuadsBegin()
 {
-	PXF_ASSERT(g_CurrentMode == ENone, "Drawing or already in another drawing mode");
-	g_CurrentMode = EDrawQuads;
+	PXF_ASSERT(m_CurrentMode == ENone, "Drawing or already in another drawing mode");
+	m_CurrentMode = EDrawQuads;
+	m_VertexData = (Vertex*)m_VertexBuffer->MapData(VB_ACCESS_WRITE_ONLY);
 	QuadsSetRotation(0.f);
 	QuadsSetTextureSubset(0.f,0.f,1.f,1.f);
 	SetColor(1.f,1.f,1.f,1.f);
@@ -189,101 +176,102 @@ void PrimitiveBatch::QuadsDrawCentered(float x, float y, float w, float h)
 	QuadsDrawTopLeft(x-w/2, y-h/2, w, h);
 }
 
-static void Rotate(const Math::Vector3D<float> &center, Math::Vector3D<float> &point)
+static void Rotate(float rotation, const Math::Vector3D<float> &center, Math::Vector3D<float> &point)
 {
 	Math::Vector3D<float> p = point - center;
-	point.x = p.x * cosf(g_Rotation) - p.y * sinf(g_Rotation) + center.x;
-	point.y = p.x * sinf(g_Rotation) + p.y * cosf(g_Rotation) + center.y;
+	point.x = p.x * cosf(rotation) - p.y * sinf(rotation) + center.x;
+	point.y = p.x * sinf(rotation) + p.y * cosf(rotation) + center.y;
 }
 
 void PrimitiveBatch::QuadsDrawTopLeft(float x, float y, float w, float h)
 {
-	PXF_ASSERT(g_CurrentMode == EDrawQuads, "Invalid mode for drawing quads");
+	PXF_ASSERT(m_CurrentMode == EDrawQuads, "Invalid mode for drawing quads");
 
 	Math::Vec3f center(x + w/2, y + h/2, 0.f);
 
-	g_Vertices[g_VertexBufferPos].pos.x = x;
-	g_Vertices[g_VertexBufferPos].pos.y = y;
-	g_Vertices[g_VertexBufferPos].tex = g_CurrentTexCoords[0];
-	g_Vertices[g_VertexBufferPos].color = g_CurrentColors[0];
-	Rotate(center, g_Vertices[g_VertexBufferPos].pos);
+	m_VertexData[m_VertexBufferPos].pos.x = x;
+	m_VertexData[m_VertexBufferPos].pos.y = y;
+	m_VertexData[m_VertexBufferPos].tex = m_CurrentTexCoords[0];
+	m_VertexData[m_VertexBufferPos].color = m_CurrentColors[0];
+	Rotate(m_Rotation,center, m_VertexData[m_VertexBufferPos].pos);
 
-	g_Vertices[g_VertexBufferPos+1].pos.x = x+w;
-	g_Vertices[g_VertexBufferPos+1].pos.y = y;
-	g_Vertices[g_VertexBufferPos+1].tex = g_CurrentTexCoords[1];
-	g_Vertices[g_VertexBufferPos+1].color = g_CurrentColors[1];
-	Rotate(center, g_Vertices[g_VertexBufferPos+1].pos);
+	m_VertexData[m_VertexBufferPos+1].pos.x = x+w;
+	m_VertexData[m_VertexBufferPos+1].pos.y = y;
+	m_VertexData[m_VertexBufferPos+1].tex = m_CurrentTexCoords[1];
+	m_VertexData[m_VertexBufferPos+1].color = m_CurrentColors[1];
+	Rotate(m_Rotation,center, m_VertexData[m_VertexBufferPos+1].pos);
 
-	g_Vertices[g_VertexBufferPos+2].pos.x = x+w;
-	g_Vertices[g_VertexBufferPos+2].pos.y = y+h;
-	g_Vertices[g_VertexBufferPos+2].tex = g_CurrentTexCoords[2];
-	g_Vertices[g_VertexBufferPos+2].color = g_CurrentColors[2];
-	Rotate(center, g_Vertices[g_VertexBufferPos+2].pos);
+	m_VertexData[m_VertexBufferPos+2].pos.x = x+w;
+	m_VertexData[m_VertexBufferPos+2].pos.y = y+h;
+	m_VertexData[m_VertexBufferPos+2].tex = m_CurrentTexCoords[2];
+	m_VertexData[m_VertexBufferPos+2].color = m_CurrentColors[2];
+	Rotate(m_Rotation,center, m_VertexData[m_VertexBufferPos+2].pos);
 
-	g_Vertices[g_VertexBufferPos+3].pos.x = x;
-	g_Vertices[g_VertexBufferPos+3].pos.y = y+h;
-	g_Vertices[g_VertexBufferPos+3].tex = g_CurrentTexCoords[3];
-	g_Vertices[g_VertexBufferPos+3].color = g_CurrentColors[3];
-	Rotate(center, g_Vertices[g_VertexBufferPos+3].pos);
+	m_VertexData[m_VertexBufferPos+3].pos.x = x;
+	m_VertexData[m_VertexBufferPos+3].pos.y = y+h;
+	m_VertexData[m_VertexBufferPos+3].tex = m_CurrentTexCoords[3];
+	m_VertexData[m_VertexBufferPos+3].color = m_CurrentColors[3];
+	Rotate(m_Rotation,center, m_VertexData[m_VertexBufferPos+3].pos);
 
-	g_VertexBufferPos += 4;
-	if (g_VertexBufferPos + 4 >= g_BufferSize)
-		Flush(GetDevice(), m_VertexBuffer);
+	m_VertexBufferPos += 4;
+	if (m_VertexBufferPos + 4 >= m_VertexBuffer->GetVertexCount())
+		Flush();
 }
 
 void PrimitiveBatch::QuadsDrawFreeform(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3)
 {
-	g_Vertices[g_VertexBufferPos].pos.x = x0;
-	g_Vertices[g_VertexBufferPos].pos.y = y0;
-	g_Vertices[g_VertexBufferPos].tex = g_CurrentTexCoords[3];
-	g_Vertices[g_VertexBufferPos].color = g_CurrentColors[3];
+	m_VertexData[m_VertexBufferPos].pos.x = x0;
+	m_VertexData[m_VertexBufferPos].pos.y = y0;
+	m_VertexData[m_VertexBufferPos].tex = m_CurrentTexCoords[3];
+	m_VertexData[m_VertexBufferPos].color = m_CurrentColors[3];
 
-	g_Vertices[g_VertexBufferPos+3].pos.x = x1;
-	g_Vertices[g_VertexBufferPos+3].pos.y = y1;
-	g_Vertices[g_VertexBufferPos+3].tex = g_CurrentTexCoords[3];
-	g_Vertices[g_VertexBufferPos+3].color = g_CurrentColors[3];
+	m_VertexData[m_VertexBufferPos+3].pos.x = x1;
+	m_VertexData[m_VertexBufferPos+3].pos.y = y1;
+	m_VertexData[m_VertexBufferPos+3].tex = m_CurrentTexCoords[3];
+	m_VertexData[m_VertexBufferPos+3].color = m_CurrentColors[3];
 
-	g_Vertices[g_VertexBufferPos+3].pos.x = x2;
-	g_Vertices[g_VertexBufferPos+3].pos.y = y2;
-	g_Vertices[g_VertexBufferPos+3].tex = g_CurrentTexCoords[3];
-	g_Vertices[g_VertexBufferPos+3].color = g_CurrentColors[3];
+	m_VertexData[m_VertexBufferPos+3].pos.x = x2;
+	m_VertexData[m_VertexBufferPos+3].pos.y = y2;
+	m_VertexData[m_VertexBufferPos+3].tex = m_CurrentTexCoords[3];
+	m_VertexData[m_VertexBufferPos+3].color = m_CurrentColors[3];
 
-	g_Vertices[g_VertexBufferPos+3].pos.x = x3;
-	g_Vertices[g_VertexBufferPos+3].pos.y = y3;
-	g_Vertices[g_VertexBufferPos+3].tex = g_CurrentTexCoords[3];
-	g_Vertices[g_VertexBufferPos+3].color = g_CurrentColors[3];
+	m_VertexData[m_VertexBufferPos+3].pos.x = x3;
+	m_VertexData[m_VertexBufferPos+3].pos.y = y3;
+	m_VertexData[m_VertexBufferPos+3].tex = m_CurrentTexCoords[3];
+	m_VertexData[m_VertexBufferPos+3].color = m_CurrentColors[3];
 
-	g_VertexBufferPos += 4;
-	if (g_VertexBufferPos + 4 >= g_BufferSize)
-		Flush(GetDevice(), m_VertexBuffer);
+	m_VertexBufferPos += 4;
+	if (m_VertexBufferPos + 4 >= m_VertexBuffer->GetVertexCount())
+		Flush();
 }
 
 void PrimitiveBatch::QuadsSetRotation(float angle)
 {
-	PXF_ASSERT(g_CurrentMode == EDrawQuads, "Invalid mode for rotation");
-	g_Rotation = angle;
+	PXF_ASSERT(m_CurrentMode == EDrawQuads, "Invalid mode for rotation");
+	m_Rotation = angle;
 }
 
 void PrimitiveBatch::QuadsSetTextureSubset(float tl_u, float tl_v, float br_u, float br_v)
 {
-	PXF_ASSERT(g_CurrentMode == EDrawQuads, "Invalid mode for setting texture subset");
+	PXF_ASSERT(m_CurrentMode == EDrawQuads, "Invalid mode for setting texture subset");
 
-	g_CurrentTexCoords[0].u = tl_u;
-	g_CurrentTexCoords[0].v = tl_v;
+	m_CurrentTexCoords[0].u = tl_u;
+	m_CurrentTexCoords[0].v = tl_v;
 
-	g_CurrentTexCoords[1].u = br_u;
-	g_CurrentTexCoords[1].v = tl_v;
+	m_CurrentTexCoords[1].u = br_u;
+	m_CurrentTexCoords[1].v = tl_v;
 
-	g_CurrentTexCoords[2].u = br_u;
-	g_CurrentTexCoords[2].v = br_v;
+	m_CurrentTexCoords[2].u = br_u;
+	m_CurrentTexCoords[2].v = br_v;
 
-	g_CurrentTexCoords[3].u = tl_u;
-	g_CurrentTexCoords[3].v = br_v;
+	m_CurrentTexCoords[3].u = tl_u;
+	m_CurrentTexCoords[3].v = br_v;
 }
 
 void PrimitiveBatch::QuadsEnd()
 {
-	PXF_ASSERT(g_CurrentMode == EDrawQuads, "Invalid mode");
-	Flush(GetDevice(), m_VertexBuffer);
-	g_CurrentMode = ENone;
+	PXF_ASSERT(m_CurrentMode == EDrawQuads, "Invalid mode");
+	m_VertexBuffer->UnmapData();
+	Flush();
+	m_CurrentMode = ENone;
 }
