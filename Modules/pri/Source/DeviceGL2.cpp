@@ -9,6 +9,8 @@
 #include <Pxf/Modules/pri/FrameBufferObjectGL2.h>
 #include <Pxf/Modules/pri/ShaderGLSL.h>
 #include <Pxf/Modules/pri/ModelGL2.h>
+#include <Pxf/Graphics/Font.h>
+#include <Pxf/Graphics/PrimitiveBatch.h>
 //#include <Pxf/Input/OpenGL/InputGL2.h>
 #include <Pxf/Base/Debug.h>
 
@@ -19,6 +21,7 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Mesh.h>
+#include <Pxf/Resource/Font.h>
 
 using namespace Pxf;
 using namespace Pxf::Graphics;
@@ -29,6 +32,7 @@ DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
 	: GraphicsDevice(_Kernel, "OpenGL2 Graphics Device")
 	, m_CurrentFrameBufferObject(0)
 	, m_CurrentShader(0)
+	, m_PrimitiveBatch(0)
 	, m_LogTag(0)
 {
 	m_LogTag = _Kernel->CreateTag("gfx");
@@ -47,6 +51,8 @@ DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
 
 DeviceGL2::~DeviceGL2()
 {
+	if (m_PrimitiveBatch)
+		delete m_PrimitiveBatch;
 
 	// Close any open window.
 	CloseWindow();
@@ -101,6 +107,92 @@ void DeviceGL2::SwapBuffers()
 void DeviceGL2::Translate(Math::Vec3f _translate)
 {
 	glTranslatef(_translate.x, _translate.y, _translate.z);
+}
+
+// TODO: Set color (using \1, \2, \3? DefineColor(1, {255, 0, 0}))
+float DeviceGL2::Print(Graphics::Font* _Font, float _X, float _Y, float _Scale, const char* _Text)
+{
+	// Create primitive batch if it doesn't exist.
+	if (!m_PrimitiveBatch)
+	{
+		m_PrimitiveBatch = new PrimitiveBatch(this);
+	}
+
+	if (!_Font->IsReady())
+		return 0.f;
+
+	const Resource::Font::CharInfo_t* info;
+	const Resource::Font* font = _Font->GetFont();
+
+	// Fetch window resolution
+	float ResW = m_Window->GetWidth();
+	float ResH = m_Window->GetHeight();
+
+	int Len = strlen(_Text);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0, ResW, ResH, 0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glPushAttrib(GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+
+	BindTexture((Graphics::Texture*)_Font->GetTexture());
+	glPushAttrib(GL_BLEND);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	m_PrimitiveBatch->QuadsBegin();
+	m_PrimitiveBatch->SetColor(1.f, 1.f, 1.f, 1.f);
+	glTranslatef(0.375f, 0.375f, 0.f);
+	glScalef(_Scale, _Scale, 0.f);
+
+	// round and scale
+	float x = ceilf(_X) / _Scale;
+	float y = ceilf(_Y) / _Scale;
+
+	float width = 0;
+
+	char last_char = 0;
+	for (int i = 0; i < Len; i++)
+	{
+		if (_Text[i] == '\n')
+		{
+			y += ceilf(_Font->LineHeight()) * _Scale;
+			width = 0;
+		}
+		else if (_Text[i] == '\t')
+		{
+			info = font->GetInfo(' ');
+			width += ceilf(2*info->Width * _Scale);
+		}
+		else if (!(_Text[i] >= 0 && _Text[i] < 32))
+		{
+			info = font->GetInfo(_Text[i]);
+			int kerning = font->GetKernings(last_char, _Text[i]);
+			m_PrimitiveBatch->QuadsSetTextureSubset(info->Tx1, info->Ty1, info->Tx2, info->Ty2);
+			m_PrimitiveBatch->QuadsDrawTopLeft(x + width + info->XOffset + kerning, y + info->YOffset, info->Width, info->Height);
+			width += info->XAdvance + kerning;
+		}
+	}
+
+	m_PrimitiveBatch->QuadsEnd();
+	BindTexture(0);
+
+	glPopAttrib(); // blending
+	glPopAttrib(); // depth testing
+
+
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW); // set the right matrix mode...
+
+	return width*_Scale;
 }
 
 Texture* DeviceGL2::CreateEmptyTexture(int _Width,int _Height, TextureFormatStorage _Format)

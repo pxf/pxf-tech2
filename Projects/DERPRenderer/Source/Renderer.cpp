@@ -211,6 +211,9 @@ void Renderer::Execute()
 				stream.Write(data, datalen);
 				stream.Close();
 
+				delete [] filename;
+				delete [] data;
+
 				m_NumRecieved++;
 				Network::Packet* ackpack = m_NetDevice->CreateEmptyPacket("ackres", m_NetTag_Datacache);
 				ackpack->PushInt(m_NumRecieved);

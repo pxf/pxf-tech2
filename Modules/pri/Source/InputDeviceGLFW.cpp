@@ -159,6 +159,11 @@ int InputDeviceGLFW::GetLastButton()
 	return last_button;
 }
 
+unsigned InputDeviceGLFW::GetButtonStates()
+{
+	return mouse_buttons;
+}
+
 void InputDeviceGLFW::ClearLastKey()
 {
 	last_key = 0;

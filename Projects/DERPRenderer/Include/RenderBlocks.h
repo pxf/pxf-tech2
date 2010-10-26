@@ -142,6 +142,7 @@ namespace Derp
 		AuxiliaryBlock(Renderer* _renderer, const char* _JsonData)
 			: Block(_renderer, BLOCK_TYPE_AUXILIARY)
 			, m_JsonData(_JsonData)
+			, L(0)
 		{}
 		
 		virtual void ResetPerformed() { m_IsPerformed = false; }

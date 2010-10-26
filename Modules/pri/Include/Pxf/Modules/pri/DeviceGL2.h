@@ -17,6 +17,7 @@ namespace Pxf{
 		class FrameBufferObject;
 		class Shader;
 		class Model;
+		class PrimitiveBatch;
 	}
 
 	namespace Resource
@@ -42,6 +43,8 @@ namespace Pxf{
 			void SetModelView(Math::Mat4 *_matrix);
 			void SwapBuffers();
 			void Translate(Math::Vec3f _translate);
+
+			float Print(Graphics::Font* _Font, float _X, float _Y, float _Scale, const char* _Text);
 
 			Graphics::Texture* CreateEmptyTexture(int _Width,int _Height, Graphics::TextureFormatStorage _Format = Graphics::TEX_FORMAT_RGBA);
 			Graphics::Texture* CreateTexture(const char* _filepath);
@@ -89,6 +92,7 @@ namespace Pxf{
 
 		private:
 			bool Init(){ return true; };
+			Graphics::PrimitiveBatch* m_PrimitiveBatch;
 			Graphics::Window* m_Window;
 			Graphics::FrameBufferObject* m_CurrentFrameBufferObject;
 			Graphics::Shader* m_CurrentShader;

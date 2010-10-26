@@ -35,6 +35,10 @@ namespace Pxf
 		{ return 0; }
 		virtual int GetLastButton()
 		{ return 0; }
+
+		virtual unsigned GetButtonStates()
+		{ return 0x0; }
+
 		virtual void ClearLastKey()
 		{}
 		virtual void ClearLastChar()

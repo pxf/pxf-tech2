@@ -57,8 +57,9 @@ void Resource::ResourceManager::RegisterResourceLoader(const char* _Ext, Resourc
 void Resource::ResourceManager::DumpResourceLoaders()
 {
 	m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Enumerating resource loaders...");
+	int i = 0;
 	for(Util::Map<Util::String, ResourceLoader*>::iterator it = m_ResourceLoaders->begin(); it != m_ResourceLoaders->end(); ++it)
 	{
-		m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "| .%s -> %s", it->first.c_str(), it->second->GetIdentifier());
+		m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "| %d. %s -> %s", i++, it->first.c_str(), it->second->GetIdentifier());
 	}
 }
