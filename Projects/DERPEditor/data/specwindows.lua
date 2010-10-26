@@ -33,9 +33,9 @@ function spawn_log_window(msg)
   gui.windows:add(window)
 end
 
-function spawn_preview_window(previewtex, w,h)
-  local preview_dialog = gui:create_window("previewdialog" .. tostring(math.random()), app.width / 2 - w/2,app.height / 2 - h/2, w+20,h+40, false, "Preview")
-  preview_dialog.prevdata = {w = w, h = h, tex = previewtex}
+function spawn_preview_window(component_data, w,h)
+  local preview_dialog = gui:create_window("previewdialog" .. tostring(component_data.id), app.width / 2 - w/2,app.height / 2 - h/2, w+20,h+40, false, "Preview")
+  
   
   preview_dialog.sdraw = preview_dialog.draw
   function preview_dialog:draw(force)

@@ -352,6 +352,13 @@ function gui:set_focus(wid)
   
 end
 
+function gui:drawrightfont(str,x,y)
+  local len = gui:get_font_length(str)
+  local x2 = x - ((len-1) * 8)
+  local y2 = y
+  gui:drawfont(str, x2, y2)
+end
+
 function gui:drawcenteredfont(str,x,y)
   local len = gui:get_font_length(str)
   local x2 = x - ((len-1) * 8) / 2

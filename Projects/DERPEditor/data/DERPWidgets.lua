@@ -1380,6 +1380,24 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 			gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 1,self.drawbox.y,1,self.drawbox.h-2,1,t, 1,1) -- right frame
 			gfx.drawtopleft(self.drawbox.x + 2,self.drawbox.y + self.drawbox.h-1,self.drawbox.w-4,1,1,t, 1,1) -- bottom frame
 			
+			-- draw input/output aliases
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			gfx.scale(0.8)
+			-- inputs
+			local i = 0
+			for k,v in pairs(self.parent.data.input_aliases) do
+			 gui:drawfont(v, 14, i*17+10)
+			 i = i + 1
+			end
+			
+			local i = 0
+			for k,v in pairs(self.parent.data.output_aliases) do
+			 gui:drawrightfont(v, self.drawbox.w*1/0.8-14, i*17+10)
+			 i = i + 1
+			end
+			gfx.scale(1/0.8)
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+			
 			self:super_draw(force)	
 		end
 	end
