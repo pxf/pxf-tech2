@@ -32,11 +32,8 @@ namespace Pxf{
 			virtual const char* GetContextTypeName() = 0;
 
 			virtual bool IsOpen() = 0;
-			/*
-			// TODO: Implement IsActive and IsMinimized for WindowD3D.
-			virtual bool IsActive() = 0;
 			virtual bool IsMinimized() = 0;
-			*/
+			virtual bool IsActive() = 0;
 		};
 
 	} // Graphics
