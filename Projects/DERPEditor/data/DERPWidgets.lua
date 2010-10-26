@@ -483,7 +483,9 @@ function derp:create_workspace_tabs(x,y,w,h)
 		
 		name = string.gsub(name,"\\","/")
 		local loc = string.find(string.reverse(name),"/")
-		ws.drawname = string.sub(name,#name - loc + 2,#name)
+		if loc then
+			ws.drawname = string.sub(name,#name - loc + 2,#name)
+		end
 		
 		if #ws.drawname*10 > ws.drawbox.w then
 			ws.drawname = string.sub(ws.drawname,1,12)  
@@ -1386,10 +1388,14 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 			gfx.scale(0.8)
 			-- inputs
 			local i = 0
-			for k,v in pairs(self.parent.data.input_aliases) do
-			 gui:drawfont(v, 14, i*17+10)
-			 i = i + 1
-			end
+			
+			if self.parent.data.input_aliases then
+				for k,v in pairs(self.parent.data.input_aliases) do
+				 gui:drawfont(v, 14, i*17+10)
+				 i = i + 1
+				end
+			end	
+			
 			
 			local i = 0
 			for k,v in pairs(self.parent.data.output_aliases) do
@@ -1676,7 +1682,7 @@ function derp:new_workspace(w,h)
 	ws.name = ws.widget_type
 
 	self.active_workspace = ws
-	workspace_tabs:addtab(ws.widget_type,ws)
+	workspace_tabs:addtab(ws.widget_type)
 	
 	self:push_wshistory(ws.name)
 	self:push_wsstack(ws.name,{components = { }, active_components = { } })
