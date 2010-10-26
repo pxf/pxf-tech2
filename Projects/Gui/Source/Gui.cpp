@@ -1,6 +1,12 @@
 #include <Gui.h>
+#include <GuiPainter.h>
 #include <Pxf/Input/InputDevice.h>
 #include <Pxf/Graphics/Rect.h>
+#include <Pxf/Graphics/Font.h>
+#include <Pxf/Graphics/PrimitiveBatch.h>
+
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/Font.h>
 
 using namespace Pxf;
 using namespace Pxf::Graphics;
@@ -52,9 +58,31 @@ bool Gui::MouseReleased(int button)
 
 /* GUI Logic */
 
+Gui::Gui(Pxf::Kernel* _Kernel)
+	: m_Kernel(_Kernel)
+	, m_mouse_x_old(0)
+	, m_mouse_y_old(0)
+	, m_Font(0)
+	, m_pb(0)
+{
+	m_Input = m_Kernel->GetInputDevice();
+	m_pb = new PrimitiveBatch(m_Kernel->GetGraphicsDevice());
+	Resource::Font* bitmapfont = m_Kernel->GetResourceManager()->Acquire<Resource::Font>("data/Proggy.pfnt");
+	m_Font = new Graphics::Font(m_Kernel->GetGraphicsDevice(), bitmapfont);
+
+	Initialize();
+}
+
 bool Gui::Initialize()
 {
 	// return false if some gui-resource fails to load (textures, fonts)
+	m_Input->SetMouseMode(Input::MODE_ABSOLUTE);
+
+	m_State.hot_item = 0;
+	m_State.next_hot_item = 0;
+	m_State.active_item = 0;
+	m_State.last_active_item = 0;
+	m_State.focused_item = 0;
 	return true;
 }
 
@@ -144,8 +172,8 @@ Gui::InputAction Gui::DoButton(void* id, Rect::Rect_t* rect, const char* text, d
 	}
 
 	if (draw_func)
-		draw_func(id, rect, 0, text, has_focus, extra);
-//	else
-//		DrawButton(id, rect, m_Font, text, has_focus, extra);
+		draw_func(id, rect, m_Font, text, has_focus, extra);
+	else
+		DrawButton(m_Kernel->GetGraphicsDevice(), this, m_pb, id, rect, m_Font, text, has_focus, extra);
 	return ret;
 }

@@ -481,8 +481,13 @@ function derp:create_workspace_tabs(x,y,w,h)
 		ws.name = name
 		ws.drawname = name
 		
-		if #name*10 > ws.drawbox.w then
-			ws.drawname = string.sub(name,#name-ws.drawbox.w/10,#name)  
+		name = string.gsub(name,"\\","/")
+		local loc = string.find(string.reverse(name),"/")
+		ws.drawname = string.sub(name,#name - loc + 2,#name)
+		
+		if #ws.drawname*10 > ws.drawbox.w then
+			ws.drawname = string.sub(ws.drawname,1,12)  
+			ws.drawname = ws.drawname .. "..."
 		end
 		
 		
@@ -492,16 +497,8 @@ function derp:create_workspace_tabs(x,y,w,h)
 				-- DRAW BG
 				gfx.drawtopleft(self.drawbox.x,0,self.drawbox.w,self.drawbox.h,9,1,1,1)
 				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,self.drawbox.h,508,0,1,128)
-				
-				
-				--gui:drawfont("^(0.878431373, 0.494117647,0){" .. wid.data.id .."}",20,9)
-				--gfx.scale(0.9)
-				--gui:drawfont("^(0.278431373 , 0.215686275,0.0941176471      ){".. name .. "}",self.drawbox.x + 8,10)
-				--gfx.scale(1/0.9)
-				
-				--gfx.scale(0.9)
+
 				gui:drawfont("^(1,1,1){".. ws.drawname .. "}",self.drawbox.x + 8,12)
-				--gfx.scale(1/0.9)
 				
 				-- DRAW BORDERS
 				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,1,1,5,1,1) -- TOP
@@ -509,6 +506,10 @@ function derp:create_workspace_tabs(x,y,w,h)
 				gfx.drawtopleft(self.drawbox.x + 1,0,1,self.drawbox.h-1,1,5,1,1) -- LEFT
 				gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1,0,1,self.drawbox.h-1,1,5,1,1) -- RIGHT
 			end
+		end
+		
+		for k,v in pairs(self.childwidgets) do
+			self.childwidgets[k] = nil
 		end
 		
 		self:addwidget(ws)

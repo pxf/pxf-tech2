@@ -95,6 +95,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\GuiPainter.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\QuadBatch.cpp"
 					>
 				</File>
@@ -104,6 +108,10 @@
 				>
 				<File
 					RelativePath=".\Include\Gui.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Include\GuiPainter.h"
 					>
 				</File>
 				<File

@@ -8,6 +8,7 @@
 #include <Pxf/Base/Random.h>
 #include <Pxf/Base/Timer.h>
 #include <Pxf/Base/Logger.h>
+#include <Pxf/Base/Platform.h>
 #include <Pxf/Input/InputDevice.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Font.h>
@@ -93,8 +94,9 @@ int main()
 
 	Graphics::PrimitiveBatch* pb = new Graphics::PrimitiveBatch(gfx);
 
-	Resource::Font* bitmapfont = res->Acquire<Resource::Font>("data/Proggy.pfnt");
+	Resource::Font* bitmapfont = res->Acquire<Resource::Font>("data/consolas28.pfnt");
 	Graphics::Font* fnt = new Graphics::Font(gfx, bitmapfont);
+	//fnt->SetTextureFilters(TEX_FILTER_NEAREST, TEX_FILTER_NEAREST); // <- crisp font
 
 	// Stack objects must be destroyed before deleting the kernel
 	{
@@ -103,7 +105,9 @@ int main()
 		Timer processing_time;
 		while(win->IsOpen())
 		{
-			processing_time.Start();	
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(0, 0, 0, 1);
+			processing_time.Start();
 
 			inp->Update();
 			gui.Update();
@@ -116,7 +120,23 @@ int main()
 			pb->QuadsDrawTopLeft(0, 0, 100, 100);
 			pb->QuadsEnd();
 
-			gfx->Print(fnt, 100, 100, 1.f, "test apa bepa !.,?-//=");
+			gfx->Print(fnt, 100, 100, 0.5f + fabs(sinf(Platform::GetTime()/1000.f)), "test apa bepa !.,?-//=");
+			
+			{
+				static Graphics::Rect::Rect_t rect = {300, 0, 200, 50};
+				if (Gui::INPUT_ACTION & gui.DoButton((void*)'KNP1', &rect, "Quit", 0, 0))
+				{
+					break;
+				}
+			}
+
+			{
+				static Graphics::Rect::Rect_t rect = {300, 200, 200, 50};
+				if (Gui::INPUT_ACTION & gui.DoButton((void*)'KNP2', &rect, "Quit", 0, 0))
+				{
+					break;
+				}
+			}
 
 			inp->ClearLastKey();
 			inp->ClearLastButton();

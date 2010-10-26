@@ -1,14 +1,14 @@
-#ifndef _PXF_GUI_H
-#define _PXF_GUI_H_
+#ifndef _PXF_GRAPHICS_GUI_H
+#define _PXF_GRAPHICS_GUI_H
 
 #include <Pxf/Kernel.h>
 #include <Pxf/Input/InputDefs.h>
+#include <Pxf/Graphics/Rect.h>
 
 namespace Pxf {
 	namespace Graphics {
-	namespace Rect
-	{ class Rect_t; }}
-
+	class Font;
+	class PrimitiveBatch;
 	class Gui
 	{
 	public:
@@ -50,17 +50,13 @@ namespace Pxf {
 		Pxf::Input::InputDevice* m_Input;
 
 		int m_mouse_x_old, m_mouse_y_old;
+		Font* m_Font;
+		PrimitiveBatch* m_pb;
 
 		/* function pointer typedef for rendering callbacks */
 		typedef void (*draw_button_func)(void* id, const Graphics::Rect::Rect_t *rect, void* _font, const char* text, bool has_focus, void* extra);
 	public:
-		Gui(Pxf::Kernel* _Kernel)
-			: m_Kernel(_Kernel)
-			, m_mouse_x_old(0)
-			, m_mouse_y_old(0)
-		{
-			m_Input = m_Kernel->GetInputDevice();
-		}
+		Gui(Pxf::Kernel* _Kernel);
 
 		enum InputAction
 		{
@@ -117,6 +113,7 @@ namespace Pxf {
 
 		InputAction DoButton(void* id, Graphics::Rect::Rect_t* rect, const char* text, draw_button_func draw_func, void* extra);
 	};
-}
 
-#endif // _PXF_GUI_H_
+}} // Graphics
+
+#endif // _PXF_GRAPHICS_GUI_H_
