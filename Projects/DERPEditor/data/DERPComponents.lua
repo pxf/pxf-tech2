@@ -359,7 +359,7 @@ derp_components.render.geometry = { name = "Geometry renderer"
                               , tooltip = "Create a block that inputs geometry and renders to a texture."
                               }
 function derp_components.render.geometry:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", output_type = "texture", inputs = 4, input_aliases = {"cameraPos", "cameraLookAt"}, output_aliases = {"diffuse", "normals"}, outputs = { workspace:gen_new_outputname(), workspace:gen_new_outputname() }, connections_in = {}}
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", output_type = "texture", inputs = 4, outputs = { workspace:gen_new_outputname(), workspace:gen_new_outputname() }, connections_in = {}}
   -- specific values
   block.modelfilepath = ""
   return block
@@ -367,6 +367,8 @@ end
 
 function derp_components.render.geometry:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1000,2)
+  wid.input_aliases = {"cameraPos", "cameraLookAt"}
+  wid.output_aliases = {"diffuse", "normals"}
   
   wid.suuuuuuupahdraw = wid.draw
   function wid:draw(force)

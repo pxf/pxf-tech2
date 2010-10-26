@@ -1385,17 +1385,21 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 			gfx.translate(self.drawbox.x,self.drawbox.y)
 			gfx.scale(0.8)
 			-- inputs
-			local i = 0
-			for k,v in pairs(self.parent.data.input_aliases) do
-			 gui:drawfont(v, 14, i*17+10)
-			 i = i + 1
-			end
+			if (self.parent.input_aliases) then
+			  local i = 0
+  			for k,v in pairs(self.parent.input_aliases) do
+  			 gui:drawfont(v, 14, i*17+10)
+  			 i = i + 1
+  			end
+  		end
 			
-			local i = 0
-			for k,v in pairs(self.parent.data.output_aliases) do
-			 gui:drawrightfont(v, self.drawbox.w*1/0.8-14, i*17+10)
-			 i = i + 1
-			end
+			if (self.parent.output_aliases) then
+			  local i = 0
+  			for k,v in pairs(self.parent.output_aliases) do
+  			 gui:drawrightfont(v, self.drawbox.w*1/0.8-14, i*17+10)
+  			 i = i + 1
+  			end
+  		end
 			gfx.scale(1/0.8)
 			gfx.translate(-self.drawbox.x,-self.drawbox.y)
 			
