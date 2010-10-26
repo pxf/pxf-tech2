@@ -163,7 +163,8 @@ local testinput = gui:create_textinput(0,8,200)
 
 workspace_tabs.widget_type = "workspace tabs"
 
---local workspace_area = derp:create_workspace(0,0,app.width*2,app.height*2)
+local workspace_area = derp:create_workspace(0,0,app.width*2,app.height*2)
+workspace_area.visible = false
 --workspace_area.widget_type = "workspace area 01"
 
 --inspector:addwidget(testinput)
@@ -185,7 +186,7 @@ derp.active_workspace = workspace_area
 
 --local navigator = derp:create_navigator(app.width-421,app.height-172,150,150)
 
---gui.widgets:addwidget(workspace_area)
+gui.widgets:addwidget(workspace_area)
 gui.widgets:addwidget(menu_container)
 gui.widgets:addwidget(left_padding_container)
 gui.widgets:addwidget(right_padding_container)
@@ -201,7 +202,7 @@ derp.top_layer_id = #gui.widgets.childwidgets
 
 derp:init()
 
-derp:new_workspace(app.width*2,app.height*2)
+--derp:new_workspace(app.width*2,app.height*2)
 
 --derp:open_workspace("recent_workspace.derp",ws)
 
