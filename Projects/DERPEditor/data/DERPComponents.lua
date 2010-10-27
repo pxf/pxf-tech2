@@ -395,8 +395,11 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
 						
 						for(int i = 1; i <3; i++)
 						{
-							sum += texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st + vec2(i * wstep,0)) * kernel[i];
-							sum += texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st - vec2(i * wstep,0)) * kernel[i];
+							for(int j = 1; j < 3; j++)
+							{
+								sum += texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st + vec2(i * wstep,0)) * kernel[i];
+								sum += texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st - vec2(i * wstep,0)) * kernel[i];
+							}
 						}
 						
 						gl_FragData[0] = sum;
