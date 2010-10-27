@@ -40,7 +40,15 @@ file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all script
 									end}},
 			   {"Open...", {tooltip = "Open previous workspace from file...", onclick = 
 									function() 
+									  local resetmouse = false
+									  if not gui.mousevisible then
+									    resetmouse = true
+									    gui:showmouse()
+								    end
 										local filename = app.opendialog()
+										if resetmouse then
+										  gui:showmouse()
+									  end
 										
 										if not (filename == nil) then 
 											derp:open_workspace(filename,derp.active_workspace)
@@ -52,7 +60,15 @@ file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all script
 							}},
 			   {"Save As...", {tooltip = "Save current workspace to file.", onclick = 
 									function() 
+									  local resetmouse = false
+									  if not gui.mousevisible then
+									    resetmouse = true
+									    gui:showmouse()
+								    end
 										local filename = app.savedialog("workspace.derp")
+										if resetmouse then
+										  gui:showmouse()
+									  end
 										
 										if not (filename == nil) then 
 											derp:save(filename,derp.active_workspace) 
