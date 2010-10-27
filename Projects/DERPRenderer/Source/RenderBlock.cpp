@@ -37,6 +37,12 @@ static Json::Value CreateJson(const char* data)
 // Auxiliary block
 //
 
+AuxiliaryBlock::~AuxiliaryBlock()
+{
+	if (L)
+		lua_close(L);
+}
+
 bool AuxiliaryBlock::Initialize(Json::Value *node)
 {
 	
@@ -190,6 +196,14 @@ bool AuxiliaryBlock::Execute(bool _SendPreviews)
 //////////////////////////////////////////////////////////////////////////
 // Render/geometry block
 //
+
+RenderBlock::~RenderBlock()
+{
+	if (m_Shader)
+		m_gfx->DestroyShader(m_Shader);
+	if (m_DepthBuffer)
+		delete m_DepthBuffer;
+}
 
 bool RenderBlock::Initialize(Json::Value *node)
 {
@@ -478,6 +492,17 @@ bool RenderBlock::Execute(bool _SendPreviews)
 // Post-Process
 //
 
+PostProcessBlock::~PostProcessBlock()
+{
+	if (m_Shader)
+		m_gfx->DestroyShader(m_Shader);
+	if (m_OutputQuad)
+		delete m_OutputQuad;
+
+	for (Pxf::Util::Map<Pxf::Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
+		m_gfx->DestroyTexture((Pxf::Graphics::Texture*)(*iter).second);
+}
+
 bool PostProcessBlock::Initialize(Json::Value *node)
 {
 
@@ -684,6 +709,12 @@ bool PostProcessBlock::Execute(bool _SendPreviews)
 //////////////////////////////////////////////////////////////////////////
 // RootBlock
 //
+
+RootBlock::~RootBlock()
+{
+	delete m_OutputQuad;
+	m_gfx->DestroyShader(m_Shader);
+}
 
 bool RootBlock::Initialize(Json::Value *node)
 {
