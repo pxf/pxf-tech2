@@ -454,7 +454,8 @@ function derp_components.render.geometry:generate_json(component_data)
   							      
                     }"
                    },
-     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"},
+                       {"name" : "]] .. tostring(component_data.outputs[2]) .. [[", "type" : "texture"}]
     }]]
   
   table.insert(final_jsondata, escape_backslashes(jsonstring))
