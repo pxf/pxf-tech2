@@ -1471,10 +1471,10 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	return wid
 end
 
-function derp:create_previewbox(x,y,w,h,component_data)
+function derp:create_previewbox(x,y,w,h,preview_id)
 	local wid = gui:create_basewidget(x,y,w,h)
-	wid.data = component_data
-	--wid.previewid = preview_id
+	--wid.data = component_data
+	wid.previewid = preview_id
 	wid.zoompos = nil--{0,0}
 	wid.zoomsize = 8 -- pixels
 	wid.zoomboxsize = 0.2 -- 20% of normal box
@@ -1489,7 +1489,7 @@ function derp:create_previewbox(x,y,w,h,component_data)
   function wid:draw(force)
     self:sdraw(force)
     if (self.redraw_needed or force) then
-      local previewid = self.data.id
+      local previewid = self.previewid--self.data.id
       if (derp.active_workspace.preview_data[previewid]) then
         gfx.translate(self.drawbox.x,self.drawbox.y)
         derp.active_workspace.preview_data[previewid]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.h,0,self.drawbox.h)
@@ -1538,7 +1538,15 @@ end
 function derp:create_texturedinspector(component_data)
 	local wid = derp:create_baseinspector(component_data)
 	
-	wid:addwidget(derp:create_previewbox(0,0,wid.drawbox.w,wid.drawbox.w,component_data))
+	-- only one output?
+	if (#component_data.outputs < 2) then
+	  wid:addwidget(derp:create_previewbox(0,0,wid.drawbox.w,wid.drawbox.w,component_data.id))
+	else
+	  local i = 0
+	  for k,v in pairs(component_data.outputs) do
+	   wid:addwidget(derp:create_previewbox(0,i*wid.drawbox.w,wid.drawbox.w,wid.drawbox.w,component_data.id .. tostring(v)))
+	  end
+  end
 	
 	-- test render preview
 	wid.sdraw = wid.draw

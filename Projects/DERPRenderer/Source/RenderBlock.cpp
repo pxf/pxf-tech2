@@ -660,7 +660,7 @@ bool PostProcessBlock::Execute(bool _SendPreviews)
 				Resource::Image* img = m_gfx->CreateImageFromTexture((Graphics::Texture*)((*iter).second));
 				Network::Packet* imgpacket = m_Renderer->m_NetDevice->CreateEmptyPacket("imgdata", m_Renderer->m_NetTag_Preview);
 				imgpacket->PushString(m_BlockName, strlen(m_BlockName)); // block name
-				imgpacket->PushString("",1);//((String)((*iter).first)).c_str(), ((String)((*iter).first)).size()); // output name
+				imgpacket->PushString(((Util::String)((*iter).first)).c_str(), ((Util::String)((*iter).first)).size()); // output name
 				imgpacket->PushInt(img->Width());
 				imgpacket->PushInt(img->Height());
 				imgpacket->PushInt(img->Channels());

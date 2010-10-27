@@ -410,16 +410,23 @@ function derp_components.render.geometry:generate_json(component_data)
   end
 
   local first_texture = nil
+  local first_geometry = nil
   for k,v in pairs(component_data.connections_in) do
     local tdata = derp.active_workspace:get_block(v.block).data
     if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
+    elseif (tdata.output_type == "geometry") then
+      first_geometry = tostring(v.output)
     end
   end
 
   if (first_texture == nil) then
     return spawn_error_dialog({"Geometry block needs at least one texture!"})
+  end
+  
+  if (first_geometry == nil) then
+    return spawn_error_dialog({"Geometry block needs at least one geometry block!"})
   end
 
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
@@ -442,7 +449,9 @@ function derp_components.render.geometry:generate_json(component_data)
                     varying vec3 n;
                     void main()
                     {
-  							      gl_FragColor = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+  							      gl_FragData[0] = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+  							      gl_FragData[1] = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+  							      
                     }"
                    },
      "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
