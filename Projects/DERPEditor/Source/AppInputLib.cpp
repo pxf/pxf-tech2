@@ -156,7 +156,7 @@ int DERPEditor::luaopen_appinput (lua_State *L) {
   const luaL_reg appinputlib[] = {
 		{"showmouse",   inp_showmouse},
     {"getmousepos", inp_getmousepos},
-    {"setmousepos", inp_getmousepos},
+    {"setmousepos", inp_setmousepos},
     {"isbuttondown", inp_isbuttondown},
     {"isbuttonup",   inp_isbuttonup},
     {"getlastchar",  inp_getlastchar},

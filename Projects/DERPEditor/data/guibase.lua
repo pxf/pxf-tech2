@@ -474,15 +474,15 @@ end
 function gui:draw_custom_cursor(force)
 	if self.needsredraw or force then
 		local c = self.current_cursor
-		
-		if c then
-			mx,my = inp.getmousepos()
-				
+		local mx,my = inp.getmousepos()
+			
+		if c and not gui.mousevisibile then	
+			--gui:showmouse(false)
+			
 			local old_tex = gfx.bindtexture(self.themetex)
-	
+		
 			gfx.translate(mx,my)
 			gfx.drawtopleft(0,0,c.w,c.h,c.s,c.t,c.w,c.h)
-			--self.current_cursor:draw(force)
 			gfx.translate(-mx,-my)
 			
 			gfx.bindtexture(old_tex)	
@@ -500,12 +500,6 @@ end
 
 function gui:add_customcursor(w,h,s,t,name)
 	local cursor = { w = w, h = h, s = s, t = t, name = name}
-	
-	function cursor:draw(force) 
-		local old_tex = gfx.bindtexture(self.themetex)
-		gfx.drawtopleft(0,0,self.w,self.h,self.s,self.t,self.w,self.h)
-		gfx.bindtexture(old_tex)
-	end
 	
 	table.insert(self.custom_cursors,cursor)
 	
@@ -734,11 +728,11 @@ function gui:draw(force)
     gfx.translate(self.tooltip.x,self.tooltip.y)
     if (type(self.tooltip.body) == "string") then
       local w = #self.tooltip.body*8 + 20
-      gfx.drawtopleft(1,1,w-2, 18, 5,2,1,1)
-      gfx.drawtopleft(1,0,w-2, 1, 14,6,1,1) -- top
-      gfx.drawtopleft(1,19,w-2, 1, 14,6,1,1) -- bottom
-      gfx.drawtopleft(0,1,1, 18, 14,6,1,1) -- left
-      gfx.drawtopleft(w-1,1,1, 18, 14,6,1,1) -- right
+      gfx.drawtopleft(1,1,w-2, 18, 5,1,1,1)
+      gfx.drawtopleft(1,0,w-2, 1, 1,5,1,1) -- top
+      gfx.drawtopleft(1,19,w-2, 1, 1,5,1,1) -- bottom
+      gfx.drawtopleft(0,1,1, 18, 1,5,1,1) -- left
+      gfx.drawtopleft(w-1,1,1, 18, 1,5,1,1) -- right
       
       local r,g,b = gfx.getcolor()
       gfx.setcolor(224/255,126/255,0)
