@@ -473,11 +473,29 @@ end
 
 function gui:draw_custom_cursor(force)
 	if self.needsredraw or force then
-		mx,my = inp.getmousepos()
+		local c = self.current_cursor
 		
-		gfx.translate(mx,my)
-		self.current_cursor:draw(force)
-		gfx.translate(-mx,-my)
+		if c then
+			mx,my = inp.getmousepos()
+				
+			local old_tex = gfx.bindtexture(self.themetex)
+	
+			gfx.translate(mx,my)
+			gfx.drawtopleft(0,0,c.w,c.h,c.s,c.t,c.w,c.h)
+			--self.current_cursor:draw(force)
+			gfx.translate(-mx,-my)
+			
+			gfx.bindtexture(old_tex)	
+		end
+	end
+end
+
+function gui:set_cursor(name)
+	for k,v in pairs(self.custom_cursors) do
+		if v.name == name then
+			print(v.name)
+			self.current_cursor = v
+		end
 	end
 end
 
@@ -485,10 +503,12 @@ function gui:add_customcursor(w,h,s,t,name)
 	local cursor = { w = w, h = h, s = s, t = t, name = name}
 	
 	function cursor:draw(force) 
+		local old_tex = gfx.bindtexture(self.themetex)
 		gfx.drawtopleft(0,0,self.w,self.h,self.s,self.t,self.w,self.h)
+		gfx.bindtexture(old_tex)
 	end
 	
-	table.insert(self.custom_cursors,{cursor.name,cursor})
+	table.insert(self.custom_cursors,cursor)
 	
 	return cursor
 end
@@ -501,7 +521,7 @@ function gui:init()
   self.use_customcursor = true
   self.current_cursor = nil
   
-  --self.custom_cursor = gfx.loadtexture(32, "data/guitheme_cursor_brown.png")
+  self.custom_cursors = { }
   
   self.activewidget = nil
   self.focuswidget = nil

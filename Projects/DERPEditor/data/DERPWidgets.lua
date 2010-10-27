@@ -14,6 +14,12 @@ function derp:init()
 
 	self:load_settings()
 	self.recent_files = self:create_recent_files_menu()
+	
+	gui:add_customcursor(19,17,1,61,"move_select")
+	gui:add_customcursor(21,21,1,79,"move_ws")
+	gui:add_customcursor(10,13,30,79,"normal")
+	
+	gui:set_cursor("normal")
 end
 
 function derp:create_recent_files_menu()
@@ -1743,9 +1749,11 @@ function derp:create_workspace(x,y,w,h,from_path)
 						{ name = "move ws",keys = {inp.SPACE}, was_pressed = false, 
 							onpress = function () 
 								derp:set_activetool(move_ws) 
+								gui:set_cursor("move_ws") 
 							end, 
 							onrelease = function () 
 								derp:set_activetool(derp.active_tool.last)
+								gui:set_cursor("normal")
 							end },
 						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
@@ -2475,6 +2483,11 @@ function derp:base_tool(w,h,s,t,name,tooltip, onclick)
 		if (button == inp.MOUSE_LEFT) then
 			if self.selected then
 				derp:set_activetool(nil)
+				
+				if self.onclick then
+					self:onclick()
+				end
+				
 				return
 			end
 		
@@ -2567,8 +2580,22 @@ function derp:create_toolbar(x,y,w,h)
 			end)
 	redo.toggle = false
 	select_rect = derp:base_tool(24,24,1,36,"square select", "Rectangular component selection.")
-	move_select = derp:base_tool(24,17,1,61,"move/select", "Select / move components.")
-	move_ws = derp:base_tool(21,21,1,79,"move workspace", "Navigate workspace.")
+	move_select = derp:base_tool(24,17,1,61,"move/select", "Select / move components.", 
+			function () 
+				if move_select.selected then 
+					gui:set_cursor("move_select") 
+				else 
+					gui:set_cursor("normal")
+				end
+			end)
+	move_ws = derp:base_tool(21,21,1,79,"move workspace", "Navigate workspace.",
+			function () 
+				if move_ws.selected then 
+					gui:set_cursor("move_ws") 
+				else 
+					gui:set_cursor("normal")
+				end
+			end)
 	delete_wid = derp:base_tool(14,14,30,63,"delete widget", "Delete component.",
 			function () 
 				derp:set_activetool(nil)

@@ -217,6 +217,7 @@ end
 
 function draw(force)
   gui:draw(force)
+  gui:draw_custom_cursor(force)
   
   -- test line drawing:
   --[[local line = create_spline({{100,200},{200,100},{300,300},{400,200},{400,500}}, 30,2)

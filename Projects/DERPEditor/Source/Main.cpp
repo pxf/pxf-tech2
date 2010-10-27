@@ -89,6 +89,8 @@ int main()
 	
 	racetimer.Start();
 
+	inp->ShowCursor(false);
+
     while(win->IsOpen() && running)
     {	
 		while (frametotal < framelength)
