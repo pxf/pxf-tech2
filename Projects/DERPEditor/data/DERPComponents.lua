@@ -151,21 +151,6 @@ function derp_components.output.simple:create_widget(component_data)
       end
   end
   
-  wid.suuuuuuupahdraw = wid.draw
-  function wid:draw(force)
-    self:suuuuuuupahdraw(force)
-    
-    --[[for k,v in pairs(self.data.outputs) do
-      print(k,v)
-    end]]
-    local preview = derp.active_workspace.preview_data[self.data.id]
-    if (preview ~= nil) then
-      gfx.translate(self.drawbox.x,self.drawbox.y-100)
-      preview:draw(0,0,64,0,64,64,0,64)
-      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
-    end
-  end
-  
   -- render button
   local renderbutton = gui:create_labelbutton(10,70,150,30,"Render", render_func)
   wid.renderbutton = renderbutton
@@ -263,22 +248,6 @@ function derp_components.postprocess.invert:create_widget(component_data)
   sliderw:setvalue(component_data.slidervalue)
   wid.sliderw = sliderw
   wid:addwidget(sliderw)
-  
-  wid.suuuuuuupahdraw = wid.draw
-  function wid:draw(force)
-    self:suuuuuuupahdraw(force)
-    
-    --[[for k,v in pairs(self.data.outputs) do
-      print(k,v)
-    end]]
-    local preview = derp.active_workspace.preview_data[self.data.id]
-    
-    if (preview) then
-      gfx.translate(self.drawbox.x,self.drawbox.y-100)
-      preview:draw(0,0,64,0,64,64,0,64)
-      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
-    end
-  end
   
   return wid
 end

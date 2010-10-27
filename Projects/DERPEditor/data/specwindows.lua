@@ -86,6 +86,14 @@ end
 
 function spawn_settingswindow()
   local settings_window = gui:create_window("settingsdialog", app.width / 2 - 200,app.height / 2 - 200,400,400, false, "Application Settings")
+  local settings_stack = gui:create_verticalstack(30,30,400,20)
+  settings_window:addwidget(settings_stack)
+  
+  local mouse_checkbox = gui:create_checkbox(0,0,200, "Custom mouse cursor", function(self, value) gui:showmouse(not value) end)
+  mouse_checkbox:toggle(not gui.mousevisible)
+  settings_stack:addwidget(mouse_checkbox)
+  
+
   --local shortinfo_panel = gui:create_centeredmultiline_label(0,0,400,60,short_info)
   --about_window.panel:addwidget(shortinfo_panel)
   --[[{"Settings", {menu = {{"GUI Settings", {menu = {{"Switch render mode", {tooltip = "Switch rendermodes; Fullscreen or stencil redraw.", onclick = function () if (app.rendermode == app.REDRAWMODE_FULL) then app.setrenderoption(app.REDRAWMODE_NORMAL) else app.setrenderoption(app.REDRAWMODE_FULL) end end}},

@@ -48,8 +48,8 @@ int main()
 	// Modules
     kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE | Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
     kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
-	kernel->RegisterModule("snd", 0xFFFF, true);
-	kernel->RegisterModule("net", Pxf::System::SYSTEM_TYPE_NETWORKDEVICE, true);
+		kernel->RegisterModule("snd", 0xFFFF, true);
+		kernel->RegisterModule("net", Pxf::System::SYSTEM_TYPE_NETWORKDEVICE, true);
     kernel->DumpAvailableModules();
 
 	// Device contexts
@@ -89,7 +89,7 @@ int main()
 	
 	racetimer.Start();
 
-	inp->ShowCursor(false);
+	//inp->ShowCursor(false);
 
     while(win->IsOpen() && running)
     {	
