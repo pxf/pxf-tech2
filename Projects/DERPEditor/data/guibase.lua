@@ -322,6 +322,7 @@ end
 -- core and setup of GUI
 
 gui.redrawrects = {}
+gui.tooltip = {body = nil, timeout = 0, x = 0, y = 0}
 function gui:redraw(x,y,w,h)
   if x == nil then
     gfx.redrawneeded()
@@ -332,6 +333,13 @@ function gui:redraw(x,y,w,h)
     table.insert(gui.redrawrects, 1, {x,y,w,h})
   end
   --gfx.redrawneeded()
+end
+
+function gui:set_tooltip(body, x, y)
+  self.tooltip.body = body
+  self.tooltip.timeout = 50
+  self.tooltip.x = x + 12
+  self.tooltip.y = y - 32
 end
 
 function gui:set_focus(wid)
@@ -350,6 +358,13 @@ function gui:set_focus(wid)
     end
   end
   
+end
+
+function gui:drawrightfont(str,x,y)
+  local len = gui:get_font_length(str)
+  local x2 = x - ((len-1) * 8)
+  local y2 = y
+  gui:drawfont(str, x2, y2)
 end
 
 function gui:drawcenteredfont(str,x,y)
@@ -450,7 +465,7 @@ function gui:toggle_show_redraw()
   return (not self.draw_redraw_rects)
 end
 
-function gui:tooltip(str)
+function gui:statusbarinfo(str)
   if (self.statusbar) then
     self.statusbar:settext(str)
   end
@@ -458,22 +473,35 @@ end
 
 function gui:draw_custom_cursor(force)
 	if self.needsredraw or force then
-		mx,my = inp.getmousepos()
+		local c = self.current_cursor
+		local mx,my = inp.getmousepos()
+			
+		if c and not gui.mousevisibile then	
+			--gui:showmouse(false)
+			
+			local old_tex = gfx.bindtexture(self.themetex)
 		
-		gfx.translate(mx,my)
-		self.current_cursor:draw(force)
-		gfx.translate(-mx,-my)
+			gfx.translate(mx,my)
+			gfx.drawtopleft(0,0,c.w,c.h,c.s,c.t,c.w,c.h)
+			gfx.translate(-mx,-my)
+			
+			gfx.bindtexture(old_tex)	
+		end
+	end
+end
+
+function gui:set_cursor(name)
+	for k,v in pairs(self.custom_cursors) do
+		if v.name == name then
+			self.current_cursor = v
+		end
 	end
 end
 
 function gui:add_customcursor(w,h,s,t,name)
 	local cursor = { w = w, h = h, s = s, t = t, name = name}
 	
-	function cursor:draw(force) 
-		gfx.drawtopleft(0,0,self.w,self.h,self.s,self.t,self.w,self.h)
-	end
-	
-	table.insert(self.custom_cursors,{cursor.name,cursor})
+	table.insert(self.custom_cursors,cursor)
 	
 	return cursor
 end
@@ -486,7 +514,7 @@ function gui:init()
   self.use_customcursor = true
   self.current_cursor = nil
   
-  --self.custom_cursor = gfx.loadtexture(32, "data/guitheme_cursor_brown.png")
+  self.custom_cursors = { }
   
   self.activewidget = nil
   self.focuswidget = nil
@@ -501,6 +529,24 @@ function gui:init()
   
   -- tree of widgets
   self.widgets = gui:create_root()
+  
+  -- hide mouse
+  gui:showmouse(false)
+end
+
+gui.mousevisible = false
+function gui:showmouse(toggle)
+  if (toggle == nil) then
+    if (self.mousevisible) then
+      self.mousevisible = false
+    else
+      self.mousevisible = true
+    end
+    toggle = self.mousevisible
+  end
+  
+  self.mousevisible = toggle
+  inp.showmouse(self.mousevisible)
 end
 
 function gui:update()
@@ -651,6 +697,11 @@ function gui:update()
   -- call update function on widgets
   self.widgets:update()
   
+  -- update tooltip
+  if (self.tooltip.timeout > 0) then
+    self.tooltip.timeout = self.tooltip.timeout - 1
+  end
+  
   --[[if (inp.isbuttondown(inp.MOUSE_LEFT)) then
     -- check if we hit something
     local mx,my = inp.getmousepos()
@@ -671,6 +722,27 @@ function gui:draw(force)
   
   local oldtex = gfx.bindtexture(self.themetex)
   self.widgets:draw(force)
+  
+  -- Draw tooltip
+  if (self.tooltip.timeout > 0) then
+    gfx.translate(self.tooltip.x,self.tooltip.y)
+    if (type(self.tooltip.body) == "string") then
+      local w = #self.tooltip.body*8 + 20
+      gfx.drawtopleft(1,1,w-2, 18, 5,1,1,1)
+      gfx.drawtopleft(1,0,w-2, 1, 1,5,1,1) -- top
+      gfx.drawtopleft(1,19,w-2, 1, 1,5,1,1) -- bottom
+      gfx.drawtopleft(0,1,1, 18, 1,5,1,1) -- left
+      gfx.drawtopleft(w-1,1,1, 18, 1,5,1,1) -- right
+      
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(224/255,126/255,0)
+      gui:drawfont(self.tooltip.body, 15, 10)
+      gfx.setcolor(r,g,b)
+    else
+      self.tooltip.body:draw(true)
+    end
+    gfx.translate(-self.tooltip.x,-self.tooltip.y)
+  end
   
   -- show redraw regions
   if (self.draw_redraw_rects) then
