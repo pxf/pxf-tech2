@@ -911,7 +911,11 @@ function derp:create_connectionoutput(id,x,y)
   end
   
   function wid:mouseover(mx,my)
-    local preview_box = derp:create_previewbox(0,0,64,64, self.parent.parent.data, self.parent.parent.data.id .. self.output_id)
+    local output_previewid = self.parent.parent.data.id
+    if (#self.parent.parent.data.outputs > 1) then
+      output_previewid = output_previewid .. self.output_id
+    end
+    local preview_box = derp:create_previewbox(0,0,64,64, self.parent.parent.data, output_previewid)
     gui:set_tooltip(preview_box, mx, my)
   end
   
