@@ -388,7 +388,9 @@ function derp_components.postprocess.tonemap:generate_json(component_data)
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     void main()
                     {
-                      vec4 c = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      vec4 c = texture2D(]] .. tostring(component_data.connections_in[2].output) .. [[, gl_TexCoord[0].st);
+                      vec2 lut_coord = vec2(, 1.0 - c.g,);
+                      vec4 lut_c = texture2D(]] .. tostring(component_data.connections_in[1].output) .. [[, lut_coord.st);
                     	gl_FragData[0] = c;
                     }"
                    },
@@ -421,21 +423,6 @@ function derp_components.render.geometry:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1000,1)
   wid.input_aliases = {"cameraPos", "cameraLookAt"}
   wid.output_aliases = {"diffuse"}
-  
-  wid.suuuuuuupahdraw = wid.draw
-  function wid:draw(force)
-    self:suuuuuuupahdraw(force)
-    
-    --[[for k,v in pairs(self.data.outputs) do
-      print(k,v)
-    end]]
-    local preview = derp.active_workspace.preview_data[self.data.id]
-    if (preview ~= nil) then
-      gfx.translate(self.drawbox.x,self.drawbox.y-100)
-      preview:draw(0,0,64,0,64,64,0,64)
-      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
-    end
-  end
   
   return wid
 end
