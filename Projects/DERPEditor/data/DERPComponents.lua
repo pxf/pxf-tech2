@@ -389,7 +389,7 @@ function derp_components.postprocess.tonemap:generate_json(component_data)
                     void main()
                     {
                       vec4 c = texture2D(]] .. tostring(component_data.connections_in[2].output) .. [[, gl_TexCoord[0].st);
-                      vec2 lut_coord = vec2(, 1.0 - c.g,);
+                      vec2 lut_coord = vec2(c.r + (c.b ), 1.0 - c.g);
                       vec4 lut_c = texture2D(]] .. tostring(component_data.connections_in[1].output) .. [[, lut_coord.st);
                     	gl_FragData[0] = c;
                     }"
