@@ -887,6 +887,11 @@ function derp:create_connectionoutput(id,x,y)
     
   end
   
+  function wid:mouseover(mx,my)
+    local preview_box = derp:create_previewbox(0,0,64,64, self.parent.parent.data, self.parent.parent.data.id .. self.output_id)
+    gui:set_tooltip(preview_box, mx, my)
+  end
+  
   function wid:mouserelease(mx,my,button)
 	if button == inp.MOUSE_LEFT then
 		-- see if we found a input to connect to
@@ -2381,8 +2386,9 @@ function derp:create_workspaceframe(x,y,w,h)
 	return wid
 end
 
-function derp:base_tool(w,h,s,t,name, onclick)
+function derp:base_tool(w,h,s,t,name,tooltip, onclick)
 	local tool = gui:create_basewidget(0,0,40,40)
+	tool.tooltip = tooltip
 	tool.highlight = false
 	tool.selected = false
 	tool.toggle = true
@@ -2461,6 +2467,7 @@ function derp:base_tool(w,h,s,t,name, onclick)
 	function tool:mouseover(mx,my)
 		self:needsredraw()	
 		self.highlight = true
+		gui:set_tooltip(self.tooltip, mx, my)
 		self:needsredraw()
 	end
 	
@@ -2540,7 +2547,7 @@ function derp:create_toolbar(x,y,w,h)
 
 	
 	-------- TOOLS --------
-	undo = derp:base_tool(28,24,1,102,"undo", 
+	undo = derp:base_tool(28,24,1,102,"undo", "Undo workspace modification.",
 			function () 
 				derp:set_activetool(nil)
 				if derp.active_workspace then
@@ -2550,7 +2557,7 @@ function derp:create_toolbar(x,y,w,h)
 			end
 			)
 	undo.toggle = false
-	redo = derp:base_tool(28,24,2,127,"redo",
+	redo = derp:base_tool(28,24,2,127,"redo", "Redo workspace modification.",
 			function () 
 				derp:set_activetool(nil)
 				if derp.active_workspace then
@@ -2559,10 +2566,10 @@ function derp:create_toolbar(x,y,w,h)
 				derp:set_activetool(derp.active_tool.last)
 			end)
 	redo.toggle = false
-	select_rect = derp:base_tool(24,24,1,36,"square select")
-	move_select = derp:base_tool(24,17,1,61,"move/select")
-	move_ws = derp:base_tool(21,21,1,79,"move workspace")
-	delete_wid = derp:base_tool(14,14,30,63,"delete widget",
+	select_rect = derp:base_tool(24,24,1,36,"square select", "Rectangular component selection.")
+	move_select = derp:base_tool(24,17,1,61,"move/select", "Select / move components.")
+	move_ws = derp:base_tool(21,21,1,79,"move workspace", "Navigate workspace.")
+	delete_wid = derp:base_tool(14,14,30,63,"delete widget", "Delete component.",
 			function () 
 				derp:set_activetool(nil)
 				

@@ -811,7 +811,7 @@ function gui:create_menu(x,y,menu)
         
         -- update statusbar
         if (self.menu[i][2].tooltip) then
-          gui:tooltip(self.menu[i][2].tooltip)
+          gui:statusbarinfo(self.menu[i][2].tooltip)
         end
         
         -- close all submenus
