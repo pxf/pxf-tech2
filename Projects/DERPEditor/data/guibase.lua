@@ -322,6 +322,7 @@ end
 -- core and setup of GUI
 
 gui.redrawrects = {}
+gui.tooltip = {body = nil, timeout = 0, x = 0, y = 0}
 function gui:redraw(x,y,w,h)
   if x == nil then
     gfx.redrawneeded()
@@ -332,6 +333,13 @@ function gui:redraw(x,y,w,h)
     table.insert(gui.redrawrects, 1, {x,y,w,h})
   end
   --gfx.redrawneeded()
+end
+
+function gui:set_tooltip(body, x, y)
+  self.tooltip.body = body
+  self.tooltip.timeout = 50
+  self.tooltip.x = x + 12
+  self.tooltip.y = y - 32
 end
 
 function gui:set_focus(wid)
@@ -457,7 +465,7 @@ function gui:toggle_show_redraw()
   return (not self.draw_redraw_rects)
 end
 
-function gui:tooltip(str)
+function gui:statusbarinfo(str)
   if (self.statusbar) then
     self.statusbar:settext(str)
   end
@@ -658,6 +666,11 @@ function gui:update()
   -- call update function on widgets
   self.widgets:update()
   
+  -- update tooltip
+  if (self.tooltip.timeout > 0) then
+    self.tooltip.timeout = self.tooltip.timeout - 1
+  end
+  
   --[[if (inp.isbuttondown(inp.MOUSE_LEFT)) then
     -- check if we hit something
     local mx,my = inp.getmousepos()
@@ -678,6 +691,27 @@ function gui:draw(force)
   
   local oldtex = gfx.bindtexture(self.themetex)
   self.widgets:draw(force)
+  
+  -- Draw tooltip
+  if (self.tooltip.timeout > 0) then
+    gfx.translate(self.tooltip.x,self.tooltip.y)
+    if (type(self.tooltip.body) == "string") then
+      local w = #self.tooltip.body*8 + 20
+      gfx.drawtopleft(1,1,w-2, 18, 5,2,1,1)
+      gfx.drawtopleft(1,0,w-2, 1, 14,6,1,1) -- top
+      gfx.drawtopleft(1,19,w-2, 1, 14,6,1,1) -- bottom
+      gfx.drawtopleft(0,1,1, 18, 14,6,1,1) -- left
+      gfx.drawtopleft(w-1,1,1, 18, 14,6,1,1) -- right
+      
+      local r,g,b = gfx.getcolor()
+      gfx.setcolor(224/255,126/255,0)
+      gui:drawfont(self.tooltip.body, 15, 10)
+      gfx.setcolor(r,g,b)
+    else
+      self.tooltip.body:draw(true)
+    end
+    gfx.translate(-self.tooltip.x,-self.tooltip.y)
+  end
   
   -- show redraw regions
   if (self.draw_redraw_rects) then
