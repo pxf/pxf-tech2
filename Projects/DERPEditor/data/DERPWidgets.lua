@@ -903,18 +903,25 @@ function derp:create_connectionoutput(id,x,y)
   end
   
   function wid:mousepush(mx,my,button)
-	--print(mx,my)
-	if button == inp.MOUSE_RIGHT then
+	if button == inp.MOUSE_RIGHT and #self.connections > 0 then
 		if self.connected then
 		
 			local menu = { }
 			for k,v in pairs(self.connections) do
-				print(v.id,v.to_input)
-				
 				local end_wid = derp.active_workspace:get_block(v.id)
 				
 				table.insert(menu,{self.output_id .. " - " .. v.id .. "." .. v.to_input, {tooltip = "Remove connection from " .. self.output_id .. " to " .. v.id, onclick = 
 									function () 	
+										for a,c in pairs(end_wid.data.connections_in) do
+											if c.block == self.parent.parent.id and c.output == id and c.input == v.to_input then
+												local end_socket = end_wid:get_inputsocket(v.to_input)
+												end_socket.connected = false
+												
+												end_wid.data.connections_in[a] = nil
+												self.connections[k] = nil
+												self.connected = false
+											end
+										end
 									end}})
 			end
 			
@@ -1082,6 +1089,16 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	  self.data.x = self.drawbox.x
 	  self.data.y = self.drawbox.y
   end
+	
+	function wid:get_inputsocket(socketname)
+		for k,v in pairs(content.childwidgets) do
+			if v.input_id and v.input_id == socketname then
+				return v
+			end
+		end
+		
+		return nil
+	end
 	
 	-- find connection socket with output name
 	function wid:get_outputsocket(socketname)
