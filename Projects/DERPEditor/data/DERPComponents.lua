@@ -450,7 +450,7 @@ function derp_components.render.geometry:generate_json(component_data)
                     void main()
                     {
   							      gl_FragData[0] = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
-  							      gl_FragData[1] = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+  							      gl_FragData[1] = 0.8 * texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
   							      
                     }"
                    },
