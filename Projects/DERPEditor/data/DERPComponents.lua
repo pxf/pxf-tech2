@@ -359,16 +359,16 @@ derp_components.render.geometry = { name = "Geometry renderer"
                               , tooltip = "Create a block that inputs geometry and renders to a texture."
                               }
 function derp_components.render.geometry:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", output_type = "texture", inputs = 4, outputs = { workspace:gen_new_outputname(), workspace:gen_new_outputname() }, connections_in = {}}
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", output_type = "texture", inputs = 4, outputs = { workspace:gen_new_outputname(), workspace:gen_new_outputname(), workspace:gen_new_outputname() }, connections_in = {}}
   -- specific values
   block.modelfilepath = ""
   return block
 end
 
 function derp_components.render.geometry:create_widget(component_data)
-  local wid = derp:create_basecomponentblock(component_data,1000,2)
+  local wid = derp:create_basecomponentblock(component_data,1000,3)
   wid.input_aliases = {"cameraPos", "cameraLookAt"}
-  wid.output_aliases = {"diffuse", "normals"}
+  wid.output_aliases = {"diffuse", "normals", "depth"}
   
   wid.suuuuuuupahdraw = wid.draw
   function wid:draw(force)
@@ -451,11 +451,13 @@ function derp_components.render.geometry:generate_json(component_data)
                     {
   							      gl_FragData[0] = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
   							      gl_FragData[1] = vec4(n, 1.0);
+  							      gl_FragData[2] = vec4(gl_FragDepth,gl_FragDepth,gl_FragDepth, 1.0);
   							      
                     }"
                    },
      "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"},
-                       {"name" : "]] .. tostring(component_data.outputs[2]) .. [[", "type" : "texture"}]
+                       {"name" : "]] .. tostring(component_data.outputs[2]) .. [[", "type" : "texture"},
+                       {"name" : "]] .. tostring(component_data.outputs[3]) .. [[", "type" : "texture"}]
     }]]
   
   table.insert(final_jsondata, escape_backslashes(jsonstring))
