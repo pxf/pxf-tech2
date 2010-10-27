@@ -195,6 +195,7 @@ namespace Derp
 			, m_JsonData(_JsonData)
 			, m_CameraPosInput(0)
 			, m_CameraLookInput(0)
+			, m_Shader(0)
 		{}
 
 		virtual ~RenderBlock();

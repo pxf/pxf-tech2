@@ -199,7 +199,7 @@ bool AuxiliaryBlock::Execute(bool _SendPreviews)
 
 RenderBlock::~RenderBlock()
 {
-	if (m_Shader)
+	if (m_Shader->IsValid())
 		m_gfx->DestroyShader(m_Shader);
 	if (m_DepthBuffer)
 		delete m_DepthBuffer;
@@ -270,6 +270,10 @@ void RenderBlock::BuildGraph()
 		
 		// Setup internal block stuff
 		m_Shader = m_gfx->CreateShader(m_BlockName, m_VertShader, m_FragShader);
+		
+		if (!m_Shader)
+			Message("blah", "Failed to compile shader");
+		
 		//m_Cam.SetPerspective(m_CameraFov, (float)m_Width / (float)m_Height, 1.0f, 10000.0f);
 		m_DepthBuffer = m_gfx->CreateRenderBuffer(GL_DEPTH_COMPONENT, m_Width, m_Height);
 		
@@ -368,7 +372,8 @@ bool RenderBlock::Execute(bool _SendPreviews)
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 		// Bind shaders
-		m_gfx->BindShader(m_Shader);
+		if (m_Shader->IsValid())
+			m_gfx->BindShader(m_Shader);
 	
 		// Gather and bind all our inputs
 		int ttexunit = 0;
@@ -388,7 +393,8 @@ bool RenderBlock::Execute(bool _SendPreviews)
 				}
 		
 				m_gfx->BindTexture(inputtex, ttexunit);
-				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
+				if (m_Shader->IsValid())
+					m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
 				ttexunit += 1;
 			
 			} else if (inputtype == "float")
@@ -401,7 +407,8 @@ bool RenderBlock::Execute(bool _SendPreviews)
 			{
 				// Input is a script with int result
 				int* scriptres = (int*)inputblock->GetOutput((*iter).block_output);
-				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), *scriptres);
+				if (m_Shader->IsValid())
+					m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), *scriptres);
 
 			} else if (inputtype == "vec2")
 			{
@@ -413,7 +420,8 @@ bool RenderBlock::Execute(bool _SendPreviews)
 			{
 				// Input is a script with vec3 result
 				Math::Vec3f* scriptres = (Math::Vec3f*)inputblock->GetOutput((*iter).block_output);
-				m_gfx->SetUniformVec3(m_Shader, (*iter).block_output.c_str(), scriptres);
+				if (m_Shader->IsValid())
+					m_gfx->SetUniformVec3(m_Shader, (*iter).block_output.c_str(), scriptres);
 
 			}
 			
@@ -500,7 +508,7 @@ bool RenderBlock::Execute(bool _SendPreviews)
 
 PostProcessBlock::~PostProcessBlock()
 {
-	if (m_Shader)
+	if (m_Shader->IsValid())
 		m_gfx->DestroyShader(m_Shader);
 	if (m_OutputQuad)
 		delete m_OutputQuad;
@@ -612,7 +620,8 @@ bool PostProcessBlock::Execute(bool _SendPreviews)
 		m_gfx->BindFrameBufferObject(m_Renderer->m_FBO);
 	
 		// Bind shaders
-		m_gfx->BindShader(m_Shader);
+		if (m_Shader->IsValid())
+			m_gfx->BindShader(m_Shader);
 	
 		// Gather and bind all our inputs
 		int ttexunit = 0;
@@ -632,7 +641,8 @@ bool PostProcessBlock::Execute(bool _SendPreviews)
 				}
 		
 				m_gfx->BindTexture(inputtex, ttexunit);
-				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
+				if (m_Shader->IsValid())
+					m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
 				ttexunit += 1;
 			
 			} else if (inputtype == "float")
