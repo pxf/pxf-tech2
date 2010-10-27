@@ -887,6 +887,11 @@ function derp:create_connectionoutput(id,x,y)
     
   end
   
+  function wid:mouseover(mx,my)
+    local preview_box = derp:create_previewbox(0,0,64,64, self.parent.parent.data, self.parent.parent.data.id .. self.output_id)
+    gui:set_tooltip(preview_box, mx, my)
+  end
+  
   function wid:mouserelease(mx,my,button)
 	if button == inp.MOUSE_LEFT then
 		-- see if we found a input to connect to
