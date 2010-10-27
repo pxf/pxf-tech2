@@ -493,7 +493,6 @@ end
 function gui:set_cursor(name)
 	for k,v in pairs(self.custom_cursors) do
 		if v.name == name then
-			print(v.name)
 			self.current_cursor = v
 		end
 	end

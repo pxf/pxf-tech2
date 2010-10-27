@@ -18,6 +18,7 @@ function derp:init()
 	gui:add_customcursor(19,17,1,61,"move_select")
 	gui:add_customcursor(21,21,1,79,"move_ws")
 	gui:add_customcursor(10,13,30,79,"normal")
+	gui:add_customcursor(17,17,33,93,"select_rect")
 	
 	gui:set_cursor("normal")
 end
@@ -182,8 +183,24 @@ function derp:set_activetool(tool)
 		self.active_tool.current.selected = false
 		self.active_tool.current:needsredraw()
 		self.active_tool.current = tool
+		
+		if not tool then
+			gui:set_cursor("normal")
+		elseif tool.cursor then
+			gui:set_cursor(tool.cursor)
+		else
+			gui:set_cursor("normal")
+		end
 	else
 		self.active_tool.current = tool
+		
+		if not tool then
+			gui:set_cursor("normal")
+		elseif tool.cursor then
+			gui:set_cursor(tool.cursor)
+		else
+			gui:set_cursor("normal")
+		end
 	end
 	
 	if tool then
@@ -911,6 +928,8 @@ function derp:create_connectionoutput(id,x,y)
 		end
 		self.parent.temp_connection = nil
 	end
+	
+	derp:set_activetool(derp.active_tool.last)
   end
   
   function wid:mousepush(mx,my,button)
@@ -941,6 +960,8 @@ function derp:create_connectionoutput(id,x,y)
 			derp.ws_menu = basemenu
 			derp.ws_menu:show()
 		end
+	elseif button == inp.MOUSE_LEFT then
+		derp:set_activetool(nil)
 	end
   end
   
@@ -1744,16 +1765,20 @@ function derp:create_workspace(x,y,w,h,from_path)
 	
 	wid.shortcuts = {	{ name = "show/hide workspace only", keys = {inp.TAB}, was_pressed = false, onpress = function () wid:toggle_fullscreen() end},
 						{ name = "print data", keys = {"P"},was_pressed = false, onpress = function () derp:print_activedata() end },
-						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
+						{ name = "select move", keys = {"A"}, was_pressed = false, 
+							onpress = function () 
+								derp:set_activetool(move_select) 
+								gui:set_cursor("move_select")
+							end },
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
 						{ name = "move ws",keys = {inp.SPACE}, was_pressed = false, 
 							onpress = function () 
 								derp:set_activetool(move_ws) 
-								gui:set_cursor("move_ws") 
+								--gui:set_cursor("move_ws") 
 							end, 
 							onrelease = function () 
 								derp:set_activetool(derp.active_tool.last)
-								gui:set_cursor("normal")
+								--gui:set_cursor("normal")
 							end },
 						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
@@ -2580,22 +2605,11 @@ function derp:create_toolbar(x,y,w,h)
 			end)
 	redo.toggle = false
 	select_rect = derp:base_tool(24,24,1,36,"square select", "Rectangular component selection.")
-	move_select = derp:base_tool(24,17,1,61,"move/select", "Select / move components.", 
-			function () 
-				if move_select.selected then 
-					gui:set_cursor("move_select") 
-				else 
-					gui:set_cursor("normal")
-				end
-			end)
-	move_ws = derp:base_tool(21,21,1,79,"move workspace", "Navigate workspace.",
-			function () 
-				if move_ws.selected then 
-					gui:set_cursor("move_ws") 
-				else 
-					gui:set_cursor("normal")
-				end
-			end)
+	select_rect.cursor = "select_rect"
+	move_select = derp:base_tool(24,17,1,61,"move/select", "Select / move components.")
+	move_select.cursor = "move_select"
+	move_ws = derp:base_tool(21,21,1,79,"move workspace", "Navigate workspace.")
+	move_ws.cursor = "move_ws"
 	delete_wid = derp:base_tool(14,14,30,63,"delete widget", "Delete component.",
 			function () 
 				derp:set_activetool(nil)
@@ -2609,6 +2623,8 @@ function derp:create_toolbar(x,y,w,h)
 						v = nil
 						changed = true
 					end
+					
+					derp.active_workspace.component_data.active_components = { }
 					
 					if changed then
 						derp:push_active_workspace()
