@@ -8,6 +8,20 @@
 
 #include <Pxf/Modules/pri/OpenGL.h>
 
+int DERPEditor::inp_showmouse(lua_State *L) {
+	if (lua_gettop(L) == 1)
+	{
+		Pxf::Input::InputDevice* inp = Pxf::Kernel::GetInstance()->GetInputDevice();
+		inp->ShowCursor(lua_toboolean(L, 1));
+		
+	} else {
+		lua_pushstring(L, "Invalid argument passed to showmouse function!");
+		lua_error(L);
+	}
+	
+	return 0;
+}
+
 int DERPEditor::inp_getmousepos (lua_State *L) {
   // x,y = inp.getmousepos() -- x,y mouse position in window
   if (lua_gettop(L) == 0)
@@ -140,11 +154,12 @@ int DERPEditor::inp_clearlastchar(lua_State *L)
 
 int DERPEditor::luaopen_appinput (lua_State *L) {
   const luaL_reg appinputlib[] = {
-    {"getmousepos",   inp_getmousepos},
-    {"setmousepos",   inp_getmousepos},
-    {"isbuttondown",   inp_isbuttondown},
+		{"showmouse",   inp_showmouse},
+    {"getmousepos", inp_getmousepos},
+    {"setmousepos", inp_getmousepos},
+    {"isbuttondown", inp_isbuttondown},
     {"isbuttonup",   inp_isbuttonup},
-    {"getlastchar",   inp_getlastchar},
+    {"getlastchar",  inp_getlastchar},
     {"clearlastchar",   inp_clearlastchar},
     {"iskeydown",   inp_iskeydown},
     {"iskeyup",   inp_iskeyup},
