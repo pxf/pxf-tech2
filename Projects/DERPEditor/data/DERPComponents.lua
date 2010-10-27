@@ -299,6 +299,7 @@ function derp_components.postprocess.invert:generate_json(component_data)
                     }",
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     uniform float script1;
+					
                     void main()
                     {
                       float sv = ]] .. tostring(component_data.slidervalue+0.0001) .. [[;
@@ -321,6 +322,97 @@ function derp_components.postprocess.invert:spawn_inspector(component_data)
   return derp:create_texturedinspector(component_data)
 end
 
+-------------------------------------------------------------------------------
+-- PostProcess::Gaussian Blur
+derp_components.postprocess.gaussianblur = { name = "Post Process: Gaussian Blur"
+                                , tooltip = "Create a block that performs a gaussian blur filter on a texture."
+                                }
+function derp_components.postprocess.gaussianblur:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 75, h = 60, group = "postprocess", type = "gaussianblur", output_type = "texture", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  return block
+end
+
+function derp_components.postprocess.gaussianblur:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,1,1)
+  
+  return wid
+end
+
+function derp_components.postprocess.gaussianblur:generate_json(component_data)
+  local final_jsondata = {}
+  local input_array = {}
+  local input_array_shader = {}
+  
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+    
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
+    end
+  end
+  
+  local first_texture = nil
+  for k,v in pairs(component_data.connections_in) do
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+    end
+  end
+  
+  if (first_texture == nil) then
+    return spawn_error_dialog({"Output block needs at least one input!"})
+  end
+  
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Post-Process",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"width" : 512,
+                    "height" : 512,
+                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    uniform float script1;
+                    void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+					
+					float wstep = 1 / 512;
+					float hstep = 1 / 512;
+					float kernel[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
+					
+                    void main()
+                    {
+                      	vec4 sum = texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st) * kernel[0];
+						
+						for(int i = 1; i <3; i++)
+						{
+							sum += texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st + vec2(i * wstep,0)) * kernel[i];
+							sum += texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st - vec2(i * wstep,0)) * kernel[i];
+						}
+						
+						gl_FragData[0] = sum;
+                    }"
+                   },
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
+    }]]
+  
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
+  
+  return final_jsondata
+end
+
+function derp_components.postprocess.gaussianblur:spawn_inspector(component_data)
+  return derp:create_texturedinspector(component_data)
+end
 
 -------------------------------------------------------------------------------
 -- Renderer::geometry

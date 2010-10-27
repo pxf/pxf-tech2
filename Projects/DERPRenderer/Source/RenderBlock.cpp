@@ -291,7 +291,7 @@ bool RenderBlock::Execute(bool _SendPreviews)
 		
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(m_CameraFov, (float)m_Width / (float)m_Height, 1.0f, 10000.0f);
+		gluPerspective(m_CameraFov, (float)m_Width / (float)m_Height, 1.0f, 100.0f);
 		
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
