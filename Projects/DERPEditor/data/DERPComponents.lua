@@ -412,6 +412,7 @@ end
 
 function derp_components.postprocess.gaussianblur:spawn_inspector(component_data)
   return derp:create_texturedinspector(component_data)
+
 end
 
 -------------------------------------------------------------------------------
