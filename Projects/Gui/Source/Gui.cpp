@@ -69,6 +69,7 @@ Gui::Gui(Pxf::Kernel* _Kernel)
 	m_pb = new PrimitiveBatch(m_Kernel->GetGraphicsDevice());
 	Resource::Font* bitmapfont = m_Kernel->GetResourceManager()->Acquire<Resource::Font>("data/Proggy.pfnt");
 	m_Font = new Graphics::Font(m_Kernel->GetGraphicsDevice(), bitmapfont);
+	m_Font->SetTextureFilters(TEX_FILTER_NEAREST, TEX_FILTER_NEAREST);
 
 	Initialize();
 }

@@ -115,12 +115,7 @@ int main()
 			if (inp->GetLastKey() == Input::ESC)
 				break;
 
-			pb->QuadsBegin();
-			pb->SetColor(1, 1, 0, 1);
-			pb->QuadsDrawTopLeft(0, 0, 100, 100);
-			pb->QuadsEnd();
-
-			gfx->Print(fnt, 100, 100, 0.5f + fabs(sinf(Platform::GetTime()/1000.f)), "test apa bepa !.,?-//=");
+			//gfx->Print(fnt, 100, 100, 0.5f + fabs(sinf(Platform::GetTime()/1000.f)), "test apa bepa !.,?-//=");
 			
 			{
 				static Graphics::Rect::Rect_t rect = {300, 0, 200, 50};
@@ -131,12 +126,13 @@ int main()
 			}
 
 			{
-				static Graphics::Rect::Rect_t rect = {300, 200, 200, 50};
+				static Graphics::Rect::Rect_t rect = {300, 60, 200, 50};
 				if (Gui::INPUT_ACTION & gui.DoButton((void*)'KNP2', &rect, "Quit", 0, 0))
 				{
 					break;
 				}
 			}
+
 
 			inp->ClearLastKey();
 			inp->ClearLastButton();
