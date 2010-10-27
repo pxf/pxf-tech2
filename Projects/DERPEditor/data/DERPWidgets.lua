@@ -990,7 +990,11 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
                                     component_data.w, component_data.h)
 	
 	
-	wid.shortcuts = { { name = "copy", keys = {inp.LCTRL,"C"}, was_pressed = false, onpress = 
+	wid.shortcuts = { { name = "delete active components", keys = {inp.DEL}, was_pressed = false, 
+							onpress = function () 
+								delete_wid:onclick() 
+							end },
+						{ name = "copy", keys = {inp.LCTRL,"C"}, was_pressed = false, onpress = 
 							function () 
 								
 								local tbl = { }
@@ -1763,7 +1767,8 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.fullscreen = false
 	
 	
-	wid.shortcuts = {	{ name = "show/hide workspace only", keys = {inp.TAB}, was_pressed = false, onpress = function () wid:toggle_fullscreen() end},
+	wid.shortcuts = {	
+						{ name = "show/hide workspace only", keys = {inp.TAB}, was_pressed = false, onpress = function () wid:toggle_fullscreen() end},
 						{ name = "print data", keys = {"P"},was_pressed = false, onpress = function () derp:print_activedata() end },
 						{ name = "select move", keys = {"A"}, was_pressed = false, 
 							onpress = function () 
@@ -2617,10 +2622,31 @@ function derp:create_toolbar(x,y,w,h)
 				if derp.active_workspace then
 					local changed = false
 					
-					for k,v in pairs(derp.active_workspace.component_data.active_components) do
+					for b,c in pairs(derp.active_workspace.component_data.active_components) do
+						local w = derp.active_workspace.childwidgets[c].content.childwidgets
+						for k,v in pairs(w) do
+							if v.connections then
+								for con_k,con_v in pairs(v.connections) do
+									local end_wid = derp.active_workspace:get_block(con_v.id)
+									
+									if end_wid then
+										for end_con_k,end_con_v in pairs(end_wid.data.connections_in) do
+											if end_con_v.block == v.parent.parent.id and end_con_v.output == v.output_id and end_con_v.input == con_v.to_input then
+												local end_socket = end_wid:get_inputsocket(end_con_v.input)
+												
+												
+												end_socket.connected = false
+													
+												end_wid.data.connections_in[end_con_k] = nil
+											end
+										end
+									end
+								end
+							end
+						end
 						
-						derp.active_workspace.childwidgets[v] = nil
-						v = nil
+						derp.active_workspace.childwidgets[c] = nil
+						c = nil
 						changed = true
 					end
 					
