@@ -13,6 +13,7 @@ using namespace Pxf::Math;
 
 static Vec4f ColorBorder(B2F(185, 184, 170));
 static Vec4f ColorBase(B2F(238, 237, 224));
+static Vec4f ColorBaseHighlight(B2F(218, 217, 194));
 static Vec4f ColorFocusBorder(B2F(178, 195, 219));
 
 static Vec4f ColorButtonHighlight(B2F(255, 255, 255));
@@ -40,7 +41,10 @@ void Graphics::DrawButton(GraphicsDevice* gfx, Gui* gui, PrimitiveBatch* pb, voi
 	pb->QuadsBegin();
 
 	// Border
-	pb->SetColor(&ColorBorder);
+	if (has_focus)
+		pb->SetColor(&ColorFocusBorder);
+	else
+		pb->SetColor(&ColorBorder);
 	pb->QuadsDrawTopLeft(rect->x, rect->y, rect->w, rect->h);
 	
 	// Draw highlight if hot (not if active though)
@@ -51,22 +55,12 @@ void Graphics::DrawButton(GraphicsDevice* gfx, Gui* gui, PrimitiveBatch* pb, voi
 	pb->QuadsDrawTopLeft(rect->x+1, rect->y+1, rect->w-2.f, rect->h-2.f);
 
 	// Fill button with base color
-	pb->SetColor(&ColorBase);
+	if (gui->MouseDown(Input::MOUSE_1))
+		pb->SetColor(&ColorBaseHighlight);
+	else
+		pb->SetColor(&ColorBase);
 	pb->QuadsDrawTopLeft(rect->x+2.f, rect->y+2.f, rect->w-3.f, rect->h-3.f);
 	pb->QuadsEnd();
-
-	// FIXME: This is expensive! LineStripple eats up ~9 FPS
-	// Dotted focus border
-	if (has_focus)
-	{
-		//glLineStipple(1, 0xAAAA);
-		//glEnable(GL_LINE_STIPPLE);
-		pb->LinesBegin();
-		pb->SetColor(&ColorFocusBorder);
-		pb->LinesDrawFrame(rect->x+3, rect->y+3, rect->w-5, rect->h-5);
-		pb->LinesEnd();
-		//glDisable(GL_LINE_STIPPLE);
-	}
 
 	gfx->Print(_Font, text_x, text_y, 1.f, text);
 }
