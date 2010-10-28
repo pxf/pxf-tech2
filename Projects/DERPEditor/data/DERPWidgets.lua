@@ -304,15 +304,19 @@ function RGB_to_HSV(r,g,b,h,s,v)
 	return out.r,out.g,out.b
 end
 
-function derp:create_slider(x,y,w,h,min,max,on_change)
+function derp:create_slider(x,y,w,h,min,max,on_change,discreet)
 	local wid = gui:create_basewidget(x,y,w,h)
 	local slide_button = gui:create_basewidget(w*0.5-5,0,10,h)
 	
 	wid.on_change = on_change
-	wid.value = (max - min) * 0.5
+	wid.value = min
 	slide_button.max_pos = w-10
 	
 	wid:addwidget(slide_button)
+	
+	if discreet then
+		wid.discreet = true
+	end
 	
 	function wid:setvalue(value)
 		if not value then
@@ -331,10 +335,25 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 		slide_button:move_abs(new_x,slide_button.drawbox.y)
 	end
 	
+	local tmp = 0.0
+	
 	function slide_button:mousedrag(dx,dy)
 	  -- move slider relative
 		self:needsredraw()
-		self:move_relative(dx,0)
+		
+		local step = (self.max_pos) / (max - min)
+		
+		tmp = tmp + dx
+		
+		if wid.discreet then
+			print(tmp)
+			if tmp > step or tmp < -step then
+				self:move_relative(tmp,0)
+				tmp = 0.0
+			end
+		else
+			self:move_relative(dx,0)
+		end
 		
 		-- sanity check
 		if (self.drawbox.x < 0) then
@@ -346,10 +365,11 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 		self:needsredraw()
 		
 		-- get new value
-		local step = (self.max_pos) / (max - min)
 		local pos = self.drawbox.x / self.max_pos
 		
-		wid.value = pos * (max - min)
+		wid:setvalue(pos * (max - min))
+		
+		--wid.value = pos * (max - min)
 		
 		if (wid.on_change) then
 		  wid:on_change(wid.value)

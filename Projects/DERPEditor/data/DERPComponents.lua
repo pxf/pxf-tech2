@@ -328,12 +328,22 @@ derp_components.postprocess.gaussianblur = { name = "Post Process: Gaussian Blur
                                 , tooltip = "Create a block that performs a gaussian blur filter on a texture."
                                 }
 function derp_components.postprocess.gaussianblur:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 75, h = 60, group = "postprocess", type = "gaussianblur", output_type = "texture", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 150, h = 60, group = "postprocess", type = "gaussianblur", output_type = "texture", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  
   return block
 end
 
 function derp_components.postprocess.gaussianblur:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1,1)
+  
+  function slider_update(self,value)
+	--print(value)
+  end
+  
+  local sliderw = derp:create_slider(5,5,150,20,0,3,slider_update,true)
+  sliderw:setvalue(0)
+  wid.sliderw = sliderw
+  wid:addwidget(sliderw)
   
   return wid
 end
@@ -385,23 +395,29 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
                     }",
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
 					
-					float wstep = 1 / 512;
-					float hstep = 1 / 512;
-					float kernel[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
+					float step_w = 1 / 512;
+					float step_h = 1 / 512;
 					
-                    void main()
-                    {
-                      	vec4 sum = texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st) * kernel[0];
+					#define KERNEL_SIZE 9
+					
+					const vec2 offset[KERNEL_SIZE] = { 	vec2(-step_w, -step_h), vec2(0.0, -step_h), vec2(step_w, -step_h), 
+														vec2(-step_w, 0.0), vec2(0.0, 0.0), vec2(step_w, 0.0), 
+														vec2(-step_w, step_h), vec2(0.0, step_h), vec2(step_w, step_h) };
+					
+					const float kernel[KERNEL_SIZE] = { 1.0/16.0, 2.0/16.0, 1.0/16.0,
+														2.0/16.0, 4.0/16.0, 2.0/16.0,
+														1.0/16.0, 2.0/16.0, 1.0/16.0 };
+
+					void main()
+					{
+						vec4 sum = vec4(0.0);
+						vec2 uv = gl_TexCoord[0].st;
 						
-						for(int i = 1; i <3; i++)
+						for(int i = 0; i < KERNEL_SIZE; i++)
 						{
-							for(int j = 1; j < 3; j++)
-							{
-								sum += texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st + vec2(i * wstep,0)) * kernel[i];
-								sum += texture2D(]] .. tostring(first_texture) .. [[,gl_TexCoord[0].st - vec2(i * wstep,0)) * kernel[i];
-							}
+							sum += texture2D(]] .. tostring(first_texture) .. [[,uv + offset[i]) * kernel[i];
 						}
-						
+									
 						gl_FragData[0] = sum;
                     }"
                    },
