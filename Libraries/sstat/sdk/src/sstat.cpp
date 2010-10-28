@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <psapi.h>
 #include <Commdlg.h>
+#include <ctype.h>
 
 
 long int sstat_memoryusage()
@@ -69,6 +70,7 @@ int sstat_openfiledialog(char* _filename)
 void sstat_getcwd(char* _filepath, size_t _maxsize)
 {
     GetCurrentDirectoryA(_maxsize, _filepath);
+	_filepath[0] = toupper(_filepath[0]);
 }
 
 #elif defined (MACOSX) || defined (__APPLE__)
