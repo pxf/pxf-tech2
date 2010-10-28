@@ -345,13 +345,51 @@ end
 
 function derp_components.postprocess.gaussianblur:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1,1)
-  
+	local valtable = { { 	kernel_size = 9, 
+							offset = { "vec2(-step_w, -step_h)", "vec2(0.0, -step_h)", "vec2(step_w, -step_h)",  
+										"vec2(-step_w, 0.0)", "vec2(0.0, 0.0)", "vec2(step_w, 0.0)", 
+										"vec2(-step_w, step_h)", "vec2(0.0, step_h)", "vec2(step_w, step_h)" },
+							kernel = { 1.0/16.0, 2.0/16.0, 1.0/16.0,
+										2.0/16.0, 4.0/16.0, 2.0/16.0,
+										1.0/16.0, 2.0/16.0, 1.0/16.0}},
+						{ 	kernel_size = 25, 
+							offset = [[{vec2(-2*step_w,-2*step_h), vec2(-step_w,-2*step_h),vec2(0.0,-2*step_h),vec2(step_w,-2*step_h),vec2(2*step_w,-2*step_h),
+										vec2(-2*step_w,-step_h), vec2(-step_w,-step_h),vec2(0.0,-step_h),vec2(step_w,-step_h),vec2(2*step_w,-step_h),
+										vec2(-2*step_w,0.0), vec2(-step_w,0.0),vec2(0.0,0.0),vec2(step_w,0.0),vec2(2*step_w,0.0),
+										vec2(-2*step_w,step_h), vec2(-step_w,step_h),vec2(0.0,step_h),vec2(step_w,step_h),vec2(2*step_w,step_h),
+										vec2(-2*step_w,2*step_h), vec2(-step_w,2*step_h),vec2(0.0,2*step_h),vec2(step_w,2*step_h),vec2(2*step_w,2*step_h)};]], 
+							kernel = [[float[] (1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0,
+												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
+												6.0/256.0,24.0/256.0,36.0/256.0,24.0/256.0,6.0/256.0,
+												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
+												1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0);]] },
+						{ 	kernel_size = 49, 
+							offset = [[{vec2(-3*step_w,-3*step_h),vec2(-2*step_w,-3*step_h),vec2(-1*step_w,-3*step_h),vec2(0.0,-3*step_h),vec2(step_w,-3*step_h),vec2(2*step_w,-3*step_h),vec2(3*step_w,-3*step_h),
+										vec2(-3*step_w,-2*step_h),vec2(-2*step_w,-2*step_h),vec2(-1*step_w,-2*step_h),vec2(0.0,-2*step_h),vec2(step_w,-2*step_h),vec2(2*step_w,-2*step_h),vec2(3*step_w,-2*step_h),
+										vec2(-3*step_w,-1*step_h),vec2(-2*step_w,-1*step_h),vec2(-1*step_w,-1*step_h),vec2(0.0,-1*step_h),vec2(step_w,-1*step_h),vec2(2*step_w,-1*step_h),vec2(3*step_w,-1*step_h),
+										vec2(-3*step_w,0.0),vec2(-2*step_w,0.0),vec2(-1*step_w,0.0),vec2(0.0,0.0),vec2(step_w,0.0),vec2(2*step_w,0.0),vec2(3*step_w,0.0),
+										vec2(-3*step_w,step_h),vec2(-2*step_w,step_h),vec2(-1*step_w,step_h),vec2(0.0,step_h),vec2(step_w,step_h),vec2(2*step_w,step_h),vec2(3*step_w,step_h),
+										vec2(-3*step_w,2*step_h),vec2(-2*step_w,2*step_h),vec2(-1*step_w,2*step_h),vec2(0.0,2*step_h),vec2(step_w,2*step_h),vec2(2*step_w,2*step_h),vec2(3*step_w,2*step_h),
+										vec2(-3*step_w,3*step_h),vec2(-2*step_w,3*step_h),vec2(-1*step_w,3*step_h),vec2(0.0,3*step_h),vec2(step_w,3*step_h),vec2(2*step_w,3*step_h),vec2(3*step_w,3*step_h)
+										};]], 
+							kernel = [[float[] (1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096,
+												6/4096,36/4096,90/4096,120/4096,90/4096,36/4096,6/4096,
+												15/4096,90/4096,225/4096,300/4096,225/4096,90/4096,15/4096,
+												20/4096,120/4096,300/4096,400/4096,300/4096,120/4096,20/4096,
+												15/4096,90/4096,225/4096,300/4096,225/4096,90/4096,15/4096,
+												6/4096,36/4096,90/4096,120/4096,90/4096,36/4096,6/4096,
+												1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096);]] },
+					}
   function slider_update(self,value)
-	--print(value)
+	local blur = valtable[value + 1]
+	self.parent.parent.parent.data.blurdesc = blur
   end
   
   local sliderw = derp:create_slider(5,5,150,20,0,3,slider_update,true)
+  
   sliderw:setvalue(0)
+  wid.data.blurdesc = valtable[1]
+  
   wid.sliderw = sliderw
   wid:addwidget(sliderw)
   
@@ -362,6 +400,29 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
   local final_jsondata = {}
   local input_array = {}
   local input_array_shader = {}
+  
+	function build_blursource(tex) 
+		local str = ""
+
+		for k,v in pairs(component_data.blurdesc.offset) do
+			str = str .. "sum += texture2D(" .. tex .. ",uv + " .. v .. ") * " .. component_data.blurdesc.kernel[k] .. ";\n"
+		end
+
+		return str
+	end
+	
+	function build_fromtable(tbl)
+		str = ""
+		for k,v in pairs(tbl) do
+			if k == #tbl then
+				str = str .. v
+			else
+				str = str .. v .. ","
+			end
+		end
+		
+		return str
+	end
   
   for k,v in pairs(component_data.connections_in) do
     table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
@@ -396,7 +457,8 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
      "blockData" : {"width" : 512,
                     "height" : 512,
-                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    "shaderVert" : "#version 120
+					]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     uniform float script1;
                     void main(void)
                     {
@@ -405,28 +467,22 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
                     }",
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
 					
-					float step_w = 1 / 512;
-					float step_h = 1 / 512;
+										
+					float step_w = 1.0 / 512.0;
+					float step_h = 1.0 / 512.0;
 					
-					#define KERNEL_SIZE 9
+					#define KERNEL_SIZE ]] .. tostring(component_data.blurdesc.kernel_size) .. [[
 					
-					const vec2 offset[KERNEL_SIZE] = { 	vec2(-step_w, -step_h), vec2(0.0, -step_h), vec2(step_w, -step_h), 
-														vec2(-step_w, 0.0), vec2(0.0, 0.0), vec2(step_w, 0.0), 
-														vec2(-step_w, step_h), vec2(0.0, step_h), vec2(step_w, step_h) };
+					vec2 offset[KERNEL_SIZE] = { ]] .. build_fromtable(component_data.blurdesc.offset) .. [[ };
 					
-					const float kernel[KERNEL_SIZE] = { 1.0/16.0, 2.0/16.0, 1.0/16.0,
-														2.0/16.0, 4.0/16.0, 2.0/16.0,
-														1.0/16.0, 2.0/16.0, 1.0/16.0 };
+					float kernel[KERNEL_SIZE] = float[] ( ]] .. build_fromtable(component_data.blurdesc.kernel) .. [[ ); 
 
 					void main()
 					{
 						vec4 sum = vec4(0.0);
 						vec2 uv = gl_TexCoord[0].st;
 						
-						for(int i = 0; i < KERNEL_SIZE; i++)
-						{
-							sum += texture2D(]] .. tostring(first_texture) .. [[,uv + offset[i]) * kernel[i];
-						}
+						]] .. build_blursource(tostring(first_texture)) .. [[
 									
 						gl_FragData[0] = sum;
                     }"

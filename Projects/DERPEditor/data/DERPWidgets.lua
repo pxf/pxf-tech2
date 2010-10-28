@@ -329,6 +329,10 @@ function derp:create_slider(x,y,w,h,min,max,on_change,discreet)
 			value = max
 		end
 		
+		if self.discreet then
+			value = math.floor(value)
+		end
+		
 		local new_x = (value / (max - min)) * slide_button.max_pos
 		
 		self.value = value
@@ -346,7 +350,6 @@ function derp:create_slider(x,y,w,h,min,max,on_change,discreet)
 		tmp = tmp + dx
 		
 		if wid.discreet then
-			print(tmp)
 			if tmp > step or tmp < -step then
 				self:move_relative(tmp,0)
 				tmp = 0.0
