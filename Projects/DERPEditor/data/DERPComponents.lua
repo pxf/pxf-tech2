@@ -15,6 +15,16 @@ function net.send_file(filepath)
 end
 
 
+function path_abs2rel(abspath)
+    cwd = app.getcwd()
+    len = #cwd+2 -- magic number
+    print(len)
+    relpath = string.sub(abspath, len)
+    print(abspath)
+    print(relpath)
+    return relpath
+end
+
 -------------------------------------------------------------------------------
 -- Output::Simple
 derp_components.output.simple = { name = "Ouput: Simple"
@@ -744,7 +754,7 @@ function derp_components.aux.model:create_widget(component_data)
     local new_filepath = app.opendialog()
     if (new_filepath) then
       self.parent.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.parent.data.modelfilepath = new_filepath
+      self.parent.parent.parent.data.modelfilepath = path_abs2rel(new_filepath)
 
       derp:push_active_workspace()
     end
@@ -806,8 +816,8 @@ function derp_components.aux.texture:create_widget(component_data)
   function browse_func(self)
     local new_filepath = app.opendialog()
     if (new_filepath) then
-      self.parent.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.parent.data.texturefilepath = new_filepath
+      self.parent.parent.parent.filepathwidget.label_text = path_abs2rel(new_filepath)
+      self.parent.parent.parent.data.texturefilepath = path_abs2rel(new_filepath)
 
       derp:push_active_workspace()
     end
