@@ -66,6 +66,11 @@ int sstat_openfiledialog(char* _filename)
 	return !ret;
 }
 
+void sstat_getcwd(char* _filepath, size_t _maxsize)
+{
+    GetCurrentDirectoryA(_maxsize, _filepath);
+}
+
 #elif defined (MACOSX) || defined (__APPLE__)
 
 // memory stuff
@@ -227,6 +232,13 @@ int sstat_openfiledialog(char* _filename)
 	return (int)err;
 }
 
+void sstat_getcwd(char* _filepath, size_t _maxsize)
+{
+    getcwd(_filepath, _maxsize);
+}
+
+
+
 #elif defined (__LINUX__) || defined (__linux__)
 
 #include <unistd.h>
@@ -372,6 +384,11 @@ int sstat_openfiledialog(char* _filename)
 	return 0;
 }
 
+void sstat_getcwd(char* _filepath, size_t _maxsize)
+{
+    getcwd(_filepath, _maxsize);
+}
+
 #else
 
 
@@ -388,6 +405,11 @@ int sstat_savefiledialog(char* _filename)
 int sstat_openfiledialog(char* _filename)
 {
   return -1;
+}
+
+void sstat_getcwd(char* _filepath, size_t _maxsize)
+{
+    _filepath[0] = 0;
 }
 
 #endif
