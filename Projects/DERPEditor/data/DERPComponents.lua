@@ -353,39 +353,39 @@ function derp_components.postprocess.gaussianblur:create_widget(component_data)
 										2.0/16.0, 4.0/16.0, 2.0/16.0,
 										1.0/16.0, 2.0/16.0, 1.0/16.0}},
 						{ 	kernel_size = 25, 
-							offset = [[{vec2(-2*step_w,-2*step_h), vec2(-step_w,-2*step_h),vec2(0.0,-2*step_h),vec2(step_w,-2*step_h),vec2(2*step_w,-2*step_h),
-										vec2(-2*step_w,-step_h), vec2(-step_w,-step_h),vec2(0.0,-step_h),vec2(step_w,-step_h),vec2(2*step_w,-step_h),
-										vec2(-2*step_w,0.0), vec2(-step_w,0.0),vec2(0.0,0.0),vec2(step_w,0.0),vec2(2*step_w,0.0),
-										vec2(-2*step_w,step_h), vec2(-step_w,step_h),vec2(0.0,step_h),vec2(step_w,step_h),vec2(2*step_w,step_h),
-										vec2(-2*step_w,2*step_h), vec2(-step_w,2*step_h),vec2(0.0,2*step_h),vec2(step_w,2*step_h),vec2(2*step_w,2*step_h)};]], 
-							kernel = [[float[] (1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0,
+							offset = {"vec2(-2*step_w,-2*step_h)", "vec2(-step_w,-2*step_h)","vec2(0.0,-2*step_h)","vec2(step_w,-2*step_h)","vec2(2*step_w,-2*step_h)",
+										"vec2(-2*step_w,-step_h)", "vec2(-step_w,-step_h)","vec2(0.0,-step_h)","vec2(step_w,-step_h)","vec2(2*step_w,-step_h)",
+										"vec2(-2*step_w,0.0)", "vec2(-step_w,0.0)","vec2(0.0,0.0)","vec2(step_w,0.0)","vec2(2*step_w,0.0)",
+										"vec2(-2*step_w,step_h)", "vec2(-step_w,step_h)","vec2(0.0,step_h)","vec2(step_w,step_h)","vec2(2*step_w,step_h)",
+										"vec2(-2*step_w,2*step_h)", "vec2(-step_w,2*step_h)","vec2(0.0,2*step_h)","vec2(step_w,2*step_h)","vec2(2*step_w,2*step_h)"}, 
+							kernel = {1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0,
 												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
 												6.0/256.0,24.0/256.0,36.0/256.0,24.0/256.0,6.0/256.0,
 												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
-												1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0);]] },
+												1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0 } },
 						{ 	kernel_size = 49, 
-							offset = [[{vec2(-3*step_w,-3*step_h),vec2(-2*step_w,-3*step_h),vec2(-1*step_w,-3*step_h),vec2(0.0,-3*step_h),vec2(step_w,-3*step_h),vec2(2*step_w,-3*step_h),vec2(3*step_w,-3*step_h),
-										vec2(-3*step_w,-2*step_h),vec2(-2*step_w,-2*step_h),vec2(-1*step_w,-2*step_h),vec2(0.0,-2*step_h),vec2(step_w,-2*step_h),vec2(2*step_w,-2*step_h),vec2(3*step_w,-2*step_h),
-										vec2(-3*step_w,-1*step_h),vec2(-2*step_w,-1*step_h),vec2(-1*step_w,-1*step_h),vec2(0.0,-1*step_h),vec2(step_w,-1*step_h),vec2(2*step_w,-1*step_h),vec2(3*step_w,-1*step_h),
-										vec2(-3*step_w,0.0),vec2(-2*step_w,0.0),vec2(-1*step_w,0.0),vec2(0.0,0.0),vec2(step_w,0.0),vec2(2*step_w,0.0),vec2(3*step_w,0.0),
-										vec2(-3*step_w,step_h),vec2(-2*step_w,step_h),vec2(-1*step_w,step_h),vec2(0.0,step_h),vec2(step_w,step_h),vec2(2*step_w,step_h),vec2(3*step_w,step_h),
-										vec2(-3*step_w,2*step_h),vec2(-2*step_w,2*step_h),vec2(-1*step_w,2*step_h),vec2(0.0,2*step_h),vec2(step_w,2*step_h),vec2(2*step_w,2*step_h),vec2(3*step_w,2*step_h),
-										vec2(-3*step_w,3*step_h),vec2(-2*step_w,3*step_h),vec2(-1*step_w,3*step_h),vec2(0.0,3*step_h),vec2(step_w,3*step_h),vec2(2*step_w,3*step_h),vec2(3*step_w,3*step_h)
-										};]], 
-							kernel = [[float[] (1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096,
+							offset = {"vec2(-3*step_w,-3*step_h)","vec2(-2*step_w,-3*step_h)","vec2(-1*step_w,-3*step_h)","vec2(0.0,-3*step_h)","vec2(step_w,-3*step_h)","vec2(2*step_w,-3*step_h)","vec2(3*step_w,-3*step_h)",
+										"vec2(-3*step_w,-2*step_h)","vec2(-2*step_w,-2*step_h)","vec2(-1*step_w,-2*step_h)","vec2(0.0,-2*step_h)","vec2(step_w,-2*step_h)","vec2(2*step_w,-2*step_h)","vec2(3*step_w,-2*step_h)",
+										"vec2(-3*step_w,-1*step_h)","vec2(-2*step_w,-1*step_h)","vec2(-1*step_w,-1*step_h)","vec2(0.0,-1*step_h)","vec2(step_w,-1*step_h)","vec2(2*step_w,-1*step_h)","vec2(3*step_w,-1*step_h)",
+										"vec2(-3*step_w,0.0)","vec2(-2*step_w,0.0)","vec2(-1*step_w,0.0)","vec2(0.0,0.0)","vec2(step_w,0.0)","vec2(2*step_w,0.0)","vec2(3*step_w,0.0)",
+										"vec2(-3*step_w,step_h)","vec2(-2*step_w,step_h)","vec2(-1*step_w,step_h)","vec2(0.0,step_h)","vec2(step_w,step_h)","vec2(2*step_w,step_h)","vec2(3*step_w,step_h)",
+										"vec2(-3*step_w,2*step_h)","vec2(-2*step_w,2*step_h)","vec2(-1*step_w,2*step_h)","vec2(0.0,2*step_h)","vec2(step_w,2*step_h)","vec2(2*step_w,2*step_h)","vec2(3*step_w,2*step_h)",
+										"vec2(-3*step_w,3*step_h)","vec2(-2*step_w,3*step_h)","vec2(-1*step_w,3*step_h)","vec2(0.0,3*step_h)","vec2(step_w,3*step_h)","vec2(2*step_w,3*step_h)","vec2(3*step_w,3*step_h)"
+										}, 
+							kernel = { 1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096,
 												6/4096,36/4096,90/4096,120/4096,90/4096,36/4096,6/4096,
 												15/4096,90/4096,225/4096,300/4096,225/4096,90/4096,15/4096,
 												20/4096,120/4096,300/4096,400/4096,300/4096,120/4096,20/4096,
 												15/4096,90/4096,225/4096,300/4096,225/4096,90/4096,15/4096,
 												6/4096,36/4096,90/4096,120/4096,90/4096,36/4096,6/4096,
-												1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096);]] },
+												1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096}},
 					}
   function slider_update(self,value)
 	local blur = valtable[value + 1]
 	self.parent.parent.parent.data.blurdesc = blur
   end
   
-  local sliderw = derp:create_slider(5,5,150,20,0,3,slider_update,true)
+  local sliderw = derp:create_slider(5,5,150,20,0,2,slider_update,true)
   
   sliderw:setvalue(0)
   wid.data.blurdesc = valtable[1]
@@ -404,8 +404,9 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
 	function build_blursource(tex) 
 		local str = ""
 
-		for k,v in pairs(component_data.blurdesc.offset) do
-			str = str .. "sum += texture2D(" .. tex .. ",uv + " .. v .. ") * " .. component_data.blurdesc.kernel[k] .. ";\n"
+		--for k,v in pairs(component_data.blurdesc.offset) do
+		for i = 1,#component_data.blurdesc.offset do
+			str = str .. "sum += texture2D(" .. tex .. ",uv + " .. component_data.blurdesc.offset[i] .. ") * " .. component_data.blurdesc.kernel[i] .. ";\n"
 		end
 
 		return str
@@ -413,11 +414,12 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
 	
 	function build_fromtable(tbl)
 		str = ""
-		for k,v in pairs(tbl) do
-			if k == #tbl then
-				str = str .. v
+		--for k,v in pairs(tbl) do
+		for i = 1, #tbl do
+			if i == #tbl then
+				str = str .. tbl[i]
 			else
-				str = str .. v .. ","
+				str = str .. tbl[i] .. ","
 			end
 		end
 		
