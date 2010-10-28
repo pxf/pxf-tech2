@@ -23,6 +23,8 @@
 #include <Pxf/Resource/Mesh.h>
 #include <Pxf/Resource/Font.h>
 
+#include <string.h>
+
 using namespace Pxf;
 using namespace Pxf::Graphics;
 using namespace Pxf::Modules;
