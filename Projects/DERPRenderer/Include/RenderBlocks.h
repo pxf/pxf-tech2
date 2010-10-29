@@ -187,6 +187,7 @@ namespace Derp
 		Block* m_CameraLookInput;
 		float m_CameraFov;
 		int m_DrawMode;
+		Pxf::Graphics::VertexBufferPrimitiveType m_OldPrimitiveType;
 		
 		Pxf::Graphics::RenderBuffer* m_DepthBuffer;
 		
