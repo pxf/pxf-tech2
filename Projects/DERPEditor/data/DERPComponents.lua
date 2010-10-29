@@ -662,7 +662,7 @@ function derp_components.render.geometry:generate_json(component_data)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "Render",
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
-     "blockData" : {"drawMode" : 120,
+     "blockData" : {"drawMode" : 1,
 					"width" : 512,
                     "height" : 512,
   						"cameraPosition" : "]] .. tostring(component_data.connections_in[1].output) .. [[",
