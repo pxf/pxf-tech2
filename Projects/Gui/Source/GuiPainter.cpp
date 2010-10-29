@@ -63,7 +63,7 @@ void Graphics::DrawButton(GraphicsDevice* gfx, Gui* gui, PrimitiveBatch* pb, voi
 		//glEnable(GL_LINE_STIPPLE);
 		pb->LinesBegin();
 		pb->SetColor(&ColorFocusBorder);
-		pb->LinesDrawFrame(rect->x+3, rect->y+3, rect->w-5, rect->h-5);
+		pb->LinesDrawFrame(rect->x+3, rect->y+3, rect->w-7, rect->h-7);
 		pb->LinesEnd();
 		//glDisable(GL_LINE_STIPPLE);
 	}
