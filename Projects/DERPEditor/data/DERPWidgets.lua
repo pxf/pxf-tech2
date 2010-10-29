@@ -947,6 +947,7 @@ function derp:create_connectionoutput(id,x,y)
 		if htest then
 		  if (htest.widget_type == "connection_input") then
 			--print("Trying to add connection from output '" .. self.output_id .. "' to input '" .. htest.input_id .. "'")
+			
 			htest.parent.parent:add_connection(self.parent.parent.component_id, self.output_id, self.parent.parent.data.type, htest.input_id)
 		  end
 		end
@@ -1174,14 +1175,17 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	function wid:add_connection(from_block, from_output, type_output, to_id)
 		--print(from_block, from_output, type_output, to_id)
-		table.insert(self.data.connections_in, {block = from_block, output = from_output, type = type_output, input = to_id})
+		--table.insert(self.data.connections_in, {block = from_block, output = from_output, type = type_output, input = to_id})
+		--print("to_in: " .. tostring(to_in))
+		self.data.connections_in[to_id] = {block = from_block, output = from_output, type = type_output, input = to_id}
 		
 		local startwid = derp.active_workspace:get_block(from_block)
 		local startsocket = startwid:get_outputsocket(from_output)
 		
 		startsocket.connected = true
 		
-		table.insert(startsocket.connections,{id = self.id,to_input = to_id})
+		--table.insert(startsocket.connections,{id = self.id,to_input = to_id})
+		startsocket.connections[to_id] = {id = self.id,to_input = to_id}
 
 		for k,v in pairs(self.content.childwidgets) do
 			if v.input_id and v.input_id == to_id then
