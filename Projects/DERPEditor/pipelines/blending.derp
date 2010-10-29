@@ -1,0 +1,111 @@
+{
+    ["components"] = {
+        ["Block_output_3"] = {
+            ["output_type"] = "none",
+            ["type"] = "simple",
+            ["remoteport"] = 7005,
+            ["connections_in"] = {
+                [1] = {
+                    ["input"] = 1,
+                    ["block"] = "Block_postprocess_4",
+                    ["type"] = "blend",
+                    ["output"] = "output3",
+
+},
+
+},
+            ["group"] = "output",
+            ["w"] = 170,
+            ["y"] = 207,
+            ["x"] = 571,
+            ["id"] = "Block_output_3",
+            ["inputs"] = 1,
+            ["h"] = 100,
+            ["remotehost"] = "localhost",
+            ["outputs"] = {
+
+},
+
+},
+        ["Block_aux_1"] = {
+            ["output_type"] = "texture",
+            ["type"] = "texture",
+            ["connections_in"] = {
+
+},
+            ["group"] = "aux",
+            ["w"] = 170,
+            ["y"] = 199,
+            ["x"] = 48,
+            ["texturefilepath"] = "D:\\projects\\pxf-tech2\\Projects\\DERPRenderer\\data\\reach.png",
+            ["id"] = "Block_aux_1",
+            ["inputs"] = 0,
+            ["h"] = 60,
+            ["outputs"] = {
+                [1] = "output1",
+
+},
+
+},
+        ["Block_aux_2"] = {
+            ["output_type"] = "texture",
+            ["type"] = "texture",
+            ["connections_in"] = {
+
+},
+            ["group"] = "aux",
+            ["w"] = 170,
+            ["y"] = 415,
+            ["x"] = 50,
+            ["texturefilepath"] = "D:\\projects\\pxf-tech2\\Projects\\DERPRenderer\\data\\derptest.png",
+            ["id"] = "Block_aux_2",
+            ["inputs"] = 0,
+            ["h"] = 60,
+            ["outputs"] = {
+                [1] = "output2",
+
+},
+
+},
+        ["Block_postprocess_4"] = {
+            ["output_type"] = "texture",
+            ["type"] = "blend",
+            ["connections_in"] = {
+                [1] = {
+                    ["input"] = 1,
+                    ["block"] = "Block_aux_1",
+                    ["type"] = "texture",
+                    ["output"] = "output1",
+
+},
+                [2] = {
+                    ["input"] = 2,
+                    ["block"] = "Block_aux_2",
+                    ["type"] = "texture",
+                    ["output"] = "output2",
+
+},
+
+},
+            ["group"] = "postprocess",
+            ["w"] = 256,
+            ["y"] = 243,
+            ["x"] = 289,
+            ["slidervalue"] = 0.46808510638298,
+            ["id"] = "Block_postprocess_4",
+            ["inputs"] = 2,
+            ["h"] = 60,
+            ["outputs"] = {
+                [1] = "output3",
+
+},
+
+},
+
+},
+    ["active_components"] = {
+        [1] = "Block_aux_1",
+
+},
+
+}
