@@ -1630,7 +1630,7 @@ function derp:create_previewbox(x,y,w,h,component_data,preview_id)
 end
 
 function derp:create_baseinspector(component_data)
-	local wid = gui:create_verticalstack(10,150,230,400)
+	local wid = gui:create_verticalstack(10,10,230,400)
 	
 	wid.data = component_data
 	
@@ -1644,6 +1644,13 @@ function derp:create_texturedinspector(component_data)
 	
 	-- only one output?
 	if (#component_data.outputs < 2) then
+	  local t = derp.active_workspace.profiling_data[component_data.id]
+	  if (t == nil) then
+	    t = "N/A"
+	  end
+	  local s = "Exec. time: " .. tostring(t) .. " ms"
+	  len = gui:get_font_length(s)*8
+     wid:addwidget(gui:create_centeredlabelpanel(0,0,wid.drawbox.w+20,30,s))
 	  wid:addwidget(derp:create_previewbox(0,0,wid.drawbox.w,wid.drawbox.w,component_data, component_data.id))
 	else
 	  local i = 0
@@ -1810,6 +1817,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.super_move_relative = wid.move_relative
 	
 	wid.preview_data = {}
+	wid.profiling_data = {}
 	wid.id_counter = 1
 	wid.output_counter = 1
 	wid.component_data = { active_components = {}, components = {}}
