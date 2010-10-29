@@ -28,6 +28,8 @@ namespace Pxf {
 
 			virtual bool Unload() = 0;
 			virtual void Draw() = 0;
+
+			VertexBuffer* GetVertexBuffer() { return m_VertexBuffer; }
 		};
 	}
 }

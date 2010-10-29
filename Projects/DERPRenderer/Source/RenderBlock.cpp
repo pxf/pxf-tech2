@@ -438,7 +438,24 @@ bool RenderBlock::Execute(bool _SendPreviews)
 			Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).block_output);
 			if (inputtype == "geometry")
 			{
-				((Graphics::Model*)inputblock->GetOutput((*iter).block_output))->Draw();
+				Graphics::Model* _Mdl = ((Graphics::Model*)inputblock->GetOutput((*iter).block_output));
+				if (m_DrawMode == 1)
+				{
+					Graphics::VertexBuffer* _VB = _Mdl->GetVertexBuffer();
+					m_OldPrimitiveType = _VB->SetPrimitive(Pxf::Graphics::VB_PRIMITIVE_LINES);
+					
+					Pxf::Graphics::Texture* _Tex = m_gfx->BindTexture(0);
+					_Mdl->Draw();
+					m_gfx->BindTexture(_Tex);
+				}
+				else if (!m_DrawMode)
+				{
+					Graphics::VertexBuffer* _VB = _Mdl->GetVertexBuffer();
+					m_OldPrimitiveType = _VB->SetPrimitive(Pxf::Graphics::VB_PRIMITIVE_TRIANGLES);
+					_Mdl->Draw();
+				}
+				else
+					_Mdl->Draw();
 			}
 		}
 			

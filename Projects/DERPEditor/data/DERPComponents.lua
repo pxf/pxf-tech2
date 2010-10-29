@@ -718,6 +718,19 @@ function derp_components.render.geometry:create_widget(component_data)
   wid.input_aliases = {"cameraPos", "cameraLookAt"}
   wid.output_aliases = {"diffuse"}
   
+  function toggle_wireframe(self,state)
+	if state then
+		wid.data.draw_wireframe = 1
+	else
+		wid.data.draw_wireframe = 0
+	end
+  end
+  
+  local checkbox = gui:create_checkbox(20,20,20,"wireframe",toggle_wireframe)
+  wid.data.draw_wireframe = 0
+  
+  wid:addwidget(checkbox)
+  
   return wid
 end
 
@@ -765,7 +778,7 @@ function derp_components.render.geometry:generate_json(component_data)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "Render",
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
-     "blockData" : {"drawMode" : 1,
+     "blockData" : {"drawMode" : ]] .. tostring(component_data.draw_wireframe) .. [[,
 					"width" : 512,
                     "height" : 512,
   						"cameraPosition" : "]] .. tostring(component_data.connections_in[1].output) .. [[",
@@ -816,6 +829,19 @@ function derp_components.render.geometryadvanced:create_widget(component_data)
   wid.input_aliases = {"cameraPos", "cameraLookAt"}
   wid.output_aliases = {"diffuse", "normals", "depth"}
   
+  function toggle_wireframe(self,state)
+	if state then
+		wid.data.draw_wireframe = 1
+	else
+		wid.data.draw_wireframe = 0
+	end
+  end
+  
+  local checkbox = gui:create_checkbox(20,20,20,"wireframe",toggle_wireframe)
+  wid.data.draw_wireframe = 0
+  
+  wid:addwidget(checkbox)
+  
   return wid
 end
 
@@ -863,7 +889,7 @@ function derp_components.render.geometryadvanced:generate_json(component_data)
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "Render",
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
-     "blockData" : {"drawMode" : 1,
+     "blockData" : {"drawMode" : ]] .. tostring(component_data.draw_wireframe) .. [[,
 					"width" : 512,
                     "height" : 512,
   						"cameraPosition" : "]] .. tostring(component_data.connections_in[1].output) .. [[",
