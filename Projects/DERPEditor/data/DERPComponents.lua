@@ -448,14 +448,16 @@ end
 
 function derp_components.postprocess.gaussianblur:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1,1)
-	local valtable = { { 	kernel_size = 9, 
+	local valtable = { { 	name = "3x3",
+							kernel_size = 9, 
 							offset = { "vec2(-step_w, -step_h)", "vec2(0.0, -step_h)", "vec2(step_w, -step_h)",  
 										"vec2(-step_w, 0.0)", "vec2(0.0, 0.0)", "vec2(step_w, 0.0)", 
 										"vec2(-step_w, step_h)", "vec2(0.0, step_h)", "vec2(step_w, step_h)" },
 							kernel = { 1.0/16.0, 2.0/16.0, 1.0/16.0,
 										2.0/16.0, 4.0/16.0, 2.0/16.0,
 										1.0/16.0, 2.0/16.0, 1.0/16.0}},
-						{ 	kernel_size = 25, 
+						{ 	name = "5x5",
+							kernel_size = 25, 
 							offset = {"vec2(-2*step_w,-2*step_h)", "vec2(-step_w,-2*step_h)","vec2(0.0,-2*step_h)","vec2(step_w,-2*step_h)","vec2(2*step_w,-2*step_h)",
 										"vec2(-2*step_w,-step_h)", "vec2(-step_w,-step_h)","vec2(0.0,-step_h)","vec2(step_w,-step_h)","vec2(2*step_w,-step_h)",
 										"vec2(-2*step_w,0.0)", "vec2(-step_w,0.0)","vec2(0.0,0.0)","vec2(step_w,0.0)","vec2(2*step_w,0.0)",
@@ -466,7 +468,8 @@ function derp_components.postprocess.gaussianblur:create_widget(component_data)
 												6.0/256.0,24.0/256.0,36.0/256.0,24.0/256.0,6.0/256.0,
 												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
 												1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0 } },
-						{ 	kernel_size = 49, 
+						{ 	name = "7x7",
+							kernel_size = 49, 
 							offset = {"vec2(-3*step_w,-3*step_h)","vec2(-2*step_w,-3*step_h)","vec2(-1*step_w,-3*step_h)","vec2(0.0,-3*step_h)","vec2(step_w,-3*step_h)","vec2(2*step_w,-3*step_h)","vec2(3*step_w,-3*step_h)",
 										"vec2(-3*step_w,-2*step_h)","vec2(-2*step_w,-2*step_h)","vec2(-1*step_w,-2*step_h)","vec2(0.0,-2*step_h)","vec2(step_w,-2*step_h)","vec2(2*step_w,-2*step_h)","vec2(3*step_w,-2*step_h)",
 										"vec2(-3*step_w,-1*step_h)","vec2(-2*step_w,-1*step_h)","vec2(-1*step_w,-1*step_h)","vec2(0.0,-1*step_h)","vec2(step_w,-1*step_h)","vec2(2*step_w,-1*step_h)","vec2(3*step_w,-1*step_h)",
@@ -495,6 +498,13 @@ function derp_components.postprocess.gaussianblur:create_widget(component_data)
   
   wid.sliderw = sliderw
   wid:addwidget(sliderw)
+  
+  sliderw.mouseover = 
+	function () 
+			local x,y = inp.getmousepos()
+			
+			gui:set_tooltip(wid.data.blurdesc.name,x,y) 
+	end
   
   return wid
 end

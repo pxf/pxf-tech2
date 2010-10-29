@@ -472,11 +472,11 @@ function gui:statusbarinfo(str)
 end
 
 function gui:draw_custom_cursor(force)
-	if self.needsredraw or force then
+	if (self.needsredraw or force) and not self.mousevisible then
 		local c = self.current_cursor
 		local mx,my = inp.getmousepos()
 			
-		if c and not gui.mousevisibile then	
+		if c then	
 			--gui:showmouse(false)
 			
 			local old_tex = gfx.bindtexture(self.themetex)
