@@ -151,9 +151,11 @@ namespace Pxf
 				return m_ByteCount;
 			}
 
-			void SetPrimitive(VertexBufferPrimitiveType _PrimitiveType)
+			VertexBufferPrimitiveType SetPrimitive(VertexBufferPrimitiveType _PrimitiveType)
 			{
+				VertexBufferPrimitiveType _OldPrimitiveType = m_PrimitiveType;
 				m_PrimitiveType = _PrimitiveType;
+				return _OldPrimitiveType;
 			}
 
 			VertexBufferPrimitiveType GetPrimitive()

@@ -37,6 +37,12 @@ static Json::Value CreateJson(const char* data)
 // Auxiliary block
 //
 
+AuxiliaryBlock::~AuxiliaryBlock()
+{
+	if (L)
+		lua_close(L);
+}
+
 bool AuxiliaryBlock::Initialize(Json::Value *node)
 {
 	
@@ -191,6 +197,14 @@ bool AuxiliaryBlock::Execute(bool _SendPreviews)
 // Render/geometry block
 //
 
+RenderBlock::~RenderBlock()
+{
+	if (m_Shader->IsValid())
+		m_gfx->DestroyShader(m_Shader);
+	if (m_DepthBuffer)
+		delete m_DepthBuffer;
+}
+
 bool RenderBlock::Initialize(Json::Value *node)
 {
 	// First set blockname
@@ -256,6 +270,10 @@ void RenderBlock::BuildGraph()
 		
 		// Setup internal block stuff
 		m_Shader = m_gfx->CreateShader(m_BlockName, m_VertShader, m_FragShader);
+		
+		if (!m_Shader)
+			Message("blah", "Failed to compile shader");
+		
 		//m_Cam.SetPerspective(m_CameraFov, (float)m_Width / (float)m_Height, 1.0f, 10000.0f);
 		m_DepthBuffer = m_gfx->CreateRenderBuffer(GL_DEPTH_COMPONENT, m_Width, m_Height);
 		
@@ -354,7 +372,8 @@ bool RenderBlock::Execute(bool _SendPreviews)
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 		// Bind shaders
-		m_gfx->BindShader(m_Shader);
+		if (m_Shader->IsValid())
+			m_gfx->BindShader(m_Shader);
 	
 		// Gather and bind all our inputs
 		int ttexunit = 0;
@@ -374,7 +393,8 @@ bool RenderBlock::Execute(bool _SendPreviews)
 				}
 		
 				m_gfx->BindTexture(inputtex, ttexunit);
-				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
+				if (m_Shader->IsValid())
+					m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
 				ttexunit += 1;
 			
 			} else if (inputtype == "float")
@@ -387,7 +407,8 @@ bool RenderBlock::Execute(bool _SendPreviews)
 			{
 				// Input is a script with int result
 				int* scriptres = (int*)inputblock->GetOutput((*iter).block_output);
-				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), *scriptres);
+				if (m_Shader->IsValid())
+					m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), *scriptres);
 
 			} else if (inputtype == "vec2")
 			{
@@ -399,7 +420,8 @@ bool RenderBlock::Execute(bool _SendPreviews)
 			{
 				// Input is a script with vec3 result
 				Math::Vec3f* scriptres = (Math::Vec3f*)inputblock->GetOutput((*iter).block_output);
-				m_gfx->SetUniformVec3(m_Shader, (*iter).block_output.c_str(), scriptres);
+				if (m_Shader->IsValid())
+					m_gfx->SetUniformVec3(m_Shader, (*iter).block_output.c_str(), scriptres);
 
 			}
 			
@@ -414,7 +436,24 @@ bool RenderBlock::Execute(bool _SendPreviews)
 			Pxf::Util::String inputtype = inputblock->GetOutputType((*iter).block_output);
 			if (inputtype == "geometry")
 			{
-				((Graphics::Model*)inputblock->GetOutput((*iter).block_output))->Draw();
+				Graphics::Model* _Mdl = ((Graphics::Model*)inputblock->GetOutput((*iter).block_output));
+				if (m_DrawMode == 1)
+				{
+					Graphics::VertexBuffer* _VB = _Mdl->GetVertexBuffer();
+					m_OldPrimitiveType = _VB->SetPrimitive(Pxf::Graphics::VB_PRIMITIVE_LINES);
+					
+					Pxf::Graphics::Texture* _Tex = m_gfx->BindTexture(0);
+					_Mdl->Draw();
+					m_gfx->BindTexture(_Tex);
+				}
+				else if (!m_DrawMode)
+				{
+					Graphics::VertexBuffer* _VB = _Mdl->GetVertexBuffer();
+					m_OldPrimitiveType = _VB->SetPrimitive(Pxf::Graphics::VB_PRIMITIVE_TRIANGLES);
+					_Mdl->Draw();
+				}
+				else
+					_Mdl->Draw();
 			}
 		}
 			
@@ -452,11 +491,18 @@ bool RenderBlock::Execute(bool _SendPreviews)
 				Resource::Image* img = m_gfx->CreateImageFromTexture((Graphics::Texture*)((*iter).second));//GetResult());
 				Network::Packet* imgpacket = m_Renderer->m_NetDevice->CreateEmptyPacket("imgdata", m_Renderer->m_NetTag_Preview);
 				imgpacket->PushString(m_BlockName, strlen(m_BlockName)); // block name
-				imgpacket->PushString("",1);//((String)((*iter).first)).c_str(), ((String)((*iter).first)).size()); // output name
+				//imgpacket->PushString(((Util::String)((*iter).first)).c_str(), ((Util::String)((*iter).first)).size()); // output name
+				if (m_Outputs.size() > 1)
+				{
+					imgpacket->PushString(((Util::String)((*iter).first)).c_str(), ((Util::String)((*iter).first)).size()); // output name
+				} else {
+					imgpacket->PushString("", 1); // output name
+				}
 				imgpacket->PushInt(img->Width());
 				imgpacket->PushInt(img->Height());
 				imgpacket->PushInt(img->Channels());
 				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+				imgpacket->PushInt(m_ProfileTimer.Interval());
 
 				//Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending image to client '%d'", packet->GetSender());
 				m_Renderer->m_Net->SendAllPacket(imgpacket);
@@ -477,6 +523,17 @@ bool RenderBlock::Execute(bool _SendPreviews)
 //////////////////////////////////////////////////////////////////////////
 // Post-Process
 //
+
+PostProcessBlock::~PostProcessBlock()
+{
+	if (m_Shader->IsValid())
+		m_gfx->DestroyShader(m_Shader);
+	if (m_OutputQuad)
+		delete m_OutputQuad;
+
+	for (Pxf::Util::Map<Pxf::Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
+		m_gfx->DestroyTexture((Pxf::Graphics::Texture*)(*iter).second);
+}
 
 bool PostProcessBlock::Initialize(Json::Value *node)
 {
@@ -581,7 +638,8 @@ bool PostProcessBlock::Execute(bool _SendPreviews)
 		m_gfx->BindFrameBufferObject(m_Renderer->m_FBO);
 	
 		// Bind shaders
-		m_gfx->BindShader(m_Shader);
+		if (m_Shader->IsValid())
+			m_gfx->BindShader(m_Shader);
 	
 		// Gather and bind all our inputs
 		int ttexunit = 0;
@@ -601,7 +659,8 @@ bool PostProcessBlock::Execute(bool _SendPreviews)
 				}
 		
 				m_gfx->BindTexture(inputtex, ttexunit);
-				m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
+				if (m_Shader->IsValid())
+					m_gfx->SetUniformi(m_Shader, (*iter).block_output.c_str(), ttexunit);
 				ttexunit += 1;
 			
 			} else if (inputtype == "float")
@@ -660,11 +719,17 @@ bool PostProcessBlock::Execute(bool _SendPreviews)
 				Resource::Image* img = m_gfx->CreateImageFromTexture((Graphics::Texture*)((*iter).second));
 				Network::Packet* imgpacket = m_Renderer->m_NetDevice->CreateEmptyPacket("imgdata", m_Renderer->m_NetTag_Preview);
 				imgpacket->PushString(m_BlockName, strlen(m_BlockName)); // block name
-				imgpacket->PushString("",1);//((String)((*iter).first)).c_str(), ((String)((*iter).first)).size()); // output name
+				if (m_Outputs.size() > 1)
+				{
+					imgpacket->PushString(((Util::String)((*iter).first)).c_str(), ((Util::String)((*iter).first)).size()); // output name
+				} else {
+					imgpacket->PushString("", 1); // output name
+				}
 				imgpacket->PushInt(img->Width());
 				imgpacket->PushInt(img->Height());
 				imgpacket->PushInt(img->Channels());
 				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+				imgpacket->PushInt(m_ProfileTimer.Interval());
 
 				//Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending image to client '%d'", packet->GetSender());
 				m_Renderer->m_Net->SendAllPacket(imgpacket);
@@ -684,6 +749,12 @@ bool PostProcessBlock::Execute(bool _SendPreviews)
 //////////////////////////////////////////////////////////////////////////
 // RootBlock
 //
+
+RootBlock::~RootBlock()
+{
+	delete m_OutputQuad;
+	m_gfx->DestroyShader(m_Shader);
+}
 
 bool RootBlock::Initialize(Json::Value *node)
 {
@@ -752,6 +823,8 @@ bool RootBlock::Execute(bool _SendPreviews)
 		{
 			(*iter).second->Execute(_SendPreviews);
 		}
+
+		m_ProfileTimer.Start();
 
 		// Setup OGL context etc
 		m_gfx->SetViewport(0, 0, m_Width, m_Height);
@@ -834,6 +907,9 @@ bool RootBlock::Execute(bool _SendPreviews)
 		// Detach texture
 		m_Renderer->m_FBO->Detach(GL_COLOR_ATTACHMENT0_EXT);
 		
+		// End block timer
+		m_ProfileTimer.Stop();
+
 		// Send preview
 		if (_SendPreviews)//m_Renderer->m_Net->NumClients() > 0)
 		{
@@ -849,6 +925,7 @@ bool RootBlock::Execute(bool _SendPreviews)
 				imgpacket->PushInt(img->Height());
 				imgpacket->PushInt(img->Channels());
 				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+				imgpacket->PushInt(m_ProfileTimer.Interval());
 
 				//Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending image to client '%d'", packet->GetSender());
 				m_Renderer->m_Net->SendAllPacket(imgpacket);

@@ -13,6 +13,7 @@ namespace DERPEditor
 {
   
     // lib functions
+		int inp_showmouse(lua_State *L);
     int inp_getmousepos(lua_State *L);
     int inp_setmousepos(lua_State *L);
     int inp_isbuttondown(lua_State *L);

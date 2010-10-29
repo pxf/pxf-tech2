@@ -40,7 +40,15 @@ file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all script
 									end}},
 			   {"Open...", {tooltip = "Open previous workspace from file...", onclick = 
 									function() 
+									  local resetmouse = false
+									  if not gui.mousevisible then
+									    resetmouse = true
+									    gui:showmouse()
+								    end
 										local filename = app.opendialog()
+										if resetmouse then
+										  gui:showmouse()
+									  end
 										
 										if not (filename == nil) then 
 											derp:open_workspace(filename,derp.active_workspace)
@@ -52,7 +60,15 @@ file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all script
 							}},
 			   {"Save As...", {tooltip = "Save current workspace to file.", onclick = 
 									function() 
+									  local resetmouse = false
+									  if not gui.mousevisible then
+									    resetmouse = true
+									    gui:showmouse()
+								    end
 										local filename = app.savedialog("workspace.derp")
+										if resetmouse then
+										  gui:showmouse()
+									  end
 										
 										if not (filename == nil) then 
 											derp:save(filename,derp.active_workspace) 
@@ -115,8 +131,7 @@ local edit_menu = {{"Copy", {tooltip = "Copy render block.", shortcut = "Ctrl-C"
                                 }
                    }
                   }
-local about_menu = {{"Test Save Dialog", {onclick = function () print("Save to: " .. tostring(app.savedialog("workspace.derp"))) end}},
-                    {"Test Load Dialog", {onclick = function () print("Load from: " .. tostring(app.opendialog())) end}},
+local about_menu = {{"Reload components", {onclick = function () print("Reloading DERPComponents.lua"); require("data/DERPComponents") end}},
                     {"Memory usage", {onclick = function () print("Memory usage: " .. tostring(app.getmemusage()/1024/1024) .. "MB") end}},
                     {"About DERPEditor", {onclick = function () spawn_aboutwindow() end}}
                    }
@@ -163,7 +178,8 @@ local testinput = gui:create_textinput(0,8,200)
 
 workspace_tabs.widget_type = "workspace tabs"
 
---local workspace_area = derp:create_workspace(0,0,app.width*2,app.height*2)
+local workspace_area = derp:create_workspace(0,0,app.width*2,app.height*2)
+workspace_area.visible = false
 --workspace_area.widget_type = "workspace area 01"
 
 --inspector:addwidget(testinput)
@@ -185,7 +201,7 @@ derp.active_workspace = workspace_area
 
 --local navigator = derp:create_navigator(app.width-421,app.height-172,150,150)
 
---gui.widgets:addwidget(workspace_area)
+gui.widgets:addwidget(workspace_area)
 gui.widgets:addwidget(menu_container)
 gui.widgets:addwidget(left_padding_container)
 gui.widgets:addwidget(right_padding_container)
@@ -201,7 +217,7 @@ derp.top_layer_id = #gui.widgets.childwidgets
 
 derp:init()
 
-derp:new_workspace(app.width*2,app.height*2)
+--derp:new_workspace(app.width*2,app.height*2)
 
 --derp:open_workspace("recent_workspace.derp",ws)
 
@@ -216,6 +232,7 @@ end
 
 function draw(force)
   gui:draw(force)
+  gui:draw_custom_cursor(force)
   
   -- test line drawing:
   --[[local line = create_spline({{100,200},{200,100},{300,300},{400,200},{400,500}}, 30,2)

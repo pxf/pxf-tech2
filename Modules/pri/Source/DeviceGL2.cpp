@@ -23,6 +23,8 @@
 #include <Pxf/Resource/Mesh.h>
 #include <Pxf/Resource/Font.h>
 
+#include <string.h>
+
 using namespace Pxf;
 using namespace Pxf::Graphics;
 using namespace Pxf::Modules;
@@ -147,7 +149,7 @@ float DeviceGL2::Print(Graphics::Font* _Font, float _X, float _Y, float _Scale, 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	m_PrimitiveBatch->QuadsBegin();
-	m_PrimitiveBatch->SetColor(1.f, 1.f, 1.f, 1.f);
+	m_PrimitiveBatch->SetColor(0.f, 0.f, 0.f, 1.f);
 	glTranslatef(0.375f, 0.375f, 0.f);
 	glScalef(_Scale, _Scale, 0.f);
 
@@ -373,6 +375,10 @@ void DeviceGL2::DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount)
 {
 	PXFGLCHECK("DeviceGL2::DrawBuffer/Start");
 	PXF_ASSERT(_VertexCount <= _pVertexBuffer->GetVertexCount(), "Attempting to draw too many vertices");
+
+	if (m_Window->IsMinimized())
+		return;
+
 	_pVertexBuffer->_PreDraw();
 	GLuint primitive = LookupPrimitiveType(_pVertexBuffer->GetPrimitive());
 	unsigned vertex_count = _pVertexBuffer->GetVertexCount();

@@ -15,6 +15,16 @@ function net.send_file(filepath)
 end
 
 
+function path_abs2rel(abspath)
+    cwd = app.getcwd()
+    relpath = string.gsub(abspath, cwd, "")
+    print(cwd)
+    print(abspath)
+    print(relpath)
+    --return relpath -- this does not work. need a proper abs2rel
+    return abspath
+end
+
 -------------------------------------------------------------------------------
 -- Output::Simple
 derp_components.output.simple = { name = "Ouput: Simple"
@@ -73,6 +83,7 @@ function derp_components.output.simple:create_widget(component_data)
       
       -- clear previews
       derp.active_workspace.preview_data = {}
+		derp.active_workspace.profiling_data = {}
       
       -- get json for the tree
       local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
@@ -123,7 +134,8 @@ function derp_components.output.simple:create_widget(component_data)
             --spawn_preview_window(self.previewtex, w,h)
             print("got imgdata for block: '" .. block .. output .. "'")
             derp.active_workspace.preview_data[block .. output] = gfx.rawtexture(128, w,h,c, imgdata)
-            
+				derp.active_workspace.profiling_data[block] = indata:get_object(6)
+
             --self.client:disconnect()
           elseif indata.id == "rlog" then
             local sys, what, msg = indata:get_object(0), indata:get_object(1), indata:get_object(2)
@@ -149,21 +161,6 @@ function derp_components.output.simple:create_widget(component_data)
           end
         end
       end
-  end
-  
-  wid.suuuuuuupahdraw = wid.draw
-  function wid:draw(force)
-    self:suuuuuuupahdraw(force)
-    
-    --[[for k,v in pairs(self.data.outputs) do
-      print(k,v)
-    end]]
-    local preview = derp.active_workspace.preview_data[self.data.id]
-    if (preview ~= nil) then
-      gfx.translate(self.drawbox.x,self.drawbox.y-100)
-      preview:draw(0,0,64,0,64,64,0,64)
-      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
-    end
   end
   
   -- render button
@@ -264,22 +261,6 @@ function derp_components.postprocess.invert:create_widget(component_data)
   wid.sliderw = sliderw
   wid:addwidget(sliderw)
   
-  wid.suuuuuuupahdraw = wid.draw
-  function wid:draw(force)
-    self:suuuuuuupahdraw(force)
-    
-    --[[for k,v in pairs(self.data.outputs) do
-      print(k,v)
-    end]]
-    local preview = derp.active_workspace.preview_data[self.data.id]
-    
-    if (preview) then
-      gfx.translate(self.drawbox.x,self.drawbox.y-100)
-      preview:draw(0,0,64,0,64,64,0,64)
-      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
-    end
-  end
-  
   return wid
 end
 
@@ -330,6 +311,7 @@ function derp_components.postprocess.invert:generate_json(component_data)
                     }",
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     uniform float script1;
+					
                     void main()
                     {
                       float sv = ]] .. tostring(component_data.slidervalue+0.0001) .. [[;
@@ -352,36 +334,404 @@ function derp_components.postprocess.invert:spawn_inspector(component_data)
   return derp:create_texturedinspector(component_data)
 end
 
+-------------------------------------------------------------------------------
+-- PostProcess::Blend
+derp_components.postprocess.blend = { name = "Post Process: Blend Textures"
+                                , tooltip = "Create a block that blend between two textures."
+                                }
+function derp_components.postprocess.blend:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "blend", output_type = "texture", inputs = 2, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  block.slidervalue = 0
+  return block
+end
+
+function derp_components.postprocess.blend:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,1,1)
+  
+  function slider_update(self, value)
+    self.parent.parent.parent.data.slidervalue = value
+  end
+  
+  local sliderw = derp:create_slider(5,5,245,20,0,1, slider_update)
+  sliderw:setvalue(component_data.slidervalue)
+  wid.sliderw = sliderw
+  wid:addwidget(sliderw)
+  
+  return wid
+end
+
+function derp_components.postprocess.blend:generate_json(component_data)
+  local final_jsondata = {}
+  local input_array = {}
+  local input_array_shader = {}
+  
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+    
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
+    end
+  end
+  
+  local first_texture = nil
+  local second_texture = nil
+  local counter = 0
+  for k,v in pairs(component_data.connections_in) do
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      if counter == 0 then
+        first_texture = tostring(v.output)
+      else
+        second_texture = tostring(v.output)
+      end
+      counter = counter + 1
+    end
+  end
+  
+  if (first_texture == nil) then
+    return spawn_error_dialog({"Output block needs at least one input!"})
+  end
+  
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Post-Process",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"width" : 512,
+                    "height" : 512,
+                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    uniform float script1;
+                    void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    uniform float script1;
+					
+                    void main()
+                    {
+                      float sv = ]] .. tostring(component_data.slidervalue+0.0001) .. [[;
+                      vec4 t1 = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      vec4 t2 = texture2D(]] .. tostring(second_texture) .. [[, gl_TexCoord[0].st);
+                      vec4 c = t1*sv + t2*(1.0-sv); 
+                      c.a = 1.0;
+                      gl_FragData[0] = c;
+                    }"
+                   },
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
+    }]]
+  
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
+  
+  return final_jsondata
+end
+
+function derp_components.postprocess.blend:spawn_inspector(component_data)
+  return derp:create_texturedinspector(component_data)
+end
+
+-------------------------------------------------------------------------------
+-- PostProcess::Gaussian Blur
+derp_components.postprocess.gaussianblur = { name = "Post Process: Gaussian Blur"
+                                , tooltip = "Create a block that performs a gaussian blur filter on a texture."
+                                }
+function derp_components.postprocess.gaussianblur:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 150, h = 60, group = "postprocess", type = "gaussianblur", output_type = "texture", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  
+  return block
+end
+
+function derp_components.postprocess.gaussianblur:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,1,1)
+	local valtable = { { 	name = "3x3",
+							kernel_size = 9, 
+							offset = { "vec2(-step_w, -step_h)", "vec2(0.0, -step_h)", "vec2(step_w, -step_h)",  
+										"vec2(-step_w, 0.0)", "vec2(0.0, 0.0)", "vec2(step_w, 0.0)", 
+										"vec2(-step_w, step_h)", "vec2(0.0, step_h)", "vec2(step_w, step_h)" },
+							kernel = { 1.0/16.0, 2.0/16.0, 1.0/16.0,
+										2.0/16.0, 4.0/16.0, 2.0/16.0,
+										1.0/16.0, 2.0/16.0, 1.0/16.0}},
+						{ 	name = "5x5",
+							kernel_size = 25, 
+							offset = {"vec2(-2*step_w,-2*step_h)", "vec2(-step_w,-2*step_h)","vec2(0.0,-2*step_h)","vec2(step_w,-2*step_h)","vec2(2*step_w,-2*step_h)",
+										"vec2(-2*step_w,-step_h)", "vec2(-step_w,-step_h)","vec2(0.0,-step_h)","vec2(step_w,-step_h)","vec2(2*step_w,-step_h)",
+										"vec2(-2*step_w,0.0)", "vec2(-step_w,0.0)","vec2(0.0,0.0)","vec2(step_w,0.0)","vec2(2*step_w,0.0)",
+										"vec2(-2*step_w,step_h)", "vec2(-step_w,step_h)","vec2(0.0,step_h)","vec2(step_w,step_h)","vec2(2*step_w,step_h)",
+										"vec2(-2*step_w,2*step_h)", "vec2(-step_w,2*step_h)","vec2(0.0,2*step_h)","vec2(step_w,2*step_h)","vec2(2*step_w,2*step_h)"}, 
+							kernel = {1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0,
+												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
+												6.0/256.0,24.0/256.0,36.0/256.0,24.0/256.0,6.0/256.0,
+												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
+												1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0 } },
+						{ 	name = "7x7",
+							kernel_size = 49, 
+							offset = {"vec2(-3*step_w,-3*step_h)","vec2(-2*step_w,-3*step_h)","vec2(-1*step_w,-3*step_h)","vec2(0.0,-3*step_h)","vec2(step_w,-3*step_h)","vec2(2*step_w,-3*step_h)","vec2(3*step_w,-3*step_h)",
+										"vec2(-3*step_w,-2*step_h)","vec2(-2*step_w,-2*step_h)","vec2(-1*step_w,-2*step_h)","vec2(0.0,-2*step_h)","vec2(step_w,-2*step_h)","vec2(2*step_w,-2*step_h)","vec2(3*step_w,-2*step_h)",
+										"vec2(-3*step_w,-1*step_h)","vec2(-2*step_w,-1*step_h)","vec2(-1*step_w,-1*step_h)","vec2(0.0,-1*step_h)","vec2(step_w,-1*step_h)","vec2(2*step_w,-1*step_h)","vec2(3*step_w,-1*step_h)",
+										"vec2(-3*step_w,0.0)","vec2(-2*step_w,0.0)","vec2(-1*step_w,0.0)","vec2(0.0,0.0)","vec2(step_w,0.0)","vec2(2*step_w,0.0)","vec2(3*step_w,0.0)",
+										"vec2(-3*step_w,step_h)","vec2(-2*step_w,step_h)","vec2(-1*step_w,step_h)","vec2(0.0,step_h)","vec2(step_w,step_h)","vec2(2*step_w,step_h)","vec2(3*step_w,step_h)",
+										"vec2(-3*step_w,2*step_h)","vec2(-2*step_w,2*step_h)","vec2(-1*step_w,2*step_h)","vec2(0.0,2*step_h)","vec2(step_w,2*step_h)","vec2(2*step_w,2*step_h)","vec2(3*step_w,2*step_h)",
+										"vec2(-3*step_w,3*step_h)","vec2(-2*step_w,3*step_h)","vec2(-1*step_w,3*step_h)","vec2(0.0,3*step_h)","vec2(step_w,3*step_h)","vec2(2*step_w,3*step_h)","vec2(3*step_w,3*step_h)"
+										}, 
+							kernel = { 1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096,
+												6/4096,36/4096,90/4096,120/4096,90/4096,36/4096,6/4096,
+												15/4096,90/4096,225/4096,300/4096,225/4096,90/4096,15/4096,
+												20/4096,120/4096,300/4096,400/4096,300/4096,120/4096,20/4096,
+												15/4096,90/4096,225/4096,300/4096,225/4096,90/4096,15/4096,
+												6/4096,36/4096,90/4096,120/4096,90/4096,36/4096,6/4096,
+												1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096}},
+					}
+  function slider_update(self,value)
+	local blur = valtable[value + 1]
+	self.parent.parent.parent.data.blurdesc = blur
+  end
+  
+  local sliderw = derp:create_slider(5,5,150,20,0,2,slider_update,true)
+  
+  sliderw:setvalue(0)
+  wid.data.blurdesc = valtable[1]
+  
+  wid.sliderw = sliderw
+  wid:addwidget(sliderw)
+  
+  sliderw.mouseover = 
+	function () 
+			local x,y = inp.getmousepos()
+			
+			gui:set_tooltip(wid.data.blurdesc.name,x,y) 
+	end
+  
+  return wid
+end
+
+function derp_components.postprocess.gaussianblur:generate_json(component_data)
+  local final_jsondata = {}
+  local input_array = {}
+  local input_array_shader = {}
+  
+	function build_blursource(tex) 
+		local str = ""
+
+		--for k,v in pairs(component_data.blurdesc.offset) do
+		for i = 1,#component_data.blurdesc.offset do
+			str = str .. "sum += texture2D(" .. tex .. ",uv + " .. component_data.blurdesc.offset[i] .. ") * " .. component_data.blurdesc.kernel[i] .. ";\n"
+		end
+
+		return str
+	end
+	
+	function build_fromtable(tbl)
+		str = ""
+		--for k,v in pairs(tbl) do
+		for i = 1, #tbl do
+			if i == #tbl then
+				str = str .. tbl[i]
+			else
+				str = str .. tbl[i] .. ","
+			end
+		end
+		
+		return str
+	end
+  
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+    
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
+    end
+  end
+  
+  local first_texture = nil
+  for k,v in pairs(component_data.connections_in) do
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+    end
+  end
+  
+  if (first_texture == nil) then
+    return spawn_error_dialog({"Output block needs at least one input!"})
+  end
+  
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Post-Process",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"width" : 512,
+                    "height" : 512,
+                    "shaderVert" : "#version 120
+					]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    uniform float script1;
+                    void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+					
+										
+					float step_w = 1.0 / 512.0;
+					float step_h = 1.0 / 512.0;
+					
+					#define KERNEL_SIZE ]] .. tostring(component_data.blurdesc.kernel_size) .. [[
+					
+					vec2 offset[KERNEL_SIZE] = { ]] .. build_fromtable(component_data.blurdesc.offset) .. [[ };
+					
+					float kernel[KERNEL_SIZE] = float[] ( ]] .. build_fromtable(component_data.blurdesc.kernel) .. [[ ); 
+
+					void main()
+					{
+						vec4 sum = vec4(0.0);
+						vec2 uv = gl_TexCoord[0].st;
+						
+						]] .. build_blursource(tostring(first_texture)) .. [[
+									
+						gl_FragData[0] = sum;
+                    }"
+                   },
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
+    }]]
+  
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
+  
+  return final_jsondata
+end
+
+function derp_components.postprocess.gaussianblur:spawn_inspector(component_data)
+  return derp:create_texturedinspector(component_data)
+
+end
+
+-------------------------------------------------------------------------------
+-- PostProcess::ToneMap
+derp_components.postprocess.tonemap = { name = "Post Process: Tone Mapping"
+                                      , tooltip = "Create a block that performs tone mapping using a LUT texture."
+                                      }
+function derp_components.postprocess.tonemap:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "tonemap", output_type = "texture", inputs = 2, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  
+  return block
+end
+
+function derp_components.postprocess.tonemap:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,2,1)
+  wid.input_aliases = {"LUT texture"}
+  --wid.output_aliases = {"diffuse", "normals", "depth"}
+  
+  return wid
+end
+
+function derp_components.postprocess.tonemap:generate_json(component_data)
+  local final_jsondata = {}
+  local input_array = {}
+  local input_array_shader = {}
+  
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+    
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
+    end
+  end
+  
+  local first_texture = nil
+  for k,v in pairs(component_data.connections_in) do
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+    end
+  end
+  
+  if (first_texture == nil) then
+    return spawn_error_dialog({"Output block needs at least one input!"})
+  end
+  
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Post-Process",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"width" : 512,
+                    "height" : 512,
+                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    void main()
+                    {
+                      vec4 c = texture2D(]] .. tostring(component_data.connections_in[2].output) .. [[, gl_TexCoord[0].st);
+                      vec2 lut_coord = vec2(c.r / 16.0 + (floor(c.b * 16.0) / 16.0), c.g);
+                      vec4 lut_c = texture2D(]] .. tostring(component_data.connections_in[1].output) .. [[, lut_coord.st);
+                      lut_c.a = c.a;
+                    	gl_FragData[0] = lut_c;
+                    }"
+                   },
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
+    }]]
+  
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
+  
+  return final_jsondata
+end
+
+function derp_components.postprocess.tonemap:spawn_inspector(component_data)
+  return derp:create_texturedinspector(component_data)
+end
+
 
 -------------------------------------------------------------------------------
 -- Renderer::geometry
-derp_components.render.geometry = { name = "Geometry renderer"
+derp_components.render.geometry = { name = "Geometry renderer - Blinn-Phong"
                               , tooltip = "Create a block that inputs geometry and renders to a texture."
                               }
 function derp_components.render.geometry:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", output_type = "texture", inputs = 4, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometry", output_type = "texture", inputs = 6, outputs = { workspace:gen_new_outputname() }, connections_in = {}}
   -- specific values
   block.modelfilepath = ""
   return block
 end
 
 function derp_components.render.geometry:create_widget(component_data)
-  local wid = derp:create_basecomponentblock(component_data,2,1)
+  local wid = derp:create_basecomponentblock(component_data,1000,1)
+  wid.input_aliases = {"cameraPos", "cameraLookAt", "lightPos", "lightColor"}
+  wid.output_aliases = {"diffuse"}
   
-  wid.suuuuuuupahdraw = wid.draw
-  function wid:draw(force)
-    self:suuuuuuupahdraw(force)
-    
-    --[[for k,v in pairs(self.data.outputs) do
-      print(k,v)
-    end]]
-    local preview = derp.active_workspace.preview_data[self.data.id]
-    if (preview ~= nil) then
-      gfx.translate(self.drawbox.x,self.drawbox.y-100)
-      preview:draw(0,0,64,0,64,64,0,64)
-      gfx.translate(-(self.drawbox.x),-(self.drawbox.y-100))
-    end
+  function toggle_wireframe(self,state)
+	if state then
+		wid.data.draw_wireframe = 1
+	else
+		wid.data.draw_wireframe = 0
+	end
   end
+  
+  local checkbox = gui:create_checkbox(20,20,20,"wireframe",toggle_wireframe)
+  wid.data.draw_wireframe = 0
+  
+  wid:addwidget(checkbox)
   
   return wid
 end
@@ -408,39 +758,67 @@ function derp_components.render.geometry:generate_json(component_data)
   end
 
   local first_texture = nil
+  local first_geometry = nil
   for k,v in pairs(component_data.connections_in) do
     local tdata = derp.active_workspace:get_block(v.block).data
     if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
+    elseif (tdata.output_type == "vec3") then
+      table.insert(input_array_shader, "uniform vec3 " .. tostring(v.output) .. ";")
+    elseif (tdata.output_type == "geometry") then
+      first_geometry = tostring(v.output)
     end
   end
 
   if (first_texture == nil) then
     return spawn_error_dialog({"Geometry block needs at least one texture!"})
   end
+  
+  if (first_geometry == nil) then
+    return spawn_error_dialog({"Geometry block needs at least one geometry block!"})
+  end
+  
+  local light_pos = tostring(component_data.connections_in[3].output)
+  local light_color = tostring(component_data.connections_in[4].output)
 
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "Render",
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
-     "blockData" : {"width" : 512,
+     "blockData" : {"drawMode" : ]] .. tostring(component_data.draw_wireframe) .. [[,
+					"width" : 512,
                     "height" : 512,
   						"cameraPosition" : "]] .. tostring(component_data.connections_in[1].output) .. [[",
   						"cameraLookAt" : "]] .. tostring(component_data.connections_in[2].output) .. [[",
   						"cameraFov" : 45.0,
                     "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     varying vec3 n;
+                    varying vec3 lightdir, epos;
   						      void main(void)
                     {
                     	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-  							      n = gl_Normal;
+  							      n = gl_NormalMatrix * gl_Normal;
+  							      epos = -vec4(gl_ModelViewMatrix * gl_Vertex).xyz;
+  							      lightdir = vec4(gl_ModelViewMatrix * vec4(]] .. light_pos .. [[, 1.0)).xyz + epos;
                     	gl_TexCoord[0] = gl_MultiTexCoord0;
                     }",
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     varying vec3 n;
+                    varying vec3 lightdir, epos;
                     void main()
                     {
-  							      gl_FragColor = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      float NdotL = max(dot(normalize(n), normalize(lightdir)), 0.0);
+                      vec4 color;
+                      color = NdotL * vec4(]] .. light_color .. [[, 1.0) * texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      if (NdotL > 0.0)
+                      {
+                        vec3 halvvec = normalize(normalize(epos) + normalize(lightdir));
+                        float NdotHV = max(dot(normalize(n),halvvec),0.0);
+                        
+                        color = color + pow(NdotHV, 124.0) * vec4(]] .. light_color .. [[, 1.0);
+                      }
+                      color.a = 1.0;
+  							      gl_FragData[0] = color;
                     }"
                    },
      "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"}]
@@ -454,6 +832,142 @@ end
 function derp_components.render.geometry:spawn_inspector(component_data)
   return derp:create_texturedinspector(component_data)
 end
+
+-------------------------------------------------------------------------------
+-- Renderer::geometryadvanced
+derp_components.render.geometryadvanced = { name = "Geometry renderer - Advanced"
+                              , tooltip = "Create a block that inputs geometry and renders to a texture, also outputs depth and normal textures."
+                              }
+function derp_components.render.geometryadvanced:new_block(workspace,x,y)
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometryadvanced", output_type = "texture", inputs = 6, outputs = { workspace:gen_new_outputname(), workspace:gen_new_outputname(), workspace:gen_new_outputname() }, connections_in = {}}
+  -- specific values
+  block.modelfilepath = ""
+  return block
+end
+
+function derp_components.render.geometryadvanced:create_widget(component_data)
+  local wid = derp:create_basecomponentblock(component_data,1000,3)
+  wid.input_aliases = {"cameraPos", "cameraLookAt", "lightPos", "lightColor"}
+  wid.output_aliases = {"diffuse", "normals", "depth"}
+  
+  function toggle_wireframe(self,state)
+	if state then
+		wid.data.draw_wireframe = 1
+	else
+		wid.data.draw_wireframe = 0
+	end
+  end
+  
+  local checkbox = gui:create_checkbox(20,20,20,"wireframe",toggle_wireframe)
+  wid.data.draw_wireframe = 0
+  
+  wid:addwidget(checkbox)
+  
+  return wid
+end
+
+function derp_components.render.geometryadvanced:generate_json(component_data)
+
+  local final_jsondata = {}
+  local input_array = {}
+  local input_array_shader = {}
+
+  for k,v in pairs(component_data.connections_in) do
+    table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
+  
+    -- get json for the leaf/input
+    local tmpblock = derp.active_workspace:get_block(v.block)
+    local tmpdict = derp_components[tmpblock.data.group][tmpblock.data.type]:generate_json(tmpblock.data)
+    if (tmpdict) then
+      for k2,v2 in pairs(tmpdict) do
+        table.insert(final_jsondata, v2)
+      end
+    else
+      return nil
+    end
+  end
+
+  local first_texture = nil
+  local first_geometry = nil
+  for k,v in pairs(component_data.connections_in) do
+    local tdata = derp.active_workspace:get_block(v.block).data
+    if (tdata.output_type == "texture") then
+      table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
+      first_texture = tostring(v.output)
+    elseif (tdata.output_type == "vec3") then
+      table.insert(input_array_shader, "uniform vec3 " .. tostring(v.output) .. ";")
+    elseif (tdata.output_type == "geometry") then
+      first_geometry = tostring(v.output)
+    end
+  end
+
+  if (first_texture == nil) then
+    return spawn_error_dialog({"Geometry block needs at least one texture!"})
+  end
+  
+  if (first_geometry == nil) then
+    return spawn_error_dialog({"Geometry block needs at least one geometry block!"})
+  end
+  
+  local light_pos = tostring(component_data.connections_in[3].output)
+  local light_color = tostring(component_data.connections_in[4].output)
+
+  local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
+     "blockType" : "Render",
+     "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
+     "blockData" : {"drawMode" : ]] .. tostring(component_data.draw_wireframe) .. [[,
+					"width" : 512,
+                    "height" : 512,
+  						"cameraPosition" : "]] .. tostring(component_data.connections_in[1].output) .. [[",
+  						"cameraLookAt" : "]] .. tostring(component_data.connections_in[2].output) .. [[",
+  						"cameraFov" : 45.0,
+                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    varying vec3 n;
+                    varying vec3 lightdir, epos;
+  						      void main(void)
+                    {
+                    	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  							      n = gl_NormalMatrix * gl_Normal;
+  							      epos = -vec4(gl_ModelViewMatrix * gl_Vertex).xyz;
+  							      lightdir = vec4(gl_ModelViewMatrix * vec4(]] .. light_pos .. [[, 1.0)).xyz + epos;
+                    	gl_TexCoord[0] = gl_MultiTexCoord0;
+                    }",
+                    "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    varying vec3 n;
+                    varying vec3 lightdir, epos;
+                    void main()
+                    {
+  							      float NdotL = max(dot(normalize(n), normalize(lightdir)), 0.0);
+                      vec4 color;
+                      color = NdotL * vec4(]] .. light_color .. [[, 1.0) * texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      if (NdotL > 0.0)
+                      {
+                        vec3 halvvec = normalize(normalize(epos) + normalize(lightdir));
+                        float NdotHV = max(dot(normalize(n),halvvec),0.0);
+                        
+                        color = color + pow(NdotHV, 124.0) * vec4(]] .. light_color .. [[, 1.0);
+                      }
+                      color.a = 1.0;
+  							      gl_FragData[0] = color;
+  							      gl_FragData[1] = vec4(n, 1.0);
+  							      gl_FragData[2] = vec4(0,0,0, 1.0);
+  							      
+                    }"
+                   },
+     "blockOutput" : [ {"name" : "]] .. tostring(component_data.outputs[1]) .. [[", "type" : "texture"},
+                       {"name" : "]] .. tostring(component_data.outputs[2]) .. [[", "type" : "texture"},
+                       {"name" : "]] .. tostring(component_data.outputs[3]) .. [[", "type" : "texture"}]
+    }]]
+  
+  table.insert(final_jsondata, escape_backslashes(jsonstring))
+  
+  return final_jsondata
+end
+
+function derp_components.render.geometryadvanced:spawn_inspector(component_data)
+  return derp:create_texturedinspector(component_data)
+end
+
 
 
 -------------------------------------------------------------------------------
@@ -480,7 +994,7 @@ function derp_components.aux.model:create_widget(component_data)
     local new_filepath = app.opendialog()
     if (new_filepath) then
       self.parent.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.parent.data.modelfilepath = new_filepath
+      self.parent.parent.parent.data.modelfilepath = path_abs2rel(new_filepath)
 
       derp:push_active_workspace()
     end
@@ -542,8 +1056,8 @@ function derp_components.aux.texture:create_widget(component_data)
   function browse_func(self)
     local new_filepath = app.opendialog()
     if (new_filepath) then
-      self.parent.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.parent.data.texturefilepath = new_filepath
+      self.parent.parent.parent.filepathwidget.label_text = path_abs2rel(new_filepath)
+      self.parent.parent.parent.data.texturefilepath = path_abs2rel(new_filepath)
 
       derp:push_active_workspace()
     end

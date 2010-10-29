@@ -112,6 +112,7 @@ function _runtimeerror(str)
   error_lines = split(fancy, '\n+')
   print(" -- Runtime Error-- \n" .. str)
   error_stop = true
+  inp.showmouse(true)
 end
 
 function draw_runtimeerror()

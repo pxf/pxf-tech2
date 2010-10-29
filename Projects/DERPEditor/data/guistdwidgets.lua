@@ -733,6 +733,83 @@ function gui:create_iconbutton(x,y,w,h,icon_coords,action)
   return wid
 end
 
+-- simple button with icon
+function gui:create_checkbox(x,y,w,label,action)
+	local label_size = 0
+	if label then
+		label_size = #label * 10
+	end
+
+  local wid = gui:create_basewidget(x,y,20 + label_size,20)
+  wid.action = action
+  wid.icon_coords = icon_coords
+  wid.state = false -- false = unchecked, true = checked
+  wid.icon_coords = {21,11,8,8}
+  
+  function wid:toggle(val)
+    if (val == nil) then
+      if (self.state) then
+        self.state = false
+      else
+        self.state = true
+      end
+    else    
+      self.state = val
+    end
+  end
+  
+  function wid:mouserelease(mx,my,button)
+    self:toggle()
+    if (button == inp.MOUSE_LEFT) then
+      self:action(self.state)
+    end
+    self:needsredraw()
+  end
+  
+  function wid:mousepush(mx,my,button)
+    if (button == inp.MOUSE_LEFT) then
+      self:needsredraw()
+    end
+  end
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+		--gfx.drawtopleft(self.drawbox.x,self.drawbox.y,self.drawbox.w,self.drawbox.h,507,0,0,128)
+	
+      -- bg
+			gfx.drawtopleft(2,2,20-4,self.drawbox.h-4, 507,0,0,128) -- upper left corner
+      
+      -- draw borders
+			gfx.drawtopleft(0, 0, 2, 2, 5,10,2,2) -- upper left corner
+			gfx.drawtopleft(20 - 2, 0, 2, 2,10,10,2,2) -- upper right corner
+			gfx.drawtopleft(0, self.drawbox.h-2, 2, 2,5,15,2,2) -- lower left corner
+			gfx.drawtopleft(20-2,self.drawbox.h-2,2,2,10,15,2,2) -- lower right corner
+			
+			gfx.drawtopleft(0,2,2,self.drawbox.h-4,5,12,2,1) -- left frame	
+			gfx.drawtopleft(20-2,2,2,self.drawbox.h-4,10,12,2,1) -- right frame	
+			gfx.drawtopleft(2,0,20-4,2,7,10,1,2) -- upper frame
+			gfx.drawtopleft(2,self.drawbox.h - 2,20-4,2,7,15,1,2) -- lower frame)
+      
+      -- icon
+      if (self.state == true) then
+        gfx.drawcentered(20 / 2, self.drawbox.h / 2, self.icon_coords[3], self.icon_coords[4]
+                        , self.icon_coords[1], self.icon_coords[2], self.icon_coords[3], self.icon_coords[4]) -- texcoords
+      end
+	  
+		if label then
+			gui:drawfont("^(1,1,1){".. label .. "}",30,10)
+		end
+    
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+    end
+  end
+  
+  return wid
+end
+
+
 
 -- spawns a menu in the root of the widget tree
 function gui:spawn_menu(x,y,menu)
@@ -811,7 +888,7 @@ function gui:create_menu(x,y,menu)
         
         -- update statusbar
         if (self.menu[i][2].tooltip) then
-          gui:tooltip(self.menu[i][2].tooltip)
+          gui:statusbarinfo(self.menu[i][2].tooltip)
         end
         
         -- close all submenus

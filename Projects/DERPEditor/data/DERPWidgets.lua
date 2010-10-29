@@ -5,7 +5,7 @@ derp.active_workspace = nil
 derp.open_workspaces = { history = { }, stack = { }}
 derp.active_tool = { last = nil, current = nil }
 derp.ws_menu = nil
-derp.settings = { recent_files = { max_files = 10, files = {  } } }
+derp.settings = { recent_files = { max_files = 10, files = {  } }, mouse_state = "show" }
 derp.ws_counter = 0
 
 function derp:init()
@@ -14,6 +14,13 @@ function derp:init()
 
 	self:load_settings()
 	self.recent_files = self:create_recent_files_menu()
+	
+	gui:add_customcursor(19,17,1,61,"move_select")
+	gui:add_customcursor(21,21,1,79,"move_ws")
+	gui:add_customcursor(10,13,30,79,"normal")
+	gui:add_customcursor(17,17,33,93,"select_rect")
+	
+	gui:set_cursor("normal")
 end
 
 function derp:create_recent_files_menu()
@@ -22,7 +29,19 @@ function derp:create_recent_files_menu()
 	
 	local i = 1
 	for k,v in pairs(derp.settings.recent_files.files) do
-		table.insert(menu_tbl, {i .. ": " .. v, {tooltip = "Open " .. v, onclick = 
+		local name = string.gsub(v,"\\","/")
+		local loc = string.find(string.reverse(name),"/")
+		
+		if loc then
+			name = string.sub(name,#name - loc + 2,#name)
+		end
+		
+		if #name*10 > 160 then
+			name = string.sub(name,1,12)  
+			name = name .. "..."
+		end
+		
+		table.insert(menu_tbl, {i .. ": " .. name, {tooltip = "Open " .. v, onclick = 
 									function ()  
 										derp:open_workspace(v,derp.active_workspace)
 									end}} )
@@ -58,6 +77,8 @@ function derp:load_settings()
 	
 	if file then
 		self.settings = self:load("data/editor_settings")
+		
+		gui:showmouse(self.settings.mouse_state)
 	end
 end
 
@@ -176,8 +197,24 @@ function derp:set_activetool(tool)
 		self.active_tool.current.selected = false
 		self.active_tool.current:needsredraw()
 		self.active_tool.current = tool
+		
+		if not tool then
+			gui:set_cursor("normal")
+		elseif tool.cursor then
+			gui:set_cursor(tool.cursor)
+		else
+			gui:set_cursor("normal")
+		end
 	else
 		self.active_tool.current = tool
+		
+		if not tool then
+			gui:set_cursor("normal")
+		elseif tool.cursor then
+			gui:set_cursor(tool.cursor)
+		else
+			gui:set_cursor("normal")
+		end
 	end
 	
 	if tool then
@@ -281,15 +318,19 @@ function RGB_to_HSV(r,g,b,h,s,v)
 	return out.r,out.g,out.b
 end
 
-function derp:create_slider(x,y,w,h,min,max,on_change)
+function derp:create_slider(x,y,w,h,min,max,on_change,discreet)
 	local wid = gui:create_basewidget(x,y,w,h)
 	local slide_button = gui:create_basewidget(w*0.5-5,0,10,h)
 	
 	wid.on_change = on_change
-	wid.value = (max - min) * 0.5
+	wid.value = min
 	slide_button.max_pos = w-10
 	
 	wid:addwidget(slide_button)
+	
+	if discreet then
+		wid.discreet = true
+	end
 	
 	function wid:setvalue(value)
 		if not value then
@@ -302,16 +343,40 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 			value = max
 		end
 		
+		if self.discreet then
+			value = math.floor(value)
+		end
+		
 		local new_x = (value / (max - min)) * slide_button.max_pos
 		
 		self.value = value
 		slide_button:move_abs(new_x,slide_button.drawbox.y)
 	end
 	
+	local tmp = 0.0
+	
+	function slide_button:mouserelease()
+		wid.drag = false
+	end
+	
 	function slide_button:mousedrag(dx,dy)
 	  -- move slider relative
 		self:needsredraw()
-		self:move_relative(dx,0)
+		
+		wid.drag = true
+		
+		local step = (self.max_pos) / (max - min)
+		
+		tmp = tmp + dx
+		
+		if wid.discreet then
+			if tmp > step or tmp < -step then
+				self:move_relative(tmp,0)
+				tmp = 0.0
+			end
+		else
+			self:move_relative(dx,0)
+		end
 		
 		-- sanity check
 		if (self.drawbox.x < 0) then
@@ -323,10 +388,11 @@ function derp:create_slider(x,y,w,h,min,max,on_change)
 		self:needsredraw()
 		
 		-- get new value
-		local step = (self.max_pos) / (max - min)
 		local pos = self.drawbox.x / self.max_pos
 		
-		wid.value = pos * (max - min)
+		wid:setvalue(pos * (max - min))
+		
+		--wid.value = pos * (max - min)
 		
 		if (wid.on_change) then
 		  wid:on_change(wid.value)
@@ -481,8 +547,15 @@ function derp:create_workspace_tabs(x,y,w,h)
 		ws.name = name
 		ws.drawname = name
 		
-		if #name*10 > ws.drawbox.w then
-			ws.drawname = string.sub(name,#name-ws.drawbox.w/10,#name)  
+		name = string.gsub(name,"\\","/")
+		local loc = string.find(string.reverse(name),"/")
+		if loc then
+			ws.drawname = string.sub(name,#name - loc + 2,#name)
+		end
+		
+		if #ws.drawname*10 > ws.drawbox.w then
+			ws.drawname = string.sub(ws.drawname,1,12)  
+			ws.drawname = ws.drawname .. "..."
 		end
 		
 		
@@ -492,16 +565,8 @@ function derp:create_workspace_tabs(x,y,w,h)
 				-- DRAW BG
 				gfx.drawtopleft(self.drawbox.x,0,self.drawbox.w,self.drawbox.h,9,1,1,1)
 				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,self.drawbox.h,508,0,1,128)
-				
-				
-				--gui:drawfont("^(0.878431373, 0.494117647,0){" .. wid.data.id .."}",20,9)
-				--gfx.scale(0.9)
-				--gui:drawfont("^(0.278431373 , 0.215686275,0.0941176471      ){".. name .. "}",self.drawbox.x + 8,10)
-				--gfx.scale(1/0.9)
-				
-				--gfx.scale(0.9)
+
 				gui:drawfont("^(1,1,1){".. ws.drawname .. "}",self.drawbox.x + 8,12)
-				--gfx.scale(1/0.9)
 				
 				-- DRAW BORDERS
 				gfx.drawtopleft(self.drawbox.x + 1,0,self.drawbox.w-1,1,1,5,1,1) -- TOP
@@ -509,6 +574,10 @@ function derp:create_workspace_tabs(x,y,w,h)
 				gfx.drawtopleft(self.drawbox.x + 1,0,1,self.drawbox.h-1,1,5,1,1) -- LEFT
 				gfx.drawtopleft(self.drawbox.x + self.drawbox.w-1,0,1,self.drawbox.h-1,1,5,1,1) -- RIGHT
 			end
+		end
+		
+		for k,v in pairs(self.childwidgets) do
+			self.childwidgets[k] = nil
 		end
 		
 		self:addwidget(ws)
@@ -884,6 +953,15 @@ function derp:create_connectionoutput(id,x,y)
     
   end
   
+  function wid:mouseover(mx,my)
+    local output_previewid = self.parent.parent.data.id
+    if (#self.parent.parent.data.outputs > 1) then
+      output_previewid = output_previewid .. self.output_id
+    end
+    local preview_box = derp:create_previewbox(0,0,64,64, self.parent.parent.data, output_previewid)
+    gui:set_tooltip(preview_box, mx, my)
+  end
+  
   function wid:mouserelease(mx,my,button)
 	if button == inp.MOUSE_LEFT then
 		-- see if we found a input to connect to
@@ -892,26 +970,36 @@ function derp:create_connectionoutput(id,x,y)
 		if htest then
 		  if (htest.widget_type == "connection_input") then
 			--print("Trying to add connection from output '" .. self.output_id .. "' to input '" .. htest.input_id .. "'")
+			
 			htest.parent.parent:add_connection(self.parent.parent.component_id, self.output_id, self.parent.parent.data.type, htest.input_id)
 		  end
 		end
 		self.parent.temp_connection = nil
 	end
+	
+	derp:set_activetool(derp.active_tool.last)
   end
   
   function wid:mousepush(mx,my,button)
-	--print(mx,my)
-	if button == inp.MOUSE_RIGHT then
+	if button == inp.MOUSE_RIGHT and #self.connections > 0 then
 		if self.connected then
 		
 			local menu = { }
 			for k,v in pairs(self.connections) do
-				print(v.id,v.to_input)
-				
 				local end_wid = derp.active_workspace:get_block(v.id)
 				
 				table.insert(menu,{self.output_id .. " - " .. v.id .. "." .. v.to_input, {tooltip = "Remove connection from " .. self.output_id .. " to " .. v.id, onclick = 
 									function () 	
+										for a,c in pairs(end_wid.data.connections_in) do
+											if c.block == self.parent.parent.id and c.output == id and c.input == v.to_input then
+												local end_socket = end_wid:get_inputsocket(v.to_input)
+												end_socket.connected = false
+												
+												end_wid.data.connections_in[a] = nil
+												self.connections[k] = nil
+												self.connected = false
+											end
+										end
 									end}})
 			end
 			
@@ -920,6 +1008,8 @@ function derp:create_connectionoutput(id,x,y)
 			derp.ws_menu = basemenu
 			derp.ws_menu:show()
 		end
+	elseif button == inp.MOUSE_LEFT then
+		derp:set_activetool(nil)
 	end
   end
   
@@ -948,7 +1038,11 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
                                     component_data.w, component_data.h)
 	
 	
-	wid.shortcuts = { { name = "copy", keys = {inp.LCTRL,"C"}, was_pressed = false, onpress = 
+	wid.shortcuts = { { name = "delete active components", keys = {inp.DEL}, was_pressed = false, 
+							onpress = function () 
+								delete_wid:onclick() 
+							end },
+						{ name = "copy", keys = {inp.LCTRL,"C"}, was_pressed = false, onpress = 
 							function () 
 								
 								local tbl = { }
@@ -1080,6 +1174,16 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	  self.data.y = self.drawbox.y
   end
 	
+	function wid:get_inputsocket(socketname)
+		for k,v in pairs(content.childwidgets) do
+			if v.input_id and v.input_id == socketname then
+				return v
+			end
+		end
+		
+		return nil
+	end
+	
 	-- find connection socket with output name
 	function wid:get_outputsocket(socketname)
 		for k,v in pairs(content.childwidgets) do
@@ -1094,14 +1198,17 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	
 	function wid:add_connection(from_block, from_output, type_output, to_id)
 		--print(from_block, from_output, type_output, to_id)
-		table.insert(self.data.connections_in, {block = from_block, output = from_output, type = type_output, input = to_id})
+		--table.insert(self.data.connections_in, {block = from_block, output = from_output, type = type_output, input = to_id})
+		--print("to_in: " .. tostring(to_in))
+		self.data.connections_in[to_id] = {block = from_block, output = from_output, type = type_output, input = to_id}
 		
 		local startwid = derp.active_workspace:get_block(from_block)
 		local startsocket = startwid:get_outputsocket(from_output)
 		
 		startsocket.connected = true
 		
-		table.insert(startsocket.connections,{id = self.id,to_input = to_id})
+		--table.insert(startsocket.connections,{id = self.id,to_input = to_id})
+		startsocket.connections[to_id] = {id = self.id,to_input = to_id}
 
 		for k,v in pairs(self.content.childwidgets) do
 			if v.input_id and v.input_id == to_id then
@@ -1380,6 +1487,28 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 			gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 1,self.drawbox.y,1,self.drawbox.h-2,1,t, 1,1) -- right frame
 			gfx.drawtopleft(self.drawbox.x + 2,self.drawbox.y + self.drawbox.h-1,self.drawbox.w-4,1,1,t, 1,1) -- bottom frame
 			
+			-- draw input/output aliases
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			gfx.scale(0.8)
+			-- inputs
+			if (self.parent.input_aliases) then
+			  local i = 0
+  			for k,v in pairs(self.parent.input_aliases) do
+  			 gui:drawfont(v, 14, i*17+10)
+  			 i = i + 1
+  			end
+  		end
+			
+			if (self.parent.output_aliases) then
+			  local i = 0
+  			for k,v in pairs(self.parent.output_aliases) do
+  			 gui:drawrightfont(v, self.drawbox.w*1/0.8-14, i*17+10)
+  			 i = i + 1
+  			end
+  		end
+			gfx.scale(1/0.8)
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+			
 			self:super_draw(force)	
 		end
 	end
@@ -1446,10 +1575,10 @@ function derp:create_basecomponentblock(component_data,max_inputs,max_outputs)
 	return wid
 end
 
-function derp:create_previewbox(x,y,w,h,component_data)
+function derp:create_previewbox(x,y,w,h,component_data,preview_id)
 	local wid = gui:create_basewidget(x,y,w,h)
 	wid.data = component_data
-	--wid.previewid = preview_id
+	wid.previewid = preview_id
 	wid.zoompos = nil--{0,0}
 	wid.zoomsize = 8 -- pixels
 	wid.zoomboxsize = 0.2 -- 20% of normal box
@@ -1464,7 +1593,7 @@ function derp:create_previewbox(x,y,w,h,component_data)
   function wid:draw(force)
     self:sdraw(force)
     if (self.redraw_needed or force) then
-      local previewid = self.data.id
+      local previewid = self.previewid--self.data.id
       if (derp.active_workspace.preview_data[previewid]) then
         gfx.translate(self.drawbox.x,self.drawbox.y)
         derp.active_workspace.preview_data[previewid]:draw(0,0,self.drawbox.w,0,self.drawbox.w,self.drawbox.h,0,self.drawbox.h)
@@ -1486,7 +1615,7 @@ function derp:create_previewbox(x,y,w,h,component_data)
   end
   
   function wid:mousedrag(mx,my,button)
-    local previewid = self.data.id
+    local previewid = self.previewid
     if (derp.active_workspace.preview_data[previewid]) then
       local x,y = self:find_abspos(self)
       local mx,my = inp.getmousepos()
@@ -1501,7 +1630,7 @@ function derp:create_previewbox(x,y,w,h,component_data)
 end
 
 function derp:create_baseinspector(component_data)
-	local wid = gui:create_verticalstack(10,150,230,400)
+	local wid = gui:create_verticalstack(10,10,230,400)
 	
 	wid.data = component_data
 	
@@ -1513,7 +1642,22 @@ end
 function derp:create_texturedinspector(component_data)
 	local wid = derp:create_baseinspector(component_data)
 	
-	wid:addwidget(derp:create_previewbox(0,0,wid.drawbox.w,wid.drawbox.w,component_data))
+	-- only one output?
+	if (#component_data.outputs < 2) then
+	  local t = derp.active_workspace.profiling_data[component_data.id]
+	  if (t == nil) then
+	    t = "N/A"
+	  end
+	  local s = "Exec. time: " .. tostring(t) .. " ms"
+	  len = gui:get_font_length(s)*8
+     wid:addwidget(gui:create_centeredlabelpanel(0,0,wid.drawbox.w+20,30,s))
+	  wid:addwidget(derp:create_previewbox(0,0,wid.drawbox.w,wid.drawbox.w,component_data, component_data.id))
+	else
+	  local i = 0
+	  for k,v in pairs(component_data.outputs) do
+	   wid:addwidget(derp:create_previewbox(0,i*wid.drawbox.w,wid.drawbox.w,wid.drawbox.w,component_data,component_data.id .. tostring(v)))
+	  end
+  end
 	
 	-- test render preview
 	wid.sdraw = wid.draw
@@ -1657,7 +1801,7 @@ function derp:new_workspace(w,h)
 	ws.name = ws.widget_type
 
 	self.active_workspace = ws
-	workspace_tabs:addtab(ws.widget_type,ws)
+	workspace_tabs:addtab(ws.widget_type)
 	
 	self:push_wshistory(ws.name)
 	self:push_wsstack(ws.name,{components = { }, active_components = { } })
@@ -1673,6 +1817,7 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.super_move_relative = wid.move_relative
 	
 	wid.preview_data = {}
+	wid.profiling_data = {}
 	wid.id_counter = 1
 	wid.output_counter = 1
 	wid.component_data = { active_components = {}, components = {}}
@@ -1681,16 +1826,23 @@ function derp:create_workspace(x,y,w,h,from_path)
 	wid.fullscreen = false
 	
 	
-	wid.shortcuts = {	{ name = "show/hide workspace only", keys = {inp.TAB}, was_pressed = false, onpress = function () wid:toggle_fullscreen() end},
+	wid.shortcuts = {	
+						{ name = "show/hide workspace only", keys = {inp.TAB}, was_pressed = false, onpress = function () wid:toggle_fullscreen() end},
 						{ name = "print data", keys = {"P"},was_pressed = false, onpress = function () derp:print_activedata() end },
-						{ name = "select move", keys = {"A"}, was_pressed = false, onpress = function () derp:set_activetool(move_select) end },
+						{ name = "select move", keys = {"A"}, was_pressed = false, 
+							onpress = function () 
+								derp:set_activetool(move_select) 
+								gui:set_cursor("move_select")
+							end },
 						{ name = "square select", keys = {"M"}, was_pressed = false, onpress = function () derp:set_activetool(select_rect) end },
 						{ name = "move ws",keys = {inp.SPACE}, was_pressed = false, 
 							onpress = function () 
 								derp:set_activetool(move_ws) 
+								--gui:set_cursor("move_ws") 
 							end, 
 							onrelease = function () 
 								derp:set_activetool(derp.active_tool.last)
+								--gui:set_cursor("normal")
 							end },
 						{ name = "show ws menu", mouse = { inp.MOUSE_RIGHT }, was_pressed = false, 
 							onpress = function ()
@@ -2331,8 +2483,9 @@ function derp:create_workspaceframe(x,y,w,h)
 	return wid
 end
 
-function derp:base_tool(w,h,s,t,name, onclick)
+function derp:base_tool(w,h,s,t,name,tooltip, onclick)
 	local tool = gui:create_basewidget(0,0,40,40)
+	tool.tooltip = tooltip
 	tool.highlight = false
 	tool.selected = false
 	tool.toggle = true
@@ -2411,6 +2564,7 @@ function derp:base_tool(w,h,s,t,name, onclick)
 	function tool:mouseover(mx,my)
 		self:needsredraw()	
 		self.highlight = true
+		gui:set_tooltip(self.tooltip, mx, my)
 		self:needsredraw()
 	end
 	
@@ -2418,6 +2572,11 @@ function derp:base_tool(w,h,s,t,name, onclick)
 		if (button == inp.MOUSE_LEFT) then
 			if self.selected then
 				derp:set_activetool(nil)
+				
+				if self.onclick then
+					self:onclick()
+				end
+				
 				return
 			end
 		
@@ -2490,7 +2649,7 @@ function derp:create_toolbar(x,y,w,h)
 
 	
 	-------- TOOLS --------
-	undo = derp:base_tool(28,24,1,102,"undo", 
+	undo = derp:base_tool(28,24,1,102,"undo", "Undo workspace modification.",
 			function () 
 				derp:set_activetool(nil)
 				if derp.active_workspace then
@@ -2500,7 +2659,7 @@ function derp:create_toolbar(x,y,w,h)
 			end
 			)
 	undo.toggle = false
-	redo = derp:base_tool(28,24,2,127,"redo",
+	redo = derp:base_tool(28,24,2,127,"redo", "Redo workspace modification.",
 			function () 
 				derp:set_activetool(nil)
 				if derp.active_workspace then
@@ -2509,22 +2668,48 @@ function derp:create_toolbar(x,y,w,h)
 				derp:set_activetool(derp.active_tool.last)
 			end)
 	redo.toggle = false
-	select_rect = derp:base_tool(24,24,1,36,"square select")
-	move_select = derp:base_tool(24,17,1,61,"move/select")
-	move_ws = derp:base_tool(21,21,1,79,"move workspace")
-	delete_wid = derp:base_tool(14,14,30,63,"delete widget",
+	select_rect = derp:base_tool(24,24,1,36,"square select", "Rectangular component selection.")
+	select_rect.cursor = "select_rect"
+	move_select = derp:base_tool(24,17,1,61,"move/select", "Select / move components.")
+	move_select.cursor = "move_select"
+	move_ws = derp:base_tool(21,21,1,79,"move workspace", "Navigate workspace.")
+	move_ws.cursor = "move_ws"
+	delete_wid = derp:base_tool(14,14,30,63,"delete widget", "Delete component.",
 			function () 
 				derp:set_activetool(nil)
 				
 				if derp.active_workspace then
 					local changed = false
 					
-					for k,v in pairs(derp.active_workspace.component_data.active_components) do
+					for b,c in pairs(derp.active_workspace.component_data.active_components) do
+						local w = derp.active_workspace.childwidgets[c].content.childwidgets
+						for k,v in pairs(w) do
+							if v.connections then
+								for con_k,con_v in pairs(v.connections) do
+									local end_wid = derp.active_workspace:get_block(con_v.id)
+									
+									if end_wid then
+										for end_con_k,end_con_v in pairs(end_wid.data.connections_in) do
+											if end_con_v.block == v.parent.parent.id and end_con_v.output == v.output_id and end_con_v.input == con_v.to_input then
+												local end_socket = end_wid:get_inputsocket(end_con_v.input)
+												
+												
+												end_socket.connected = false
+													
+												end_wid.data.connections_in[end_con_k] = nil
+											end
+										end
+									end
+								end
+							end
+						end
 						
-						derp.active_workspace.childwidgets[v] = nil
-						v = nil
+						derp.active_workspace.childwidgets[c] = nil
+						c = nil
 						changed = true
 					end
+					
+					derp.active_workspace.component_data.active_components = { }
 					
 					if changed then
 						derp:push_active_workspace()

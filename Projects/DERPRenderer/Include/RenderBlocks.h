@@ -144,6 +144,8 @@ namespace Derp
 			, m_JsonData(_JsonData)
 			, L(0)
 		{}
+
+		virtual ~AuxiliaryBlock();
 		
 		virtual void ResetPerformed() { m_IsPerformed = false; }
 
@@ -184,6 +186,8 @@ namespace Derp
 		Pxf::Util::String m_CameraLookInputName;
 		Block* m_CameraLookInput;
 		float m_CameraFov;
+		int m_DrawMode;
+		Pxf::Graphics::VertexBufferPrimitiveType m_OldPrimitiveType;
 		
 		Pxf::Graphics::RenderBuffer* m_DepthBuffer;
 		
@@ -193,18 +197,11 @@ namespace Derp
 			, m_JsonData(_JsonData)
 			, m_CameraPosInput(0)
 			, m_CameraLookInput(0)
+			, m_Shader(0)
+			, m_DrawMode(0)
 		{}
 
-		virtual ~RenderBlock()
-		{
-			if (m_Shader)
-				m_gfx->DestroyShader(m_Shader);
-			if (m_DepthBuffer)
-				delete m_DepthBuffer;
-
-//			for (Pxf::Util::Map<Pxf::Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
-//				delete (*iter).second;
-		}
+		virtual ~RenderBlock();
 		
 		virtual void ResetPerformed();
 
@@ -246,16 +243,7 @@ namespace Derp
 			, m_JsonData(_JsonData)
 		{}
 		
-		virtual ~PostProcessBlock()
-		{
-			if (m_Shader)
-				m_gfx->DestroyShader(m_Shader);
-			if (m_OutputQuad)
-				delete m_OutputQuad;
-
-			for (Pxf::Util::Map<Pxf::Util::String, void*>::iterator iter = m_Outputs.begin(); iter != m_Outputs.end(); ++iter)
-				m_gfx->DestroyTexture((Pxf::Graphics::Texture*)(*iter).second);
-		}
+		virtual ~PostProcessBlock();
 
 		virtual void ResetPerformed();
 
@@ -302,13 +290,7 @@ namespace Derp
 			, m_Height(0)
 		{}
 		
-		virtual ~RootBlock() {
-			delete m_OutputQuad;
-			m_gfx->DestroyShader(m_Shader);
-
-//			for (Pxf::Util::Map<Pxf::Util::String, Block*>::iterator iter = m_InputBlocks.begin(); iter != m_InputBlocks.end(); ++iter)
-//				delete (*iter).second;
-		}
+		virtual ~RootBlock();
 		
 		virtual void ResetPerformed();
 

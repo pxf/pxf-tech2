@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <psapi.h>
 #include <Commdlg.h>
+#include <ctype.h>
 
 
 long int sstat_memoryusage()
@@ -64,6 +65,12 @@ int sstat_openfiledialog(char* _filename)
 	bool ret = GetOpenFileName(&info); // thanks for changing the cwd
 	SetCurrentDirectoryA(oldpath);
 	return !ret;
+}
+
+void sstat_getcwd(char* _filepath, size_t _maxsize)
+{
+    GetCurrentDirectoryA(_maxsize, _filepath);
+	_filepath[0] = toupper(_filepath[0]);
 }
 
 #elif defined (MACOSX) || defined (__APPLE__)
@@ -227,6 +234,13 @@ int sstat_openfiledialog(char* _filename)
 	return (int)err;
 }
 
+void sstat_getcwd(char* _filepath, size_t _maxsize)
+{
+    getcwd(_filepath, _maxsize);
+}
+
+
+
 #elif defined (__LINUX__) || defined (__linux__)
 
 #include <unistd.h>
@@ -372,6 +386,11 @@ int sstat_openfiledialog(char* _filename)
 	return 0;
 }
 
+void sstat_getcwd(char* _filepath, size_t _maxsize)
+{
+    getcwd(_filepath, _maxsize);
+}
+
 #else
 
 
@@ -388,6 +407,11 @@ int sstat_savefiledialog(char* _filename)
 int sstat_openfiledialog(char* _filename)
 {
   return -1;
+}
+
+void sstat_getcwd(char* _filepath, size_t _maxsize)
+{
+    _filepath[0] = 0;
 }
 
 #endif

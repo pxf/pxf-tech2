@@ -114,6 +114,23 @@ int DERPEditor::app_opendialog(lua_State *L)
   return 0;
 }
 
+int DERPEditor::app_getcwd(lua_State* L)
+{
+	if (lua_gettop(L) == 0)
+	{
+		char path[261];
+		sstat_getcwd(path, 260);
+		lua_pushstring(L, path);
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(L, "getcwd() does not take any arguments.");
+		lua_error(L);
+	}
+	return 0;
+}
+
 int DERPEditor::app__setrenderoption(lua_State *L)
 {
   // app.setrenderoption(render_mode) -- changes render option
@@ -190,6 +207,7 @@ int DERPEditor::luaopen_appcore (lua_State *L) {
     {"getmemusage",   app_getmemusage},
     {"savedialog",   app_savedialog},
     {"opendialog",   app_opendialog},
+	{"getcwd",       app_getcwd},
 	
 	{"hashfile", util_hashfile},
     
