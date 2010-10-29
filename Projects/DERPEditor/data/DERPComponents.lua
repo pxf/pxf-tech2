@@ -83,6 +83,7 @@ function derp_components.output.simple:create_widget(component_data)
       
       -- clear previews
       derp.active_workspace.preview_data = {}
+		derp.active_workspace.profiling_data = {}
       
       -- get json for the tree
       local output_blocks_json = derp_components.output.simple:generate_json(self.parent.parent.parent.data)
@@ -133,7 +134,8 @@ function derp_components.output.simple:create_widget(component_data)
             --spawn_preview_window(self.previewtex, w,h)
             print("got imgdata for block: '" .. block .. output .. "'")
             derp.active_workspace.preview_data[block .. output] = gfx.rawtexture(128, w,h,c, imgdata)
-            
+				derp.active_workspace.profiling_data[block] = indata:get_object(6)
+
             --self.client:disconnect()
           elseif indata.id == "rlog" then
             local sys, what, msg = indata:get_object(0), indata:get_object(1), indata:get_object(2)

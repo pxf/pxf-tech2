@@ -1642,6 +1642,11 @@ function derp:create_texturedinspector(component_data)
 	
 	-- only one output?
 	if (#component_data.outputs < 2) then
+	  local s = derp.active_workspace.profiling_data[self.data.id]
+	  if (s) then
+	    len = gui:get_font_length(s)*8
+	    wid:addwidget(derp:create_centeredlabelpanel(0,0,len,12,component_data.id))
+	  end
 	  wid:addwidget(derp:create_previewbox(0,0,wid.drawbox.w,wid.drawbox.w,component_data, component_data.id))
 	else
 	  local i = 0
