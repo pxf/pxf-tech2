@@ -784,7 +784,7 @@ function derp_components.render.geometry:generate_json(component_data)
                     	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
   							      n = gl_NormalMatrix * gl_Normal;
   							      epos = -vec4(gl_ModelViewMatrix * gl_Vertex).xyz;
-  							      lightdir = gl_ModelViewMatrix*]] .. light_pos .. [[ + epos;
+  							      lightdir = vec4(gl_ModelViewMatrix * vec4(]] .. light_pos .. [[, 1.0)).xyz + epos;
                     	gl_TexCoord[0] = gl_MultiTexCoord0;
                     }",
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
