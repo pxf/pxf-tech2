@@ -223,8 +223,6 @@ bool RenderBlock::Initialize(Json::Value *node)
 	m_CameraLookInputName = (*node)["blockData"]["cameraLookAt"].asString();
 	m_CameraFov = (float)(*node)["blockData"]["cameraFov"].asDouble();
 
-	m_DrawMode = (*node)["blockData"]["drawMode"].asInt();
-
 	// Add inputs
 	for(int i = 0; i < (*node)["blockInput"].size(); i++)
 	{
@@ -909,6 +907,7 @@ bool RootBlock::Execute(bool _SendPreviews)
 				imgpacket->PushInt(img->Height());
 				imgpacket->PushInt(img->Channels());
 				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+				imgpacket->PushInt(m_ProfileTimer.Interval());
 
 				//Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending image to client '%d'", packet->GetSender());
 				m_Renderer->m_Net->SendAllPacket(imgpacket);

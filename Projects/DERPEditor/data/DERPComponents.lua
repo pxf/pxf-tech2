@@ -135,6 +135,7 @@ function derp_components.output.simple:create_widget(component_data)
             print("got imgdata for block: '" .. block .. output .. "'")
             derp.active_workspace.preview_data[block .. output] = gfx.rawtexture(128, w,h,c, imgdata)
 				derp.active_workspace.profiling_data[block] = indata:get_object(6)
+				print("got lol: " .. tostring(indata:get_object(6)))
 
             --self.client:disconnect()
           elseif indata.id == "rlog" then
