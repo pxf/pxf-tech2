@@ -15,6 +15,16 @@ function net.send_file(filepath)
 end
 
 
+function path_abs2rel(abspath)
+    cwd = app.getcwd()
+    relpath = string.gsub(abspath, cwd, "")
+    print(cwd)
+    print(abspath)
+    print(relpath)
+    --return relpath -- this does not work. need a proper abs2rel
+    return abspath
+end
+
 -------------------------------------------------------------------------------
 -- Output::Simple
 derp_components.output.simple = { name = "Ouput: Simple"
@@ -335,15 +345,63 @@ end
 
 function derp_components.postprocess.gaussianblur:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1,1)
-  
+	local valtable = { { 	name = "3x3",
+							kernel_size = 9, 
+							offset = { "vec2(-step_w, -step_h)", "vec2(0.0, -step_h)", "vec2(step_w, -step_h)",  
+										"vec2(-step_w, 0.0)", "vec2(0.0, 0.0)", "vec2(step_w, 0.0)", 
+										"vec2(-step_w, step_h)", "vec2(0.0, step_h)", "vec2(step_w, step_h)" },
+							kernel = { 1.0/16.0, 2.0/16.0, 1.0/16.0,
+										2.0/16.0, 4.0/16.0, 2.0/16.0,
+										1.0/16.0, 2.0/16.0, 1.0/16.0}},
+						{ 	name = "5x5",
+							kernel_size = 25, 
+							offset = {"vec2(-2*step_w,-2*step_h)", "vec2(-step_w,-2*step_h)","vec2(0.0,-2*step_h)","vec2(step_w,-2*step_h)","vec2(2*step_w,-2*step_h)",
+										"vec2(-2*step_w,-step_h)", "vec2(-step_w,-step_h)","vec2(0.0,-step_h)","vec2(step_w,-step_h)","vec2(2*step_w,-step_h)",
+										"vec2(-2*step_w,0.0)", "vec2(-step_w,0.0)","vec2(0.0,0.0)","vec2(step_w,0.0)","vec2(2*step_w,0.0)",
+										"vec2(-2*step_w,step_h)", "vec2(-step_w,step_h)","vec2(0.0,step_h)","vec2(step_w,step_h)","vec2(2*step_w,step_h)",
+										"vec2(-2*step_w,2*step_h)", "vec2(-step_w,2*step_h)","vec2(0.0,2*step_h)","vec2(step_w,2*step_h)","vec2(2*step_w,2*step_h)"}, 
+							kernel = {1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0,
+												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
+												6.0/256.0,24.0/256.0,36.0/256.0,24.0/256.0,6.0/256.0,
+												4.0/256.0,16.0/256.0,24.0/256.0,16.0/256.0,4.0/256.0,
+												1.0/256.0,4.0/256.0 ,6.0/256.0 ,4.0/256.0 ,1.0/256.0 } },
+						{ 	name = "7x7",
+							kernel_size = 49, 
+							offset = {"vec2(-3*step_w,-3*step_h)","vec2(-2*step_w,-3*step_h)","vec2(-1*step_w,-3*step_h)","vec2(0.0,-3*step_h)","vec2(step_w,-3*step_h)","vec2(2*step_w,-3*step_h)","vec2(3*step_w,-3*step_h)",
+										"vec2(-3*step_w,-2*step_h)","vec2(-2*step_w,-2*step_h)","vec2(-1*step_w,-2*step_h)","vec2(0.0,-2*step_h)","vec2(step_w,-2*step_h)","vec2(2*step_w,-2*step_h)","vec2(3*step_w,-2*step_h)",
+										"vec2(-3*step_w,-1*step_h)","vec2(-2*step_w,-1*step_h)","vec2(-1*step_w,-1*step_h)","vec2(0.0,-1*step_h)","vec2(step_w,-1*step_h)","vec2(2*step_w,-1*step_h)","vec2(3*step_w,-1*step_h)",
+										"vec2(-3*step_w,0.0)","vec2(-2*step_w,0.0)","vec2(-1*step_w,0.0)","vec2(0.0,0.0)","vec2(step_w,0.0)","vec2(2*step_w,0.0)","vec2(3*step_w,0.0)",
+										"vec2(-3*step_w,step_h)","vec2(-2*step_w,step_h)","vec2(-1*step_w,step_h)","vec2(0.0,step_h)","vec2(step_w,step_h)","vec2(2*step_w,step_h)","vec2(3*step_w,step_h)",
+										"vec2(-3*step_w,2*step_h)","vec2(-2*step_w,2*step_h)","vec2(-1*step_w,2*step_h)","vec2(0.0,2*step_h)","vec2(step_w,2*step_h)","vec2(2*step_w,2*step_h)","vec2(3*step_w,2*step_h)",
+										"vec2(-3*step_w,3*step_h)","vec2(-2*step_w,3*step_h)","vec2(-1*step_w,3*step_h)","vec2(0.0,3*step_h)","vec2(step_w,3*step_h)","vec2(2*step_w,3*step_h)","vec2(3*step_w,3*step_h)"
+										}, 
+							kernel = { 1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096,
+												6/4096,36/4096,90/4096,120/4096,90/4096,36/4096,6/4096,
+												15/4096,90/4096,225/4096,300/4096,225/4096,90/4096,15/4096,
+												20/4096,120/4096,300/4096,400/4096,300/4096,120/4096,20/4096,
+												15/4096,90/4096,225/4096,300/4096,225/4096,90/4096,15/4096,
+												6/4096,36/4096,90/4096,120/4096,90/4096,36/4096,6/4096,
+												1/4096,6/4096,15/4096,20/4096,15/4096,6/4096,1/4096}},
+					}
   function slider_update(self,value)
-	--print(value)
+	local blur = valtable[value + 1]
+	self.parent.parent.parent.data.blurdesc = blur
   end
   
-  local sliderw = derp:create_slider(5,5,150,20,0,3,slider_update,true)
+  local sliderw = derp:create_slider(5,5,150,20,0,2,slider_update,true)
+  
   sliderw:setvalue(0)
+  wid.data.blurdesc = valtable[1]
+  
   wid.sliderw = sliderw
   wid:addwidget(sliderw)
+  
+  sliderw.mouseover = 
+	function () 
+			local x,y = inp.getmousepos()
+			
+			gui:set_tooltip(wid.data.blurdesc.name,x,y) 
+	end
   
   return wid
 end
@@ -352,6 +410,31 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
   local final_jsondata = {}
   local input_array = {}
   local input_array_shader = {}
+  
+	function build_blursource(tex) 
+		local str = ""
+
+		--for k,v in pairs(component_data.blurdesc.offset) do
+		for i = 1,#component_data.blurdesc.offset do
+			str = str .. "sum += texture2D(" .. tex .. ",uv + " .. component_data.blurdesc.offset[i] .. ") * " .. component_data.blurdesc.kernel[i] .. ";\n"
+		end
+
+		return str
+	end
+	
+	function build_fromtable(tbl)
+		str = ""
+		--for k,v in pairs(tbl) do
+		for i = 1, #tbl do
+			if i == #tbl then
+				str = str .. tbl[i]
+			else
+				str = str .. tbl[i] .. ","
+			end
+		end
+		
+		return str
+	end
   
   for k,v in pairs(component_data.connections_in) do
     table.insert(input_array, [[{"block" : "]] .. tostring(v.block) .. [[", "output" : "]] .. tostring(v.output) .. [["}]])
@@ -386,7 +469,8 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
      "blockInput" : []] .. tostring(table.concat(input_array, ",\n")) .. [[],
      "blockData" : {"width" : 512,
                     "height" : 512,
-                    "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
+                    "shaderVert" : "#version 120
+					]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     uniform float script1;
                     void main(void)
                     {
@@ -395,28 +479,22 @@ function derp_components.postprocess.gaussianblur:generate_json(component_data)
                     }",
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
 					
-					float step_w = 1 / 512;
-					float step_h = 1 / 512;
+										
+					float step_w = 1.0 / 512.0;
+					float step_h = 1.0 / 512.0;
 					
-					#define KERNEL_SIZE 9
+					#define KERNEL_SIZE ]] .. tostring(component_data.blurdesc.kernel_size) .. [[
 					
-					const vec2 offset[KERNEL_SIZE] = { 	vec2(-step_w, -step_h), vec2(0.0, -step_h), vec2(step_w, -step_h), 
-														vec2(-step_w, 0.0), vec2(0.0, 0.0), vec2(step_w, 0.0), 
-														vec2(-step_w, step_h), vec2(0.0, step_h), vec2(step_w, step_h) };
+					vec2 offset[KERNEL_SIZE] = { ]] .. build_fromtable(component_data.blurdesc.offset) .. [[ };
 					
-					const float kernel[KERNEL_SIZE] = { 1.0/16.0, 2.0/16.0, 1.0/16.0,
-														2.0/16.0, 4.0/16.0, 2.0/16.0,
-														1.0/16.0, 2.0/16.0, 1.0/16.0 };
+					float kernel[KERNEL_SIZE] = float[] ( ]] .. build_fromtable(component_data.blurdesc.kernel) .. [[ ); 
 
 					void main()
 					{
 						vec4 sum = vec4(0.0);
 						vec2 uv = gl_TexCoord[0].st;
 						
-						for(int i = 0; i < KERNEL_SIZE; i++)
-						{
-							sum += texture2D(]] .. tostring(first_texture) .. [[,uv + offset[i]) * kernel[i];
-						}
+						]] .. build_blursource(tostring(first_texture)) .. [[
 									
 						gl_FragData[0] = sum;
                     }"
@@ -744,7 +822,7 @@ function derp_components.aux.model:create_widget(component_data)
     local new_filepath = app.opendialog()
     if (new_filepath) then
       self.parent.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.parent.data.modelfilepath = new_filepath
+      self.parent.parent.parent.data.modelfilepath = path_abs2rel(new_filepath)
 
       derp:push_active_workspace()
     end
@@ -806,8 +884,8 @@ function derp_components.aux.texture:create_widget(component_data)
   function browse_func(self)
     local new_filepath = app.opendialog()
     if (new_filepath) then
-      self.parent.parent.parent.filepathwidget.label_text = new_filepath
-      self.parent.parent.parent.data.texturefilepath = new_filepath
+      self.parent.parent.parent.filepathwidget.label_text = path_abs2rel(new_filepath)
+      self.parent.parent.parent.data.texturefilepath = path_abs2rel(new_filepath)
 
       derp:push_active_workspace()
     end
