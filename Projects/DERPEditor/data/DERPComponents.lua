@@ -17,12 +17,12 @@ end
 
 function path_abs2rel(abspath)
     cwd = app.getcwd()
-    len = #cwd+2 -- magic number
-    print(len)
-    relpath = string.sub(abspath, len)
+    relpath = string.gsub(abspath, cwd, "")
+    print(cwd)
     print(abspath)
     print(relpath)
-    return relpath
+    --return relpath -- this does not work. need a proper abs2rel
+    return abspath
 end
 
 -------------------------------------------------------------------------------
