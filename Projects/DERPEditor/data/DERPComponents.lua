@@ -827,7 +827,7 @@ derp_components.render.geometryadvanced = { name = "Geometry renderer - Advanced
                               , tooltip = "Create a block that inputs geometry and renders to a texture, also outputs depth and normal textures."
                               }
 function derp_components.render.geometryadvanced:new_block(workspace,x,y)
-  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometryadvanced", output_type = "texture", inputs = 4, outputs = { workspace:gen_new_outputname(), workspace:gen_new_outputname(), workspace:gen_new_outputname() }, connections_in = {}}
+  local block = { x = x, y = y, w = 170, h = 60, group = "render", type = "geometryadvanced", output_type = "texture", inputs = 6, outputs = { workspace:gen_new_outputname(), workspace:gen_new_outputname(), workspace:gen_new_outputname() }, connections_in = {}}
   -- specific values
   block.modelfilepath = ""
   return block
@@ -835,7 +835,7 @@ end
 
 function derp_components.render.geometryadvanced:create_widget(component_data)
   local wid = derp:create_basecomponentblock(component_data,1000,3)
-  wid.input_aliases = {"cameraPos", "cameraLookAt"}
+  wid.input_aliases = {"cameraPos", "cameraLookAt", "lightPos", "lightColor"}
   wid.output_aliases = {"diffuse", "normals", "depth"}
   
   return wid
@@ -869,6 +869,8 @@ function derp_components.render.geometryadvanced:generate_json(component_data)
     if (tdata.output_type == "texture") then
       table.insert(input_array_shader, "uniform sampler2D " .. tostring(v.output) .. ";")
       first_texture = tostring(v.output)
+    elseif (tdata.output_type == "vec3") then
+      table.insert(input_array_shader, "uniform vec3 " .. tostring(v.output) .. ";")
     elseif (tdata.output_type == "geometry") then
       first_geometry = tostring(v.output)
     end
@@ -881,6 +883,9 @@ function derp_components.render.geometryadvanced:generate_json(component_data)
   if (first_geometry == nil) then
     return spawn_error_dialog({"Geometry block needs at least one geometry block!"})
   end
+  
+  local light_pos = tostring(component_data.connections_in[3].output)
+  local light_color = tostring(component_data.connections_in[4].output)
 
   local jsonstring = [[{"blockName" : "]] .. tostring(component_data.id) .. [[",
      "blockType" : "Render",
@@ -893,17 +898,32 @@ function derp_components.render.geometryadvanced:generate_json(component_data)
   						"cameraFov" : 45.0,
                     "shaderVert" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     varying vec3 n;
+                    varying vec3 lightdir, epos;
   						      void main(void)
                     {
                     	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-  							      n = gl_Normal;
+  							      n = gl_NormalMatrix * gl_Normal;
+  							      epos = -vec4(gl_ModelViewMatrix * gl_Vertex).xyz;
+  							      lightdir = vec4(gl_ModelViewMatrix * vec4(]] .. light_pos .. [[, 1.0)).xyz + epos;
                     	gl_TexCoord[0] = gl_MultiTexCoord0;
                     }",
                     "shaderFrag" : "]] .. tostring(table.concat(input_array_shader, "\n")) .. [[
                     varying vec3 n;
+                    varying vec3 lightdir, epos;
                     void main()
                     {
-  							      gl_FragData[0] = texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+  							      float NdotL = max(dot(normalize(n), normalize(lightdir)), 0.0);
+                      vec4 color;
+                      color = NdotL * vec4(]] .. light_color .. [[, 1.0) * texture2D(]] .. tostring(first_texture) .. [[, gl_TexCoord[0].st);
+                      if (NdotL > 0.0)
+                      {
+                        vec3 halvvec = normalize(normalize(epos) + normalize(lightdir));
+                        float NdotHV = max(dot(normalize(n),halvvec),0.0);
+                        
+                        color = color + pow(NdotHV, 124.0) * vec4(]] .. light_color .. [[, 1.0);
+                      }
+                      color.a = 1.0;
+  							      gl_FragData[0] = color;
   							      gl_FragData[1] = vec4(n, 1.0);
   							      gl_FragData[2] = vec4(0,0,0, 1.0);
   							      
