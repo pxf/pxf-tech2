@@ -186,6 +186,7 @@ namespace Derp
 		Pxf::Util::String m_CameraLookInputName;
 		Block* m_CameraLookInput;
 		float m_CameraFov;
+		int m_DrawMode;
 		
 		Pxf::Graphics::RenderBuffer* m_DepthBuffer;
 		
@@ -196,6 +197,7 @@ namespace Derp
 			, m_CameraPosInput(0)
 			, m_CameraLookInput(0)
 			, m_Shader(0)
+			, m_DrawMode(0)
 		{}
 
 		virtual ~RenderBlock();

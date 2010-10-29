@@ -89,7 +89,14 @@ function spawn_settingswindow()
   local settings_stack = gui:create_verticalstack(30,50,400,20)
   settings_window:addwidget(settings_stack)
   
-  local mouse_checkbox = gui:create_checkbox(0,50,200, "Custom mouse cursor", function(self, value) gui:showmouse(not value) end)
+  local mouse_checkbox = gui:create_checkbox(0,50,200, "Custom mouse cursor", 
+	function(self, value) 
+		local toggle = not value
+		gui:showmouse(toggle)
+		derp.settings.mouse_state = toggle
+		derp:store_settings()
+	end)
+	
   mouse_checkbox:toggle(not gui.mousevisible)
   settings_stack:addwidget(mouse_checkbox)
   
