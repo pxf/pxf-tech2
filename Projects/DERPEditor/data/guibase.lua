@@ -529,12 +529,9 @@ function gui:init()
   
   -- tree of widgets
   self.widgets = gui:create_root()
-  
-  -- hide mouse
-  gui:showmouse(false)
+ 
 end
 
-gui.mousevisible = false
 function gui:showmouse(toggle)
   if (toggle == nil) then
     if (self.mousevisible) then

@@ -5,7 +5,7 @@ derp.active_workspace = nil
 derp.open_workspaces = { history = { }, stack = { }}
 derp.active_tool = { last = nil, current = nil }
 derp.ws_menu = nil
-derp.settings = { recent_files = { max_files = 10, files = {  } } }
+derp.settings = { recent_files = { max_files = 10, files = {  } }, mouse_state = "show" }
 derp.ws_counter = 0
 
 function derp:init()
@@ -77,6 +77,8 @@ function derp:load_settings()
 	
 	if file then
 		self.settings = self:load("data/editor_settings")
+		
+		gui:showmouse(self.settings.mouse_state)
 	end
 end
 

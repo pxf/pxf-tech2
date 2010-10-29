@@ -223,6 +223,8 @@ bool RenderBlock::Initialize(Json::Value *node)
 	m_CameraLookInputName = (*node)["blockData"]["cameraLookAt"].asString();
 	m_CameraFov = (float)(*node)["blockData"]["cameraFov"].asDouble();
 
+	m_DrawMode = (*node)["blockData"]["drawMode"].asInt();
+
 	// Add inputs
 	for(int i = 0; i < (*node)["blockInput"].size(); i++)
 	{
