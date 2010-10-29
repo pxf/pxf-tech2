@@ -336,8 +336,8 @@ end
 
 -------------------------------------------------------------------------------
 -- PostProcess::Sepia
-derp_components.postprocess.sepia = { name = "Post Process: sepia Colors"
-                                , tooltip = "Create a block that sepias the colors of a texture."
+derp_components.postprocess.sepia = { name = "Post Process: Sepia Filter"
+                                , tooltip = "Create a block that applies a sepia filer to a given texture."
                                 }
 function derp_components.postprocess.sepia:new_block(workspace,x,y)
   local block = { x = x, y = y, w = 140, h = 60, group = "postprocess", type = "sepia", output_type = "texture", inputs = 1, outputs = { workspace:gen_new_outputname() }, connections_in = {} }
