@@ -1630,7 +1630,7 @@ function derp:create_previewbox(x,y,w,h,component_data,preview_id)
 end
 
 function derp:create_baseinspector(component_data)
-	local wid = gui:create_verticalstack(10,150,230,400)
+	local wid = gui:create_verticalstack(10,10,230,400)
 	
 	wid.data = component_data
 	
