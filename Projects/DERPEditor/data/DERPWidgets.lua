@@ -29,7 +29,19 @@ function derp:create_recent_files_menu()
 	
 	local i = 1
 	for k,v in pairs(derp.settings.recent_files.files) do
-		table.insert(menu_tbl, {i .. ": " .. v, {tooltip = "Open " .. v, onclick = 
+		local name = string.gsub(v,"\\","/")
+		local loc = string.find(string.reverse(name),"/")
+		
+		if loc then
+			name = string.sub(name,#name - loc + 2,#name)
+		end
+		
+		if #name*10 > 160 then
+			name = string.sub(name,1,12)  
+			name = name .. "..."
+		end
+		
+		table.insert(menu_tbl, {i .. ": " .. name, {tooltip = "Open " .. v, onclick = 
 									function ()  
 										derp:open_workspace(v,derp.active_workspace)
 									end}} )
@@ -341,9 +353,15 @@ function derp:create_slider(x,y,w,h,min,max,on_change,discreet)
 	
 	local tmp = 0.0
 	
+	function slide_button:mouserelease()
+		wid.drag = false
+	end
+	
 	function slide_button:mousedrag(dx,dy)
 	  -- move slider relative
 		self:needsredraw()
+		
+		wid.drag = true
 		
 		local step = (self.max_pos) / (max - min)
 		
