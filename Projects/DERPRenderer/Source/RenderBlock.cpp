@@ -502,6 +502,7 @@ bool RenderBlock::Execute(bool _SendPreviews)
 				imgpacket->PushInt(img->Height());
 				imgpacket->PushInt(img->Channels());
 				imgpacket->PushString((const char*)img->Ptr(), img->Height()*img->Width()*img->Channels());
+				imgpacket->PushInt(m_ProfileTimer.Interval());
 
 				//Kernel::GetInstance()->Log(m_LogTag | Logger::IS_INFORMATION, "Sending image to client '%d'", packet->GetSender());
 				m_Renderer->m_Net->SendAllPacket(imgpacket);
