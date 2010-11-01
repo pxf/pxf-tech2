@@ -59,6 +59,7 @@ void PrimitiveBatch::Flush()
 	if (m_VertexBufferPos == 0 || m_CurrentMode == ENone)
 		return;
 
+	m_pDevice->Translate(Math::Vec3f(0.375, 0.375, 0.));
 	switch(m_CurrentMode)
 	{
 	case EDrawPoints:
@@ -67,7 +68,6 @@ void PrimitiveBatch::Flush()
 		break;
 	case EDrawLines:
 		// For perfect pixelization...
-		//glTranslatef(0.375, 0.375, 0.);
 		m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_LINES);
 		m_pDevice->DrawBuffer(m_VertexBuffer, m_VertexBufferPos);
 		break;
@@ -78,7 +78,7 @@ void PrimitiveBatch::Flush()
 	default:
 		PXF_ASSERT(0, "Invalid drawing mode");
 	}
-
+	m_pDevice->Translate(Math::Vec3f(-0.375, -0.375, 0.));
 	m_VertexBufferPos = 0;
 }
 
