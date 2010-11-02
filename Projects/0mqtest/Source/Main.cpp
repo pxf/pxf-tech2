@@ -7,6 +7,8 @@
 #include <Pxf/Base/Random.h>
 #include <Pxf/Base/Memory.h>
 #include <ctime>
+#include <cstdio>
+#include <cstdlib>
 
 #include <zmq.h>
 
@@ -23,12 +25,17 @@ int main(int argc, char* argv[])
 	if (argc > 1 && StringCompareI(argv[1], "client") == 0)
 	{
 		void *requester = zmq_socket (context, ZMQ_REQ);
+		
 		zmq_connect (requester, "tcp://localhost:50001");
 		unsigned int request_nbr;
 		for (request_nbr = 0; request_nbr != 10000; request_nbr++)
 		{
 			zmq_msg_t request;
-			zmq_msg_init_data (&request, "Hello", 6, NULL, NULL);
+			zmq_msg_init_data (&request
+							  , "Hello"
+							  , 6
+							  , 0
+							  , 0);
 			zmq_send (requester, &request, 0);
 			zmq_msg_close (&request);
 

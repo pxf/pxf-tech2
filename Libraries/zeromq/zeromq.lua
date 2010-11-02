@@ -11,7 +11,11 @@ if family == "windows" then
     -- Would prefer to not use DLL_EXPORT
     library:AddDefine("DLL_EXPORT")
 else
-    -- Need any libs for *nix?
+	if platform == "macosx" then
+		library:AddDefine("ZMQ_HAVE_OSX")
+	else
+		library:AddDefine("ZMQ_HAVE_LINUX")
+	end
 end
 
 library:AddSourceDirectory("sdk/src/*.c")
