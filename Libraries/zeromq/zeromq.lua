@@ -14,6 +14,7 @@ else
 	if platform == "macosx" then
 		library:AddDefine("ZMQ_HAVE_OSX")
 	else
+		library:AddSystemLibrary("uuid")
 		library:AddDefine("ZMQ_HAVE_LINUX")
 	end
 end
