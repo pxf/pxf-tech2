@@ -3,6 +3,9 @@ gui.snap_to_grid = false
 gui.grid_size = 100
 
 ----------------------------------------------
+-- Adding a comment, hey now.
+
+----------------------------------------------
 -- require window handling extension
 require("data/guiwindows")
 
