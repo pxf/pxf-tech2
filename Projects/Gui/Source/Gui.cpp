@@ -8,6 +8,8 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Font.h>
 
+#include <cstdio>
+
 using namespace Pxf;
 using namespace Pxf::Graphics;
 

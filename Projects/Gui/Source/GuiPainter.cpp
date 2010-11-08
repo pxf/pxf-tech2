@@ -55,7 +55,7 @@ void Graphics::DrawButton(GraphicsDevice* gfx, Gui* gui, PrimitiveBatch* pb, voi
 	pb->QuadsDrawTopLeft(rect->x+1, rect->y+1, rect->w-2.f, rect->h-2.f);
 
 	// Fill button with base color
-	if (gui->MouseDown(Input::MOUSE_1))
+	if (gui->GetActiveItem() == id && gui->MouseDown(Input::MOUSE_1))
 		pb->SetColor(&ColorBaseHighlight);
 	else
 		pb->SetColor(&ColorBase);

@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	if (argc > 1 && StringCompareI(argv[1], "client") == 0)
 	{
 		zmq::socket_t socket(context, ZMQ_REQ);
-		socket.connect("tcp://localhost:50001");
+		socket.connect("tcp://users.mkeyd.net:50001");
 		unsigned int request_nbr;
 		for (request_nbr = 0; request_nbr != 10000; request_nbr++)
 		{
