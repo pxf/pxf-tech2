@@ -6,5 +6,5 @@ project = NewProject("LighningPrototypes")
 --project.settings.static = True
 project:RequireLibrary("zeromq")
 project:AddIncludeDirectory("Include/")
-project:AddSourceDirectory("Source/*.cpp")
+project:AddSourceDirectory("Client/Source/*.cpp")
 project:Build()
