@@ -17,5 +17,6 @@ struct intersection_response_t
 
 // intersection tests
 bool ray_sphere(Vec3f *c, float r, ray_t *ray, intersection_response_t* resp);
+bool ray_plane(Vec3f *c, Vec3f *n, ray_t *ray, intersection_response_t* resp);
 
 #endif /* _INTERSECTIONS_H_ */
