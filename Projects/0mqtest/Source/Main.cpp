@@ -11,11 +11,16 @@
 #include <cstdlib>
 
 #include <zmq.hpp>
+#include <google/protobuf/stubs/common.h> // ShutdownProtobufLibrary
+#include <vectormath_aos.h>
 
 using namespace Pxf;
+using namespace Vectormath::Aos;
 
 int main(int argc, char* argv[])
 {
+	Vector3 a, b;
+	Vector3 c = a + b;
 	Pxf::RandSetSeed(time(NULL));
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 	
@@ -57,6 +62,8 @@ int main(int argc, char* argv[])
 			socket.send(reply);
 		}
 	}
+
+	google::protobuf::ShutdownProtobufLibrary();
 	return 0;
 }
 
