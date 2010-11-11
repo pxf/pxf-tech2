@@ -36,6 +36,9 @@ bool ray_plane(Vec3f *c, Vec3f *n, ray_t *ray, intersection_response_t* resp)
 	Vec3f w = ray.o - *c;
 	float t = - (n.dot(w)) / (n.dot(ray.d));
 	
+	if (t < 0.0f)
+		return false;
+	
 	resp.p = ray.o + ray.d * t;
 	// TODO: Return normal for intersection also!!
 	return true;
