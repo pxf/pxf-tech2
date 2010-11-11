@@ -6,6 +6,7 @@
 struct batch_blob_t
 {
 	char lols[256]; // Something stupid for now..
+	int pic_w, pic_h;
 	// TODO: Add textures, kd-tree etc etc.
 };
 

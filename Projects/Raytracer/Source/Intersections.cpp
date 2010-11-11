@@ -26,7 +26,8 @@ bool ray_sphere(Pxf::Math::Vec3f *c, float r, ray_t *ray, intersection_response_
 		t = s + q;
 	
 	resp->p = ray->o + ray->d * t;
-	// TODO: Return normal for intersection also!!
+	resp->n = resp->p - *c;
+	Normalize(resp->n);
 	return true;
 }
 

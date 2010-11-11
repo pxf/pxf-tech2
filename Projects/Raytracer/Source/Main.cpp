@@ -53,6 +53,9 @@ int main(int argc, char* argv[])
 	
 	// job specifics
 	batch_blob_t blob;
+	blob.pic_w = w;
+	blob.pic_h = h;
+	
 	task_detail_t task;
 	task.task_count = task_count*task_count;
 	
