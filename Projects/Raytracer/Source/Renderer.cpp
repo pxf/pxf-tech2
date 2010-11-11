@@ -1,4 +1,7 @@
+#include <Pxf/Math/Vector.h>
+
 #include "Renderer.h"
+#include "Intersections.h"
 
 /**
  * Renders a task, using region etc and storing the data in pic.
@@ -7,7 +10,6 @@
 bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic)
 {
 	// TODO: Check incomming data!
-	// (Don't know what to check atm... :/)
 	
 	if (task->region[0] < 0 || task->region[1] < 0 || task->region[2] < 0 || task->region[3] < 0 ||
 	    task->region[0] >= task->region[2] || task->region[1] >= task->region[3]
@@ -47,8 +49,30 @@ bool calculate_pixel(int x, int y, task_detail_t *task, batch_blob_t *datablob, 
 	int region_width = task->region[2] - task->region[0];
 	int region_height = task->region[3] - task->region[1];
 	
+	int rel_x = task->region[0] + x;
+	int rel_y = task->region[1] + y;
+	Pxf::Math::Vec3f world_coords(-(float)datablob->pic_w / 2.0f + (float)rel_x, (float)datablob->pic_h / 2.0f - (float)rel_y, 1.0f);
+	
+	
 	pixel->r = (char)(255 * ((float)x / (float)region_width));
 	pixel->g = (char)(255 * ((float)y / (float)region_height));
 	pixel->b = (char)(255 * ((float)task->task_id / (float)task->task_count));
+	
+	// test sphere
+	Pxf::Math::Vec3f sphere_c(0.0f,0.0f,5.0f);
+	ray_t ray;
+	ray.o = world_coords;
+	Normalize(world_coords);
+	ray.d = world_coords;
+	intersection_response_t resp;
+	
+	if (ray_sphere(&sphere_c, 60, &ray, &resp))
+	{
+		resp.n = (resp.n + 1.0f) / 2.0f;
+		pixel->r = resp.n.x * 255;
+		pixel->g = resp.n.y * 255;
+		pixel->b = resp.n.z * 255;
+	}
+	
 	return true;
 }
