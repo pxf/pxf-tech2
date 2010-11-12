@@ -3,7 +3,8 @@ package lightningtracker;
 import "lightning.proto";
 
 message HelloToTracker {
-	required lightning.Address address = 1;
+	required string address = 1;
+	required int32 available = 2;
 }
 
 message HelloToClient {
@@ -38,7 +39,7 @@ message NodesRequest {
 message NodesResponse {
 	message Node {
 		required int32 sessionid  = 1;
-		required lightning.Address address = 2;
+		required string address = 2;
 	}
 	
 	repeated Node nodes = 1;
