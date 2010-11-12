@@ -3,6 +3,9 @@
 #include "Renderer.h"
 #include "Intersections.h"
 
+using namespace Pxf;
+using namespace Math;
+
 /**
  * Renders a task, using region etc and storing the data in pic.
  * Returns true if the task was successfully rendered, false otherwise.
@@ -51,19 +54,22 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
 {
 	// TODO: Do some real calculations here!
-	Pxf::Math::Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
+	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
 	
 	pixel->r = 0;//(char)(255 * x / 2.0f);//(char)(255 * ((float)x / (float)region_width));
 	pixel->g = 0;//(char)(255 * y / 2.0f);//(char)(255 * ((float)y / (float)region_height));
 	pixel->b = 0;//(char)(255 * ((float)task->task_id / (float)task->task_count));
 	
 	// test sphere
-	Pxf::Math::Vec3f sphere_c(0.0f,0.0f,10.0f);
+	Vec3f sphere_c(0.0f,0.0f,10.0f);
 	ray_t ray;
-	ray.o = Pxf::Math::Vec3f(0.0f,0.0f,-1.0f);
+	ray.o = Vec3f(0.0f,0.0f,-1.0f);
 	ray.d = screen_coords - ray.o;
 	Normalize(ray.d);
 	intersection_response_t resp;
+	
+	// test light
+	Vec3f light(9.0f, 9.0f, 9.0f);
 	
 	if (ray_sphere(&sphere_c, 7, &ray, &resp))
 	{
