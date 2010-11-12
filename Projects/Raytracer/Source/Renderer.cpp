@@ -3,6 +3,9 @@
 #include "Renderer.h"
 #include "Intersections.h"
 
+using namespace Pxf;
+using namespace Math;
+
 /**
  * Renders a task, using region etc and storing the data in pic.
  * Returns true if the task was successfully rendered, false otherwise.
@@ -23,6 +26,8 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 	// Init data
 	int region_width = task->region[2] - task->region[0];
 	int region_height = task->region[3] - task->region[1];
+	float pixel_w = 1.0f / (datablob->pic_w / 2.0f);
+	float pixel_h = 1.0f / (datablob->pic_h / 2.0f);
 	pic->data = new pixel_data_t[region_width*region_height]; // width * height
 	
 	// Loop through all region pixels
@@ -31,7 +36,10 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 		for(int x = 0; x < region_width; ++x)
 		{
 			// Calculate pixel value
-			if (!calculate_pixel(x, y, task, datablob, &pic->data[y*region_width+x]))
+			float xf, yf;
+			xf = (task->region[0] + x)*pixel_w;
+			yf = (task->region[1] + y)*pixel_h;
+			if (!calculate_pixel(xf, yf, task, datablob, &pic->data[y*region_width+x]))
 			{
 				Pxf::Message("TaskRenderer", "Error while calculating pixel: [x: %d, y: %d]", x, y);
 				return false;
@@ -43,35 +51,38 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 	return true;
 }
 
-bool calculate_pixel(int x, int y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
+bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
 {
 	// TODO: Do some real calculations here!
-	int region_width = task->region[2] - task->region[0];
-	int region_height = task->region[3] - task->region[1];
+	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
 	
-	int rel_x = task->region[0] + x;
-	int rel_y = task->region[1] + y;
-	Pxf::Math::Vec3f world_coords(-(float)datablob->pic_w / 2.0f + (float)rel_x, (float)datablob->pic_h / 2.0f - (float)rel_y, 1.0f);
-	
-	
-	pixel->r = (char)(255 * ((float)x / (float)region_width));
-	pixel->g = (char)(255 * ((float)y / (float)region_height));
-	pixel->b = (char)(255 * ((float)task->task_id / (float)task->task_count));
+	pixel->r = 0;//(char)(255 * x / 2.0f);//(char)(255 * ((float)x / (float)region_width));
+	pixel->g = 0;//(char)(255 * y / 2.0f);//(char)(255 * ((float)y / (float)region_height));
+	pixel->b = 0;//(char)(255 * ((float)task->task_id / (float)task->task_count));
 	
 	// test sphere
-	Pxf::Math::Vec3f sphere_c(0.0f,0.0f,5.0f);
+	Vec3f sphere_c(0.0f,0.0f,10.0f);
 	ray_t ray;
-	ray.o = world_coords;
-	Normalize(world_coords);
-	ray.d = world_coords;
+	ray.o = Vec3f(0.0f,0.0f,-1.0f);
+	ray.d = screen_coords - ray.o;
+	Normalize(ray.d);
 	intersection_response_t resp;
 	
-	if (ray_sphere(&sphere_c, 60, &ray, &resp))
+	// test light
+	Vec3f light(9.0f, 9.0f, -9.0f);
+	
+	if (ray_sphere(&sphere_c, 7, &ray, &resp))
 	{
+		Vec3f L = light - resp.p;
+		Normalize(L);
+		float dot = Dot( resp.n, L );
+		if (dot < 0.0f)
+			dot = 0.0f;
+		
 		resp.n = (resp.n + 1.0f) / 2.0f;
-		pixel->r = resp.n.x * 255;
-		pixel->g = resp.n.y * 255;
-		pixel->b = resp.n.z * 255;
+		pixel->r = dot * 255;//resp.n.x * 255;
+		pixel->g = dot * 255;//resp.n.y * 255;
+		pixel->b = dot * 255;//resp.n.z * 255;
 	}
 	
 	return true;
