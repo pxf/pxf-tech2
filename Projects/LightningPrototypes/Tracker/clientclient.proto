@@ -3,7 +3,7 @@ package lightningclient;
 import "lightning.proto";
 
 message Hello {
-	required lightning.Address address = 1;
+	required string address = 1;
 }
 
 message Ping {
@@ -29,7 +29,7 @@ message Data {
 	required int32 datasize = 2;
 	required int32 datatype = 3;
 	required string data = 4;
-	required lightning.Address returnaddress = 5;
+	required string returnaddress = 5;
 }
 
 message Tasks {
