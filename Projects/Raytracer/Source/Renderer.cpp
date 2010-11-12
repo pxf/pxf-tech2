@@ -69,14 +69,20 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	intersection_response_t resp;
 	
 	// test light
-	Vec3f light(9.0f, 9.0f, 9.0f);
+	Vec3f light(9.0f, 9.0f, -9.0f);
 	
 	if (ray_sphere(&sphere_c, 7, &ray, &resp))
 	{
+		Vec3f L = light - resp.p;
+		Normalize(L);
+		float dot = Dot( resp.n, L );
+		if (dot < 0.0f)
+			dot = 0.0f;
+		
 		resp.n = (resp.n + 1.0f) / 2.0f;
-		pixel->r = resp.n.x * 255;
-		pixel->g = resp.n.y * 255;
-		pixel->b = resp.n.z * 255;
+		pixel->r = dot * 255;//resp.n.x * 255;
+		pixel->g = dot * 255;//resp.n.y * 255;
+		pixel->b = dot * 255;//resp.n.z * 255;
 	}
 	
 	return true;
