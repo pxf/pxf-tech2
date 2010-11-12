@@ -29,6 +29,6 @@ struct render_result_t
 };
 
 bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic);
-bool calculate_pixel(int x, int y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel);
+bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel);
 
 #endif /* _RENDERER_H_ */
