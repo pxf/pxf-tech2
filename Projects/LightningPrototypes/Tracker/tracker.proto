@@ -1,17 +1,9 @@
 package lightningtracker;
 
-message Address {
-	required bool isipv4 = 1 [default = true];
-
-	optional int32 ipv4 = 2;
-	optional int64 ipv6a = 3;
-	optional int64 ipv6b = 4;
-
-	required int32 port = 5;
-}
+import "lightning.proto";
 
 message HelloToTracker {
-	required Address address = 1;
+	required lightning.Address address = 1;
 }
 
 message HelloToClient {
@@ -34,7 +26,7 @@ message NewBatch {
 
 	required int32 sessionid = 1;
 	required string batchhash = 2;
-    required int32 tasks = 3;
+   required int32 tasks = 3;
 	required BatchType batchtype = 4;
 }
 
@@ -46,7 +38,7 @@ message NodesRequest {
 message NodesResponse {
 	message Node {
 		required int32 sessionid  = 1;
-		required Address address = 2;
+		required lightning.Address address = 2;
 	}
 	
 	repeated Node nodes = 1;
