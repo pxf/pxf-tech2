@@ -1,9 +1,6 @@
 #!/usr/bin/python2
 
-import tracker_pb2,zmq,socket,struct,hashlib
-
-tracker_address = "127.0.0.1"
-tracker_port = "34567"
+import tracker_pb2,zmq,socket,struct,hashlib,lightning
 
 def main():
 	print "Client."
@@ -32,17 +29,18 @@ def main():
 
 		if i == 0: break
 		elif i == 1:
+			if zmq_socket.closed
+			# HelloToTracker message
 			print "Creating protocol buffer data..."
 			hello = tracker_pb2.HelloToTracker()
-			hello.address.port = 34568
-			hello.address.isipv4 = True
-			hello.address.ipv4 = struct.unpack('L',socket.inet_aton("127.0.0.1"))[0]
+			hello.address = "tcp://localhost:34568"
 			print "protobuf data:\n" + str(hello)
 
 			print "Connecting to tracker..."
-			zmq_socket.connect("tcp://" + tracker_address + ":" + tracker_port)
+			zmq_socket.connect("tcp://" + lightning.tracker_address + ":" + lightning.tracker_port)
 			print "Sending protobuf data..."
-			zmq_socket.send(hello.SerializeToString())
+			zmq_socket.send(struct.pack('<I', lightning.HELLO) + hello.SerializeToString())
+			print hello.SerializeToString()
 
 		elif i == 2:
 			print "Sending NewBatch..."
