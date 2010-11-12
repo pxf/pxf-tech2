@@ -1,0 +1,11 @@
+package lightning;
+
+message Address {
+	required bool isipv4 = 1 [default = true];
+
+	optional int32 ipv4 = 2;
+	optional int64 ipv6a = 3;
+	optional int64 ipv6b = 4;
+
+	required int32 port = 5;
+}
