@@ -33,9 +33,6 @@ bool Pxf::SharedLibrary::Load(const char* _File)
 	
 	m_pHandle = dlopen(_File, RTLD_NOW);
 	
-	if (m_pHandle == 0)
-		printf("Error loading shared library: %s\n", dlerror());
-	
 	return m_pHandle != 0;
 }
 
