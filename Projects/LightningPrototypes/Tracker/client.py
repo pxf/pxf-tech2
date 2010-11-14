@@ -1,6 +1,9 @@
 #!/usr/bin/python2
 
-import tracker_pb2,zmq,socket,struct,hashlib,lightning
+import struct, socket, hashlib
+
+import zmq
+import lightning, tracker_pb2
 
 def main():
     print "Client."
@@ -9,15 +12,19 @@ def main():
     zmq_socket = zmq_context.socket(zmq.REQ)
     zmq_socket_in = zmq_context.socket(zmq.PUB)
 
-    # Find an open port to listen to.
+    # Find an open port to listen to, by testing.
     listen_port = 34568 # Start at 34568
+    listen_address = ""
     for i in range(500): # Max 500 tries. 
         try:
-            zmq_socket_in.bind("tcp://{0}:{1}".format("users.mkeyd.net", str(listen_port)))
-        except:
+            listen_address = "tcp://{0}:{1}".format("*", listen_port)
+            zmq_socket_in.bind(listen_address)
+        except Exception as e:
+            print("ERROR BINDING {0}: {1}".format(listen_address, str(e)))
             listen_port += 1
+            continue
         break
-    print("Listening to {0}".format("tcp://{0}:{1}".format("users.mkeyd.net", str(listen_port))))
+    print("Listening to {0}".format(listen_address))
 	
     while True:
         print "1: HelloToTracker\n" +\
@@ -42,7 +49,7 @@ def main():
             # HelloToTracker message
             print "Creating protocol buffer data..."
             hello = tracker_pb2.HelloToTracker()
-            hello.address = "tcp://localhost:34568"
+            hello.address = listen_address
             print "protobuf data:\n" + str(hello)
 
             print "Connecting to tracker..."
