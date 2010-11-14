@@ -233,23 +233,4 @@ end
 function draw(force)
   gui:draw(force)
   gui:draw_custom_cursor(force)
-  
-  -- test line drawing:
-  --[[local line = create_spline({{100,200},{200,100},{300,300},{400,200},{400,500}}, 30,2)
-  line:update()
-  local r,g,b = gfx.getcolor()
-  local mx,my = inp.getmousepos()
-  if (line:hit(mx,my,5)) then
-    gfx.setcolor(1,0,0)
-  else
-    gfx.setcolor(1,1,1)
-  end
-  line:draw()
-  gfx.setcolor(r,g,b)]]
-  
-  --aoe:draw(200,200,300,200,300,300,200,300)
-  
-  --[[if (#poopline > 3) then
-    draw_spline(poopline, 100,2)
-  end]]
 end

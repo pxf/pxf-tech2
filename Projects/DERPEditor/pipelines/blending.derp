@@ -19,9 +19,9 @@
             ["y"] = 207,
             ["x"] = 571,
             ["id"] = "Block_output_3",
-            ["inputs"] = 1,
-            ["h"] = 100,
             ["remotehost"] = "localhost",
+            ["h"] = 100,
+            ["inputs"] = 1,
             ["outputs"] = {
 
 },
@@ -37,10 +37,10 @@
             ["w"] = 170,
             ["y"] = 199,
             ["x"] = 48,
-            ["texturefilepath"] = "D:\\projects\\pxf-tech2\\Projects\\DERPRenderer\\data\\reach.png",
+            ["texturefilepath"] = "C:\\Code\\pxf-tech2\\Projects\\DERPRenderer\\data\\reach.png",
             ["id"] = "Block_aux_1",
-            ["inputs"] = 0,
             ["h"] = 60,
+            ["inputs"] = 0,
             ["outputs"] = {
                 [1] = "output1",
 
@@ -57,10 +57,10 @@
             ["w"] = 170,
             ["y"] = 415,
             ["x"] = 50,
-            ["texturefilepath"] = "D:\\projects\\pxf-tech2\\Projects\\DERPRenderer\\data\\derptest.png",
+            ["texturefilepath"] = "C:\\Code\\pxf-tech2\\Projects\\DERPRenderer\\data\\derptest.png",
             ["id"] = "Block_aux_2",
-            ["inputs"] = 0,
             ["h"] = 60,
+            ["inputs"] = 0,
             ["outputs"] = {
                 [1] = "output2",
 
@@ -93,8 +93,8 @@
             ["x"] = 289,
             ["slidervalue"] = 0.46808510638298,
             ["id"] = "Block_postprocess_4",
-            ["inputs"] = 2,
             ["h"] = 60,
+            ["inputs"] = 2,
             ["outputs"] = {
                 [1] = "output3",
 
