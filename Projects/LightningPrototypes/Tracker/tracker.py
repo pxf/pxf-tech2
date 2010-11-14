@@ -13,8 +13,6 @@ def main():
     trackerdatabase = TrackerDatabase()
 
     while True:
-        next_id = 1
-
         #  Wait for next request from client
         message = socket.recv()
         print("Received message, parsing... ")
@@ -28,10 +26,13 @@ def main():
             hello.ParseFromString(message)
             print(str(hello))
 
-            sessionid = trackerdatabase.new_client(hello.address)
+            session_id = trackerdatabase.new_client(hello.address)
             response = tracker_pb2.HelloToClient()
-            response.sessionid = sessionid
+            response.session_id = session_id
             socket.send(response.SerializeToString())
+        elif message_type == lightning.GOODBYE:
+
+            
      
 class TrackerDatabase:
     """Class containing the current connected nodes, connections within
@@ -50,7 +51,7 @@ class TrackerDatabase:
         pass
 
     def next_id(self):
-        """next_id() -> int sessionid.
+        """next_id() -> int session_id.
         
         Find the next available session id for a client.
         """
@@ -63,29 +64,36 @@ class TrackerDatabase:
 
         return self._next_id
 
-    def add_client(self, sessionid, address, available):
-        """add_client(int sessionid, <ipy> address, int available) -> bool success.
+    def add_client(self, session_id, address, available):
+        """add_client(int session_id, <ipy> address, int available) -> bool success.
 
         Adds a client to the client database. Throws AssertionError if 
-        sessionid is already in use.
+        session_id is already in use.
         """
 
-        assert(sessionid not in self._clients.keys())
+        assert(session_id not in self._clients.keys())
         
-        self._clients[sessionid] = (address, available)
+        self._clients[session_id] = (address, available)
 
         return True
 
-    def new_client(self, address, available):
-        """new_client(<ipy> address, int available) -> int sessionid.
+    def del_client(self, session_id):
+        """TODO
 
-        Adds a new client to the client database, returning the sessionid.
+        TODO
+        """
+        pass
+
+    def new_client(self, address, available):
+        """new_client(<ipy> address, int available) -> int session_id.
+
+        Adds a new client to the client database, returning the new session_id.
         """
 
-        sessionid = self.next_id()
-        self.add_client(sessionid, address, available)    
+        session_id = self.next_id()
+        self.add_client(session_id, address, available)    
 
-        return sessionid
+        return session_id
 
 
 if __name__ == "__main__":

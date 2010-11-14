@@ -32,7 +32,7 @@ def main():
         except ValueError:
             break
 
-        sessionid = 0
+        session_id = 0
         batchhash = hashlib.sha1("aoeu").hexdigest()
         batchtype = tracker_pb2.NewBatch.RAYTRACE
         tasks = 12000
@@ -54,13 +54,12 @@ def main():
         elif i == 2:
             print "Sending NewBatch..."
             new = tracker_pb2.NewBatch()
-            new.sessionid = sessionid
+            new.sessionid = session_id
             new.batchhash = batchhash
             new.tasks = tasks
             new.batchtype = batchtype
 
             print "protobuf data:\n" + str(new)
-
 
 
 
