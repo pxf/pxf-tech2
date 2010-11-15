@@ -5,6 +5,7 @@
 
 struct material_t
 {
+	Pxf::Math::Vec3f ambient;
 	Pxf::Math::Vec3f diffuse;
 	Pxf::Math::Vec3f specular;
 	float shininess;
