@@ -10,7 +10,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = descriptor.FileDescriptor(
   name='tracker.proto',
   package='lightningtracker',
-  serialized_pb='\n\rtracker.proto\x12\x10lightningtracker\"Y\n\x07\x41\x64\x64ress\x12\x14\n\x06isipv4\x18\x01 \x02(\x08:\x04true\x12\x0c\n\x04ipv4\x18\x02 \x01(\x05\x12\r\n\x05ipv6a\x18\x03 \x01(\x03\x12\r\n\x05ipv6b\x18\x04 \x01(\x03\x12\x0c\n\x04port\x18\x05 \x02(\x05\"<\n\x0eHelloToTracker\x12*\n\x07\x61\x64\x64ress\x18\x01 \x02(\x0b\x32\x19.lightningtracker.Address\"\"\n\rHelloToClient\x12\x11\n\tsessionid\x18\x01 \x02(\x05\"\x18\n\x04Ping\x12\x10\n\x08pingdata\x18\x01 \x02(\x05\"\x18\n\x04Pong\x12\x10\n\x08pingdata\x18\x01 \x02(\x05\"\xa4\x01\n\x08NewBatch\x12\x11\n\tsessionid\x18\x01 \x02(\x05\x12\x11\n\tbatchhash\x18\x02 \x02(\t\x12\r\n\x05tasks\x18\x03 \x02(\x05\x12\x37\n\tbatchtype\x18\x04 \x02(\x0e\x32$.lightningtracker.NewBatch.BatchType\"*\n\tBatchType\x12\x0c\n\x08RAYTRACE\x10\x00\x12\x0f\n\x0bPHOTSHOOTAH\x10\x01\"0\n\x0cNodesRequest\x12\x11\n\tsessionid\x18\x01 \x02(\x05\x12\r\n\x05nodes\x18\x02 \x02(\x05\"\x8b\x01\n\rNodesResponse\x12\x33\n\x05nodes\x18\x01 \x03(\x0b\x32$.lightningtracker.NodesResponse.Node\x1a\x45\n\x04Node\x12\x11\n\tsessionid\x18\x01 \x02(\x05\x12*\n\x07\x61\x64\x64ress\x18\x02 \x02(\x0b\x32\x19.lightningtracker.Address')
+  serialized_pb='\n\rtracker.proto\x12\x10lightningtracker\x1a\x0flightning.proto\"4\n\x0eHelloToTracker\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x02(\t\x12\x11\n\tavailable\x18\x02 \x02(\x05\"\"\n\rHelloToClient\x12\x11\n\tsessionid\x18\x01 \x02(\x05\"\x1c\n\x07GoodBye\x12\x11\n\tsessionid\x18\x01 \x02(\x05\"\x18\n\x04Ping\x12\x10\n\x08pingdata\x18\x01 \x02(\x05\"\x18\n\x04Pong\x12\x10\n\x08pingdata\x18\x01 \x02(\x05\"\xa4\x01\n\x08NewBatch\x12\x11\n\tsessionid\x18\x01 \x02(\x05\x12\x11\n\tbatchhash\x18\x02 \x02(\t\x12\r\n\x05tasks\x18\x03 \x02(\x05\x12\x37\n\tbatchtype\x18\x04 \x02(\x0e\x32$.lightningtracker.NewBatch.BatchType\"*\n\tBatchType\x12\x0c\n\x08RAYTRACE\x10\x00\x12\x0f\n\x0bPHOTSHOOTAH\x10\x01\"0\n\x0cNodesRequest\x12\x11\n\tsessionid\x18\x01 \x02(\x05\x12\r\n\x05nodes\x18\x02 \x02(\x05\"p\n\rNodesResponse\x12\x33\n\x05nodes\x18\x01 \x03(\x0b\x32$.lightningtracker.NodesResponse.Node\x1a*\n\x04Node\x12\x11\n\tsessionid\x18\x01 \x02(\x05\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x02(\t')
 
 
 
@@ -31,64 +31,8 @@ _NEWBATCH_BATCHTYPE = descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=399,
-  serialized_end=441,
-)
-
-
-_ADDRESS = descriptor.Descriptor(
-  name='Address',
-  full_name='lightningtracker.Address',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    descriptor.FieldDescriptor(
-      name='isipv4', full_name='lightningtracker.Address.isipv4', index=0,
-      number=1, type=8, cpp_type=7, label=2,
-      has_default_value=True, default_value=True,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    descriptor.FieldDescriptor(
-      name='ipv4', full_name='lightningtracker.Address.ipv4', index=1,
-      number=2, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    descriptor.FieldDescriptor(
-      name='ipv6a', full_name='lightningtracker.Address.ipv6a', index=2,
-      number=3, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    descriptor.FieldDescriptor(
-      name='ipv6b', full_name='lightningtracker.Address.ipv6b', index=3,
-      number=4, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    descriptor.FieldDescriptor(
-      name='port', full_name='lightningtracker.Address.port', index=4,
-      number=5, type=5, cpp_type=1, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  extension_ranges=[],
-  serialized_start=35,
-  serialized_end=124,
+  serialized_start=347,
+  serialized_end=389,
 )
 
 
@@ -101,8 +45,15 @@ _HELLOTOTRACKER = descriptor.Descriptor(
   fields=[
     descriptor.FieldDescriptor(
       name='address', full_name='lightningtracker.HelloToTracker.address', index=0,
-      number=1, type=11, cpp_type=10, label=2,
-      has_default_value=False, default_value=None,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='available', full_name='lightningtracker.HelloToTracker.available', index=1,
+      number=2, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -115,8 +66,8 @@ _HELLOTOTRACKER = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=126,
-  serialized_end=186,
+  serialized_start=52,
+  serialized_end=104,
 )
 
 
@@ -143,8 +94,36 @@ _HELLOTOCLIENT = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=188,
-  serialized_end=222,
+  serialized_start=106,
+  serialized_end=140,
+)
+
+
+_GOODBYE = descriptor.Descriptor(
+  name='GoodBye',
+  full_name='lightningtracker.GoodBye',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    descriptor.FieldDescriptor(
+      name='sessionid', full_name='lightningtracker.GoodBye.sessionid', index=0,
+      number=1, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=142,
+  serialized_end=170,
 )
 
 
@@ -171,8 +150,8 @@ _PING = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=224,
-  serialized_end=248,
+  serialized_start=172,
+  serialized_end=196,
 )
 
 
@@ -199,8 +178,8 @@ _PONG = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=250,
-  serialized_end=274,
+  serialized_start=198,
+  serialized_end=222,
 )
 
 
@@ -249,8 +228,8 @@ _NEWBATCH = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=277,
-  serialized_end=441,
+  serialized_start=225,
+  serialized_end=389,
 )
 
 
@@ -284,8 +263,8 @@ _NODESREQUEST = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=443,
-  serialized_end=491,
+  serialized_start=391,
+  serialized_end=439,
 )
 
 
@@ -305,8 +284,8 @@ _NODESRESPONSE_NODE = descriptor.Descriptor(
       options=None),
     descriptor.FieldDescriptor(
       name='address', full_name='lightningtracker.NodesResponse.Node.address', index=1,
-      number=2, type=11, cpp_type=10, label=2,
-      has_default_value=False, default_value=None,
+      number=2, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -319,8 +298,8 @@ _NODESRESPONSE_NODE = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=564,
-  serialized_end=633,
+  serialized_start=511,
+  serialized_end=553,
 )
 
 _NODESRESPONSE = descriptor.Descriptor(
@@ -346,23 +325,16 @@ _NODESRESPONSE = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=494,
-  serialized_end=633,
+  serialized_start=441,
+  serialized_end=553,
 )
 
+import lightning_pb2
 
-_HELLOTOTRACKER.fields_by_name['address'].message_type = _ADDRESS
 _NEWBATCH.fields_by_name['batchtype'].enum_type = _NEWBATCH_BATCHTYPE
 _NEWBATCH_BATCHTYPE.containing_type = _NEWBATCH;
-_NODESRESPONSE_NODE.fields_by_name['address'].message_type = _ADDRESS
 _NODESRESPONSE_NODE.containing_type = _NODESRESPONSE;
 _NODESRESPONSE.fields_by_name['nodes'].message_type = _NODESRESPONSE_NODE
-
-class Address(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _ADDRESS
-  
-  # @@protoc_insertion_point(class_scope:lightningtracker.Address)
 
 class HelloToTracker(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
@@ -375,6 +347,12 @@ class HelloToClient(message.Message):
   DESCRIPTOR = _HELLOTOCLIENT
   
   # @@protoc_insertion_point(class_scope:lightningtracker.HelloToClient)
+
+class GoodBye(message.Message):
+  __metaclass__ = reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _GOODBYE
+  
+  # @@protoc_insertion_point(class_scope:lightningtracker.GoodBye)
 
 class Ping(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType

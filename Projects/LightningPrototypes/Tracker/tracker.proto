@@ -1,29 +1,26 @@
 package lightningtracker;
 
-message Address {
-	required bool isipv4 = 1 [default = true];
-
-	optional int32 ipv4 = 2;
-	optional int64 ipv6a = 3;
-	optional int64 ipv6b = 4;
-
-	required int32 port = 5;
-}
+import "lightning.proto";
 
 message HelloToTracker {
-	required Address address = 1;
+	required string address = 1;
+	required int32 available = 2;
 }
 
 message HelloToClient {
-	required int32 sessionid = 1;
+	required int32 session_id = 1;
+}
+
+message GoodBye {
+	required int32 session_id = 1;
 }
 
 message Ping {
-	required int32 pingdata = 1;
+	required int32 ping_data = 1;
 }
 
 message Pong {
-	required int32 pingdata = 1;
+	required int32 ping_data = 1;
 }
 
 message NewBatch {
@@ -32,21 +29,21 @@ message NewBatch {
 		PHOTSHOOTAH = 1;
 	}
 
-	required int32 sessionid = 1;
-	required string batchhash = 2;
-    required int32 tasks = 3;
-	required BatchType batchtype = 4;
+	required int32 session_id = 1;
+	required string batch_hash = 2;
+	required int32 tasks = 3;
+	required BatchType batch_type = 4;
 }
 
 message NodesRequest {
-	required int32 sessionid = 1;
+	required int32 session_id = 1;
 	required int32 nodes = 2;
 }
 
 message NodesResponse {
 	message Node {
-		required int32 sessionid  = 1;
-		required Address address = 2;
+		required int32 session_id  = 1;
+		required string address = 2;
 	}
 	
 	repeated Node nodes = 1;

@@ -1,59 +1,72 @@
 #!/usr/bin/python2
 
-import tracker_pb2,zmq,socket,struct,hashlib
+import struct, socket, hashlib
 
-tracker_address = "127.0.0.1"
-tracker_port = "34567"
+import zmq
+import lightning, tracker_pb2
 
 def main():
-	print "Client."
+    print "Client."
 
-	zmq_context = zmq.Context()
-	zmq_socket = zmq_context.socket(zmq.REQ)
+    zmq_context = zmq.Context()
+    zmq_socket = zmq_context.socket(zmq.REQ)
+    zmq_socket_in = zmq_context.socket(zmq.PUB)
+
+    # Find an open port to listen to, by testing.
+    listen_port = 34568 # Start at 34568
+    listen_address = ""
+    for i in range(500): # Max 500 tries. 
+        try:
+            listen_address = "tcp://{0}:{1}".format("*", listen_port)
+            zmq_socket_in.bind(listen_address)
+        except Exception as e:
+            print("ERROR BINDING {0}: {1}".format(listen_address, str(e)))
+            listen_port += 1
+            continue
+        break
+    print("Listening to {0}".format(listen_address))
 	
-	while True:
-		print "1: HelloToTracker\n" +\
-			  "2: NewBatch\n" +\
-			  "3: NodeRequest\n" +\
-			  "0: Quit\n"
+    while True:
+        print "1: HelloToTracker\n" +\
+            "2: NewBatch\n" +\
+            "3: NodeRequest\n" +\
+            "0: Quit\n"
 
-		i = raw_input("Message to send: ")
+        i = raw_input("Message to send: ")
 
-		try:
-			i = int(i)
-		except ValueError:
-			break
+        try:
+            i = int(i)
+        except ValueError:
+            break
 
+        session_id = 0
+        batchhash = hashlib.sha1("aoeu").hexdigest()
+        batchtype = tracker_pb2.NewBatch.RAYTRACE
+        tasks = 12000
 
-		sessionid = 0
-		batchhash = hashlib.sha1("aoeu").hexdigest()
-		batchtype = tracker_pb2.NewBatch.RAYTRACE
-		tasks = 12000
+        if i == 0: break
+        elif i == 1:
+            # HelloToTracker message
+            print "Creating protocol buffer data..."
+            hello = tracker_pb2.HelloToTracker()
+            hello.address = listen_address
+            print "protobuf data:\n" + str(hello)
 
-		if i == 0: break
-		elif i == 1:
-			print "Creating protocol buffer data..."
-			hello = tracker_pb2.HelloToTracker()
-			hello.address.port = 34568
-			hello.address.isipv4 = True
-			hello.address.ipv4 = struct.unpack('L',socket.inet_aton("127.0.0.1"))[0]
-			print "protobuf data:\n" + str(hello)
+            print "Connecting to tracker..."
+            zmq_socket.connect("tcp://" + lightning.tracker_address + ":" + lightning.tracker_port)
+            print "Sending protobuf data..."
+            zmq_socket.send(struct.pack('<I', lightning.HELLO) + hello.SerializeToString())
+            print hello.SerializeToString()
 
-			print "Connecting to tracker..."
-			zmq_socket.connect("tcp://" + tracker_address + ":" + tracker_port)
-			print "Sending protobuf data..."
-			zmq_socket.send(hello.SerializeToString())
+        elif i == 2:
+            print "Sending NewBatch..."
+            new = tracker_pb2.NewBatch()
+            new.sessionid = session_id
+            new.batchhash = batchhash
+            new.tasks = tasks
+            new.batchtype = batchtype
 
-		elif i == 2:
-			print "Sending NewBatch..."
-			new = tracker_pb2.NewBatch()
-			new.sessionid = sessionid
-			new.batchhash = batchhash
-			new.tasks = tasks
-			new.batchtype = batchtype
-
-			print "protobuf data:\n" + str(new)
-
+            print "protobuf data:\n" + str(new)
 
 
 
