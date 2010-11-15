@@ -102,7 +102,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	ray.d = screen_coords - ray.o;
 	Normalize(ray.d);
 	
-	intersection_response_t resp;
+	
 	
 	// Loop geometry
 	float closest_depth = 100000000000000.0f;
@@ -112,6 +112,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
 		// test intersection
+		intersection_response_t resp;
 		if (datablob->primitives[i]->Intersects(&ray, &resp))
 		{
 			if (closest_depth > resp.depth)
@@ -128,9 +129,9 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	{
 		
 		Pxf::Math::Vec3f light_contrib(0.0f, 0.0f, 0.0f);
-		Pxf::Math::Vec3f eye_dir = ray.o - resp.p;
+		Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
 		Normalize(eye_dir);
-		if (!calc_light_contrib(&resp.p, &resp.n, &eye_dir, datablob, &light_contrib))
+		if (!calc_light_contrib(&closest_resp.p, &closest_resp.n, &eye_dir, datablob, &light_contrib))
 		{
 			Pxf::Message("calculate_pixel", "Light calculations failed!");
 			return false;
