@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{0cb66f1f-0a22-4021-95c4-4eaad01711ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Framework\Header Files\Pxf">
+      <UniqueIdentifier>{069c0008-6d03-479e-83bc-0196adf9fce7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Base">
+      <UniqueIdentifier>{94f2406c-85fd-42d6-9a8e-386e182dd152}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Graphics">
+      <UniqueIdentifier>{90cfbe35-4a55-4ac5-8639-8f1f985bb2b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Resource">
+      <UniqueIdentifier>{9fc1235c-a8a8-48da-b001-b26cb56ec66b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Util">
+      <UniqueIdentifier>{4fcc55c7-d7b3-40db-ba3a-9e3f232a3ba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Framework\Source Files\Graphics">
+      <UniqueIdentifier>{c5ffd187-2824-475b-bd8c-945d6cc8af81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Source Files\Base">
+      <UniqueIdentifier>{732c9bd7-8373-450e-85c1-6c0fe8da2976}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Source Files\Resource">
+      <UniqueIdentifier>{182b622f-880e-4914-b8bd-2ccb456007c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{c2b7bb1f-4f6d-4c11-a24d-f91632bf6b69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\img">
+      <UniqueIdentifier>{683bcef7-aad7-4058-931c-11134c16f8ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\pri">
+      <UniqueIdentifier>{61f0a0a9-348a-4fe1-afa3-1cd34786d2ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header Files\Pxf\Input">
+      <UniqueIdentifier>{1fda36b9-94bb-41e7-a7cf-38552c66421f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="KDTree">
+      <UniqueIdentifier>{c839c897-8bdb-47a8-8973-4cc9de1df29c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="KDTree\Include">
+      <UniqueIdentifier>{3a4e151a-01a5-4112-9f49-664e74f1da22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="KDTree\Source">
+      <UniqueIdentifier>{92c3dfd6-41f5-40bb-85a8-5519d9e71c52}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\Kernel.cpp">
+      <Filter>Framework\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Module.cpp">
+      <Filter>Framework\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Graphics\DeviceType.cpp">
+      <Filter>Framework\Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\Debug.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\Hash.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\Memory.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\Path.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\Random.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\SharedLibraryPosix.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\SharedLibraryWin32.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\StreamPosix.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\String.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Base\Utils.cpp">
+      <Filter>Framework\Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Resource\Chunk.cpp">
+      <Filter>Framework\Source Files\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Resource\ResourceManager.cpp">
+      <Filter>Framework\Source Files\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\img\Source\ImageLoader.cpp">
+      <Filter>Modules\img</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\img\Source\img.cpp">
+      <Filter>Modules\img</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\DeviceGL2.cpp">
+      <Filter>Modules\pri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\pri.cpp">
+      <Filter>Modules\pri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\TextureGL2.cpp">
+      <Filter>Modules\pri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp">
+      <Filter>Modules\pri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp">
+      <Filter>Modules\pri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Resource\Blob.cpp">
+      <Filter>Framework\Source Files\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Resource\Text.cpp">
+      <Filter>Framework\Source Files\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp">
+      <Filter>Modules\pri</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>KDTree\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\KDTree.cpp">
+      <Filter>KDTree\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera.cpp">
+      <Filter>KDTree\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Include\Pxf\Kernel.h">
+      <Filter>Framework\Header Files\Pxf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Module.h">
+      <Filter>Framework\Header Files\Pxf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Pxf.h">
+      <Filter>Framework\Header Files\Pxf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\System.h">
+      <Filter>Framework\Header Files\Pxf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Config.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Debug.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Hash.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Memory.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Path.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Random.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\SharedLibrary.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Stream.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\String.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Types.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Base\Utils.h">
+      <Filter>Framework\Header Files\Pxf\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\DeviceDefs.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\DeviceResource.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\DeviceType.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\GraphicsDevice.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\Shader.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\Texture.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\TextureDefs.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\VertexBuffer.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\VertexBufferDefs.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\Window.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Graphics\WindowSpecifications.h">
+      <Filter>Framework\Header Files\Pxf\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Resource\Chunk.h">
+      <Filter>Framework\Header Files\Pxf\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Resource\Image.h">
+      <Filter>Framework\Header Files\Pxf\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Resource\ResourceBase.h">
+      <Filter>Framework\Header Files\Pxf\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Resource\ResourceLoader.h">
+      <Filter>Framework\Header Files\Pxf\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Resource\ResourceManager.h">
+      <Filter>Framework\Header Files\Pxf\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Util\Array.h">
+      <Filter>Framework\Header Files\Pxf\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Util\List.h">
+      <Filter>Framework\Header Files\Pxf\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Util\Map.h">
+      <Filter>Framework\Header Files\Pxf\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Util\Noncopyable.h">
+      <Filter>Framework\Header Files\Pxf\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Util\String.h">
+      <Filter>Framework\Header Files\Pxf\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\ImageLoader.h">
+      <Filter>Modules\img</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\img\Include\Pxf\Modules\img\img.h">
+      <Filter>Modules\img</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\DeviceGL2.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\OpenGL.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\OpenGLUtils.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\pri.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TextureGL2.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TypeTraits.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Resource\Blob.h">
+      <Filter>Framework\Header Files\Pxf\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Resource\Text.h">
+      <Filter>Framework\Header Files\Pxf\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\InputDeviceGLFW.h">
+      <Filter>Modules\pri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Input\InputDefs.h">
+      <Filter>Framework\Header Files\Pxf\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Input\InputDevice.h">
+      <Filter>Framework\Header Files\Pxf\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Pxf\Input\NullInputDevice.h">
+      <Filter>Framework\Header Files\Pxf\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KDTree.h">
+      <Filter>KDTree\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Camera.h">
+      <Filter>KDTree\Include</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

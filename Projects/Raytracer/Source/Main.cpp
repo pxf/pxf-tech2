@@ -117,26 +117,26 @@ int main(int argc, char* argv[])
 	  gfx->SetProjection(&prjmat);
 	
 		// Render each region
-		task.region[0] = tx*task_size_w;
-		task.region[1] = ty*task_size_h;
-		task.region[2] = tx*task_size_w+task_size_w;
-		task.region[3] = ty*task_size_h+task_size_h;
-		task.task_id = ty*task_count+tx;
-		
-		render_result_t pixel_region;
-		if (!render_task(&task, &blob, &pixel_region))
-		{
-			Pxf::Message("Main", "Error while trying to render task: [tx: %d, ty: %d]", tx, ty);
-		} else {
-			// Success
-			region_textures[ty*task_count+tx] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)pixel_region.data, task_size_w, task_size_w, channels);
-			
-			region_textures[ty*task_count+tx]->SetMagFilter(TEX_FILTER_NEAREST);
-			region_textures[ty*task_count+tx]->SetMinFilter(TEX_FILTER_NEAREST);
-		}
-		
 		if (ty < task_count)
 		{
+			task.region[0] = tx*task_size_w;
+			task.region[1] = ty*task_size_h;
+			task.region[2] = tx*task_size_w+task_size_w;
+			task.region[3] = ty*task_size_h+task_size_h;
+			task.task_id = ty*task_count+tx;
+		
+			render_result_t pixel_region;
+			if (!render_task(&task, &blob, &pixel_region))
+			{
+				Pxf::Message("Main", "Error while trying to render task: [tx: %d, ty: %d]", tx, ty);
+			} else {
+				// Success
+				region_textures[ty*task_count+tx] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)pixel_region.data, task_size_w, task_size_w, channels);
+			
+				region_textures[ty*task_count+tx]->SetMagFilter(TEX_FILTER_NEAREST);
+				region_textures[ty*task_count+tx]->SetMinFilter(TEX_FILTER_NEAREST);
+			}
+		
 			total_done += 1;
 			tx += 1;
 			if (tx > task_count)
