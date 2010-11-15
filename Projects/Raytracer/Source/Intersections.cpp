@@ -27,6 +27,7 @@ bool ray_sphere(Pxf::Math::Vec3f *c, float r, ray_t *ray, intersection_response_
 	
 	resp->p = ray->o + ray->d * t;
 	resp->n = resp->p - *c;
+	resp->depth = t;
 	Normalize(resp->n);
 	return true;
 }
@@ -40,7 +41,10 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 	if (t < 0.0f)
 		return false;
 	
+	resp->depth = t;
 	resp->p = ray->o + ray->d * t;
+	resp->n = *n;
+	Normalize(resp->n);
 	// TODO: Return normal for intersection also!!
 	return true;
 }

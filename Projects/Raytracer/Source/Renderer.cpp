@@ -1,7 +1,6 @@
 #include <Pxf/Math/Vector.h>
 
 #include "Renderer.h"
-#include "Intersections.h"
 
 using namespace Pxf;
 using namespace Math;
@@ -52,10 +51,54 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 }
 
 bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
-{
-	// TODO: Do some real calculations here!
-	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
+{	
+	// Clear pixel
+	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
+	pixel->r = 0;
+	pixel->g = 0;
+	pixel->b = 0;
 	
+	// First ray (TODO: sampling!)
+	Vec3f screen_coords(-1.0f + x, -1.0f + y, 0.0f);
+	ray_t ray;
+	ray.o = Vec3f(0.0f,0.0f,-1.0f);
+	ray.d = screen_coords - ray.o;
+	Normalize(ray.d);
+	
+	intersection_response_t resp;
+	
+	// Loop geometry
+	float closest_depth = -1.0f;
+	Primitive *closest_prim = NULL;
+	intersection_response_t closest_resp;
+	
+	for(int i = 0; i < datablob->prim_count; ++i)
+	{
+		// test intersection
+		if (datablob->primitives[i]->Intersects(&ray, &resp))
+		{
+			if (closest_depth < 0.0f || closest_depth > resp.depth)
+			{
+				closest_depth = resp.depth;
+				closest_prim = datablob->primitives[i];
+				closest_resp = resp;
+			}
+		}
+	}
+	
+	// if we found 
+	if (closest_prim)
+	{
+		
+		fpixel = closest_prim->material.diffuse;
+		
+		pixel->r = (char)(fpixel.r * 255);
+		pixel->g = (char)(fpixel.g * 255);
+		pixel->b = (char)(fpixel.b * 255);
+		
+	}
+	
+	/*
 	pixel->r = 0;//(char)(255 * x / 2.0f);//(char)(255 * ((float)x / (float)region_width));
 	pixel->g = 0;//(char)(255 * y / 2.0f);//(char)(255 * ((float)y / (float)region_height));
 	pixel->b = 0;//(char)(255 * ((float)task->task_id / (float)task->task_count));
@@ -78,12 +121,14 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 		float dot = Dot( resp.n, L );
 		if (dot < 0.0f)
 			dot = 0.0f;
+		else if (dot > 1.0f)
+			dot = 1.0f;
 		
 		resp.n = (resp.n + 1.0f) / 2.0f;
 		pixel->r = dot * 255;//resp.n.x * 255;
 		pixel->g = dot * 255;//resp.n.y * 255;
 		pixel->b = dot * 255;//resp.n.z * 255;
-	}
+	}*/
 	
 	return true;
 }
