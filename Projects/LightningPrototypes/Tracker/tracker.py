@@ -26,11 +26,19 @@ def main():
             hello.ParseFromString(message)
             print(str(hello))
 
-            session_id = trackerdatabase.new_client(hello.address)
+            session_id = trackerdatabase.new_client(hello.address, hello.available)
+            print("Adding client to database, session_id = {0}.".format(session_id))
             response = tracker_pb2.HelloToClient()
             response.session_id = session_id
             socket.send(response.SerializeToString())
         elif message_type == lightning.GOODBYE:
+            print("GoodBye message:")
+            goodbye = tracker_pb2.GoodBye()
+            goodbye.ParseFromString(message)
+            print(str(goodbye))
+            print("Removing client with session_id {0} from database.".format(goodbye.session_id))
+            trackerdatabase.del_client(goodbye.session_id)
+
 
             
      
@@ -78,11 +86,16 @@ class TrackerDatabase:
         return True
 
     def del_client(self, session_id):
-        """TODO
+        """del_client(int session_id) -> bool succes
 
-        TODO
+        Removes the client with the corresponding session_id.
         """
-        pass
+
+        if session_id in self._clients.keys():
+            del self._clients[session_id]
+            return True
+        else:
+            return False
 
     def new_client(self, address, available):
         """new_client(<ipy> address, int available) -> int session_id.

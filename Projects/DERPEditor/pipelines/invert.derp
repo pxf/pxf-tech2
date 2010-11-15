@@ -29,11 +29,11 @@
             ["output_type"] = "texture",
             ["type"] = "geometry",
             ["connections_in"] = {
-                [1] = {
-                    ["input"] = 1,
-                    ["block"] = "Block_aux_2",
-                    ["type"] = "vec3constant",
-                    ["output"] = "output2",
+                [6] = {
+                    ["input"] = 6,
+                    ["block"] = "Block_aux_7",
+                    ["type"] = "texture",
+                    ["output"] = "output7",
 
 },
                 [2] = {
@@ -50,6 +50,13 @@
                     ["output"] = "output4",
 
 },
+                [1] = {
+                    ["input"] = 1,
+                    ["block"] = "Block_aux_2",
+                    ["type"] = "vec3constant",
+                    ["output"] = "output2",
+
+},
                 [4] = {
                     ["input"] = 4,
                     ["block"] = "Block_aux_5",
@@ -64,52 +71,84 @@
                     ["output"] = "output6",
 
 },
-                [6] = {
-                    ["input"] = 6,
-                    ["block"] = "Block_aux_7",
-                    ["type"] = "texture",
-                    ["output"] = "output7",
-
-},
 
 },
             ["group"] = "render",
             ["w"] = 280,
             ["y"] = 214,
             ["x"] = 481,
-            ["id"] = "Block_render_1",
             ["modelfilepath"] = "",
-            ["h"] = 60,
+            ["id"] = "Block_render_1",
             ["inputs"] = 6,
+            ["h"] = 60,
+            ["draw_wireframe"] = 0,
             ["outputs"] = {
                 [1] = "output1",
 
 },
 
 },
-        ["Block_output_9"] = {
-            ["output_type"] = "none",
-            ["type"] = "simple",
-            ["remoteport"] = 7005,
+        ["Block_aux_7"] = {
+            ["output_type"] = "texture",
+            ["type"] = "texture",
             ["connections_in"] = {
-                [1] = {
-                    ["input"] = 1,
-                    ["block"] = "Block_postprocess_8",
-                    ["type"] = "invert",
-                    ["output"] = "output8",
 
 },
-
-},
-            ["group"] = "output",
+            ["group"] = "aux",
             ["w"] = 170,
-            ["y"] = 215,
-            ["x"] = 1050,
-            ["id"] = "Block_output_9",
-            ["remotehost"] = "localhost",
-            ["h"] = 100,
-            ["inputs"] = 1,
+            ["y"] = 441,
+            ["x"] = 519,
+            ["texturefilepath"] = "C:\\Code\\pxf-tech2\\Projects\\DERPRenderer\\data\\derptest.png",
+            ["id"] = "Block_aux_7",
+            ["inputs"] = 0,
+            ["h"] = 60,
             ["outputs"] = {
+                [1] = "output7",
+
+},
+
+},
+        ["Block_aux_6"] = {
+            ["output_type"] = "geometry",
+            ["type"] = "model",
+            ["connections_in"] = {
+
+},
+            ["group"] = "aux",
+            ["w"] = 170,
+            ["y"] = 437,
+            ["x"] = 330,
+            ["id"] = "Block_aux_6",
+            ["inputs"] = 0,
+            ["h"] = 60,
+            ["modelfilepath"] = "C:\\Code\\pxf-tech2\\Projects\\DERPRenderer\\data\\teapot.ctm",
+            ["outputs"] = {
+                [1] = "output6",
+
+},
+
+},
+        ["Block_aux_5"] = {
+            ["output_type"] = "vec3",
+            ["type"] = "vec3constant",
+            ["connections_in"] = {
+
+},
+            ["group"] = "aux",
+            ["w"] = 200,
+            ["y"] = 571,
+            ["x"] = 70,
+            ["id"] = "Block_aux_5",
+            ["inputs"] = 0,
+            ["h"] = 85,
+            ["vals"] = {
+                [1] = "1.0",
+                [2] = "1.0",
+                [3] = "1.0",
+
+},
+            ["outputs"] = {
+                [1] = "output5",
 
 },
 
@@ -133,55 +172,10 @@
             ["x"] = 779,
             ["slidervalue"] = 0.58787878787879,
             ["id"] = "Block_postprocess_8",
-            ["h"] = 60,
             ["inputs"] = 1,
+            ["h"] = 60,
             ["outputs"] = {
                 [1] = "output8",
-
-},
-
-},
-        ["Block_aux_5"] = {
-            ["output_type"] = "vec3",
-            ["type"] = "vec3constant",
-            ["connections_in"] = {
-
-},
-            ["group"] = "aux",
-            ["w"] = 200,
-            ["y"] = 465,
-            ["x"] = 127,
-            ["id"] = "Block_aux_5",
-            ["inputs"] = 0,
-            ["h"] = 85,
-            ["vals"] = {
-                [1] = "1.0",
-                [2] = "1.0",
-                [3] = "1.0",
-
-},
-            ["outputs"] = {
-                [1] = "output5",
-
-},
-
-},
-        ["Block_aux_6"] = {
-            ["output_type"] = "geometry",
-            ["type"] = "model",
-            ["connections_in"] = {
-
-},
-            ["group"] = "aux",
-            ["w"] = 170,
-            ["y"] = 437,
-            ["x"] = 330,
-            ["id"] = "Block_aux_6",
-            ["modelfilepath"] = "/Users/work/Documents/pxf-tech2/pxf-tech2/Projects/DERPRenderer/data/teapot.ctm",
-            ["h"] = 60,
-            ["inputs"] = 0,
-            ["outputs"] = {
-                [1] = "output6",
 
 },
 
@@ -236,22 +230,29 @@
 },
 
 },
-        ["Block_aux_7"] = {
-            ["output_type"] = "texture",
-            ["type"] = "texture",
+        ["Block_output_9"] = {
+            ["output_type"] = "none",
+            ["type"] = "simple",
+            ["remoteport"] = 7005,
             ["connections_in"] = {
+                [1] = {
+                    ["input"] = 1,
+                    ["block"] = "Block_postprocess_8",
+                    ["type"] = "invert",
+                    ["output"] = "output8",
 
 },
-            ["group"] = "aux",
+
+},
+            ["group"] = "output",
             ["w"] = 170,
-            ["y"] = 441,
-            ["x"] = 519,
-            ["texturefilepath"] = "/Users/work/Documents/pxf-tech2/pxf-tech2/Projects/DERPRenderer/data/derptest.png",
-            ["id"] = "Block_aux_7",
-            ["h"] = 60,
-            ["inputs"] = 0,
+            ["y"] = 215,
+            ["x"] = 1050,
+            ["id"] = "Block_output_9",
+            ["inputs"] = 1,
+            ["h"] = 100,
+            ["remotehost"] = "localhost",
             ["outputs"] = {
-                [1] = "output7",
 
 },
 
@@ -259,7 +260,6 @@
 
 },
     ["active_components"] = {
-        [1] = "Block_output_9",
 
 },
 

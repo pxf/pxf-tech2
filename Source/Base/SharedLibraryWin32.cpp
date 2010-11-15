@@ -8,6 +8,7 @@ Pxf::SharedLibrary::SharedLibrary()
 	: m_Path(0)
 {
 	m_LastError = (char*)malloc(1);
+	m_LastError[0] = 0x0;
 }
 
 Pxf::SharedLibrary::~SharedLibrary()
@@ -49,12 +50,12 @@ void* Pxf::SharedLibrary::LookupName(const char* _Name)
 char* Pxf::SharedLibrary::GetError()
 {
 	LPVOID lpMsgBuf;
-	FormatMessage(
+	FormatMessageW(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
 		NULL, 
 		GetLastError(), 
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
-		(LPTSTR) &lpMsgBuf,
+		(LPWSTR) &lpMsgBuf,
 		0, 
 		NULL);
 
