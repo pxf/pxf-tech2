@@ -50,6 +50,16 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 	return true;
 }
 
+bool calc_light_contrib(Pxf::Math::Vec3f *p, batch_blob_t *datablob, Pxf::Math::Vec3f *res)
+{
+	for(int i = 0; i < datablob->light_count; ++i)
+	{
+		
+	}
+	
+	return true;
+}
+
 bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
 {	
 	// Clear pixel

@@ -69,6 +69,7 @@ struct render_result_t
 };
 
 bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic);
+bool calc_light_contrib(Pxf::Math::Vec3f *p, batch_blob_t *datablob, Pxf::Math::Vec3f *res);
 bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel);
 
 #endif /* _RENDERER_H_ */
