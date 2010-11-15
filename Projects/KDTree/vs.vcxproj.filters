@@ -140,6 +140,9 @@
     <ClCompile Include="Source\KDTree.cpp">
       <Filter>KDTree\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Camera.cpp">
+      <Filter>KDTree\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">
@@ -299,6 +302,9 @@
       <Filter>Framework\Header Files\Pxf\Input</Filter>
     </ClInclude>
     <ClInclude Include="Include\KDTree.h">
+      <Filter>KDTree\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Camera.h">
       <Filter>KDTree\Include</Filter>
     </ClInclude>
   </ItemGroup>

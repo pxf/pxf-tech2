@@ -150,8 +150,8 @@ namespace Math {
 		Vector3D(const Vector3D<T>& o) { *this = o; }
 
 		inline void Set(T nx, T ny, T nz) { x = nx; y = ny; z = nz; }
-		inline float GetAxis(int axis) { if(axis == 0) return x; else if (axis == 1) return y; else if(axis == 1) return z; }
-		inline void SetAxis(int axis,T val) { if(axis == 0) x = val; else if (axis == 1) y = val; else if(axis == 1) z = val; }
+		inline float GetAxis(int axis) { if(axis == 0) return x; else if (axis == 1) return y; else if(axis == 2) return z; else return -1; }
+		inline void SetAxis(int axis,T val) { if(axis == 0) x = val; else if (axis == 1) y = val; else if(axis == 2) z = val; }
 
 		Vector3D operator - () const { return Vector3D(-x, -y, -z); }
 		
