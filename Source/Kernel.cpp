@@ -313,7 +313,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	
 	if(!lib->Load(FilePath))
 	{
-		Log(m_KernelTag, "File not found: '%s'", FilePath);
+		Log(m_KernelTag, "Error when loading library '%s' => '%s'", FilePath, lib->GetError());
 		return false;
 	}
 	
