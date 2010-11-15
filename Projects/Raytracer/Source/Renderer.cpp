@@ -1,6 +1,7 @@
 #include <Pxf/Math/Vector.h>
 
 #include "Renderer.h"
+#include <Pxf/Math/Math.h>
 
 using namespace Pxf;
 using namespace Math;
@@ -58,8 +59,9 @@ bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec
 		// create ray to light
 		ray_t light_ray;
 		light_ray.o = *p;
-		light_ray.d = datablob->lights[l]->p - *p;
+		light_ray.d = datablob->lights[l]->p - (*p);
 		Normalize(light_ray.d);
+		light_ray.o += light_ray.d*0.01f;
 		
 		// loop geometry, see if we hit something
 		bool in_shadow = false;
@@ -76,9 +78,9 @@ bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec
 		if (!in_shadow)
 		{
 			// TODO: add better contributing calculations
-			//float ndotl = Dot(*n, light_ray.d);
-			//*res += (datablob->lights[l]->material.diffuse * ndotl);// / (float)datablob->light_count;
-			*res = Pxf::Math::Vec3f(1.0f);
+			float ndotl = Dot(*n, light_ray.d);
+			*res += (datablob->lights[l]->material.diffuse * ndotl);// / (float)datablob->light_count;
+			//*res = Pxf::Math::Vec3f(1.0f);
 		}
 	}
 	
@@ -103,7 +105,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	intersection_response_t resp;
 	
 	// Loop geometry
-	float closest_depth = -1.0f;
+	float closest_depth = 100000000000000.0f;
 	Primitive *closest_prim = 0x0;
 	intersection_response_t closest_resp;
 	
@@ -112,7 +114,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 		// test intersection
 		if (datablob->primitives[i]->Intersects(&ray, &resp))
 		{
-			if (closest_depth < 0.0f || closest_depth > resp.depth)
+			if (closest_depth > resp.depth)
 			{
 				closest_depth = resp.depth;
 				closest_prim = datablob->primitives[i];
@@ -134,7 +136,10 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			return false;
 		}
 		
-		fpixel = closest_prim->material.diffuse * light_contrib;
+		fpixel = closest_prim->material.ambient + closest_prim->material.diffuse * light_contrib;
+		fpixel.x = Pxf::Math::Clamp(fpixel.x, 0.0f, 1.0f);
+		fpixel.y = Pxf::Math::Clamp(fpixel.y, 0.0f, 1.0f);
+		fpixel.z = Pxf::Math::Clamp(fpixel.z, 0.0f, 1.0f);
 		
 		pixel->r = (char)(fpixel.r * 255.0f);
 		pixel->g = (char)(fpixel.g * 255.0f);

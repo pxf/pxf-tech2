@@ -59,16 +59,20 @@ int main(int argc, char* argv[])
 	
 	// add a couple of primitives to the data blob
 	material_t sphere_mat1,sphere_mat2;
+	sphere_mat1.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	sphere_mat1.diffuse = Vec3f(1.0f, 0.8f, 0.8f);
+	sphere_mat2.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	blob.primitives[0] = new Sphere(Pxf::Math::Vec3f(5.0f, 0.0f, 14.0f), 7, sphere_mat1);
-	blob.primitives[1] = new Sphere(Pxf::Math::Vec3f(-5.0f, 0.0f, 18.0f), 7, sphere_mat2);
-	blob.prim_count = 2;
+	blob.primitives[1] = new Sphere(Pxf::Math::Vec3f(-2.0f, 0.0f, 5.0f), 2, sphere_mat1);
+	blob.primitives[0] = new Sphere(Pxf::Math::Vec3f(0.0f, 0.0f, 20.0f), 7, sphere_mat2);
+	blob.primitives[2] = new Sphere(Pxf::Math::Vec3f(4.0f, 4.0f, 10.0f), 3, sphere_mat1);
+	blob.primitives[3] = new Sphere(Pxf::Math::Vec3f(1.0f, 1.0f, 6.0f), 1, sphere_mat1);
+	blob.prim_count = 4;
 	
 	// add a couple of lights to the data blob
 	material_t light_mat1;
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 10.0f, 14.0f), light_mat1);
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(10.0f, 8.0f, -14.0f), light_mat1);
 	blob.light_count = 1;
 	
 	task_detail_t task;
