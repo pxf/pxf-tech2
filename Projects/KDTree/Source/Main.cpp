@@ -21,6 +21,12 @@
 using namespace Pxf;
 using namespace Math;
 
+
+struct mouse_state 
+{
+	Math::Vec2i last_pos;
+} ms;
+
 void draw_aabb(const aabb& b)
 {
 	glBegin(GL_LINES);
@@ -125,6 +131,37 @@ void DrawTree(KDTree* t)
 	DrawNode(root);
 }
 
+struct camera_input_desc {
+	SimpleCamera* cam;
+	Input::InputDevice* inp;
+};
+
+
+void MoveCamera(const camera_input_desc& cd)
+{
+	// Mouse movement:
+
+	Math::Vec2i dpos;
+	cd.inp->GetMousePos(&dpos.x,&dpos.y);
+	dpos = dpos - ms.last_pos;
+
+	if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT))
+	{
+		cd.cam->Translate(-dpos.x,-dpos.y,0);
+	}
+	else if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT))
+	{		
+		cd.cam->SetRotation(-dpos.x,dpos.y,0.0f);
+	}
+	else if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT) && cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT))
+	{
+		cd.cam->Translate(0.0f,0.0f,dpos.y);
+	}
+
+	// update mouse state
+	cd.inp->GetMousePos(&ms.last_pos.x,&ms.last_pos.y);
+}
+
 int main(int argc, char* argv[])
 {
 	Pxf::RandSetSeed(time(NULL));
@@ -150,36 +187,43 @@ int main(int argc, char* argv[])
 	srand ( time(NULL) );
 
 	// KDTree
-	KDTree* tree = new KDTree(2);
+	KDTree* tree = new KDTree(3);
 
-	Primitive pData[4];
+	Primitive pData[5];
 
-	/*pData[0] = Primitive(Vec3f(-200.0,-50.0f,50.0f),Vec3f(-150.0f,-50.0f,-150.0f),Vec3f(-150.0f,0.0f,-150.0f));
+	pData[0] = Primitive(Vec3f(-200.0,-50.0f,50.0f),Vec3f(-150.0f,-50.0f,-150.0f),Vec3f(-150.0f,0.0f,-150.0f));
 	pData[1] = Primitive(Vec3f(-50.0f,50.0f,0.0f),Vec3f(-50.0f,100.0f,0),Vec3f(-100.0f,100.0f,100.0f));
 	pData[2] = Primitive(Vec3f(150.0f,-50.0f,0.0f),Vec3f(150.0f,-100.0f,0),Vec3f(200.0f,-100.0f,100.0f));
 	pData[3] = Primitive(Vec3f(50.0f,10.0f,0),Vec3f(50.0f,60.0f,0),Vec3f(100.0f,60.0f,100.0f));
-	pData[4] = Primitive(Vec3f(130.0f,50.0f,0),Vec3f(130.0f,50.0f,0),Vec3f(180.0f,100.0f,100.0f)); */
+	pData[4] = Primitive(Vec3f(130.0f,50.0f,0),Vec3f(130.0f,50.0f,0),Vec3f(180.0f,100.0f,100.0f));
 
+	/*
 	pData[0] = Primitive(Vec3f(-200.0,-50.0f,0.0f),Vec3f(-150.0f,-50.0f,0.0f),Vec3f(-150.0f,0.0f,0.0f));
 	pData[1] = Primitive(Vec3f(-50.0f,50.0f,0.0f),Vec3f(-50.0f,100.0f,0.0f),Vec3f(-100.0f,100.0f,0.0f));
 	pData[2] = Primitive(Vec3f(150.0f,-50.0f,0.0f),Vec3f(150.0f,-100.0f,0.0f),Vec3f(200.0f,-100.0f,0.0f));
 	pData[3] = Primitive(Vec3f(50.0f,10.0f,0.0f),Vec3f(50.0f,60.0f,0.0f),Vec3f(100.0f,60.0f,0.0f));
-	//pData[4] = Primitive(Vec3f(130.0f,50.0f,0.0f),Vec3f(130.0f,50.0f,0.0f),Vec3f(180.0f,100.0f,0.0f));
+	//pData[4] = Primitive(Vec3f(130.0f,50.0f,0.0f),Vec3f(130.0f,50.0f,0.0f),Vec3f(180.0f,100.0f,0.0f)); */
 
-	tree->Build(pData,3);
+	tree->Build(pData,4);
 
 	PrintStatistics(tree);
 
 	SimpleCamera cam;
-	cam.SetPerspective(45.0f, win->GetWidth() / win->GetHeight(),-1.0f,1000.0f);
-	//cam.SetLookAt(0.0f,0.0f,0.0f);
-	//cam.SetPosition(200.0f,100.0f,300.0f);
+	//cam.SetPerspective(45.0f, win->GetWidth() / win->GetHeight(),-1.0f,1000.0f);
 
 	// Setup ogl
 	gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
-	Math::Mat4 prjmat = Math::Mat4::Ortho(-300.0f, 300.0f, 300.0f,-300.0f, -1.0f, 10000.0f);
+	Math::Mat4 prjmat = Math::Mat4::Ortho(-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
 
 	cam.SetProjectionView(prjmat);
+
+	cam.Translate(0.0f,50.0f,0.0f);
+
+	camera_input_desc cid;
+	cid.cam = &cam;
+	cid.inp = inp;
+
+	float a = 0.0f;
 
 	while(win->IsOpen())
 	{
@@ -194,10 +238,14 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glColor3f(1.0f,1.0f,1.0f);
 
+		//MoveCamera(cid);
+
+		glRotatef(a,0.0f,1.0f,0.0f);
+
 		DrawTree(tree);
-		
-		//for(size_t i = 0; i < 5; i++) draw_aabb(pData[i].GetAABB());
 			
+		a += 0.01f;
+
 		inp->ClearLastKey();
 		win->Swap();
 	}

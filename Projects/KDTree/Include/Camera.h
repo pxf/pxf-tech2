@@ -66,6 +66,7 @@ public:
 	void SetLookAt(float x,float y,float z);
 	void SetPosition(float x,float y,float z);
 	void SetPosition(const Pxf::Math::Vec3f &_Pos);
+	void Translate(float x,float y,float z);
 
 	Pxf::Math::Vec3f GetPosition();
 };
