@@ -50,11 +50,36 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 	return true;
 }
 
-bool calc_light_contrib(Pxf::Math::Vec3f *p, batch_blob_t *datablob, Pxf::Math::Vec3f *res)
+bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec3f *ed, batch_blob_t *datablob, Pxf::Math::Vec3f *res)
 {
-	for(int i = 0; i < datablob->light_count; ++i)
+	// loop lights
+	for(int l = 0; l < datablob->light_count; ++l)
 	{
+		// create ray to light
+		ray_t light_ray;
+		light_ray.o = *p;
+		light_ray.d = datablob->lights[l]->p - *p;
+		Normalize(light_ray.d);
 		
+		// loop geometry, see if we hit something
+		bool in_shadow = false;
+		for(int i = 0; i < datablob->prim_count; ++i)
+		{
+			intersection_response_t tresp;
+			if (datablob->primitives[i]->Intersects(&light_ray, &tresp))
+			{
+				in_shadow = true;
+				break; // light is blocking!
+			}
+		}
+		
+		if (!in_shadow)
+		{
+			// TODO: add better contributing calculations
+			//float ndotl = Dot(*n, light_ray.d);
+			//*res += (datablob->lights[l]->material.diffuse * ndotl);// / (float)datablob->light_count;
+			*res = Pxf::Math::Vec3f(1.0f);
+		}
 	}
 	
 	return true;
@@ -100,11 +125,20 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	if (closest_prim)
 	{
 		
-		fpixel = closest_prim->material.diffuse;
+		Pxf::Math::Vec3f light_contrib(0.0f, 0.0f, 0.0f);
+		Pxf::Math::Vec3f eye_dir = ray.o - resp.p;
+		Normalize(eye_dir);
+		if (!calc_light_contrib(&resp.p, &resp.n, &eye_dir, datablob, &light_contrib))
+		{
+			Pxf::Message("calculate_pixel", "Light calculations failed!");
+			return false;
+		}
 		
-		pixel->r = (char)(fpixel.r * 255);
-		pixel->g = (char)(fpixel.g * 255);
-		pixel->b = (char)(fpixel.b * 255);
+		fpixel = closest_prim->material.diffuse * light_contrib;
+		
+		pixel->r = (char)(fpixel.r * 255.0f);
+		pixel->g = (char)(fpixel.g * 255.0f);
+		pixel->b = (char)(fpixel.b * 255.0f);
 		
 	}
 	
