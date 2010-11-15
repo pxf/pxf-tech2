@@ -79,7 +79,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	
 	// Loop geometry
 	float closest_depth = -1.0f;
-	Primitive *closest_prim = NULL;
+	Primitive *closest_prim = 0x0;
 	intersection_response_t closest_resp;
 	
 	for(int i = 0; i < datablob->prim_count; ++i)
