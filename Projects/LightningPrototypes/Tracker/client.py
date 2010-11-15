@@ -10,26 +10,20 @@ def main():
 
     zmq_context = zmq.Context()
     zmq_socket = zmq_context.socket(zmq.REQ)
-    zmq_socket_in = zmq_context.socket(zmq.PUB)
+    zmq_socket_in = zmq_context.socket(zmq.REP)
 
-    # Find an open port to listen to, by testing.
-    listen_port = 34568 # Start at 34568
-    listen_address = ""
-    for i in range(500): # Max 500 tries. 
-        try:
-            listen_address = "tcp://{0}:{1}".format("*", listen_port)
-            zmq_socket_in.bind(listen_address)
-        except Exception as e:
-            print("ERROR BINDING {0}: {1}".format(listen_address, str(e)))
-            listen_port += 1
-            continue
-        break
-    print("Listening to {0}".format(listen_address))
 	
+    session_id = 0
+    batchhash = hashlib.sha1("aoeu").hexdigest()
+    batchtype = tracker_pb2.NewBatch.RAYTRACE
+    tasks = 12000
+    available = 4
+
     while True:
         print "1: HelloToTracker\n" +\
             "2: NewBatch\n" +\
             "3: NodeRequest\n" +\
+            "4: GoodBye\n" +\
             "0: Quit\n"
 
         i = raw_input("Message to send: ")
@@ -39,34 +33,61 @@ def main():
         except ValueError:
             break
 
-        session_id = 0
-        batchhash = hashlib.sha1("aoeu").hexdigest()
-        batchtype = tracker_pb2.NewBatch.RAYTRACE
-        tasks = 12000
-
         if i == 0: break
         elif i == 1:
-            # HelloToTracker message
-            print "Creating protocol buffer data..."
-            hello = tracker_pb2.HelloToTracker()
-            hello.address = listen_address
-            print "protobuf data:\n" + str(hello)
-
+            # INIT_HELLO
             print "Connecting to tracker..."
             zmq_socket.connect("tcp://" + lightning.tracker_address + ":" + lightning.tracker_port)
-            print "Sending protobuf data..."
+            zmq_socket.send(struct.pack('<I', lightning.INIT_HELLO))
+
+            # Wait for HelloToClient()
+            print "..waiting for HelloToClient..."
+            hello_message = zmq_socket.recv()
+            hello_to_client = tracker_pb2.HelloToClient()
+            hello_to_client.ParseFromString(hello_message[4:])
+            session_id = hello_to_client.session_id
+            print "...got session_id {0}".format(session_id)
+
+            # Set socket identity to session_id
+            zmq_socket_in.setsockopt(zmq.IDENTITY, str(session_id))
+
+            # Find an open port to listen to, by testing.
+            listen_address = "tcp://*"
+            listen_port = zmq_socket_in.bind_to_random_port(listen_address, 23458, 24000, 500)
+            listen_address = "{0}:{1}".format("tcp://*", listen_port)
+            print("Listening to {0}".format(listen_address))
+
+            # HelloToTracker message
+            hello = tracker_pb2.HelloToTracker()
+            hello.address = listen_address 
+            hello.available = available
+            hello.session_id = session_id
+            
+            print("Sending new address information..")
             zmq_socket.send(struct.pack('<I', lightning.HELLO) + hello.SerializeToString())
-            print hello.SerializeToString()
+
+            zmq_socket.close()
+            print("Socket closed..")
+
 
         elif i == 2:
             print "Sending NewBatch..."
             new = tracker_pb2.NewBatch()
-            new.sessionid = session_id
+            new.session_id = session_id
             new.batchhash = batchhash
             new.tasks = tasks
             new.batchtype = batchtype
 
             print "protobuf data:\n" + str(new)
+        elif i == 3:
+            pass
+        elif i == 4:
+            print "Sending GoodBye..."
+            bye = tracker_pb2.GoodBye()
+            bye.session_id = session_id
+
+
+            
 
 
 

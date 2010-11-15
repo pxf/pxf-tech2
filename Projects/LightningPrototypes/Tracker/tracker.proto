@@ -3,8 +3,9 @@ package lightningtracker;
 import "lightning.proto";
 
 message HelloToTracker {
-	required string address = 1;
-	required int32 available = 2;
+    required int32 session_id = 1;
+	required string address = 2;
+	required int32 available = 3;
 }
 
 message HelloToClient {
