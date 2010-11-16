@@ -60,6 +60,7 @@ bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec
 		ray_t light_ray;
 		light_ray.o = *p;
 		light_ray.d = datablob->lights[l]->p - (*p);
+		float light_distance = Length(light_ray.d);
 		Normalize(light_ray.d);
 		light_ray.o += light_ray.d*0.01f;
 		
@@ -70,8 +71,12 @@ bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec
 			intersection_response_t tresp;
 			if (datablob->primitives[i]->Intersects(&light_ray, &tresp))
 			{
-				in_shadow = true;
-				break; // light is blocking!
+				// Check if closer than light
+				if (tresp.depth < light_distance)
+				{
+					in_shadow = true;
+					break; // light is blocking!
+				}
 			}
 		}
 		
