@@ -1,9 +1,46 @@
-#AOEU
+import struct, tracker_pb2
 
 tracker_address = "users.mkeyd.net"
 tracker_port = "50000"
 
 #Enumerators
-INIT_HELLO, HELLO, GOODBYE, NEWBATCH, OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, \
-	TASK_DONE, HATE, PING, PONG = range(12)
+INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, GOODBYE, NEWBATCH, OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, \
+	TASK_DONE, HATE, PING, PONG = range(13)
 
+translate_message_type = dict(
+    INIT_HELLO: None,
+    HELLO_TO_CLIENT: tracker_pb2.HelloToClient,
+    HELLO_TO_TRACKER: tracker_pb2.HelloToTracker,
+    GOODBYE: tracker_pb2.GoodBye)
+
+def unpack_raw(message):
+    """unpack_raw(str message) -> (int message_type, string data)
+
+    Wrapper for unpacking data sent between the tracker and client.
+    """
+
+    # The first 4 bytes of the message is an identifier
+    type_data = struct.unpack('<I', message[:4])[0]
+    return (type_data, message[4:])
+
+def unpack(message):
+    """unpack(str message) -> (int message_type, <protobuf> data)
+
+    Returns a tuple containing the type of data, and parsed protocol buffers
+    data.
+    """
+
+    (type_data, data) = unpack_raw(message)
+
+    if type_data not in translate_message_type:
+        raise PackingException("Enum {0} could not be found in translate dict")
+
+    return (type_data, translate_message_type[type_data]().ParseFromString(data))
+
+
+class LightningException(Exception):
+    """Main class for lightnings exceptions, if there are any..."""
+    pass
+
+class PackingException(LightningException):
+    pass

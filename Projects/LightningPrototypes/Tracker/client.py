@@ -20,7 +20,7 @@ def main():
     available = 4
 
     while True:
-        print "1: HelloToTracker\n" +\
+        print "1: Connect to tracker\n" +\
             "2: NewBatch\n" +\
             "3: NodeRequest\n" +\
             "4: GoodBye\n" +\
@@ -46,10 +46,11 @@ def main():
             hello_to_client = tracker_pb2.HelloToClient()
             hello_to_client.ParseFromString(hello_message[4:])
             session_id = hello_to_client.session_id
+            print "DATA: {0}".format(hello_to_client)
             print "...got session_id {0}".format(session_id)
 
             # Set socket identity to session_id
-            zmq_socket_in.setsockopt(zmq.IDENTITY, str(session_id))
+            zmq_socket_in.setsockopt_unicode(zmq.IDENTITY, session_id)
 
             # Find an open port to listen to, by testing.
             listen_address = "tcp://*"
@@ -65,6 +66,11 @@ def main():
             
             print("Sending new address information..")
             zmq_socket.send(struct.pack('<I', lightning.HELLO) + hello.SerializeToString())
+
+            ok = zmq_socket.recv()
+            if struct.unpack('<I', ok)[0] != lightning.OK:
+                print ok
+                break
 
             zmq_socket.close()
             print("Socket closed..")
