@@ -29,6 +29,17 @@ public:
 	float r;
 };
 
+class Plane : public Primitive
+{
+public:
+	Plane (Pxf::Math::Vec3f _p, Pxf::Math::Vec3f _n, material_t _material) : Primitive(_material) {p = _p; n = _n;};
+	virtual ~Plane(){};
+	bool Intersects(ray_t *ray, intersection_response_t* resp) { return ray_plane(&p, &n, ray, resp); };
+	
+	// data
+	Pxf::Math::Vec3f n;
+};
+
 class PointLight : public Primitive
 {
 public:

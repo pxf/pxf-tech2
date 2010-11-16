@@ -67,13 +67,16 @@ int main(int argc, char* argv[])
 	blob.primitives[0] = new Sphere(Pxf::Math::Vec3f(0.0f, 0.0f, 20.0f), 7, sphere_mat2);
 	blob.primitives[2] = new Sphere(Pxf::Math::Vec3f(4.0f, 4.0f, 10.0f), 3, sphere_mat1);
 	blob.primitives[3] = new Sphere(Pxf::Math::Vec3f(1.0f, 1.0f, 6.0f), 1, sphere_mat1);
-	blob.prim_count = 4;
+	blob.primitives[4] = new Plane(Pxf::Math::Vec3f(0.0f, -8.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), sphere_mat1);
+	blob.prim_count = 5;
 	
 	// add a couple of lights to the data blob
-	material_t light_mat1;
+	material_t light_mat1,light_mat2;
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
+	light_mat2.diffuse = Vec3f(0.0f, 1.0f, 1.0f);
 	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(10.0f, 8.0f, -14.0f), light_mat1);
-	blob.light_count = 1;
+	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(10.0f, 8.0f, 14.0f), light_mat2);
+	blob.light_count = 2;
 	
 	task_detail_t task;
 	task.task_count = task_count*task_count;
@@ -117,7 +120,7 @@ int main(int argc, char* argv[])
 			break;
 			
 		// Setup view!!!!!!!!
-		Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), 0, win->GetHeight(), -0.1f, 100.0f);
+		Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), win->GetHeight(), 0, -0.1f, 100.0f);
 	  gfx->SetProjection(&prjmat);
 	
 		// Render each region
@@ -160,12 +163,12 @@ int main(int argc, char* argv[])
 				{
 					// Bind texture
 					Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(region_textures[y*task_count+x]);
-					
+				}	
 					// Setup quad
 					pbatch->QuadsBegin();
 					pbatch->QuadsDrawTopLeft(x*task_size_w, y*task_size_h, task_size_w, task_size_w);
 					pbatch->QuadsEnd();
-				}
+				//}
 			}
 		}
 		

@@ -79,7 +79,7 @@ bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec
 		{
 			// TODO: add better contributing calculations
 			float ndotl = Dot(*n, light_ray.d);
-			*res += (datablob->lights[l]->material.diffuse * ndotl);// / (float)datablob->light_count;
+			*res += (datablob->lights[l]->material.diffuse * ndotl) / (float)datablob->light_count;
 			//*res = Pxf::Math::Vec3f(1.0f);
 		}
 	}
@@ -96,7 +96,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	pixel->b = 0;
 	
 	// First ray (TODO: sampling!)
-	Vec3f screen_coords(-1.0f + x, -1.0f + y, 0.0f);
+	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
 	ray_t ray;
 	ray.o = Vec3f(0.0f,0.0f,-1.0f);
 	ray.d = screen_coords - ray.o;
