@@ -92,98 +92,88 @@ bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec
 	return true;
 }
 
-bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
-{	
-	// Clear pixel
-	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
-	pixel->r = 0;
-	pixel->g = 0;
-	pixel->b = 0;
-	
-	// First ray (TODO: sampling!)
-	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
-	ray_t ray;
-	ray.o = Vec3f(0.0f,0.0f,-1.0f);
-	ray.d = screen_coords - ray.o;
-	Normalize(ray.d);
-	
-	
-	
+bool find_first_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, intersection_response_t *resp)
+{
 	// Loop geometry
 	float closest_depth = 100000000000000.0f;
-	Primitive *closest_prim = 0x0;
+	bool found = false;
+	//Primitive *closest_prim = 0x0;
 	intersection_response_t closest_resp;
 	
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
 		// test intersection
-		intersection_response_t resp;
-		if (datablob->primitives[i]->Intersects(&ray, &resp))
+		if (datablob->primitives[i]->Intersects(ray, &closest_resp))
 		{
-			if (closest_depth > resp.depth)
+			if (closest_depth > closest_resp.depth)
 			{
-				closest_depth = resp.depth;
-				closest_prim = datablob->primitives[i];
-				closest_resp = resp;
+				closest_depth = closest_resp.depth;
+				*prim = datablob->primitives[i];
+				*resp = closest_resp;
+				found = true;
 			}
 		}
 	}
 	
-	// if we found 
-	if (closest_prim)
+	return found;
+}
+
+bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
+{	
+	// Clear pixel
+	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
+	
+	// Center ray
+	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
+	ray_t cray;
+	cray.o = Vec3f(0.0f,0.0f,-1.0f);
+	//cray.d = screen_coords - cray.o;
+	//Normalize(cray.d);
+	
+	// find closest primitive
+	for(int pixel_x = 0; pixel_x < datablob->samples_per_pixel; ++pixel_x)
 	{
-		
-		Pxf::Math::Vec3f light_contrib(0.0f, 0.0f, 0.0f);
-		Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
-		Normalize(eye_dir);
-		if (!calc_light_contrib(&closest_resp.p, &closest_resp.n, &eye_dir, datablob, &light_contrib))
+		for(int pixel_y = 0; pixel_y < datablob->samples_per_pixel; ++pixel_y)
 		{
-			Pxf::Message("calculate_pixel", "Light calculations failed!");
-			return false;
+			// Offset ray
+			ray_t ray = cray;
+			Vec3f new_screen_coords = screen_coords;
+			
+			// TODO: Make sampling more non-uniform
+			new_screen_coords.x += (1.0f / ((float)datablob->pic_w * (float)datablob->samples_per_pixel)) * (float)pixel_x;
+			new_screen_coords.y += (1.0f / ((float)datablob->pic_h * (float)datablob->samples_per_pixel)) * (float)pixel_y;
+			ray.d = new_screen_coords - cray.o;
+			Normalize(ray.d);
+			
+			// Cast ray and see what we find
+			Primitive *closest_prim = 0x0;
+			intersection_response_t closest_resp;
+			if (find_first_intersection(datablob, &ray, &closest_prim, &closest_resp))
+			{
+				Pxf::Math::Vec3f light_contrib(0.0f, 0.0f, 0.0f);
+				Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
+				Normalize(eye_dir);
+				if (!calc_light_contrib(&closest_resp.p, &closest_resp.n, &eye_dir, datablob, &light_contrib))
+				{
+					Pxf::Message("calculate_pixel", "Light calculations failed!");
+					return false;
+				}
+				fpixel += closest_prim->material.ambient + closest_prim->material.diffuse * light_contrib;
+
+
+			}
 		}
-		
-		fpixel = closest_prim->material.ambient + closest_prim->material.diffuse * light_contrib;
-		fpixel.x = Pxf::Math::Clamp(fpixel.x, 0.0f, 1.0f);
-		fpixel.y = Pxf::Math::Clamp(fpixel.y, 0.0f, 1.0f);
-		fpixel.z = Pxf::Math::Clamp(fpixel.z, 0.0f, 1.0f);
-		
-		pixel->r = (char)(fpixel.r * 255.0f);
-		pixel->g = (char)(fpixel.g * 255.0f);
-		pixel->b = (char)(fpixel.b * 255.0f);
-		
 	}
 	
-	/*
-	pixel->r = 0;//(char)(255 * x / 2.0f);//(char)(255 * ((float)x / (float)region_width));
-	pixel->g = 0;//(char)(255 * y / 2.0f);//(char)(255 * ((float)y / (float)region_height));
-	pixel->b = 0;//(char)(255 * ((float)task->task_id / (float)task->task_count));
+	fpixel /= datablob->samples_per_pixel * datablob->samples_per_pixel;
 	
-	// test sphere
-	Vec3f sphere_c(0.0f,0.0f,10.0f);
-	ray_t ray;
-	ray.o = Vec3f(0.0f,0.0f,-1.0f);
-	ray.d = screen_coords - ray.o;
-	Normalize(ray.d);
-	intersection_response_t resp;
-	
-	// test light
-	Vec3f light(9.0f, 9.0f, -9.0f);
-	
-	if (ray_sphere(&sphere_c, 7, &ray, &resp))
-	{
-		Vec3f L = light - resp.p;
-		Normalize(L);
-		float dot = Dot( resp.n, L );
-		if (dot < 0.0f)
-			dot = 0.0f;
-		else if (dot > 1.0f)
-			dot = 1.0f;
+	fpixel.x = Pxf::Math::Clamp(fpixel.x, 0.0f, 1.0f);
+	fpixel.y = Pxf::Math::Clamp(fpixel.y, 0.0f, 1.0f);
+	fpixel.z = Pxf::Math::Clamp(fpixel.z, 0.0f, 1.0f);
 		
-		resp.n = (resp.n + 1.0f) / 2.0f;
-		pixel->r = dot * 255;//resp.n.x * 255;
-		pixel->g = dot * 255;//resp.n.y * 255;
-		pixel->b = dot * 255;//resp.n.z * 255;
-	}*/
+	pixel->r = (char)(fpixel.r * 255.0f);
+	pixel->g = (char)(fpixel.g * 255.0f);
+	pixel->b = (char)(fpixel.b * 255.0f);	
 	
 	return true;
 }

@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
 	Pxf::RandSetSeed(time(NULL));
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 	kernel->RegisterModule("pri", 0xFFFFFFFF, true);
+	kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
 	
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
@@ -47,7 +48,7 @@ int main(int argc, char* argv[])
 	const int w = 512;
 	const int h = 512;
 	const int channels = 3;
-	const int task_count = 8;
+	const int task_count = 32;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
@@ -56,6 +57,7 @@ int main(int argc, char* argv[])
 	batch_blob_t blob;
 	blob.pic_w = w;
 	blob.pic_h = h;
+	blob.samples_per_pixel = 4;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -65,19 +67,21 @@ int main(int argc, char* argv[])
 	plane_mat_red.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
 	plane_mat_green.ambient = Vec3f(0.0f, 0.1f, 0.0f);
 	plane_mat_green.diffuse = Vec3f(0.0f, 1.0f, 0.0f);
+	
 	sphere_mat1.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	sphere_mat1.diffuse = Vec3f(1.0f, 0.8f, 0.8f);
 	sphere_mat2.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	blob.primitives[0] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), plane_mat_white); // bottom
-	blob.primitives[1] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), plane_mat_white); // top
-	blob.primitives[2] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), plane_mat_red); // left
-	blob.primitives[3] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), plane_mat_green); // right
-	blob.primitives[4] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), plane_mat_white); // back
-	blob.primitives[5] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, sphere_mat1);
-	blob.primitives[6] = new Sphere(Pxf::Math::Vec3f(2.0f, -3.0f, 6.0f), 2.0f, sphere_mat2);
-	//blob.primitives[2] = new Sphere(Pxf::Math::Vec3f(0.0f, 0.0f, 0.0f), 2, sphere_mat2);
-	blob.prim_count = 7;
+	
+	blob.prim_count = 0;
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), plane_mat_white); // bottom
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), plane_mat_white); // top
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), plane_mat_red); // left
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), plane_mat_green); // right
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), plane_mat_white); // back
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, sphere_mat1);
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, -3.0f, 6.0f), 2.0f, sphere_mat2);
+	//blob.prim_count = 7;
 	
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
@@ -91,6 +95,9 @@ int main(int argc, char* argv[])
 	
 	// create textures and primitive batches
 	Texture *region_textures[task_count*task_count] = {0};
+	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("unfinished.png");
+	unfinished_task_texture->SetMagFilter(TEX_FILTER_NEAREST);
+	unfinished_task_texture->SetMinFilter(TEX_FILTER_NEAREST);
 	
 	int ty = 0;
 	int tx = 0;
@@ -154,7 +161,7 @@ int main(int argc, char* argv[])
 		
 			total_done += 1;
 			tx += 1;
-			if (tx > task_count)
+			if (tx >= task_count)
 			{
 				ty += 1;
 				tx = 0;
@@ -167,16 +174,17 @@ int main(int argc, char* argv[])
 		{
 			for(int x = 0; x < task_count; ++x)
 			{
-				if (y*task_count+x < total_done) //region_textures[y*task_count+x] != 0)
+				if (y*task_count+x < total_done)
 				{
 					// Bind texture
 					Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(region_textures[y*task_count+x]);
-				}	
+				}	else {
+					Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(unfinished_task_texture);
+				}
 					// Setup quad
 					pbatch->QuadsBegin();
 					pbatch->QuadsDrawTopLeft(x*task_size_w, y*task_size_h, task_size_w, task_size_w);
 					pbatch->QuadsEnd();
-				//}
 			}
 		}
 		

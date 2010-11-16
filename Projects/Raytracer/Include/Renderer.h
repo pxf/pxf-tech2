@@ -51,13 +51,18 @@ public:
 };
 
 struct batch_blob_t
-{
-	char lols[256]; // Something stupid for now..
+{	
+	// scene data
 	Primitive* primitives[256];
 	Primitive* lights[256];
 	int prim_count;
 	int light_count;
+	
+	
+	// windowing etc
 	int pic_w, pic_h;
+	int samples_per_pixel;
+	
 	// TODO: Add textures, kd-tree etc etc.
 };
 
