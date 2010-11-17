@@ -1,54 +1,7 @@
 #ifndef _RENDERER_H_
 #define _RENDERER_H_
 
-#include <Pxf/Base/Debug.h>
-#include "Material.h"
-#include "Intersections.h"
-
-class Primitive
-{
-public:
-	Primitive(material_t _material) {material = _material;};
-	virtual ~Primitive (){};
-	virtual bool Intersects(ray_t *ray, intersection_response_t* resp) = 0;
-	
-	material_t material;
-	Pxf::Math::Vec3f p;
-private:
-	/* data */
-};
-
-class Sphere : public Primitive
-{
-public:
-	Sphere (Pxf::Math::Vec3f _p, float _r, material_t _material) : Primitive(_material) {p = _p; r = _r;};
-	virtual ~Sphere(){};
-	bool Intersects(ray_t *ray, intersection_response_t* resp) { return ray_sphere(&p, r, ray, resp); };
-	
-	// data
-	float r;
-};
-
-class Plane : public Primitive
-{
-public:
-	Plane (Pxf::Math::Vec3f _p, Pxf::Math::Vec3f _n, material_t _material) : Primitive(_material) {p = _p; n = _n;};
-	virtual ~Plane(){};
-	bool Intersects(ray_t *ray, intersection_response_t* resp) { return ray_plane(&p, &n, ray, resp); };
-	
-	// data
-	Pxf::Math::Vec3f n;
-};
-
-class PointLight : public Primitive
-{
-public:
-	PointLight (Pxf::Math::Vec3f _p, material_t _material) : Primitive(_material) {p = _p;};
-	virtual ~PointLight(){};
-	bool Intersects(ray_t *ray, intersection_response_t* resp) { return false; };
-	
-	// data
-};
+#include "RenderUtils.h"
 
 struct batch_blob_t
 {	

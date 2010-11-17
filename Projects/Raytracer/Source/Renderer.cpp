@@ -92,7 +92,7 @@ bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec
 	return true;
 }
 
-bool find_first_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, intersection_response_t *resp)
+bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, intersection_response_t *resp)
 {
 	// Loop geometry
 	float closest_depth = 100000000000000.0f;
@@ -148,7 +148,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			// Cast ray and see what we find
 			Primitive *closest_prim = 0x0;
 			intersection_response_t closest_resp;
-			if (find_first_intersection(datablob, &ray, &closest_prim, &closest_resp))
+			if (find_intersection(datablob, &ray, &closest_prim, &closest_resp))
 			{
 				Pxf::Math::Vec3f light_contrib(0.0f, 0.0f, 0.0f);
 				Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
