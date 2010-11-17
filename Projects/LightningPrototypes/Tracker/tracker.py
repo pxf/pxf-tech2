@@ -1,6 +1,11 @@
 #!/usr/bin/python2
 
-import zmq,tracker_pb2,lightning,struct
+import struct
+
+import zmq
+
+import lightning
+import tracker_pb2
 
 def main():
     print("Tracker.")
@@ -21,17 +26,24 @@ def main():
         print("Received message, parsing... ")
 
         # Determening message type
-        message_type = struct.unpack('<I',message[:4])[0]
+        #message_type = struct.unpack('<I',message[:4])[0]
+        message_type, data = lightning.unpack(message)
 
         if message_type == lightning.INIT_HELLO:
             print("InitHelloToTracker.")
             session_id = tracker_database.new_init_client()
 
             response = tracker_pb2.HelloToClient()
-            print("lol: {0}".format(session_id))
             response.session_id = session_id
             socket.send(struct.pack('<I', lightning.HELLO)+response.SerializeToString())
-            print(response)
+
+        elif message_type == lightning.PING:
+            print("PING.")
+
+            response = tracker_pb.Pong()
+            response.ping_data = data.ping_data
+
+            socket.send(struct.pack('<I', lightning.PONG)+response.SerializeToString())
 
         elif message_type == lightning.HELLO:
             print("HelloToTracker.")

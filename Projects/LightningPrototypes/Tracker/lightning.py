@@ -7,11 +7,14 @@ tracker_port = "50000"
 INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, GOODBYE, NEWBATCH, OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, \
 	TASK_DONE, HATE, PING, PONG = range(13)
 
-translate_message_type = dict(
+translate_message_type = {
     INIT_HELLO: None,
     HELLO_TO_CLIENT: tracker_pb2.HelloToClient,
     HELLO_TO_TRACKER: tracker_pb2.HelloToTracker,
-    GOODBYE: tracker_pb2.GoodBye)
+    GOODBYE: tracker_pb2.GoodBye,
+    PING: tracker_pb2.Ping,
+    PONG: tracker_pb2.Pong
+}
 
 def unpack_raw(message):
     """unpack_raw(str message) -> (int message_type, string data)
