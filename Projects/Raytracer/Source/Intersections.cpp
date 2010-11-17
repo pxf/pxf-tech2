@@ -39,6 +39,28 @@ bool ray_triangle(Pxf::Math::Vec3f* data,ray_t* ray, intersection_response_t* re
 
 bool ray_sphere(Pxf::Math::Vec3f *c, float r, ray_t *ray, intersection_response_t* resp)
 {
+	/*float b = Dot(ray->d, (ray->o - *c));
+	float c0 = Dot(ray->o - *c, ray->o - *c) - r*r;
+	float d = b*b - c0;
+	
+	if (d < 0.0f)
+		return false;
+		
+	float t0,t1,t,e = sqrt(d);
+	t0 = -b + e;
+	t1 = -b - e;
+	
+	if (t0 < t1)
+		t = t0;
+	else
+		t = t1;
+	
+	resp->p = ray->o + ray->d * t;
+	resp->n = resp->p - *c;
+	resp->depth = t;
+	Normalize(resp->n);
+	return true;*/
+	
 	// algorithm from Real-Time Rendering (3rd Edition), p741 (optimized solution)
 	Pxf::Math::Vec3f l = *c - ray->o;
 	float s = Dot(l,ray->d);
@@ -82,6 +104,5 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 	resp->p = ray->o + ray->d * t;
 	resp->n = *n;
 	Normalize(resp->n);
-	// TODO: Return normal for intersection also!!
 	return true;
 }
