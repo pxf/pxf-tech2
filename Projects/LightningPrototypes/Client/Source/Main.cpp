@@ -9,6 +9,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
 #include <Pxf/Base/Random.h>
+#include <Pxf/Util/String.h>
 
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
@@ -17,22 +18,17 @@
 
 #include <ctime>
 
-#include "tracker.pb.h"
+#include "lightning.h"
+#include "trackerclient.pb.h"
 #include "clientclient.pb.h"
 
 using namespace Pxf;
-
-enum Message {
-	INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, GOODBYE, NEWBATCH,
-	OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, TASK_DONE, HATE, 
-	PING, PONG
-};
+using namespace Util;
 
 int main()
 {
-
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
-	
+
 	printf("Client.\n");
 	printf("Connecting to tracker...\n");
 
@@ -53,9 +49,28 @@ int main()
 	zmq_msg_init(&reply);
 	zmq_recv(out_socket, &reply, 0);
 
-	char* aoeu = (char*)zmq_msg_data(&reply);
+	char* reply_data = (char*)zmq_msg_data(&reply);
+	char* protobuf_data;
+	memcpy(&type, reply_data, sizeof(type));
+	memcpy(
+		protobuf_data,
+		reply_data+sizeof(type),
+		zmq_msg_size(&reply)-sizeof(type)
+	);
 
-	printf("Data recieved: %s\n", aoeu+4);
+	assert(type == HELLO_TO_CLIENT);
+	
+	trackerclient::HelloToClient hello_to_client;
+	if (!hello_to_client.ParseFromString(protobuf_data)) 
+	{
+		printf("Unable to parse protobuf data!\n");
+		return(-1);
+	}
+
+	String s_session_id = hello_to_client.session_id();
+	const char* sess = s_session_id.c_str();
+	printf("session_id: %s\n", sess);
+
 
 	zmq_msg_close(&reply);
 	zmq_msg_close(&hello);
