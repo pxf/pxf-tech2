@@ -12,6 +12,15 @@ void PrintStatistics(KDTree* t)
 	printf("---- KD Tree Statistics ----\n#nodes: %i\n#leaves: %i\n#empty leaves: %i\n#splits: %i\n", stats.nodes,stats.leaves,stats.empty_leaves,stats.splits);
 }
 
+bool RayTreeIntersect(KDTree& t,const ray_t& r)
+{
+	KDNode* root = t.GetRoot();
+
+
+	return true;
+}
+
+
 aabb CalcAABB(Primitive* _Primitives, int _NbrPrim)
 {
 	aabb box;

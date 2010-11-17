@@ -2,6 +2,7 @@
 #define _KDTREE_H_
 
 #include <Pxf/Math/Vector.h>
+#include <Intersections.h>
 
 class KDNode;
 class KDTree;
@@ -11,6 +12,7 @@ struct aabb;
 aabb CalcAABB(Primitive* _Primitives, int _NbrPrim);
 void CalcAABB(Primitive* _Primitive,aabb& _Box);
 void PrintStatistics(KDTree* t);
+bool RayTreeIntersect(KDTree& t,const ray_t& r);
 
 float Min(float a,float b);
 float Max(float a,float b);

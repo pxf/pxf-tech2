@@ -16,15 +16,26 @@
 #include <cstdlib>
 #include <KDTree.h>
 #include <Camera.h>
+#include <Intersections.h>
 #include <cstdlib>
 
 using namespace Pxf;
 using namespace Math;
 
+Vec3f w(1.0f,1.0f,1.0f);
+Vec3f red(1.0f,0.0f,0.0f);
 
 struct mouse_state 
 {
+	enum MS {
+		NO_STATE,
+		LEFT,
+		RIGHT,
+		LEFT_RIGHT
+	};
+
 	Math::Vec2i last_pos;
+	MS state;
 } ms;
 
 void draw_aabb(const aabb& b)
@@ -52,12 +63,27 @@ void draw_aabb(const aabb& b)
 	glVertex3f(b.pos.x,b.pos.y,b.pos.z + b.size.z);
 	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z + b.size.z);
 
+	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z);
+	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z + b.size.z);
+
+	glVertex3f(b.pos.x,b.pos.y + b.size.y,b.pos.z);
+	glVertex3f(b.pos.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+
+	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z + b.size.z);
+	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+
+	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z);
+	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+
+	glVertex3f(b.pos.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+
 	// ETC..
 
 	glEnd();
 }
 
-void DrawPrimitive(Primitive* _Data)
+void DrawPrimitive(Primitive* _Data,Vec3f c = w)
 {
 	if(_Data)
 	{
@@ -67,13 +93,30 @@ void DrawPrimitive(Primitive* _Data)
 
 			glBegin(GL_TRIANGLES);
 
+			glColor3f(c.x,c.y,c.z);
 			glVertex3f(p[0].x,p[0].y,p[0].z);
 			glVertex3f(p[1].x,p[1].y,p[1].z);
 			glVertex3f(p[2].x,p[2].y,p[2].z);
 
+			glColor3f(1.0f,1.0f,1.0f);
+
 			glEnd();
 		}
 	}
+}
+
+void DrawRay(ray_t& _R)
+{
+	Vec3f o = _R.o;
+	Vec3f d = _R.d;
+	Vec3f p = o + d * 1000.0f;
+
+	glBegin(GL_LINES);
+
+	glVertex3f(o.x,o.y,o.z);
+	glVertex3f(p.x,p.y,p.z);
+
+	glEnd();
 }
 
 void DrawNode(KDNode* _Node)
@@ -89,6 +132,18 @@ void DrawNode(KDNode* _Node)
 		glBegin(GL_LINES);
 		glVertex3f(_Node->GetSplitPos(),lb.pos.y,lb.pos.z);
 		glVertex3f(_Node->GetSplitPos(),lb.pos.y + lb.size.y,lb.pos.z);
+
+		
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y,lb.pos.z + lb.size.z);
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y + lb.size.y,lb.pos.z + lb.size.z);
+
+		
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y + lb.size.y,lb.pos.z);
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y + lb.size.y,lb.pos.z + lb.size.z);
+
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y,lb.pos.z);
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y,lb.pos.z + lb.size.z);
+
 		glEnd();
 		glColor3f(1.0f,1.0f,1.0f);
 	}
@@ -96,8 +151,32 @@ void DrawNode(KDNode* _Node)
 	{
 		glColor3f(0.0f,1.0f,0.0f);
 		glBegin(GL_LINES);
+
 		glVertex3f(lb.pos.x,_Node->GetSplitPos(),lb.pos.z);
 		glVertex3f(lb.pos.x + lb.size.x,_Node->GetSplitPos(),lb.pos.z);
+
+		glVertex3f(lb.pos.x,_Node->GetSplitPos(),lb.pos.z + lb.size.z);
+		glVertex3f(lb.pos.x + lb.size.x,_Node->GetSplitPos(),lb.pos.z + lb.size.z);
+
+		glVertex3f(lb.pos.x,_Node->GetSplitPos(),lb.pos.z);
+		glVertex3f(lb.pos.x,_Node->GetSplitPos(),lb.pos.z + lb.size.z);
+
+		glVertex3f(lb.pos.x + lb.size.x,_Node->GetSplitPos(),lb.pos.z);
+		glVertex3f(lb.pos.x + lb.size.x,_Node->GetSplitPos(),lb.pos.z + lb.size.z);
+
+		glEnd();
+		glColor3f(1.0f,1.0f,1.0f);
+	}
+	else if(axis == 2)
+	{
+		glColor3f(0.0f,0.0f,1.0f);
+		glBegin(GL_LINES);
+		
+		glVertex3f(lb.pos.x,lb.size.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x + lb.size.x,lb.size.y,_Node->GetSplitPos());
+
+
+
 		glEnd();
 		glColor3f(1.0f,1.0f,1.0f);
 	}
@@ -147,16 +226,23 @@ void MoveCamera(const camera_input_desc& cd)
 
 	if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT))
 	{
-		cd.cam->Translate(-dpos.x,-dpos.y,0);
+		cd.cam->Translate(-dpos.x,dpos.y,0);
+		ms.state = mouse_state::LEFT;
 	}
 	else if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT))
 	{		
-		cd.cam->SetRotation(-dpos.x,dpos.y,0.0f);
+		cd.cam->SetRotation(dpos.x * 0.5f,dpos.y * 0.5f,0.0f);
+		ms.state = mouse_state::RIGHT;
 	}
 	else if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT) && cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT))
 	{
-		cd.cam->Translate(0.0f,0.0f,dpos.y);
+		Math::Vec3f ed = cd.cam->GetDir();
+
+		cd.cam->Translate((ed)*dpos.y);
+		ms.state = mouse_state::LEFT_RIGHT;
 	}
+	else
+		ms.state = mouse_state::NO_STATE;
 
 	// update mouse state
 	cd.inp->GetMousePos(&ms.last_pos.x,&ms.last_pos.y);
@@ -204,7 +290,7 @@ int main(int argc, char* argv[])
 	pData[3] = Primitive(Vec3f(50.0f,10.0f,0.0f),Vec3f(50.0f,60.0f,0.0f),Vec3f(100.0f,60.0f,0.0f));
 	//pData[4] = Primitive(Vec3f(130.0f,50.0f,0.0f),Vec3f(130.0f,50.0f,0.0f),Vec3f(180.0f,100.0f,0.0f)); */
 
-	tree->Build(pData,4);
+	tree->Build(pData,2);
 
 	PrintStatistics(tree);
 
@@ -213,17 +299,31 @@ int main(int argc, char* argv[])
 
 	// Setup ogl
 	gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
-	Math::Mat4 prjmat = Math::Mat4::Ortho(-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
+	Math::Mat4 prjmat = Math::Mat4::Perspective(45.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
 
 	cam.SetProjectionView(prjmat);
 
-	cam.Translate(0.0f,50.0f,0.0f);
+	cam.Translate(0.0f,50.0f,500.0f);
 
 	camera_input_desc cid;
 	cid.cam = &cam;
 	cid.inp = inp;
 
 	float a = 0.0f;
+
+	// triangle intersection test
+	Vec3f triangle[3];
+	triangle[0] = Vec3f(-5.0f,-5.0f,5.0f);
+	triangle[1] = Vec3f(5.0f,-5.0f,5.0f);
+	triangle[2] = Vec3f(0.0f,5.0f,5.0f);
+
+	ray_t r;
+	r.o = Vec3f(0.0f,0.0f,0.0f);
+	r.d = Vec3f(0.0f,0.0f,1.0f);
+
+	intersection_response_t resp;
+
+	Primitive p(triangle[0],triangle[1],triangle[2]);
 
 	while(win->IsOpen())
 	{
@@ -238,12 +338,24 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glColor3f(1.0f,1.0f,1.0f);
 
-		//MoveCamera(cid);
+		MoveCamera(cid);
 
-		glRotatef(a,0.0f,1.0f,0.0f);
+		r.o = cam.GetPos() + Vec3f(0.1f,0.1f,0.1f);
+		r.d = cam.GetDir();
+
+		//glRotatef(a,0.0f,1.0f,0.0f);
 
 		DrawTree(tree);
 			
+		bool result = ray_triangle(triangle,&r,&resp);
+
+		if(result)
+			DrawPrimitive(&p,red);
+		else
+			DrawPrimitive(&p);
+
+		DrawRay(r);
+
 		a += 0.01f;
 
 		inp->ClearLastKey();

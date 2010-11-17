@@ -89,6 +89,11 @@ void SimpleCamera::Translate(float x,float y,float z)
 	SetPosition(p + m_Eye);
 }
 
+void SimpleCamera::Translate(Pxf::Math::Vec3f v)
+{
+	SetPosition(v + m_Eye);
+}
+
 void SimpleCamera::SetRotation(float yaw, float pitch, float roll)
 {
 	Quaternion q;
