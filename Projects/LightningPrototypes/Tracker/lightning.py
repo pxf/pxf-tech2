@@ -47,7 +47,11 @@ def pack(message_type, data=None):
     If no data is to be sent, set it to NULL.
     """
 
-    return struct.pack('<I', message_type)+data.SerializeToString()
+    ret = struct.pack('<I', message_type)
+    if data is not None:
+        ret += data.SerializeToString()
+
+    return ret
 
 class LightningException(Exception):
     """Main class for lightnings exceptions, if there are any..."""
