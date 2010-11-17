@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <zthread/Thread.h>
 #include <zmq.hpp>
 #include <google/protobuf/stubs/common.h> // ShutdownProtobufLibrary
 #include <vectormath_aos.h>
@@ -23,10 +24,10 @@ int main(int argc, char* argv[])
 	Vector3 c = a + b;
 	Pxf::RandSetSeed(time(NULL));
 	Kernel* kernel = Pxf::Kernel::GetInstance();
-	
+
 	zmq::context_t context(1);
 	
-	/* Client */
+	// Client
 	if (argc > 1 && StringCompareI(argv[1], "client") == 0)
 	{
 		zmq::socket_t socket(context, ZMQ_REQ);
@@ -43,7 +44,7 @@ int main(int argc, char* argv[])
 			printf ("Received reply %d: [%s]\n", request_nbr, (char*)reply.data());
 		}
 	}
-	/* Server */
+	// Server
 	else if (argc > 1 && StringCompareI(argv[1], "server") == 0)
 	{
 		zmq::socket_t socket(context, ZMQ_REP);
