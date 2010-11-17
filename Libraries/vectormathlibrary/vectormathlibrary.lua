@@ -15,3 +15,5 @@ else
 	project:AddDefine("ARCH=scalar")
 	--library:AddIncludeDirectory("sdk/include/vectormath/cpp")
 end
+
+library:AddSourceDirectory("sdk/src/*.cpp")

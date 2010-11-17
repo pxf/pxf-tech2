@@ -36,10 +36,28 @@ def unpack(message):
     (type_data, data) = unpack_raw(message)
 
     if type_data not in translate_message_type:
-        raise PackingException("Enum {0} could not be found in translate dict")
+        raise PackingException("Enum {0} could not be found in translate dict".format(type_data))
 
-    return (type_data, translate_message_type[type_data]().ParseFromString(data))
+    if data == "":
+        return (type_data, None)
+    else:
+        proto_data = translate_message_type[type_data]()
+        proto_data.ParseFromString(data)
+        return (type_data, proto_data)
 
+
+def pack(message_type, data=None):
+    """pack(int message_type, <protobuf> data=None) -> str message.
+
+    Packs a message type and data and returns a message string.
+    If no data is to be sent, set it to NULL.
+    """
+
+    ret = struct.pack('<I', message_type)
+    if data is not None:
+        ret += data.SerializeToString()
+
+    return ret
 
 class LightningException(Exception):
     """Main class for lightnings exceptions, if there are any..."""
