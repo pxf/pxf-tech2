@@ -23,11 +23,12 @@
 #include "clientclient.pb.h"
 
 using namespace Pxf;
+using namespace Util;
 
 int main()
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
-	
+
 	printf("Client.\n");
 	printf("Connecting to tracker...\n");
 
@@ -66,11 +67,9 @@ int main()
 		return(-1);
 	}
 
-	Util::String session_id = hello_to_client.session_id();
-	const char* sess = session_id.c_str();
+	String s_session_id = hello_to_client.session_id();
+	const char* sess = s_session_id.c_str();
 	printf("session_id: %s\n", sess);
-	//printf("session_id: %s", hello_to_client.session_id());
-	
 
 
 	zmq_msg_close(&reply);
