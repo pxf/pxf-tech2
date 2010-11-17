@@ -38,10 +38,12 @@ struct mouse_state
 	MS state;
 } ms;
 
-void draw_aabb(const aabb& b)
+void draw_aabb(const aabb& b,Vec3f c = w)
 {
 	glBegin(GL_LINES);
 
+	glColor3f(c.r,c.g,c.b);
+
 	glVertex3f(b.pos.x,b.pos.y,b.pos.z);
 	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z);
 
@@ -78,7 +80,7 @@ void draw_aabb(const aabb& b)
 	glVertex3f(b.pos.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
 	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
 
-	// ETC..
+	glColor3f(1.0f,1.0f,1.0f);
 
 	glEnd();
 }
@@ -314,8 +316,8 @@ int main(int argc, char* argv[])
 	// triangle intersection test
 	Vec3f triangle[3];
 	triangle[0] = Vec3f(-5.0f,-5.0f,5.0f);
-	triangle[1] = Vec3f(5.0f,-5.0f,5.0f);
-	triangle[2] = Vec3f(0.0f,5.0f,5.0f);
+	triangle[1] = Vec3f(5.0f,-5.0f,0.0f);
+	triangle[2] = Vec3f(0.0f,5.0f,-5.0f);
 
 	ray_t r;
 	r.o = Vec3f(0.0f,0.0f,0.0f);
@@ -324,6 +326,10 @@ int main(int argc, char* argv[])
 	intersection_response_t resp;
 
 	Primitive p(triangle[0],triangle[1],triangle[2]);
+
+	aabb p_aabb = p.GetAABB();
+
+
 
 	while(win->IsOpen())
 	{
@@ -354,7 +360,16 @@ int main(int argc, char* argv[])
 		else
 			DrawPrimitive(&p);
 
+		result = ray_aabb(&p_aabb,&r,&resp);
+
+		if(result)
+			draw_aabb(p_aabb,red);
+		else
+			draw_aabb(p_aabb);
+
 		DrawRay(r);
+
+		
 
 		a += 0.01f;
 
