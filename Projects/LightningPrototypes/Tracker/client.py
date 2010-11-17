@@ -24,6 +24,7 @@ def main():
             "2: NewBatch\n" +\
             "3: NodeRequest\n" +\
             "4: GoodBye\n" +\
+            "9: PING\n" \
             "0: Quit\n"
 
         i = raw_input("Message to send: ")
@@ -38,15 +39,16 @@ def main():
             # INIT_HELLO
             print "Connecting to tracker..."
             zmq_socket.connect("tcp://" + lightning.tracker_address + ":" + lightning.tracker_port)
-            zmq_socket.send(struct.pack('<I', lightning.INIT_HELLO))
+
+            # Create and send hello message
+            message = lightning.pack(lightning.INIT_HELLO)
+            zmq_socket.send(message)
 
             # Wait for HelloToClient()
             print "..waiting for HelloToClient..."
-            hello_message = zmq_socket.recv()
-            hello_to_client = tracker_pb2.HelloToClient()
-            hello_to_client.ParseFromString(hello_message[4:])
-            session_id = hello_to_client.session_id
-            print "DATA: {0}".format(hello_to_client)
+            hello_message = lightning.unpack(zmq_socket.recv())
+            assert(hello_message[0] == lightning.HELLO_TO_CLIENT)
+            session_id = hello_message[1].session_id
             print "...got session_id {0}".format(session_id)
 
             # Set socket identity to session_id
@@ -65,7 +67,7 @@ def main():
             hello.session_id = session_id
             
             print("Sending new address information..")
-            zmq_socket.send(struct.pack('<I', lightning.HELLO) + hello.SerializeToString())
+            zmq_socket.send(lightning.pack(lightning.HELLO_TO_TRACKER, hello))
 
             ok = zmq_socket.recv()
             if struct.unpack('<I', ok)[0] != lightning.OK:
@@ -91,6 +93,10 @@ def main():
             print "Sending GoodBye..."
             bye = tracker_pb2.GoodBye()
             bye.session_id = session_id
+        elif i == 9:
+            print("Sending PING")
+            message = lightning.pack(lightning.PING)
+
 
 
             

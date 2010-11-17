@@ -61,11 +61,16 @@ public:
 	const Pxf::Math::Vec3f* GetPos() const { return &m_Eye; }
 	const Pxf::Math::Vec3f* GetDir() const { return &m_ViewDir; }
 
+	Pxf::Math::Vec3f GetDir() { return m_ViewDir; }
+	Pxf::Math::Vec3f GetPos() { return m_Eye; }
+
 	void SetPerspective(float _fovx, float _aspect, float _znear, float _zfar);
 	void SetRotation(float yaw, float pitch, float roll);
 	void SetLookAt(float x,float y,float z);
 	void SetPosition(float x,float y,float z);
 	void SetPosition(const Pxf::Math::Vec3f &_Pos);
+	void Translate(float x,float y,float z);
+	void Translate(Pxf::Math::Vec3f v);
 
 	Pxf::Math::Vec3f GetPosition();
 };

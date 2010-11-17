@@ -83,6 +83,17 @@ void SimpleCamera::SetPosition(const Vec3f &_Pos)
 	SetPosition(_Pos.x,_Pos.y,_Pos.z);
 }
 
+void SimpleCamera::Translate(float x,float y,float z)
+{
+	Vec3f p(x,y,z);
+	SetPosition(p + m_Eye);
+}
+
+void SimpleCamera::Translate(Pxf::Math::Vec3f v)
+{
+	SetPosition(v + m_Eye);
+}
+
 void SimpleCamera::SetRotation(float yaw, float pitch, float roll)
 {
 	Quaternion q;
