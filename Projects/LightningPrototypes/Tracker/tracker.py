@@ -1,6 +1,11 @@
 #!/usr/bin/python2
 
-import zmq,tracker_pb2,lightning,struct
+import struct
+
+import zmq
+
+import lightning
+import tracker_pb2
 
 def main():
     print("Tracker.")
@@ -21,40 +26,43 @@ def main():
         print("Received message, parsing... ")
 
         # Determening message type
-        message_type = struct.unpack('<I',message[:4])[0]
+        #message_type = struct.unpack('<I',message[:4])[0]
+        message_type, data = lightning.unpack(message)
 
         if message_type == lightning.INIT_HELLO:
             print("InitHelloToTracker.")
             session_id = tracker_database.new_init_client()
 
             response = tracker_pb2.HelloToClient()
-            print("lol: {0}".format(session_id))
             response.session_id = session_id
-            socket.send(struct.pack('<I', lightning.HELLO)+response.SerializeToString())
-            print(response)
+            socket.send(lightning.pack(lightning.HELLO_TO_CLIENT, response))
 
-        elif message_type == lightning.HELLO:
+        elif message_type == lightning.PING:
+            print("PING.")
+            response = tracker_pb2.Pong()
+            response.ping_data = data.ping_data
+
+            socket.send(lightning.pack(lightning.PONG, response))
+
+        elif message_type == lightning.PONG:
+            print("PONG. : " + str(data))
+
+        elif message_type == lightning.HELLO_TO_TRACKER:
             print("HelloToTracker.")
-            hello = tracker_pb2.HelloToTracker()
-            hello.ParseFromString(message[4:])
-            print("hello: "+str(hello))
-
             tracker_database.set_client(
                 session_id
-                , address=hello.address
-                , available=hello.available
+                , address=data.address
+                , available=data.available
             )
 
-            zmq_socket_clients.connect(hello.address)
-            socket.send(struct.pack('<I', lightning.OK))
+            zmq_socket_clients.connect(data.address)
+            socket.send(lightning.pack(lightning.OK))
+#            socket.send(struct.pack('<I', lightning.OK))
 
         elif message_type == lightning.GOODBYE:
-            print("GoodBye message:")
-            goodbye = tracker_pb2.GoodBye()
-            goodbye.ParseFromString(message)
-            print(str(goodbye))
-            print("Removing client with session_id {0} from database.".format(goodbye.session_id))
-            trackerdatabase.del_client(goodbye.session_id)
+            print("GoodBye.")
+            print("Removing client with session_id {0} from database.".format(data.session_id))
+            trackerdatabase.del_client(data.session_id)
 
 
 class TrackerDatabaseException(Exception):

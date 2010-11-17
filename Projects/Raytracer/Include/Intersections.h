@@ -15,6 +15,7 @@ struct intersection_response_t
 	Pxf::Math::Vec3f p;
 	Pxf::Math::Vec3f n;
 	float depth;
+	intersection_response_t() {p = Pxf::Math::Vec3f(0.0f); n = Pxf::Math::Vec3f(0.0f); depth = 0.0f;}
 };
 
 // intersection tests

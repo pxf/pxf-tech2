@@ -7,11 +7,14 @@ tracker_port = "50000"
 INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, GOODBYE, NEWBATCH, OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, \
 	TASK_DONE, HATE, PING, PONG = range(13)
 
-translate_message_type = dict(
+translate_message_type = {
     INIT_HELLO: None,
     HELLO_TO_CLIENT: tracker_pb2.HelloToClient,
     HELLO_TO_TRACKER: tracker_pb2.HelloToTracker,
-    GOODBYE: tracker_pb2.GoodBye)
+    GOODBYE: tracker_pb2.GoodBye,
+    PING: tracker_pb2.Ping,
+    PONG: tracker_pb2.Pong
+}
 
 def unpack_raw(message):
     """unpack_raw(str message) -> (int message_type, string data)
@@ -33,10 +36,28 @@ def unpack(message):
     (type_data, data) = unpack_raw(message)
 
     if type_data not in translate_message_type:
-        raise PackingException("Enum {0} could not be found in translate dict")
+        raise PackingException("Enum {0} could not be found in translate dict".format(type_data))
 
-    return (type_data, translate_message_type[type_data]().ParseFromString(data))
+    if data == "":
+        return (type_data, None)
+    else:
+        proto_data = translate_message_type[type_data]()
+        proto_data.ParseFromString(data)
+        return (type_data, proto_data)
 
+
+def pack(message_type, data=None):
+    """pack(int message_type, <protobuf> data=None) -> str message.
+
+    Packs a message type and data and returns a message string.
+    If no data is to be sent, set it to NULL.
+    """
+
+    ret = struct.pack('<I', message_type)
+    if data is not None:
+        ret += data.SerializeToString()
+
+    return ret
 
 class LightningException(Exception):
     """Main class for lightnings exceptions, if there are any..."""
