@@ -31,6 +31,7 @@ int main(int argc, char* argv[])
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
+	
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;
 	spec.Height = 512;
@@ -88,7 +89,7 @@ int main(int argc, char* argv[])
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, light_mat1);
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 1;
 	
 	task_detail_t task;
