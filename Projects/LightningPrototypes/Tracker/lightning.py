@@ -40,6 +40,14 @@ def unpack(message):
 
     return (type_data, translate_message_type[type_data]().ParseFromString(data))
 
+def pack(message_type, data=None):
+    """pack(int message_type, <protobuf> data=None) -> str message.
+
+    Packs a message type and data and returns a message string.
+    If no data is to be sent, set it to NULL.
+    """
+
+    return struct.pack('<I', message_type)+data.SerializeToString()
 
 class LightningException(Exception):
     """Main class for lightnings exceptions, if there are any..."""
