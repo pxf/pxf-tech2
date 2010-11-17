@@ -1,9 +1,68 @@
 #include "Intersections.h"
+#include <Common.h>
+#include <math.h>
 
 using namespace Pxf;
 using namespace Math;
 
-bool ray_triangle(Pxf::Math::Vec3f* data,ray_t* ray, intersection_response_t* resp)
+bool ray_slab(float min,float max,float raystart, float rayend,float& tbenter,float& tbexit)
+{
+	float raydir = rayend - raystart;
+
+	// ray parallel to the slab
+	if (fabs(raydir) < 1.0E-9f)
+	{
+		// ray parallel to the slab, but ray not inside the slab planes
+		if(raystart < min || raystart > max)
+		{
+			return false;
+		}
+		// ray parallel to the slab, but ray inside the slab planes
+		else
+		{
+			return true;
+		}
+	}
+
+	// slab's enter and exit parameters
+	float tsenter = (min - raystart) / raydir;
+	float tsexit = (max - raystart) / raydir;
+
+	if(tsenter > tsexit)
+		swap(tsenter,tsexit);
+
+	if(tbenter > tsexit || tsenter > tbexit)
+		return false;
+	else
+	{
+		tbenter = Max(tbenter, tsenter);
+		tbexit = Min(tbexit, tsexit);
+		return true;
+	}
+}
+
+bool ray_aabb(aabb* box,ray_t* ray,intersection_response_t* resp)
+{
+	Vec3f box_min = box->pos;
+	Vec3f box_max = box_min + box->size;
+
+	Vec3f tmin = (box_min - ray->o)/ray->d;
+	Vec3f tmax = (box_max - ray->o)/ray->d;
+
+	float tenter	= 0.0f;
+	float texit		= 1.0f;
+	
+	if(!ray_slab(box_min.x,box_max.x,ray->o.x,box_max.x,tenter,texit))
+		return false;
+	if(!ray_slab(box_min.y,box_max.y,ray->o.y,box_max.y,tenter,texit))
+		return false;
+	if(!ray_slab(box_min.z,box_max.z,ray->o.z,box_max.z,tenter,texit))
+		return false;
+
+	return true;
+}
+
+bool ray_triangle(Vec3f* data,ray_t* ray, intersection_response_t* resp)
 {
 	// STEP 1: Find point in the plane of the triangle
 	Vec3f A = data[0];
@@ -39,28 +98,6 @@ bool ray_triangle(Pxf::Math::Vec3f* data,ray_t* ray, intersection_response_t* re
 
 bool ray_sphere(Pxf::Math::Vec3f *c, float r, ray_t *ray, intersection_response_t* resp)
 {
-	/*float b = Dot(ray->d, (ray->o - *c));
-	float c0 = Dot(ray->o - *c, ray->o - *c) - r*r;
-	float d = b*b - c0;
-	
-	if (d < 0.0f)
-		return false;
-		
-	float t0,t1,t,e = sqrt(d);
-	t0 = -b + e;
-	t1 = -b - e;
-	
-	if (t0 < t1)
-		t = t0;
-	else
-		t = t1;
-	
-	resp->p = ray->o + ray->d * t;
-	resp->n = resp->p - *c;
-	resp->depth = t;
-	Normalize(resp->n);
-	return true;*/
-	
 	// algorithm from Real-Time Rendering (3rd Edition), p741 (optimized solution)
 	Pxf::Math::Vec3f l = *c - ray->o;
 	float s = Dot(l,ray->d);
@@ -104,5 +141,6 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 	resp->p = ray->o + ray->d * t;
 	resp->n = *n;
 	Normalize(resp->n);
+	// TODO: Return normal for intersection also!!
 	return true;
 }

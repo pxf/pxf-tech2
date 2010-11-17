@@ -1,7 +1,7 @@
 #include <Pxf/Math/Vector.h>
 
 #include "Renderer.h"
-#include "Intersections.h"
+#include <Pxf/Math/Math.h>
 
 using namespace Pxf;
 using namespace Math;
@@ -51,39 +51,187 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 	return true;
 }
 
-bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
+// best function name ever
+bool find_any_intersection_closer_than(batch_blob_t *datablob, ray_t *ray, float max_distance, intersection_response_t *resp)
 {
-	// TODO: Do some real calculations here!
-	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
+	// Loop geometry
+	//float closest_depth = 100000000000000.0f;
+	//bool found = false;
+	//Primitive *closest_prim = 0x0;
+	intersection_response_t closest_resp;
 	
-	pixel->r = 0;//(char)(255 * x / 2.0f);//(char)(255 * ((float)x / (float)region_width));
-	pixel->g = 0;//(char)(255 * y / 2.0f);//(char)(255 * ((float)y / (float)region_height));
-	pixel->b = 0;//(char)(255 * ((float)task->task_id / (float)task->task_count));
-	
-	// test sphere
-	Vec3f sphere_c(0.0f,0.0f,10.0f);
-	ray_t ray;
-	ray.o = Vec3f(0.0f,0.0f,-1.0f);
-	ray.d = screen_coords - ray.o;
-	Normalize(ray.d);
-	intersection_response_t resp;
-	
-	// test light
-	Vec3f light(9.0f, 9.0f, -9.0f);
-	
-	if (ray_sphere(&sphere_c, 7, &ray, &resp))
+	for(int i = 0; i < datablob->prim_count; ++i)
 	{
-		Vec3f L = light - resp.p;
-		Normalize(L);
-		float dot = Dot( resp.n, L );
-		if (dot < 0.0f)
-			dot = 0.0f;
-		
-		resp.n = (resp.n + 1.0f) / 2.0f;
-		pixel->r = dot * 255;//resp.n.x * 255;
-		pixel->g = dot * 255;//resp.n.y * 255;
-		pixel->b = dot * 255;//resp.n.z * 255;
+		// test intersection
+		if (datablob->primitives[i]->Intersects(ray, &closest_resp))
+		{
+			if (max_distance > closest_resp.depth)
+			{
+				*resp = closest_resp;
+				return true;
+			}
+		}
 	}
+	
+	return false;
+}
+
+bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, intersection_response_t *resp)
+{
+	// Loop geometry
+	float closest_depth = 100000000000000.0f;
+	bool found = false;
+	//Primitive *closest_prim = 0x0;
+	intersection_response_t closest_resp;
+	
+	for(int i = 0; i < datablob->prim_count; ++i)
+	{
+		// test intersection
+		if (datablob->primitives[i]->Intersects(ray, &closest_resp))
+		{
+			if (closest_depth > closest_resp.depth)
+			{
+				closest_depth = closest_resp.depth;
+				*prim = datablob->primitives[i];
+				*resp = closest_resp;
+				found = true;
+			}
+		}
+	}
+	
+	return found;
+}
+
+
+bool calc_light_contrib(Primitive *prim, Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec3f *ed, batch_blob_t *datablob, Pxf::Math::Vec3f *res)
+{
+	// loop lights
+	for(int l = 0; l < datablob->light_count; ++l)
+	{
+		// Always assume we 
+		float att = 1.0f;
+		
+		// create ray to light
+		ray_t light_ray;
+		light_ray.o = *p;
+		light_ray.d = datablob->lights[l]->p - (*p);
+		float light_distance = Length(light_ray.d);
+		Normalize(light_ray.d);
+		light_ray.o += light_ray.d*0.01f;
+		
+		// Point lights
+		if (datablob->lights[l]->GetType() == PointLightPrim)
+		{
+			// See if we hit any geometry closer than the light
+			intersection_response_t tresp;
+			if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
+			{
+				att = 0.0f;
+			}
+		
+		// Area lights
+		} else if (datablob->lights[l]->GetType() == AreaLightPrim)
+		{
+			AreaLight *light = (AreaLight*)datablob->lights[l];
+			
+			
+			// construct "up-vector"
+			Vec3f up = Cross(light->normal, light->dir);
+			float step_w = (float)light->width / (float)light->num_rays;
+			float step_h = (float)light->height / (float)light->num_rays;
+			Vec3f start_pos = light->p - (up * light->width + light->dir * light->height) / 2.0f;
+			for(int y = 0; y < light->num_rays; ++y)
+			{
+				for(int x = 0; x < light->num_rays; ++x)
+				{
+					Vec3f light_point = start_pos + (up * step_w * (float)x) + (light->dir * step_h * (float)y);
+					light_ray.o = *p;
+					light_ray.d = light_point - (*p);
+					light_distance = Length(light_ray.d);
+					Normalize(light_ray.d);
+					light_ray.o += light_ray.d*0.01f;
+					
+					intersection_response_t tresp;
+					if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
+					{
+						att -= (1.0f / ((float)light->num_rays * (float)light->num_rays));
+					}
+				}
+			}
+		}
+		
+		// TODO: add better contributing calculations
+		float ndotl = Dot(*n, light_ray.d);
+		*res += prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * att) / (float)datablob->light_count;
+	}
+	
+	return true;
+}
+
+
+bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel)
+{	
+	// Clear pixel
+	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
+	
+	// Center ray
+	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
+	ray_t cray;
+	cray.o = Vec3f(0.0f,0.0f,-1.0f);
+	//cray.d = screen_coords - cray.o;
+	//Normalize(cray.d);
+	
+	// find closest primitive
+	for(int pixel_x = 0; pixel_x < datablob->samples_per_pixel; ++pixel_x)
+	{
+		for(int pixel_y = 0; pixel_y < datablob->samples_per_pixel; ++pixel_y)
+		{
+			// Offset ray
+			ray_t ray = cray;
+			Vec3f new_screen_coords = screen_coords;
+			
+			// TODO: Make sampling more non-uniform
+			new_screen_coords.x += (1.0f / ((float)datablob->pic_w * (float)datablob->samples_per_pixel)) * (float)pixel_x;
+			new_screen_coords.y += (1.0f / ((float)datablob->pic_h * (float)datablob->samples_per_pixel)) * (float)pixel_y;
+			ray.d = new_screen_coords - cray.o;
+			Normalize(ray.d);
+			
+			// Cast ray and see what we find
+			Primitive *closest_prim = 0x0;
+			intersection_response_t closest_resp;
+			if (find_intersection(datablob, &ray, &closest_prim, &closest_resp))
+			{
+				Pxf::Math::Vec3f light_contrib(0.0f, 0.0f, 0.0f);
+				Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
+				Normalize(eye_dir);
+				
+				fpixel += closest_prim->material.ambient;
+				
+				// Calc direct light
+				if (!calc_light_contrib(closest_prim, &closest_resp.p, &closest_resp.n, &eye_dir, datablob, &light_contrib))
+				{
+					Pxf::Message("calculate_pixel", "Light calculations failed!");
+					return false;
+				}
+				fpixel += light_contrib;
+				
+				// TODO: Calc indirect light using photon map
+				
+
+
+			}
+		}
+	}
+	
+	fpixel /= datablob->samples_per_pixel * datablob->samples_per_pixel;
+	
+	fpixel.x = Pxf::Math::Clamp(fpixel.x, 0.0f, 1.0f);
+	fpixel.y = Pxf::Math::Clamp(fpixel.y, 0.0f, 1.0f);
+	fpixel.z = Pxf::Math::Clamp(fpixel.z, 0.0f, 1.0f);
+		
+	pixel->r = (char)(fpixel.r * 255.0f);
+	pixel->g = (char)(fpixel.g * 255.0f);
+	pixel->b = (char)(fpixel.b * 255.0f);	
 	
 	return true;
 }

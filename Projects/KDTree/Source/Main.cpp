@@ -15,14 +15,34 @@
 #include <cstdio>
 #include <cstdlib>
 #include <KDTree.h>
+#include <Camera.h>
+#include <Intersections.h>
 #include <cstdlib>
 
 using namespace Pxf;
 using namespace Math;
 
-void draw_aabb(const aabb& b)
+Vec3f w(1.0f,1.0f,1.0f);
+Vec3f red(1.0f,0.0f,0.0f);
+
+struct mouse_state 
+{
+	enum MS {
+		NO_STATE,
+		LEFT,
+		RIGHT,
+		LEFT_RIGHT
+	};
+
+	Math::Vec2i last_pos;
+	MS state;
+} ms;
+
+void draw_aabb(const aabb& b,Vec3f c = w)
 {
 	glBegin(GL_LINES);
+
+	glColor3f(c.r,c.g,c.b);
 
 	glVertex3f(b.pos.x,b.pos.y,b.pos.z);
 	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z);
@@ -45,18 +65,189 @@ void draw_aabb(const aabb& b)
 	glVertex3f(b.pos.x,b.pos.y,b.pos.z + b.size.z);
 	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z + b.size.z);
 
-	// ETC..
+	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z);
+	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z + b.size.z);
+
+	glVertex3f(b.pos.x,b.pos.y + b.size.y,b.pos.z);
+	glVertex3f(b.pos.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+
+	glVertex3f(b.pos.x + b.size.x,b.pos.y,b.pos.z + b.size.z);
+	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+
+	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z);
+	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+
+	glVertex3f(b.pos.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+	glVertex3f(b.pos.x + b.size.x,b.pos.y + b.size.y,b.pos.z + b.size.z);
+
+	glColor3f(1.0f,1.0f,1.0f);
 
 	glEnd();
+}
+
+void DrawPrimitive(Primitive* _Data,Vec3f c = w)
+{
+	if(_Data)
+	{
+		if(_Data->GetType() == Primitive::TRIANGLE)
+		{
+			Vec3f* p = _Data->GetPoints();
+
+			glBegin(GL_TRIANGLES);
+
+			glColor3f(c.x,c.y,c.z);
+			glVertex3f(p[0].x,p[0].y,p[0].z);
+			glVertex3f(p[1].x,p[1].y,p[1].z);
+			glVertex3f(p[2].x,p[2].y,p[2].z);
+
+			glColor3f(1.0f,1.0f,1.0f);
+
+			glEnd();
+		}
+	}
+}
+
+void DrawRay(ray_t& _R)
+{
+	Vec3f o = _R.o;
+	Vec3f d = _R.d;
+	Vec3f p = o + d * 1000.0f;
+
+	glBegin(GL_LINES);
+
+	glVertex3f(o.x,o.y,o.z);
+	glVertex3f(p.x,p.y,p.z);
+
+	glEnd();
+}
+
+void DrawNode(KDNode* _Node)
+{
+	if(!_Node) return;
+
+	unsigned axis = _Node->GetAxis();
+	aabb lb = _Node->GetAABB();
+
+	if(axis == 0)
+	{
+		glColor3f(1.0f,0.0f,0.0f);
+		glBegin(GL_LINES);
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y,lb.pos.z);
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y + lb.size.y,lb.pos.z);
+
+		
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y,lb.pos.z + lb.size.z);
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y + lb.size.y,lb.pos.z + lb.size.z);
+
+		
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y + lb.size.y,lb.pos.z);
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y + lb.size.y,lb.pos.z + lb.size.z);
+
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y,lb.pos.z);
+		glVertex3f(_Node->GetSplitPos(),lb.pos.y,lb.pos.z + lb.size.z);
+
+		glEnd();
+		glColor3f(1.0f,1.0f,1.0f);
+	}
+	else if(axis == 1)
+	{
+		glColor3f(0.0f,1.0f,0.0f);
+		glBegin(GL_LINES);
+
+		glVertex3f(lb.pos.x,_Node->GetSplitPos(),lb.pos.z);
+		glVertex3f(lb.pos.x + lb.size.x,_Node->GetSplitPos(),lb.pos.z);
+
+		glVertex3f(lb.pos.x,_Node->GetSplitPos(),lb.pos.z + lb.size.z);
+		glVertex3f(lb.pos.x + lb.size.x,_Node->GetSplitPos(),lb.pos.z + lb.size.z);
+
+		glVertex3f(lb.pos.x,_Node->GetSplitPos(),lb.pos.z);
+		glVertex3f(lb.pos.x,_Node->GetSplitPos(),lb.pos.z + lb.size.z);
+
+		glVertex3f(lb.pos.x + lb.size.x,_Node->GetSplitPos(),lb.pos.z);
+		glVertex3f(lb.pos.x + lb.size.x,_Node->GetSplitPos(),lb.pos.z + lb.size.z);
+
+		glEnd();
+		glColor3f(1.0f,1.0f,1.0f);
+	}
+	else if(axis == 2)
+	{
+		glColor3f(0.0f,0.0f,1.0f);
+		glBegin(GL_LINES);
+		
+		glVertex3f(lb.pos.x,lb.size.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x + lb.size.x,lb.size.y,_Node->GetSplitPos());
+
+
+
+		glEnd();
+		glColor3f(1.0f,1.0f,1.0f);
+	}
+
+	KDNode* left = _Node->GetLeftChild();
+	KDNode* right = _Node->GetRightChild();
+
+	if(left)
+	{
+		if(left->IsLeaf() && !left->IsEmpty())
+			DrawPrimitive(left->GetPrimitiveData());
+		else
+			DrawNode(left);
+	}
+
+	if(right)
+	{
+		if(right->IsLeaf() && !right->IsEmpty())
+			DrawPrimitive(right->GetPrimitiveData());
+		else
+			DrawNode(right);
+	}
 }
 
 void DrawTree(KDTree* t)
 {
 	KDNode* root = t->GetRoot();
 
-	draw_aabb(t->GetAABB());
+	draw_aabb(root->GetAABB());
+
+	DrawNode(root);
+}
+
+struct camera_input_desc {
+	SimpleCamera* cam;
+	Input::InputDevice* inp;
+};
 
 
+void MoveCamera(const camera_input_desc& cd)
+{
+	// Mouse movement:
+
+	Math::Vec2i dpos;
+	cd.inp->GetMousePos(&dpos.x,&dpos.y);
+	dpos = dpos - ms.last_pos;
+
+	if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT))
+	{
+		cd.cam->Translate(-dpos.x,dpos.y,0);
+		ms.state = mouse_state::LEFT;
+	}
+	else if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT))
+	{		
+		cd.cam->SetRotation(dpos.x * 0.5f,dpos.y * 0.5f,0.0f);
+		ms.state = mouse_state::RIGHT;
+	}
+	else if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT) && cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT))
+	{
+		Math::Vec3f ed = cd.cam->GetDir();
+
+		cd.cam->Translate((ed)*dpos.y);
+		ms.state = mouse_state::LEFT_RIGHT;
+	}
+	else
+		ms.state = mouse_state::NO_STATE;
+
+	// update mouse state
+	cd.inp->GetMousePos(&ms.last_pos.x,&ms.last_pos.y);
 }
 
 int main(int argc, char* argv[])
@@ -84,41 +275,111 @@ int main(int argc, char* argv[])
 	srand ( time(NULL) );
 
 	// KDTree
-	KDTree* tree = new KDTree(2);
+	KDTree* tree = new KDTree(3);
 
-	Primitive pData[3];
+	Primitive pData[5];
 
-	pData[0] = Primitive(Vec3f(-200.0,-50.0f,-150.0f),Vec3f(-150.0f,-50.0f,-150.0f),Vec3f(-150.0f,0.0f,-150.0f));
-	pData[1] = Primitive(Vec3f(-50.0f,50.0f,0),Vec3f(-50.0f,100.0f,0),Vec3f(-100.0f,100.0f,100.0f));
-	pData[2] = Primitive(Vec3f(150.0f,-50.0f,0),Vec3f(150.0f,-100.0f,0),Vec3f(200.0f,-100.0f,100.0f));
+	pData[0] = Primitive(Vec3f(-200.0,-50.0f,50.0f),Vec3f(-150.0f,-50.0f,-150.0f),Vec3f(-150.0f,0.0f,-150.0f));
+	pData[1] = Primitive(Vec3f(-50.0f,50.0f,0.0f),Vec3f(-50.0f,100.0f,0),Vec3f(-100.0f,100.0f,100.0f));
+	pData[2] = Primitive(Vec3f(150.0f,-50.0f,0.0f),Vec3f(150.0f,-100.0f,0),Vec3f(200.0f,-100.0f,100.0f));
+	pData[3] = Primitive(Vec3f(50.0f,10.0f,0),Vec3f(50.0f,60.0f,0),Vec3f(100.0f,60.0f,100.0f));
+	pData[4] = Primitive(Vec3f(130.0f,50.0f,0),Vec3f(130.0f,50.0f,0),Vec3f(180.0f,100.0f,100.0f));
 
-	tree->Build(pData,3);
+	/*
+	pData[0] = Primitive(Vec3f(-200.0,-50.0f,0.0f),Vec3f(-150.0f,-50.0f,0.0f),Vec3f(-150.0f,0.0f,0.0f));
+	pData[1] = Primitive(Vec3f(-50.0f,50.0f,0.0f),Vec3f(-50.0f,100.0f,0.0f),Vec3f(-100.0f,100.0f,0.0f));
+	pData[2] = Primitive(Vec3f(150.0f,-50.0f,0.0f),Vec3f(150.0f,-100.0f,0.0f),Vec3f(200.0f,-100.0f,0.0f));
+	pData[3] = Primitive(Vec3f(50.0f,10.0f,0.0f),Vec3f(50.0f,60.0f,0.0f),Vec3f(100.0f,60.0f,0.0f));
+	//pData[4] = Primitive(Vec3f(130.0f,50.0f,0.0f),Vec3f(130.0f,50.0f,0.0f),Vec3f(180.0f,100.0f,0.0f)); */
+
+	tree->Build(pData,2);
+
+	PrintStatistics(tree);
+
+	SimpleCamera cam;
+	//cam.SetPerspective(45.0f, win->GetWidth() / win->GetHeight(),-1.0f,1000.0f);
+
+	// Setup ogl
+	gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
+	Math::Mat4 prjmat = Math::Mat4::Perspective(45.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
+
+	cam.SetProjectionView(prjmat);
+
+	cam.Translate(0.0f,50.0f,500.0f);
+
+	camera_input_desc cid;
+	cid.cam = &cam;
+	cid.inp = inp;
+
+	float a = 0.0f;
+
+	// triangle intersection test
+	Vec3f triangle[3];
+	triangle[0] = Vec3f(-5.0f,-5.0f,5.0f);
+	triangle[1] = Vec3f(5.0f,-5.0f,0.0f);
+	triangle[2] = Vec3f(0.0f,5.0f,-5.0f);
+
+	ray_t r;
+	r.o = Vec3f(0.0f,0.0f,0.0f);
+	r.d = Vec3f(0.0f,0.0f,1.0f);
+
+	intersection_response_t resp;
+
+	Primitive p(triangle[0],triangle[1],triangle[2]);
+
+	aabb p_aabb = p.GetAABB();
+
+
 
 	while(win->IsOpen())
 	{
 		inp->Update();
 		if (inp->GetLastKey() == Input::ESC)
 			break;
-		
-		// Setup ogl
-		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
-		Math::Mat4 prjmat = Math::Mat4::Ortho(-300.0f, 300.0f, 300.0f,-300.0f, -1.0f, 10000.0f);
-		gfx->SetProjection(&prjmat);
+
+		gfx->SetProjection(cam.GetProjectionView());
+		gfx->SetModelView(cam.GetModelView());
+
 		glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glColor3f(1.0f,1.0f,1.0f);
 
-		DrawTree(tree);
+		MoveCamera(cid);
 
-		for(size_t i = 0; i < 3; i++)
-		{
-			draw_aabb(pData[i].GetAABB());
-		}
+		r.o = cam.GetPos() + Vec3f(0.1f,0.1f,0.1f);
+		r.d = cam.GetDir();
+
+		//glRotatef(a,0.0f,1.0f,0.0f);
+
+		DrawTree(tree);
 			
+		bool result = ray_triangle(triangle,&r,&resp);
+
+		if(result)
+			DrawPrimitive(&p,red);
+		else
+			DrawPrimitive(&p);
+
+		result = ray_aabb(&p_aabb,&r,&resp);
+
+		if(result)
+			draw_aabb(p_aabb,red);
+		else
+			draw_aabb(p_aabb);
+
+		DrawRay(r);
+
+		
+
+		a += 0.01f;
+
 		inp->ClearLastKey();
 		win->Swap();
 	}
 	
+	delete tree;
+	//delete pData;
+
 	return 0;
 }
 

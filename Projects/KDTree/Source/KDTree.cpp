@@ -1,84 +1,21 @@
 #include <KDTree.h>
 #include <algorithm>
+#include <Common.h>
 
 using namespace Pxf::Math;
 
-float Min(float a,float b) { return (a < b) ? a : b; }
-float Max(float a,float b) { return (a > b) ? a : b; }
-
-aabb CalcAABB(Primitive* _Primitives, int _NbrPrim)
+void PrintStatistics(KDTree* t)
 {
-	aabb box;
-
-	if(_Primitives)
-	{
-		box = _Primitives[0].GetAABB();
-	}
-
-	for(int i = 1; i < _NbrPrim; i++)
-	{
-		aabb tBox = _Primitives[i].GetAABB();
-		box = box + tBox;
-	}
-
-	return box;
+	KDTree::tree_statistics stats = t->GetStats();
+	printf("---- KD Tree Statistics ----\n#nodes: %i\n#leaves: %i\n#empty leaves: %i\n#splits: %i\n", stats.nodes,stats.leaves,stats.empty_leaves,stats.splits);
 }
 
-void CalcAABB(Primitive* _Primitive,aabb& _Box)
+bool RayTreeIntersect(KDTree& t,const ray_t& r)
 {
-	int _Type = _Primitive->GetType();
+	KDNode* root = t.GetRoot();
 
-	Vec3f _Pos,_Max,_Size;
 
-	if (_Type == Primitive::TRIANGLE)
-	{
-		_Pos = _Primitive->v[0];
-		_Max = _Primitive->v[0];
-
-		Vec3f v1 = _Primitive->v[1];
-		Vec3f v2 = _Primitive->v[2];
-
-		// find smallest x
-		if (v1.x < _Pos.x)
-			_Pos.x = v1.x;
-		if (v2.x < _Pos.x)
-			_Pos.x = v2.x;
-
-		// find smallest y
-		if (v1.y < _Pos.y)
-			_Pos.y = v1.y;
-		if (v2.y < _Pos.y)
-			_Pos.y = v2.y;
-
-		// find smallest z
-		if (v1.z < _Pos.z)
-			_Pos.z = v1.z;
-		if (v2.z < _Pos.z)
-			_Pos.z = v2.z;
-
-		// find max values
-		if (v1.x > _Max.x)
-			_Max.x = v1.x;
-		if (v2.x > _Max.x)
-			_Max.x = v2.x;
-		if (v1.y > _Max.y)
-			_Max.y = v1.y;
-		if (v2.y > _Max.y)
-			_Max.y = v2.y;
-		if (v1.z > _Max.z)
-			_Max.z = v1.z;
-		if (v2.z > _Max.z)
-			_Max.z = v2.z;
-
-		_Size = _Max - _Pos;
-	}
-	else if(_Type == Primitive::SPHERE)
-	{
-
-	}
-
-	_Box.pos = _Pos;
-	_Box.size = _Size;
+	return true;
 }
 
 bool KDTree::Build(Primitive* _PrimitiveData, unsigned _NbrPrimitives)
@@ -88,10 +25,9 @@ bool KDTree::Build(Primitive* _PrimitiveData, unsigned _NbrPrimitives)
 		return false;
 	}
 
-	m_AABB = CalcAABB(_PrimitiveData,_NbrPrimitives);
-	m_Root->SetPrimitiveData(_PrimitiveData);
+	m_Root->SetPrimitiveData(_PrimitiveData,_NbrPrimitives);
 
-	Subdivide(m_Root,_NbrPrimitives,m_AABB,0);
+	Subdivide(m_Root,_NbrPrimitives,m_Root->GetAABB(),0);
 
 	return true;
 }
@@ -179,15 +115,18 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrimitives,aabb _Box, int _De
 
 	// find optimal split
 	int best_position = -1;
-	int best_cost = 10000;
-
-	int no_split_cost = _NbrPrimitives * 1.0f;
+	float best_cost = 10000;
+	float no_split_cost = _NbrPrimitives * 1.0f;
 
 	float left_extreme = _Box.pos.GetAxis(axis);
 	float right_extreme = left_extreme + _Box.size.GetAxis(axis);
 
 	aabb left_aabb = _Box;
 	aabb right_aabb = _Box;
+
+	double inv_sav_volume = 1.0f / CalcSurfaceArea(_Box);
+
+	printf("New split on axis %i\n",axis);
 
 	for(size_t i = 0; i < _NbrPrimitives * 2; i++)
 	{
@@ -202,14 +141,107 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrimitives,aabb _Box, int _De
 		double larea = CalcSurfaceArea(left_aabb);
 		double rarea = CalcSurfaceArea(right_aabb);
 
-		printf("left area %f right area %f\n",larea,rarea);
+		double lcost = larea * inv_sav_volume * sp.left_count;
+		double rcost = rarea * inv_sav_volume * sp.right_count;
+
+		// 0.3 is a fine-tuning value and is taken from this implementation:
+		// http://www.devmaster.net/articles/raytracing_series/part7.php
+		double cost = 0.3 + lcost + rcost; 
+
+		if (cost < best_cost)
+		{
+			best_cost = cost;
+			best_position = i;
+		}
+
+		printf("spos %f larea %f rarea %f cost %f\n",sp.pos, larea,rarea, cost);
 	}
 
-	KDNode* _Left = new KDNode();
-	KDNode* _Right = new KDNode();
+	printf("-----\n");
+
+	if (no_split_cost < best_cost) 
+	{
+		m_Statistics.leaves++;
+		return;
+	}
+
+	m_Statistics.splits++;
+
+	split_position best_sp = split_list[best_position];
+
+	_Node->SetSplitPosition(best_sp.pos);
+	_Node->SetAxis(axis);
+
+	KDNode* _LeftChild = new KDNode(); 
+	_Node->SetLeftChild(_LeftChild);
+
+	KDNode* _RightChild = new KDNode(); 
+	_Node->SetRightChild(_RightChild);
+
+	m_Statistics.nodes = m_Statistics.nodes + 2;
+
+	Primitive* _LeftList = new Primitive[best_sp.left_count];
+	Primitive* _RightList = new Primitive[best_sp.right_count];
+
+	size_t i;
+
+	// split data into two lists
+	for(i=0;i<_NbrPrimitives; i++)
+	{
+		if(i < best_sp.left_count)
+			_LeftList[i] = _Node->GetPrimitiveData()[i];
+		else
+			_RightList[i-best_sp.left_count] = _Node->GetPrimitiveData()[i];
+	}
+
+	_LeftChild->SetPrimitiveData(_LeftList,best_sp.left_count);
+	_RightChild->SetPrimitiveData(_RightList,best_sp.right_count);
+
+	_Node->SetPrimitiveData(0,0);
+
+	left_aabb = _Box;
+	left_aabb.size.SetAxis(axis,best_sp.pos - left_aabb.pos.GetAxis(axis));
+
+ 	_LeftChild->SetAABB(left_aabb);
+
+	right_aabb = _Box;
+	right_aabb.size.SetAxis(axis,right_aabb.size.GetAxis(axis) - left_aabb.size.GetAxis(axis));
+	right_aabb.pos.SetAxis(axis,best_sp.pos);
+
+	_RightChild->SetAABB(right_aabb);
+
+	_Node->SetIsLeaf(false);
 
 	if(_Depth < m_MaxDepth)
 	{
-		// recursion step
+		if(best_sp.left_count > 0)	
+			Subdivide(_LeftChild, best_sp.left_count,_LeftChild->GetAABB(),_Depth + 1);
+		else
+		{
+			if(_LeftChild->IsEmpty())
+				m_Statistics.empty_leaves++;
+			m_Statistics.leaves++;
+		}
+		
+		if(best_sp.right_count > 0) 
+			Subdivide(_RightChild, best_sp.right_count,_RightChild->GetAABB(),_Depth + 1);
+		else
+		{
+			if(_RightChild->IsEmpty())
+				m_Statistics.empty_leaves++;
+			m_Statistics.leaves++;
+		}
 	}
+}
+
+void KDNode::SetPrimitiveData(Primitive* _Data,unsigned _NbrPrimitives)
+{
+	if (_NbrPrimitives == 0)
+	{
+		m_PrimitiveData = 0;
+		return;
+	}
+
+	m_AABB = CalcAABB(_Data,_NbrPrimitives);
+	m_PrimitiveData = _Data;
 }

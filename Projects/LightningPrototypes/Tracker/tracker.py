@@ -1,6 +1,11 @@
 #!/usr/bin/python2
 
-import zmq,tracker_pb2,lightning,struct
+import struct
+
+import zmq
+
+import lightning
+import tracker_pb2
 
 def main():
     print("Tracker.")
@@ -9,29 +14,60 @@ def main():
     socket = context.socket(zmq.REP)
     #socket.bind("tcp://" + lightning.tracker_address + ":" + lightning.tracker_port)
     socket.bind("tcp://*:" + lightning.tracker_port)
+
+    zmq_socket_clients = context.socket(zmq.REQ)
+    zmq_socket_clients.setsockopt(zmq.IDENTITY, "0")
     
-    trackerdatabase = TrackerDatabase()
+    tracker_database = TrackerDatabase()
 
     while True:
-        next_id = 1
-
         #  Wait for next request from client
         message = socket.recv()
         print("Received message, parsing... ")
 
         # Determening message type
-        message_type = struct.unpack('<I',message[:4])[0]
+        #message_type = struct.unpack('<I',message[:4])[0]
+        message_type, data = lightning.unpack(message)
 
-        if message_type == lightning.HELLO:
-            print("HelloToTracker message:")
-            hello = tracker_pb2.HelloToTracker()
-            hello.ParseFromString(message)
-            print(str(hello))
+        if message_type == lightning.INIT_HELLO:
+            print("InitHelloToTracker.")
+            session_id = tracker_database.new_init_client()
 
-            sessionid = trackerdatabase.new_client(hello.address)
             response = tracker_pb2.HelloToClient()
-            response.sessionid = sessionid
-            socket.send(response.SerializeToString())
+            response.session_id = session_id
+            socket.send(lightning.pack(lightning.HELLO_TO_CLIENT, response))
+
+        elif message_type == lightning.PING:
+            print("PING.")
+            response = tracker_pb2.Pong()
+            response.ping_data = data.ping_data
+
+            socket.send(lightning.pack(lightning.PONG, response))
+
+        elif message_type == lightning.PONG:
+            print("PONG. : " + str(data))
+
+        elif message_type == lightning.HELLO_TO_TRACKER:
+            print("HelloToTracker.")
+            tracker_database.set_client(
+                session_id
+                , address=data.address
+                , available=data.available
+            )
+
+            zmq_socket_clients.connect(data.address)
+            socket.send(lightning.pack(lightning.OK))
+#            socket.send(struct.pack('<I', lightning.OK))
+
+        elif message_type == lightning.GOODBYE:
+            print("GoodBye.")
+            print("Removing client with session_id {0} from database.".format(data.session_id))
+            trackerdatabase.del_client(data.session_id)
+
+
+class TrackerDatabaseException(Exception):
+    """Exception in TrackerDatabase."""
+    pass
      
 class TrackerDatabase:
     """Class containing the current connected nodes, connections within
@@ -49,13 +85,43 @@ class TrackerDatabase:
     def __del__(self):
         pass
 
+    def get_client(self, session_id):
+        """get_client(int session_id) -> (address, available)."""
+        
+        if session_id not in self._clients:
+            raise TrackerDatabaseException(
+                "Unable to find tracker with session_id {0}.".format(session_id)
+            )
+
+        return self._clients[session_id]
+
+    def set_client(self, session_id, address=None, available=None):
+        """set_client(session_id, address=None, available=None) -> Nothing.
+        
+        Sets whatever argument is specified, None means untouched.
+        """
+        
+        if address is None and available is None:
+            raise TrackerDatabaseException("Can't set nothing.")
+
+        if session_id not in self._clients:
+            raise TrackerDatabaseException(
+                "Unable to find tracker with session_id {0}.".format(session_id)
+            )
+
+        caddress, cavailable = self._clients[session_id]
+        self._clients[session_id] = (
+            caddress if address is None else address
+            , cavailable if available is None else available
+        )
+
     def next_id(self):
-        """next_id() -> int sessionid.
+        """next_id() -> int session_id.
         
         Find the next available session id for a client.
         """
         
-        while self._next_id in self._clients.keys():
+        while str(self._next_id) in self._clients:
             if self._next_id >= pow(2,31):
                 self._next_id = 1
                 return self.next_id()
@@ -63,29 +129,53 @@ class TrackerDatabase:
 
         return self._next_id
 
-    def add_client(self, sessionid, address, available):
-        """add_client(int sessionid, <ipy> address, int available) -> bool success.
+    def add_client(self, session_id, address, available):
+        """add_client(int session_id, str address, int available) -> bool success.
 
         Adds a client to the client database. Throws AssertionError if 
-        sessionid is already in use.
+        session_id is already in use.
         """
 
-        assert(sessionid not in self._clients.keys())
+        assert(session_id not in self._clients.keys())
         
-        self._clients[sessionid] = (address, available)
+        self._clients[session_id] = (address, available)
 
         return True
 
-    def new_client(self, address, available):
-        """new_client(<ipy> address, int available) -> int sessionid.
+    def del_client(self, session_id):
+        """del_client(int session_id) -> bool succes
 
-        Adds a new client to the client database, returning the sessionid.
+        Removes the client with the corresponding session_id.
         """
 
-        sessionid = self.next_id()
-        self.add_client(sessionid, address, available)    
+        if session_id in self._clients.keys():
+            del self._clients[session_id]
+            return True
+        else:
+            return False
 
-        return sessionid
+    def new_init_client(self):
+        """new_init_client() -> int session_id.
+
+        Adds a new init_client to the client database, returning the new session_id.
+        """
+
+        session_id = str(self.next_id())
+        print("add_client " + str(session_id))
+        self.add_client(session_id, "", 0)
+
+        return session_id
+
+    def new_client(self, address, available):
+        """new_client(str address, int available) -> int session_id.
+
+        Adds a new client to the client database, returning the new session_id.
+        """
+
+        session_id = str(self.next_id())
+        self.add_client(session_id, address, available)    
+
+        return session_id
 
 
 if __name__ == "__main__":
