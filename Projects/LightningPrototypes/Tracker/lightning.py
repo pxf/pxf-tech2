@@ -38,7 +38,8 @@ def unpack(message):
     if type_data not in translate_message_type:
         raise PackingException("Enum {0} could not be found in translate dict")
 
-    return (type_data, translate_message_type[type_data]().ParseFromString(data))
+    return (type_data, None if len(message) == 4 else \
+                translate_message_type[type_data]().ParseFromString(data))
 
 def pack(message_type, data=None):
     """pack(int message_type, <protobuf> data=None) -> str message.
