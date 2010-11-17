@@ -35,7 +35,7 @@ def main():
 
             response = tracker_pb2.HelloToClient()
             response.session_id = session_id
-            socket.send(struct.pack('<I', lightning.HELLO)+response.SerializeToString())
+            socket.send(struct.pack('<I', lightning.HELLO_TO_CLIENT)+response.SerializeToString())
 
         elif message_type == lightning.PING:
             print("PING.")
@@ -45,7 +45,7 @@ def main():
 
             socket.send(struct.pack('<I', lightning.PONG)+response.SerializeToString())
 
-        elif message_type == lightning.HELLO:
+        elif message_type == lightning.HELLO_TO_TRACKER:
             print("HelloToTracker.")
             hello = tracker_pb2.HelloToTracker()
             hello.ParseFromString(message[4:])
