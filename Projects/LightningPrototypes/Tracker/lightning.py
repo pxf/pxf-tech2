@@ -1,6 +1,6 @@
 import struct, tracker_pb2
 
-tracker_address = "users.mkeyd.net"
+tracker_address = "*"
 tracker_port = "50000"
 
 #Enumerators
