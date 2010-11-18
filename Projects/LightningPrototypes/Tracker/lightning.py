@@ -1,7 +1,7 @@
 import struct, tracker_pb2
 
-tracker_address = "users.mkeyd.net"
-tracker_port = "50000"
+tracker_address = "*"
+tracker_port = "49999"
 
 #Enumerators
 INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, GOODBYE, NEWBATCH, OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, \

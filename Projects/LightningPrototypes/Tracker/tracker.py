@@ -1,68 +1,95 @@
 #!/usr/bin/python2
 
 import struct
+import traceback
 
 import zmq
 
 import lightning
 import tracker_pb2
 
-def main():
-    print("Tracker.")
+class Tracker():
+    _context = None
+    _sck_out = None
+    _sck_in = None
 
-    context = zmq.Context()
-    socket = context.socket(zmq.REP)
-    #socket.bind("tcp://" + lightning.tracker_address + ":" + lightning.tracker_port)
-    socket.bind("tcp://*:" + lightning.tracker_port)
+    _db = None
 
-    zmq_socket_clients = context.socket(zmq.REQ)
-    zmq_socket_clients.setsockopt(zmq.IDENTITY, "0")
+    _tr_table = dict()
+
+    def __init__(self):
+        self._context = zmq.Context()
+        self._sck_in = self._context.socket(zmq.REP)
+        try:
+            self._sck_in.bind("tcp://{0}:{1}".format(lightning.tracker_address
+                                , lightning.tracker_port))
+        except Exception as e:
+            print("Unable to bind socket for incoming (sending) connections.")
+            traceback.print_exc()
+            return
+        self._sck_out = self._context.socket(zmq.REQ)
+        self._sck_out.setsockopt(zmq.IDENTITY, "0")
+
+        self._db = TrackerDatabase()
     
-    tracker_database = TrackerDatabase()
+    def e_ping(self, message):
+        response = tracker_pb2.Pong()
+        response.ping_data = message.ping_data
 
-    while True:
-        #  Wait for next request from client
-        message = socket.recv()
-        print("Received message, parsing... ")
+        return lightning.pack(lightning.PONG, response)
+    _tr_table[lightning.PING] = e_ping
 
-        # Determening message type
-        #message_type = struct.unpack('<I',message[:4])[0]
-        message_type, data = lightning.unpack(message)
+# TODO: Do it.
+#    def e_pong(self, message):
+#        return lightning.pack(lightning.OK)
+#    _tr_table[lightning.PONG] = e_pong
 
-        if message_type == lightning.INIT_HELLO:
-            print("InitHelloToTracker.")
-            session_id = tracker_database.new_init_client()
+    def e_init_hello(self, message):
+        new_session_id = self._db.new_init_client()
 
-            response = tracker_pb2.HelloToClient()
-            response.session_id = session_id
-            socket.send(lightning.pack(lightning.HELLO_TO_CLIENT, response))
+        response = tracker_pb2.HelloToClient()
+        response.session_id = new_session_id
+        return lightning.pack(lightning.HELLO_TO_CLIENT, response)
+    _tr_table[lightning.INIT_HELLO] = e_init_hello
 
-        elif message_type == lightning.PING:
-            print("PING.")
-            response = tracker_pb2.Pong()
-            response.ping_data = data.ping_data
+    def e_hello_to_tracker(self, message):
+        self._db.set_client(
+            message.session_id
+            , address = message.address
+            , available = message.available
+        )
 
-            socket.send(lightning.pack(lightning.PONG, response))
+        self._sck_out.connect(message.address)
+        return lightning.pack(lightning.OK)
+    _tr_table[lightning.HELLO_TO_TRACKER] = e_hello_to_tracker
 
-        elif message_type == lightning.PONG:
-            print("PONG. : " + str(data))
+    def e_goodbye(self, message):
+        self._db.del_client(message.session_id)
+        return lightning.pack(lightning.OK)
+    _tr_table[lightning.GOODBYE] = e_goodbye
 
-        elif message_type == lightning.HELLO_TO_TRACKER:
-            print("HelloToTracker.")
-            tracker_database.set_client(
-                session_id
-                , address=data.address
-                , available=data.available
-            )
+    def run(self):
+        while True:
+            data = self._sck_in.recv()
 
-            zmq_socket_clients.connect(data.address)
-            socket.send(lightning.pack(lightning.OK))
-#            socket.send(struct.pack('<I', lightning.OK))
+            message_type, message = lightning.unpack(data)
 
-        elif message_type == lightning.GOODBYE:
-            print("GoodBye.")
-            print("Removing client with session_id {0} from database.".format(data.session_id))
-            trackerdatabase.del_client(data.session_id)
+            print("Got message: {0}/{1}".format(message_type, message))
+            if message_type not in self._tr_table:
+                # TODO: Should be handled here instead.
+                self._sck_in.send(lightning.pack(lightning.OK)) # TEMPORARY
+                print("Unhandled message. Sent OK back.")
+                continue
+
+            try:
+                ret = self._tr_table[message_type](self, message)
+                if type(ret) == type(str()):
+                    self._sck_in.send(ret)
+                elif type(ret) == type(list()) and len(ret) == 2:
+                    self._sck_in.send(lightning.pack[ret[0], ret[1]])
+            except Exception as e:
+                print("Function {0} raised an exception:")
+                traceback.print_exc()
 
 
 class TrackerDatabaseException(Exception):
@@ -161,7 +188,6 @@ class TrackerDatabase:
         """
 
         session_id = str(self.next_id())
-        print("add_client " + str(session_id))
         self.add_client(session_id, "", 0)
 
         return session_id
@@ -176,6 +202,10 @@ class TrackerDatabase:
         self.add_client(session_id, address, available)    
 
         return session_id
+
+def main():
+    tracker = Tracker()
+    tracker.run()
 
 
 if __name__ == "__main__":
