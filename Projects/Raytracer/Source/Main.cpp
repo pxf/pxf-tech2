@@ -84,12 +84,20 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, -3.0f, 6.0f), 2.0f, sphere_mat2);
 	//blob.prim_count = 7;
 	
+	// generate a couple of random samples
+	srand ( time(NULL) );
+	for(int i = 0; i < 256; ++i)
+	{
+		blob.samples[i] = (float)(rand() % 100 + 1) / 100.0f;
+		//Pxf::Message("rand", "%d -> %f", i, blob.samples[i]);
+	}
+	
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 5, light_mat1);
 	blob.light_count = 1;
 	
 	task_detail_t task;

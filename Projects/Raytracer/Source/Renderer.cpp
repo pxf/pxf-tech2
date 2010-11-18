@@ -144,7 +144,13 @@ bool calc_light_contrib(Primitive *prim, Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *
 			{
 				for(int x = 0; x < light->num_rays; ++x)
 				{
-					Vec3f light_point = start_pos + (up * step_w * (float)x) + (light->dir * step_h * (float)y);
+					// get random sample
+					//float rand_sample = datablob->samples[rand() % 255];
+					float offset_x = datablob->samples[rand() % 255] * 2.0f - 1.0f;//1.0f / ((int)(rand_sample * 16.0f) % 4);
+					float offset_y = datablob->samples[rand() % 255] * 2.0f - 1.0f;//0.0f;//1.0f / ((int)(rand_sample * 16.0f) / 4);
+					
+					// create light ray
+					Vec3f light_point = start_pos + (up * step_w * ((float)x + offset_x)) + (light->dir * step_h * ((float)y + offset_y));
 					light_ray.o = *p;
 					light_ray.d = light_point - (*p);
 					light_distance = Length(light_ray.d);
