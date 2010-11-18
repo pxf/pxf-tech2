@@ -73,6 +73,22 @@ class Tracker():
         self._db.del_client(message.session_id)
         return lightning.OK
     _tr_table[lightning.GOODBYE] = e_goodbye
+    
+    def send(self, session_id, data):
+        """send(int session_id, str/int/protobuf data) -> bool success.  
+
+        Translates the data into protobuf-data with an enum at the beginning
+        (if it's not already in that format), and sends it to the client
+        with session id session_id.
+        
+        Takes either an enum (int), a string (already in final format),
+                or a tuple with enum and protobuf.
+        Returns True on success, otherwise False.
+        """
+
+        # TODO: Check if we're connected or not.
+        # TODO: Pack the final data with the session_id at the beginning.
+        pass
 
     def run(self):
         """run() -> nothing.
@@ -139,7 +155,7 @@ class TrackerDatabase:
         
         if session_id not in self._clients:
             raise TrackerDatabaseException(
-                "Unable to find tracker with session_id {0}.".format(session_id)
+                "Unable to find client with session_id {0}.".format(session_id)
             )
 
         return self._clients[session_id]
@@ -155,7 +171,7 @@ class TrackerDatabase:
 
         if session_id not in self._clients:
             raise TrackerDatabaseException(
-                "Unable to find tracker with session_id {0}.".format(session_id)
+                "Unable to find client with session_id {0}.".format(session_id)
             )
 
         caddress, cavailable = self._clients[session_id]
