@@ -7,7 +7,12 @@ enum Message {
 };
 
 struct message {
+	message();
+	~message();
+
 	int type;
-	void* proto_data;
+	void* protobuf_data;
 };
+
+message *get_message(void* socket);
 
