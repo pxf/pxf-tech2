@@ -9,6 +9,8 @@ import lightning
 import tracker_pb2
 
 class Tracker():
+    """Class containing logic and main-loop for the tracker."""
+
     _context = None
     _sck_out = None
     _sck_in = None
@@ -32,6 +34,10 @@ class Tracker():
 
         self._db = TrackerDatabase()
     
+    # Events:
+    # args: message - parsed protobuf, or None
+    # returns: either string or a tuple with
+    #           (int message_type, <protobuf> response)
     def e_ping(self, message):
         response = tracker_pb2.Pong()
         response.ping_data = message.ping_data
@@ -69,6 +75,13 @@ class Tracker():
     _tr_table[lightning.GOODBYE] = e_goodbye
 
     def run(self):
+        """run() -> nothing.
+        
+        Main loop for Tracker.
+        """
+
+        print("Tracker.")
+
         while True:
             data = self._sck_in.recv()
 
@@ -87,6 +100,13 @@ class Tracker():
                     self._sck_in.send(ret)
                 elif type(ret) == type(list()) and len(ret) == 2:
                     self._sck_in.send(lightning.pack[ret[0], ret[1]])
+                else:
+                    print("Function {0} returned invalid data: {1}:\"{2}\"".format(
+                        self._tr_table[message_type]
+                        , type(ret)
+                        , ret
+                    ))
+                    self._sck_in.send(lightning.pack(lightning.OK))
             except Exception as e:
                 print("Function {0} raised an exception:")
                 traceback.print_exc()
