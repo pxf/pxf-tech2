@@ -60,12 +60,13 @@ public:
 class AreaLight : public Primitive
 {
 public:
-	AreaLight (Pxf::Math::Vec3f _p, float _width, float _height, Pxf::Math::Vec3f _n, float _num_rays, material_t _material) : Primitive(_material)
+	AreaLight (Pxf::Math::Vec3f _p, float _width, float _height, Pxf::Math::Vec3f _n, Pxf::Math::Vec3f _d, float _num_rays, material_t _material) : Primitive(_material)
 	{
 		p = _p;
 		width = _width;
 		height = _height;
 		normal = _n;
+		dir = _d;
 		num_rays = _num_rays;
 	};
 	virtual ~AreaLight(){};
@@ -76,6 +77,7 @@ public:
 	float num_rays;
 	float width, height;
 	Pxf::Math::Vec3f normal;
+	Pxf::Math::Vec3f dir;
 };
 
 

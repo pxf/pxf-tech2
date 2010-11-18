@@ -2,6 +2,7 @@
 
 #include "Renderer.h"
 #include <Pxf/Math/Math.h>
+#include <cstdlib>
 
 using namespace Pxf;
 using namespace Math;
@@ -109,7 +110,7 @@ bool calc_light_contrib(Primitive *prim, Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *
 	for(int l = 0; l < datablob->light_count; ++l)
 	{
 		// Always assume we 
-		bool att = 1.0f;
+		float att = 1.0f;
 		
 		// create ray to light
 		ray_t light_ray;
@@ -135,18 +136,40 @@ bool calc_light_contrib(Primitive *prim, Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *
 			AreaLight *light = (AreaLight*)datablob->lights[l];
 			
 			
+			// construct "up-vector"
+			Vec3f up = Cross(light->normal, light->dir);
+			float step_w = (float)light->width / (float)light->num_rays;
+			float step_h = (float)light->height / (float)light->num_rays;
+			Vec3f start_pos = light->p - (up * light->width + light->dir * light->height) / 2.0f;
 			for(int y = 0; y < light->num_rays; ++y)
 			{
 				for(int x = 0; x < light->num_rays; ++x)
 				{
-					/* code */
+					// get random sample
+					//float rand_sample = datablob->samples[rand() % 255];
+					float offset_x = datablob->samples[rand() % 255] * 2.0f - 1.0f;//1.0f / ((int)(rand_sample * 16.0f) % 4);
+					float offset_y = datablob->samples[rand() % 255] * 2.0f - 1.0f;//0.0f;//1.0f / ((int)(rand_sample * 16.0f) / 4);
+					
+					// create light ray
+					Vec3f light_point = start_pos + (up * step_w * ((float)x + offset_x)) + (light->dir * step_h * ((float)y + offset_y));
+					light_ray.o = *p;
+					light_ray.d = light_point - (*p);
+					light_distance = Length(light_ray.d);
+					Normalize(light_ray.d);
+					light_ray.o += light_ray.d*0.01f;
+					
+					intersection_response_t tresp;
+					if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
+					{
+						att -= (1.0f / ((float)light->num_rays * (float)light->num_rays));
+					}
 				}
 			}
 		}
 		
 		// TODO: add better contributing calculations
 		float ndotl = Dot(*n, light_ray.d);
-		*res += prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl) / (float)datablob->light_count * att;
+		*res += prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * att) / (float)datablob->light_count;
 	}
 	
 	return true;

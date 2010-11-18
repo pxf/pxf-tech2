@@ -31,6 +31,7 @@ int main(int argc, char* argv[])
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
+	
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;
 	spec.Height = 512;
@@ -57,7 +58,7 @@ int main(int argc, char* argv[])
 	batch_blob_t blob;
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 4;
+	blob.samples_per_pixel = 2;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -83,11 +84,20 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, -3.0f, 6.0f), 2.0f, sphere_mat2);
 	//blob.prim_count = 7;
 	
+	// generate a couple of random samples
+	srand ( time(NULL) );
+	for(int i = 0; i < 256; ++i)
+	{
+		blob.samples[i] = (float)(rand() % 100 + 1) / 100.0f;
+		//Pxf::Message("rand", "%d -> %f", i, blob.samples[i]);
+	}
+	
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
+	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 5, light_mat1);
 	blob.light_count = 1;
 	
 	task_detail_t task;
