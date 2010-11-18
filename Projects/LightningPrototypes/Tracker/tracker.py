@@ -36,13 +36,13 @@ class Tracker():
     
     # Events:
     # args: message - parsed protobuf, or None
-    # returns: either string or a tuple with
+    # returns: either string, int or a tuple with
     #           (int message_type, <protobuf> response)
     def e_ping(self, message):
         response = tracker_pb2.Pong()
         response.ping_data = message.ping_data
 
-        return lightning.pack(lightning.PONG, response)
+        return lightning.PONG, response
     _tr_table[lightning.PING] = e_ping
 
 # TODO: Do it.
@@ -55,7 +55,7 @@ class Tracker():
 
         response = tracker_pb2.HelloToClient()
         response.session_id = new_session_id
-        return lightning.pack(lightning.HELLO_TO_CLIENT, response)
+        return lightning.HELLO_TO_CLIENT, response
     _tr_table[lightning.INIT_HELLO] = e_init_hello
 
     def e_hello_to_tracker(self, message):
@@ -66,12 +66,12 @@ class Tracker():
         )
 
         self._sck_out.connect(message.address)
-        return lightning.pack(lightning.OK)
+        return lightning.OK
     _tr_table[lightning.HELLO_TO_TRACKER] = e_hello_to_tracker
 
     def e_goodbye(self, message):
         self._db.del_client(message.session_id)
-        return lightning.pack(lightning.OK)
+        return lightning.OK
     _tr_table[lightning.GOODBYE] = e_goodbye
 
     def run(self):
@@ -100,6 +100,8 @@ class Tracker():
                     self._sck_in.send(ret)
                 elif type(ret) == type(list()) and len(ret) == 2:
                     self._sck_in.send(lightning.pack[ret[0], ret[1]])
+                elif type(ret) == type(int()):
+                    self._sck_in_send(lightning.pack(ret))
                 else:
                     print("Function {0} returned invalid data: {1}:\"{2}\"".format(
                         self._tr_table[message_type]
