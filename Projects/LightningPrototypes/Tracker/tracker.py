@@ -94,6 +94,7 @@ class Tracker():
         print("Tracker.")
 
         while True:
+            # TODO: Select on both in and out-socket instead.
             data = self._sck_in.recv()
 
             message_type, message = lightning.unpack(data)
