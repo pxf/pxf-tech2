@@ -2,6 +2,7 @@
 
 #include "Renderer.h"
 #include <Pxf/Math/Math.h>
+#include <cstdlib>
 
 using namespace Pxf;
 using namespace Math;
