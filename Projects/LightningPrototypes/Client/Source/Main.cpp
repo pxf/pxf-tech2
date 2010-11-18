@@ -29,6 +29,8 @@ int main()
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+	int session_id;
+
 	printf("Client.\n");
 	printf("Connecting to tracker...\n");
 
@@ -50,16 +52,19 @@ int main()
 	zmq_recv(out_socket, &reply, 0);
 
 	char* reply_data = (char*)zmq_msg_data(&reply);
-	char* protobuf_data;
+	int protobuf_size = zmq_msg_size(&reply)-sizeof(type)+1; // Extra byte for NULL char
+	char* protobuf_data = (char*)malloc(protobuf_size);
 	memcpy(&type, reply_data, sizeof(type));
 	memcpy(
 		protobuf_data,
 		reply_data+sizeof(type),
-		zmq_msg_size(&reply)-sizeof(type)
+		protobuf_size
 	);
+	
+	protobuf_data[protobuf_size-1] = NULL;
 
 	assert(type == HELLO_TO_CLIENT);
-	
+
 	trackerclient::HelloToClient hello_to_client;
 	if (!hello_to_client.ParseFromString(protobuf_data)) 
 	{
@@ -67,9 +72,13 @@ int main()
 		return(-1);
 	}
 
+	free(protobuf_data);
+
 	String s_session_id = hello_to_client.session_id();
 	const char* sess = s_session_id.c_str();
-	printf("session_id: %s\n", sess);
+	session_id = StringToInteger(sess);
+
+	printf("session_id: %i\n", session_id);
 
 
 	zmq_msg_close(&reply);
