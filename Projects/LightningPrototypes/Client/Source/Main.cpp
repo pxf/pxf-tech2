@@ -40,39 +40,26 @@ int main()
 
 	zmq_connect(out_socket, "tcp://users.mkeyd.net:50000");
 
+	// Send ---------
 	zmq_msg_t hello;
 	int type = INIT_HELLO;
 	zmq_msg_init_data(&hello, &type, sizeof(type), NULL, NULL);
 	
 	printf("Sending INIT_HELLO...\n");
 	zmq_send(out_socket, &hello, 0);
+	// --------------
 
-	zmq_msg_t reply;
-	zmq_msg_init(&reply);
-	zmq_recv(out_socket, &reply, 0);
 
-	char* reply_data = (char*)zmq_msg_data(&reply);
-	int protobuf_size = zmq_msg_size(&reply)-sizeof(type)+1; // Extra byte for NULL char
-	char* protobuf_data = (char*)malloc(protobuf_size);
-	memcpy(&type, reply_data, sizeof(type));
-	memcpy(
-		protobuf_data,
-		reply_data+sizeof(type),
-		protobuf_size
-	);
-	
-	protobuf_data[protobuf_size-1] = NULL;
+	message* msg = get_message(out_socket);
 
-	assert(type == HELLO_TO_CLIENT);
+	PXF_ASSERT(msg->type == HELLO_TO_CLIENT, "Message type incorrect, expected HELLO_TO_CLIENT");
 
 	trackerclient::HelloToClient hello_to_client;
-	if (!hello_to_client.ParseFromString(protobuf_data)) 
+	if (!hello_to_client.ParseFromString((char*)msg->protobuf_data)) 
 	{
 		printf("Unable to parse protobuf data!\n");
 		return(-1);
 	}
-
-	free(protobuf_data);
 
 	String s_session_id = hello_to_client.session_id();
 	const char* sess = s_session_id.c_str();
@@ -80,8 +67,8 @@ int main()
 
 	printf("session_id: %i\n", session_id);
 
+	delete(msg);
 
-	zmq_msg_close(&reply);
 	zmq_msg_close(&hello);
 
 
@@ -93,3 +80,4 @@ int main()
 
 	return(0);
 }
+
