@@ -40,16 +40,19 @@ int main()
 
 	zmq_connect(out_socket, "tcp://users.mkeyd.net:50000");
 
+	// Send ---------
 	zmq_msg_t hello;
 	int type = INIT_HELLO;
 	zmq_msg_init_data(&hello, &type, sizeof(type), NULL, NULL);
 	
 	printf("Sending INIT_HELLO...\n");
 	zmq_send(out_socket, &hello, 0);
+	// --------------
+
 
 	message* msg = get_message(out_socket);
 
-	assert(msg->type == HELLO_TO_CLIENT);
+	PXF_ASSERT(msg->type == HELLO_TO_CLIENT, "Message type incorrect, expected HELLO_TO_CLIENT");
 
 	trackerclient::HelloToClient hello_to_client;
 	if (!hello_to_client.ParseFromString((char*)msg->protobuf_data)) 
@@ -77,3 +80,4 @@ int main()
 
 	return(0);
 }
+

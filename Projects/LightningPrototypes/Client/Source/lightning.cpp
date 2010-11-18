@@ -5,8 +5,28 @@
 
 #include "lightning.h"
 
-#include <stdio.h>
+/*
+Factory[] = {
+	Factory<trackerclient::HelloToClient(),
+	Factory<trackerclient::HelloToTracker()
+};*/
 
+/*void *protoaoeu[3] {
+	NULL,
+	(void*)create_class<trackerclient::HelloToClient>,
+	(void*)create_class<trackerclient::HelloToTracker>,
+};*/
+
+/*void *get_proto_class(int type)
+{
+	switch(type)
+	{
+		case INIT_HELLO: return(NULL);
+		case HELLO_TO_CLIENT: return (::google::protobuf::Message)(new trackerclient::HelloToClient);
+		case HELLO_TO_TRACKER: return new trackerclient::HelloToTracker;
+		case GOODBYE: return new trackerclient::GoodBye;
+	}
+}*/
 
 message::message()
 	: type(0)
@@ -15,7 +35,6 @@ message::message()
 	
 message::~message()
 {
-	printf("Deconstruct\n");
 	if (protobuf_data != NULL)
 		Pxf::MemoryFree(protobuf_data);
 }
@@ -42,13 +61,16 @@ message *get_message(void* socket)
 		protobuf_size
 	);
 
+	zmq_msg_close(&z_message_data);
+
+	//PXF_ASSERT(apa->ParseFromString(protobuf_data), "Unable to parse protocol buffer data.");
+
 	protobuf_data[protobuf_size] = '\0';
 
 	message* msg = new message;
 	msg->type = message_type;
 	msg->protobuf_data = protobuf_data;
 
-	zmq_msg_close(&z_message_data);
-
 	return msg;
 }
+
