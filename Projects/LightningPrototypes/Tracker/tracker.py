@@ -34,25 +34,19 @@ class Tracker():
 
         self._db = TrackerDatabase()
     
-    # Events:
+    # --------------------------------------------------------------
+    # Events: ------------------------------------------------------
     # args: message - parsed protobuf, or None
     # returns: either string, int or a tuple with
     #           (int message_type, <protobuf> response)
     def e_ping(self, message):
         response = tracker_pb2.Pong()
         response.ping_data = message.ping_data
-
         return lightning.PONG, response
     _tr_table[lightning.PING] = e_ping
 
-# TODO: Do it.
-#    def e_pong(self, message):
-#        return lightning.pack(lightning.OK)
-#    _tr_table[lightning.PONG] = e_pong
-
     def e_init_hello(self, message):
         new_session_id = self._db.new_init_client()
-
         response = tracker_pb2.HelloToClient()
         response.session_id = new_session_id
         return lightning.HELLO_TO_CLIENT, response
@@ -64,7 +58,6 @@ class Tracker():
             , address = message.address
             , available = message.available
         )
-
         self._sck_out.connect(message.address)
         return lightning.OK
     _tr_table[lightning.HELLO_TO_TRACKER] = e_hello_to_tracker
@@ -73,6 +66,8 @@ class Tracker():
         self._db.del_client(message.session_id)
         return lightning.OK
     _tr_table[lightning.GOODBYE] = e_goodbye
+    # Events end.
+    # --------------------------------------------------------------
     
     def send(self, session_id, data):
         """send(int session_id, str/int/protobuf data) -> bool success.  
