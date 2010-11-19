@@ -7,13 +7,41 @@ using namespace Pxf::Math;
 void PrintStatistics(KDTree* t)
 {
 	KDTree::tree_statistics stats = t->GetStats();
-	printf("---- KD Tree Statistics ----\n#nodes: %i\n#leaves: %i\n#empty leaves: %i\n#splits: %i\n", stats.nodes,stats.leaves,stats.empty_leaves,stats.splits);
+	size_t node_size = stats.nodes * sizeof(KDNode);
+	size_t leaves_size = (stats.leaves-stats.empty_leaves) * sizeof(Primitive);
+
+	printf("---- KD Tree Statistics ----\n#nodes: %i\n#leaves: %i\n#empty leaves: %i\n#splits: %i\n#nodes.size: %i\n#leaves.size(non-empty): %i\n#tree.size: %i\n#build time: %i\n", 
+			stats.nodes,
+			stats.leaves,
+			stats.empty_leaves,
+			stats.splits,
+			node_size,
+			leaves_size,
+			node_size + leaves_size,
+			stats.timer.Interval());
 }
 
 bool RayTreeIntersect(KDTree& t,const ray_t& r)
 {
-	KDNode* root = t.GetRoot();
+	KDNode* node = t.GetRoot();
+	aabb box = node->GetAABB();
+	unsigned axis;
+	float split_pos,d;
+	Vec3f o = r.o;
+	Vec3f dir = r.d;
+	Vec3f inv_d = r.inv_d;
 
+	while(node)
+	{
+		axis = node->GetAxis();
+		split_pos = node->GetSplitPos(); 
+		d = (split_pos - o.GetAxis(axis)) * inv_d.GetAxis(axis);
+
+		KDNode* left = node->GetLeftChild();
+		KDNode* right = node->GetRightChild();
+
+		node = 0;
+	}
 
 	return true;
 }
@@ -25,9 +53,14 @@ bool KDTree::Build(Primitive* _PrimitiveData, unsigned _NbrPrimitives)
 		return false;
 	}
 
+	m_Statistics.timer.Start();
+
 	m_Root->SetPrimitiveData(_PrimitiveData,_NbrPrimitives);
 
 	Subdivide(m_Root,_NbrPrimitives,m_Root->GetAABB(),0);
+
+	m_Statistics.timer.Stop();
+	
 
 	return true;
 }
@@ -162,6 +195,8 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrimitives,aabb _Box, int _De
 	if (no_split_cost < best_cost) 
 	{
 		m_Statistics.leaves++;
+
+		delete(split_list);
 		return;
 	}
 
@@ -189,9 +224,9 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrimitives,aabb _Box, int _De
 	for(i=0;i<_NbrPrimitives; i++)
 	{
 		if(i < best_sp.left_count)
-			_LeftList[i] = _Node->GetPrimitiveData()[i];
+			_LeftList[i] = p[i];
 		else
-			_RightList[i-best_sp.left_count] = _Node->GetPrimitiveData()[i];
+			_RightList[i-best_sp.left_count] = p[i];
 	}
 
 	_LeftChild->SetPrimitiveData(_LeftList,best_sp.left_count);
@@ -211,6 +246,8 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrimitives,aabb _Box, int _De
 	_RightChild->SetAABB(right_aabb);
 
 	_Node->SetIsLeaf(false);
+
+	delete(split_list);
 
 	if(_Depth < m_MaxDepth)
 	{
