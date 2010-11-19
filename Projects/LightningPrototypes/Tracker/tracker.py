@@ -110,7 +110,7 @@ class Tracker():
                 ret = self._tr_table[message_type](self, message)
                 if type(ret) == type(str()):
                     self._sck_in.send(ret)
-                elif type(ret) == type(list()) and len(ret) == 2:
+                elif type(ret) == type(tuple()) and len(ret) == 2:
                     self._sck_in.send(lightning.pack[ret[0], ret[1]])
                 elif type(ret) == type(int()):
                     self._sck_in_send(lightning.pack(ret))
