@@ -174,10 +174,17 @@ void DrawNode(KDNode* _Node)
 		glColor3f(0.0f,0.0f,1.0f);
 		glBegin(GL_LINES);
 		
-		glVertex3f(lb.pos.x,lb.size.y,_Node->GetSplitPos());
-		glVertex3f(lb.pos.x + lb.size.x,lb.size.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x,lb.pos.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x + lb.size.x,lb.pos.y,_Node->GetSplitPos());
 
+		glVertex3f(lb.pos.x,lb.pos.y + lb.size.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x + lb.size.x,lb.pos.y + lb.size.y,_Node->GetSplitPos());
 
+		glVertex3f(lb.pos.x,lb.pos.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x,lb.pos.y + lb.size.y,_Node->GetSplitPos());
+
+		glVertex3f(lb.pos.x + lb.size.x,lb.pos.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x + lb.size.x,lb.pos.y + lb.size.y,_Node->GetSplitPos());
 
 		glEnd();
 		glColor3f(1.0f,1.0f,1.0f);
@@ -207,8 +214,6 @@ void DrawTree(KDTree* t)
 {
 	KDNode* root = t->GetRoot();
 
-	draw_aabb(root->GetAABB());
-
 	DrawNode(root);
 }
 
@@ -228,7 +233,16 @@ void MoveCamera(const camera_input_desc& cd)
 
 	if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT))
 	{
-		cd.cam->Translate(-dpos.x,dpos.y,0);
+		Vec3f pos = cd.cam->GetDir();
+		Vec3f pp_vec;
+		pp_vec.x = -pos.z;
+		pp_vec.z = pos.x;
+		pp_vec.y = pos.y;
+
+		pp_vec = pp_vec * -dpos.x;
+
+		cd.cam->Translate(pp_vec.x,dpos.y,pp_vec.z); 
+
 		ms.state = mouse_state::LEFT;
 	}
 	else if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT))
@@ -329,7 +343,16 @@ int main(int argc, char* argv[])
 
 	aabb p_aabb = p.GetAABB();
 
+	//void *ptr = new void[size];
+	//void **ptr = new void*[3];
+	//void* (*cPtr)() = (*(__cdecl *)(void*)Create<Primitive>);
 
+	Primitive* (*ptr)() = &Create<Primitive>;
+	void* __cdecl _ptr[1] = { ptr };//reinterpret_cast<void*>(ptr) };
+
+	Primitive* lolsp = (*ptr)();
+
+	//(*_ptr[0])();
 
 	while(win->IsOpen())
 	{
@@ -360,16 +383,26 @@ int main(int argc, char* argv[])
 		else
 			DrawPrimitive(&p);
 
-		result = ray_aabb(&p_aabb,&r,&resp);
+		//result = ray_aabb(&p_aabb,&r,&resp);
+		result = ray_aabb(&r,&p_aabb);
 
 		if(result)
 			draw_aabb(p_aabb,red);
 		else
 			draw_aabb(p_aabb);
 
+		aabb t_aabb = tree->GetRoot()->GetAABB();
+		result = ray_aabb(&r,&t_aabb);
+		if(result)
+			draw_aabb(t_aabb,red);
+		else
+			draw_aabb(t_aabb);
+
 		DrawRay(r);
 
-		
+		r.inv_d = Inverse(r.d);
+
+		RayTreeIntersect((*tree),r);
 
 		a += 0.01f;
 
