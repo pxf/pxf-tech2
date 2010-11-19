@@ -23,7 +23,7 @@ struct message {
 	~message();
 
 	int type;
-	void* protobuf_data;
+	google::protobuf::Message* protobuf_data;
 };
 
 message *get_message(void* socket);

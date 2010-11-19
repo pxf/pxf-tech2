@@ -54,14 +54,7 @@ int main()
 
 	PXF_ASSERT(msg->type == HELLO_TO_CLIENT, "Message type incorrect, expected HELLO_TO_CLIENT");
 
-	trackerclient::HelloToClient hello_to_client;
-	if (!hello_to_client.ParseFromString((char*)msg->protobuf_data)) 
-	{
-		printf("Unable to parse protobuf data!\n");
-		return(-1);
-	}
-
-	String s_session_id = hello_to_client.session_id();
+	String s_session_id = ((trackerclient::HelloToClient*)(msg->protobuf_data))->session_id();
 	const char* sess = s_session_id.c_str();
 	session_id = StringToInteger(sess);
 

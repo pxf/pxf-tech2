@@ -5,6 +5,8 @@
 
 #include "lightning.h"
 
+#include <stdio.h>
+
 /*
 Factory[] = {
 	Factory<trackerclient::HelloToClient(),
@@ -17,16 +19,16 @@ Factory[] = {
 	(void*)create_class<trackerclient::HelloToTracker>,
 };*/
 
-/*void *get_proto_class(int type)
+google::protobuf::Message *get_protobuf_class(int type)
 {
 	switch(type)
 	{
 		case INIT_HELLO: return(NULL);
-		case HELLO_TO_CLIENT: return (::google::protobuf::Message)(new trackerclient::HelloToClient);
+		case HELLO_TO_CLIENT: return new trackerclient::HelloToClient;
 		case HELLO_TO_TRACKER: return new trackerclient::HelloToTracker;
 		case GOODBYE: return new trackerclient::GoodBye;
 	}
-}*/
+}
 
 message::message()
 	: type(0)
@@ -36,7 +38,7 @@ message::message()
 message::~message()
 {
 	if (protobuf_data != NULL)
-		Pxf::MemoryFree(protobuf_data);
+		delete protobuf_data;
 }
 
 message *get_message(void* socket)
@@ -63,13 +65,20 @@ message *get_message(void* socket)
 
 	zmq_msg_close(&z_message_data);
 
-	//PXF_ASSERT(apa->ParseFromString(protobuf_data), "Unable to parse protocol buffer data.");
-
+	// Make protobuf_data null terminating
 	protobuf_data[protobuf_size] = '\0';
+
+	google::protobuf::Message* buffered_message = get_protobuf_class(message_type);
+	
+
+	PXF_ASSERT(buffered_message->ParseFromString(protobuf_data), "Unable to parse protocol buffer data.");
+
+	Pxf::MemoryFree(protobuf_data);
+
 
 	message* msg = new message;
 	msg->type = message_type;
-	msg->protobuf_data = protobuf_data;
+	msg->protobuf_data = buffered_message;
 
 	return msg;
 }
