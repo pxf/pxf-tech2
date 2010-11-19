@@ -41,7 +41,10 @@ def unpack(message):
     if data == "":
         return (type_data, None)
     else:
-        proto_data = translate_message_type[type_data]()
+        if translate_message_type[type_data] is not None:
+            proto_data = translate_message_type[type_data]()
+        else:
+            return (type_data, None)
         proto_data.ParseFromString(data)
         return (type_data, proto_data)
 
