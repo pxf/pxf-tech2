@@ -41,7 +41,7 @@ message::~message()
 		delete protobuf_data;
 }
 
-message *get_message(void* socket)
+message *recv_message(void* socket)
 {
 	int message_type;
 

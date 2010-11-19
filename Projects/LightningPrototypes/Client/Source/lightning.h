@@ -26,7 +26,7 @@ struct message {
 	google::protobuf::Message* protobuf_data;
 };
 
-message *get_message(void* socket);
+message *recv_message(void* socket);
 
 void *get_proto_class(int type);
 

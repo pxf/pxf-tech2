@@ -50,7 +50,7 @@ int main()
 	// --------------
 
 
-	message* msg = get_message(out_socket);
+	message* msg = recv_message(out_socket);
 
 	PXF_ASSERT(msg->type == HELLO_TO_CLIENT, "Message type incorrect, expected HELLO_TO_CLIENT");
 
