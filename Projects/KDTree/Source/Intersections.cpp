@@ -5,59 +5,47 @@
 using namespace Pxf;
 using namespace Math;
 
-bool ray_slab(float min,float max,float raystart, float rayend,float& tbenter,float& tbexit)
+bool ray_aabb(ray_t* ray,aabb* box)
 {
-	float raydir = rayend - raystart;
+	float t_min = -100000.0f;	// MIN VAL
+	float t_max = 100000.0f;	// MAX VAL
+	float t1,t2;
 
-	// ray parallel to the slab
-	if (fabs(raydir) < 1.0E-9f)
+	Vec3f Ac = box->pos + box->size*0.5;
+	Vec3f p = Ac - ray->o;
+	Vec3f d = ray->d;
+	float f,e;
+
+	Vec3f min = (box->pos - ray->o) / d;
+	Vec3f max = (box->pos + box->size - ray->o) / d;
+
+	for(size_t i=0;i<3;i++)
 	{
-		// ray parallel to the slab, but ray not inside the slab planes
-		if(raystart < min || raystart > max)
+		e = p.GetAxis(i);
+		f = d.GetAxis(i);
+		float inv_f = 1 / f;
+
+		if(fabs(f) > 1.0E-9f)
+		{
+			float t1 = min.GetAxis(i);
+			float t2 = max.GetAxis(i);
+
+			if(t1 > t2) 
+				swap(t1,t2);
+			if(t1 > t_min)
+				t_min = t1;
+			if(t2 < t_max) 
+				t_max = t2;
+			if(t_min > t_max) 
+				return false;
+			if(t_max < 0)
+				return false;
+		}
+		else if( (-e -p.GetAxis(i) > 0) || (-e+p.GetAxis(i) < 0))
 		{
 			return false;
 		}
-		// ray parallel to the slab, but ray inside the slab planes
-		else
-		{
-			return true;
-		}
 	}
-
-	// slab's enter and exit parameters
-	float tsenter = (min - raystart) / raydir;
-	float tsexit = (max - raystart) / raydir;
-
-	if(tsenter > tsexit)
-		swap(tsenter,tsexit);
-
-	if(tbenter > tsexit || tsenter > tbexit)
-		return false;
-	else
-	{
-		tbenter = Max(tbenter, tsenter);
-		tbexit = Min(tbexit, tsexit);
-		return true;
-	}
-}
-
-bool ray_aabb(aabb* box,ray_t* ray,intersection_response_t* resp)
-{
-	Vec3f box_min = box->pos;
-	Vec3f box_max = box_min + box->size;
-
-	Vec3f tmin = (box_min - ray->o)/ray->d;
-	Vec3f tmax = (box_max - ray->o)/ray->d;
-
-	float tenter	= 0.0f;
-	float texit		= 1.0f;
-	
-	if(!ray_slab(box_min.x,box_max.x,ray->o.x,box_max.x,tenter,texit))
-		return false;
-	if(!ray_slab(box_min.y,box_max.y,ray->o.y,box_max.y,tenter,texit))
-		return false;
-	if(!ray_slab(box_min.z,box_max.z,ray->o.z,box_max.z,tenter,texit))
-		return false;
 
 	return true;
 }

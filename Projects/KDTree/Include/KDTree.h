@@ -2,6 +2,7 @@
 #define _KDTREE_H_
 
 #include <Pxf/Math/Vector.h>
+#include <Pxf/Base/Timer.h>
 #include <Common.h>
 #include <Intersections.h>
 
@@ -13,6 +14,11 @@ struct aabb;
 void PrintStatistics(KDTree* t);
 bool RayTreeIntersect(KDTree& t,const ray_t& r);
 
+template<class T>
+T* __cdecl Create()
+{
+	return new T();
+}
 
 struct split_position {
 	float pos;
@@ -30,6 +36,19 @@ public:
 		, m_PrimitiveData(0)
 		, m_IsLeaf(true)
 	{ }
+
+	~KDNode() 
+	{
+		if(m_LeftChild)
+		{
+			delete m_LeftChild; m_LeftChild = 0;
+		}
+
+		if(m_RightChild)
+		{
+			delete m_RightChild; m_RightChild = 0;
+		}
+	}
 
 	void SetPrimitiveData(Primitive* _Data,unsigned _NbrPrimitives);
 	Primitive* GetPrimitiveData() { return m_PrimitiveData; }
@@ -84,6 +103,7 @@ public:
 		unsigned empty_leaves;
 		unsigned leaves;
 		unsigned splits;
+		Pxf::Timer timer; 
 	};
 	tree_statistics GetStats() { return m_Statistics; }
 
@@ -99,3 +119,4 @@ private:
 };
 
 #endif
+
