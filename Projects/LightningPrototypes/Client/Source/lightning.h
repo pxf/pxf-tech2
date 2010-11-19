@@ -27,6 +27,7 @@ struct message {
 };
 
 message *recv_message(void* socket);
+int send_message(void* socket, message* msg);
 
 void *get_proto_class(int type);
 

@@ -60,11 +60,19 @@ int main()
 
 	printf("session_id: %i\n", session_id);
 
-	delete(msg);
+	//delete(msg);
 
 	zmq_msg_close(&hello);
 
+	int aoeu = send_message(out_socket, msg);
 
+	delete(msg);
+
+	msg = recv_message(out_socket);
+
+	printf("type:%i", msg->type);
+
+	delete(msg);
 
 	zmq_close(out_socket);
 	zmq_close(in_socket);
