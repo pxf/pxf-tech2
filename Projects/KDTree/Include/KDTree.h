@@ -12,7 +12,7 @@ class Primitive;
 struct aabb;
 
 void PrintStatistics(KDTree* t);
-bool RayTreeIntersect(KDTree& t,const ray_t& r);
+Primitive* RayTreeIntersect(KDTree& t,ray_t& r,float dist);
 
 template<class T>
 T* __cdecl Create()

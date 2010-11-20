@@ -87,3 +87,5 @@ void CalcAABB(Primitive* _Primitive,aabb& _Box)
 	_Box.pos = _Pos;
 	_Box.size = _Size;
 }
+
+unsigned Primitive::m_IDCounter = 0;

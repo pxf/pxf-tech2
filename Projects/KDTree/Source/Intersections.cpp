@@ -5,7 +5,7 @@
 using namespace Pxf;
 using namespace Math;
 
-bool ray_aabb(ray_t* ray,aabb* box)
+bool ray_aabb(ray_t* ray,aabb* box,intersection_response_t* resp)
 {
 	float t_min = -100000.0f;	// MIN VAL
 	float t_max = 100000.0f;	// MAX VAL
@@ -23,7 +23,6 @@ bool ray_aabb(ray_t* ray,aabb* box)
 	{
 		e = p.GetAxis(i);
 		f = d.GetAxis(i);
-		float inv_f = 1 / f;
 
 		if(fabs(f) > 1.0E-9f)
 		{
@@ -46,6 +45,10 @@ bool ray_aabb(ray_t* ray,aabb* box)
 			return false;
 		}
 	}
+
+	aabb_intersection_response_t* r = (aabb_intersection_response_t*) resp;
+	r->t_min = t_min;
+	r->t_max = t_max;
 
 	return true;
 }
