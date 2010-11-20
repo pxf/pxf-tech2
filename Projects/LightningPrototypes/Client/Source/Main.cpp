@@ -50,28 +50,29 @@ int main()
 	// --------------
 
 
-	message* msg = get_message(out_socket);
+	message* msg = recv_message(out_socket);
 
 	PXF_ASSERT(msg->type == HELLO_TO_CLIENT, "Message type incorrect, expected HELLO_TO_CLIENT");
 
-	trackerclient::HelloToClient hello_to_client;
-	if (!hello_to_client.ParseFromString((char*)msg->protobuf_data)) 
-	{
-		printf("Unable to parse protobuf data!\n");
-		return(-1);
-	}
-
-	String s_session_id = hello_to_client.session_id();
+	String s_session_id = ((trackerclient::HelloToClient*)(msg->protobuf_data))->session_id();
 	const char* sess = s_session_id.c_str();
 	session_id = StringToInteger(sess);
 
 	printf("session_id: %i\n", session_id);
 
-	delete(msg);
+	//delete(msg);
 
 	zmq_msg_close(&hello);
 
+	int aoeu = send_message(out_socket, msg);
 
+	delete(msg);
+
+	msg = recv_message(out_socket);
+
+	printf("type:%i", msg->type);
+
+	delete(msg);
 
 	zmq_close(out_socket);
 	zmq_close(in_socket);
