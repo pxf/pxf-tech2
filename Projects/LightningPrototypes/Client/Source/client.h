@@ -1,15 +1,23 @@
-#include "trackerclient.pb.h"
-
-
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
 
-struct client {
-	int session_id;
-	char* address;
+class Client
+{
+	public:
+		int session_id;
+		char *tracker_address;
+		char *local_address;
+
+		Client(const char *tracker_address, const char *local_address);
+		~Client();
+
+		int connect_tracker(const char *address);
+	private:
+		void *context;
+		void *out_socket;
+		void *in_socket;
+	
 };
 
-int connect_tracker(void* socket, const char* address);
-
-
 #endif
+
