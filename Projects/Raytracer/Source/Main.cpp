@@ -142,6 +142,7 @@ int main(int argc, char* argv[])
 	Pxf::Timer render_timer;
 	render_timer.Start();
 
+	bool is_done = false;
 	while(win->IsOpen())
 	{
 		inp->Update();
@@ -152,42 +153,45 @@ int main(int argc, char* argv[])
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), win->GetHeight(), 0, -0.1f, 100.0f);
 		gfx->SetProjection(&prjmat);
 
-		task_detail_t task[THREAD_COUNT];
-		render_result_t result[THREAD_COUNT];
-		int tex_indices[THREAD_COUNT];
-		for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
+		if (!is_done)
 		{
-			// Render each region
-			if (ty < task_count)
+			task_detail_t task[THREAD_COUNT];
+			render_result_t result[THREAD_COUNT];
+			int tex_indices[THREAD_COUNT];
+			for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
 			{
-				task[threadnum].region[0] = tx*task_size_w;
-				task[threadnum].region[1] = ty*task_size_h;
-				task[threadnum].region[2] = tx*task_size_w+task_size_w;
-				task[threadnum].region[3] = ty*task_size_h+task_size_h;
-				task[threadnum].task_id = ty*task_count+tx;
-
-				thread_executor.execute(new RegionTask(kernel, threadnum, &task[threadnum], &blob, &result[threadnum]));
-				tex_indices[threadnum] = ty*task_count+tx;
-
-				total_done += 1;
-				tx += 1;
-				if (tx >= task_count)
+				// Render each region
+				if (ty < task_count)
 				{
-					ty += 1;
-					tx = 0;
+					task[threadnum].region[0] = tx*task_size_w;
+					task[threadnum].region[1] = ty*task_size_h;
+					task[threadnum].region[2] = tx*task_size_w+task_size_w;
+					task[threadnum].region[3] = ty*task_size_h+task_size_h;
+					task[threadnum].task_id = ty*task_count+tx;
+
+					thread_executor.execute(new RegionTask(kernel, threadnum, &task[threadnum], &blob, &result[threadnum]));
+					tex_indices[threadnum] = ty*task_count+tx;
+
+					total_done += 1;
+					tx += 1;
+					if (tx >= task_count)
+					{
+						ty += 1;
+						tx = 0;
+					}
 				}
+			}
+
+			thread_executor.wait();
+
+			for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
+			{
+				region_textures[tex_indices[threadnum]] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)result[threadnum].data, task_size_w, task_size_w, channels);
+				region_textures[tex_indices[threadnum]]->SetMagFilter(TEX_FILTER_NEAREST);
+				region_textures[tex_indices[threadnum]]->SetMinFilter(TEX_FILTER_NEAREST);
 			}
 		}
 
-		thread_executor.wait();
-
-		for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
-		{
-			region_textures[tex_indices[threadnum]] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)result[threadnum].data, task_size_w, task_size_w, channels);
-			region_textures[tex_indices[threadnum]]->SetMagFilter(TEX_FILTER_NEAREST);
-			region_textures[tex_indices[threadnum]]->SetMinFilter(TEX_FILTER_NEAREST);
-		}
-		
 		// Display results
 		for(int y = 0; y < task_count; ++y)
 		{
@@ -207,9 +211,9 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		static bool is_done = false;
 		if (total_done == task_count*task_count && !is_done)
 		{
+			thread_executor.cancel();
 			is_done = true;
 			render_timer.Stop();
 			char title[512];
