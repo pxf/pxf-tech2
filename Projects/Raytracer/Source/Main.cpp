@@ -136,7 +136,11 @@ int main(int argc, char* argv[])
 	
 	PrimitiveBatch *pbatch = new PrimitiveBatch(Pxf::Kernel::GetInstance()->GetGraphicsDevice());
 
-	ZThread::PoolExecutor thread_executor(2);
+	static const int THREAD_COUNT = 2;
+	ZThread::PoolExecutor thread_executor(THREAD_COUNT);
+
+	Pxf::Timer render_timer;
+	render_timer.Start();
 
 	while(win->IsOpen())
 	{
@@ -148,12 +152,10 @@ int main(int argc, char* argv[])
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), win->GetHeight(), 0, -0.1f, 100.0f);
 		gfx->SetProjection(&prjmat);
 
-		task_detail_t task[2];
-		task[0].task_count = task_count*task_count;
-		task[1].task_count = task_count*task_count;
-		render_result_t result[2];
-		int tex_indices[2];
-		for(int threadnum = 0; threadnum < 2; threadnum++)
+		task_detail_t task[THREAD_COUNT];
+		render_result_t result[THREAD_COUNT];
+		int tex_indices[THREAD_COUNT];
+		for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
 		{
 			// Render each region
 			if (ty < task_count)
@@ -179,7 +181,7 @@ int main(int argc, char* argv[])
 
 		thread_executor.wait();
 
-		for(int threadnum = 0; threadnum < 2; threadnum++)
+		for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
 		{
 			region_textures[tex_indices[threadnum]] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)result[threadnum].data, task_size_w, task_size_w, channels);
 			region_textures[tex_indices[threadnum]]->SetMagFilter(TEX_FILTER_NEAREST);
@@ -203,6 +205,16 @@ int main(int argc, char* argv[])
 					pbatch->QuadsDrawTopLeft(x*task_size_w, y*task_size_h, task_size_w, task_size_w);
 					pbatch->QuadsEnd();
 			}
+		}
+
+		static bool is_done = false;
+		if (total_done == task_count*task_count && !is_done)
+		{
+			is_done = true;
+			render_timer.Stop();
+			char title[512];
+			Format(title, "Render time: %d ms", render_timer.Interval());
+			win->SetTitle(title);
 		}
 		
 		inp->ClearLastKey();
