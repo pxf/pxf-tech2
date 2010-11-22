@@ -48,6 +48,11 @@ function NewLibrary(name)
     library.include_directories = {}
     library.source_directories = {}
     library.defines = {}
+    library.compiler_flags = {}
+    
+    library.AddCompilerFlag = function(self, flag)
+        table.insert(self.compiler_flags, flag)
+    end
     
     library.AddDefine = function(self, def)
         table.insert(self.defines, def)
@@ -77,6 +82,10 @@ function NewLibrary(name)
         
         for i,d in ipairs(self.defines) do
             library_settings.cc.defines:Add(d)
+        end
+        
+        for i,f in ipairs(self.compiler_flags) do
+            library_settings.cc.flags:Add(f)
         end
         
         for i,m in ipairs(self.include_directories) do
