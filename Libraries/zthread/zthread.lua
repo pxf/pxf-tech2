@@ -8,6 +8,7 @@ if family == "windows" then
     --library:AddSourceDirectory("sdk/src/win32/*.cxx")
     library:AddDefine("ZT_WIN32")
 else
+    library:AddCompilerFlag("-fpermissive") -- gcc
     if platform == "macosx" then
         --library:AddIncludeDirectory("sdk/src/macos")
         --library:AddSourceDirectory("sdk/src/macos/*.cxx")
