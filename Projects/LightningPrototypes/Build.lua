@@ -1,6 +1,6 @@
 Import("../../PxfBuild.lua")
 
-project = NewProject("LighningPrototypes")
+project = NewProject("LightningPrototypes")
 
 --project.settings.debug = True
 --project.settings.static = True

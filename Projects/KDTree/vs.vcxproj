@@ -107,6 +107,7 @@
     <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\Common.cpp" />
     <ClCompile Include="Source\Intersections.cpp" />
     <ClCompile Include="Source\KDTree.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
     <ClInclude Include="Include\Camera.h" />
+    <ClInclude Include="Include\Common.h" />
     <ClInclude Include="Include\Intersections.h" />
     <ClInclude Include="Include\KDTree.h" />
   </ItemGroup>

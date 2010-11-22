@@ -17,9 +17,33 @@
 #include <cstdlib>
 #include "Renderer.h"
 
+#include <zthread/PoolExecutor.h>
+
 using namespace Pxf;
 using namespace Graphics;
 using namespace Math;
+
+class RegionTask : public ZThread::Runnable
+{
+private:
+	Pxf::Kernel* m_Kernel;
+	task_detail_t* m_Task;
+	batch_blob_t* m_Blob;
+	render_result_t* m_Result;
+public:
+	RegionTask(Pxf::Kernel* _Kernel, int _ThreadID, task_detail_t* _pTask, batch_blob_t* _pBlob, render_result_t* _pResult)
+		: m_Kernel(_Kernel)
+		, m_Task(_pTask)
+		, m_Blob(_pBlob)
+		, m_Result(_pResult)
+	{}
+
+	void run()
+	{
+		m_Kernel->Log(0, "doing id: %d", m_Task->task_id);
+		render_task(m_Task, m_Blob, m_Result);
+	}
+};
 
 int main(int argc, char* argv[])
 {
@@ -100,9 +124,6 @@ int main(int argc, char* argv[])
 	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 2.0f, 2.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, light_mat1);
 	blob.light_count = 1;
 	
-	task_detail_t task;
-	task.task_count = task_count*task_count;
-	
 	// create textures and primitive batches
 	Texture *region_textures[task_count*task_count] = {0};
 	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("unfinished.png");
@@ -112,32 +133,15 @@ int main(int argc, char* argv[])
 	int ty = 0;
 	int tx = 0;
 	int total_done = 0;
-	/*for(int ty = 0; ty < task_count; ++ty)
-	{
-		for(int tx = 0; tx < task_count; ++tx)
-		{
-			task.region[0] = tx*task_size_w;
-			task.region[1] = ty*task_size_h;
-			task.region[2] = tx*task_size_w+task_size_w;
-			task.region[3] = ty*task_size_h+task_size_h;
-			task.task_id = ty*task_count+tx;
-			
-			render_result_t pixel_region;
-			if (!render_task(&task, &blob, &pixel_region))
-			{
-				Pxf::Message("Main", "Error while trying to render task: [tx: %d, ty: %d]", tx, ty);
-			} else {
-				// Success
-				region_textures[ty*task_count+tx] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)pixel_region.data, task_size_w, task_size_w, channels);
-				
-				region_textures[ty*task_count+tx]->SetMagFilter(TEX_FILTER_NEAREST);
-				region_textures[ty*task_count+tx]->SetMinFilter(TEX_FILTER_NEAREST);
-			}
-		}
-	}*/
 	
 	PrimitiveBatch *pbatch = new PrimitiveBatch(Pxf::Kernel::GetInstance()->GetGraphicsDevice());
-	
+
+	static const int THREAD_COUNT = 2;
+	ZThread::PoolExecutor thread_executor(THREAD_COUNT);
+
+	Pxf::Timer render_timer;
+	render_timer.Start();
+
 	while(win->IsOpen())
 	{
 		inp->Update();
@@ -146,38 +150,43 @@ int main(int argc, char* argv[])
 			
 		// Setup view!!!!!!!!
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), win->GetHeight(), 0, -0.1f, 100.0f);
-	  gfx->SetProjection(&prjmat);
-	
-		// Render each region
-		if (ty < task_count)
+		gfx->SetProjection(&prjmat);
+
+		task_detail_t task[THREAD_COUNT];
+		render_result_t result[THREAD_COUNT];
+		int tex_indices[THREAD_COUNT];
+		for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
 		{
-			task.region[0] = tx*task_size_w;
-			task.region[1] = ty*task_size_h;
-			task.region[2] = tx*task_size_w+task_size_w;
-			task.region[3] = ty*task_size_h+task_size_h;
-			task.task_id = ty*task_count+tx;
-		
-			render_result_t pixel_region;
-			if (!render_task(&task, &blob, &pixel_region))
+			// Render each region
+			if (ty < task_count)
 			{
-				Pxf::Message("Main", "Error while trying to render task: [tx: %d, ty: %d]", tx, ty);
-			} else {
-				// Success
-				region_textures[ty*task_count+tx] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)pixel_region.data, task_size_w, task_size_w, channels);
-			
-				region_textures[ty*task_count+tx]->SetMagFilter(TEX_FILTER_NEAREST);
-				region_textures[ty*task_count+tx]->SetMinFilter(TEX_FILTER_NEAREST);
-			}
-		
-			total_done += 1;
-			tx += 1;
-			if (tx >= task_count)
-			{
-				ty += 1;
-				tx = 0;
+				task[threadnum].region[0] = tx*task_size_w;
+				task[threadnum].region[1] = ty*task_size_h;
+				task[threadnum].region[2] = tx*task_size_w+task_size_w;
+				task[threadnum].region[3] = ty*task_size_h+task_size_h;
+				task[threadnum].task_id = ty*task_count+tx;
+
+				thread_executor.execute(new RegionTask(kernel, threadnum, &task[threadnum], &blob, &result[threadnum]));
+				tex_indices[threadnum] = ty*task_count+tx;
+
+				total_done += 1;
+				tx += 1;
+				if (tx >= task_count)
+				{
+					ty += 1;
+					tx = 0;
+				}
 			}
 		}
-		
+
+		thread_executor.wait();
+
+		for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
+		{
+			region_textures[tex_indices[threadnum]] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)result[threadnum].data, task_size_w, task_size_w, channels);
+			region_textures[tex_indices[threadnum]]->SetMagFilter(TEX_FILTER_NEAREST);
+			region_textures[tex_indices[threadnum]]->SetMinFilter(TEX_FILTER_NEAREST);
+		}
 		
 		// Display results
 		for(int y = 0; y < task_count; ++y)
@@ -196,6 +205,16 @@ int main(int argc, char* argv[])
 					pbatch->QuadsDrawTopLeft(x*task_size_w, y*task_size_h, task_size_w, task_size_w);
 					pbatch->QuadsEnd();
 			}
+		}
+
+		static bool is_done = false;
+		if (total_done == task_count*task_count && !is_done)
+		{
+			is_done = true;
+			render_timer.Stop();
+			char title[512];
+			Format(title, "Render time: %d ms", render_timer.Interval());
+			win->SetTitle(title);
 		}
 		
 		inp->ClearLastKey();

@@ -194,6 +194,15 @@ namespace Math {
 	}
 
 	template <typename T>
+	inline Vector3D<T> Inverse(const Vector3D<T> &a)
+	{
+		return Vector3D<T>(1 / a.x,1 / a.y, 1 / a.z);
+
+		//Vector3D<T> v = a / pow(Length(a),2);
+		//return v;
+	}
+
+	template <typename T>
 	inline T Length(const Vector3D<T> &a) 
 	{ 
 		return sqrtf(LengthSqr(a)); 
