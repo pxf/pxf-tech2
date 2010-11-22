@@ -1,6 +1,5 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Memory.h>
-#include <Pxf/Util/String.h>
 
 #include <zmq.hpp>
 
