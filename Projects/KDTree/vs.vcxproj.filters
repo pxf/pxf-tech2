@@ -146,6 +146,9 @@
     <ClCompile Include="Source\Intersections.cpp">
       <Filter>KDTree\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Common.cpp">
+      <Filter>KDTree\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">
@@ -311,6 +314,9 @@
       <Filter>KDTree\Include</Filter>
     </ClInclude>
     <ClInclude Include="Include\Intersections.h">
+      <Filter>KDTree\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Common.h">
       <Filter>KDTree\Include</Filter>
     </ClInclude>
   </ItemGroup>

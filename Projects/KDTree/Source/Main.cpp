@@ -174,10 +174,17 @@ void DrawNode(KDNode* _Node)
 		glColor3f(0.0f,0.0f,1.0f);
 		glBegin(GL_LINES);
 		
-		glVertex3f(lb.pos.x,lb.size.y,_Node->GetSplitPos());
-		glVertex3f(lb.pos.x + lb.size.x,lb.size.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x,lb.pos.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x + lb.size.x,lb.pos.y,_Node->GetSplitPos());
 
+		glVertex3f(lb.pos.x,lb.pos.y + lb.size.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x + lb.size.x,lb.pos.y + lb.size.y,_Node->GetSplitPos());
 
+		glVertex3f(lb.pos.x,lb.pos.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x,lb.pos.y + lb.size.y,_Node->GetSplitPos());
+
+		glVertex3f(lb.pos.x + lb.size.x,lb.pos.y,_Node->GetSplitPos());
+		glVertex3f(lb.pos.x + lb.size.x,lb.pos.y + lb.size.y,_Node->GetSplitPos());
 
 		glEnd();
 		glColor3f(1.0f,1.0f,1.0f);
@@ -207,8 +214,6 @@ void DrawTree(KDTree* t)
 {
 	KDNode* root = t->GetRoot();
 
-	draw_aabb(root->GetAABB());
-
 	DrawNode(root);
 }
 
@@ -228,7 +233,16 @@ void MoveCamera(const camera_input_desc& cd)
 
 	if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT))
 	{
-		cd.cam->Translate(-dpos.x,dpos.y,0);
+		Vec3f pos = cd.cam->GetDir();
+		Vec3f pp_vec;
+		pp_vec.x = -pos.z;
+		pp_vec.z = pos.x;
+		pp_vec.y = pos.y;
+
+		pp_vec = pp_vec * -dpos.x;
+
+		cd.cam->Translate(pp_vec.x,dpos.y,pp_vec.z); 
+
 		ms.state = mouse_state::LEFT;
 	}
 	else if(cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_RIGHT) && !cd.inp->IsButtonDown(Pxf::Input::MouseButton::MOUSE_LEFT))
@@ -275,7 +289,7 @@ int main(int argc, char* argv[])
 	srand ( time(NULL) );
 
 	// KDTree
-	KDTree* tree = new KDTree(3);
+	KDTree* tree = new KDTree(2);
 
 	Primitive pData[5];
 
@@ -292,7 +306,7 @@ int main(int argc, char* argv[])
 	pData[3] = Primitive(Vec3f(50.0f,10.0f,0.0f),Vec3f(50.0f,60.0f,0.0f),Vec3f(100.0f,60.0f,0.0f));
 	//pData[4] = Primitive(Vec3f(130.0f,50.0f,0.0f),Vec3f(130.0f,50.0f,0.0f),Vec3f(180.0f,100.0f,0.0f)); */
 
-	tree->Build(pData,2);
+	tree->Build(pData,3);
 
 	PrintStatistics(tree);
 
@@ -329,7 +343,16 @@ int main(int argc, char* argv[])
 
 	aabb p_aabb = p.GetAABB();
 
+	//void *ptr = new void[size];
+	//void **ptr = new void*[3];
+	//void* (*cPtr)() = (*(__cdecl *)(void*)Create<Primitive>);
 
+	Primitive* (*ptr)() = &Create<Primitive>;
+	void* __cdecl _ptr[1] = { ptr };//reinterpret_cast<void*>(ptr) };
+
+	Primitive* lolsp = (*ptr)();
+
+	//(*_ptr[0])();
 
 	while(win->IsOpen())
 	{
@@ -346,32 +369,22 @@ int main(int argc, char* argv[])
 
 		MoveCamera(cid);
 
-		r.o = cam.GetPos() + Vec3f(0.1f,0.1f,0.1f);
-		r.d = cam.GetDir();
-
-		//glRotatef(a,0.0f,1.0f,0.0f);
+		//r.o = cam.GetPos() + Vec3f(0.1f,0.1f,0.1f);
+		//r.d = cam.GetDir();
 
 		DrawTree(tree);
-			
-		bool result = ray_triangle(triangle,&r,&resp);
+		draw_aabb(tree->GetRoot()->GetAABB());
 
-		if(result)
-			DrawPrimitive(&p,red);
-		else
-			DrawPrimitive(&p);
-
-		result = ray_aabb(&p_aabb,&r,&resp);
-
-		if(result)
-			draw_aabb(p_aabb,red);
-		else
-			draw_aabb(p_aabb);
-
-		DrawRay(r);
-
+		ray_t test_ray;
+		test_ray.o = Vec3f(300.0f,0.0f,200.0f);
+		test_ray.d = Vec3f(-0.5f,0.1f,-0.5f);
+		Normalize(test_ray.d);
+		test_ray.inv_d = Inverse(test_ray.d);
 		
+		DrawRay(test_ray);
+		Primitive* p_result = RayTreeIntersect((*tree),test_ray,10000.0f);
 
-		a += 0.01f;
+		DrawPrimitive(p_result,red);
 
 		inp->ClearLastKey();
 		win->Swap();

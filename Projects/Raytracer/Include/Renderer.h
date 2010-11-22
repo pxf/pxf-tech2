@@ -11,6 +11,8 @@ struct batch_blob_t
 	int prim_count;
 	int light_count;
 	
+	// sampling data
+	float samples[256];
 	
 	// windowing etc
 	int pic_w, pic_h;

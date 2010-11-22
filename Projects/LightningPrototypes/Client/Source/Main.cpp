@@ -9,6 +9,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
 #include <Pxf/Base/Random.h>
+#include <Pxf/Util/String.h>
 
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
@@ -17,22 +18,19 @@
 
 #include <ctime>
 
-#include "tracker.pb.h"
+#include "lightning.h"
+#include "trackerclient.pb.h"
 #include "clientclient.pb.h"
 
 using namespace Pxf;
-
-enum Message {
-	INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, GOODBYE, NEWBATCH,
-	OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, TASK_DONE, HATE, 
-	PING, PONG
-};
+using namespace Util;
 
 int main()
 {
-
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
-	
+
+	int session_id;
+
 	printf("Client.\n");
 	printf("Connecting to tracker...\n");
 
@@ -42,25 +40,39 @@ int main()
 
 	zmq_connect(out_socket, "tcp://users.mkeyd.net:50000");
 
+	// Send ---------
 	zmq_msg_t hello;
 	int type = INIT_HELLO;
 	zmq_msg_init_data(&hello, &type, sizeof(type), NULL, NULL);
 	
 	printf("Sending INIT_HELLO...\n");
 	zmq_send(out_socket, &hello, 0);
+	// --------------
 
-	zmq_msg_t reply;
-	zmq_msg_init(&reply);
-	zmq_recv(out_socket, &reply, 0);
 
-	char* aoeu = (char*)zmq_msg_data(&reply);
+	message* msg = recv_message(out_socket);
 
-	printf("Data recieved: %s\n", aoeu+4);
+	PXF_ASSERT(msg->type == HELLO_TO_CLIENT, "Message type incorrect, expected HELLO_TO_CLIENT");
 
-	zmq_msg_close(&reply);
+	String s_session_id = ((trackerclient::HelloToClient*)(msg->protobuf_data))->session_id();
+	const char* sess = s_session_id.c_str();
+	session_id = StringToInteger(sess);
+
+	printf("session_id: %i\n", session_id);
+
+	//delete(msg);
+
 	zmq_msg_close(&hello);
 
+	int aoeu = send_message(out_socket, msg);
 
+	delete(msg);
+
+	msg = recv_message(out_socket);
+
+	printf("type:%i", msg->type);
+
+	delete(msg);
 
 	zmq_close(out_socket);
 	zmq_close(in_socket);
@@ -69,3 +81,4 @@ int main()
 
 	return(0);
 }
+

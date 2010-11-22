@@ -49,6 +49,8 @@ public:
 		v[2] = v2;
 
 		CalcAABB(this,m_AABB);
+		m_ID = m_IDCounter;
+		m_IDCounter++;
 	}
 
 	int GetType() { return m_Type; }
@@ -70,6 +72,9 @@ private:
 			Pxf::Math::Vec3f n;
 		};
 	};
+
+	static unsigned m_IDCounter;
+	unsigned m_ID;
 
 	int m_Type;
 	aabb m_AABB;
