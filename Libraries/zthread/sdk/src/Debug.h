@@ -23,8 +23,9 @@
 #ifndef ZTDEBUG
 
 #ifndef NDEBUG
-#  include <stdio.h>
-#  define ZTDEBUG printf
+//#  include <stdio.h>
+//#  define ZTDEBUG printf
+#  define ZTDEBUG(X, ...)
 #else
 #  define ZTDEBUG(x) 
 #endif
