@@ -1,13 +1,14 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
-
+#include <zthread/ThreadedExecutor.h>
 #include <zmq.hpp>
-#include <stdlib.h>
 
 #include "client.h"
+#include "iomodule.h"
 #include "lightning.h"
 #include "trackerclient.pb.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 
 Client::Client(const char *tracker_address, const char *local_address)
@@ -34,6 +35,26 @@ Client::~Client()
 	zmq_close(in_socket);
 
 	zmq_term(context);
+}
+
+int Client::run()
+{
+	printf("Connecting to tracker at %s\n", tracker_address);
+	//if (client.connect_tracker(client.tracker_address) == -1 )
+	//{
+	//	printf("Could not connect to tracker at %s.\n", client.tracker_address);
+	//	return(-1);
+	//}
+	//printf("session_id:%s\n",client.session_id);
+
+	// Simulate event
+	ZThread::ThreadedExecutor batch_executor;
+	for (int i = 0; i < 5; i++)
+	{
+			batch_executor.execute(new IOModule());
+		
+	}
+		
 }
 
 /* Connects to the tracker at the specified endpoint */

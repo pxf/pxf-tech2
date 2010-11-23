@@ -11,13 +11,14 @@ class Client
 
 		Client(const char *tracker_address, const char *local_address);
 		~Client();
+		int run();
 
-		int connect_tracker(const char *address);
 	private:
 		void *context;
 		void *out_socket;
 		void *in_socket;
 	
+		int connect_tracker(const char *address);
 };
 
 #endif
