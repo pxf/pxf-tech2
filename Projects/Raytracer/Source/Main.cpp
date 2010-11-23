@@ -88,10 +88,13 @@ int main(int argc, char* argv[])
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
 	plane_mat_white.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	plane_mat_white.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
+	plane_mat_white.reflectiveness = 0.3f;
 	plane_mat_red.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	plane_mat_red.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
+	plane_mat_red.reflectiveness = 0.3f;
 	plane_mat_green.ambient = Vec3f(0.0f, 0.1f, 0.0f);
 	plane_mat_green.diffuse = Vec3f(0.0f, 1.0f, 0.0f);
+	plane_mat_green.reflectiveness = 0.3f;
 	
 	sphere_mat1.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	sphere_mat1.diffuse = Vec3f(1.0f, 0.8f, 0.8f);
