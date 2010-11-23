@@ -6,6 +6,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Random.h>
 #include <Pxf/Base/Memory.h>
+#include <Pxf/Math/Math.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
@@ -88,15 +89,20 @@ int main(int argc, char* argv[])
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
 	plane_mat_white.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	plane_mat_white.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
+	plane_mat_white.reflectiveness = 0.3f;
 	plane_mat_red.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	plane_mat_red.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
+	plane_mat_red.reflectiveness = 0.3f;
 	plane_mat_green.ambient = Vec3f(0.0f, 0.1f, 0.0f);
 	plane_mat_green.diffuse = Vec3f(0.0f, 1.0f, 0.0f);
+	plane_mat_green.reflectiveness = 0.3f;
 	
 	sphere_mat1.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	sphere_mat1.diffuse = Vec3f(1.0f, 0.8f, 0.8f);
+	sphere_mat1.reflectiveness = 0.7f;
 	sphere_mat2.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
+	sphere_mat1.reflectiveness = 0.9f;
 	
 	blob.prim_count = 0;
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), plane_mat_white); // bottom
@@ -105,14 +111,26 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), plane_mat_green); // right
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), plane_mat_white); // back
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, sphere_mat1);
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, -3.0f, 6.0f), 2.0f, sphere_mat2);
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, sphere_mat2);
+
+	/*
+	// Add 64 spheres on the floor, should slow down the render a bit. Compare with kd-tree.
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			blob.primitives[blob.prim_count++] = new Sphere(Math::Vec3f(x-3.5f,-4.f,y+2), .5f, (x+y)%2 == 0 ? sphere_mat1 : sphere_mat2);
+		}
+	}
+	*/
+
 	//blob.prim_count = 7;
 	
 	// generate a couple of random samples
 	srand ( time(NULL) );
 	for(int i = 0; i < 256; ++i)
 	{
-		blob.samples[i] = (float)(rand() % 100 + 1) / 100.0f;
+		blob.samples[i] = Pxf::RandFP32();
 		//Pxf::Message("rand", "%d -> %f", i, blob.samples[i]);
 	}
 	
@@ -121,8 +139,9 @@ int main(int argc, char* argv[])
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 2.0f, 2.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, light_mat1);
-	blob.light_count = 1;
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 5, light_mat1);
+	blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 5, light_mat1);
+	blob.light_count = 2;
 	
 	// create textures and primitive batches
 	Texture *region_textures[task_count*task_count] = {0};
@@ -142,6 +161,7 @@ int main(int argc, char* argv[])
 	Pxf::Timer render_timer;
 	render_timer.Start();
 
+	bool is_done = false;
 	while(win->IsOpen())
 	{
 		inp->Update();
@@ -152,42 +172,45 @@ int main(int argc, char* argv[])
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), win->GetHeight(), 0, -0.1f, 100.0f);
 		gfx->SetProjection(&prjmat);
 
-		task_detail_t task[THREAD_COUNT];
-		render_result_t result[THREAD_COUNT];
-		int tex_indices[THREAD_COUNT];
-		for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
+		if (!is_done)
 		{
-			// Render each region
-			if (ty < task_count)
+			task_detail_t task[THREAD_COUNT];
+			render_result_t result[THREAD_COUNT];
+			int tex_indices[THREAD_COUNT];
+			for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
 			{
-				task[threadnum].region[0] = tx*task_size_w;
-				task[threadnum].region[1] = ty*task_size_h;
-				task[threadnum].region[2] = tx*task_size_w+task_size_w;
-				task[threadnum].region[3] = ty*task_size_h+task_size_h;
-				task[threadnum].task_id = ty*task_count+tx;
-
-				thread_executor.execute(new RegionTask(kernel, threadnum, &task[threadnum], &blob, &result[threadnum]));
-				tex_indices[threadnum] = ty*task_count+tx;
-
-				total_done += 1;
-				tx += 1;
-				if (tx >= task_count)
+				// Render each region
+				if (ty < task_count)
 				{
-					ty += 1;
-					tx = 0;
+					task[threadnum].region[0] = tx*task_size_w;
+					task[threadnum].region[1] = ty*task_size_h;
+					task[threadnum].region[2] = tx*task_size_w+task_size_w;
+					task[threadnum].region[3] = ty*task_size_h+task_size_h;
+					task[threadnum].task_id = ty*task_count+tx;
+
+					thread_executor.execute(new RegionTask(kernel, threadnum, &task[threadnum], &blob, &result[threadnum]));
+					tex_indices[threadnum] = ty*task_count+tx;
+
+					total_done += 1;
+					tx += 1;
+					if (tx >= task_count)
+					{
+						ty += 1;
+						tx = 0;
+					}
 				}
+			}
+
+			thread_executor.wait();
+
+			for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
+			{
+				region_textures[tex_indices[threadnum]] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)result[threadnum].data, task_size_w, task_size_w, channels);
+				region_textures[tex_indices[threadnum]]->SetMagFilter(TEX_FILTER_NEAREST);
+				region_textures[tex_indices[threadnum]]->SetMinFilter(TEX_FILTER_NEAREST);
 			}
 		}
 
-		thread_executor.wait();
-
-		for(int threadnum = 0; threadnum < THREAD_COUNT; threadnum++)
-		{
-			region_textures[tex_indices[threadnum]] = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTextureFromData((const unsigned char*)result[threadnum].data, task_size_w, task_size_w, channels);
-			region_textures[tex_indices[threadnum]]->SetMagFilter(TEX_FILTER_NEAREST);
-			region_textures[tex_indices[threadnum]]->SetMinFilter(TEX_FILTER_NEAREST);
-		}
-		
 		// Display results
 		for(int y = 0; y < task_count; ++y)
 		{
@@ -207,9 +230,9 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		static bool is_done = false;
 		if (total_done == task_count*task_count && !is_done)
 		{
+			thread_executor.cancel();
 			is_done = true;
 			render_timer.Stop();
 			char title[512];

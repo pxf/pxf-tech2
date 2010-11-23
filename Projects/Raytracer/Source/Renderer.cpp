@@ -227,11 +227,29 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 					return false;
 				}
 				fpixel += light_contrib;
+
+				// Calculate reflection
+				float refl = closest_prim->material.reflectiveness;
+				if (refl > 0.0f)
+				{
+					float offset_x = datablob->samples[rand() % 255] * 2.0f - 1.0f;//1.0f / ((int)(rand_sample * 16.0f) % 4);
+					float offset_y = datablob->samples[rand() % 255] * 2.0f - 1.0f;//0.0f;//1.0f / ((int)(rand_sample * 16.0f) / 4);
+					float offset_spread = 1.0f - refl;
+					Math::Vec3f offset = Math::Vec3f(offset_x, offset_y, 0.f) * offset_spread;
+					Math::Vec3f N = closest_resp.n;
+					Math::Vec3f R = offset + N * (ray.d - 2.0f * Dot(ray.d, N));
+					intersection_response_t closest_resp;
+					ray_t refl_ray;
+					refl_ray.o = closest_resp.p + R*0.000000001;
+					refl_ray.d = Normalized(R);
+					if (find_intersection(datablob, &refl_ray, &closest_prim, &closest_resp))
+					{
+						fpixel += (closest_prim->material.ambient * closest_prim->material.diffuse * refl) / 1.3f;
+					}
+
+				}
 				
 				// TODO: Calc indirect light using photon map
-				
-
-
 			}
 		}
 	}
