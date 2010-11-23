@@ -4,7 +4,8 @@
 class Client
 {
 	public:
-		int session_id;
+		int available;
+		char *session_id;
 		char *tracker_address;
 		char *local_address;
 
