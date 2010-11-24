@@ -27,7 +27,7 @@ class ConnectionManager
 		Pxf::Util::Array<struct Connection *> m_Connections;
 
 	public:
-		int new_connection();
+		int new_connection(ConnectionType _type);
 		bool bind_connection(int _id, char *_address, int _port);
 		bool connect_connection(int _id, char *_address, int _port);
 		
