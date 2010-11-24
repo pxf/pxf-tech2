@@ -4,13 +4,29 @@
 
 #include "connectionmanager.h"
 
+Connection::Connection(ConnectionType _type, int _id)
+	: socket(0)
+	, buffer(NULL)
+	, buffer_cur(NULL)
+	, buffer_size(0)
+	, id(_id)
+	, session_id(0)
+	, type(_type)
+{}
+
 Connection *ConnectionManager::new_connection(ConnectionType _type)
 {
-	return NULL;
+	Connection *connection = new Connection(_type, m_NextId++);
+
+	m_Connections.push_back(connection);
+
+	return connection;
 }
 
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
 {
+	// TODO: Check whether the connection exists in our m_Connection or not.
+
 	return false;
 }
 
