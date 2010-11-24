@@ -112,6 +112,9 @@ function _runtimeerror(str)
   error_lines = split(fancy, '\n+')
   print(" -- Runtime Error-- \n" .. str)
   error_stop = true
+  panicbox_scroll_x = 1
+  panicbox_scroll_y = 1
+  mx_old = nil
   inp.showmouse(true)
 end
 
@@ -121,7 +124,7 @@ function draw_runtimeerror()
   --gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
   gfx.setcolor(1,1,1)
   gfx.drawcentered(app.width / 2, app.height / 2,512,256)
-  panic.text_box(error_lines, app.width / 2 - 230, 300 - 42, 460, 100, 4, 1)
+  panic.text_box(error_lines, app.width / 2 - 230, app.height / 2 - 60, 475, 140)
 end
 
 -- debug text drawing system
@@ -198,9 +201,11 @@ function panic.text(str, x, y)
 	gfx.bindtexture(oldtex)
 end
 
-function panic.text_box(strs, x, y, w, h, sx, sy) -- sx, sy = scrollx, scrolly
+function panic.text_box(strs, x, y, w, h) -- sx, sy = scrollx, scrolly
   local ylines = 0
   local max_len = math.floor(w / 8)
+  sx = panicbox_scroll_x
+  sy = panicbox_scroll_y
   for k,v in pairs(strs) do
     local l = v:sub(sx)
     l = l:sub(1, max_len)
@@ -222,17 +227,25 @@ function _update()
     -- check hit test on buttons
     if (inp.isbuttondown(inp.MOUSE_LEFT)) then
       -- button table
-      local runtimebuttons = {cont = {hb = {app.width/2-225, app.height/2+80, 72, 26},
+      local runtimebuttons = {cont = {hb = {app.width/2-225, app.height/2+89, 72, 26},
                                       action = function ()
                                                  error_stop = false
                                                end
                                      },
-                              reboot = {hb = {app.width/2-144, app.height/2+80, 128, 26},
+                              reboot = {hb = {app.width/2-144, app.height/2+89, 128, 26},
                                       action = function ()
                                                   app.reboot()
                                                end
                                      },
-                              quit = {hb = {app.width/2+171, app.height/2+80, 56, 26},
+                              save = {hb = {app.width/2-6, app.height/2+89, 92, 26},
+                                      action = function ()
+                                                  local errlog = io.open("error.log", "w+")
+                                                  errlog:write(error_text)
+                                                  errlog:close()
+                                                  print("Saved error log to: error.log.")
+                                               end
+                                     },
+                              quit = {hb = {app.width/2+171, app.height/2+89, 56, 26},
                                       action = function ()
                                                   app.quit()
                                                end
@@ -246,6 +259,24 @@ function _update()
           v.action()
         end
       end
+      
+      -- hit test panic box
+      if (point_hittest(mx,my, app.width / 2 - 230, app.height / 2 - 60, app.width / 2 - 230 + 475, app.height / 2 - 60 + 140)) then
+        --print("LOL")
+        if (mx_old == nil) then
+          mx_old = mx
+          my_old = my
+        end
+        panicbox_scroll_x = panicbox_scroll_x + (mx_old - mx) / 8.0
+        panicbox_scroll_y = panicbox_scroll_y + (my_old - my) / 8.0
+        if (panicbox_scroll_x < 0) then
+          panicbox_scroll_x = 1
+        end
+        mx_old = mx
+        my_old = my
+      end
+    else
+      mx_old = nil
     end
   end
 end
