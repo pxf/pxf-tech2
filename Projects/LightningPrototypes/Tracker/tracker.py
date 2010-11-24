@@ -3,7 +3,9 @@
 import struct
 import traceback
 
-import zmq
+#import zmq
+import socket
+import select
 
 import lightning
 import tracker_pb2
@@ -11,44 +13,57 @@ import tracker_pb2
 class Tracker():
     """Class containing logic and main-loop for the tracker."""
 
-    _context = None
-    _sck_out = None
-    _sck_in = None
+    _sck_listen = None
+    _scks = {} # {socket: {client}}
+        # client: {buffer: }
 
     _db = None
 
     _tr_table = dict()
 
+    _last_session_id = None
+
     def __init__(self):
-        self._context = zmq.Context()
-        self._sck_in = self._context.socket(zmq.REP)
-        try:
-            self._sck_in.bind("tcp://{0}:{1}".format(lightning.tracker_address
-                                , lightning.tracker_port))
-        except Exception as e:
-            print("Unable to bind socket for incoming (sending) connections.")
-            traceback.print_exc()
-            return
-        self._sck_out = self._context.socket(zmq.REQ)
-        self._sck_out.setsockopt(zmq.IDENTITY, "0")
+        self._sck_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._sck_listen.bind((lightning.tracker_address, lightning.tracker_port))
+        self._sck_listen.listen(10)
 
         self._db = TrackerDatabase()
+
+        #self._context = zmq.Context()
+        #self._sck_in = self._context.socket(zmq.REP)
+        #try:
+        #    self._sck_in.bind("tcp://{0}:{1}".format(lightning.tracker_address
+        #                        , lightning.tracker_port))
+        #except Exception as e:
+        #    print("Unable to bind socket for incoming (sending) connections.")
+        #    traceback.print_exc()
+        #    return
+        #self._sck_out = self._context.socket(zmq.REQ)
+        #self._sck_out.setsockopt(zmq.IDENTITY, "0")
+
     
     # --------------------------------------------------------------
     # Events: ------------------------------------------------------
     # args: message - parsed protobuf, or None
     # returns: either string, int or a tuple with
     #           (int message_type, <protobuf> response)
+    def e_no_handle(self, message):
+        return None
+    _tr_table[lightning.PONG] = e_no_handle
+    _tr_table[lightning.OK] = e_no_handle
+
     def e_ping(self, message):
         response = tracker_pb2.Pong()
         response.ping_data = message.ping_data
         return lightning.PONG, response
     _tr_table[lightning.PING] = e_ping
-
+    
     def e_init_hello(self, message):
         new_session_id = self._db.new_init_client()
         response = tracker_pb2.HelloToClient()
         response.session_id = new_session_id
+        self.set_session_id(None, new_id)
         return lightning.HELLO_TO_CLIENT, response
     _tr_table[lightning.INIT_HELLO] = e_init_hello
 
@@ -58,7 +73,7 @@ class Tracker():
             , address = message.address
             , available = message.available
         )
-        self._sck_out.connect(message.address)
+        # TODO: Test the connection.
         return lightning.OK
     _tr_table[lightning.HELLO_TO_TRACKER] = e_hello_to_tracker
 
@@ -68,22 +83,156 @@ class Tracker():
     _tr_table[lightning.GOODBYE] = e_goodbye
     # Events end.
     # --------------------------------------------------------------
-    
-    def send(self, session_id, data):
-        """send(int session_id, str/int/protobuf data) -> bool success.  
+
+    # TODO: Make argument client optional.
+    def set_session_id(self, client, new_id):
+        """set_session_id(str/sck/none client, str new_id) -> bool success.
+        
+        Sets the session id for client to new_id, where client
+        can be one of the following:
+            str   session_id
+            sck   client socket
+            None  takes the client who sent the last packet
+        """
+
+        if type(client) == type(str()):
+            # client = old_id
+            old_id = self._scks[client]['session_id']
+            sck = client
+        elif client in self._scks:
+            # client = sck
+            old_id = client
+            for s, si in self._sck.items():
+                if si['session_id'] == old_id:
+                    sck = s
+        else:
+            # none.
+            return False
+
+        if self._last_session_id == old_id:
+            self._last_session_id = new_id
+        
+        self._scks[sck]['session_id'] = new_id
+
+        return True
+
+    def send(self, data, session_id=None):
+        """send(str/int/protobuf data, int session_id=None) -> bool success.  
 
         Translates the data into protobuf-data with an enum at the beginning
         (if it's not already in that format), and sends it to the client
-        with session id session_id.
+        with session id session_id. If no session_id is specified, the last
+        client that sent data will be the receiver.
         
         Takes either an enum (int), a string (already in final format),
                 or a tuple with enum and protobuf.
         Returns True on success, otherwise False.
         """
 
-        # TODO: Check if we're connected or not.
-        # TODO: Pack the final data with the session_id at the beginning.
-        pass
+        if session_id is None:
+            session_id = self._last_session_id
+
+        # Find the client.
+        client = None
+        for sck, info in self._scks.items():
+            if info['session_id'] == session_id:
+                client = sck
+
+        if client is None:
+            # Couldn't find the client.
+            return False
+
+        if type(data) == type(str()):
+            msg = data
+        elif type(data) == type(tuple()) and len(data) == 2:
+            msg = lightning.pack(data[0], data[1])
+        elif type(data) == type(int()):
+            msg = lightning.pack(data)
+        else:
+            # Unknown format.
+            return False
+
+        # Add the length of the packet.
+        msg = "{0}{1}".format(struct.pack('<I', length(msg), msg))
+
+        tries = 20
+        while msg != "":
+            msg = msg[client.send(msg):]
+
+            # To not end up in an infinite loop.
+            tries -= 1
+            if tries == 0:
+                # TODO: Raise an exception instead.
+                return False
+
+        return True
+
+    def recv(self):
+        """recv() -> (session_id, packet).
+        
+        Listens to all the connected sockets, even the bound socket.
+        On new incomming connections, the function accepts the client and
+        then tries to fetch another packet.
+
+        The function returns a session_id along with the packet.
+        """
+        
+        ls = [self._sck_listen] + list(self._scks.keys())
+        rr, wr, er = select.select(ls, [], ls)
+        
+        for r in er:
+            if r == self._sck_listen:
+                print("error in the bound socket.  quitting.")
+                exit(0)
+            print("error in socket {0} with id {1}.".format(
+                r, self._scks[r]['session_id']
+            ))
+            del self._scks[r]
+
+        for r in rr:
+            if r == self._sck_listen:
+                client, addr = r.accept()
+                self._scks[client] = dict([
+                    ('buffer', '')
+                    , ('pkt-length', 0)
+                    , ('session_id', -1)
+                ])
+                # TODO: Do we want to return something here?
+                continue
+
+            client_data = self._scks[r]
+            tmp = r.recv(1024)
+            if tmp == '':
+                print("client disconnected.")
+                del self._sck[r]
+                continue
+            client_data['buffer'] += tmp
+
+            if client_data['pkt-length'] == 0:
+                if len(client_data['buffer']) >= 4:
+                    # Packet length.
+                    client_data['pkt-length'] = struct.unpack('<I'
+                                                , client_data['buffer'][:4])
+                    client_data['buffer'] = client_data['buffer'][4:]
+                else:
+                    # Not enough bytes for a packet length.
+                    continue
+            if len(client_data['buffer'] < client_data['pkt-length']):
+                # Not enough bytes for a packet.
+                continue
+
+            # Alright, we have a packet. Take it from the buffer.
+            length = client_data['pkt-length']
+            packet = client_data['buffer'][:length]
+            client_data['buffer'] = client_data['buffer'][length:]
+            client_data['pkt-length'] = 0
+
+            self._last_session_id = client_data['session_id']
+
+            return (client_data["session_id"], packet)
+
+        # Okey, we didn't find any this round.
+        self.recv()
 
     def run(self):
         """run() -> nothing.
@@ -93,36 +242,43 @@ class Tracker():
 
         print("Tracker.")
 
+
         while True:
-            # TODO: Select on both in and out-socket instead.
-            data = self._sck_in.recv()
+            #data = self._sck_in.recv()
+            session_id, data = self.recv()
 
             message_type, message = lightning.unpack(data)
 
             print("Got message: {0}/{1}".format(message_type, message))
             if message_type not in self._tr_table:
                 # TODO: Should be handled here instead.
-                self._sck_in.send(lightning.pack(lightning.OK)) # TEMPORARY
+                #self._sck_in.send(lightning.pack(lightning.OK)) # TEMPORARY
+                self.send(session_id, lightning.OK)
                 print("Unhandled message. Sent OK back.")
                 continue
 
             try:
                 ret = self._tr_table[message_type](self, message)
-                if type(ret) == type(str()):
-                    self._sck_in.send(ret)
-                elif type(ret) == type(tuple()) and len(ret) == 2:
-                    self._sck_in.send(lightning.pack(ret[0], ret[1]))
-                elif type(ret) == type(int()):
-                    self._sck_in_send(lightning.pack(ret))
-                else:
-                    print("Function {0} returned invalid data: {1}:\"{2}\"".format(
-                        self._tr_table[message_type]
-                        , type(ret)
-                        , ret
-                    ))
-                    self._sck_in.send(lightning.pack(lightning.OK))
+                if ret is None:
+                    continue
+
+                self.send(ret)
+                #elif type(ret) == type(str()):
+                #    self.send(ret)
+                #elif type(ret) == type(tuple()) and len(ret) == 2:
+                #    self.send(lightning.pack(ret[0], ret[1]))
+                #elif type(ret) == type(int()):
+                #    self.send(lightning.pack(ret))
+                #else:
+                #    print("Function {0} returned invalid data: {1}:\"{2}\"".format(
+                #        self._tr_table[message_type]
+                #        , type(ret)
+                #        , ret
+                #    ))
+                #    #self._sck_in.send(lightning.pack(lightning.OK))
+                #    self.send(lightning.pack(lightning.OK))
             except Exception as e:
-                print("Function {0} raised an exception:")
+                print("Function {0} raised an exception:".format(message_type))
                 traceback.print_exc()
 
 
