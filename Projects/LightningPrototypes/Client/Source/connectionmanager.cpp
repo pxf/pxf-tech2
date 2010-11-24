@@ -45,13 +45,35 @@ Packet *ConnectionManager::recv()
 	return NULL;
 }
 
-bool ConnectionManager::Send(Connection *_connection, char *_msg, int _length)
-{
-	// Blocking as hell
-	if (send(_connection->socket, _msg, length, 0) == -1) return false;
+bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
+{	
+	int sent = 0, left = _length;
+
+	do {
+		sent = send(_connection->socket, _msg + sent, left);
+		left = left - sent;
+	} while (sent < left);
+
+	return (sent != -1);
 }
 
 bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_id)
 {
+	Pxf::Util::Array<struct Connection*>::iterator i;
+
+	// Copypasta below, but faster than checking every iteration
+	if _is_session_id
+	{
+		for (i = m_Connections; i < m_Connections.end(); i++) {
+			if ((*i)->session_id == _id) return send(*i, _msg, _length);
+		}
+	}
+	else
+	{
+		for (i = m_Connections; i < m_Connections.end(); i++) {
+			if ((*i)->id == _id) return send(*i, _msg, _length);
+		}
+	}
+
 	return false;
 }
