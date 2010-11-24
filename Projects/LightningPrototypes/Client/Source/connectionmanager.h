@@ -3,6 +3,16 @@
 
 #include <Pxf/Util/Array.h>
 
+#ifdef CONF_FAMILY_UNIX
+	#include <sys/types.h>
+	#include <sys/socket.h>
+#endif
+
+#ifdef CONF_FAMILY_WINDOWS
+	#include <winsock.h>
+#endif
+
+
 enum ConnectionType {
 	CLIENT, TRACKER, INTERNAL
 };
@@ -21,6 +31,13 @@ struct Connection {
 };
 
 struct Packet {
+	Packet(Connection *_connection, int _length, char *_data)
+		: connection(_connection)
+		, length(_length)
+		, data(_data) // TODO: Allocate new memory and copy?
+	{}
+	~Packet();
+
 	Connection *connection;
 	int length;
 	char *data;
