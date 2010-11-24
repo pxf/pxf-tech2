@@ -37,8 +37,9 @@ class ConnectionManager
 		//int id2session_id(int _id);
 		//int id2socket(int _id);
 		//int session_id2socket(int _session_id);
+		Connection *get_connection(int _id, bool _is_session_id = false);
 		
-		Packet *select();
+		Packet *recv();
 
 		bool send(Connection *_connection, char *_msg, int _length);
 		bool send(int _id, char *_msg, int _length, bool _is_session_id = false);
