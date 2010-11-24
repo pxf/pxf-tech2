@@ -1,3 +1,7 @@
+#if defined(CONF_FAMILY_UNIX)
+#include <sys/socket.h>
+#endif
+
 #include "connectionmanager.h"
 
 Connection::Connection(ConnectionType _type, int _id)
@@ -54,11 +58,34 @@ Packet *ConnectionManager::recv()
 }
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
-{
-	return false;
+{	
+	int sent = 0, left = _length;
+
+	do {
+		sent = send(_connection->socket, _msg + sent, left);
+		left = left - sent;
+	} while (sent < left);
+
+	return (sent != -1);
 }
 
 bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_id)
 {
+	Pxf::Util::Array<struct Connection*>::iterator i;
+
+	// Copypasta below, but faster than checking every iteration
+	if (_is_session_id)
+	{
+		for (i = m_Connections; i < m_Connections.end(); i++) {
+			if ((*i)->session_id == _id) return send(*i, _msg, _length);
+		}
+	}
+	else
+	{
+		for (i = m_Connections; i < m_Connections.end(); i++) {
+			if ((*i)->id == _id) return send(*i, _msg, _length);
+		}
+	}
+
 	return false;
 }
