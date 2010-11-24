@@ -1,5 +1,5 @@
-#ifndef __FABRIC_APPGRAPHICSLIB_H__
-#define __FABRIC_APPGRAPHICSLIB_H__
+#ifndef __DERPEDITOR_APPGRAPHICSLIB_H__
+#define __DERPEDITOR_APPGRAPHICSLIB_H__
 
 #include "fabric/App.h"
 
@@ -7,7 +7,7 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#define FABRIC_GRAPHICSLIBNAME "gfx"
+#define LUA_APPGRAPHICSLIBNAME "gfx"
 
 namespace Fabric
 {
@@ -41,6 +41,6 @@ namespace Fabric
 
 	// Register lib
 	int luaopen_appgraphics(lua_State *L);
-} /* Fabric */
+} /* DERPEditor */
 
-#endif /* __FABRIC_APPGRAPHICSLIB_H__ */
+#endif /* __DERPEDITOR_APPGRAPHICSLIB_H__ */

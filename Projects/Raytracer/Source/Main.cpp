@@ -18,6 +18,8 @@
 #include <cstdlib>
 #include "Renderer.h"
 
+#include "Fabric/App.h"
+
 #include <zthread/PoolExecutor.h>
 
 using namespace Pxf;
@@ -41,7 +43,7 @@ public:
 
 	void run()
 	{
-		m_Kernel->Log(0, "doing id: %d", m_Task->task_id);
+		m_Kernel->Log(0, "processing task with id: %d", m_Task->task_id);
 		render_task(m_Task, m_Blob, m_Result);
 	}
 };
@@ -71,8 +73,8 @@ int main(int argc, char* argv[])
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
 	// Generate awesome red output buffer
-	const int w = 512;
-	const int h = 512;
+	const int w = 256;
+	const int h = 256;
 	const int channels = 3;
 	const int task_count = 8;
 	int task_size_w = w / task_count;
@@ -113,7 +115,7 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, sphere_mat2);
 
-	/*
+	
 	// Add 64 spheres on the floor, should slow down the render a bit. Compare with kd-tree.
 	for (int y = 0; y < 8; y++)
 	{
@@ -122,7 +124,7 @@ int main(int argc, char* argv[])
 			blob.primitives[blob.prim_count++] = new Sphere(Math::Vec3f(x-3.5f,-4.f,y+2), .5f, (x+y)%2 == 0 ? sphere_mat1 : sphere_mat2);
 		}
 	}
-	*/
+	
 
 	//blob.prim_count = 7;
 	
@@ -157,19 +159,26 @@ int main(int argc, char* argv[])
 
 	static const int THREAD_COUNT = 2;
 	ZThread::PoolExecutor thread_executor(THREAD_COUNT);
+	
+	
+	// Fabric/GUI stuff
+	Fabric::App* app = new Fabric::App(win, "fabric/main.lua");
+  app->Boot();
+	bool running = true;
+	
 
 	Pxf::Timer render_timer;
 	render_timer.Start();
 
 	bool is_done = false;
-	while(win->IsOpen())
+	while(win->IsOpen() && running)
 	{
 		inp->Update();
 		if (inp->GetLastKey() == Input::ESC)
 			break;
 			
 		// Setup view!!!!!!!!
-		Math::Mat4 prjmat = Math::Mat4::Ortho(0, win->GetWidth(), win->GetHeight(), 0, -0.1f, 100.0f);
+		Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
 		gfx->SetProjection(&prjmat);
 
 		if (!is_done)
@@ -240,10 +249,14 @@ int main(int argc, char* argv[])
 			win->SetTitle(title);
 		}
 		
+		running = app->Update();
+    app->Draw();
+		
 		inp->ClearLastKey();
 		win->Swap();
 	}
 	
+	delete app;
 	delete pbatch;
 	
 	return 0;

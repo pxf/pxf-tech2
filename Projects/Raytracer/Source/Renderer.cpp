@@ -237,11 +237,14 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 					float offset_spread = 1.0f - refl;
 					Math::Vec3f offset = Math::Vec3f(offset_x, offset_y, 0.f) * offset_spread;
 					Math::Vec3f N = closest_resp.n;
-					Math::Vec3f R = offset + N * (ray.d - 2.0f * Dot(ray.d, N));
-					intersection_response_t closest_resp;
+					Math::Vec3f R = N * (ray.d - 2.0f * Dot(ray.d, N));
+					
+					
 					ray_t refl_ray;
 					refl_ray.o = closest_resp.p + R*0.000000001;
 					refl_ray.d = Normalized(R);
+					
+					intersection_response_t closest_resp;
 					if (find_intersection(datablob, &refl_ray, &closest_prim, &closest_resp))
 					{
 						fpixel += (closest_prim->material.ambient * closest_prim->material.diffuse * refl) / 1.3f;
