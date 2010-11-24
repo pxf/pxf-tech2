@@ -8,6 +8,9 @@ enum ConnectionType {
 };
 
 struct Connection {
+	Connection(ConnectionType _type, int _id);
+	~Connection();
+
 	int socket;
 	char *buffer;
 	char *buffer_cur;
@@ -28,7 +31,13 @@ class ConnectionManager
 	private:
 		Pxf::Util::Array<struct Connection *> m_Connections;
 
+		int m_NextId;
+
 	public:
+		ConnectionManager()
+			: m_NextId(1)
+		{}
+
 		Connection *new_connection(ConnectionType _type);
 		bool bind_connection(Connection *_connection, char *_address, int _port);
 		bool connect_connection(Connection *_connection, char *_address, int _port);
