@@ -55,6 +55,9 @@ bool ray_aabb(ray_t* ray,aabb* box,intersection_response_t* resp)
 
 bool ray_triangle(Vec3f* data,ray_t* ray, intersection_response_t* resp)
 {
+	if(!data)
+		return false;
+
 	// STEP 1: Find point in the plane of the triangle
 	Vec3f A = data[0];
 	Vec3f B = data[1];

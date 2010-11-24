@@ -23,8 +23,17 @@ T* __cdecl Create()
 struct split_position {
 	float pos;
 	bool start_pos;
-
 	int left_count,right_count;
+};
+
+struct KDStack
+{
+	KDNode* node;
+	float t_min;
+	float t_max;
+
+	Pxf::Math::Vec3f v;
+	int next,prev;
 };
 
 class KDNode {
@@ -93,6 +102,8 @@ public:
 	{ m_Root = new KDNode(); }
 
 	KDNode* GetRoot() { return m_Root; }
+	KDStack* GetStack() { return m_KDStack; }
+
 	aabb GetAABB() { return m_AABB; }
 
 	bool Build(Primitive* _PrimitiveData, unsigned _NbrPrimitives);
@@ -108,8 +119,9 @@ public:
 	tree_statistics GetStats() { return m_Statistics; }
 
 private:
-	unsigned m_MaxDepth;
+	KDStack* m_KDStack;
 	KDNode* m_Root;
+	unsigned m_MaxDepth;
 	unsigned m_Dimensions;
 
 	aabb m_AABB;

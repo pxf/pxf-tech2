@@ -306,7 +306,7 @@ int main(int argc, char* argv[])
 	pData[3] = Primitive(Vec3f(50.0f,10.0f,0.0f),Vec3f(50.0f,60.0f,0.0f),Vec3f(100.0f,60.0f,0.0f));
 	//pData[4] = Primitive(Vec3f(130.0f,50.0f,0.0f),Vec3f(130.0f,50.0f,0.0f),Vec3f(180.0f,100.0f,0.0f)); */
 
-	tree->Build(pData,3);
+	tree->Build(pData,4);
 
 	PrintStatistics(tree);
 
@@ -376,8 +376,8 @@ int main(int argc, char* argv[])
 		draw_aabb(tree->GetRoot()->GetAABB());
 
 		ray_t test_ray;
-		test_ray.o = Vec3f(300.0f,0.0f,200.0f);
-		test_ray.d = Vec3f(-0.5f,0.1f,-0.5f);
+		test_ray.o = Vec3f(300.0f,-30.0f,-130.0f);
+		test_ray.d = Vec3f(-1.0f,0.0f,0.0f);
 		Normalize(test_ray.d);
 		test_ray.inv_d = Inverse(test_ray.d);
 		
