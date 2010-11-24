@@ -98,8 +98,9 @@ function gfx.redrawneeded(x,y,w,h)
 end
 
 -- load standard textures
-font = gfx.loadtexture(1024, "data/consolefont2.png")
-runtimeerror_tex = gfx.loadtexture(1,"data/runtimeerror.png")
+font = gfx.loadtexture(1024, "fabric/consolefont.png")
+--runtimeerror_tex = gfx.loadtexture(1,"data/runtimeerror.png")
+--runtimeerror_tex = gfx.loadtexture(1,"data/runtimeerror.png")
 
 -- error handling
 error_stop = false
@@ -117,7 +118,7 @@ end
 
 function draw_runtimeerror()
   gfx.loadidentity()
-  gfx.bindtexture(runtimeerror_tex)
+  gfx.bindtexture(0)
   --gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
   gfx.setcolor(1,1,1)
   gfx.drawcentered(app.width / 2, app.height / 2,512,256)
