@@ -17,6 +17,11 @@ Connection::~Connection()
 	// TODO: Close the socket.
 }
 
+Packet::~Packet()
+{
+	delete data;
+}
+
 Connection *ConnectionManager::new_connection(ConnectionType _type)
 {
 	Connection *connection = new Connection(_type, m_NextId++);
