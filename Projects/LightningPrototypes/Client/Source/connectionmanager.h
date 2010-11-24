@@ -1,0 +1,46 @@
+#ifndef _CONNECTIONMANAGER__H_
+#define _CONNECTIONMANAGER__H_
+
+#include <Pxf/Util/Array.h>
+
+enum ConnectionType {
+	CLIENT, TRACKER, INTERNAL
+};
+
+struct Connection {
+	int socket;
+	char *buffer;
+	int id; // locally set for connections.
+	int session_id; // globally set by tracker.
+	ConnectionType type;
+};
+
+struct Packet {
+	Connection *connection;
+	int length;
+	char *data;
+};
+
+class ConnectionManager
+{
+	private:
+		Pxf::Util::Array<struct Connection *> m_Connections;
+
+	public:
+		int new_connection();
+		bool bind_connection(int _id, char *_address, int _port);
+		bool connect_connection(int _id, char *_address, int _port);
+		
+		//int session_id2id(int _session_id);
+		//int id2session_id(int _id);
+		//int id2socket(int _id);
+		//int session_id2socket(int _session_id);
+		
+		Packet *select();
+
+		bool send(Connection *_connection, char *_msg, int _length);
+		//bool Send(int _session_id, _msg, _length);
+		bool send(int _id, char *_msg, int _length);
+};
+
+#endif  /* _CONNECTIONMANAGER__H_ */
