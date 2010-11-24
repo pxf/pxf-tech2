@@ -83,8 +83,8 @@ void App::Init()
   m_QuadBatchCount++;
   
   // Init GL settings
-  Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
-  m_gfx->SetProjection(&prjmat);
+  //Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
+  //m_gfx->SetProjection(&prjmat);
   
   //glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
   glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
@@ -330,6 +330,8 @@ void App::Draw()
     // Setup viewport and matrises
     // TODO: get window dimensions dynamically
     m_gfx->SetViewport(0, 0, m_win->GetWidth(), m_win->GetHeight());
+	  Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
+	  m_gfx->SetProjection(&prjmat);
     
     if (m_Running)
     {
