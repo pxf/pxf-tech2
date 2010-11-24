@@ -129,6 +129,10 @@ bool calc_light_contrib(Primitive *prim, Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *
 			{
 				att = 0.0f;
 			}
+			
+			// TODO: add better contributing calculations
+			float ndotl = Dot(*n, light_ray.d);
+			*res += prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * att) / (float)datablob->light_count;
 		
 		// Area lights
 		} else if (datablob->lights[l]->GetType() == AreaLightPrim)
@@ -162,14 +166,16 @@ bool calc_light_contrib(Primitive *prim, Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *
 					if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
 					{
 						att -= (1.0f / ((float)light->num_rays * (float)light->num_rays));
+					} else {
+						// TODO: add better contributing calculations
+						float ndotl = Dot(*n, light_ray.d);
+						*res += prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * ((1.0f / ((float)light->num_rays * (float)light->num_rays)))) / (float)datablob->light_count;
 					}
 				}
 			}
 		}
 		
-		// TODO: add better contributing calculations
-		float ndotl = Dot(*n, light_ray.d);
-		*res += prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * att) / (float)datablob->light_count;
+
 	}
 	
 	return true;

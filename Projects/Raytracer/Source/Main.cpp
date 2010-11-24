@@ -6,6 +6,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Random.h>
 #include <Pxf/Base/Memory.h>
+#include <Pxf/Math/Math.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/WindowSpecifications.h>
@@ -111,6 +112,18 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), plane_mat_white); // back
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, sphere_mat2);
+
+	/*
+	// Add 64 spheres on the floor, should slow down the render a bit. Compare with kd-tree.
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			blob.primitives[blob.prim_count++] = new Sphere(Math::Vec3f(x-3.5f,-4.f,y+2), .5f, (x+y)%2 == 0 ? sphere_mat1 : sphere_mat2);
+		}
+	}
+	*/
+
 	//blob.prim_count = 7;
 	
 	// generate a couple of random samples
