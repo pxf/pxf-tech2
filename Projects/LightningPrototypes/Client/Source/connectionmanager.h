@@ -10,6 +10,8 @@ enum ConnectionType {
 struct Connection {
 	int socket;
 	char *buffer;
+	char *buffer_cur;
+	int buffer_size;
 	int id; // locally set for connections.
 	int session_id; // globally set by tracker.
 	ConnectionType type;
@@ -27,9 +29,9 @@ class ConnectionManager
 		Pxf::Util::Array<struct Connection *> m_Connections;
 
 	public:
-		int new_connection(ConnectionType _type);
-		bool bind_connection(int _id, char *_address, int _port);
-		bool connect_connection(int _id, char *_address, int _port);
+		Connection *new_connection(ConnectionType _type);
+		bool bind_connection(Connection *_connection, char *_address, int _port);
+		bool connect_connection(Connection *_connection, char *_address, int _port);
 		
 		//int session_id2id(int _session_id);
 		//int id2session_id(int _id);
@@ -39,8 +41,7 @@ class ConnectionManager
 		Packet *select();
 
 		bool send(Connection *_connection, char *_msg, int _length);
-		//bool Send(int _session_id, _msg, _length);
-		bool send(int _id, char *_msg, int _length);
+		bool send(int _id, char *_msg, int _length, bool _is_session_id = false);
 };
 
 #endif  /* _CONNECTIONMANAGER__H_ */
