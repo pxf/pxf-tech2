@@ -4,6 +4,7 @@
 #include <Pxf/Base/Debug.h>
 
 #include "client.h"
+#include "connectionmanager.h"
 
 using namespace Pxf;
 using namespace Util;
