@@ -10,6 +10,13 @@ Connection::Connection(ConnectionType _type, int _id)
 	, type(_type)
 {}
 
+Connection::~Connection()
+{
+	if (buffer_size != 0)
+		delete buffer;
+	// TODO: Close the socket.
+}
+
 Connection *ConnectionManager::new_connection(ConnectionType _type)
 {
 	Connection *connection = new Connection(_type, m_NextId++);
