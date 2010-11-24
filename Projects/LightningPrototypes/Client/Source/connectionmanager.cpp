@@ -15,6 +15,11 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	return false;
 }
 
+Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
+{
+	return NULL;
+}
+
 Packet *ConnectionManager::recv()
 {
 	return NULL;
