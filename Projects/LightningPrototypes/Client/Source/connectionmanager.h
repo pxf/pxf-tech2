@@ -11,6 +11,7 @@
 #if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
 	#include <sys/socket.h>
+	#include <unistd.h>
 	#include <netdb.h>
 #endif
 
@@ -33,6 +34,7 @@ struct Connection {
 	int buffer_size;
 	int id; // locally set for connections.
 	int session_id; // globally set by tracker.
+	bool bound;
 	ConnectionType type;
 };
 
@@ -64,11 +66,8 @@ class ConnectionManager
 		Connection *new_connection(ConnectionType _type);
 		bool bind_connection(Connection *_connection, char *_address, int _port);
 		bool connect_connection(Connection *_connection, char *_address, int _port);
+		void add_incoming_connection(int _socket, ConnectionType _type);
 		
-		//int session_id2id(int _session_id);
-		//int id2session_id(int _id);
-		//int id2socket(int _id);
-		//int session_id2socket(int _session_id);
 		Connection *get_connection(int _id, bool _is_session_id = false);
 		
 		Packet *recv();

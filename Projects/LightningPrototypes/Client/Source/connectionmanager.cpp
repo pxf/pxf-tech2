@@ -10,13 +10,15 @@ Connection::Connection(ConnectionType _type, int _id)
 	, id(_id)
 	, session_id(0)
 	, type(_type)
+	, bound(false)
 {}
 
 Connection::~Connection()
 {
 	if (buffer_size != 0)
 		delete buffer;
-	// TODO: Close the socket.
+
+	close(socket);
 }
 
 Packet::~Packet()
@@ -31,6 +33,13 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 	m_Connections.push_back(connection);
 
 	return connection;
+}
+
+void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _type)
+{
+	Connection *connection = new_connection(_type);
+
+	connection->socket = _socket;
 }
 
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
@@ -61,6 +70,9 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 		fprintf(stderr, "unable to bind.");
 		return false;
 	}
+
+	_connection->socket = sck;
+	_connection->bound = true;
 
 	return false;
 }
