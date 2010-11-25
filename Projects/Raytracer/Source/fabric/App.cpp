@@ -483,6 +483,11 @@ bool App::CallScriptFunc(const char* _funcname, int nargs)
   return HandleErrors(lua_pcall(L, nargs, 0, -2-nargs));
 }
 
+void App::BindExternalFunction(const char* _funcname, lua_CFunction _funcp)
+{
+	Pxf::Message("aoe", "added a new function: %s", _funcname);
+	m_ExternalFuncs.insert( std::make_pair(_funcname, _funcp));
+}
 
 
 ///////////////////////////////////////////////////////////////////
@@ -524,6 +529,13 @@ void App::_register_own_callbacks()
 	luaopen_appinput(L);
 	luaopen_appgraphics(L);
 	luaopen_appsound(L);
+	
+	// Iterate all external functions
+	for(Util::Map<const char*, lua_CFunction>::iterator iter = m_ExternalFuncs.begin(); iter != m_ExternalFuncs.end(); ++iter)
+	{
+		lua_pushcfunction(L, (*iter).second);
+		lua_setglobal(L, (*iter).first);
+	}
 
 	// Sockets
 	//luaopen_socket_core(L);

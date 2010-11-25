@@ -5,6 +5,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Timer.h>
+#include <Pxf/Util/Map.h>
 
 #include <Pxf/Graphics/Window.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
@@ -93,6 +94,10 @@ namespace Fabric
         // Error handling
         bool HandleErrors(int _error);
         bool CallScriptFunc(const char* _funcname, int nargs = 0);
+
+				// Bind external functions
+				void BindExternalFunction(const char* _funcname, lua_CFunction _funcp);
+				Pxf::Util::Map<const char*, lua_CFunction> m_ExternalFuncs;
         
         // Pointers to engine systems
         Pxf::Graphics::GraphicsDevice* m_gfx;
