@@ -1,15 +1,20 @@
 #ifndef _CONNECTIONMANAGER__H_
 #define _CONNECTIONMANAGER__H_
 
-#include <Pxf/Util/Array.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-#ifdef CONF_FAMILY_UNIX
+#include <Pxf/Util/Array.h>
+#include <Pxf/Base/Config.h>
+
+#if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
 	#include <sys/socket.h>
 	#include <netdb.h>
 #endif
 
-#ifdef CONF_FAMILY_WINDOWS
+#if defined(CONF_FAMILY_WINDOWS)
 	#include <winsock.h>
 #endif
 

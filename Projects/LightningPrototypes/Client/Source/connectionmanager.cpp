@@ -43,8 +43,33 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 bool ConnectionManager::connect_connection(Connection *_connection, char *_address, int _port)
 {
 	// Create the socket.
+	int status, sck;
+	struct addrinfo hints, *res;
+	char port[6];
 
-	return false;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	sprintf(port, "%d\0", _port);
+
+	if ((status == getaddrinfo(_address, port, &hints, &res)) != 0)
+	{
+		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
+		return false;
+	}
+
+	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	if (connect(sck, res->ai_addr, res->ai_addrlen) != 0)
+	{
+		fprintf(stderr, "failed to connect.\n");
+		return false;
+	}
+
+	_connection->socket = sck;
+
+	return true;
 }
 
 Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
