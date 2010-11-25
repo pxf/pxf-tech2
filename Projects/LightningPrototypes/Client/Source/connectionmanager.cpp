@@ -35,7 +35,32 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
 {
+	// TODO: Remove _address... is it necessary?
 	// TODO: Check whether the connection exists in our m_Connection or not.
+	int status, sck;
+	struct addrinfo hints, *res;
+	char port[7];
+	
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	if ((status = getaddrinfo(NULL, port, &hints, &res)) != 0)
+	{
+		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
+		return false;
+	}
+
+	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
+	sprintf(port, "%d\0", _port);
+
+	if (bind(sck, res->ai_addr, res->ai_addrlen) != 0)
+	{
+		fprintf(stderr, "unable to bind.");
+		return false;
+	}
 
 	return false;
 }
@@ -45,7 +70,7 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	// Create the socket.
 	int status, sck;
 	struct addrinfo hints, *res;
-	char port[6];
+	char port[7];
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
