@@ -8,6 +8,7 @@
 #include <Pxf/Util/Array.h>
 #include <Pxf/Util/Map.h>
 #include <Pxf/Base/Config.h>
+#include <Pxf/Base/Memory.h>
 
 #if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
@@ -63,6 +64,8 @@ class ConnectionManager
 		int m_max_socketfd;
 		fd_set m_read_sockets;
 
+		void clear_connbuf(Connection *_connection);
+
 	public:
 		ConnectionManager();
 
@@ -74,7 +77,7 @@ class ConnectionManager
 		
 		Connection *get_connection(int _id, bool _is_session_id = false);
 		
-		Packet *recv();
+		Pxf::Util::Array<Packet*> *recv();
 
 		bool send(Connection *_connection, char *_msg, int _length);
 		bool send(int _id, char *_msg, int _length, bool _is_session_id = false);

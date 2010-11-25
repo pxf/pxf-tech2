@@ -147,8 +147,9 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 	return NULL;
 }
 
-Packet *ConnectionManager::recv()
+Pxf::Util::Array<Packet*> *ConnectionManager::recv()
 {
+	Pxf::Util::Array<Packet*>* packets = new Pxf::Util::Array<Packet*>();
 	struct timeval timeout;
 
 	timeout.tv_sec = 0;
@@ -163,10 +164,102 @@ Packet *ConnectionManager::recv()
 		if (FD_ISSET(i, &m_read_sockets))
 		{
 			c = m_socketfdToConnection[i];
-			
-		}
+			if (c->bound)
+			{
+				int new_connection_fd;
+				struct sockaddr remoteaddr;
+				socklen_t addrlen = sizeof(&remoteaddr);
+				new_connection_fd = accept(i, &remoteaddr, &addrlen);
+
+				printf("Incoming connection.\n"); // TODO: Print address string, using struct above
+
+				if (c->type == TRACKER)
+				{
+					// Check that the tracker isn't connected already
+					Pxf::Util::Array<struct Connection*>::iterator j;
+					
+					bool tracker_connected = false;
+					for (j = m_Connections.begin(); j != m_Connections.end(); j++) {
+						if ((*j)->type == TRACKER) {
+							tracker_connected = true;
+							break;
+						}
+					}
+
+					if (tracker_connected) {
+						printf("Tracker trying to connect, but is already connected!");
+						continue;
+					}
+
+					add_incoming_connection(new_connection_fd, TRACKER);
+				}
+				else if (c->type == CLIENT)
+				{
+					// TODO: Tedious check that client already isn't connected
+					add_incoming_connection(new_connection_fd, CLIENT);
+				}
+			} else { // if (c->bound)
+				int recv_bytes;
+
+				if (c->buffer_size == 0)
+				{
+					// New message, read message length
+					recv_bytes = recv(c->socket, (void*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
+					if (recv_bytes == 0)
+					{
+						// TODO: Terminate connection
+						c->buffer_size = 0;
+						continue;
+					}
+
+					c->buffer = (char*)Pxf::MemoryAllocate(c->buffer_size);
+					
+					recv_bytes = recv(c->socket, (void*)(c->buffer), c->buffer_size, 0);
+
+					if (recv_bytes == c->buffer_size)
+					{
+						// Entire message recieved, continue to next available socket
+						Packet* p = new Packet(c, c->buffer_size, c->buffer);
+						packets->push_back(p);
+						clear_connbuf(c);
+						continue;
+					} else {
+						// More to recieve next run..
+						c->buffer_cur = c->buffer + recv_bytes;
+						continue;					
+					}
+				}
+				else
+				{
+					// Part of message in transit
+					int size_left = c->buffer_size - (c->buffer_cur-c->buffer);
+					recv_bytes = recv(c->socket, c->buffer_cur, size_left);
+
+					if (recv_bytes == 0)
+					{
+						// TODO: Terminate connection
+						Pxf::MemoryFree(c->buffer);
+						clear_connbuf(c);
+						continue;
+					}
+
+					if (recv_bytes == size_left)
+					{
+						// Entire message recieved, continue...
+						Packet* p = new Packet(c, c->buffer_size, c->buffer);
+						packets->push_back(p);
+						clear_connbuf(c);
+						continue;        
+					} else {
+						// Not done yet
+						c->buffer_cur += recv_bytes;
+					}
+				} // New or old message
+			} // if (c->bound)
+		} //if (FD_ISSET)
 	}
 
+	return packets;
 }
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
@@ -199,5 +292,13 @@ void ConnectionManager::set_highest_fd()
 	}
 
 	m_max_socketfd = max;
+}
+
+/* Resets the buffer variables and pointers. Will not deallocate any data. */
+void ConnectionManager::clear_connbuf(Connection *_connection)
+{
+	_connection->buffer = NULL;
+	_connection->buffer_cur = NULL;
+	_connection->buffer_size = 0;
 }
 
