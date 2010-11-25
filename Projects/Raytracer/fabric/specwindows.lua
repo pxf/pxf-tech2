@@ -11,7 +11,19 @@ function spawn_error_dialog(msg)
 end
 
 function spawn_toolwindow()
-  local tool_window = gui:create_window("tool_window", 0,0,300,200, false, "Lightning Demo", true)
+  local tool_window = gui:create_window("tool_window", settings.data.toolpos[1],settings.data.toolpos[2],300,200, false, "Lightning Demo", true)
+  -- store move pos
+  tool_window.s_mousedrag = tool_window.mousedrag
+  tool_window.label.s_mousedrag = tool_window.label.mousedrag
+  tool_window.panel.s_mousedrag = tool_window.panel.mousedrag
+  function tool_window:mousedrag(dx,dy,button)
+    self:s_mousedrag(dx,dy,button)
+    settings.data.toolpos[1] = tool_window.drawbox.x
+    settings.data.toolpos[2] = tool_window.drawbox.y
+  end
+  tool_window.label.mousedrag = tool_window.mousedrag
+  tool_window.panel.mousedrag = tool_window.mousedrag
+  
   local tool_stack = gui:create_verticalstack(10,5,400,20)
   tool_window.panel:addwidget(tool_stack)
   
@@ -20,7 +32,8 @@ function spawn_toolwindow()
   									function () 	
   										app.reboot() 
   									end}},
-                     {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () app.quit() end}},
+  									{"Save Settings", {tooltip = "Saves settings to disk.", onclick = function () settings:save() end}},
+                     {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () settings:save(); app.quit() end}},
              }
   
   -- menu bar
@@ -31,6 +44,8 @@ function spawn_toolwindow()
   -- reboot button
   local reboot_button = gui:create_labelbutton(0,0, 200, 32, "Reboot application", function() app.reboot() end)
   tool_stack:addwidget(reboot_button)
+  
+
   
   gui.windows:add(tool_window)
 end
