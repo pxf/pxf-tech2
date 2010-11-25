@@ -20,6 +20,8 @@
 
 #include "Fabric/App.h"
 
+#include <RaytracerClient.h>
+
 #include <zthread/PoolExecutor.h>
 
 using namespace Pxf;
@@ -48,6 +50,12 @@ public:
 	}
 };
 
+int test_cb(lua_State* L)
+{
+	lua_pushstring(L, "sup?");
+	return 1;
+}
+
 int main(int argc, char* argv[])
 {
 	Pxf::RandSetSeed(time(NULL));
@@ -71,6 +79,13 @@ int main(int argc, char* argv[])
 	spec.Resizeable = false;
 	spec.VerticalSync = true;
 	Graphics::Window* win = gfx->OpenWindow(&spec);
+
+
+	// Raytracer client test
+	//------------------------
+	RaytracerClient client;
+	client.Run();
+	//------------------------
 	
 	// Generate awesome red output buffer
 	const int w = 256;
@@ -163,6 +178,7 @@ int main(int argc, char* argv[])
 	
 	// Fabric/GUI stuff
 	Fabric::App* app = new Fabric::App(win, "fabric/main.lua");
+	app->BindExternalFunction("testcb", test_cb);
   app->Boot();
 	bool running = true;
 	

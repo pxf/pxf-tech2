@@ -43,4 +43,11 @@ int64 Platform::GetTime()
 	return ((newTimeStamp - m_Timestamp) * 1000) / m_Frequency;	
 }
 
+int32 Platform::GetNumberOfProcessors()
+{
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
+	return si.dwNumberOfProcessors;
+}
+
 #endif // CONF_FAMILY_WINDOWS

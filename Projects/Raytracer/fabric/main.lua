@@ -18,6 +18,8 @@ for k,v in pairs(settings.data) do
   print(k,v)
 end
 
+print(testcb())
+
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()
