@@ -3,7 +3,7 @@
 #define MAX_SEND_ITERATIONS 20
 
 Connection::Connection(ConnectionType _type, int _id)
-	: socket(0)
+	: socket(-1)
 	, buffer(NULL)
 	, buffer_cur(NULL)
 	, buffer_size(0)
@@ -86,6 +86,16 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 
 bool ConnectionManager::remove_connection(Connection *_connection)
 {
+	bool have_socket = (_connection->socket != -1);
+
+	if (have_socket)
+		FD_CLR(_connection->socket, &m_read_sockets);
+
+	delete _connection;
+
+	if (have_socket)
+		set_highest_fd();
+
 	return false;
 }
 
@@ -143,7 +153,7 @@ Packet *ConnectionManager::recv()
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
 
-	select(m_max_socketfd, m_read_sockets, NULL, NULL, timeout);
+//	select(m_max_socketfd, m_read_sockets, NULL, NULL, timeout);
 	return NULL;
 }
 
@@ -164,5 +174,18 @@ bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_
 	Connection *c = get_connection(_id, _is_session_id);
 	return (c == NULL) ? false : send(c, _msg, _length);
 
+}
+
+void ConnectionManager::set_highest_fd()
+{
+	Pxf::Util::Array<struct Connection*>::iterator i;
+	int max;
+
+	for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
+		if (max < (*i)->socket)
+			max = (*i)->socket;
+	}
+
+	m_max_socketfd = max;
 }
 

@@ -76,6 +76,8 @@ class ConnectionManager
 
 		bool send(Connection *_connection, char *_msg, int _length);
 		bool send(int _id, char *_msg, int _length, bool _is_session_id = false);
+
+		void set_highest_fd();
 };
 
 #endif  /* _CONNECTIONMANAGER__H_ */
