@@ -20,6 +20,8 @@
 
 #include "Fabric/App.h"
 
+#include <RaytracerClient.h>
+
 #include <zthread/PoolExecutor.h>
 
 using namespace Pxf;
@@ -77,6 +79,13 @@ int main(int argc, char* argv[])
 	spec.Resizeable = false;
 	spec.VerticalSync = true;
 	Graphics::Window* win = gfx->OpenWindow(&spec);
+
+
+	// Raytracer client test
+	//------------------------
+	RaytracerClient client;
+	client.Run();
+	//------------------------
 	
 	// Generate awesome red output buffer
 	const int w = 256;

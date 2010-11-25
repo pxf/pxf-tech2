@@ -1,8 +1,6 @@
-#if defined(CONF_FAMILY_UNIX)
-#include <sys/socket.h>
-#endif
-
 #include "connectionmanager.h"
+
+#define MAX_SEND_ITERATIONS 20
 
 Connection::Connection(ConnectionType _type, int _id)
 	: socket(0)
@@ -49,6 +47,13 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 
 Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 {
+	Pxf::Util::Array<struct Connection*>::iterator i;
+
+	for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
+		if (((_is_session_id) ? (*i)->session_id : (*i)->id) == _id)
+			return (*i);
+	}
+	
 	return NULL;
 }
 
@@ -59,33 +64,20 @@ Packet *ConnectionManager::recv()
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
-	int sent = 0, left = _length;
+	int i=0, offset=0;
 
 	do {
-		sent = send(_connection->socket, _msg + sent, left);
-		left = left - sent;
-	} while (sent < left);
+		offset += send(_connection->socket, _msg+offset, _length-offset);
+		i++;
+	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
 
-	return (sent != -1);
+	return (offset <= _length);
 }
 
 bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_id)
 {
-	Pxf::Util::Array<struct Connection*>::iterator i;
+	Connection *c = get_connection(_id, _is_session_id);
+	return (c == NULL) ? false : send(c, _msg, _length);
 
-	// Copypasta below, but faster than checking every iteration
-	if (_is_session_id)
-	{
-		for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
-			if ((*i)->session_id == _id) return send(*i, _msg, _length);
-		}
-	}
-	else
-	{
-		for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
-			if ((*i)->id == _id) return send(*i, _msg, _length);
-		}
-	}
-
-	return false;
 }
+
