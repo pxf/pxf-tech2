@@ -20,6 +20,7 @@ namespace Pxf{
 
 			void SetResizeCallback(WindowSizeCallback fun);
 			void SetTitle(const char *_title);
+			void SetWindowSize(int _Width, int _Height);
 
 			int GetFPS();
 			int GetWidth();

@@ -49,6 +49,14 @@ function escape_backslashes(str)
 end
 
 ----------------------------
+-- window resizing
+function app.setwindimensions(w,h)
+  app.width = w
+  app.height = h
+  app._setwindimensions(w,h)
+end
+
+----------------------------
 -- logging functionality
 backlog = {data = {}, max = 1024}
 function backlog:print(...)

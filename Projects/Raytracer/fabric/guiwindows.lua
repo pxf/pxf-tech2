@@ -241,6 +241,24 @@ function gui:create_window(id,x,y,w,h,modal,label,live_forever)
 			window.drawbox.y = window.drawbox.y + dy
 			window.hitbox.x = window.hitbox.x + dx
 			window.hitbox.y = window.hitbox.y + dy
+			
+			if window.hitbox.x < 0 then
+			  window.drawbox.x = 0
+			  window.hitbox.x = 0
+		  end
+		  if window.hitbox.y < 0 then
+			  window.drawbox.y = 0
+			  window.hitbox.y = 0
+		  end
+		  if window.hitbox.x + window.hitbox.w > app.width then
+			  window.drawbox.x = app.width - window.hitbox.w
+			  window.hitbox.x = app.width - window.hitbox.w
+		  end
+		  if window.hitbox.y + window.hitbox.h > app.height then
+			  window.drawbox.y = app.height - window.hitbox.h
+			  window.hitbox.y = app.height - window.hitbox.h
+		  end
+		  
 			window:needsredraw()
 		end
 	end

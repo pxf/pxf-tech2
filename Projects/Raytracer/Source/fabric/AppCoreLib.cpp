@@ -20,6 +20,20 @@ int Fabric::app_getwindimensions(lua_State *L)
   return 0;
 }
 
+int Fabric::app_setwindimensions(lua_State *L)
+{
+  // app._setwindimensions(w,h) -- w,h = width and height of window
+  if (lua_gettop(L) == 2)
+  {
+    App::GetInstance()->m_win->SetWindowSize(lua_tonumber(L, 1), lua_tonumber(L, 2));
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to getwindimensions function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int Fabric::app_reboot(lua_State *L)
 {
   // app.reboot() -- reboots the application
@@ -203,15 +217,16 @@ int Fabric::luaopen_appcore (lua_State *L) {
     {"quit",   app_quit},
     //{"traceback",   app_traceback},
     {"getwindimensions",   app_getwindimensions},
+		{"_setwindimensions",   app_setwindimensions},
     
     {"getmemusage",   app_getmemusage},
     {"savedialog",   app_savedialog},
     {"opendialog",   app_opendialog},
-	{"getcwd",       app_getcwd},
+		{"getcwd",       app_getcwd},
 	
-	{"hashfile", util_hashfile},
+		{"hashfile", util_hashfile},
     
-	{"_setrenderoption",   app__setrenderoption},
+		{"_setrenderoption",   app__setrenderoption},
     {"_getrenderoption",   app__getrenderoption},
     {NULL, NULL}
     };

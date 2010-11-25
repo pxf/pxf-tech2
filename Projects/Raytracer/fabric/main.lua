@@ -7,6 +7,8 @@ require("fabric/specwindows")
 gui:init()
 spawn_toolwindow()
 
+app.setwindimensions(512,512)
+
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()

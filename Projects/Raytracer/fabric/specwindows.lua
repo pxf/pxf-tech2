@@ -11,7 +11,7 @@ function spawn_error_dialog(msg)
 end
 
 function spawn_toolwindow()
-  local tool_window = gui:create_window("tool_window", app.width / 2 - 200,app.height / 2 - 200,400,400, false, "Lightning Demo", true)
+  local tool_window = gui:create_window("tool_window", 0,0,300,200, false, "Lightning Demo", true)
   local tool_stack = gui:create_verticalstack(10,5,400,20)
   tool_window.panel:addwidget(tool_stack)
   
@@ -20,7 +20,7 @@ function spawn_toolwindow()
   									function () 	
   										app.reboot() 
   									end}},
-          {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () app.quit() end}},
+                     {"Quit", {tooltip = "Quit the application.", shortcut = "Esc", onclick = function () app.quit() end}},
              }
   
   -- menu bar
