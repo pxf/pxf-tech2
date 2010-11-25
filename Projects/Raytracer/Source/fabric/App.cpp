@@ -535,7 +535,6 @@ void App::_register_own_callbacks()
 	{
 		lua_pushcfunction(L, (*iter).second);
 		lua_setglobal(L, (*iter).first);
-		//lua_call(L, 1, 0);
 	}
 
 	// Sockets
