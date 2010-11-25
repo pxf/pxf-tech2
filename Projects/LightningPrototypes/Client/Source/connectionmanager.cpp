@@ -67,7 +67,7 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 	int i=0, offset=0;
 
 	do {
-		offset += send(_connection->socket, _msg+offset, _length-offset);
+		offset += send(_connection->socket, _msg+offset, _length-offset, 0);
 		i++;
 	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
 
