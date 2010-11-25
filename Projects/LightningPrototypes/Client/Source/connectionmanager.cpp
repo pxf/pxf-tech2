@@ -153,7 +153,7 @@ Packet *ConnectionManager::recv()
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
 
-//	select(m_max_socketfd, m_read_sockets, NULL, NULL, timeout);
+	select(m_max_socketfd, m_read_sockets, NULL, NULL, timeout);
 	return NULL;
 }
 
