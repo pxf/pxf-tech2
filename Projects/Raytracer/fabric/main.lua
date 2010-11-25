@@ -1,13 +1,22 @@
 require("fabric/guibase")
 require("fabric/guistdwidgets")
 require("fabric/specwindows")
+require("fabric/settingshandler")
 
 ----------------------------------------------
 -- init gui
 gui:init()
 spawn_toolwindow()
 
-app.setwindimensions(512,512)
+----------------------------------------------
+-- settings
+settings = new_settings_handler("settings.ini", {rendersize = 512, scale = 1})
+settings:load()
+settings:save()
+
+for k,v in pairs(settings.data) do
+  print(k,v)
+end
 
 ----------------------------------------------
 -- initial draw
@@ -19,5 +28,4 @@ end
 
 function draw(force)
   gui:draw(force)
-  --gui:draw_custom_cursor(force)
 end
