@@ -6,6 +6,7 @@
 #ifdef CONF_FAMILY_UNIX
 	#include <sys/types.h>
 	#include <sys/socket.h>
+	#include <netdb.h>
 #endif
 
 #ifdef CONF_FAMILY_WINDOWS

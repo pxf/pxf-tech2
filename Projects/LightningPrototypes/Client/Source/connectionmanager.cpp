@@ -40,6 +40,8 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 
 bool ConnectionManager::connect_connection(Connection *_connection, char *_address, int _port)
 {
+	// Create the socket.
+
 	return false;
 }
 
