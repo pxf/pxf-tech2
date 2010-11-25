@@ -114,6 +114,7 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	_connection->socket = sck;
 
 	FD_SET(sck, &m_read_sockets);
+	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
 	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
 
 	return true;
@@ -138,8 +139,19 @@ Packet *ConnectionManager::recv()
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
 
-	select(m_max_socketfd, m_read_sockets, NULL, NULL, timeout);
-	return NULL;
+	// TODO: Log error
+	if (select(m_max_socketfd, &m_read_sockets, NULL, NULL, &timeout) == -1) return NULL;
+
+	Connection *c;
+	for (int i=0; i <= m_max_socketfd; i++) 
+	{
+		if (FD_ISSET(i, &m_read_sockets))
+		{
+			c = m_socketfdToConnection[i];
+			
+		}
+	}
+
 }
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)

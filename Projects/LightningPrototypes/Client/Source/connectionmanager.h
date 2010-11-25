@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <Pxf/Util/Array.h>
+#include <Pxf/Util/Map.h>
 #include <Pxf/Base/Config.h>
 
 #if defined(CONF_FAMILY_UNIX)
@@ -56,6 +57,7 @@ class ConnectionManager
 {
 	private:
 		Pxf::Util::Array<struct Connection *> m_Connections;
+		Pxf::Util::Map<int, struct Connection *> m_socketfdToConnection;
 
 		int m_NextId;
 		int m_max_socketfd;
