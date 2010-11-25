@@ -74,21 +74,8 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 
 bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_id)
 {
-	Pxf::Util::Array<struct Connection*>::iterator i;
+	Connection *c = get_connection(_id, _is_session_id);
+	return (c == NULL) ? false : send(c, _msg, _length);
 
-	// Copypasta below, but faster than checking every iteration
-	if (_is_session_id)
-	{
-		for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
-			if ((*i)->session_id == _id) return send(*i, _msg, _length);
-		}
-	}
-	else
-	{
-		for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
-			if ((*i)->id == _id) return send(*i, _msg, _length);
-		}
-	}
-
-	return false;
 }
+
