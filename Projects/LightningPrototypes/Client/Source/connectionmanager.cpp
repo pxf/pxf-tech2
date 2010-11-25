@@ -77,6 +77,11 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	return false;
 }
 
+bool ConnectionManager::remove_connection(Connection *_connection)
+{
+	return false;
+}
+
 bool ConnectionManager::connect_connection(Connection *_connection, char *_address, int _port)
 {
 	// Create the socket.

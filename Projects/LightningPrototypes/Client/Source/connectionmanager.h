@@ -67,6 +67,7 @@ class ConnectionManager
 		bool bind_connection(Connection *_connection, char *_address, int _port);
 		bool connect_connection(Connection *_connection, char *_address, int _port);
 		void add_incoming_connection(int _socket, ConnectionType _type);
+		bool remove_connection(Connection *_connection);
 		
 		Connection *get_connection(int _id, bool _is_session_id = false);
 		
