@@ -24,6 +24,7 @@ namespace Pxf{
 
 			virtual void SetResizeCallback(WindowSizeCallback fun) = 0;
 			virtual void SetTitle(const char *_title) = 0;
+			virtual void SetWindowSize(int _Width, int _Height) = 0;
 
 			virtual int GetFPS() = 0;
 			virtual int GetWidth() = 0;

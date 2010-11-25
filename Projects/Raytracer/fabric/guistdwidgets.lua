@@ -1062,7 +1062,8 @@ function gui:create_menubar(x,y,w,menus)
   function wid:mouseover(mx,my)
     if (self.state == "active") then
       -- find correct menu item
-      local dw = mx - self.drawbox.x
+      local offset_x,offset_y = self:find_abspos(self)
+      local dw = mx - self.drawbox.x - offset_x
       local i = math.ceil((dw / self.menuwidth) * #self.menus)
 
       if not (i == self.highlightid) then
@@ -1076,16 +1077,15 @@ function gui:create_menubar(x,y,w,menus)
           end
         
           -- get correct spawn position
-          local offset = 20
+          local offset = 0
           for k,v in pairs(self.menus) do          
             if (self.menus[i] == v) then
               break
             end
             offset = offset + (#v[1]*8) + self.stdpadding
           end
-        
           -- this is always a submenu          
-          gui:spawn_primenu(self,offset,self.drawbox.y+self.drawbox.h,self.menus[i][2])
+          gui:spawn_primenu(self,offset + offset_x,self.drawbox.y+self.drawbox.h+offset_y,self.menus[i][2])
         end
       end
     end
@@ -1115,7 +1115,8 @@ function gui:create_menubar(x,y,w,menus)
     if (button == inp.MOUSE_LEFT) then
       
       -- find correct menu item
-      local dw = mx - self.drawbox.x
+      local offset_x,offset_y = self:find_abspos(self)
+      local dw = mx - self.drawbox.x - offset_x
       local i = math.ceil((dw / self.menuwidth) * #self.menus)
       if not (i == self.highlightid) then
         self.state = "active"
@@ -1129,7 +1130,7 @@ function gui:create_menubar(x,y,w,menus)
           end
 
           -- get correct spawn position
-          local offset = 20
+          local offset = 0
           for k,v in pairs(self.menus) do          
             if (self.menus[i] == v) then
               break
@@ -1138,7 +1139,7 @@ function gui:create_menubar(x,y,w,menus)
           end
 
           -- this is always a submenu          
-          gui:spawn_primenu(self,offset,self.drawbox.y+self.drawbox.h,self.menus[i][2])
+          gui:spawn_primenu(self,offset+offset_x,self.drawbox.y+self.drawbox.h+offset_y,self.menus[i][2])
         end
       end
       
@@ -1159,7 +1160,7 @@ function gui:create_menubar(x,y,w,menus)
       local old_a = gfx.getalpha()            
                     
       -- loop through all menu items
-      local item_x = 20
+      local item_x = 0
       for k,v in pairs(self.menus) do
         if (k == self.highlightid) then
           
