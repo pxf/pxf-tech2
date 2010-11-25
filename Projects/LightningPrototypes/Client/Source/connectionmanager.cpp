@@ -40,6 +40,8 @@ ConnectionManager::ConnectionManager()
 	m_NextId = 1;
 	m_max_socketfd = 0;
 	FD_ZERO(&m_read_sockets);
+
+	m_Kernel = Pxf::Kernel::GetInstance();
 }
 
 void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _type)
@@ -171,7 +173,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets()
 				socklen_t addrlen = sizeof(&remoteaddr);
 				new_connection_fd = accept(i, &remoteaddr, &addrlen);
 
-				printf("Incoming connection.\n"); // TODO: Print address string, using struct above
+				m_Kernel->Log(0, "Incoming connection from ?"); // TODO: Print address
 
 				if (c->type == TRACKER)
 				{
@@ -187,10 +189,11 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets()
 					}
 
 					if (tracker_connected) {
-						printf("Tracker trying to connect, but is already connected!");
+						m_Kernel->Log(0, "Tracker is trying to connect, but is already connected!");
 						continue;
 					}
-
+					
+					m_Kernel->Log(0, "Tracker connected...");
 					add_incoming_connection(new_connection_fd, TRACKER);
 				}
 				else if (c->type == CLIENT)

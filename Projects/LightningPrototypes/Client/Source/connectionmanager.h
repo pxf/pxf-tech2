@@ -5,10 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <Pxf/Util/Array.h>
-#include <Pxf/Util/Map.h>
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 #include <Pxf/Base/Config.h>
 #include <Pxf/Base/Memory.h>
+#include <Pxf/Util/Array.h>
+#include <Pxf/Util/Map.h>
 
 #if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
@@ -59,6 +61,7 @@ class ConnectionManager
 	private:
 		Pxf::Util::Array<struct Connection *> m_Connections;
 		Pxf::Util::Map<int, struct Connection *> m_socketfdToConnection;
+		Pxf::Kernel* m_Kernel;
 
 		int m_NextId;
 		int m_max_socketfd;
