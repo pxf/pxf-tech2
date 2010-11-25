@@ -33,6 +33,13 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 	return connection;
 }
 
+
+void ConnectionManager::Connection()
+{
+	m_NextId = 1;
+	FD_ZERO(&m_read_sockets);
+}:
+
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
 {
 	// TODO: Check whether the connection exists in our m_Connection or not.
