@@ -48,6 +48,12 @@ public:
 	}
 };
 
+int test_cb(lua_State* L)
+{
+	lua_pushstring(L, "sup?");
+	return 1;
+}
+
 int main(int argc, char* argv[])
 {
 	Pxf::RandSetSeed(time(NULL));
@@ -163,6 +169,7 @@ int main(int argc, char* argv[])
 	
 	// Fabric/GUI stuff
 	Fabric::App* app = new Fabric::App(win, "fabric/main.lua");
+	app->BindExternalFunction("testcb", test_cb);
   app->Boot();
 	bool running = true;
 	
