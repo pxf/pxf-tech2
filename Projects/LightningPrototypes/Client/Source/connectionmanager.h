@@ -11,6 +11,7 @@
 #if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
 	#include <sys/socket.h>
+	#include <sys/select.h>
 	#include <netdb.h>
 #endif
 

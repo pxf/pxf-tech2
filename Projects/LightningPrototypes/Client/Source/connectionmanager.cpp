@@ -34,11 +34,11 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 }
 
 
-void ConnectionManager::Connection()
+ConnectionManager::ConnectionManager()
 {
 	m_NextId = 1;
 	FD_ZERO(&m_read_sockets);
-}:
+}
 
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
 {
