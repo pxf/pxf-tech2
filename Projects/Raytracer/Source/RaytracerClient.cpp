@@ -1,4 +1,8 @@
 #include <RaytracerClient.h>
+#include <Pxf/Base/Platform.h>
+
+using namespace ZThread;
+using namespace Pxf;
 
 RaytracerClient::RaytracerClient()
 {
@@ -12,6 +16,8 @@ RaytracerClient::~RaytracerClient()
 
 bool RaytracerClient::Run()
 {
+
+	int numcpu = Platform::GetNumberOfProcessors();
 
 	// wait for jobs
 
