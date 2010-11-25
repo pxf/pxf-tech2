@@ -6,19 +6,17 @@ require("fabric/settingshandler")
 ----------------------------------------------
 -- init gui
 gui:init()
-spawn_toolwindow()
 
 ----------------------------------------------
 -- settings
-settings = new_settings_handler("settings.ini", {rendersize = 512, scale = 1})
+settings = new_settings_handler("settings.ini", {rendersize = 512,
+                                                 scale = 1,
+                                                 toolpos = {0,0}
+                                                })
 settings:load()
 settings:save()
 
-for k,v in pairs(settings.data) do
-  print(k,v)
-end
-
-print(testcb())
+spawn_toolwindow()
 
 ----------------------------------------------
 -- initial draw
