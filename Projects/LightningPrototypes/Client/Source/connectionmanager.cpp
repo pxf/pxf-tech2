@@ -2,7 +2,10 @@
 #include <sys/socket.h>
 #endif
 
+
 #include "connectionmanager.h"
+
+#define MAX_SEND_ITERATIONS 20
 
 Connection::Connection(ConnectionType _type, int _id)
 	: socket(0)
@@ -59,14 +62,14 @@ Packet *ConnectionManager::recv()
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
-	int sent = 0, left = _length;
+	int i = 0, left = _length;
 
 	do {
-		sent = send(_connection->socket, _msg + sent, left);
-		left = left - sent;
-	} while (sent < left);
+		left = left - send(_connection->socket, _msg + sent, left);
+		i++;
+	} while ((left > 0) && (i < MAX_SEND_ITERATIONS));
 
-	return (sent != -1);
+	return (left == 0);
 }
 
 bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_id)
