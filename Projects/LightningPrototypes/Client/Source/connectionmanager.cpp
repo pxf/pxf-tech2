@@ -147,7 +147,7 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 	return NULL;
 }
 
-Pxf::Util::Array<Packet*> *ConnectionManager::recv()
+Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets()
 {
 	Pxf::Util::Array<Packet*>* packets = new Pxf::Util::Array<Packet*>();
 	struct timeval timeout;
@@ -233,7 +233,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv()
 				{
 					// Part of message in transit
 					int size_left = c->buffer_size - (c->buffer_cur-c->buffer);
-					recv_bytes = recv(c->socket, c->buffer_cur, size_left);
+					recv_bytes = recv(c->socket, c->buffer_cur, size_left, 0);
 
 					if (recv_bytes == 0)
 					{
@@ -256,7 +256,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv()
 					}
 				} // New or old message
 			} // if (c->bound)
-		} //if (FD_ISSET)
+		} // if (FD_ISSET)
 	}
 
 	return packets;
@@ -295,7 +295,7 @@ void ConnectionManager::set_highest_fd()
 }
 
 /* Resets the buffer variables and pointers. Will not deallocate any data. */
-void ConnectionManager::clear_connbuf(Connection *_connection)
+void inline ConnectionManager::clear_connbuf(Connection *_connection)
 {
 	_connection->buffer = NULL;
 	_connection->buffer_cur = NULL;
