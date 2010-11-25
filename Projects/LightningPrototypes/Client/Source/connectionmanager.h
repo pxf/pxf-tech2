@@ -11,6 +11,7 @@
 #if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
 	#include <sys/socket.h>
+	#include <sys/select.h>
 	#include <unistd.h>
 	#include <netdb.h>
 #endif
@@ -57,11 +58,11 @@ class ConnectionManager
 		Pxf::Util::Array<struct Connection *> m_Connections;
 
 		int m_NextId;
+		int m_max_socketfd;
+		fd_set m_read_sockets;
 
 	public:
-		ConnectionManager()
-			: m_NextId(1)
-		{}
+		ConnectionManager();
 
 		Connection *new_connection(ConnectionType _type);
 		bool bind_connection(Connection *_connection, char *_address, int _port);

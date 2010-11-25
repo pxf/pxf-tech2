@@ -35,6 +35,13 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 	return connection;
 }
 
+ConnectionManager::ConnectionManager()
+{
+	m_NextId = 1;
+	m_max_socketfd = 0;
+	FD_ZERO(&m_read_sockets);
+}
+
 void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _type)
 {
 	Connection *connection = new_connection(_type);
@@ -111,6 +118,9 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 
 	_connection->socket = sck;
 
+	FD_SET(sck, &m_read_sockets);
+	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
+
 	return true;
 }
 
@@ -128,6 +138,12 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 
 Packet *ConnectionManager::recv()
 {
+	struct timeval timeout;
+
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+
+	select(m_max_socketfd, m_read_sockets, NULL, NULL, timeout);
 	return NULL;
 }
 
@@ -136,7 +152,7 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 	int i=0, offset=0;
 
 	do {
-		offset += send(_connection->socket, _msg+offset, _length-offset);
+		offset += send(_connection->socket, _msg+offset, _length-offset, 0);
 		i++;
 	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
 
