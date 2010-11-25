@@ -64,14 +64,14 @@ Packet *ConnectionManager::recv()
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
-	int i = 0, left = _length;
+	int i=0, offset=0;
 
 	do {
-		left = left - send(_connection->socket, _msg + sent, left);
+		offset += send(_connection->socket, _msg+offset, _length-offset);
 		i++;
-	} while ((left > 0) && (i < MAX_SEND_ITERATIONS));
+	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
 
-	return (left == 0);
+	return (offset <= _length);
 }
 
 bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_id)
