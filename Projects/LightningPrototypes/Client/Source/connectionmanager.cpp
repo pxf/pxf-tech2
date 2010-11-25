@@ -37,6 +37,7 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 ConnectionManager::ConnectionManager()
 {
 	m_NextId = 1;
+	m_max_socketfd = 0;
 	FD_ZERO(&m_read_sockets);
 }
 
@@ -76,6 +77,9 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 
 	_connection->socket = sck;
 
+	FD_SET(sck, &m_read_sockets);
+	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
+
 	return true;
 }
 
@@ -93,6 +97,12 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 
 Packet *ConnectionManager::recv()
 {
+	struct timeval timeout;
+
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+
+	select(m_max_socketfd, m_read_sockets, NULL, NULL, timeout);
 	return NULL;
 }
 

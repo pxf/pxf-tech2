@@ -56,6 +56,7 @@ class ConnectionManager
 		Pxf::Util::Array<struct Connection *> m_Connections;
 
 		int m_NextId;
+		int m_max_socketfd;
 		fd_set m_read_sockets;
 
 	public:
