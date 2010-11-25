@@ -24,6 +24,7 @@ namespace Pxf
 		}
 		
 		static int64 GetTime();
+		static int32 GetNumberOfProcessors();
 	};
 }
 
