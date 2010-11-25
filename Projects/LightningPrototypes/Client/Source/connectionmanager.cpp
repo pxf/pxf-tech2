@@ -1,7 +1,3 @@
-#if defined(CONF_FAMILY_UNIX)
-#include <sys/socket.h>
-#endif
-
 #include "connectionmanager.h"
 
 Connection::Connection(ConnectionType _type, int _id)
@@ -49,6 +45,13 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 
 Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 {
+	Pxf::Util::Array<struct Connection*>::iterator i;
+
+	for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
+		if (((_is_session_id) ? (*i)->session_id : (*i)->id) == _id)
+			return (*i);
+	}
+	
 	return NULL;
 }
 
