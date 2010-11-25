@@ -10,13 +10,15 @@ Connection::Connection(ConnectionType _type, int _id)
 	, id(_id)
 	, session_id(0)
 	, type(_type)
+	, bound(false)
 {}
 
 Connection::~Connection()
 {
 	if (buffer_size != 0)
 		delete buffer;
-	// TODO: Close the socket.
+
+	close(socket);
 }
 
 Packet::~Packet()
@@ -33,7 +35,6 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 	return connection;
 }
 
-
 ConnectionManager::ConnectionManager()
 {
 	m_NextId = 1;
@@ -41,9 +42,44 @@ ConnectionManager::ConnectionManager()
 	FD_ZERO(&m_read_sockets);
 }
 
+void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _type)
+{
+	Connection *connection = new_connection(_type);
+
+	connection->socket = _socket;
+}
+
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
 {
+	// TODO: Remove _address... is it necessary?
 	// TODO: Check whether the connection exists in our m_Connection or not.
+	int status, sck;
+	struct addrinfo hints, *res;
+	char port[7];
+	
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	if ((status = getaddrinfo(NULL, port, &hints, &res)) != 0)
+	{
+		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
+		return false;
+	}
+
+	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
+	sprintf(port, "%d\0", _port);
+
+	if (bind(sck, res->ai_addr, res->ai_addrlen) != 0)
+	{
+		fprintf(stderr, "unable to bind.");
+		return false;
+	}
+
+	_connection->socket = sck;
+	_connection->bound = true;
 
 	return false;
 }
@@ -53,7 +89,7 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	// Create the socket.
 	int status, sck;
 	struct addrinfo hints, *res;
-	char port[6];
+	char port[7];
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
