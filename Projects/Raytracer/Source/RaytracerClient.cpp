@@ -51,9 +51,6 @@ public:
 		while(true)
 		{
 			JobRequest* req = m_pInQueue->next();
-			
-			// raytrace request
-			Sleep(3000);
 
 			JobResult* res = 0;
 			m_pOutQueue->add(res);
@@ -86,7 +83,6 @@ bool RaytracerClient::Run()
 
 	try
 	{
-		// THIS SHOULD BE BLOCKING, WHY ISN'T IT BLOCKING?????
 		while(true)
 		{
 			executor.wait();
