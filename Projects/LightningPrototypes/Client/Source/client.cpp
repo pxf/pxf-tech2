@@ -24,6 +24,8 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
 	m_ConnMan = ConnectionManager();
+	m_Kernel = Pxf::Kernel::GetInstance();
+	m_net_tag = m_ConnMan.m_log_tag;
 }
 
 Client::~Client()
@@ -66,10 +68,14 @@ bool Client::connect_tracker()
 	Pxf::Util::Array<Packet*> *packets = m_ConnMan.recv_packets(5000);
 	if (packets->size() == 0)
 	{
-		printf("Connection to tracker timed out.\n");
+		m_Kernel->Log(m_net_tag, "Connection to tracker at %s timed out.", c->target_address);
 		return false;
 	}
-	printf("Connected to tracker. Got response %s\n", packets->front()->data);
+
+	message *msg = unpack(packets->front());
+	trackerclient::HelloToClient *hello_client = (trackerclient::HelloToClient*)(msg->protobuf_data);
+	
+	printf("Connected to tracker. Got session_id %d\n", hello_client->session_id());
 
 	return true;
 }

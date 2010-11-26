@@ -179,8 +179,6 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		return NULL;
 	}
 
-	m_Kernel->Log(m_log_tag, "Passed select()");
-
 	Connection *c;
 	for (int i=0; i <= m_max_socketfd; i++) 
 	{

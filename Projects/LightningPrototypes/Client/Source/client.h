@@ -21,7 +21,9 @@ class Client
 
 	private:
 		ConnectionManager m_ConnMan;
-	
+		Pxf::Kernel* m_Kernel;
+
+		int m_net_tag;	
 		bool connect_tracker();
 };
 

@@ -71,11 +71,11 @@ class ConnectionManager
 		int m_NextId;
 		int m_max_socketfd;
 		fd_set m_read_sockets;
-		int m_log_tag;
 
 		void clear_connbuf(Connection *_connection);
 
 	public:
+		int m_log_tag;
 		ConnectionManager();
 
 		Connection *new_connection(ConnectionType _type);
