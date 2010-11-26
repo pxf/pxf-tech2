@@ -42,6 +42,7 @@ ConnectionManager::ConnectionManager()
 	FD_ZERO(&m_read_sockets);
 
 	m_Kernel = Pxf::Kernel::GetInstance();
+	m_log_tag = m_Kernel->CreateTag("net");
 }
 
 void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _type)
@@ -172,13 +173,13 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	timeout.tv_usec = (_timeout%1000)*1000;
 
 	// TODO: Log error
-	if (select(m_max_socketfd, &m_read_sockets, NULL, NULL, &timeout) == -1)
+	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == -1)
 	{
-		m_Kernel->Log(0, "Unable to call select().");
+		m_Kernel->Log(m_log_tag, "Unable to call select().");
 		return NULL;
 	}
 
-	m_Kernel->Log(0, "Passed select()");
+	m_Kernel->Log(m_log_tag, "Passed select()");
 
 	Connection *c;
 	for (int i=0; i <= m_max_socketfd; i++) 
@@ -193,7 +194,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				socklen_t addrlen = sizeof(&remoteaddr);
 				new_connection_fd = accept(i, &remoteaddr, &addrlen);
 
-				m_Kernel->Log(0, "Incoming connection from ?"); // TODO: Print address
+				m_Kernel->Log(m_log_tag, "Incoming connection from ?"); // TODO: Print address
 
 				if (c->type == TRACKER)
 				{
@@ -209,11 +210,11 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					}
 
 					if (tracker_connected) {
-						m_Kernel->Log(0, "Tracker is trying to connect, but is already connected!");
+						m_Kernel->Log(m_log_tag, "Tracker is trying to connect, but is already connected!");
 						continue;
 					}
 					
-					m_Kernel->Log(0, "Tracker connected...");
+					m_Kernel->Log(m_log_tag, "Tracker connected...");
 					add_incoming_connection(new_connection_fd, TRACKER);
 				}
 				else if (c->type == CLIENT)
@@ -293,7 +294,7 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 	sent = ::send(_connection->socket, &_length, sizeof(_length), 0);
 	if (sent <= 0)
 	{
-		m_Kernel->Log(0, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
+		m_Kernel->Log(m_log_tag, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
 		return false;
 	}
 
@@ -301,14 +302,14 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 		sent = ::send(_connection->socket, _msg+offset, _length-offset, 0);
 		if (sent <= 0)
 		{
-			m_Kernel->Log(0, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
+			m_Kernel->Log(m_log_tag, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
 			return false;
 		}
 		offset += sent;
 		i++;
 	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
 	
-	m_Kernel->Log(0, "Sent %d bytes of data to %s", _length+sizeof(_length), _connection->target_address);
+	m_Kernel->Log(m_log_tag, "Sent %d bytes of data to %s", _length+sizeof(_length), _connection->target_address);
 
 	return (offset <= _length);
 }

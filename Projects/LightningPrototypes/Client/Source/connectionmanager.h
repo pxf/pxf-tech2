@@ -71,6 +71,7 @@ class ConnectionManager
 		int m_NextId;
 		int m_max_socketfd;
 		fd_set m_read_sockets;
+		int m_log_tag;
 
 		void clear_connbuf(Connection *_connection);
 
