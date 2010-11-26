@@ -80,6 +80,20 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 		return false;
 	}
 
+	void *addr;
+
+	if (res->ai_family == AF_INET)
+	{
+		// ipv4
+		struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
+		addr = &(ipv4->sin_addr);
+	} else {
+		// ipv6
+		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
+		addr = &(ipv6->sin6_addr);
+	}
+	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
+
 	_connection->socket = sck;
 	_connection->bound = true;
 
@@ -279,7 +293,7 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 	sent = ::send(_connection->socket, &_length, sizeof(_length), 0);
 	if (sent <= 0)
 	{
-		m_Kernel->Log(0, "Error while sending to %s: %s:", c->target_address, strerror(errno));
+		m_Kernel->Log(0, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
 		return false;
 	}
 
@@ -287,14 +301,14 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 		sent = ::send(_connection->socket, _msg+offset, _length-offset, 0);
 		if (sent <= 0)
 		{
-			m_Kernel->Log(0, "Error while sending to %s: %s:", c->target_address, strerror(errno));
+			m_Kernel->Log(0, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
 			return false;
 		}
 		offset += sent;
 		i++;
 	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
 	
-	m_Kernel->Log(0, "Sent %d bytes of data to %s", _length+sizeof(_length), c->target_address);
+	m_Kernel->Log(0, "Sent %d bytes of data to %s", _length+sizeof(_length), _connection->target_address);
 
 	return (offset <= _length);
 }

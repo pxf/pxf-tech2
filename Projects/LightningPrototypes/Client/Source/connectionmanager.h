@@ -13,6 +13,8 @@
 #include <Pxf/Util/Array.h>
 #include <Pxf/Util/Map.h>
 
+#include <arpa/inet.h>
+
 #if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
 	#include <sys/socket.h>
@@ -37,6 +39,8 @@ struct Connection {
 	int socket;
 	char *buffer;
 	char *buffer_cur;
+	char target_address[INET6_ADDRSTRLEN];
+	int target_port;
 	int buffer_size;
 	int id; // locally set for connections.
 	int session_id; // globally set by tracker.

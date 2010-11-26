@@ -7,6 +7,8 @@
 #include "lightning.h"
 #include "trackerclient.pb.h"
 
+#include <sys/socket.h>
+
 #include <stdio.h>
 
 #define INITIAL_QUEUE 6
