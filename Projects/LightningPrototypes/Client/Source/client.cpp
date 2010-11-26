@@ -1,45 +1,38 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
 #include <zthread/ThreadedExecutor.h>
-#include <zmq.hpp>
 
 #include "client.h"
 #include "iomodule.h"
-#include "lightning.h"
 #include "trackerclient.pb.h"
 
-#include <stdlib.h>
 #include <stdio.h>
 
-Client::Client(const char *tracker_address, const char *local_address)
+#define INITIAL_QUEUE 6
+
+Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address)
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-	this->tracker_address = Pxf::StringDuplicate(tracker_address);
-	this->local_address = Pxf::StringDuplicate(local_address);
+	m_tracker_address = Pxf::StringDuplicate(_tracker_address);
+	m_tracker_port = _tracker_port;
+	m_local_address = Pxf::StringDuplicate(_local_address);
 
-	// TODO: Error checking
-	context = zmq_init(1);
-	out_socket = zmq_socket(context, ZMQ_REQ);
-	in_socket = zmq_socket(context, ZMQ_REP);
+	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
-	available = 4;
+	m_ConnMan = ConnectionManager();
 }
 
 Client::~Client()
 {
-	Pxf::MemoryFree(tracker_address);
-	Pxf::MemoryFree(local_address);
-
-	zmq_close(out_socket);
-	zmq_close(in_socket);
-
-	zmq_term(context);
+	Pxf::MemoryFree(m_tracker_address);
+	Pxf::MemoryFree(m_local_address);
 }
 
 int Client::run()
 {
-	printf("Connecting to tracker at %s\n", tracker_address);
+	printf("Connecting to tracker at %s\n", m_tracker_address);
+	connect_tracker();
 	//if (client.connect_tracker(client.tracker_address) == -1 )
 	//{
 	//	printf("Could not connect to tracker at %s.\n", client.tracker_address);
@@ -58,8 +51,21 @@ int Client::run()
 }
 
 /* Connects to the tracker at the specified endpoint */
-int Client::connect_tracker(const char *address)
+
+int Client::connect_tracker()
 {
+	Connection* c = m_ConnMan.new_connection(TRACKER);
+	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
+
+
+	m_ConnMan.send(c, "CPAPA", 5);
+
+	m_ConnMan.remove_connection(c);
+
+	return(0);
+}
+
+	/*
 	// If we are unable to connect, a NULL pointer is returned.
 	// TODO: Report error properly
 	if(zmq_connect(this->out_socket, address) != 0) return -1;
@@ -117,4 +123,4 @@ int Client::connect_tracker(const char *address)
 
 	return 0;
 }
-
+*/
