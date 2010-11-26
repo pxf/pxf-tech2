@@ -2,7 +2,8 @@
 #define _RAYTRACER_CLIENT_H_
 
 #include <Pxf/Base/Types.h>
-#include <zthread/LockedQueue.h>
+#include <Pxf/Kernel.h>
+#include <zthread/BlockingQueue.h>
 #include <zthread/FastMutex.h>
 
 class Rect
@@ -18,25 +19,33 @@ public:
 };
 
 
-class RenderJob
+class JobRequest
 {
-private:
-	Rect m_ScreenRect;
-	uint32 m_RenderTime;
-	uint8* m_Pixels;
 public:
-	RenderJob()
-		: m_RenderTime(0)
-		, m_Pixels(0)
-	{}
+	Rect rect;
 };
 
-class RaytracerClient
+class JobResult
+{
+	uint8* pixels;
+};
+
+typedef ZThread::BlockingQueue<JobRequest*, ZThread::FastMutex> JobRequestQueue;
+typedef ZThread::BlockingQueue<JobResult*, ZThread::FastMutex> JobResultQueue;
+
+class LightningClient
+{
+protected:
+	JobRequestQueue m_InQueue;
+	JobResultQueue m_OutQueue;
+};
+
+class RaytracerClient : public LightningClient
 {
 private:
-	ZThread::LockedQueue<RenderJob, ZThread::FastMutex> m_RenderQueue;
+	Pxf::Kernel* m_Kernel;
 public:
-	RaytracerClient();
+	RaytracerClient(Pxf::Kernel* _Kernel);
 	~RaytracerClient();
 
 	bool Run();

@@ -83,8 +83,10 @@ int main(int argc, char* argv[])
 
 	// Raytracer client test
 	//------------------------
-	RaytracerClient client;
+	RaytracerClient client(kernel);
 	client.Run();
+
+	return 0;
 	//------------------------
 	
 	// Generate awesome red output buffer
