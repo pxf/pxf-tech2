@@ -80,6 +80,20 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 		return false;
 	}
 
+	void *addr;
+
+	if (res->ai_family == AF_INET)
+	{
+		// ipv4
+		struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
+		addr = &(ipv4->sin_addr);
+	} else {
+		// ipv6
+		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
+		addr = &(ipv6->sin6_addr);
+	}
+	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
+
 	_connection->socket = sck;
 	_connection->bound = true;
 
@@ -270,10 +284,10 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 	int i=0, offset=0;
 
 	// Transmit the length of the message
-	if (send(_connection->socket, (char*)&_length, sizeof(_length), 0) == 0) return false;
+	if (::send(_connection->socket, (char*)_length, sizeof(_length), 0) == 0) return false;
 
 	do {
-		offset += send(_connection->socket, _msg+offset, _length-offset, 0);
+		offset += ::send(_connection->socket, _msg+offset, _length-offset, 0);
 		i++;
 	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
 

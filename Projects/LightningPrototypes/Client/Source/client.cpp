@@ -6,6 +6,8 @@
 #include "iomodule.h"
 #include "trackerclient.pb.h"
 
+#include <sys/socket.h>
+
 #include <stdio.h>
 
 #define INITIAL_QUEUE 6
@@ -57,8 +59,15 @@ int Client::connect_tracker()
 	Connection* c = m_ConnMan.new_connection(TRACKER);
 	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
 
+//	char medd[] = "lol";
+//	printf("send %d bytes.\n", send(3, medd, 4, 0));
 
-	m_ConnMan.send(c, "CPAPA", 5);
+	char buff[512];
+	int l = 4;
+	sprintf(buff, "0000hej\0");
+	memcpy(buff, &l, 4);
+
+	m_ConnMan.send(c, buff, 8);
 
 	m_ConnMan.remove_connection(c);
 
