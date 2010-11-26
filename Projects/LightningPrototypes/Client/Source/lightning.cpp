@@ -50,7 +50,8 @@ message *unpack(Packet *pkg)
 	// Comment this
 	if (buffered_message == NULL) return msg;
 
-	PXF_ASSERT(buffered_message->ParseFromString(pkg->data+sizeof(message_type)), "Unable to parse protocol buffer data.");
+	// TODO: Error checking
+	buffered_message->ParseFromString(pkg->data+sizeof(message_type));
 
 	msg->protobuf_data = buffered_message;
 

@@ -118,15 +118,12 @@ class HelloToTracker : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   inline bool has_session_id() const;
   inline void clear_session_id();
   static const int kSessionIdFieldNumber = 1;
-  inline const ::std::string& session_id() const;
-  inline void set_session_id(const ::std::string& value);
-  inline void set_session_id(const char* value);
-  inline void set_session_id(const char* value, size_t size);
-  inline ::std::string* mutable_session_id();
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
   
   // required string address = 2;
   inline bool has_address() const;
@@ -150,8 +147,7 @@ class HelloToTracker : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::std::string* session_id_;
-  static const ::std::string _default_session_id_;
+  ::google::protobuf::int32 session_id_;
   ::std::string* address_;
   static const ::std::string _default_address_;
   ::google::protobuf::int32 available_;
@@ -231,23 +227,19 @@ class HelloToClient : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   inline bool has_session_id() const;
   inline void clear_session_id();
   static const int kSessionIdFieldNumber = 1;
-  inline const ::std::string& session_id() const;
-  inline void set_session_id(const ::std::string& value);
-  inline void set_session_id(const char* value);
-  inline void set_session_id(const char* value, size_t size);
-  inline ::std::string* mutable_session_id();
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
   
   // @@protoc_insertion_point(class_scope:trackerclient.HelloToClient)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::std::string* session_id_;
-  static const ::std::string _default_session_id_;
+  ::google::protobuf::int32 session_id_;
   friend void  protobuf_AddDesc_trackerclient_2eproto();
   friend void protobuf_AssignDesc_trackerclient_2eproto();
   friend void protobuf_ShutdownFile_trackerclient_2eproto();
@@ -324,23 +316,19 @@ class GoodBye : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   inline bool has_session_id() const;
   inline void clear_session_id();
   static const int kSessionIdFieldNumber = 1;
-  inline const ::std::string& session_id() const;
-  inline void set_session_id(const ::std::string& value);
-  inline void set_session_id(const char* value);
-  inline void set_session_id(const char* value, size_t size);
-  inline ::std::string* mutable_session_id();
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
   
   // @@protoc_insertion_point(class_scope:trackerclient.GoodBye)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::std::string* session_id_;
-  static const ::std::string _default_session_id_;
+  ::google::protobuf::int32 session_id_;
   friend void  protobuf_AddDesc_trackerclient_2eproto();
   friend void protobuf_AssignDesc_trackerclient_2eproto();
   friend void protobuf_ShutdownFile_trackerclient_2eproto();
@@ -619,15 +607,12 @@ class NewBatch : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   inline bool has_session_id() const;
   inline void clear_session_id();
   static const int kSessionIdFieldNumber = 1;
-  inline const ::std::string& session_id() const;
-  inline void set_session_id(const ::std::string& value);
-  inline void set_session_id(const char* value);
-  inline void set_session_id(const char* value, size_t size);
-  inline ::std::string* mutable_session_id();
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
   
   // required string batch_hash = 2;
   inline bool has_batch_hash() const;
@@ -658,8 +643,7 @@ class NewBatch : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::std::string* session_id_;
-  static const ::std::string _default_session_id_;
+  ::google::protobuf::int32 session_id_;
   ::std::string* batch_hash_;
   static const ::std::string _default_batch_hash_;
   ::google::protobuf::int32 tasks_;
@@ -740,15 +724,12 @@ class NodesRequest : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   inline bool has_session_id() const;
   inline void clear_session_id();
   static const int kSessionIdFieldNumber = 1;
-  inline const ::std::string& session_id() const;
-  inline void set_session_id(const ::std::string& value);
-  inline void set_session_id(const char* value);
-  inline void set_session_id(const char* value, size_t size);
-  inline ::std::string* mutable_session_id();
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
   
   // required int32 nodes = 2;
   inline bool has_nodes() const;
@@ -762,8 +743,7 @@ class NodesRequest : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::std::string* session_id_;
-  static const ::std::string _default_session_id_;
+  ::google::protobuf::int32 session_id_;
   ::google::protobuf::int32 nodes_;
   friend void  protobuf_AddDesc_trackerclient_2eproto();
   friend void protobuf_AssignDesc_trackerclient_2eproto();
@@ -841,15 +821,12 @@ class NodesResponse_Node : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   inline bool has_session_id() const;
   inline void clear_session_id();
   static const int kSessionIdFieldNumber = 1;
-  inline const ::std::string& session_id() const;
-  inline void set_session_id(const ::std::string& value);
-  inline void set_session_id(const char* value);
-  inline void set_session_id(const char* value, size_t size);
-  inline ::std::string* mutable_session_id();
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
   
   // required string address = 2;
   inline bool has_address() const;
@@ -866,8 +843,7 @@ class NodesResponse_Node : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::std::string* session_id_;
-  static const ::std::string _default_session_id_;
+  ::google::protobuf::int32 session_id_;
   ::std::string* address_;
   static const ::std::string _default_address_;
   friend void  protobuf_AddDesc_trackerclient_2eproto();
@@ -993,46 +969,20 @@ class NodesResponse : public ::google::protobuf::Message {
 
 // HelloToTracker
 
-// required string session_id = 1;
+// required int32 session_id = 1;
 inline bool HelloToTracker::has_session_id() const {
   return _has_bit(0);
 }
 inline void HelloToTracker::clear_session_id() {
-  if (session_id_ != &_default_session_id_) {
-    session_id_->clear();
-  }
+  session_id_ = 0;
   _clear_bit(0);
 }
-inline const ::std::string& HelloToTracker::session_id() const {
-  return *session_id_;
-}
-inline void HelloToTracker::set_session_id(const ::std::string& value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void HelloToTracker::set_session_id(const char* value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void HelloToTracker::set_session_id(const char* value, size_t size) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* HelloToTracker::mutable_session_id() {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
+inline ::google::protobuf::int32 HelloToTracker::session_id() const {
   return session_id_;
+}
+inline void HelloToTracker::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  session_id_ = value;
 }
 
 // required string address = 2;
@@ -1097,92 +1047,40 @@ inline void HelloToTracker::set_available(::google::protobuf::int32 value) {
 
 // HelloToClient
 
-// required string session_id = 1;
+// required int32 session_id = 1;
 inline bool HelloToClient::has_session_id() const {
   return _has_bit(0);
 }
 inline void HelloToClient::clear_session_id() {
-  if (session_id_ != &_default_session_id_) {
-    session_id_->clear();
-  }
+  session_id_ = 0;
   _clear_bit(0);
 }
-inline const ::std::string& HelloToClient::session_id() const {
-  return *session_id_;
-}
-inline void HelloToClient::set_session_id(const ::std::string& value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void HelloToClient::set_session_id(const char* value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void HelloToClient::set_session_id(const char* value, size_t size) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* HelloToClient::mutable_session_id() {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
+inline ::google::protobuf::int32 HelloToClient::session_id() const {
   return session_id_;
+}
+inline void HelloToClient::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  session_id_ = value;
 }
 
 // -------------------------------------------------------------------
 
 // GoodBye
 
-// required string session_id = 1;
+// required int32 session_id = 1;
 inline bool GoodBye::has_session_id() const {
   return _has_bit(0);
 }
 inline void GoodBye::clear_session_id() {
-  if (session_id_ != &_default_session_id_) {
-    session_id_->clear();
-  }
+  session_id_ = 0;
   _clear_bit(0);
 }
-inline const ::std::string& GoodBye::session_id() const {
-  return *session_id_;
-}
-inline void GoodBye::set_session_id(const ::std::string& value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void GoodBye::set_session_id(const char* value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void GoodBye::set_session_id(const char* value, size_t size) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* GoodBye::mutable_session_id() {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
+inline ::google::protobuf::int32 GoodBye::session_id() const {
   return session_id_;
+}
+inline void GoodBye::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  session_id_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -1229,46 +1127,20 @@ inline void Pong::set_ping_data(::google::protobuf::int32 value) {
 
 // NewBatch
 
-// required string session_id = 1;
+// required int32 session_id = 1;
 inline bool NewBatch::has_session_id() const {
   return _has_bit(0);
 }
 inline void NewBatch::clear_session_id() {
-  if (session_id_ != &_default_session_id_) {
-    session_id_->clear();
-  }
+  session_id_ = 0;
   _clear_bit(0);
 }
-inline const ::std::string& NewBatch::session_id() const {
-  return *session_id_;
-}
-inline void NewBatch::set_session_id(const ::std::string& value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void NewBatch::set_session_id(const char* value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void NewBatch::set_session_id(const char* value, size_t size) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* NewBatch::mutable_session_id() {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
+inline ::google::protobuf::int32 NewBatch::session_id() const {
   return session_id_;
+}
+inline void NewBatch::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  session_id_ = value;
 }
 
 // required string batch_hash = 2;
@@ -1350,46 +1222,20 @@ inline void NewBatch::set_batch_type(::trackerclient::NewBatch_BatchType value) 
 
 // NodesRequest
 
-// required string session_id = 1;
+// required int32 session_id = 1;
 inline bool NodesRequest::has_session_id() const {
   return _has_bit(0);
 }
 inline void NodesRequest::clear_session_id() {
-  if (session_id_ != &_default_session_id_) {
-    session_id_->clear();
-  }
+  session_id_ = 0;
   _clear_bit(0);
 }
-inline const ::std::string& NodesRequest::session_id() const {
-  return *session_id_;
-}
-inline void NodesRequest::set_session_id(const ::std::string& value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void NodesRequest::set_session_id(const char* value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void NodesRequest::set_session_id(const char* value, size_t size) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* NodesRequest::mutable_session_id() {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
+inline ::google::protobuf::int32 NodesRequest::session_id() const {
   return session_id_;
+}
+inline void NodesRequest::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  session_id_ = value;
 }
 
 // required int32 nodes = 2;
@@ -1412,46 +1258,20 @@ inline void NodesRequest::set_nodes(::google::protobuf::int32 value) {
 
 // NodesResponse_Node
 
-// required string session_id = 1;
+// required int32 session_id = 1;
 inline bool NodesResponse_Node::has_session_id() const {
   return _has_bit(0);
 }
 inline void NodesResponse_Node::clear_session_id() {
-  if (session_id_ != &_default_session_id_) {
-    session_id_->clear();
-  }
+  session_id_ = 0;
   _clear_bit(0);
 }
-inline const ::std::string& NodesResponse_Node::session_id() const {
-  return *session_id_;
-}
-inline void NodesResponse_Node::set_session_id(const ::std::string& value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void NodesResponse_Node::set_session_id(const char* value) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-}
-inline void NodesResponse_Node::set_session_id(const char* value, size_t size) {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* NodesResponse_Node::mutable_session_id() {
-  _set_bit(0);
-  if (session_id_ == &_default_session_id_) {
-    session_id_ = new ::std::string;
-  }
+inline ::google::protobuf::int32 NodesResponse_Node::session_id() const {
   return session_id_;
+}
+inline void NodesResponse_Node::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  session_id_ = value;
 }
 
 // required string address = 2;
