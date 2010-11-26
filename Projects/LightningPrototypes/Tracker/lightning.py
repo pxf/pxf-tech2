@@ -1,6 +1,6 @@
 import struct, tracker_pb2
 
-tracker_address = "localhost"
+tracker_address = "95.80.1.57"
 tracker_port = 50000
 
 #Enumerators

@@ -22,9 +22,11 @@ class Tracker():
     _tr_table = dict()
 
     _last_session_id = None
+    _last_socket = None
 
     def __init__(self):
         self._sck_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._sck_listen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._sck_listen.bind((lightning.tracker_address, lightning.tracker_port))
         self._sck_listen.listen(10)
 
@@ -63,18 +65,28 @@ class Tracker():
         new_session_id = self._db.new_init_client()
         response = tracker_pb2.HelloToClient()
         response.session_id = new_session_id
-        self.set_session_id(None, new_id)
+        self.set_session_id(None, new_session_id)
         return lightning.HELLO_TO_CLIENT, response
     _tr_table[lightning.INIT_HELLO] = e_init_hello
 
     def e_hello_to_tracker(self, message):
-        self._db.set_client(
-            message.session_id
-            , address = message.address
-            , available = message.available
-        )
-        # TODO: Test the connection.
-        return lightning.OK
+        #self._db.set_client(
+        #    message.session_id
+        #    , address = message.address
+        #    , available = message.available
+        #)
+        # Delete the old connection.
+        del self._scks[r]
+        # Connect to the client.
+        c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            c.connect(message.address, message.port)
+        except socket.error:
+            # Couldn't connect. Ignore.
+            print("unable to connect to client in return.")
+            return None
+        self._db.add_client(message.session_id, message.address + ":" + str(message.port), message.available)
+        return None
     _tr_table[lightning.HELLO_TO_TRACKER] = e_hello_to_tracker
 
     def e_goodbye(self, message):
@@ -153,7 +165,8 @@ class Tracker():
             return False
 
         # Add the length of the packet.
-        msg = "{0}{1}".format(struct.pack('<I', length(msg), msg))
+        msg = "{0}{1}".format(struct.pack('<I', len(msg)), msg)
+        l = len(msg)
 
         tries = 20
         while msg != "":
@@ -165,10 +178,11 @@ class Tracker():
                 # TODO: Raise an exception instead.
                 return False
 
+        print("successfully sent {1} bytes to socket {0}.".format(client, l))
         return True
 
     def recv(self):
-        """recv() -> (session_id, packet).
+        """recv() -> (int session_id, packet).
         
         Listens to all the connected sockets, even the bound socket.
         On new incomming connections, the function accepts the client and
@@ -198,41 +212,58 @@ class Tracker():
                     , ('session_id', -1)
                 ])
                 # TODO: Do we want to return something here?
+                print("client connected.")
                 continue
 
+            print("clients: {0}".format(", ".join([ str(s) for s in self._scks.keys() ])))
+
             client_data = self._scks[r]
-            tmp = r.recv(1024)
+            try:
+                tmp = r.recv(1024)
+            except socket.error as e:
+                print("client socket error: {0}".format(str(e)))
+                del self._scks[r]
+                continue
             if tmp == '':
                 print("client disconnected.")
-                del self._sck[r]
+                del self._scks[r]
                 continue
             client_data['buffer'] += tmp
 
+            print("data from client {0}: \"{1}\".".format(r, tmp))
+            print("begin check.")
             if client_data['pkt-length'] == 0:
                 if len(client_data['buffer']) >= 4:
                     # Packet length.
+                    print("read packet length.")
                     client_data['pkt-length'] = struct.unpack('<I'
-                                                , client_data['buffer'][:4])
+                                                , client_data['buffer'][:4])[0]
                     client_data['buffer'] = client_data['buffer'][4:]
                 else:
+                    print("not enough bytes for packet length.")
                     # Not enough bytes for a packet length.
                     continue
-            if len(client_data['buffer'] < client_data['pkt-length']):
+            if len(client_data['buffer']) < client_data['pkt-length']:
                 # Not enough bytes for a packet.
+                print("packet length known ({0}), not enough bytes for packet.".format(client_data['pkt-length']))
                 continue
 
             # Alright, we have a packet. Take it from the buffer.
             length = client_data['pkt-length']
             packet = client_data['buffer'][:length]
+            print("packet soon done {0} / {1}".format(length, str(packet)))
             client_data['buffer'] = client_data['buffer'][length:]
             client_data['pkt-length'] = 0
 
             self._last_session_id = client_data['session_id']
+            self._last_socket = r
+
+            print("packet done. {0}".format(str((packet,))))
 
             return (client_data["session_id"], packet)
 
         # Okey, we didn't find any this round.
-        self.recv()
+        return self.recv()
 
     def run(self):
         """run() -> nothing.
@@ -245,7 +276,9 @@ class Tracker():
 
         while True:
             #data = self._sck_in.recv()
-            session_id, data = self.recv()
+            res = self.recv()
+            print(str(res))
+            session_id, data = res
 
             message_type, message = lightning.unpack(data)
 
@@ -253,7 +286,9 @@ class Tracker():
             if message_type not in self._tr_table:
                 # TODO: Should be handled here instead.
                 #self._sck_in.send(lightning.pack(lightning.OK)) # TEMPORARY
-                self.send(session_id, lightning.OK)
+                if not self.send(session_id, lightning.OK):
+                    print("unable to send message.")
+
                 print("Unhandled message. Sent OK back.")
                 continue
 
@@ -262,7 +297,11 @@ class Tracker():
                 if ret is None:
                     continue
 
-                self.send(ret)
+                if not self.send(ret):
+                    print("unable to send message: {0}".format(str(ret)))
+                else:
+                    print("sent in return: {0}".format(str(ret)))
+
                 #elif type(ret) == type(str()):
                 #    self.send(ret)
                 #elif type(ret) == type(tuple()) and len(ret) == 2:
@@ -338,10 +377,10 @@ class TrackerDatabase:
         Find the next available session id for a client.
         """
         
-        while str(self._next_id) in self._clients:
+        while self._next_id in self._clients:
             if self._next_id >= pow(2,31):
                 self._next_id = 1
-                return self.next_id()
+                #return self.next_id()
             self._next_id += 1
 
         return self._next_id
@@ -377,7 +416,7 @@ class TrackerDatabase:
         Adds a new init_client to the client database, returning the new session_id.
         """
 
-        session_id = str(self.next_id())
+        session_id = self.next_id()
         self.add_client(session_id, "", 0)
 
         return session_id
@@ -388,7 +427,7 @@ class TrackerDatabase:
         Adds a new client to the client database, returning the new session_id.
         """
 
-        session_id = str(self.next_id())
+        session_id = self.next_id()
         self.add_client(session_id, address, available)    
 
         return session_id

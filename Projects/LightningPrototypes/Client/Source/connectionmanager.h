@@ -4,9 +4,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
-#include <Pxf/Util/Array.h>
+#include <Pxf/Kernel.h>
+#include <Pxf/Base/Logger.h>
 #include <Pxf/Base/Config.h>
+#include <Pxf/Base/Memory.h>
+#include <Pxf/Util/Array.h>
+#include <Pxf/Util/Map.h>
+
+#include <arpa/inet.h>
 
 #if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
@@ -32,6 +39,8 @@ struct Connection {
 	int socket;
 	char *buffer;
 	char *buffer_cur;
+	char target_address[INET6_ADDRSTRLEN];
+	int target_port;
 	int buffer_size;
 	int id; // locally set for connections.
 	int session_id; // globally set by tracker.
@@ -56,12 +65,17 @@ class ConnectionManager
 {
 	private:
 		Pxf::Util::Array<struct Connection *> m_Connections;
+		Pxf::Util::Map<int, struct Connection *> m_socketfdToConnection;
+		Pxf::Kernel* m_Kernel;
 
 		int m_NextId;
 		int m_max_socketfd;
 		fd_set m_read_sockets;
 
+		void clear_connbuf(Connection *_connection);
+
 	public:
+		int m_log_tag;
 		ConnectionManager();
 
 		Connection *new_connection(ConnectionType _type);
@@ -72,7 +86,7 @@ class ConnectionManager
 		
 		Connection *get_connection(int _id, bool _is_session_id = false);
 		
-		Packet *recv();
+		Pxf::Util::Array<Packet*> *recv_packets(int _timeout = 0);
 
 		bool send(Connection *_connection, char *_msg, int _length);
 		bool send(int _id, char *_msg, int _length, bool _is_session_id = false);

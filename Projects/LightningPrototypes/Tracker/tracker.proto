@@ -3,17 +3,17 @@ package lightningtracker;
 import "lightning.proto";
 
 message HelloToTracker {
-    required string session_id = 1;
+    required int32 session_id = 1;
 	required string address = 2;
 	required int32 available = 3;
 }
 
 message HelloToClient {
-	required string session_id = 1;
+	required int32 session_id = 1;
 }
 
 message GoodBye {
-	required string session_id = 1;
+	required int32 session_id = 1;
 }
 
 message Ping {
@@ -30,20 +30,20 @@ message NewBatch {
 		PHOTSHOOTAH = 1;
 	}
 
-	required string session_id = 1;
+	required int32 session_id = 1;
 	required string batch_hash = 2;
 	required int32 tasks = 3;
 	required BatchType batch_type = 4;
 }
 
 message NodesRequest {
-	required string session_id = 1;
+	required int32 session_id = 1;
 	required int32 nodes = 2;
 }
 
 message NodesResponse {
 	message Node {
-		required string session_id  = 1;
+		required int32 session_id  = 1;
 		required string address = 2;
 	}
 	

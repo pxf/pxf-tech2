@@ -1,31 +1,81 @@
 #include <RaytracerClient.h>
 #include <Pxf/Base/Platform.h>
 
+#include <windows.h>
+
 using namespace ZThread;
 using namespace Pxf;
 
-RaytracerClient::RaytracerClient()
+class Worker : public Runnable
 {
+protected:
+	LightningClient* m_Client;
+public:
+	Worker(LightningClient* _Client)
+		: m_Client(_Client)
+	{}
 
+	void run()
+	{
+		while (true)
+		{
+			try
+			{
+				JobRequest* req = m_Client->get_request();
+
+				JobResult* res = 0;
+				m_Client->put_result(res);
+			}
+			catch (Interrupted_Exception* e)
+			{
+				break;
+			}
+		}
+	}
+};
+
+
+RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
+	: m_Kernel(_Kernel)
+	, m_Executor(0)
+	, m_LogTag(0)
+	, m_NumWorkers(1)
+{
+	m_LogTag = m_Kernel->CreateTag("RTC");
+	m_NumWorkers = Platform::GetNumberOfProcessors();
+	m_Executor = new PoolExecutor(m_NumWorkers);
 }
 
 RaytracerClient::~RaytracerClient()
 {
+	m_Executor->interrupt();
+	m_Executor->wait();
+	delete m_Executor;
+}
+
+bool RaytracerClient::run()
+{
+	run_noblock();
+
+	try
+	{
+		while(true)
+		{
+			m_Executor->wait();
+			m_Kernel->Log(m_LogTag, "Executor is done waiting. Why?");
+		}
+	}
+	catch(Cancellation_Exception* e)
+	{
+		return false;
+	}
 
 }
 
-bool RaytracerClient::Run()
+bool RaytracerClient::run_noblock()
 {
+	for(int i = 0; i < m_NumWorkers; i++)
+		m_Executor->execute(new Worker(this));
 
-	int numcpu = Platform::GetNumberOfProcessors();
-
-	// wait for jobs
-
-	// add jobs to queue
-
-	// do <numcpu> jobs taken from queue
-
-	// send back results (combine with above step if possible)
-
-	return false;
+	return true;
 }

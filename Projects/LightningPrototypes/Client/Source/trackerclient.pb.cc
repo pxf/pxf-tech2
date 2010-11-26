@@ -260,19 +260,19 @@ void protobuf_AddDesc_trackerclient_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\023trackerclient.proto\022\rtrackerclient\032\017li"
     "ghtning.proto\"H\n\016HelloToTracker\022\022\n\nsessi"
-    "on_id\030\001 \002(\t\022\017\n\007address\030\002 \002(\t\022\021\n\tavailabl"
+    "on_id\030\001 \002(\005\022\017\n\007address\030\002 \002(\t\022\021\n\tavailabl"
     "e\030\003 \002(\005\"#\n\rHelloToClient\022\022\n\nsession_id\030\001"
-    " \002(\t\"\035\n\007GoodBye\022\022\n\nsession_id\030\001 \002(\t\"\031\n\004P"
+    " \002(\005\"\035\n\007GoodBye\022\022\n\nsession_id\030\001 \002(\005\"\031\n\004P"
     "ing\022\021\n\tping_data\030\001 \002(\005\"\031\n\004Pong\022\021\n\tping_d"
     "ata\030\001 \002(\005\"\244\001\n\010NewBatch\022\022\n\nsession_id\030\001 \002"
-    "(\t\022\022\n\nbatch_hash\030\002 \002(\t\022\r\n\005tasks\030\003 \002(\005\0225\n"
+    "(\005\022\022\n\nbatch_hash\030\002 \002(\t\022\r\n\005tasks\030\003 \002(\005\0225\n"
     "\nbatch_type\030\004 \002(\0162!.trackerclient.NewBat"
     "ch.BatchType\"*\n\tBatchType\022\014\n\010RAYTRACE\020\000\022"
     "\017\n\013PHOTSHOOTAH\020\001\"1\n\014NodesRequest\022\022\n\nsess"
-    "ion_id\030\001 \002(\t\022\r\n\005nodes\030\002 \002(\005\"n\n\rNodesResp"
+    "ion_id\030\001 \002(\005\022\r\n\005nodes\030\002 \002(\005\"n\n\rNodesResp"
     "onse\0220\n\005nodes\030\001 \003(\0132!.trackerclient.Node"
     "sResponse.Node\032+\n\004Node\022\022\n\nsession_id\030\001 \002"
-    "(\t\022\017\n\007address\030\002 \002(\t", 579);
+    "(\005\022\017\n\007address\030\002 \002(\t", 579);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "trackerclient.proto", &protobuf_RegisterTypes);
   HelloToTracker::default_instance_ = new HelloToTracker();
@@ -306,7 +306,6 @@ struct StaticDescriptorInitializer_trackerclient_2eproto {
 
 // ===================================================================
 
-const ::std::string HelloToTracker::_default_session_id_;
 const ::std::string HelloToTracker::_default_address_;
 #ifndef _MSC_VER
 const int HelloToTracker::kSessionIdFieldNumber;
@@ -330,7 +329,7 @@ HelloToTracker::HelloToTracker(const HelloToTracker& from)
 
 void HelloToTracker::SharedCtor() {
   _cached_size_ = 0;
-  session_id_ = const_cast< ::std::string*>(&_default_session_id_);
+  session_id_ = 0;
   address_ = const_cast< ::std::string*>(&_default_address_);
   available_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -341,9 +340,6 @@ HelloToTracker::~HelloToTracker() {
 }
 
 void HelloToTracker::SharedDtor() {
-  if (session_id_ != &_default_session_id_) {
-    delete session_id_;
-  }
   if (address_ != &_default_address_) {
     delete address_;
   }
@@ -373,11 +369,7 @@ HelloToTracker* HelloToTracker::New() const {
 
 void HelloToTracker::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (_has_bit(0)) {
-      if (session_id_ != &_default_session_id_) {
-        session_id_->clear();
-      }
-    }
+    session_id_ = 0;
     if (_has_bit(1)) {
       if (address_ != &_default_address_) {
         address_->clear();
@@ -395,15 +387,14 @@ bool HelloToTracker::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string session_id = 1;
+      // required int32 session_id = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_session_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->session_id().data(), this->session_id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(0);
         } else {
           goto handle_uninterpreted;
         }
@@ -462,13 +453,9 @@ bool HelloToTracker::MergePartialFromCodedStream(
 
 void HelloToTracker::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      1, this->session_id(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->session_id(), output);
   }
   
   // required string address = 2;
@@ -493,14 +480,9 @@ void HelloToTracker::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* HelloToTracker::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->session_id(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->session_id(), target);
   }
   
   // required string address = 2;
@@ -529,10 +511,10 @@ int HelloToTracker::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string session_id = 1;
+    // required int32 session_id = 1;
     if (has_session_id()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->session_id());
     }
     
@@ -630,7 +612,6 @@ void HelloToTracker::Swap(HelloToTracker* other) {
 
 // ===================================================================
 
-const ::std::string HelloToClient::_default_session_id_;
 #ifndef _MSC_VER
 const int HelloToClient::kSessionIdFieldNumber;
 #endif  // !_MSC_VER
@@ -651,7 +632,7 @@ HelloToClient::HelloToClient(const HelloToClient& from)
 
 void HelloToClient::SharedCtor() {
   _cached_size_ = 0;
-  session_id_ = const_cast< ::std::string*>(&_default_session_id_);
+  session_id_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -660,9 +641,6 @@ HelloToClient::~HelloToClient() {
 }
 
 void HelloToClient::SharedDtor() {
-  if (session_id_ != &_default_session_id_) {
-    delete session_id_;
-  }
   if (this != default_instance_) {
   }
 }
@@ -689,11 +667,7 @@ HelloToClient* HelloToClient::New() const {
 
 void HelloToClient::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (_has_bit(0)) {
-      if (session_id_ != &_default_session_id_) {
-        session_id_->clear();
-      }
-    }
+    session_id_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -705,15 +679,14 @@ bool HelloToClient::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string session_id = 1;
+      // required int32 session_id = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_session_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->session_id().data(), this->session_id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(0);
         } else {
           goto handle_uninterpreted;
         }
@@ -739,13 +712,9 @@ bool HelloToClient::MergePartialFromCodedStream(
 
 void HelloToClient::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      1, this->session_id(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->session_id(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -756,14 +725,9 @@ void HelloToClient::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* HelloToClient::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->session_id(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->session_id(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -777,10 +741,10 @@ int HelloToClient::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string session_id = 1;
+    // required int32 session_id = 1;
     if (has_session_id()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->session_id());
     }
     
@@ -856,7 +820,6 @@ void HelloToClient::Swap(HelloToClient* other) {
 
 // ===================================================================
 
-const ::std::string GoodBye::_default_session_id_;
 #ifndef _MSC_VER
 const int GoodBye::kSessionIdFieldNumber;
 #endif  // !_MSC_VER
@@ -877,7 +840,7 @@ GoodBye::GoodBye(const GoodBye& from)
 
 void GoodBye::SharedCtor() {
   _cached_size_ = 0;
-  session_id_ = const_cast< ::std::string*>(&_default_session_id_);
+  session_id_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -886,9 +849,6 @@ GoodBye::~GoodBye() {
 }
 
 void GoodBye::SharedDtor() {
-  if (session_id_ != &_default_session_id_) {
-    delete session_id_;
-  }
   if (this != default_instance_) {
   }
 }
@@ -915,11 +875,7 @@ GoodBye* GoodBye::New() const {
 
 void GoodBye::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (_has_bit(0)) {
-      if (session_id_ != &_default_session_id_) {
-        session_id_->clear();
-      }
-    }
+    session_id_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -931,15 +887,14 @@ bool GoodBye::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string session_id = 1;
+      // required int32 session_id = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_session_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->session_id().data(), this->session_id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(0);
         } else {
           goto handle_uninterpreted;
         }
@@ -965,13 +920,9 @@ bool GoodBye::MergePartialFromCodedStream(
 
 void GoodBye::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      1, this->session_id(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->session_id(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -982,14 +933,9 @@ void GoodBye::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* GoodBye::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->session_id(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->session_id(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1003,10 +949,10 @@ int GoodBye::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string session_id = 1;
+    // required int32 session_id = 1;
     if (has_session_id()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->session_id());
     }
     
@@ -1519,7 +1465,6 @@ const NewBatch_BatchType NewBatch::BatchType_MIN;
 const NewBatch_BatchType NewBatch::BatchType_MAX;
 const int NewBatch::BatchType_ARRAYSIZE;
 #endif  // _MSC_VER
-const ::std::string NewBatch::_default_session_id_;
 const ::std::string NewBatch::_default_batch_hash_;
 #ifndef _MSC_VER
 const int NewBatch::kSessionIdFieldNumber;
@@ -1544,7 +1489,7 @@ NewBatch::NewBatch(const NewBatch& from)
 
 void NewBatch::SharedCtor() {
   _cached_size_ = 0;
-  session_id_ = const_cast< ::std::string*>(&_default_session_id_);
+  session_id_ = 0;
   batch_hash_ = const_cast< ::std::string*>(&_default_batch_hash_);
   tasks_ = 0;
   batch_type_ = 0;
@@ -1556,9 +1501,6 @@ NewBatch::~NewBatch() {
 }
 
 void NewBatch::SharedDtor() {
-  if (session_id_ != &_default_session_id_) {
-    delete session_id_;
-  }
   if (batch_hash_ != &_default_batch_hash_) {
     delete batch_hash_;
   }
@@ -1588,11 +1530,7 @@ NewBatch* NewBatch::New() const {
 
 void NewBatch::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (_has_bit(0)) {
-      if (session_id_ != &_default_session_id_) {
-        session_id_->clear();
-      }
-    }
+    session_id_ = 0;
     if (_has_bit(1)) {
       if (batch_hash_ != &_default_batch_hash_) {
         batch_hash_->clear();
@@ -1611,15 +1549,14 @@ bool NewBatch::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string session_id = 1;
+      // required int32 session_id = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_session_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->session_id().data(), this->session_id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(0);
         } else {
           goto handle_uninterpreted;
         }
@@ -1699,13 +1636,9 @@ bool NewBatch::MergePartialFromCodedStream(
 
 void NewBatch::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      1, this->session_id(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->session_id(), output);
   }
   
   // required string batch_hash = 2;
@@ -1736,14 +1669,9 @@ void NewBatch::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* NewBatch::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->session_id(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->session_id(), target);
   }
   
   // required string batch_hash = 2;
@@ -1778,10 +1706,10 @@ int NewBatch::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string session_id = 1;
+    // required int32 session_id = 1;
     if (has_session_id()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->session_id());
     }
     
@@ -1889,7 +1817,6 @@ void NewBatch::Swap(NewBatch* other) {
 
 // ===================================================================
 
-const ::std::string NodesRequest::_default_session_id_;
 #ifndef _MSC_VER
 const int NodesRequest::kSessionIdFieldNumber;
 const int NodesRequest::kNodesFieldNumber;
@@ -1911,7 +1838,7 @@ NodesRequest::NodesRequest(const NodesRequest& from)
 
 void NodesRequest::SharedCtor() {
   _cached_size_ = 0;
-  session_id_ = const_cast< ::std::string*>(&_default_session_id_);
+  session_id_ = 0;
   nodes_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1921,9 +1848,6 @@ NodesRequest::~NodesRequest() {
 }
 
 void NodesRequest::SharedDtor() {
-  if (session_id_ != &_default_session_id_) {
-    delete session_id_;
-  }
   if (this != default_instance_) {
   }
 }
@@ -1950,11 +1874,7 @@ NodesRequest* NodesRequest::New() const {
 
 void NodesRequest::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (_has_bit(0)) {
-      if (session_id_ != &_default_session_id_) {
-        session_id_->clear();
-      }
-    }
+    session_id_ = 0;
     nodes_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1967,15 +1887,14 @@ bool NodesRequest::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string session_id = 1;
+      // required int32 session_id = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_session_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->session_id().data(), this->session_id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(0);
         } else {
           goto handle_uninterpreted;
         }
@@ -2017,13 +1936,9 @@ bool NodesRequest::MergePartialFromCodedStream(
 
 void NodesRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      1, this->session_id(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->session_id(), output);
   }
   
   // required int32 nodes = 2;
@@ -2039,14 +1954,9 @@ void NodesRequest::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* NodesRequest::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->session_id(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->session_id(), target);
   }
   
   // required int32 nodes = 2;
@@ -2065,10 +1975,10 @@ int NodesRequest::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string session_id = 1;
+    // required int32 session_id = 1;
     if (has_session_id()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->session_id());
     }
     
@@ -2155,7 +2065,6 @@ void NodesRequest::Swap(NodesRequest* other) {
 
 // ===================================================================
 
-const ::std::string NodesResponse_Node::_default_session_id_;
 const ::std::string NodesResponse_Node::_default_address_;
 #ifndef _MSC_VER
 const int NodesResponse_Node::kSessionIdFieldNumber;
@@ -2178,7 +2087,7 @@ NodesResponse_Node::NodesResponse_Node(const NodesResponse_Node& from)
 
 void NodesResponse_Node::SharedCtor() {
   _cached_size_ = 0;
-  session_id_ = const_cast< ::std::string*>(&_default_session_id_);
+  session_id_ = 0;
   address_ = const_cast< ::std::string*>(&_default_address_);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -2188,9 +2097,6 @@ NodesResponse_Node::~NodesResponse_Node() {
 }
 
 void NodesResponse_Node::SharedDtor() {
-  if (session_id_ != &_default_session_id_) {
-    delete session_id_;
-  }
   if (address_ != &_default_address_) {
     delete address_;
   }
@@ -2220,11 +2126,7 @@ NodesResponse_Node* NodesResponse_Node::New() const {
 
 void NodesResponse_Node::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (_has_bit(0)) {
-      if (session_id_ != &_default_session_id_) {
-        session_id_->clear();
-      }
-    }
+    session_id_ = 0;
     if (_has_bit(1)) {
       if (address_ != &_default_address_) {
         address_->clear();
@@ -2241,15 +2143,14 @@ bool NodesResponse_Node::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string session_id = 1;
+      // required int32 session_id = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_session_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->session_id().data(), this->session_id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(0);
         } else {
           goto handle_uninterpreted;
         }
@@ -2292,13 +2193,9 @@ bool NodesResponse_Node::MergePartialFromCodedStream(
 
 void NodesResponse_Node::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      1, this->session_id(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->session_id(), output);
   }
   
   // required string address = 2;
@@ -2318,14 +2215,9 @@ void NodesResponse_Node::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* NodesResponse_Node::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required string session_id = 1;
+  // required int32 session_id = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->session_id().data(), this->session_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->session_id(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->session_id(), target);
   }
   
   // required string address = 2;
@@ -2349,10 +2241,10 @@ int NodesResponse_Node::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string session_id = 1;
+    // required int32 session_id = 1;
     if (has_session_id()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->session_id());
     }
     
