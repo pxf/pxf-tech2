@@ -38,6 +38,16 @@ class LightningClient
 protected:
 	JobRequestQueue m_InQueue;
 	JobResultQueue m_OutQueue;
+public:
+	JobRequest* GetRequest()
+	{
+		return m_InQueue.next();
+	}
+
+	void PutResult(JobResult* _Result)
+	{
+		m_OutQueue.add(_Result);
+	}
 };
 
 class RaytracerClient : public LightningClient

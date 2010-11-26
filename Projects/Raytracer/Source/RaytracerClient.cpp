@@ -38,22 +38,20 @@ public:
 class Worker : public Runnable
 {
 protected:
-	JobRequestQueue* m_pInQueue;
-	JobResultQueue* m_pOutQueue;
+	LightningClient* m_Client;
 public:
-	Worker(JobRequestQueue* _pInQ, JobResultQueue* _pOutQ)
-		: m_pInQueue(_pInQ)
-		, m_pOutQueue(_pOutQ)
+	Worker(LightningClient* _Client)
+		: m_Client(_Client)
 	{}
 
 	void run()
 	{
 		while(true)
 		{
-			JobRequest* req = m_pInQueue->next();
+			JobRequest* req = m_Client->GetRequest();
 
 			JobResult* res = 0;
-			m_pOutQueue->add(res);
+			m_Client->PutResult(res);
 
 			
 		}
@@ -79,7 +77,7 @@ bool RaytracerClient::Run()
 	PoolExecutor executor(num_workers);
 
 	for(int i = 0; i < num_workers; i++)
-		executor.execute(new Worker(&m_InQueue, &m_OutQueue));
+		executor.execute(new Worker(this));
 
 	try
 	{
