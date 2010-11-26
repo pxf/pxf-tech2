@@ -41,12 +41,11 @@ int Client::run()
 	//printf("session_id:%s\n",client.session_id);
 
 	// Simulate event
-	ZThread::ThreadedExecutor batch_executor;
-	for (int i = 0; i < 5; i++)
-	{
-			batch_executor.execute(new IOModule());
-		
-	}
+	//ZThread::ThreadedExecutor batch_executor;
+	//for (int i = 0; i < 5; i++)
+	//{
+	//		batch_executor.execute(new IOModule());
+	//}
 		
 }
 
@@ -55,10 +54,10 @@ int Client::run()
 bool Client::connect_tracker()
 {
 	Connection* c = m_ConnMan.new_connection(TRACKER);
-	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
+	bool apa = m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
+	if (apa) printf("YAY!\n");
 
-
-	m_ConnMan.send(c, "CPAPA", 5);
+	m_ConnMan.send(c, 0, 4);
 	
 	// Wait for tracker to respond. Timeout after 5 seconds.
 	Pxf::Util::Array<Packet*> *packets = m_ConnMan.recv_packets(5000);
@@ -67,7 +66,7 @@ bool Client::connect_tracker()
 		printf("Connection to tracker timed out.\n");
 		return false;
 	}
-	printf("Connected to tracker.\n");
+	printf("Connected to tracker. Got response %s\n", packets->front()->data);
 
 	return true;
 }
