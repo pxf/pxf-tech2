@@ -4,7 +4,10 @@
 
 #include "client.h"
 #include "iomodule.h"
+#include "lightning.h"
 #include "trackerclient.pb.h"
+
+#include <sys/socket.h>
 
 #include <stdio.h>
 
@@ -41,28 +44,34 @@ int Client::run()
 	//printf("session_id:%s\n",client.session_id);
 
 	// Simulate event
-	ZThread::ThreadedExecutor batch_executor;
-	for (int i = 0; i < 5; i++)
-	{
-			batch_executor.execute(new IOModule());
-		
-	}
+	//ZThread::ThreadedExecutor batch_executor;
+	//for (int i = 0; i < 5; i++)
+	//{
+	//		batch_executor.execute(new IOModule());
+	//}
 		
 }
 
 /* Connects to the tracker at the specified endpoint */
 
-int Client::connect_tracker()
+bool Client::connect_tracker()
 {
 	Connection* c = m_ConnMan.new_connection(TRACKER);
 	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
 
+	int type = INIT_HELLO;
+	m_ConnMan.send(c, (char*)&type, 4);
+	
+	// Wait for tracker to respond. Timeout after 5 seconds.
+	Pxf::Util::Array<Packet*> *packets = m_ConnMan.recv_packets(5000);
+	if (packets->size() == 0)
+	{
+		printf("Connection to tracker timed out.\n");
+		return false;
+	}
+	printf("Connected to tracker. Got response %s\n", packets->front()->data);
 
-	m_ConnMan.send(c, "CPAPA", 5);
-
-	m_ConnMan.remove_connection(c);
-
-	return(0);
+	return true;
 }
 
 	/*
