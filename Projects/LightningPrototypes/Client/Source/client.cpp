@@ -52,7 +52,7 @@ int Client::run()
 
 /* Connects to the tracker at the specified endpoint */
 
-int Client::connect_tracker()
+bool Client::connect_tracker()
 {
 	Connection* c = m_ConnMan.new_connection(TRACKER);
 	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
@@ -65,11 +65,11 @@ int Client::connect_tracker()
 	if (packets->size() == 0)
 	{
 		printf("Connection to tracker timed out.\n");
+		return false;
 	}
+	printf("Connected to tracker.\n");
 
-	m_ConnMan.remove_connection(c);
-
-	return(0);
+	return true;
 }
 
 	/*
