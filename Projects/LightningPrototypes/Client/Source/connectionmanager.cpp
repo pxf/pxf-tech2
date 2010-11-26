@@ -269,6 +269,9 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
 	int i=0, offset=0;
 
+	// Transmit the length of the message
+	if (send(_connection->socket, (char*)&_length, sizeof(_length), 0) == 0) return false;
+
 	do {
 		offset += send(_connection->socket, _msg+offset, _length-offset, 0);
 		i++;
