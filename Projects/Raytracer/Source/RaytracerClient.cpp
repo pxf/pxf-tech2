@@ -1,6 +1,5 @@
 #include <RaytracerClient.h>
 #include <Pxf/Base/Platform.h>
-#include <ZThread/PoolExecutor.h>
 
 #include <windows.h>
 
@@ -18,14 +17,19 @@ public:
 
 	void run()
 	{
-		while(true)
+		while (true)
 		{
-			JobRequest* req = m_Client->get_request();
+			try
+			{
+				JobRequest* req = m_Client->get_request();
 
-			JobResult* res = 0;
-			m_Client->put_result(res);
-
-			
+				JobResult* res = 0;
+				m_Client->put_result(res);
+			}
+			catch (Interrupted_Exception* e)
+			{
+				break;
+			}
 		}
 	}
 };
@@ -33,36 +37,45 @@ public:
 
 RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 	: m_Kernel(_Kernel)
+	, m_Executor(0)
+	, m_LogTag(0)
+	, m_NumWorkers(1)
 {
-
+	m_LogTag = m_Kernel->CreateTag("RTC");
+	m_NumWorkers = Platform::GetNumberOfProcessors();
+	m_Executor = new PoolExecutor(m_NumWorkers);
 }
 
 RaytracerClient::~RaytracerClient()
 {
-
+	m_Executor->interrupt();
+	m_Executor->wait();
+	delete m_Executor;
 }
 
 bool RaytracerClient::run()
 {
-	unsigned tag = m_Kernel->CreateTag("RTC");
-	int num_workers = Platform::GetNumberOfProcessors();
-	PoolExecutor executor(num_workers);
-
-	for(int i = 0; i < num_workers; i++)
-		executor.execute(new Worker(this));
+	run_noblock();
 
 	try
 	{
 		while(true)
 		{
-			executor.wait();
-			m_Kernel->Log(tag, "Executor is done waiting. Why?");
+			m_Executor->wait();
+			m_Kernel->Log(m_LogTag, "Executor is done waiting. Why?");
 		}
 	}
 	catch(Cancellation_Exception* e)
 	{
 		return false;
 	}
+
+}
+
+bool RaytracerClient::run_noblock()
+{
+	for(int i = 0; i < m_NumWorkers; i++)
+		m_Executor->execute(new Worker(this));
 
 	return true;
 }

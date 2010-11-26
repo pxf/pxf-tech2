@@ -84,9 +84,7 @@ int main(int argc, char* argv[])
 	// Raytracer client test
 	//------------------------
 	RaytracerClient client(kernel);
-	client.run();
-
-	return 0;
+	client.run_noblock();
 	//------------------------
 	
 	// Generate awesome red output buffer
