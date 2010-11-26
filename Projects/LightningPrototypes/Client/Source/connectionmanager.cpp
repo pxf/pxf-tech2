@@ -164,6 +164,8 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		return NULL;
 	}
 
+	m_Kernel->Log(0, "Passed select()");
+
 	Connection *c;
 	for (int i=0; i <= m_max_socketfd; i++) 
 	{
@@ -271,15 +273,28 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
-	int i=0, offset=0;
+	int sent, i=0, offset=0;
 
 	// Transmit the length of the message
-	if (send(_connection->socket, (char*)&_length, sizeof(_length), 0) == 0) return false;
+	sent = ::send(_connection->socket, &_length, sizeof(_length), 0);
+	if (sent <= 0)
+	{
+		m_Kernel->Log(0, "Error while sending to %s: %s:", c->target_address, strerror(errno));
+		return false;
+	}
 
 	do {
-		offset += send(_connection->socket, _msg+offset, _length-offset, 0);
+		sent = ::send(_connection->socket, _msg+offset, _length-offset, 0);
+		if (sent <= 0)
+		{
+			m_Kernel->Log(0, "Error while sending to %s: %s:", c->target_address, strerror(errno));
+			return false;
+		}
+		offset += sent;
 		i++;
 	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
+	
+	m_Kernel->Log(0, "Sent %d bytes of data to %s", _length+sizeof(_length), c->target_address);
 
 	return (offset <= _length);
 }

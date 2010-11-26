@@ -4,6 +4,7 @@
 
 #include "client.h"
 #include "iomodule.h"
+#include "lightning.h"
 #include "trackerclient.pb.h"
 
 #include <stdio.h>
@@ -54,10 +55,10 @@ int Client::run()
 bool Client::connect_tracker()
 {
 	Connection* c = m_ConnMan.new_connection(TRACKER);
-	bool apa = m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
-	if (apa) printf("YAY!\n");
+	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
 
-	m_ConnMan.send(c, 0, 4);
+	int type = INIT_HELLO;
+	m_ConnMan.send(c, (char*)&type, 4);
 	
 	// Wait for tracker to respond. Timeout after 5 seconds.
 	Pxf::Util::Array<Packet*> *packets = m_ConnMan.recv_packets(5000);
