@@ -104,78 +104,89 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, int
 }
 
 
-bool calc_light_contrib(Primitive *prim, Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec3f *ed, batch_blob_t *datablob, Pxf::Math::Vec3f *res)
+// calculates direct light contribution for a ray
+bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res)
 {
-	// loop lights
-	for(int l = 0; l < datablob->light_count; ++l)
+	Primitive *closest_prim = 0x0;
+	intersection_response_t closest_resp;
+	if (find_intersection(datablob, ray, &closest_prim, &closest_resp))
 	{
-		// Always assume we 
-		float att = 1.0f;
+		//Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
+		//Normalize(eye_dir);
 		
-		// create ray to light
-		ray_t light_ray;
-		light_ray.o = *p;
-		light_ray.d = datablob->lights[l]->p - (*p);
-		float light_distance = Length(light_ray.d);
-		Normalize(light_ray.d);
-		light_ray.o += light_ray.d*0.01f;
-		
-		// Point lights
-		if (datablob->lights[l]->GetType() == PointLightPrim)
+		*res += closest_prim->material.ambient;
+	
+		// loop lights
+		for(int l = 0; l < datablob->light_count; ++l)
 		{
-			// See if we hit any geometry closer than the light
-			intersection_response_t tresp;
-			if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
-			{
-				att = 0.0f;
-			}
-			
-			// TODO: add better contributing calculations
-			float ndotl = Dot(*n, light_ray.d);
-			*res += prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * att) / (float)datablob->light_count;
+			// Always assume we see the light
+			float att = 1.0f;
 		
-		// Area lights
-		} else if (datablob->lights[l]->GetType() == AreaLightPrim)
-		{
-			AreaLight *light = (AreaLight*)datablob->lights[l];
-			
-			
-			// construct "up-vector"
-			Vec3f up = Cross(light->normal, light->dir);
-			float step_w = (float)light->width / (float)light->num_rays;
-			float step_h = (float)light->height / (float)light->num_rays;
-			Vec3f start_pos = light->p - (up * light->width + light->dir * light->height) / 2.0f;
-			for(int y = 0; y < light->num_rays; ++y)
+			// create ray to light
+			ray_t light_ray;
+			light_ray.o = closest_resp.p;
+			light_ray.d = datablob->lights[l]->p - closest_resp.p;
+			float light_distance = Length(light_ray.d);
+			Normalize(light_ray.d);
+			light_ray.o += light_ray.d*0.01f;
+		
+			// Point lights
+			if (datablob->lights[l]->GetType() == PointLightPrim)
 			{
-				for(int x = 0; x < light->num_rays; ++x)
+				// See if we hit any geometry closer than the light
+				intersection_response_t tresp;
+				if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
 				{
-					// get random sample
-					//float rand_sample = datablob->samples[rand() % 255];
-					float offset_x = datablob->samples[rand() % 255] * 2.0f - 1.0f;//1.0f / ((int)(rand_sample * 16.0f) % 4);
-					float offset_y = datablob->samples[rand() % 255] * 2.0f - 1.0f;//0.0f;//1.0f / ((int)(rand_sample * 16.0f) / 4);
-					
-					// create light ray
-					Vec3f light_point = start_pos + (up * step_w * ((float)x + offset_x)) + (light->dir * step_h * ((float)y + offset_y));
-					light_ray.o = *p;
-					light_ray.d = light_point - (*p);
-					light_distance = Length(light_ray.d);
-					Normalize(light_ray.d);
-					light_ray.o += light_ray.d*0.01f;
-					
-					intersection_response_t tresp;
-					if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
+					att = 0.0f;
+				}
+			
+				// TODO: add better contributing calculations
+				float ndotl = Dot(closest_resp.n, light_ray.d);
+				*res += closest_prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * att) / (float)datablob->light_count;
+		
+			// Area lights
+			} else if (datablob->lights[l]->GetType() == AreaLightPrim)
+			{
+				AreaLight *light = (AreaLight*)datablob->lights[l];
+			
+			
+				// construct "up-vector"
+				Vec3f up = Cross(light->normal, light->dir);
+				float step_w = (float)light->width / (float)light->num_rays;
+				float step_h = (float)light->height / (float)light->num_rays;
+				Vec3f start_pos = light->p - (up * light->width + light->dir * light->height) / 2.0f;
+				for(int y = 0; y < light->num_rays; ++y)
+				{
+					for(int x = 0; x < light->num_rays; ++x)
 					{
-						att -= (1.0f / ((float)light->num_rays * (float)light->num_rays));
-					} else {
-						// TODO: add better contributing calculations
-						float ndotl = Dot(*n, light_ray.d);
-						*res += prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * ((1.0f / ((float)light->num_rays * (float)light->num_rays)))) / (float)datablob->light_count;
+						// get random sample
+						//float rand_sample = datablob->samples[rand() % 255];
+						float offset_x = datablob->samples[rand() % 255] * 2.0f - 1.0f;//1.0f / ((int)(rand_sample * 16.0f) % 4);
+						float offset_y = datablob->samples[rand() % 255] * 2.0f - 1.0f;//0.0f;//1.0f / ((int)(rand_sample * 16.0f) / 4);
+					
+						// create light ray
+						Vec3f light_point = start_pos + (up * step_w * ((float)x + offset_x)) + (light->dir * step_h * ((float)y + offset_y));
+						light_ray.o = closest_resp.p;
+						light_ray.d = light_point - closest_resp.p;
+						light_distance = Length(light_ray.d);
+						Normalize(light_ray.d);
+						light_ray.o += light_ray.d*0.01f;
+					
+						intersection_response_t tresp;
+						if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
+						{
+							att -= (1.0f / ((float)light->num_rays * (float)light->num_rays));
+						} else {
+							// TODO: add better contributing calculations
+							float ndotl = Dot(closest_resp.n, light_ray.d);
+							*res += closest_prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * ((1.0f / ((float)light->num_rays * (float)light->num_rays)))) / (float)datablob->light_count;
+						}
 					}
 				}
 			}
-		}
 		
 
+		}
 	}
 	
 	return true;
@@ -188,11 +199,9 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
 	
 	// Center ray
-	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
+	Vec3f screen_coords(-1.0f + x, 1.0f - y, 1.41421356f);
 	ray_t cray;
-	cray.o = Vec3f(0.0f,0.0f,-1.0f);
-	//cray.d = screen_coords - cray.o;
-	//Normalize(cray.d);
+	cray.o = Vec3f(0.0f,0.0f,0.0f);
 	
 	// find closest primitive
 	for(int pixel_x = 0; pixel_x < datablob->samples_per_pixel; ++pixel_x)
@@ -204,24 +213,18 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			Vec3f new_screen_coords = screen_coords;
 			
 			// TODO: Make sampling more non-uniform
-			new_screen_coords.x += (1.0f / ((float)datablob->pic_w * (float)datablob->samples_per_pixel)) * (float)pixel_x;
-			new_screen_coords.y += (1.0f / ((float)datablob->pic_h * (float)datablob->samples_per_pixel)) * (float)pixel_y;
+			//new_screen_coords.x += (1.0f / ((float)datablob->pic_w * (float)datablob->samples_per_pixel)) * (float)pixel_x;
+			//new_screen_coords.y += (1.0f / ((float)datablob->pic_h * (float)datablob->samples_per_pixel)) * (float)pixel_y;
+			
+			new_screen_coords.x += (0.8f / ((float)datablob->pic_w)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
+			new_screen_coords.y += (0.8f / ((float)datablob->pic_h)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
 			ray.d = new_screen_coords - cray.o;
 			Normalize(ray.d);
 			
 			// Cast ray and see what we find
-			Primitive *closest_prim = 0x0;
-			intersection_response_t closest_resp;
-			if (find_intersection(datablob, &ray, &closest_prim, &closest_resp))
-			{
-				Pxf::Math::Vec3f light_contrib(0.0f, 0.0f, 0.0f);
-				Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
-				Normalize(eye_dir);
-				
-				fpixel += closest_prim->material.ambient;
-				
 				// Calc direct light
-				if (!calc_light_contrib(closest_prim, &closest_resp.p, &closest_resp.n, &eye_dir, datablob, &light_contrib))
+			Pxf::Math::Vec3f light_contrib;
+				if (!calc_ray_contrib(&ray, datablob, &light_contrib))
 				{
 					Pxf::Message("calculate_pixel", "Light calculations failed!");
 					return false;
@@ -229,7 +232,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 				fpixel += light_contrib;
 
 				// Calculate reflection
-				float refl = closest_prim->material.reflectiveness;
+				/*float refl = closest_prim->material.reflectiveness;
 				if (refl > 0.0f)
 				{
 					float offset_x = datablob->samples[rand() % 255] * 2.0f - 1.0f;//1.0f / ((int)(rand_sample * 16.0f) % 4);
@@ -250,10 +253,10 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 						fpixel += (closest_prim->material.ambient * closest_prim->material.diffuse * refl) / 1.3f;
 					}
 
-				}
+				}*/
 				
 				// TODO: Calc indirect light using photon map
-			}
+			//}
 		}
 	}
 	
