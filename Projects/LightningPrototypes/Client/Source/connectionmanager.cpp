@@ -163,16 +163,22 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 	return NULL;
 }
 
-Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets()
+Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 {
 	Pxf::Util::Array<Packet*>* packets = new Pxf::Util::Array<Packet*>();
 	struct timeval timeout;
 
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 0;
+	timeout.tv_sec = _timeout/1000;
+	timeout.tv_usec = (_timeout%1000)*1000;
 
 	// TODO: Log error
-	if (select(m_max_socketfd, &m_read_sockets, NULL, NULL, &timeout) == -1) return NULL;
+	if (select(m_max_socketfd, &m_read_sockets, NULL, NULL, &timeout) == -1)
+	{
+		m_Kernel->Log(0, "Unable to call select().");
+		return NULL;
+	}
+
+	m_Kernel->Log(0, "Passed select()");
 
 	Connection *c;
 	for (int i=0; i <= m_max_socketfd; i++) 
@@ -281,15 +287,28 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets()
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
-	int i=0, offset=0;
+	int sent, i=0, offset=0;
 
 	// Transmit the length of the message
-	if (::send(_connection->socket, (char*)_length, sizeof(_length), 0) == 0) return false;
+	sent = ::send(_connection->socket, &_length, sizeof(_length), 0);
+	if (sent <= 0)
+	{
+		m_Kernel->Log(0, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
+		return false;
+	}
 
 	do {
-		offset += ::send(_connection->socket, _msg+offset, _length-offset, 0);
+		sent = ::send(_connection->socket, _msg+offset, _length-offset, 0);
+		if (sent <= 0)
+		{
+			m_Kernel->Log(0, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
+			return false;
+		}
+		offset += sent;
 		i++;
 	} while ((offset < _length) && (i < MAX_SEND_ITERATIONS));
+	
+	m_Kernel->Log(0, "Sent %d bytes of data to %s", _length+sizeof(_length), _connection->target_address);
 
 	return (offset <= _length);
 }

@@ -22,36 +22,67 @@ public:
 };
 
 
-class JobRequest
+class TaskRequest
 {
 public:
 	Rect rect;
 };
 
-class JobResult
+class TaskResult
 {
 	uint8* pixels;
 };
 
-typedef ZThread::BlockingQueue<JobRequest*, ZThread::FastMutex> JobRequestQueue;
-typedef ZThread::BlockingQueue<JobResult*, ZThread::FastMutex> JobResultQueue;
+typedef ZThread::BlockingQueue<TaskRequest*, ZThread::FastMutex> TaskRequestQueue;
+typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
 
 class LightningClient
 {
 protected:
-	JobRequestQueue m_queue_in;
-	JobResultQueue m_queue_out;
+	TaskRequestQueue m_queue_in;
+	TaskResultQueue m_queue_out;
 public:
-	JobRequest* get_request()
+	TaskRequest* get_request()
 	{
 		return m_queue_in.next();
 	}
 
-	void put_result(JobResult* _Result)
+	void put_result(TaskResult* _Result)
 	{
 		m_queue_out.add(_Result);
 	}
 };
+
+
+/*
+class LightningClient
+{
+protected:
+	BlockingArray arr;
+	Condition hastasks[numtypes];
+public:
+	TaskRequest* get_request(tasktype)
+	{
+		// conditions borde vara i BlockingArray etc etc
+		if (inte tom)
+			hastasks[tasktype].wait();
+
+		arr.acquire();
+		//arr.find_task_of_type(RAYTRACE);
+		arr.get_task(task_parent)
+		arr.release();
+	}
+
+	void put_result(TaskResult* _Result)
+	{
+		// queue borde funka fint
+		// men kanske borde wrappas med typ osv
+		m_queue_out.add(_Result);
+	}
+}
+
+*/
+
 
 class RaytracerClient : public LightningClient
 {

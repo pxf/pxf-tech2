@@ -22,7 +22,7 @@ class Client
 	private:
 		ConnectionManager m_ConnMan;
 	
-		int connect_tracker();
+		bool connect_tracker();
 };
 
 #endif
