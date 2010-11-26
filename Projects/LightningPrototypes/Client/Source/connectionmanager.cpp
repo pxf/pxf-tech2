@@ -111,11 +111,11 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
+	//hints.ai_flags = AI_PASSIVE;
 
-	sprintf(port, "%d\0", _port);
+	sprintf(port, "%d", _port);
 
-	if ((status == getaddrinfo(_address, port, &hints, &res)) != 0)
+	if ((status = getaddrinfo(_address, port, &hints, &res)) != 0)
 	{
 		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
 		return false;
@@ -124,7 +124,7 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (connect(sck, res->ai_addr, res->ai_addrlen) != 0)
 	{
-		fprintf(stderr, "failed to connect.\n");
+		fprintf(stderr, "failed to connect to %s:%s.\n", _address, port);
 		return false;
 	}
 
