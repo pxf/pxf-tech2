@@ -7,34 +7,6 @@
 using namespace ZThread;
 using namespace Pxf;
 
-/*
-	auxthread: Reciever, global inQueue
-	auxthread: Transmitter, global outQueue
-	thread{numcpu}: Worker, get from inQueue, process, put in outQueue 
-*/
-
-class Reciever : public Runnable
-{
-public:
-	void run()
-	{
-		// wait for incomming jobs
-		// put job in inQueue
-		// repeat
-	}
-};
-
-class Transmitter : public Runnable
-{
-public:
-	void run()
-	{
-		// wait for completed jobs in outQueue
-		// send job to whereever
-		// repeat	
-	}
-};
-
 class Worker : public Runnable
 {
 protected:
@@ -48,10 +20,10 @@ public:
 	{
 		while(true)
 		{
-			JobRequest* req = m_Client->GetRequest();
+			JobRequest* req = m_Client->get_request();
 
 			JobResult* res = 0;
-			m_Client->PutResult(res);
+			m_Client->put_result(res);
 
 			
 		}
@@ -70,7 +42,7 @@ RaytracerClient::~RaytracerClient()
 
 }
 
-bool RaytracerClient::Run()
+bool RaytracerClient::run()
 {
 	unsigned tag = m_Kernel->CreateTag("RTC");
 	int num_workers = Platform::GetNumberOfProcessors();

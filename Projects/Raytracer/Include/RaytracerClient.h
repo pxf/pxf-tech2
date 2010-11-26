@@ -36,17 +36,17 @@ typedef ZThread::BlockingQueue<JobResult*, ZThread::FastMutex> JobResultQueue;
 class LightningClient
 {
 protected:
-	JobRequestQueue m_InQueue;
-	JobResultQueue m_OutQueue;
+	JobRequestQueue m_queue_in;
+	JobResultQueue m_queue_out;
 public:
-	JobRequest* GetRequest()
+	JobRequest* get_request()
 	{
-		return m_InQueue.next();
+		return m_queue_in.next();
 	}
 
-	void PutResult(JobResult* _Result)
+	void put_result(JobResult* _Result)
 	{
-		m_OutQueue.add(_Result);
+		m_queue_out.add(_Result);
 	}
 };
 
@@ -58,7 +58,7 @@ public:
 	RaytracerClient(Pxf::Kernel* _Kernel);
 	~RaytracerClient();
 
-	bool Run();
+	bool run();
 };
 
 #endif // _RAYTRACER_CLIENT_H_

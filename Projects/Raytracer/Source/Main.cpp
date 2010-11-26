@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 	// Raytracer client test
 	//------------------------
 	RaytracerClient client(kernel);
-	client.Run();
+	client.run();
 
 	return 0;
 	//------------------------
