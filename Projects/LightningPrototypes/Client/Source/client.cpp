@@ -59,6 +59,13 @@ int Client::connect_tracker()
 
 
 	m_ConnMan.send(c, "CPAPA", 5);
+	
+	// Wait for tracker to respond. Timeout after 5 seconds.
+	Pxf::Util::Array<Packet*> *packets = m_ConnMan.recv_packets(5000);
+	if (packets->size() == 0)
+	{
+		printf("Connection to tracker timed out.\n");
+	}
 
 	m_ConnMan.remove_connection(c);
 

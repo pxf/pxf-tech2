@@ -80,7 +80,7 @@ class ConnectionManager
 		
 		Connection *get_connection(int _id, bool _is_session_id = false);
 		
-		Pxf::Util::Array<Packet*> *recv_packets();
+		Pxf::Util::Array<Packet*> *recv_packets(int _timeout = 0);
 
 		bool send(Connection *_connection, char *_msg, int _length);
 		bool send(int _id, char *_msg, int _length, bool _is_session_id = false);

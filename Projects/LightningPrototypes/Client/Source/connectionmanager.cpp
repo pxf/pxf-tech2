@@ -149,16 +149,20 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 	return NULL;
 }
 
-Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets()
+Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 {
 	Pxf::Util::Array<Packet*>* packets = new Pxf::Util::Array<Packet*>();
 	struct timeval timeout;
 
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 0;
+	timeout.tv_sec = _timeout/1000;
+	timeout.tv_usec = (_timeout%1000)*1000;
 
 	// TODO: Log error
-	if (select(m_max_socketfd, &m_read_sockets, NULL, NULL, &timeout) == -1) return NULL;
+	if (select(m_max_socketfd, &m_read_sockets, NULL, NULL, &timeout) == -1)
+	{
+		m_Kernel->Log(0, "Unable to call select().");
+		return NULL;
+	}
 
 	Connection *c;
 	for (int i=0; i <= m_max_socketfd; i++) 
