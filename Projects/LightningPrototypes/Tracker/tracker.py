@@ -311,6 +311,7 @@ class TrackerDatabase:
     _clients = dict()
     _connections = dict()
     _blacklist = dict()
+    _waitlist = dict()
 
     _next_id = 1
 
@@ -320,12 +321,22 @@ class TrackerDatabase:
     def __del__(self):
         pass
 
+    def get_waiting_clients(self):
+        """get_waiting_clients() -> [(int session_id, int wants)]."""
+
+        return [ (c[]) for c in self._waitlist.keys() ]
+
+    def set_client_waiting(self, session_id, wants=1):
+        """set_client_waiting(int session_id, int wants=1) -> nothing."""
+
+        self._waitlist[session_id] = wants
+
     def get_available_clients(self, min_available=1):
         """get_available_clients(int min_available=1) -> [(int session_id, int available)]."""
 
-        return [ (c["session_id"], c["available"]) \
-                 for c in self._clients.keys() \
-                 if c["available"] >= min_available ]
+        return [ (s, i[1]) \
+                 for s, i in self._clients.items() \
+                 if i[1] >= min_available ]
 
     def get_client(self, session_id):
         """get_client(int session_id) -> (address, available)."""
