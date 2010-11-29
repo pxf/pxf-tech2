@@ -25,17 +25,6 @@ google::protobuf::Message *get_protobuf_class(int type)
 	}
 }
 
-message::message()
-	: type(0)
-	, protobuf_data(NULL)
-{ }
-	
-message::~message()
-{
-	if (protobuf_data != NULL)
-		delete protobuf_data;
-}
-
 message *unpack(Packet *pkg)
 {
 	// First 4 bytes of a message determines the type
