@@ -23,10 +23,10 @@ public:
 		{
 			try
 			{
-				TaskRequest* req = m_Client->get_request();
+				TaskRequest* req = m_Client->pop_request();
 
 				TaskResult* res = 0;
-				m_Client->put_result(res);
+				m_Client->push_result(res);
 			}
 			catch (Interrupted_Exception* e)
 			{
@@ -56,14 +56,24 @@ RaytracerClient::~RaytracerClient()
 	delete m_Executor;
 }
 
-TaskRequest* RaytracerClient::get_request()
+void RaytracerClient::push_request(TaskRequest* _Request)
+{
+	m_TaskQueue.push(LightningClient::RayTraceTask, _Request);
+}
+
+TaskRequest* RaytracerClient::pop_request()
 {
 	return m_TaskQueue.pop(LightningClient::RayTraceTask);
 };
 
-void RaytracerClient::put_result(TaskResult* _Result)
+void RaytracerClient::push_result(TaskResult* _Result)
 {
 	m_ResultQueue.add(_Result);
+}
+
+TaskResult* RaytracerClient::pop_result()
+{
+	return m_ResultQueue.next();
 }
 
 bool RaytracerClient::run()

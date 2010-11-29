@@ -42,16 +42,19 @@ class LightningClient
 protected:
 	BlockingTaskQueue<TaskRequest*> m_TaskQueue;
 	TaskResultQueue m_ResultQueue;
-public:
+
 	enum TaskType {RayTraceTask, HerpaDerpTask};
-	virtual TaskRequest* get_request() = 0;
-	virtual void put_result(TaskResult* _Result) = 0;
+public:
+	virtual void push_request(TaskRequest* _Request) = 0;
+	virtual TaskRequest* pop_request() = 0;
+	virtual void push_result(TaskResult* _Result) = 0;
+	virtual TaskResult* pop_result() = 0;
 };
 
 
 class RaytracerClient : public LightningClient
 {
-private:
+protected:
 	Pxf::Kernel* m_Kernel;
 	ZThread::PoolExecutor* m_Executor;
 	unsigned m_NumWorkers;
@@ -60,8 +63,10 @@ public:
 	RaytracerClient(Pxf::Kernel* _Kernel);
 	~RaytracerClient();
 
-	virtual TaskRequest* get_request();
-	virtual void put_result(TaskResult* _Result);
+	virtual void push_request(TaskRequest* _Request);
+	virtual TaskRequest* pop_request();
+	virtual void push_result(TaskResult* _Result);
+	virtual TaskResult* pop_result();
 
 	bool run();
 	bool run_noblock();
