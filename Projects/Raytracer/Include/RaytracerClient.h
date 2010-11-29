@@ -9,6 +9,8 @@
 #include <zthread/BlockingQueue.h>
 #include <zthread/FastMutex.h>
 
+#include <BlockingTaskQueue.h>
+
 class Rect
 {
 public:
@@ -33,55 +35,18 @@ class TaskResult
 	uint8* pixels;
 };
 
-typedef ZThread::BlockingQueue<TaskRequest*, ZThread::FastMutex> TaskRequestQueue;
 typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
 
 class LightningClient
 {
 protected:
-	TaskRequestQueue m_queue_in;
-	TaskResultQueue m_queue_out;
+	BlockingTaskQueue<TaskRequest*> m_TaskQueue;
+	TaskResultQueue m_ResultQueue;
 public:
-	TaskRequest* get_request()
-	{
-		return m_queue_in.next();
-	}
-
-	void put_result(TaskResult* _Result)
-	{
-		m_queue_out.add(_Result);
-	}
+	enum TaskType {RayTraceTask, HerpaDerpTask};
+	virtual TaskRequest* get_request() = 0;
+	virtual void put_result(TaskResult* _Result) = 0;
 };
-
-
-/*
-class LightningClient
-{
-protected:
-	BlockingArray arr;
-	Condition hastasks[numtypes];
-public:
-	TaskRequest* get_request(tasktype)
-	{
-		// conditions borde vara i BlockingArray etc etc
-		if (inte tom)
-			hastasks[tasktype].wait();
-
-		arr.acquire();
-		//arr.find_task_of_type(RAYTRACE);
-		arr.get_task(task_parent)
-		arr.release();
-	}
-
-	void put_result(TaskResult* _Result)
-	{
-		// queue borde funka fint
-		// men kanske borde wrappas med typ osv
-		m_queue_out.add(_Result);
-	}
-}
-
-*/
 
 
 class RaytracerClient : public LightningClient
@@ -94,6 +59,9 @@ private:
 public:
 	RaytracerClient(Pxf::Kernel* _Kernel);
 	~RaytracerClient();
+
+	virtual TaskRequest* get_request();
+	virtual void put_result(TaskResult* _Result);
 
 	bool run();
 	bool run_noblock();

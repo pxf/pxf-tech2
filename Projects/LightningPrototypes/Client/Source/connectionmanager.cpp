@@ -149,6 +149,22 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
 	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
 
+	void *addr;
+
+	if (res->ai_family == AF_INET)
+	{
+		// ipv4
+		struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
+		addr = &(ipv4->sin_addr);
+	} else {
+		// ipv6
+		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
+		addr = &(ipv6->sin6_addr);
+	}
+	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
+
+	_connection->socket = sck;
+
 	return true;
 }
 
