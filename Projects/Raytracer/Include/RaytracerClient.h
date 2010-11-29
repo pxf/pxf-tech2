@@ -35,12 +35,12 @@ class TaskResult
 	uint8* pixels;
 };
 
-typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
-
 class LightningClient
 {
 protected:
 	BlockingTaskQueue<TaskRequest*> m_TaskQueue;
+	
+	typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
 	TaskResultQueue m_ResultQueue;
 
 	enum TaskType {RayTraceTask, HerpaDerpTask};
