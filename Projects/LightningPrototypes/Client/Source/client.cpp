@@ -98,7 +98,8 @@ bool Client::connect_tracker()
 	m_ConnMan.remove_connection(c);
 
 	//m_ConnMan.recv()
-
+	//...
+	
 	return true;
 }
 
