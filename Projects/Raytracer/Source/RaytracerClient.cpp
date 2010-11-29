@@ -46,6 +46,7 @@ RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 	m_LogTag = m_Kernel->CreateTag("RTC");
 	m_NumWorkers = Platform::GetNumberOfProcessors();
 	m_Executor = new PoolExecutor(m_NumWorkers);
+	m_TaskQueue.register_type(LightningClient::RayTraceTask);
 }
 
 RaytracerClient::~RaytracerClient()
@@ -55,9 +56,24 @@ RaytracerClient::~RaytracerClient()
 	delete m_Executor;
 }
 
+TaskRequest* RaytracerClient::get_request()
+{
+	return m_TaskQueue.pop(LightningClient::RayTraceTask);
+};
+
+void RaytracerClient::put_result(TaskResult* _Result)
+{
+	m_ResultQueue.add(_Result);
+}
+
 bool RaytracerClient::run()
 {
 	run_noblock();
+
+	for(int i = 0; i < 10; i++)
+	{
+		m_TaskQueue.push(LightningClient::RayTraceTask, new TaskRequest());
+	}
 
 	try
 	{
