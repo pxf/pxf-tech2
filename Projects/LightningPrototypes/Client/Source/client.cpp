@@ -70,20 +70,20 @@ bool Client::connect_tracker()
 	m_ConnMan.send(c, (char*)&type, 4);
 	
 	// Wait for tracker to respond. Timeout after 5 seconds.
-	Pxf::Util::Array<Packet*> *packets = m_ConnMan.recv_packets(5000);
+	Pxf::Util::Array<LiPacket*> *packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(5000);
 	if (packets->size() == 0)
 	{
 		m_Kernel->Log(m_net_tag, "Connection to tracker at %s timed out.", c->target_address);
 		return false;
 	}
-
-	message *msg = unpack(packets->front());
-	trackerclient::HelloToClient *hello_client = (trackerclient::HelloToClient*)(msg->protobuf_data);
+	
+	trackerclient::HelloToClient *hello_client = (trackerclient::HelloToClient*)(packets->front()->unpack());
 	
 	m_session_id = hello_client->session_id();
 
-	delete msg;
-
+	// TODO: Delete proper instance
+	//delete msg;
+	
 	printf("Connected to tracker. Got session_id %d\n", m_session_id);
 
 	trackerclient::HelloToTracker *hello_tracker = new trackerclient::HelloToTracker();
@@ -92,13 +92,9 @@ bool Client::connect_tracker()
 	hello_tracker->set_port(m_local_port);
 	hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
 
-	msg = new message;
-	msg->type = HELLO_TO_TRACKER;
-	msg->protobuf_data = hello_tracker;
+	LiPacket *pkg = new LiPacket(c, hello_tracker, HELLO_TO_TRACKER);
 
-	char *data = pack(msg);
-
-	m_ConnMan.send(c, data, sizeof(msg->type)+hello_tracker->ByteSize());
+	m_ConnMan.send(c, pkg->data, pkg->length);
 	m_ConnMan.remove_connection(c);
 
 	//m_ConnMan.recv()
@@ -106,62 +102,3 @@ bool Client::connect_tracker()
 	return true;
 }
 
-	/*
-	// If we are unable to connect, a NULL pointer is returned.
-	// TODO: Report error properly
-	if(zmq_connect(this->out_socket, address) != 0) return -1;
-
-	int msg_type = INIT_HELLO;
-	zmq_msg_t init_hello;
-	zmq_msg_init_data(&init_hello, &msg_type, sizeof(msg_type), NULL, NULL);
-
-	zmq_send(this->out_socket, &init_hello, 0);
-
-	message* credentials = recv_message(out_socket);
-
-	if(credentials->type != HELLO_TO_CLIENT)
-	{
-		// Message is not what is expected
-		// TODO: Report error properly
-		return -1;
-	}
-
-	trackerclient::HelloToClient* hello_client = (trackerclient::HelloToClient*)(credentials->protobuf_data);
-
-	session_id = (char*)Pxf::MemoryAllocate(hello_client->session_id().length());
-	Pxf::MemoryCopy(
-		session_id,
-		hello_client->session_id().c_str(),
-		hello_client->session_id().length()
-	);
-
-	delete(credentials);
-
-	zmq_setsockopt(in_socket, ZMQ_IDENTITY, session_id, Pxf::StringLength(session_id));
-	zmq_bind(in_socket, local_address);
-
-	trackerclient::HelloToTracker* hello_tracker = new trackerclient::HelloToTracker();
-	hello_tracker->set_session_id(this->session_id);
-	hello_tracker->set_address(local_address);
-	hello_tracker->set_available(available);
-
-	message* msg = new message;
-	msg->type=HELLO_TO_TRACKER;
-	msg->protobuf_data = hello_tracker;
-
-	send_message(out_socket, msg);
-
-	delete(msg); // Will delete protocol buffer data as well
-
-	msg = recv_message(out_socket);
-
-	if (msg->type != OK) {
-		delete(msg);
-		return -1;
-	}
-
-	delete(msg);
-
-	return 0;
-}
-*/

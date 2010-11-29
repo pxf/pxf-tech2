@@ -4,33 +4,20 @@
 #ifndef _LIGHTNING_H_
 #define _LIGHTNING_H_
 
-enum Message {
+enum MessageType {
 	INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, GOODBYE, NEWBATCH,
 	OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, TASK_DONE, HATE, 
 	PING, PONG
 };
 
-template<typename T>
-class Factory 
+struct LiPacket : Packet
 {
-	public: T CreateInstance()
-	{
-		return new T;
-	}
+	LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type);
+
+	MessageType message_type;
+	char *pack(google::protobuf::Message *_proto, int _type);
+	google::protobuf::Message *unpack();
 };
-
-struct message {
-	message();
-	~message();
-
-	int type;
-	google::protobuf::Message* protobuf_data;
-};
-
-message *unpack(Packet *pkg);
-char *pack(message *msg);
-//message *recv_message(void* socket);
-//int send_message(void* socket, message* msg);
 
 void *get_proto_class(int type);
 

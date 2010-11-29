@@ -54,6 +54,7 @@ struct Packet {
 		, length(_length)
 		, data(_data) // TODO: Allocate new memory and copy?
 	{}
+	Packet() {};
 	~Packet();
 
 	Connection *connection;
