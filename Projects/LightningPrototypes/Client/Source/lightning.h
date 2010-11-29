@@ -28,6 +28,7 @@ struct message {
 };
 
 message *unpack(Packet *pkg);
+char *pack(message *msg);
 //message *recv_message(void* socket);
 //int send_message(void* socket, message* msg);
 

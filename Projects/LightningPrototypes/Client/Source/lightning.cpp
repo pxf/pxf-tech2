@@ -56,7 +56,25 @@ message *unpack(Packet *pkg)
 	msg->protobuf_data = buffered_message;
 
 	return msg;
+}
 
+char *pack(message *msg)
+{
+	char *data = (char*)Pxf::MemoryAllocate(sizeof(msg->type) + msg->protobuf_data->ByteSize());
+
+	Pxf::MemoryCopy(
+		data,
+		&(msg->type),
+		sizeof(msg->type)
+	);
+
+	Pxf::MemoryCopy(
+		data+sizeof(msg->type),
+		msg->protobuf_data->SerializeAsString().c_str(),
+		msg->protobuf_data->ByteSize()
+	);
+
+	return data;
 }
 
 /*

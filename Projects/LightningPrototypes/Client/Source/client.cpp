@@ -13,13 +13,14 @@
 
 #define INITIAL_QUEUE 6
 
-Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address)
+Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port)
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 	m_tracker_address = Pxf::StringDuplicate(_tracker_address);
 	m_tracker_port = _tracker_port;
 	m_local_address = Pxf::StringDuplicate(_local_address);
+	m_local_port = _local_port;
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
@@ -58,7 +59,11 @@ int Client::run()
 
 bool Client::connect_tracker()
 {
-	Connection* c = m_ConnMan.new_connection(TRACKER);
+	Connection *bound_c = m_ConnMan.new_connection(CLIENT);
+	m_ConnMan.bind_connection(bound_c, m_local_address, m_local_port);
+	bound_c->bound = true;
+
+	Connection *c = m_ConnMan.new_connection(TRACKER);
 	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
 
 	int type = INIT_HELLO;
@@ -75,7 +80,28 @@ bool Client::connect_tracker()
 	message *msg = unpack(packets->front());
 	trackerclient::HelloToClient *hello_client = (trackerclient::HelloToClient*)(msg->protobuf_data);
 	
-	printf("Connected to tracker. Got session_id %d\n", hello_client->session_id());
+	m_session_id = hello_client->session_id();
+
+	delete msg;
+
+	printf("Connected to tracker. Got session_id %d\n", m_session_id);
+
+	trackerclient::HelloToTracker *hello_tracker = new trackerclient::HelloToTracker();
+	hello_tracker->set_session_id(m_session_id);
+	hello_tracker->set_address(m_local_address);
+	hello_tracker->set_port(m_local_port);
+	hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
+
+	msg = new message;
+	msg->type = HELLO_TO_TRACKER;
+	msg->protobuf_data = hello_tracker;
+
+	char *data = pack(msg);
+
+	m_ConnMan.send(c, data, sizeof(msg->type)+hello_tracker->ByteSize());
+	m_ConnMan.remove_connection(c);
+
+	//m_ConnMan.recv()
 
 	return true;
 }

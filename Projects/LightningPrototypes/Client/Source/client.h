@@ -14,8 +14,14 @@ class Client
 		char *m_tracker_address;
 		int m_tracker_port;
 		char *m_local_address;
+		int m_local_port;
 
-		Client(const char *_tracker_address, int _tracker_port, const char *_local_address);
+		Client(
+			const char *_tracker_address,
+			int _tracker_port,
+			const char *_local_address,
+			int _local_port
+		);
 		~Client();
 		int run();
 

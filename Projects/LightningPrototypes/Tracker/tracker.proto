@@ -5,7 +5,8 @@ import "lightning.proto";
 message HelloToTracker {
     required int32 session_id = 1;
 	required string address = 2;
-	required int32 available = 3;
+    required int32 port = 3;
+	required int32 available = 4;
 }
 
 message HelloToClient {

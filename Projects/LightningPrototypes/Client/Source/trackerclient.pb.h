@@ -135,10 +135,17 @@ class HelloToTracker : public ::google::protobuf::Message {
   inline void set_address(const char* value, size_t size);
   inline ::std::string* mutable_address();
   
-  // required int32 available = 3;
+  // required int32 port = 3;
+  inline bool has_port() const;
+  inline void clear_port();
+  static const int kPortFieldNumber = 3;
+  inline ::google::protobuf::int32 port() const;
+  inline void set_port(::google::protobuf::int32 value);
+  
+  // required int32 available = 4;
   inline bool has_available() const;
   inline void clear_available();
-  static const int kAvailableFieldNumber = 3;
+  static const int kAvailableFieldNumber = 4;
   inline ::google::protobuf::int32 available() const;
   inline void set_available(::google::protobuf::int32 value);
   
@@ -150,12 +157,13 @@ class HelloToTracker : public ::google::protobuf::Message {
   ::google::protobuf::int32 session_id_;
   ::std::string* address_;
   static const ::std::string _default_address_;
+  ::google::protobuf::int32 port_;
   ::google::protobuf::int32 available_;
   friend void  protobuf_AddDesc_trackerclient_2eproto();
   friend void protobuf_AssignDesc_trackerclient_2eproto();
   friend void protobuf_ShutdownFile_trackerclient_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1027,19 +1035,35 @@ inline ::std::string* HelloToTracker::mutable_address() {
   return address_;
 }
 
-// required int32 available = 3;
-inline bool HelloToTracker::has_available() const {
+// required int32 port = 3;
+inline bool HelloToTracker::has_port() const {
   return _has_bit(2);
+}
+inline void HelloToTracker::clear_port() {
+  port_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 HelloToTracker::port() const {
+  return port_;
+}
+inline void HelloToTracker::set_port(::google::protobuf::int32 value) {
+  _set_bit(2);
+  port_ = value;
+}
+
+// required int32 available = 4;
+inline bool HelloToTracker::has_available() const {
+  return _has_bit(3);
 }
 inline void HelloToTracker::clear_available() {
   available_ = 0;
-  _clear_bit(2);
+  _clear_bit(3);
 }
 inline ::google::protobuf::int32 HelloToTracker::available() const {
   return available_;
 }
 inline void HelloToTracker::set_available(::google::protobuf::int32 value) {
-  _set_bit(2);
+  _set_bit(3);
   available_ = value;
 }
 
