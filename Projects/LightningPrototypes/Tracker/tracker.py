@@ -70,12 +70,8 @@ class Tracker():
     _tr_table[lightning.INIT_HELLO] = e_init_hello
 
     def e_hello_to_tracker(self, message):
-        #self._db.set_client(
-        #    message.session_id
-        #    , address = message.address
-        #    , available = message.available
-        #)
         # Delete the old connection.
+        # TODO: Wait until we've successfully connected the new socket?
         del self._scks[r]
         # Connect to the client.
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -84,8 +80,10 @@ class Tracker():
         except socket.error:
             # Couldn't connect. Ignore.
             print("unable to connect to client in return.")
+            # TODO: Raise an Exception?
             return None
-        self._db.add_client(message.session_id, message.address + ":" + str(message.port), message.available)
+        self._db.add_client(message.session_id
+            , message.address + ":" + str(message.port), message.available)
         return None
     _tr_table[lightning.HELLO_TO_TRACKER] = e_hello_to_tracker
 
@@ -175,8 +173,7 @@ class Tracker():
             # To not end up in an infinite loop.
             tries -= 1
             if tries == 0:
-                # TODO: Raise an exception instead.
-                return False
+                raise LightningException("Tried too many times.")
 
         print("successfully sent {1} bytes to socket {0}.".format(client, l))
         return True
@@ -205,6 +202,7 @@ class Tracker():
 
         for r in rr:
             if r == self._sck_listen:
+                # New client.
                 client, addr = r.accept()
                 self._scks[client] = dict([
                     ('buffer', '')
@@ -275,16 +273,12 @@ class Tracker():
 
 
         while True:
-            #data = self._sck_in.recv()
-            res = self.recv()
-            print(str(res))
-            session_id, data = res
-
+            session_id, data = self.recv()
             message_type, message = lightning.unpack(data)
 
             print("Got message: {0}/{1}".format(message_type, message))
             if message_type not in self._tr_table:
-                # TODO: Should be handled here instead.
+                # TODO: Should be handled instead.
                 #self._sck_in.send(lightning.pack(lightning.OK)) # TEMPORARY
                 if not self.send(session_id, lightning.OK):
                     print("unable to send message.")
@@ -301,21 +295,6 @@ class Tracker():
                     print("unable to send message: {0}".format(str(ret)))
                 else:
                     print("sent in return: {0}".format(str(ret)))
-
-                #elif type(ret) == type(str()):
-                #    self.send(ret)
-                #elif type(ret) == type(tuple()) and len(ret) == 2:
-                #    self.send(lightning.pack(ret[0], ret[1]))
-                #elif type(ret) == type(int()):
-                #    self.send(lightning.pack(ret))
-                #else:
-                #    print("Function {0} returned invalid data: {1}:\"{2}\"".format(
-                #        self._tr_table[message_type]
-                #        , type(ret)
-                #        , ret
-                #    ))
-                #    #self._sck_in.send(lightning.pack(lightning.OK))
-                #    self.send(lightning.pack(lightning.OK))
             except Exception as e:
                 print("Function {0} raised an exception:".format(message_type))
                 traceback.print_exc()
@@ -332,6 +311,7 @@ class TrackerDatabase:
     _clients = dict()
     _connections = dict()
     _blacklist = dict()
+    _waitlist = dict()
 
     _next_id = 1
 
@@ -340,6 +320,23 @@ class TrackerDatabase:
 
     def __del__(self):
         pass
+
+    def get_waiting_clients(self):
+        """get_waiting_clients() -> [(int session_id, int wants)]."""
+
+        return [ (c[]) for c in self._waitlist.keys() ]
+
+    def set_client_waiting(self, session_id, wants=1):
+        """set_client_waiting(int session_id, int wants=1) -> nothing."""
+
+        self._waitlist[session_id] = wants
+
+    def get_available_clients(self, min_available=1):
+        """get_available_clients(int min_available=1) -> [(int session_id, int available)]."""
+
+        return [ (s, i[1]) \
+                 for s, i in self._clients.items() \
+                 if i[1] >= min_available ]
 
     def get_client(self, session_id):
         """get_client(int session_id) -> (address, available)."""
