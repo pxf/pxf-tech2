@@ -70,12 +70,8 @@ class Tracker():
     _tr_table[lightning.INIT_HELLO] = e_init_hello
 
     def e_hello_to_tracker(self, message):
-        #self._db.set_client(
-        #    message.session_id
-        #    , address = message.address
-        #    , available = message.available
-        #)
         # Delete the old connection.
+        # TODO: Wait until we've successfully connected the new socket?
         del self._scks[r]
         # Connect to the client.
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -84,6 +80,7 @@ class Tracker():
         except socket.error:
             # Couldn't connect. Ignore.
             print("unable to connect to client in return.")
+            # TODO: Raise an Exception?
             return None
         self._db.add_client(message.session_id
             , message.address + ":" + str(message.port), message.available)
@@ -322,6 +319,13 @@ class TrackerDatabase:
 
     def __del__(self):
         pass
+
+    def get_available_clients(self, min_available=1):
+        """get_available_clients(int min_available=1) -> [(int session_id, int available)]."""
+
+        return [ (c["session_id"], c["available"]) \
+                 for c in self._clients.keys() \
+                 if c["available"] >= min_available ]
 
     def get_client(self, session_id):
         """get_client(int session_id) -> (address, available)."""
