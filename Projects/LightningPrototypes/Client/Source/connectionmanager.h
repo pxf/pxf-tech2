@@ -75,6 +75,7 @@ class ConnectionManager
 		void clear_connbuf(Connection *_connection);
 
 	public:
+		int m_log_tag;
 		ConnectionManager();
 
 		Connection *new_connection(ConnectionType _type);

@@ -1,7 +1,9 @@
 #include <RaytracerClient.h>
 #include <Pxf/Base/Platform.h>
 
-#include <windows.h>
+#ifdef CONF_FAMILY_WINDOWS
+	#include <windows.h>
+#endif
 
 using namespace ZThread;
 using namespace Pxf;
@@ -22,8 +24,6 @@ public:
 			try
 			{
 				TaskRequest* req = m_Client->get_request();
-				
-				printf("job job %x", req);
 
 				TaskResult* res = 0;
 				m_Client->put_result(res);

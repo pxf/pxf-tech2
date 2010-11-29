@@ -1,12 +1,6 @@
-#include <Pxf/Base/Debug.h>
-#include <Pxf/Base/Memory.h>
-
-#include <zmq.hpp>
-
 #include "lightning.h"
 
-#include <stdio.h>
-
+#include <Pxf/Base/Debug.h>
 /*
 Factory[] = {
 	Factory<trackerclient::HelloToClient(),
@@ -42,6 +36,30 @@ message::~message()
 		delete protobuf_data;
 }
 
+message *unpack(Packet *pkg)
+{
+	// First 4 bytes of a message determines the type
+	int message_type = (int)*(pkg->data);
+
+	message* msg = new message;
+	msg->type = message_type;
+	msg->protobuf_data = NULL;
+
+	google::protobuf::Message* buffered_message = get_protobuf_class(message_type);
+
+	// Comment this
+	if (buffered_message == NULL) return msg;
+
+	// TODO: Error checking
+	buffered_message->ParseFromString(pkg->data+sizeof(message_type));
+
+	msg->protobuf_data = buffered_message;
+
+	return msg;
+
+}
+
+/*
 message *recv_message(void* socket)
 {
 	int message_type;
@@ -116,4 +134,5 @@ int send_message(void* socket, message* msg)
 	
 	return ret;
 }
+*/
 

@@ -1,4 +1,5 @@
 #include "trackerclient.pb.h"
+#include "connectionmanager.h"
 
 #ifndef _LIGHTNING_H_
 #define _LIGHTNING_H_
@@ -26,8 +27,9 @@ struct message {
 	google::protobuf::Message* protobuf_data;
 };
 
-message *recv_message(void* socket);
-int send_message(void* socket, message* msg);
+message *unpack(Packet *pkg);
+//message *recv_message(void* socket);
+//int send_message(void* socket, message* msg);
 
 void *get_proto_class(int type);
 
