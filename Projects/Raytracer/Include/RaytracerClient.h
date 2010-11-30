@@ -74,6 +74,9 @@ public:
 	bool run();
 	bool run_noblock();
 	bool wait();
+
+	void cancel();
+	void interrupt();
 };
 
 #endif // _RAYTRACER_CLIENT_H_

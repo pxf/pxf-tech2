@@ -15,19 +15,27 @@ class Worker : public Runnable
 protected:
 	LightningClient* m_Client;
 	Pxf::Kernel* m_Kernel;
+	bool m_Canceled;
 public:
 	Worker(Pxf::Kernel* _Kernel, LightningClient* _Client)
 		: m_Kernel(_Kernel)
 		, m_Client(_Client)
+		, m_Canceled(false)
 	{}
 
 	void run()
 	{
-		while (true)
+		while (!m_Canceled)
 		{
 			try
 			{
 				TaskRequest* req = m_Client->pop_request();
+
+				if (!req)
+				{
+					m_Canceled = true;
+					break;
+				}
 
 				batch_blob_t* blob  = req->blob;
 				task_detail_t task;
@@ -38,12 +46,14 @@ public:
 				render_result_t out;
 				render_task(&task, blob, &out);
 
-				m_Kernel->Log(0, "Done with request %x", req);
-
 				TaskResult* res = new TaskResult;
 				res->rect = req->rect;
 				res->pixels = (uint8*)out.data;
 				m_Client->push_result(res);
+			}
+			catch (Cancellation_Exception)
+			{
+				break;
 			}
 			catch (Interrupted_Exception* e)
 			{
@@ -104,17 +114,16 @@ bool RaytracerClient::run()
 
 	try
 	{
-		while(true)
-		{
-			m_Executor->wait();
-			m_Kernel->Log(m_LogTag, "Executor is done waiting. Why?");
-		}
+
+		m_Executor->wait();
+		m_Kernel->Log(m_LogTag, "Executor is done waiting. Why?");
 	}
 	catch(Cancellation_Exception* e)
 	{
+		m_Kernel->Log(m_LogTag, "Executor cancelled.");
 		return false;
 	}
-
+	return false;
 }
 
 bool RaytracerClient::run_noblock()
@@ -129,4 +138,15 @@ bool RaytracerClient::wait()
 {
 	m_Executor->wait();
 	return true;
+}
+
+void RaytracerClient::cancel()
+{
+	m_TaskQueue.cancel();
+	m_Executor->cancel();
+}
+
+void RaytracerClient::interrupt()
+{
+	m_Executor->interrupt();
 }
