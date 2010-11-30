@@ -88,10 +88,10 @@ int main(int argc, char* argv[])
 	//------------------------
 	
 	// Generate awesome red output buffer
-	const int w = 256;
-	const int h = 256;
+	const int w = 128;
+	const int h = 128;
 	const int channels = 3;
-	const int task_count = 8;
+	const int task_count = 16;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
