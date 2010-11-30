@@ -1,17 +1,8 @@
-#include <Pxf/Base/String.h>
-#include <Pxf/Base/Memory.h>
-#include <zthread/ThreadedExecutor.h>
-
 #include "client.h"
-#include "iomodule.h"
-#include "lightning.h"
-#include "trackerclient.pb.h"
-
-#include <sys/socket.h>
-
-#include <stdio.h>
 
 #define INITIAL_QUEUE 6
+#define PING_INTERVAL 10000 // Ping interval in milliseconds
+#define PING_TIMEOUT 5000 // Ping timeout in milliseconds
 
 Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port)
 {
@@ -24,7 +15,9 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
-	m_ConnMan = ConnectionManager();
+	// TODO: Change to LiPacket
+	//m_ConnMan = ConnectionManager(new Pxf::Util::Array<LiPacket*>);
+	m_ConnMan = ConnectionManager(new Pxf::Util::Array<Packet*>);
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_net_tag = m_ConnMan.m_log_tag;
 }
@@ -37,26 +30,100 @@ Client::~Client()
 
 int Client::run()
 {
-	printf("Connecting to tracker at %s\n", m_tracker_address);
-	connect_tracker();
-	//if (client.connect_tracker(client.tracker_address) == -1 )
-	//{
-	//	printf("Could not connect to tracker at %s.\n", client.tracker_address);
-	//	return(-1);
-	//}
-	//printf("session_id:%s\n",client.session_id);
+	int logtag = m_Kernel->CreateTag("cli");
+	time_t last_ping, ping_timestamp;
 
-	// Simulate event
-	//ZThread::ThreadedExecutor batch_executor;
-	//for (int i = 0; i < 5; i++)
-	//{
-	//		batch_executor.execute(new IOModule());
-	//}
-		
+	// TODO: Change to LiPacket
+	//Pxf::Util::Array(<LiPacket*>) *packets;
+	Pxf::Util::Array<Packet*> *packets;
+	
+	m_Kernel->Log(logtag, "Connecting to tracker at %s.", m_tracker_address);
+	
+	bool exit = false;
+
+	if (!connect_tracker())
+	{
+		m_Kernel->Log(logtag, "Connection failed, quitting");
+		exit = true;
+	}
+	
+	ping_timestamp = time(NULL);
+	
+	// This is our main fail
+	while(!exit)
+	{
+		packets = m_ConnMan.recv_packets(PING_INTERVAL);
+
+		if (difftime(ping_timestamp, time(NULL)) > PING_INTERVAL/1000)
+		{
+			// Ping all connections	
+			Pxf::Util::Array<struct Connection*>::iterator i_conn;
+			for (i_conn = m_ConnMan.m_Connections.begin(); i_conn != m_ConnMan.m_Connections.end(); i_conn++)
+			{
+				if (difftime((*i_conn)->timestamp, ping_timestamp) > PING_TIMEOUT)
+				{
+					m_ConnMan.remove_connection(*i_conn);
+					continue;
+				}
+
+				ping(*i_conn, (int)time(NULL));
+			}
+
+			ping_timestamp = time(NULL);
+
+			continue;
+		}
+
+		// If there are no packets available, try to get some more
+		if (packets->empty()) continue;
+
+		// Packet loop
+		// TODO: Change to LiPacket
+		Pxf::Util::Array<Packet*>::iterator p;
+		p = packets->begin();
+		while (p != packets->end())
+		{
+			switch((*p)->length)
+			{
+				case PONG:
+					m_Kernel->Log(logtag, "Got PONG from %s", (*p)->connection->target_address);
+					(*p)->connection->timestamp = time(NULL);
+					p = packets->erase(p);
+					continue;
+				default:
+					m_Kernel->Log(logtag, "Unknown packet type: %d", (*p)->length); // TODO: LiPacket...
+			}
+			
+			p++;
+		}
+	}
+}
+
+
+void Client::ping(Connection *_c, int _timestamp)
+{
+	char *data = (char*)Pxf::MemoryAllocate(2*sizeof(int));
+
+	int t = PING;
+	Pxf::MemoryCopy(
+		data,
+		&t,
+		sizeof(t)
+	);
+
+	Pxf::MemoryCopy(
+		data+sizeof(t),
+		&_timestamp,
+		sizeof(_timestamp)
+	);
+
+	m_ConnMan.send(_c, data, 2*sizeof(int));
+	_c->timestamp = _timestamp;
+
+	Pxf::MemoryFree(data);
 }
 
 /* Connects to the tracker at the specified endpoint */
-
 bool Client::connect_tracker()
 {
 	Connection *bound_c = m_ConnMan.new_connection(CLIENT);
