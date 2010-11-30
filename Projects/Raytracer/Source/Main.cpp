@@ -22,33 +22,9 @@
 
 #include <RaytracerClient.h>
 
-#include <zthread/PoolExecutor.h>
-
 using namespace Pxf;
 using namespace Graphics;
 using namespace Math;
-
-class RegionTask : public ZThread::Runnable
-{
-private:
-	Pxf::Kernel* m_Kernel;
-	task_detail_t* m_Task;
-	batch_blob_t* m_Blob;
-	render_result_t* m_Result;
-public:
-	RegionTask(Pxf::Kernel* _Kernel, int _ThreadID, task_detail_t* _pTask, batch_blob_t* _pBlob, render_result_t* _pResult)
-		: m_Kernel(_Kernel)
-		, m_Task(_pTask)
-		, m_Blob(_pBlob)
-		, m_Result(_pResult)
-	{}
-
-	void run()
-	{
-		m_Kernel->Log(0, "processing task with id: %d", m_Task->task_id);
-		render_task(m_Task, m_Blob, m_Result);
-	}
-};
 
 int test_cb(lua_State* L)
 {
@@ -84,7 +60,7 @@ int main(int argc, char* argv[])
 	const int w = 128;
 	const int h = 128;
 	const int channels = 3;
-	const int task_count = 8;
+	const int task_count = 32;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
@@ -215,7 +191,6 @@ int main(int argc, char* argv[])
 		//-------------------------------------
 		if(client.has_results())
 		{
-			kernel->Log(0, "Got result!");
 			TaskResult* res = client.pop_result();
 			int x = res->rect.x / task_size_w;
 			int y = res->rect.y / task_size_h;
@@ -263,10 +238,13 @@ int main(int argc, char* argv[])
 		inp->ClearLastKey();
 		win->Swap();
 	}
+
+	client.cancel();
+	client.wait();
 	
 	delete app;
 	delete pbatch;
-	
+
 	return 0;
 }
 
