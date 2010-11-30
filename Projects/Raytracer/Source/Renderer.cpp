@@ -182,33 +182,36 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 						if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
 						{
 							att -= (1.0f / ((float)light->num_rays * (float)light->num_rays));
-						} else {
-							// TODO: add better contributing calculations
-							float ndotl = Dot(closest_resp.n, light_ray.d);
-							float attscale = ((1.0f / ((float)light->num_rays * (float)light->num_rays))) / (float)datablob->light_count;
-							float reflscale = 1.0f - closest_prim->material.reflectiveness;
-							*res += closest_prim->material.diffuse * datablob->lights[l]->material.diffuse * ndotl * attscale * reflscale;
-							
-							if (closest_prim->material.reflectiveness > 0.0f)
-							{
-								// Find reflection
-								Pxf::Math::Vec3f bounce_contrib(0.0f);
-								Pxf::Math::Vec3f eye_vec = -ray->o + closest_resp.p;
-								Normalize(eye_vec);
-								Pxf::Math::Vec3f refl = closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
-								ray_t refl_ray;
-								refl_ray.o = closest_resp.p;
-								refl_ray.d = refl;
-								
-								if (!calc_ray_contrib(&refl_ray, datablob, &bounce_contrib, bounce))
-								{
-									Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
-									return false;
-								}
-								*res += (bounce_contrib / (float)bounce) * closest_prim->material.reflectiveness * attscale;
-							}
 						}
 					}
+				}
+				
+				// TODO: add better contributing calculations
+				float ndotl = Dot(closest_resp.n, light_ray.d);
+				float attscale = 1.0f / (float)datablob->light_count;
+				float reflscale = 1.0f - closest_prim->material.reflectiveness;
+				*res += closest_prim->material.diffuse * datablob->lights[l]->material.diffuse * ndotl * attscale * reflscale * att;
+				
+				// Shoot reflection rays
+				if (closest_prim->material.reflectiveness > 0.0f)
+				{
+					// Find reflection
+					Pxf::Math::Vec3f bounce_contrib(0.0f);
+					Pxf::Math::Vec3f eye_vec = -ray->o + closest_resp.p;
+					Normalize(eye_vec);
+					Pxf::Math::Vec3f refl = closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
+					
+					// reflection vector
+					ray_t refl_ray;
+					refl_ray.o = closest_resp.p;
+					refl_ray.d = refl;
+					
+					if (!calc_ray_contrib(&refl_ray, datablob, &bounce_contrib, bounce))
+					{
+						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
+						return false;
+					}
+					*res += (bounce_contrib / (float)bounce) * closest_prim->material.reflectiveness * attscale;
 				}
 			}
 		
