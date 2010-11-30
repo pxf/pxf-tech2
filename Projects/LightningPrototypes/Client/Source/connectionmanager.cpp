@@ -11,6 +11,7 @@ Connection::Connection(ConnectionType _type, int _id)
 	, session_id(0)
 	, type(_type)
 	, bound(false)
+	, timestamp(time(NULL))
 {}
 
 Connection::~Connection()
@@ -37,6 +38,19 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 
 ConnectionManager::ConnectionManager()
 {
+	m_NextId = 1;
+	m_max_socketfd = 0;
+	FD_ZERO(&m_read_sockets);
+
+	m_Kernel = Pxf::Kernel::GetInstance();
+	m_log_tag = m_Kernel->CreateTag("net");
+}
+
+ConnectionManager::ConnectionManager(Pxf::Util::Array<Packet*> *_packets)
+{
+	m_Packets = _packets;
+
+	// Copypasta
 	m_NextId = 1;
 	m_max_socketfd = 0;
 	FD_ZERO(&m_read_sockets);
@@ -112,8 +126,23 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 
 	if (have_socket)
 		set_highest_fd();
+	
+	// Remove from the hash map.
+	m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
 
-	return false;
+	// Remove from the connection list.
+	Pxf::Util::Array<struct Connection*>::iterator i;
+
+	i = m_Connections.begin();
+	while (i != m_Connections.end())
+	{
+		if ((*i) == _connection)
+			i = m_Connections.erase(i);
+		else
+			i++;
+	}
+
+	return true;
 }
 
 bool ConnectionManager::connect_connection(Connection *_connection, char *_address, int _port)
@@ -172,7 +201,7 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 {
 	Pxf::Util::Array<struct Connection*>::iterator i;
 
-	for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
+	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
 		if (((_is_session_id) ? (*i)->session_id : (*i)->id) == _id)
 			return (*i);
 	}
@@ -182,7 +211,6 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 
 Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 {
-	Pxf::Util::Array<Packet*>* packets = new Pxf::Util::Array<Packet*>();
 	struct timeval timeout;
 
 	timeout.tv_sec = _timeout/1000;
@@ -258,7 +286,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					{
 						// Entire message recieved, continue to next available socket
 						Packet* p = new Packet(c, c->buffer_size, c->buffer);
-						packets->push_back(p);
+						m_Packets->push_back(p);
 						clear_connbuf(c);
 						continue;
 					} else {
@@ -285,7 +313,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					{
 						// Entire message recieved, continue...
 						Packet* p = new Packet(c, c->buffer_size, c->buffer);
-						packets->push_back(p);
+						m_Packets->push_back(p);
 						clear_connbuf(c);
 						continue;        
 					} else {
@@ -297,7 +325,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		} // if (FD_ISSET)
 	}
 
-	return packets;
+	return m_Packets;
 }
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
@@ -340,7 +368,7 @@ void ConnectionManager::set_highest_fd()
 	Pxf::Util::Array<struct Connection*>::iterator i;
 	int max;
 
-	for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
+	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
 		if (max < (*i)->socket)
 			max = (*i)->socket;
 	}

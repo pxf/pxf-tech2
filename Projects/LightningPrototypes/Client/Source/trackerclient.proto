@@ -46,6 +46,7 @@ message NodesResponse {
 	message Node {
 		required int32 session_id  = 1;
 		required string address = 2;
+		required int32 port = 3;
 	}
 	
 	repeated Node nodes = 1;

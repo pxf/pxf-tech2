@@ -6,7 +6,7 @@
 
 #include <zthread/Guard.h>
 #include <zthread/Condition.h>
-#include <zthread/FastMutex.h>
+#include <zthread/Mutex.h>
 
 template <typename T>
 class BlockingTaskQueue
@@ -25,7 +25,8 @@ protected:
 
 	std::map<unsigned int, ZThread::Condition*> m_Conditions;
 	std::vector<Entry_t> m_InternalArray;
-	ZThread::FastMutex m_Lock;
+	ZThread::Mutex m_Lock;
+	bool m_Canceled;
 
 	int count(unsigned int _Type)
 	{
@@ -40,6 +41,7 @@ protected:
 
 public:
 	BlockingTaskQueue()
+		: m_Canceled(false)
 	{
 	
 	}
@@ -49,15 +51,15 @@ public:
 
 	bool register_type(unsigned int _Type)
 	{
-		ZThread::Guard<ZThread::FastMutex> g(m_Lock);
+		ZThread::Guard<ZThread::Mutex> g(m_Lock);
 		if (m_Conditions.find(_Type) == m_Conditions.end())
-			m_Conditions[_Type] = new Condition(m_Lock);
+			m_Conditions[_Type] = new ZThread::Condition(m_Lock);
 		return true;
 	}
 
 	void push(unsigned int _Type, const T _Task)
 	{
-		ZThread::Guard<ZThread::FastMutex> g(m_Lock);
+		ZThread::Guard<ZThread::Mutex> g(m_Lock);
 		Entry_t e(_Type, _Task);
 		m_InternalArray.push_back(e);
 		m_Conditions[_Type]->signal();
@@ -65,12 +67,15 @@ public:
 
 	T pop(unsigned int _Type)
 	{
-		ZThread::Guard<ZThread::FastMutex> g(m_Lock);
+		ZThread::Guard<ZThread::Mutex> g(m_Lock);
 		while(count(_Type) == 0)
 			m_Conditions[_Type]->wait();
 
+		if (m_Canceled)
+			return NULL;
+
 		T ret = 0;
-		std::vector<Entry_t>::iterator iter = m_InternalArray.begin();
+		typename std::vector<Entry_t>::iterator iter = m_InternalArray.begin();
 		for(; iter != m_InternalArray.end(); ++iter)
 		{
 			if (iter->type == _Type)
@@ -82,6 +87,15 @@ public:
 		}
 		
 		return ret;
+	}
+
+	void cancel()
+	{
+
+		m_Canceled = true;
+		typename std::map<unsigned int, ZThread::Condition*>::iterator iter = m_Conditions.begin();
+		for(; iter != m_Conditions.end(); ++iter)
+			iter->second->broadcast();
 	}
 
 };

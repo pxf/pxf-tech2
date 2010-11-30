@@ -14,6 +14,9 @@ struct batch_blob_t
 	// sampling data
 	float samples[256];
 	
+	// bounces
+	int bounce_count;
+	
 	// windowing etc
 	int pic_w, pic_h;
 	int samples_per_pixel;

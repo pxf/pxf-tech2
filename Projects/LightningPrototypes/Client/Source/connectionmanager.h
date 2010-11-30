@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Logger.h>
@@ -45,6 +46,7 @@ struct Connection {
 	int id; // locally set for connections.
 	int session_id; // globally set by tracker.
 	bool bound;
+	time_t timestamp;
 	ConnectionType type;
 };
 
@@ -65,7 +67,7 @@ struct Packet {
 class ConnectionManager
 {
 	private:
-		Pxf::Util::Array<struct Connection *> m_Connections;
+		Pxf::Util::Array<Packet*> *m_Packets;
 		Pxf::Util::Map<int, struct Connection *> m_socketfdToConnection;
 		Pxf::Kernel* m_Kernel;
 
@@ -77,7 +79,10 @@ class ConnectionManager
 
 	public:
 		int m_log_tag;
+		Pxf::Util::Array<struct Connection *> m_Connections;
+
 		ConnectionManager();
+		ConnectionManager(Pxf::Util::Array<Packet*> *_packets);
 
 		Connection *new_connection(ConnectionType _type);
 		bool bind_connection(Connection *_connection, char *_address, int _port);
