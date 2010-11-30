@@ -120,7 +120,7 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	Pxf::Util::Array<struct Connection*>::iterator i;
 
 	i = m_Connections.begin();
-	while (i <= m_Connections.end())
+	while (i != m_Connections.end())
 	{
 		if ((*i) == _connection)
 			i = m_Connections.erase(i);
@@ -187,7 +187,7 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 {
 	Pxf::Util::Array<struct Connection*>::iterator i;
 
-	for (i = m_Connections.begin(); i <= m_Connections.end(); i++) {
+	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
 		if (((_is_session_id) ? (*i)->session_id : (*i)->id) == _id)
 			return (*i);
 	}
@@ -231,7 +231,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					Pxf::Util::Array<struct Connection*>::iterator j;
 					
 					bool tracker_connected = false;
-					for (j = m_Connections.begin(); j <= m_Connections.end(); j++) {
+					for (j = m_Connections.begin(); j != m_Connections.end(); j++) {
 						if ((*j)->type == TRACKER) {
 							tracker_connected = true;
 							break;
@@ -355,7 +355,7 @@ void ConnectionManager::set_highest_fd()
 	Pxf::Util::Array<struct Connection*>::iterator i;
 	int max;
 
-	for (i = m_Connections.begin(); i <= m_Connections.end(); i++) {
+	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
 		if (max < (*i)->socket)
 			max = (*i)->socket;
 	}
