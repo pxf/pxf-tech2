@@ -11,27 +11,29 @@
 
 #include <BlockingTaskQueue.h>
 
-class Rect
+struct batch_blob_t;
+
+struct Rect_t
 {
-public:
 	int x, y;
 	int w, h;
 
-	Rect()
+	Rect_t()
 		: x(0), y(0)
 		, w(0), h(0)
 	{}
 };
 
 
-class TaskRequest
+struct TaskRequest
 {
-public:
-	Rect rect;
+	Rect_t rect;
+	batch_blob_t* blob;
 };
 
-class TaskResult
+struct TaskResult
 {
+	Rect_t rect;
 	uint8* pixels;
 };
 
@@ -70,6 +72,7 @@ public:
 
 	bool run();
 	bool run_noblock();
+	bool wait();
 };
 
 #endif // _RAYTRACER_CLIENT_H_
