@@ -846,6 +846,13 @@ class NodesResponse_Node : public ::google::protobuf::Message {
   inline void set_address(const char* value, size_t size);
   inline ::std::string* mutable_address();
   
+  // required int32 port = 3;
+  inline bool has_port() const;
+  inline void clear_port();
+  static const int kPortFieldNumber = 3;
+  inline ::google::protobuf::int32 port() const;
+  inline void set_port(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:trackerclient.NodesResponse.Node)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -854,11 +861,12 @@ class NodesResponse_Node : public ::google::protobuf::Message {
   ::google::protobuf::int32 session_id_;
   ::std::string* address_;
   static const ::std::string _default_address_;
+  ::google::protobuf::int32 port_;
   friend void  protobuf_AddDesc_trackerclient_2eproto();
   friend void protobuf_AssignDesc_trackerclient_2eproto();
   friend void protobuf_ShutdownFile_trackerclient_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1338,6 +1346,22 @@ inline ::std::string* NodesResponse_Node::mutable_address() {
     address_ = new ::std::string;
   }
   return address_;
+}
+
+// required int32 port = 3;
+inline bool NodesResponse_Node::has_port() const {
+  return _has_bit(2);
+}
+inline void NodesResponse_Node::clear_port() {
+  port_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 NodesResponse_Node::port() const {
+  return port_;
+}
+inline void NodesResponse_Node::set_port(::google::protobuf::int32 value) {
+  _set_bit(2);
+  port_ = value;
 }
 
 // -------------------------------------------------------------------

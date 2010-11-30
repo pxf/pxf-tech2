@@ -72,11 +72,11 @@ class Tracker():
     def e_hello_to_tracker(self, message):
         # Delete the old connection.
         # TODO: Wait until we've successfully connected the new socket?
-        del self._scks[r]
+        del self._scks[self._last_socket]
         # Connect to the client.
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            c.connect(message.address, message.port)
+            c.connect((message.address, message.port))
         except socket.error:
             # Couldn't connect. Ignore.
             print("unable to connect to client in return.")
@@ -228,7 +228,7 @@ class Tracker():
                 continue
             client_data['buffer'] += tmp
 
-            print("data from client {0}: \"{1}\".".format(r, tmp))
+            #print("data from client {0}: \"{1}\".".format(r, tmp))
             print("begin check.")
             if client_data['pkt-length'] == 0:
                 if len(client_data['buffer']) >= 4:
@@ -249,14 +249,11 @@ class Tracker():
             # Alright, we have a packet. Take it from the buffer.
             length = client_data['pkt-length']
             packet = client_data['buffer'][:length]
-            print("packet soon done {0} / {1}".format(length, str(packet)))
             client_data['buffer'] = client_data['buffer'][length:]
             client_data['pkt-length'] = 0
 
             self._last_session_id = client_data['session_id']
             self._last_socket = r
-
-            print("packet done. {0}".format(str((packet,))))
 
             return (client_data["session_id"], packet)
 
@@ -307,11 +304,14 @@ class TrackerDatabaseException(Exception):
 class TrackerDatabase:
     """Class containing the current connected nodes, connections within
     the network and a blacklist."""
-    
+
+    # TODO: Document these better.
     _clients = dict()
     _connections = dict()
     _blacklist = dict()
     _waitlist = dict()
+    
+    _batchse = dict()
 
     _next_id = 1
 
@@ -321,10 +321,14 @@ class TrackerDatabase:
     def __del__(self):
         pass
 
+    def new_batch(self, batch_hash, batch_type):
+        """new_batch() -> ."""
+        pass
+
     def get_waiting_clients(self):
         """get_waiting_clients() -> [(int session_id, int wants)]."""
 
-        return [ (c[]) for c in self._waitlist.keys() ]
+        return [ (c, w) for (c, w) in self._waitlist.items() ]
 
     def set_client_waiting(self, session_id, wants=1):
         """set_client_waiting(int session_id, int wants=1) -> nothing."""

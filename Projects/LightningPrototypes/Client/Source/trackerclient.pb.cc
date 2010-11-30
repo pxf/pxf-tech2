@@ -181,9 +181,10 @@ void protobuf_AssignDesc_trackerclient_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(NodesResponse));
   NodesResponse_Node_descriptor_ = NodesResponse_descriptor_->nested_type(0);
-  static const int NodesResponse_Node_offsets_[2] = {
+  static const int NodesResponse_Node_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodesResponse_Node, session_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodesResponse_Node, address_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodesResponse_Node, port_),
   };
   NodesResponse_Node_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -271,9 +272,10 @@ void protobuf_AddDesc_trackerclient_2eproto() {
     "rclient.NewBatch.BatchType\"*\n\tBatchType\022"
     "\014\n\010RAYTRACE\020\000\022\017\n\013PHOTSHOOTAH\020\001\"1\n\014NodesR"
     "equest\022\022\n\nsession_id\030\001 \002(\005\022\r\n\005nodes\030\002 \002("
-    "\005\"n\n\rNodesResponse\0220\n\005nodes\030\001 \003(\0132!.trac"
-    "kerclient.NodesResponse.Node\032+\n\004Node\022\022\n\n"
-    "session_id\030\001 \002(\005\022\017\n\007address\030\002 \002(\t", 593);
+    "\005\"|\n\rNodesResponse\0220\n\005nodes\030\001 \003(\0132!.trac"
+    "kerclient.NodesResponse.Node\0329\n\004Node\022\022\n\n"
+    "session_id\030\001 \002(\005\022\017\n\007address\030\002 \002(\t\022\014\n\004por"
+    "t\030\003 \002(\005", 607);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "trackerclient.proto", &protobuf_RegisterTypes);
   HelloToTracker::default_instance_ = new HelloToTracker();
@@ -2110,6 +2112,7 @@ const ::std::string NodesResponse_Node::_default_address_;
 #ifndef _MSC_VER
 const int NodesResponse_Node::kSessionIdFieldNumber;
 const int NodesResponse_Node::kAddressFieldNumber;
+const int NodesResponse_Node::kPortFieldNumber;
 #endif  // !_MSC_VER
 
 NodesResponse_Node::NodesResponse_Node()
@@ -2130,6 +2133,7 @@ void NodesResponse_Node::SharedCtor() {
   _cached_size_ = 0;
   session_id_ = 0;
   address_ = const_cast< ::std::string*>(&_default_address_);
+  port_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2173,6 +2177,7 @@ void NodesResponse_Node::Clear() {
         address_->clear();
       }
     }
+    port_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -2212,6 +2217,22 @@ bool NodesResponse_Node::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(24)) goto parse_port;
+        break;
+      }
+      
+      // required int32 port = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_port:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &port_)));
+          _set_bit(2);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -2248,6 +2269,11 @@ void NodesResponse_Node::SerializeWithCachedSizes(
       2, this->address(), output);
   }
   
+  // required int32 port = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->port(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2269,6 +2295,11 @@ void NodesResponse_Node::SerializeWithCachedSizes(
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         2, this->address(), target);
+  }
+  
+  // required int32 port = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->port(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -2294,6 +2325,13 @@ int NodesResponse_Node::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->address());
+    }
+    
+    // required int32 port = 3;
+    if (has_port()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->port());
     }
     
   }
@@ -2329,6 +2367,9 @@ void NodesResponse_Node::MergeFrom(const NodesResponse_Node& from) {
     if (from._has_bit(1)) {
       set_address(from.address());
     }
+    if (from._has_bit(2)) {
+      set_port(from.port());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2346,7 +2387,7 @@ void NodesResponse_Node::CopyFrom(const NodesResponse_Node& from) {
 }
 
 bool NodesResponse_Node::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
   
   return true;
 }
@@ -2355,6 +2396,7 @@ void NodesResponse_Node::Swap(NodesResponse_Node* other) {
   if (other != this) {
     std::swap(session_id_, other->session_id_);
     std::swap(address_, other->address_);
+    std::swap(port_, other->port_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
