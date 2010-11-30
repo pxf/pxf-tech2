@@ -156,6 +156,9 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 			{
 				AreaLight *light = (AreaLight*)datablob->lights[l];
 				
+				// Calc distance
+				float attscale = Pxf::Math::Clamp(light->strength / Length(light->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
+				
 				// construct "up-vector"
 				Vec3f up = Cross(light->normal, light->dir);
 				float step_w = (float)light->width / (float)light->num_rays;
@@ -188,7 +191,6 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				
 				// TODO: add better contributing calculations
 				float ndotl = Dot(closest_resp.n, light_ray.d);
-				float attscale = 1.0f / (float)datablob->light_count;
 				float reflscale = 1.0f - closest_prim->material.reflectiveness;
 				*res += closest_prim->material.diffuse * datablob->lights[l]->material.diffuse * ndotl * attscale * reflscale * att;
 				
