@@ -88,8 +88,8 @@ int main(int argc, char* argv[])
 	//------------------------
 	
 	// Generate awesome red output buffer
-	const int w = 128;
-	const int h = 128;
+	const int w = 256;
+	const int h = 256;
 	const int channels = 3;
 	const int task_count = 8;
 	int task_size_w = w / task_count;
@@ -101,6 +101,7 @@ int main(int argc, char* argv[])
 	blob.pic_w = w;
 	blob.pic_h = h;
 	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
+	blob.bounce_count = 3; // Number of reflection bounces
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -132,13 +133,13 @@ int main(int argc, char* argv[])
 
 	
 	// Add 64 spheres on the floor, should slow down the render a bit. Compare with kd-tree.
-	for (int y = 0; y < 8; y++)
+	/*for (int y = 0; y < 8; y++)
 	{
 		for (int x = 0; x < 8; x++)
 		{
 			blob.primitives[blob.prim_count++] = new Sphere(Math::Vec3f(x-3.5f,-4.f,y+2), .5f, (x+y)%2 == 0 ? sphere_mat1 : sphere_mat2);
 		}
-	}
+	}*/
 	
 
 	//blob.prim_count = 7;
@@ -156,9 +157,9 @@ int main(int argc, char* argv[])
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
-	blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
-	blob.light_count = 2;
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 4, light_mat1);
+	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, light_mat1);
+	blob.light_count = 1;
 	
 	// create textures and primitive batches
 	Texture *region_textures[task_count*task_count] = {0};
