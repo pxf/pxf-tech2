@@ -41,6 +41,7 @@ public:
 				m_Kernel->Log(0, "Done with request %x", req);
 
 				TaskResult* res = new TaskResult;
+				res->rect = req->rect;
 				res->pixels = (uint8*)out.data;
 				m_Client->push_result(res);
 			}
@@ -90,6 +91,11 @@ void RaytracerClient::push_result(TaskResult* _Result)
 TaskResult* RaytracerClient::pop_result()
 {
 	return m_ResultQueue.next();
+}
+
+bool RaytracerClient::has_results()
+{
+	return !m_ResultQueue.empty();
 }
 
 bool RaytracerClient::run()

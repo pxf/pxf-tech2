@@ -69,6 +69,7 @@ public:
 	virtual TaskRequest* pop_request();
 	virtual void push_result(TaskResult* _Result);
 	virtual TaskResult* pop_result();
+	bool has_results();
 
 	bool run();
 	bool run_noblock();
