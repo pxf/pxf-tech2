@@ -1,6 +1,8 @@
 #include <RaytracerClient.h>
 #include <Pxf/Base/Platform.h>
 
+#include <Renderer.h>
+
 #ifdef CONF_FAMILY_WINDOWS
 	#include <windows.h>
 #endif
@@ -12,21 +14,46 @@ class Worker : public Runnable
 {
 protected:
 	LightningClient* m_Client;
+	Pxf::Kernel* m_Kernel;
+	bool m_Canceled;
 public:
-	Worker(LightningClient* _Client)
-		: m_Client(_Client)
+	Worker(Pxf::Kernel* _Kernel, LightningClient* _Client)
+		: m_Kernel(_Kernel)
+		, m_Client(_Client)
+		, m_Canceled(false)
 	{}
 
 	void run()
 	{
-		while (true)
+		while (!m_Canceled)
 		{
 			try
 			{
 				TaskRequest* req = m_Client->pop_request();
 
-				TaskResult* res = 0;
+				if (!req)
+				{
+					m_Canceled = true;
+					break;
+				}
+
+				batch_blob_t* blob  = req->blob;
+				task_detail_t task;
+				task.region[0] = req->rect.x;
+				task.region[1] = req->rect.y;
+				task.region[2] = req->rect.x + req->rect.h;
+				task.region[3] = req->rect.y + req->rect.w;
+				render_result_t out;
+				render_task(&task, blob, &out);
+
+				TaskResult* res = new TaskResult;
+				res->rect = req->rect;
+				res->pixels = (uint8*)out.data;
 				m_Client->push_result(res);
+			}
+			catch (Cancellation_Exception)
+			{
+				break;
 			}
 			catch (Interrupted_Exception* e)
 			{
@@ -76,34 +103,50 @@ TaskResult* RaytracerClient::pop_result()
 	return m_ResultQueue.next();
 }
 
+bool RaytracerClient::has_results()
+{
+	return !m_ResultQueue.empty();
+}
+
 bool RaytracerClient::run()
 {
 	run_noblock();
 
-	for(int i = 0; i < 10; i++)
-	{
-		m_TaskQueue.push(LightningClient::RayTraceTask, new TaskRequest());
-	}
-
 	try
 	{
-		while(true)
-		{
-			m_Executor->wait();
-			m_Kernel->Log(m_LogTag, "Executor is done waiting. Why?");
-		}
+
+		m_Executor->wait();
+		m_Kernel->Log(m_LogTag, "Executor is done waiting. Why?");
 	}
 	catch(Cancellation_Exception* e)
 	{
+		m_Kernel->Log(m_LogTag, "Executor cancelled.");
 		return false;
 	}
-
+	return false;
 }
 
 bool RaytracerClient::run_noblock()
 {
 	for(int i = 0; i < m_NumWorkers; i++)
-		m_Executor->execute(new Worker(this));
+		m_Executor->execute(new Worker(m_Kernel, this));
 
 	return true;
+}
+
+bool RaytracerClient::wait()
+{
+	m_Executor->wait();
+	return true;
+}
+
+void RaytracerClient::cancel()
+{
+	m_TaskQueue.cancel();
+	m_Executor->cancel();
+}
+
+void RaytracerClient::interrupt()
+{
+	m_Executor->interrupt();
 }

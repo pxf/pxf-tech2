@@ -126,8 +126,23 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 
 	if (have_socket)
 		set_highest_fd();
+	
+	// Remove from the hash map.
+	m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
 
-	return false;
+	// Remove from the connection list.
+	Pxf::Util::Array<struct Connection*>::iterator i;
+
+	i = m_Connections.begin();
+	while (i != m_Connections.end())
+	{
+		if ((*i) == _connection)
+			i = m_Connections.erase(i);
+		else
+			i++;
+	}
+
+	return true;
 }
 
 bool ConnectionManager::connect_connection(Connection *_connection, char *_address, int _port)
@@ -186,7 +201,7 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 {
 	Pxf::Util::Array<struct Connection*>::iterator i;
 
-	for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
+	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
 		if (((_is_session_id) ? (*i)->session_id : (*i)->id) == _id)
 			return (*i);
 	}
@@ -353,7 +368,7 @@ void ConnectionManager::set_highest_fd()
 	Pxf::Util::Array<struct Connection*>::iterator i;
 	int max;
 
-	for (i = m_Connections.begin(); i < m_Connections.end(); i++) {
+	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
 		if (max < (*i)->socket)
 			max = (*i)->socket;
 	}
