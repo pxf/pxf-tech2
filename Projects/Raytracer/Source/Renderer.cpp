@@ -216,8 +216,8 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			//new_screen_coords.x += (1.0f / ((float)datablob->pic_w * (float)datablob->samples_per_pixel)) * (float)pixel_x;
 			//new_screen_coords.y += (1.0f / ((float)datablob->pic_h * (float)datablob->samples_per_pixel)) * (float)pixel_y;
 			
-			new_screen_coords.x += (0.8f / ((float)datablob->pic_w)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
-			new_screen_coords.y += (0.8f / ((float)datablob->pic_h)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
+			new_screen_coords.x += (0.5f / ((float)datablob->pic_w)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
+			new_screen_coords.y += (0.5f / ((float)datablob->pic_h)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
 			ray.d = new_screen_coords - cray.o;
 			Normalize(ray.d);
 			

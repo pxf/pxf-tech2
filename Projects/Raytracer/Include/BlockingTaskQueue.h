@@ -51,7 +51,7 @@ public:
 	{
 		ZThread::Guard<ZThread::FastMutex> g(m_Lock);
 		if (m_Conditions.find(_Type) == m_Conditions.end())
-			m_Conditions[_Type] = new Condition(m_Lock);
+			m_Conditions[_Type] = new ZThread::Condition(m_Lock);
 		return true;
 	}
 
@@ -70,7 +70,7 @@ public:
 			m_Conditions[_Type]->wait();
 
 		T ret = 0;
-		std::vector<Entry_t>::iterator iter = m_InternalArray.begin();
+		typename std::vector<Entry_t>::iterator iter = m_InternalArray.begin();
 		for(; iter != m_InternalArray.end(); ++iter)
 		{
 			if (iter->type == _Type)
