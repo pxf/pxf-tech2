@@ -1534,4 +1534,30 @@ function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = functi
 end
 
 
+-- simple button with icon
+function gui:create_progressbar(x,y,w,h,progress)
+  local wid = gui:create_basewidget(x,y,w,h)
+  wid.progress = progress
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- borders
+      gfx.drawtopleft(1,0,self.drawbox.w-2,1,13,1,1,1) -- top
+			gfx.drawtopleft(self.drawbox.w-1,1,1,self.drawbox.h-2,13,1,1,1) -- right
+			gfx.drawtopleft(1,self.drawbox.h-1,self.drawbox.w-2,1,13,1,1,1) -- bottom
+			gfx.drawtopleft(0,1,1,self.drawbox.h-2,13,1,1,1) -- right
+			
+			-- progress
+			gfx.drawtopleft(1, 1, (self.drawbox.w-2)*self.progress, self.drawbox.h-2, 13,1,1,1)
+			
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+    
+    end
+  end
+  
+  return wid
+end
+
 
