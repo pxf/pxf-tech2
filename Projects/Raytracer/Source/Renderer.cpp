@@ -53,6 +53,17 @@ int render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pi
 				Pxf::Message("TaskRenderer", "Error while calculating pixel: [x: %d, y: %d]", x, y);
 				return -1;
 			}
+			
+			if (sub_task_num == 0)
+			{
+				for(int yi = 0; yi < datablob->interleaved_feedback; ++yi)
+				{
+					for(size_t xi = 0; xi < datablob->interleaved_feedback; ++xi)
+					{
+						pic->data[(y+yi)*region_width+(x+xi)] = pic->data[y*region_width+x];
+					}
+				}
+			}
 		}
 	}
 	
