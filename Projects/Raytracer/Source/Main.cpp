@@ -26,10 +26,16 @@ using namespace Pxf;
 using namespace Graphics;
 using namespace Math;
 
-int test_cb(lua_State* L)
+int total_done = 0;
+int total_count = 0;
+Pxf::Timer render_timer;
+
+int renderstatus_cb(lua_State* L)
 {
-	lua_pushstring(L, "sup?");
-	return 1;
+	lua_pushnumber(L, total_done);
+	lua_pushnumber(L, total_count);
+	lua_pushnumber(L, (int)render_timer.Interval());
+	return 3;
 }
 
 int main(int argc, char* argv[])
@@ -57,10 +63,10 @@ int main(int argc, char* argv[])
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
 	// Generate awesome red output buffer
-	const int w = 256;
-	const int h = 256;
+	const int w = 128;
+	const int h = 128;
 	const int channels = 3;
-	const int task_count = 16;
+	const int task_count = 8;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
@@ -138,13 +144,14 @@ int main(int argc, char* argv[])
 
 	int ty = 0;
 	int tx = 0;
-	int total_done = 0;
+	//int total_done = 0;
+	total_count = task_count*task_count;
 	
 	PrimitiveBatch *pbatch = new PrimitiveBatch(Pxf::Kernel::GetInstance()->GetGraphicsDevice());
 
 	// Fabric/GUI stuff
 	Fabric::App* app = new Fabric::App(win, "fabric/main.lua");
-	app->BindExternalFunction("testcb", test_cb);
+	app->BindExternalFunction("renderstatus", renderstatus_cb);
 	app->Boot();
 	bool running = true;
 	
@@ -173,7 +180,7 @@ int main(int argc, char* argv[])
 	//------------------------
 
 
-	Pxf::Timer render_timer;
+	
 	render_timer.Start();
 
 	bool is_done = false;
@@ -224,7 +231,7 @@ int main(int argc, char* argv[])
 		}
 		//--------------------------------------
 
-		if (total_done == task_count*task_count && !is_done)
+		if (total_done == total_count && !is_done)
 		{
 			//thread_executor.cancel();
 			is_done = true;
