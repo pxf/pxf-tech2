@@ -89,6 +89,8 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 
 	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
+	setsockopt(sck, SOL_SOCKET, SO_REUSEADDR, 1, sizeof int);
+
 	if (bind(sck, res->ai_addr, res->ai_addrlen) != 0)
 	{
 		fprintf(stderr, "unable to bind.");
