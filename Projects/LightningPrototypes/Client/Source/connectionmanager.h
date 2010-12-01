@@ -76,6 +76,7 @@ class ConnectionManager
 		fd_set m_read_sockets;
 
 		void clear_connbuf(Connection *_connection);
+		void set_fdset();
 
 	public:
 		int m_log_tag;
