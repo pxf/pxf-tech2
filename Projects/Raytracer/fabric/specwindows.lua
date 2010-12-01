@@ -60,7 +60,7 @@ function spawn_toolwindow()
     self:s_update()
     local done,total,time = renderstatus()
     progress.progress = done / total
-    print(done, total, done / total)
+    print(done, total, done / total, time)
   end
   
   gui.windows:add(tool_window)

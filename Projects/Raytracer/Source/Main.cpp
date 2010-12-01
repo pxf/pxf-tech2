@@ -34,7 +34,7 @@ int renderstatus_cb(lua_State* L)
 {
 	lua_pushnumber(L, total_done);
 	lua_pushnumber(L, total_count);
-	lua_pushnumber(L, render_timer.Interval());
+	lua_pushnumber(L, (int)render_timer.Interval());
 	return 3;
 }
 
