@@ -11,7 +11,7 @@ using namespace Math;
  * Renders a task, using region etc and storing the data in pic.
  * Returns true if the task was successfully rendered, false otherwise.
  */
-bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic)
+int render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic, int sub_task_num)
 {
 	// TODO: Check incomming data!
 	
@@ -21,7 +21,7 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 		 )
 	{
 		Pxf::Message("TaskRenderer", "Task region invalid! [x0: %d, y0: %d, x1: %d, y1: %d]", task->region[0], task->region[1], task->region[2], task->region[3]);
-		return false;
+		return -1;
 	}
 	
 	// Init data
@@ -29,12 +29,20 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 	int region_height = task->region[3] - task->region[1];
 	float pixel_w = 1.0f / (datablob->pic_w / 2.0f);
 	float pixel_h = 1.0f / (datablob->pic_h / 2.0f);
-	pic->data = new pixel_data_t[region_width*region_height]; // width * height
+	
+	// only allocate data for the first sub task
+	if (sub_task_num == 0)
+		pic->data = new pixel_data_t[region_width*region_height]; // width * height
+	
+	// Calculate interleave offsets
+	int x_off, y_off;
+	x_off = sub_task_num % datablob->interleaved_feedback;
+	y_off = sub_task_num / datablob->interleaved_feedback;
 	
 	// Loop through all region pixels
-	for(int y = 0; y < region_height; ++y)
+	for(int y = y_off; y < region_height; y += datablob->interleaved_feedback)
 	{
-		for(int x = 0; x < region_width; ++x)
+		for(int x = x_off; x < region_width; x += datablob->interleaved_feedback)
 		{
 			// Calculate pixel value
 			float xf, yf;
@@ -43,13 +51,13 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 			if (!calculate_pixel(xf, yf, task, datablob, &pic->data[y*region_width+x]))
 			{
 				Pxf::Message("TaskRenderer", "Error while calculating pixel: [x: %d, y: %d]", x, y);
-				return false;
+				return -1;
 			}
 		}
 	}
 	
 	// Return result
-	return true;
+	return datablob->interleaved_feedback*datablob->interleaved_feedback - (sub_task_num+1);
 }
 
 // best function name ever

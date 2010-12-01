@@ -35,6 +35,7 @@ struct TaskResult
 {
 	Rect_t rect;
 	uint8* pixels;
+	bool final;
 };
 
 class LightningClient

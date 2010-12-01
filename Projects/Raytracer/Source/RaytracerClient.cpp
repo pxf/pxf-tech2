@@ -38,12 +38,23 @@ public:
 				task.region[2] = req->rect.x + req->rect.h;
 				task.region[3] = req->rect.y + req->rect.w;
 				render_result_t out;
-				render_task(&task, blob, &out);
+				int sub_tasks_left = blob->interleaved_feedback*blob->interleaved_feedback;
+				
+				while (sub_tasks_left > 0)
+				{
+					sub_tasks_left = render_task(&task, blob, &out, blob->interleaved_feedback*blob->interleaved_feedback - sub_tasks_left);
+					
+					TaskResult* res = new TaskResult;
+					res->rect = req->rect;
+					res->pixels = (uint8*)out.data;
+					if (sub_tasks_left == 0)
+						res->final = true;
+					else
+						res->final = false;
+					m_Client->push_result(res);
+				}
 
-				TaskResult* res = new TaskResult;
-				res->rect = req->rect;
-				res->pixels = (uint8*)out.data;
-				m_Client->push_result(res);
+				
 			}
 			catch (Cancellation_Exception)
 			{

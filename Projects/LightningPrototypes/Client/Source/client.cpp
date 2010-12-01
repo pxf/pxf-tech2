@@ -12,6 +12,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_tracker_port = _tracker_port;
 	m_local_address = Pxf::StringDuplicate(_local_address);
 	m_local_port = _local_port;
+	printf("m_local_addres : %s   m_local_port : %d\n", m_local_address, m_local_port);
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
@@ -19,6 +20,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
 	//m_ConnMan = ConnectionManager(new Pxf::Util::Array<Packet*>);
 	m_Kernel = Pxf::Kernel::GetInstance();
+	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
 
@@ -30,20 +32,19 @@ Client::~Client()
 
 int Client::run()
 {
-	int logtag = m_Kernel->CreateTag("cli");
 	time_t last_ping, ping_timestamp;
 
 	// TODO: Change to LiPacket
 	Pxf::Util::Array<LiPacket*> *packets;
 	//Pxf::Util::Array<Packet*> *packets;
 	
-	m_Kernel->Log(logtag, "Connecting to tracker at %s.", m_tracker_address);
+	m_Kernel->Log(m_log_tag, "Connecting to tracker at %s.", m_tracker_address);
 	
 	bool exit = false;
 
 	if (!connect_tracker())
 	{
-		m_Kernel->Log(logtag, "Connection failed, quitting");
+		m_Kernel->Log(m_log_tag, "Connection failed, quitting");
 		exit = true;
 	}
 	
@@ -87,12 +88,12 @@ int Client::run()
 			switch((*p)->message_type)
 			{
 				case PONG:
-					m_Kernel->Log(logtag, "Got PONG from %s", (*p)->connection->target_address);
+					m_Kernel->Log(m_log_tag, "Got PONG from %s", (*p)->connection->target_address);
 					(*p)->connection->timestamp = time(NULL);
 					p = packets->erase(p);
 					continue;
 				default:
-					m_Kernel->Log(logtag, "Unknown packet type: %d", (*p)->message_type); // TODO: LiPacket...
+					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type); // TODO: LiPacket...
 			}
 			
 			p++;
@@ -156,7 +157,7 @@ bool Client::connect_tracker()
 	delete packets->front();
 	packets->clear();
 	
-	printf("Connected to tracker. Got session_id %d\n", m_session_id);
+	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d", m_session_id);
 
 	trackerclient::HelloToTracker *hello_tracker = new trackerclient::HelloToTracker();
 	hello_tracker->set_session_id(m_session_id);
