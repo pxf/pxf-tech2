@@ -79,6 +79,8 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
+	sprintf(port, "%d", _port);
+
 	if ((status = getaddrinfo(NULL, port, &hints, &res)) != 0)
 	{
 		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
@@ -86,8 +88,6 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	}
 
 	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-
-	sprintf(port, "%d\0", _port);
 
 	if (bind(sck, res->ai_addr, res->ai_addrlen) != 0)
 	{
@@ -109,10 +109,11 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	}
 	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
 
+	printf("binding socket:%d\n", sck);
 	_connection->socket = sck;
 	_connection->bound = true;
 
-	return false;
+	return true;
 }
 
 bool ConnectionManager::remove_connection(Connection *_connection)
@@ -124,11 +125,8 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 
 	delete _connection;
 
-	if (have_socket)
-		set_highest_fd();
-	
 	// Remove from the hash map.
-	m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
+	//m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
 
 	// Remove from the connection list.
 	Pxf::Util::Array<struct Connection*>::iterator i;
@@ -137,10 +135,16 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	while (i != m_Connections.end())
 	{
 		if ((*i) == _connection)
+		{
 			i = m_Connections.erase(i);
+			printf("removing fuckface.\n");
+		}
 		else
 			i++;
 	}
+
+	if (have_socket)
+		set_highest_fd();
 
 	return true;
 }
@@ -192,6 +196,7 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	}
 	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
 
+	printf("connecting socket:%d\n", sck);
 	_connection->socket = sck;
 
 	return true;
@@ -229,6 +234,8 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		if (FD_ISSET(i, &m_read_sockets))
 		{
 			c = m_socketfdToConnection[i];
+			if (c == NULL) continue;
+			printf("m_max_socketfd:%d\ni:%d\nc:%d\n",m_max_socketfd,i,(int)c);
 			if (c->bound)
 			{
 				int new_connection_fd;
@@ -366,10 +373,12 @@ bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_
 void ConnectionManager::set_highest_fd()
 {
 	Pxf::Util::Array<struct Connection*>::iterator i;
-	int max;
+	int max=0;
 
+	printf("max:%d\n",max);
 	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
-		if (max < (*i)->socket)
+		printf("max:%dsocket:%dbound:%d\n",max,(*i)->socket,(*i)->bound);
+		if (max < (*i)->socket && (*i)->socket != -1)
 			max = (*i)->socket;
 	}
 
