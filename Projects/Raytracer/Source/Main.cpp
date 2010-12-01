@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
 	// Generate awesome red output buffer
-	const int w = 256;
-	const int h = 256;
+	const int w = 128;
+	const int h = 128;
 	const int channels = 3;
 	const int task_count = 16;
 	int task_size_w = w / task_count;
@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
 	blob.pic_h = h;
 	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
 	blob.bounce_count = 4; // Number of reflection bounces
+	blob.interleaved_feedback = 2;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -200,7 +201,8 @@ int main(int argc, char* argv[])
 			region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_w, channels);
 			region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
 			region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
-			total_done += 1;
+			if (res->final)
+				total_done += 1;
 		}
 
 		// Draw
