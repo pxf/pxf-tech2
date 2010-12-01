@@ -120,26 +120,6 @@ static bool inside_rect(int x, int y, Rect_t& rect)
 	return true;
 }
 
-void RaytracerClient::focus_renderer(int x, int y)
-{
-	m_TaskQueue.acquire();
-
-	std::deque<BlockingTaskQueue<TaskRequest*>::Entry_t>& tasks = m_TaskQueue.get_array();
-	std::deque<BlockingTaskQueue<TaskRequest*>::Entry_t>::iterator iter = tasks.begin();
-	for(; iter != tasks.end(); ++iter)
-	{
-		BlockingTaskQueue<TaskRequest*>::Entry_t& entry = (*iter);
-		if (inside_rect(x, y, entry.value->rect))
-		{
-			tasks.erase(iter);
-			tasks.push_front(entry);
-			break;
-		}
-	}
-
-	m_TaskQueue.release();
-}
-
 bool RaytracerClient::run()
 {
 	run_noblock();

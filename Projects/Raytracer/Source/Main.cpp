@@ -182,13 +182,6 @@ int main(int argc, char* argv[])
 		inp->Update();
 		if (inp->GetLastKey() == Input::ESC)
 			break;
-
-		if (inp->GetLastButton() == Input::MOUSE_1)
-		{
-			int x, y;
-			inp->GetMousePos(&x, &y);
-			client.focus_renderer(x, y);
-		}
 			
 		// Setup view!!!!!!!!
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
@@ -245,7 +238,6 @@ int main(int argc, char* argv[])
 		app->Draw();
 		
 		inp->ClearLastKey();
-		inp->ClearLastButton();
 		win->Swap();
 	}
 
