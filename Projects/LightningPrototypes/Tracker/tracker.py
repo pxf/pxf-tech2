@@ -85,7 +85,12 @@ class Tracker():
             print("unable to connect to client in return.")
             # TODO: Raise an Exception?
             return None
-        print("connected to client {0}:{1}.".format(message.address, message.port))
+        print("connected to client {0}:{1} on {2}.".format(message.address, message.port, c))
+        self._scks[c] = dict([
+            ('buffer', '')
+            , ('pkt-length', 0)
+            , ('session_id', message.session_id)
+        ])
         self._db.add_client(message.session_id
             , message.address + ":" + str(message.port), message.available)
         return None

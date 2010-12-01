@@ -134,7 +134,7 @@ bool Client::connect_tracker()
 		m_Kernel->Log(m_net_tag, "Could not bind to %s:%d", m_local_address, m_local_port);
 		return false;
 	}	
-	bound_c->bound = true;
+	bound_c->type = TRACKER;
 
 	Connection *c = m_ConnMan.new_connection(TRACKER);
 	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
