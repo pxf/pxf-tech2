@@ -171,7 +171,8 @@ bool Client::connect_tracker()
 	if (packets->empty())
 	{
 		// Check that the tracker connected...
-		for (Pxf::Util::Array<Connection*>::iterator c; c != m_ConnMan.m_Connections.end(); c++)
+		Pxf::Util::Array<Connection*>::iterator c;
+		for (c = m_ConnMan.m_Connections.begin(); c != m_ConnMan.m_Connections.end(); c++)
 			if ((*c)->type == TRACKER) return true;
 
 		m_Kernel->Log(m_net_tag, "Tracker could not connect to client. Are the ports open?");

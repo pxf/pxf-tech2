@@ -128,7 +128,7 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 		set_highest_fd();
 	
 	// Remove from the hash map.
-	m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
+	//m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
 
 	// Remove from the connection list.
 	Pxf::Util::Array<struct Connection*>::iterator i;
@@ -229,6 +229,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		if (FD_ISSET(i, &m_read_sockets))
 		{
 			c = m_socketfdToConnection[i];
+			printf("m_max_socketfd:%d\ni:%d\nd:%d\n",m_max_socketfd,i,(int)c);
 			if (c->bound)
 			{
 				int new_connection_fd;
@@ -366,7 +367,7 @@ bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_
 void ConnectionManager::set_highest_fd()
 {
 	Pxf::Util::Array<struct Connection*>::iterator i;
-	int max;
+	int max=0;
 
 	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
 		if (max < (*i)->socket)
