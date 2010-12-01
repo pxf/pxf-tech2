@@ -95,6 +95,8 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 		return false;
 	}
 
+	listen(sck, 10);
+
 	void *addr;
 
 	if (res->ai_family == AF_INET)
@@ -112,6 +114,10 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	printf("binding socket:%d\n", sck);
 	_connection->socket = sck;
 	_connection->bound = true;
+
+	FD_SET(sck, &m_read_sockets);
+	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
+	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
 
 	return true;
 }
@@ -234,8 +240,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		if (FD_ISSET(i, &m_read_sockets))
 		{
 			c = m_socketfdToConnection[i];
-			if (c == NULL) continue;
-			printf("m_max_socketfd:%d\ni:%d\nc:%d\n",m_max_socketfd,i,(int)c);
+			//if (c == NULL) continue;
 			if (c->bound)
 			{
 				int new_connection_fd;
@@ -375,9 +380,7 @@ void ConnectionManager::set_highest_fd()
 	Pxf::Util::Array<struct Connection*>::iterator i;
 	int max=0;
 
-	printf("max:%d\n",max);
 	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
-		printf("max:%dsocket:%dbound:%d\n",max,(*i)->socket,(*i)->bound);
 		if (max < (*i)->socket && (*i)->socket != -1)
 			max = (*i)->socket;
 	}

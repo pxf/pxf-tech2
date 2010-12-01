@@ -72,6 +72,8 @@ public:
 	virtual TaskResult* pop_result();
 	bool has_results();
 
+	void focus_renderer(int x, int y);
+
 	bool run();
 	bool run_noblock();
 	bool wait();
