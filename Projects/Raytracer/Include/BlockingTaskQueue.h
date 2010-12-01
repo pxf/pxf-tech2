@@ -11,7 +11,7 @@
 template <typename T>
 class BlockingTaskQueue
 {
-protected:
+public:
 	struct Entry_t
 	{
 		unsigned int type;
@@ -23,8 +23,9 @@ protected:
 		}
 	};
 
+protected:
 	std::map<unsigned int, ZThread::Condition*> m_Conditions;
-	std::vector<Entry_t> m_InternalArray;
+	std::deque<Entry_t> m_InternalArray;
 	ZThread::Mutex m_Lock;
 	bool m_Canceled;
 
@@ -68,14 +69,14 @@ public:
 	T pop(unsigned int _Type)
 	{
 		ZThread::Guard<ZThread::Mutex> g(m_Lock);
-		while(count(_Type) == 0)
+		while(count(_Type) == 0 && !m_Canceled)
 			m_Conditions[_Type]->wait();
 
 		if (m_Canceled)
-			return NULL;
+			throw ZThread::Cancellation_Exception();
 
 		T ret = 0;
-		typename std::vector<Entry_t>::iterator iter = m_InternalArray.begin();
+		typename std::deque<Entry_t>::iterator iter = m_InternalArray.begin();
 		for(; iter != m_InternalArray.end(); ++iter)
 		{
 			if (iter->type == _Type)
@@ -89,9 +90,23 @@ public:
 		return ret;
 	}
 
+	void acquire()
+	{
+		m_Lock.acquire();
+	}
+
+	void release()
+	{
+		m_Lock.release();
+	}
+
+	std::deque<Entry_t>& get_array()
+	{
+		return m_InternalArray;
+	}
+
 	void cancel()
 	{
-
 		m_Canceled = true;
 		typename std::map<unsigned int, ZThread::Condition*>::iterator iter = m_Conditions.begin();
 		for(; iter != m_Conditions.end(); ++iter)

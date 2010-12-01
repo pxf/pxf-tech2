@@ -63,6 +63,7 @@ class Tracker():
     
     def e_init_hello(self, message):
         new_session_id = self._db.new_init_client()
+        print("new client id: {0}".format(new_session_id))
         response = tracker_pb2.HelloToClient()
         response.session_id = new_session_id
         self.set_session_id(None, new_session_id)
@@ -72,16 +73,24 @@ class Tracker():
     def e_hello_to_tracker(self, message):
         # Delete the old connection.
         # TODO: Wait until we've successfully connected the new socket?
-        del self._scks[self._last_socket]
+        #del self._scks[self._last_socket]
+        self._db.del_client(self._last_session_id)
         # Connect to the client.
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            print("trying to connect to {0}:{1}".format(message.address, message.port))
             c.connect((message.address, message.port))
         except socket.error:
             # Couldn't connect. Ignore.
             print("unable to connect to client in return.")
             # TODO: Raise an Exception?
             return None
+        print("connected to client {0}:{1} on {2}.".format(message.address, message.port, c))
+        self._scks[c] = dict([
+            ('buffer', '')
+            , ('pkt-length', 0)
+            , ('session_id', message.session_id)
+        ])
         self._db.add_client(message.session_id
             , message.address + ":" + str(message.port), message.available)
         return None
@@ -91,6 +100,25 @@ class Tracker():
         self._db.del_client(message.session_id)
         return lightning.OK
     _tr_table[lightning.GOODBYE] = e_goodbye
+    
+    def e_nodesrequest(self, message):
+        avail_cs = self._db.get_available_clients()
+        wants = message.nodes
+        print("client {0} wants {1} nodes.  available: {2}.".format(
+            self._last_session_id
+            , wants
+            , avail_cs
+        ))
+        response = tracker_pb2.NodesResponse()
+        for session_id, num_avail in avail_cs:
+            node = response.nodes.add()
+            node.session_id = session_id
+            client = self._db.get_client(session_id)
+            node.address = client[0]
+            node.port = 0
+        return response
+    _tr_table[lightning.NODES_REQUEST] = e_nodesrequest
+
     # Events end.
     # --------------------------------------------------------------
 
@@ -105,6 +133,8 @@ class Tracker():
             None  takes the client who sent the last packet
         """
 
+        print("set_session_id from {0} to {1}.".format(client,  new_id))
+
         if type(client) == type(str()):
             # client = old_id
             old_id = self._scks[client]['session_id']
@@ -115,6 +145,10 @@ class Tracker():
             for s, si in self._sck.items():
                 if si['session_id'] == old_id:
                     sck = s
+        elif client is None:
+            # client = last used.
+            old_id = self._last_session_id
+            sck = self._last_socket
         else:
             # none.
             return False
@@ -270,6 +304,7 @@ class Tracker():
 
 
         while True:
+            # TODO: Clean up after dead clients.
             session_id, data = self.recv()
             message_type, message = lightning.unpack(data)
 
@@ -404,9 +439,12 @@ class TrackerDatabase:
 
         Removes the client with the corresponding session_id.
         """
+        
+        print("del_client: {0}.".format(session_id))
 
         if session_id in self._clients.keys():
             del self._clients[session_id]
+            print("deleted.")
             return True
         else:
             return False

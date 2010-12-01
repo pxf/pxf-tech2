@@ -11,7 +11,7 @@ using namespace Math;
  * Renders a task, using region etc and storing the data in pic.
  * Returns true if the task was successfully rendered, false otherwise.
  */
-bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic)
+int render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic, int sub_task_num)
 {
 	// TODO: Check incomming data!
 	
@@ -21,7 +21,7 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 		 )
 	{
 		Pxf::Message("TaskRenderer", "Task region invalid! [x0: %d, y0: %d, x1: %d, y1: %d]", task->region[0], task->region[1], task->region[2], task->region[3]);
-		return false;
+		return -1;
 	}
 	
 	// Init data
@@ -29,12 +29,20 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 	int region_height = task->region[3] - task->region[1];
 	float pixel_w = 1.0f / (datablob->pic_w / 2.0f);
 	float pixel_h = 1.0f / (datablob->pic_h / 2.0f);
-	pic->data = new pixel_data_t[region_width*region_height]; // width * height
+	
+	// only allocate data for the first sub task
+	if (sub_task_num == 0)
+		pic->data = new pixel_data_t[region_width*region_height]; // width * height
+	
+	// Calculate interleave offsets
+	int x_off, y_off;
+	x_off = sub_task_num % datablob->interleaved_feedback;
+	y_off = sub_task_num / datablob->interleaved_feedback;
 	
 	// Loop through all region pixels
-	for(int y = 0; y < region_height; ++y)
+	for(int y = y_off; y < region_height; y += datablob->interleaved_feedback)
 	{
-		for(int x = 0; x < region_width; ++x)
+		for(int x = x_off; x < region_width; x += datablob->interleaved_feedback)
 		{
 			// Calculate pixel value
 			float xf, yf;
@@ -43,13 +51,24 @@ bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *p
 			if (!calculate_pixel(xf, yf, task, datablob, &pic->data[y*region_width+x]))
 			{
 				Pxf::Message("TaskRenderer", "Error while calculating pixel: [x: %d, y: %d]", x, y);
-				return false;
+				return -1;
+			}
+			
+			if (sub_task_num == 0)
+			{
+				for(int yi = 0; yi < datablob->interleaved_feedback; ++yi)
+				{
+					for(size_t xi = 0; xi < datablob->interleaved_feedback; ++xi)
+					{
+						pic->data[(y+yi)*region_width+(x+xi)] = pic->data[y*region_width+x];
+					}
+				}
 			}
 		}
 	}
 	
 	// Return result
-	return true;
+	return datablob->interleaved_feedback*datablob->interleaved_feedback - (sub_task_num+1);
 }
 
 // best function name ever
@@ -156,6 +175,9 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 			{
 				AreaLight *light = (AreaLight*)datablob->lights[l];
 				
+				// Calc distance
+				float attscale = Pxf::Math::Clamp(light->strength / Length(light->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
+				
 				// construct "up-vector"
 				Vec3f up = Cross(light->normal, light->dir);
 				float step_w = (float)light->width / (float)light->num_rays;
@@ -182,33 +204,35 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 						if (find_any_intersection_closer_than(datablob, &light_ray, light_distance, &tresp))
 						{
 							att -= (1.0f / ((float)light->num_rays * (float)light->num_rays));
-						} else {
-							// TODO: add better contributing calculations
-							float ndotl = Dot(closest_resp.n, light_ray.d);
-							float attscale = ((1.0f / ((float)light->num_rays * (float)light->num_rays))) / (float)datablob->light_count;
-							float reflscale = 1.0f - closest_prim->material.reflectiveness;
-							*res += closest_prim->material.diffuse * datablob->lights[l]->material.diffuse * ndotl * attscale * reflscale;
-							
-							if (closest_prim->material.reflectiveness > 0.0f)
-							{
-								// Find reflection
-								Pxf::Math::Vec3f bounce_contrib(0.0f);
-								Pxf::Math::Vec3f eye_vec = -ray->o + closest_resp.p;
-								Normalize(eye_vec);
-								Pxf::Math::Vec3f refl = closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
-								ray_t refl_ray;
-								refl_ray.o = closest_resp.p;
-								refl_ray.d = refl;
-								
-								if (!calc_ray_contrib(&refl_ray, datablob, &bounce_contrib, bounce))
-								{
-									Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
-									return false;
-								}
-								*res += (bounce_contrib / (float)bounce) * closest_prim->material.reflectiveness * attscale;
-							}
 						}
 					}
+				}
+				
+				// TODO: add better contributing calculations
+				float ndotl = Dot(closest_resp.n, light_ray.d);
+				float reflscale = 1.0f - closest_prim->material.reflectiveness;
+				*res += closest_prim->material.diffuse * datablob->lights[l]->material.diffuse * ndotl * attscale * reflscale * att;
+				
+				// Shoot reflection rays
+				if (closest_prim->material.reflectiveness > 0.0f)
+				{
+					// Find reflection
+					Pxf::Math::Vec3f bounce_contrib(0.0f);
+					Pxf::Math::Vec3f eye_vec = -ray->o + closest_resp.p;
+					Normalize(eye_vec);
+					Pxf::Math::Vec3f refl = closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
+					
+					// reflection vector
+					ray_t refl_ray;
+					refl_ray.o = closest_resp.p;
+					refl_ray.d = refl;
+					
+					if (!calc_ray_contrib(&refl_ray, datablob, &bounce_contrib, bounce))
+					{
+						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
+						return false;
+					}
+					*res += (bounce_contrib / (float)bounce) * closest_prim->material.reflectiveness * attscale;
 				}
 			}
 		
@@ -293,9 +317,9 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	fpixel.y = Pxf::Math::Clamp(fpixel.y, 0.0f, 1.0f);
 	fpixel.z = Pxf::Math::Clamp(fpixel.z, 0.0f, 1.0f);
 		
-	pixel->r = (char)(fpixel.r * 255.0f);
-	pixel->g = (char)(fpixel.g * 255.0f);
-	pixel->b = (char)(fpixel.b * 255.0f);	
+	pixel->r = (unsigned char)(fpixel.r * 255.0f);
+	pixel->g = (unsigned char)(fpixel.g * 255.0f);
+	pixel->b = (unsigned char)(fpixel.b * 255.0f);	
 	
 	return true;
 }

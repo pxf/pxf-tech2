@@ -18,7 +18,7 @@
 #include <cstdlib>
 #include "Renderer.h"
 
-#include "Fabric/App.h"
+#include "fabric/App.h"
 
 #include <RaytracerClient.h>
 
@@ -26,10 +26,16 @@ using namespace Pxf;
 using namespace Graphics;
 using namespace Math;
 
-int test_cb(lua_State* L)
+int total_done = 0;
+int total_count = 0;
+Pxf::Timer render_timer;
+
+int renderstatus_cb(lua_State* L)
 {
-	lua_pushstring(L, "sup?");
-	return 1;
+	lua_pushnumber(L, total_done);
+	lua_pushnumber(L, total_count);
+	lua_pushnumber(L, (int)render_timer.Interval());
+	return 3;
 }
 
 int main(int argc, char* argv[])
@@ -60,7 +66,7 @@ int main(int argc, char* argv[])
 	const int w = 128;
 	const int h = 128;
 	const int channels = 3;
-	const int task_count = 16;
+	const int task_count = 8;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
@@ -70,7 +76,8 @@ int main(int argc, char* argv[])
 	blob.pic_w = w;
 	blob.pic_h = h;
 	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
-	blob.bounce_count = 3; // Number of reflection bounces
+	blob.bounce_count = 4; // Number of reflection bounces
+	blob.interleaved_feedback = 4;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -125,7 +132,7 @@ int main(int argc, char* argv[])
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 4, light_mat1);
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 5.0f, light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 1;
 	
@@ -137,13 +144,14 @@ int main(int argc, char* argv[])
 
 	int ty = 0;
 	int tx = 0;
-	int total_done = 0;
+	//int total_done = 0;
+	total_count = task_count*task_count;
 	
 	PrimitiveBatch *pbatch = new PrimitiveBatch(Pxf::Kernel::GetInstance()->GetGraphicsDevice());
 
 	// Fabric/GUI stuff
 	Fabric::App* app = new Fabric::App(win, "fabric/main.lua");
-	app->BindExternalFunction("testcb", test_cb);
+	app->BindExternalFunction("renderstatus", renderstatus_cb);
 	app->Boot();
 	bool running = true;
 	
@@ -172,7 +180,7 @@ int main(int argc, char* argv[])
 	//------------------------
 
 
-	Pxf::Timer render_timer;
+	
 	render_timer.Start();
 
 	bool is_done = false;
@@ -200,7 +208,8 @@ int main(int argc, char* argv[])
 			region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_w, channels);
 			region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
 			region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
-			total_done += 1;
+			if (res->final)
+				total_done += 1;
 		}
 
 		// Draw
@@ -222,7 +231,7 @@ int main(int argc, char* argv[])
 		}
 		//--------------------------------------
 
-		if (total_done == task_count*task_count && !is_done)
+		if (total_done == total_count && !is_done)
 		{
 			//thread_executor.cancel();
 			is_done = true;

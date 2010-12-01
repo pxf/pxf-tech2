@@ -64,6 +64,9 @@ void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _typ
 	Connection *connection = new_connection(_type);
 
 	connection->socket = _socket;
+
+	m_socketfdToConnection.insert(std::make_pair(_socket, connection));
+	m_max_socketfd = (_socket > m_max_socketfd) ? _socket : m_max_socketfd;
 }
 
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
@@ -79,6 +82,8 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
+	sprintf(port, "%d", _port);
+
 	if ((status = getaddrinfo(NULL, port, &hints, &res)) != 0)
 	{
 		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
@@ -87,13 +92,17 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 
 	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
-	sprintf(port, "%d\0", _port);
+	int optval;
+	optval = 1;
+	setsockopt(sck, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
 	if (bind(sck, res->ai_addr, res->ai_addrlen) != 0)
 	{
 		fprintf(stderr, "unable to bind.");
 		return false;
 	}
+
+	listen(sck, 10);
 
 	void *addr;
 
@@ -112,7 +121,11 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	_connection->socket = sck;
 	_connection->bound = true;
 
-	return false;
+	FD_SET(sck, &m_read_sockets);
+	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
+	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
+
+	return true;
 }
 
 bool ConnectionManager::remove_connection(Connection *_connection)
@@ -122,13 +135,8 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	if (have_socket)
 		FD_CLR(_connection->socket, &m_read_sockets);
 
-	delete _connection;
-
-	if (have_socket)
-		set_highest_fd();
-	
 	// Remove from the hash map.
-	m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
+	m_socketfdToConnection.erase(_connection->socket);
 
 	// Remove from the connection list.
 	Pxf::Util::Array<struct Connection*>::iterator i;
@@ -137,10 +145,18 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	while (i != m_Connections.end())
 	{
 		if ((*i) == _connection)
+		{
 			i = m_Connections.erase(i);
+			break;
+		}
 		else
 			i++;
 	}
+
+	delete _connection;
+
+	if (have_socket)
+		set_highest_fd();
 
 	return true;
 }
@@ -174,7 +190,6 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 
 	_connection->socket = sck;
 
-	FD_SET(sck, &m_read_sockets);
 	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
 	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
 
@@ -216,7 +231,9 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	timeout.tv_sec = _timeout/1000;
 	timeout.tv_usec = (_timeout%1000)*1000;
 
-	// TODO: Log error
+	// Set all sockets for read
+	set_fdset();
+
 	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == -1)
 	{
 		m_Kernel->Log(m_log_tag, "Unable to call select().");
@@ -229,6 +246,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		if (FD_ISSET(i, &m_read_sockets))
 		{
 			c = m_socketfdToConnection[i];
+			//if (c == NULL) continue;
 			if (c->bound)
 			{
 				int new_connection_fd;
@@ -236,7 +254,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				socklen_t addrlen = sizeof(&remoteaddr);
 				new_connection_fd = accept(i, &remoteaddr, &addrlen);
 
-				m_Kernel->Log(m_log_tag, "Incoming connection from ?"); // TODO: Print address
+				m_Kernel->Log(m_log_tag, "Incoming connection from ?, new socket:%d", new_connection_fd); // TODO: Print address
 
 				if (c->type == TRACKER)
 				{
@@ -245,7 +263,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					
 					bool tracker_connected = false;
 					for (j = m_Connections.begin(); j != m_Connections.end(); j++) {
-						if ((*j)->type == TRACKER) {
+						if (((*j)->type == TRACKER) && !((*j)->bound)) {
 							tracker_connected = true;
 							break;
 						}
@@ -271,7 +289,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				{
 					// New message, read message length
 					recv_bytes = recv(c->socket, (void*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
-					if (recv_bytes == 0)
+					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						// TODO: Terminate connection
 						c->buffer_size = 0;
@@ -328,6 +346,25 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	return m_Packets;
 }
 
+
+void ConnectionManager::set_fdset()
+{
+	int max=0;
+	Pxf::Util::Array<Connection*>::iterator c;
+
+	FD_ZERO(&m_read_sockets);
+
+	for(c = m_Connections.begin(); c != m_Connections.end(); c++)
+	{
+		FD_SET((*c)->socket, &m_read_sockets);
+		if ((*c)->socket > max)
+			max = (*c)->socket;
+	}
+
+	m_max_socketfd = max;
+}
+
+
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
 	int sent, i=0, offset=0;
@@ -366,10 +403,10 @@ bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_
 void ConnectionManager::set_highest_fd()
 {
 	Pxf::Util::Array<struct Connection*>::iterator i;
-	int max;
+	int max=0;
 
 	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
-		if (max < (*i)->socket)
+		if (max < (*i)->socket && (*i)->socket != -1)
 			max = (*i)->socket;
 	}
 

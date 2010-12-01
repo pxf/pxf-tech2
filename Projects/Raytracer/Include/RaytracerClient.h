@@ -35,6 +35,7 @@ struct TaskResult
 {
 	Rect_t rect;
 	uint8* pixels;
+	bool final;
 };
 
 class LightningClient
@@ -70,6 +71,8 @@ public:
 	virtual void push_result(TaskResult* _Result);
 	virtual TaskResult* pop_result();
 	bool has_results();
+
+	void focus_renderer(int x, int y);
 
 	bool run();
 	bool run_noblock();
