@@ -15,6 +15,7 @@
 #include <Pxf/Resource/ResourceLoader.h>
 
 #ifdef CONF_FAMILY_UNIX
+#include <cstdio>
 #include <cstdarg>
 #endif
 
