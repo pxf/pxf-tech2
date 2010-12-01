@@ -8,8 +8,8 @@
 
 #include <RtAudio.h>
 
-#include <ZThread/Guard.h>
-#include <ZThread/FastMutex.h>
+#include <zthread/Guard.h>
+#include <zthread/FastMutex.h>
 
 using namespace Pxf;
 using namespace Pxf::Modules;
