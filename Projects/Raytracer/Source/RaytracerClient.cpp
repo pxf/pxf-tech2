@@ -110,16 +110,6 @@ bool RaytracerClient::has_results()
 	return !m_ResultQueue.empty();
 }
 
-static bool inside_rect(int x, int y, Rect_t& rect)
-{
-	if (x < rect.x ||
-		y < rect.y ||
-		x >= rect.x+rect.w || 
-		y >= rect.y+rect.h)
-		return false;
-	return true;
-}
-
 bool RaytracerClient::run()
 {
 	run_noblock();
