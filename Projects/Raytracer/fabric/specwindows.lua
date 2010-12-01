@@ -41,11 +41,6 @@ function spawn_toolwindow()
   menubar.widget_type = "menubar"
   tool_stack:addwidget(menubar)
   
-  -- reboot button
-  local reboot_button = gui:create_labelbutton(0,0, 200, 32, "Reboot application", function() app.reboot() end)
-  tool_stack:addwidget(reboot_button)
-  
-  
   -- spacing
   local spacer = gui:create_basewidget(0,0,1,8)
   tool_stack:addwidget(spacer)
