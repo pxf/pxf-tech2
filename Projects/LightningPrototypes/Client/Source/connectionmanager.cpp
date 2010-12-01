@@ -351,6 +351,8 @@ void ConnectionManager::set_fdset()
 	int max=0;
 	Pxf::Util::Array<Connection*>::iterator c;
 
+	FD_ZERO(&m_read_sockets);
+
 	for(c = m_Connections.begin(); c != m_Connections.end(); c++)
 	{
 		FD_SET((*c)->socket, &m_read_sockets);
