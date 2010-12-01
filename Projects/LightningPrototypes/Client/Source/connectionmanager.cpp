@@ -64,6 +64,10 @@ void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _typ
 	Connection *connection = new_connection(_type);
 
 	connection->socket = _socket;
+
+	m_socketfdToConnection.insert(std::make_pair(_socket, connection));
+	FD_SET(_socket, &m_read_sockets);
+	m_max_socketfd = (_socket > m_max_socketfd) ? _socket : m_max_socketfd;
 }
 
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
@@ -130,12 +134,13 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	bool have_socket = (_connection->socket != -1);
 
 	if (have_socket)
+	{	
+		set_highest_fd();
 		FD_CLR(_connection->socket, &m_read_sockets);
-
-	delete _connection;
+	}
 
 	// Remove from the hash map.
-	//m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
+	m_socketfdToConnection.erase(_connection->socket);
 
 	// Remove from the connection list.
 	Pxf::Util::Array<struct Connection*>::iterator i;
@@ -144,13 +149,15 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	while (i != m_Connections.end())
 	{
 		if ((*i) == _connection)
+		{
 			i = m_Connections.erase(i);
+			break;
+		}
 		else
 			i++;
 	}
 
-	if (have_socket)
-		set_highest_fd();
+	delete _connection;
 
 	return true;
 }
@@ -279,20 +286,21 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					add_incoming_connection(new_connection_fd, CLIENT);
 				}
 			} else { // if (c->bound)
+				printf("Recieving data on socket %d, buffer size: %d\n", c->socket, c->buffer_size);
 				int recv_bytes;
 
 				if (c->buffer_size == 0)
 				{
 					// New message, read message length
+					printf("recv...\n");
 					recv_bytes = recv(c->socket, (void*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
+					printf("Passed recv...\n");
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						// TODO: Terminate connection
 						c->buffer_size = 0;
 						continue;
 					}
-
-					printf("c->buffer_size:%d",c->buffer_size);
 
 					c->buffer = (char*)Pxf::MemoryAllocate(c->buffer_size);
 					

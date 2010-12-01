@@ -12,7 +12,6 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_tracker_port = _tracker_port;
 	m_local_address = Pxf::StringDuplicate(_local_address);
 	m_local_port = _local_port;
-	printf("m_local_addres : %s   m_local_port : %d\n", m_local_address, m_local_port);
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
@@ -87,6 +86,7 @@ int Client::run()
 		p = packets->begin();
 		while (p != packets->end())
 		{
+			printf("paket!\n");
 			switch((*p)->message_type)
 			{
 				case PONG:
@@ -149,7 +149,7 @@ bool Client::connect_tracker()
 	delete packets->front();
 	packets->clear();
 	
-	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d", m_session_id);
+	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d, using socket %d", m_session_id, c->socket);
 
 	trackerclient::HelloToTracker *hello_tracker = new trackerclient::HelloToTracker();
 	hello_tracker->set_session_id(m_session_id);
@@ -160,6 +160,7 @@ bool Client::connect_tracker()
 	LiPacket *pkg = new LiPacket(c, hello_tracker, HELLO_TO_TRACKER);
 
 	m_ConnMan.send(c, pkg->data, pkg->length);
+	m_Kernel->Log(m_log_tag, "Connection to tracker on socket %d terminated.", c->socket);
 	m_ConnMan.remove_connection(c);
 	delete pkg;
 
