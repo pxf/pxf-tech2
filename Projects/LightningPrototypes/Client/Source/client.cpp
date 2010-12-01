@@ -40,24 +40,23 @@ int Client::run()
 	
 	m_Kernel->Log(m_log_tag, "Connecting to tracker at %s.", m_tracker_address);
 	
-	bool lolexit = false;
+	bool exit = false;
 
 	if (!connect_tracker())
 	{
 		m_Kernel->Log(m_log_tag, "Connection failed, quitting");
-		lolexit = true;
+		exit = true;
 	}
 	
 	ping_timestamp = time(NULL);
 	
 	// This is our main fail
-	while(!lolexit)
+	while(!exit)
 	{
 		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
 
 		if (difftime(time(NULL), ping_timestamp) > PING_INTERVAL/1000)
 		{
-			printf("Ska pinga...\n");
 			// Ping all connections	
 			Pxf::Util::Array<struct Connection*>::iterator i_conn;
 			for (i_conn = m_ConnMan.m_Connections.begin(); i_conn != m_ConnMan.m_Connections.end(); i_conn++)
@@ -67,12 +66,11 @@ int Client::run()
 
 				if (difftime((*i_conn)->timestamp, ping_timestamp) > PING_TIMEOUT)
 				{
-					printf("Tar bort connection...\n");
+					m_Kernel->Log(m_log_tag, "Connection to %s timed out...", (*i_conn)->target_address);
 					m_ConnMan.remove_connection(*i_conn);
 					continue;
 				}
 
-				printf("Pingar...\n");
 				ping(*i_conn, (int)time(NULL));
 			}
 
@@ -85,9 +83,7 @@ int Client::run()
 		if (packets->empty()) continue;
 
 		// Packet loop
-		// TODO: Change to LiPacket
 		Pxf::Util::Array<LiPacket*>::iterator p;
-		//Pxf::Util::Array<Packet*>::iterator p;
 		p = packets->begin();
 		while (p != packets->end())
 		{
@@ -110,25 +106,15 @@ int Client::run()
 
 void Client::ping(Connection *_c, int _timestamp)
 {
-	char *data = (char*)Pxf::MemoryAllocate(2*sizeof(int));
+	trackerclient::Ping *ping_tracker = new trackerclient::Ping();
+	ping_tracker->set_ping_data(_timestamp);
 
-	int t = PING;
-	Pxf::MemoryCopy(
-		data,
-		&t,
-		sizeof(t)
-	);
+	LiPacket *pkg = new LiPacket(_c, ping_tracker, PING);
 
-	Pxf::MemoryCopy(
-		data+sizeof(t),
-		&_timestamp,
-		sizeof(_timestamp)
-	);
+	m_ConnMan.send(_c, pkg->data, pkg->length);
 
-	m_ConnMan.send(_c, data, 2*sizeof(int));
+	delete pkg;
 	_c->timestamp = _timestamp;
-
-	Pxf::MemoryFree(data);
 }
 
 /* Connects to the tracker at the specified endpoint */
@@ -175,6 +161,7 @@ bool Client::connect_tracker()
 
 	m_ConnMan.send(c, pkg->data, pkg->length);
 	m_ConnMan.remove_connection(c);
+	delete pkg;
 
 	packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(5000);
 
