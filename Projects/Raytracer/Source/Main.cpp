@@ -18,7 +18,7 @@
 #include <cstdlib>
 #include "Renderer.h"
 
-#include "Fabric/App.h"
+#include "fabric/App.h"
 
 #include <RaytracerClient.h>
 
