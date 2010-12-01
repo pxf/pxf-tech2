@@ -1,17 +1,8 @@
-#include <Pxf/Base/String.h>
-#include <Pxf/Base/Memory.h>
-#include <zthread/ThreadedExecutor.h>
-
 #include "client.h"
-#include "iomodule.h"
-#include "lightning.h"
-#include "trackerclient.pb.h"
-
-#include <sys/socket.h>
-
-#include <stdio.h>
 
 #define INITIAL_QUEUE 6
+#define PING_INTERVAL 10000 // Ping interval in milliseconds
+#define PING_TIMEOUT 5000 // Ping timeout in milliseconds
 
 Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port)
 {
@@ -24,7 +15,9 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
-	m_ConnMan = ConnectionManager();
+	// TODO: Change to LiPacket
+	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
+	//m_ConnMan = ConnectionManager(new Pxf::Util::Array<Packet*>);
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_net_tag = m_ConnMan.m_log_tag;
 }
@@ -37,26 +30,101 @@ Client::~Client()
 
 int Client::run()
 {
-	printf("Connecting to tracker at %s\n", m_tracker_address);
-	connect_tracker();
-	//if (client.connect_tracker(client.tracker_address) == -1 )
-	//{
-	//	printf("Could not connect to tracker at %s.\n", client.tracker_address);
-	//	return(-1);
-	//}
-	//printf("session_id:%s\n",client.session_id);
+	int logtag = m_Kernel->CreateTag("cli");
+	time_t last_ping, ping_timestamp;
 
-	// Simulate event
-	//ZThread::ThreadedExecutor batch_executor;
-	//for (int i = 0; i < 5; i++)
-	//{
-	//		batch_executor.execute(new IOModule());
-	//}
-		
+	// TODO: Change to LiPacket
+	Pxf::Util::Array<LiPacket*> *packets;
+	//Pxf::Util::Array<Packet*> *packets;
+	
+	m_Kernel->Log(logtag, "Connecting to tracker at %s.", m_tracker_address);
+	
+	bool exit = false;
+
+	if (!connect_tracker())
+	{
+		m_Kernel->Log(logtag, "Connection failed, quitting");
+		exit = true;
+	}
+	
+	ping_timestamp = time(NULL);
+	
+	// This is our main fail
+	while(!exit)
+	{
+		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
+
+		if (difftime(ping_timestamp, time(NULL)) > PING_INTERVAL/1000)
+		{
+			// Ping all connections	
+			Pxf::Util::Array<struct Connection*>::iterator i_conn;
+			for (i_conn = m_ConnMan.m_Connections.begin(); i_conn != m_ConnMan.m_Connections.end(); i_conn++)
+			{
+				if (difftime((*i_conn)->timestamp, ping_timestamp) > PING_TIMEOUT)
+				{
+					m_ConnMan.remove_connection(*i_conn);
+					continue;
+				}
+
+				ping(*i_conn, (int)time(NULL));
+			}
+
+			ping_timestamp = time(NULL);
+
+			continue;
+		}
+
+		// If there are no packets available, try to get some more
+		if (packets->empty()) continue;
+
+		// Packet loop
+		// TODO: Change to LiPacket
+		Pxf::Util::Array<LiPacket*>::iterator p;
+		//Pxf::Util::Array<Packet*>::iterator p;
+		p = packets->begin();
+		while (p != packets->end())
+		{
+			switch((*p)->message_type)
+			{
+				case PONG:
+					m_Kernel->Log(logtag, "Got PONG from %s", (*p)->connection->target_address);
+					(*p)->connection->timestamp = time(NULL);
+					p = packets->erase(p);
+					continue;
+				default:
+					m_Kernel->Log(logtag, "Unknown packet type: %d", (*p)->message_type); // TODO: LiPacket...
+			}
+			
+			p++;
+		}
+	}
+}
+
+
+void Client::ping(Connection *_c, int _timestamp)
+{
+	char *data = (char*)Pxf::MemoryAllocate(2*sizeof(int));
+
+	int t = PING;
+	Pxf::MemoryCopy(
+		data,
+		&t,
+		sizeof(t)
+	);
+
+	Pxf::MemoryCopy(
+		data+sizeof(t),
+		&_timestamp,
+		sizeof(_timestamp)
+	);
+
+	m_ConnMan.send(_c, data, 2*sizeof(int));
+	_c->timestamp = _timestamp;
+
+	Pxf::MemoryFree(data);
 }
 
 /* Connects to the tracker at the specified endpoint */
-
 bool Client::connect_tracker()
 {
 	Connection *bound_c = m_ConnMan.new_connection(CLIENT);
@@ -70,20 +138,21 @@ bool Client::connect_tracker()
 	m_ConnMan.send(c, (char*)&type, 4);
 	
 	// Wait for tracker to respond. Timeout after 5 seconds.
-	Pxf::Util::Array<Packet*> *packets = m_ConnMan.recv_packets(5000);
+	Pxf::Util::Array<LiPacket*> *packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(5000);
 	if (packets->size() == 0)
 	{
 		m_Kernel->Log(m_net_tag, "Connection to tracker at %s timed out.", c->target_address);
 		return false;
 	}
-
-	message *msg = unpack(packets->front());
-	trackerclient::HelloToClient *hello_client = (trackerclient::HelloToClient*)(msg->protobuf_data);
+	
+	trackerclient::HelloToClient *hello_client = (trackerclient::HelloToClient*)(packets->front()->unpack());
 	
 	m_session_id = hello_client->session_id();
 
-	delete msg;
-
+	// TODO: Fix deconstructor for LiPacket? And stuff..
+	//delete packets->front();
+	packets->clear();
+	
 	printf("Connected to tracker. Got session_id %d\n", m_session_id);
 
 	trackerclient::HelloToTracker *hello_tracker = new trackerclient::HelloToTracker();
@@ -92,76 +161,26 @@ bool Client::connect_tracker()
 	hello_tracker->set_port(m_local_port);
 	hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
 
-	msg = new message;
-	msg->type = HELLO_TO_TRACKER;
-	msg->protobuf_data = hello_tracker;
+	LiPacket *pkg = new LiPacket(c, hello_tracker, HELLO_TO_TRACKER);
 
-	char *data = pack(msg);
-
-	m_ConnMan.send(c, data, sizeof(msg->type)+hello_tracker->ByteSize());
+	m_ConnMan.send(c, pkg->data, pkg->length);
 	m_ConnMan.remove_connection(c);
 
-	//m_ConnMan.recv()
+	packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(5000);
 
-	return true;
-}
-
-	/*
-	// If we are unable to connect, a NULL pointer is returned.
-	// TODO: Report error properly
-	if(zmq_connect(this->out_socket, address) != 0) return -1;
-
-	int msg_type = INIT_HELLO;
-	zmq_msg_t init_hello;
-	zmq_msg_init_data(&init_hello, &msg_type, sizeof(msg_type), NULL, NULL);
-
-	zmq_send(this->out_socket, &init_hello, 0);
-
-	message* credentials = recv_message(out_socket);
-
-	if(credentials->type != HELLO_TO_CLIENT)
+	if (packets->empty())
 	{
-		// Message is not what is expected
-		// TODO: Report error properly
-		return -1;
+		// Check that the tracker connected...
+		for (Pxf::Util::Array<Connection*>::iterator c; c != m_ConnMan.m_Connections.end(); c++)
+			if ((*c)->type == TRACKER) return true;
+
+		m_Kernel->Log(m_net_tag, "Tracker could not connect to client. Are the ports open?");
+		return false;
 	}
-
-	trackerclient::HelloToClient* hello_client = (trackerclient::HelloToClient*)(credentials->protobuf_data);
-
-	session_id = (char*)Pxf::MemoryAllocate(hello_client->session_id().length());
-	Pxf::MemoryCopy(
-		session_id,
-		hello_client->session_id().c_str(),
-		hello_client->session_id().length()
-	);
-
-	delete(credentials);
-
-	zmq_setsockopt(in_socket, ZMQ_IDENTITY, session_id, Pxf::StringLength(session_id));
-	zmq_bind(in_socket, local_address);
-
-	trackerclient::HelloToTracker* hello_tracker = new trackerclient::HelloToTracker();
-	hello_tracker->set_session_id(this->session_id);
-	hello_tracker->set_address(local_address);
-	hello_tracker->set_available(available);
-
-	message* msg = new message;
-	msg->type=HELLO_TO_TRACKER;
-	msg->protobuf_data = hello_tracker;
-
-	send_message(out_socket, msg);
-
-	delete(msg); // Will delete protocol buffer data as well
-
-	msg = recv_message(out_socket);
-
-	if (msg->type != OK) {
-		delete(msg);
-		return -1;
+	else
+	{
+		m_Kernel->Log(m_net_tag, "Got unknown packet when expecting connection from tracker.");
+		return false;
 	}
-
-	delete(msg);
-
-	return 0;
 }
-*/
+

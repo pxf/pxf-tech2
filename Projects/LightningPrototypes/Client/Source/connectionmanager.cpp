@@ -11,6 +11,7 @@ Connection::Connection(ConnectionType _type, int _id)
 	, session_id(0)
 	, type(_type)
 	, bound(false)
+	, timestamp(time(NULL))
 {}
 
 Connection::~Connection()
@@ -37,6 +38,19 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 
 ConnectionManager::ConnectionManager()
 {
+	m_NextId = 1;
+	m_max_socketfd = 0;
+	FD_ZERO(&m_read_sockets);
+
+	m_Kernel = Pxf::Kernel::GetInstance();
+	m_log_tag = m_Kernel->CreateTag("net");
+}
+
+ConnectionManager::ConnectionManager(Pxf::Util::Array<Packet*> *_packets)
+{
+	m_Packets = _packets;
+
+	// Copypasta
 	m_NextId = 1;
 	m_max_socketfd = 0;
 	FD_ZERO(&m_read_sockets);
@@ -197,7 +211,6 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 
 Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 {
-	Pxf::Util::Array<Packet*>* packets = new Pxf::Util::Array<Packet*>();
 	struct timeval timeout;
 
 	timeout.tv_sec = _timeout/1000;
@@ -273,7 +286,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					{
 						// Entire message recieved, continue to next available socket
 						Packet* p = new Packet(c, c->buffer_size, c->buffer);
-						packets->push_back(p);
+						m_Packets->push_back(p);
 						clear_connbuf(c);
 						continue;
 					} else {
@@ -300,7 +313,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					{
 						// Entire message recieved, continue...
 						Packet* p = new Packet(c, c->buffer_size, c->buffer);
-						packets->push_back(p);
+						m_Packets->push_back(p);
 						clear_connbuf(c);
 						continue;        
 					} else {
@@ -312,7 +325,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		} // if (FD_ISSET)
 	}
 
-	return packets;
+	return m_Packets;
 }
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
