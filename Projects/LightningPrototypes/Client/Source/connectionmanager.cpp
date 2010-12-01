@@ -66,7 +66,6 @@ void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _typ
 	connection->socket = _socket;
 
 	m_socketfdToConnection.insert(std::make_pair(_socket, connection));
-	FD_SET(_socket, &m_read_sockets);
 	m_max_socketfd = (_socket > m_max_socketfd) ? _socket : m_max_socketfd;
 }
 
@@ -134,10 +133,7 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	bool have_socket = (_connection->socket != -1);
 
 	if (have_socket)
-	{	
-		set_highest_fd();
 		FD_CLR(_connection->socket, &m_read_sockets);
-	}
 
 	// Remove from the hash map.
 	m_socketfdToConnection.erase(_connection->socket);
@@ -158,6 +154,9 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	}
 
 	delete _connection;
+
+	if (have_socket)
+		set_highest_fd();
 
 	return true;
 }
@@ -191,7 +190,6 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 
 	_connection->socket = sck;
 
-	FD_SET(sck, &m_read_sockets);
 	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
 	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
 
@@ -233,16 +231,15 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	timeout.tv_sec = _timeout/1000;
 	timeout.tv_usec = (_timeout%1000)*1000;
 
+	// Set all sockets for read
 	set_fdset();
 
-	// TODO: Log error
 	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == -1)
 	{
 		m_Kernel->Log(m_log_tag, "Unable to call select().");
 		return NULL;
 	}
 
-	//printf("Select\n");
 	Connection *c;
 	for (int i=0; i <= m_max_socketfd; i++) 
 	{
@@ -286,15 +283,12 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					add_incoming_connection(new_connection_fd, CLIENT);
 				}
 			} else { // if (c->bound)
-				printf("Recieving data on socket %d, buffer size: %d\n", c->socket, c->buffer_size);
 				int recv_bytes;
 
 				if (c->buffer_size == 0)
 				{
 					// New message, read message length
-					printf("recv...\n");
 					recv_bytes = recv(c->socket, (void*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
-					printf("Passed recv...\n");
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						// TODO: Terminate connection

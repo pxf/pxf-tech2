@@ -2,7 +2,7 @@
 
 #define INITIAL_QUEUE 6
 #define PING_INTERVAL 1000 // Ping interval in milliseconds
-#define PING_TIMEOUT 500 // Ping timeout in milliseconds
+#define PING_TIMEOUT 5000 // Ping timeout in milliseconds
 
 Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port)
 {
@@ -54,7 +54,7 @@ int Client::run()
 	{
 		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
 
-		if (difftime(time(NULL), ping_timestamp) > PING_INTERVAL/1000)
+		if (difftime(time(NULL), ping_timestamp) > PING_INTERVAL/1000.0f)
 		{
 			// Ping all connections	
 			Pxf::Util::Array<struct Connection*>::iterator i_conn;
@@ -63,7 +63,7 @@ int Client::run()
 				if ((*i_conn)->bound)
 					continue;
 
-				if (difftime((*i_conn)->timestamp, ping_timestamp) > PING_TIMEOUT)
+				if (difftime(ping_timestamp, (*i_conn)->timestamp) > PING_TIMEOUT/1000.0f)
 				{
 					m_Kernel->Log(m_log_tag, "Connection to %s timed out...", (*i_conn)->target_address);
 					m_ConnMan.remove_connection(*i_conn);
@@ -86,16 +86,16 @@ int Client::run()
 		p = packets->begin();
 		while (p != packets->end())
 		{
-			printf("paket!\n");
 			switch((*p)->message_type)
 			{
-				case PONG:
+				case 11:
 					m_Kernel->Log(m_log_tag, "Got PONG from %s", (*p)->connection->target_address);
 					(*p)->connection->timestamp = time(NULL);
 					p = packets->erase(p);
 					continue;
 				default:
 					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type); // TODO: LiPacket...
+					m_Kernel->Log(m_log_tag, "PONG==message_type: %d", PONG==(*p)->message_type);
 			}
 			
 			p++;
@@ -114,7 +114,6 @@ void Client::ping(Connection *_c, int _timestamp)
 	m_ConnMan.send(_c, pkg->data, pkg->length);
 
 	delete pkg;
-	_c->timestamp = _timestamp;
 }
 
 /* Connects to the tracker at the specified endpoint */
