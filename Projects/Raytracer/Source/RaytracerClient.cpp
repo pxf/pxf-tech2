@@ -31,13 +31,6 @@ public:
 			{
 				TaskRequest* req = m_Client->pop_request();
 
-				if (!req)
-				{
-					m_Canceled = true;
-					break;
-				}
-
-				
 				batch_blob_t* blob  = req->blob;
 				task_detail_t task;
 				task.region[0] = req->rect.x;
@@ -65,10 +58,7 @@ public:
 			}
 			catch (Cancellation_Exception)
 			{
-				break;
-			}
-			catch (Interrupted_Exception* e)
-			{
+				m_Canceled = true;
 				break;
 			}
 		}
@@ -90,7 +80,7 @@ RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 
 RaytracerClient::~RaytracerClient()
 {
-	m_Executor->interrupt();
+	cancel();
 	m_Executor->wait();
 	delete m_Executor;
 }
@@ -156,9 +146,4 @@ void RaytracerClient::cancel()
 {
 	m_TaskQueue.cancel();
 	m_Executor->cancel();
-}
-
-void RaytracerClient::interrupt()
-{
-	m_Executor->interrupt();
 }

@@ -128,7 +128,11 @@ void Client::ping(Connection *_c, int _timestamp)
 bool Client::connect_tracker()
 {
 	Connection *bound_c = m_ConnMan.new_connection(CLIENT);
-	m_ConnMan.bind_connection(bound_c, m_local_address, m_local_port);
+	if(!m_ConnMan.bind_connection(bound_c, m_local_address, m_local_port))
+	{
+		m_Kernel->Log(m_net_tag, "Could not bind to %s:%d", m_local_address, m_local_port);
+		return false;
+	}	
 	bound_c->bound = true;
 
 	Connection *c = m_ConnMan.new_connection(TRACKER);
@@ -149,8 +153,7 @@ bool Client::connect_tracker()
 	
 	m_session_id = hello_client->session_id();
 
-	// TODO: Fix deconstructor for LiPacket? And stuff..
-	//delete packets->front();
+	delete packets->front();
 	packets->clear();
 	
 	printf("Connected to tracker. Got session_id %d\n", m_session_id);
@@ -171,7 +174,8 @@ bool Client::connect_tracker()
 	if (packets->empty())
 	{
 		// Check that the tracker connected...
-		for (Pxf::Util::Array<Connection*>::iterator c; c != m_ConnMan.m_Connections.end(); c++)
+		Pxf::Util::Array<Connection*>::iterator c;
+		for (c = m_ConnMan.m_Connections.begin(); c != m_ConnMan.m_Connections.end(); c++)
 			if ((*c)->type == TRACKER) return true;
 
 		m_Kernel->Log(m_net_tag, "Tracker could not connect to client. Are the ports open?");

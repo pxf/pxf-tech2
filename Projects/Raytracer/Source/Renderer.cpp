@@ -29,12 +29,20 @@ int render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pi
 	int region_height = task->region[3] - task->region[1];
 	float pixel_w = 1.0f / (datablob->pic_w / 2.0f);
 	float pixel_h = 1.0f / (datablob->pic_h / 2.0f);
-	pic->data = new pixel_data_t[region_width*region_height]; // width * height
+	
+	// only allocate data for the first sub task
+	if (sub_task_num == 0)
+		pic->data = new pixel_data_t[region_width*region_height]; // width * height
+	
+	// Calculate interleave offsets
+	int x_off, y_off;
+	x_off = sub_task_num % datablob->interleaved_feedback;
+	y_off = sub_task_num / datablob->interleaved_feedback;
 	
 	// Loop through all region pixels
-	for(int y = 0; y < region_height; ++y)
+	for(int y = y_off; y < region_height; y += datablob->interleaved_feedback)
 	{
-		for(int x = 0; x < region_width; ++x)
+		for(int x = x_off; x < region_width; x += datablob->interleaved_feedback)
 		{
 			// Calculate pixel value
 			float xf, yf;

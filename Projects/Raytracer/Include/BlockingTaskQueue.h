@@ -68,11 +68,11 @@ public:
 	T pop(unsigned int _Type)
 	{
 		ZThread::Guard<ZThread::Mutex> g(m_Lock);
-		while(count(_Type) == 0)
+		while(count(_Type) == 0 && !m_Canceled)
 			m_Conditions[_Type]->wait();
 
 		if (m_Canceled)
-			return NULL;
+			throw ZThread::Cancellation_Exception();
 
 		T ret = 0;
 		typename std::vector<Entry_t>::iterator iter = m_InternalArray.begin();
@@ -91,7 +91,6 @@ public:
 
 	void cancel()
 	{
-
 		m_Canceled = true;
 		typename std::map<unsigned int, ZThread::Condition*>::iterator iter = m_Conditions.begin();
 		for(; iter != m_Conditions.end(); ++iter)
