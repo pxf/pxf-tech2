@@ -57,7 +57,7 @@ struct Packet {
 		, data(_data) // TODO: Allocate new memory and copy?
 	{}
 	Packet() {};
-	~Packet();
+	virtual ~Packet();
 
 	Connection *connection;
 	int length;

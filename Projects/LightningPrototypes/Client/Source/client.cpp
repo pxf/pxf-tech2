@@ -149,8 +149,7 @@ bool Client::connect_tracker()
 	
 	m_session_id = hello_client->session_id();
 
-	// TODO: Fix deconstructor for LiPacket? And stuff..
-	//delete packets->front();
+	delete packets->front();
 	packets->clear();
 	
 	printf("Connected to tracker. Got session_id %d\n", m_session_id);

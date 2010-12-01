@@ -229,7 +229,8 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		if (FD_ISSET(i, &m_read_sockets))
 		{
 			c = m_socketfdToConnection[i];
-			printf("m_max_socketfd:%d\ni:%d\nd:%d\n",m_max_socketfd,i,(int)c);
+			if (c == NULL) continue;
+			printf("m_max_socketfd:%d\ni:%d\nc:%d\n",m_max_socketfd,i,(int)c);
 			if (c->bound)
 			{
 				int new_connection_fd;
@@ -369,8 +370,10 @@ void ConnectionManager::set_highest_fd()
 	Pxf::Util::Array<struct Connection*>::iterator i;
 	int max=0;
 
+	printf("max:%d\n",max);
 	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
-		if (max < (*i)->socket)
+		printf("max:%dsocket:%d\n",max,(*i)->socket);
+		if (max < (*i)->socket && (*i)->socket != -1)
 			max = (*i)->socket;
 	}
 
