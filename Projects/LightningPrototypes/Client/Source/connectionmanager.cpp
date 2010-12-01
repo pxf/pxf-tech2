@@ -226,11 +226,13 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	set_fdset();
 
 	// TODO: Log error
+	printf("selecting... m_max_socketfd+1 = %d\n", m_max_socketfd+1);
 	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == -1)
 	{
 		m_Kernel->Log(m_log_tag, "Unable to call select().");
 		return NULL;
 	}
+	printf("selecting done.\n");
 
 	//printf("Select\n");
 	Connection *c;
@@ -238,7 +240,6 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	{
 		if (FD_ISSET(i, &m_read_sockets))
 		{
-			printf("socket:%d\n", i);
 			c = m_socketfdToConnection[i];
 			//if (c == NULL) continue;
 			if (c->bound)
