@@ -18,7 +18,7 @@
 #include <cstdlib>
 #include "Renderer.h"
 
-#include "fabric/App.h"
+#include "Fabric/App.h"
 
 #include <RaytracerClient.h>
 
@@ -57,10 +57,10 @@ int main(int argc, char* argv[])
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
 	// Generate awesome red output buffer
-	const int w = 512;
-	const int h = 512;
+	const int w = 256;
+	const int h = 256;
 	const int channels = 3;
-	const int task_count = 8;
+	const int task_count = 16;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 	blob.pic_h = h;
 	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
 	blob.bounce_count = 4; // Number of reflection bounces
-	blob.interleaved_feedback = 2;
+	blob.interleaved_feedback = 4;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
