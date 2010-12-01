@@ -34,7 +34,8 @@ LiPacket::LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type)
 
 char *LiPacket::pack(google::protobuf::Message *_proto, int _type)
 {
-	data = (char*)Pxf::MemoryAllocate(sizeof(_type) + _proto->ByteSize());
+	length = sizeof(_type) + _proto->ByteSize();
+	data = (char*)Pxf::MemoryAllocate(length);
 
 	Pxf::MemoryCopy(
 		data,
