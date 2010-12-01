@@ -53,14 +53,61 @@ function spawn_toolwindow()
   -- progressbar
   local progress = gui:create_progressbar(0,0,280,12,0.0)
   tool_stack:addwidget(progress)
+  
+  -- progress blocks label
+  local progress_label_blocks = gui:create_centeredlabelpanel(0,0,300,16,"Blocks: -/-")
+  tool_stack:addwidget(progress_label_blocks)
+  
+  -- progress time est
+  local progress_label_time = gui:create_centeredlabelpanel(0,0,300,16,"- ms")
+  tool_stack:addwidget(progress_label_time)
+
+  -- fancify time
+  function fancy_time(in_ms)
+    local s = in_ms / 1000 % 60
+    local m = (in_ms / 1000) / 60
+    --local h = math.floor(s % 60)
+    m = math.floor(m)
+    s = math.floor(s)
+    
+    return (tostring(m) .. "m " .. tostring(s) .. "s")
+  end
 
   -- update func
+  old_time = 0
   tool_window.s_update = tool_window.update
   function tool_window:update()
     self:s_update()
     local done,total,time = renderstatus()
+    
     progress.progress = done / total
-    print(done, total, done / total, time)
+    
+    
+    if not (old_done == done) then
+      old_done = done
+      
+      est_time = 0
+      if (done > 0) then
+        local delta_time_block = time / done
+        est_time = (total - done) * delta_time_block
+      end
+      
+      old_time = time
+      
+      progress_label_blocks.label_text = "Blocks: " .. tostring(done) .. "/" .. tostring(total)
+      if (done == total) then
+        progress_label_blocks.label_text = "Done!"
+      end
+    end
+    
+    local delta_time = time - old_time
+    if (done == total) then
+      progress_label_time.label_text = "Total time: " .. fancy_time(time)
+    else
+      progress_label_time.label_text = fancy_time(time) .. " (est. " .. fancy_time(est_time - delta_time) .. ")"
+    end
+    
+    --print(done, total, done / total, time)
   end
   
   gui.windows:add(tool_window)

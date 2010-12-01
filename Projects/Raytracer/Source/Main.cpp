@@ -18,7 +18,7 @@
 #include <cstdlib>
 #include "Renderer.h"
 
-#include "fabric/App.h"
+#include "Fabric/App.h"
 
 #include <RaytracerClient.h>
 
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 	const int w = 128;
 	const int h = 128;
 	const int channels = 3;
-	const int task_count = 16;
+	const int task_count = 8;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
