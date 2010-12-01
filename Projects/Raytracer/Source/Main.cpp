@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 	
 	// Generate awesome red output buffer
-	const int w = 16;
-	const int h = 16;
+	const int w = 128;
+	const int h = 128;
 	const int channels = 3;
 	const int task_count = 16;
 	int task_size_w = w / task_count;
