@@ -45,7 +45,23 @@ function spawn_toolwindow()
   local reboot_button = gui:create_labelbutton(0,0, 200, 32, "Reboot application", function() app.reboot() end)
   tool_stack:addwidget(reboot_button)
   
+  
+  -- spacing
+  local spacer = gui:create_basewidget(0,0,1,8)
+  tool_stack:addwidget(spacer)
+  
+  -- progressbar
+  local progress = gui:create_progressbar(0,0,280,12,0.0)
+  tool_stack:addwidget(progress)
 
+  -- update func
+  tool_window.s_update = tool_window.update
+  function tool_window:update()
+    self:s_update()
+    local done,total,time = renderstatus()
+    progress.progress = done / total
+    print(done, total, done / total)
+  end
   
   gui.windows:add(tool_window)
 end
