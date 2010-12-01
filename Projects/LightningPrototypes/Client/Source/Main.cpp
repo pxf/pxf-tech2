@@ -11,7 +11,7 @@ using namespace Util;
 
 int main(int argc, char *argv[])
 {
-	Client client = Client("users.mkeyd.net", 50000, "192.168.1.100" ,50001);
+	Client client = Client("users.mkeyd.net", 50000, "129.16.74.87", 50001);
 	client.run();
 
 	return(0);

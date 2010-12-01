@@ -372,7 +372,7 @@ void ConnectionManager::set_highest_fd()
 
 	printf("max:%d\n",max);
 	for (i = m_Connections.begin(); i != m_Connections.end(); i++) {
-		printf("max:%dsocket:%d\n",max,(*i)->socket);
+		printf("max:%dsocket:%dbound:%d\n",max,(*i)->socket,(*i)->bound);
 		if (max < (*i)->socket && (*i)->socket != -1)
 			max = (*i)->socket;
 	}

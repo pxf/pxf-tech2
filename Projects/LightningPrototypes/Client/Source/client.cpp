@@ -128,7 +128,11 @@ void Client::ping(Connection *_c, int _timestamp)
 bool Client::connect_tracker()
 {
 	Connection *bound_c = m_ConnMan.new_connection(CLIENT);
-	m_ConnMan.bind_connection(bound_c, m_local_address, m_local_port);
+	if(!m_ConnMan.bind_connection(bound_c, m_local_address, m_local_port))
+	{
+		m_Kernel->Log(m_net_tag, "Could not bind to %s:%d", m_local_address, m_local_port);
+		return false;
+	}	
 	bound_c->bound = true;
 
 	Connection *c = m_ConnMan.new_connection(TRACKER);
