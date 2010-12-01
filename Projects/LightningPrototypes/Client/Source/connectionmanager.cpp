@@ -109,10 +109,11 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	}
 	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
 
+	printf("binding socket:%d\n", sck);
 	_connection->socket = sck;
 	_connection->bound = true;
 
-	return false;
+	return true;
 }
 
 bool ConnectionManager::remove_connection(Connection *_connection)
@@ -124,9 +125,6 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 
 	delete _connection;
 
-	if (have_socket)
-		set_highest_fd();
-	
 	// Remove from the hash map.
 	//m_socketfdToConnection.erase(m_socketfdToConnection.find(_connection->socket));
 
@@ -137,10 +135,16 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	while (i != m_Connections.end())
 	{
 		if ((*i) == _connection)
+		{
 			i = m_Connections.erase(i);
+			printf("removing fuckface.\n");
+		}
 		else
 			i++;
 	}
+
+	if (have_socket)
+		set_highest_fd();
 
 	return true;
 }
@@ -192,6 +196,7 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	}
 	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
 
+	printf("connecting socket:%d\n", sck);
 	_connection->socket = sck;
 
 	return true;
