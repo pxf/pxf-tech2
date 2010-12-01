@@ -1,8 +1,8 @@
 #include "client.h"
 
 #define INITIAL_QUEUE 6
-#define PING_INTERVAL 10000 // Ping interval in milliseconds
-#define PING_TIMEOUT 5000 // Ping timeout in milliseconds
+#define PING_INTERVAL 1000 // Ping interval in milliseconds
+#define PING_TIMEOUT 500 // Ping timeout in milliseconds
 
 Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port)
 {
@@ -40,33 +40,39 @@ int Client::run()
 	
 	m_Kernel->Log(m_log_tag, "Connecting to tracker at %s.", m_tracker_address);
 	
-	bool exit = false;
+	bool lolexit = false;
 
 	if (!connect_tracker())
 	{
 		m_Kernel->Log(m_log_tag, "Connection failed, quitting");
-		exit = true;
+		lolexit = true;
 	}
 	
 	ping_timestamp = time(NULL);
 	
 	// This is our main fail
-	while(!exit)
+	while(!lolexit)
 	{
 		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
 
-		if (difftime(ping_timestamp, time(NULL)) > PING_INTERVAL/1000)
+		if (difftime(time(NULL), ping_timestamp) > PING_INTERVAL/1000)
 		{
+			printf("Ska pinga...\n");
 			// Ping all connections	
 			Pxf::Util::Array<struct Connection*>::iterator i_conn;
 			for (i_conn = m_ConnMan.m_Connections.begin(); i_conn != m_ConnMan.m_Connections.end(); i_conn++)
 			{
+				if ((*i_conn)->bound)
+					continue;
+
 				if (difftime((*i_conn)->timestamp, ping_timestamp) > PING_TIMEOUT)
 				{
+					printf("Tar bort connection...\n");
 					m_ConnMan.remove_connection(*i_conn);
 					continue;
 				}
 
+				printf("Pingar...\n");
 				ping(*i_conn, (int)time(NULL));
 			}
 
