@@ -16,8 +16,8 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
 	// TODO: Change to LiPacket
-	//m_ConnMan = ConnectionManager(new Pxf::Util::Array<LiPacket*>);
-	m_ConnMan = ConnectionManager(new Pxf::Util::Array<Packet*>);
+	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
+	//m_ConnMan = ConnectionManager(new Pxf::Util::Array<Packet*>);
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_net_tag = m_ConnMan.m_log_tag;
 }
@@ -34,8 +34,8 @@ int Client::run()
 	time_t last_ping, ping_timestamp;
 
 	// TODO: Change to LiPacket
-	//Pxf::Util::Array(<LiPacket*>) *packets;
-	Pxf::Util::Array<Packet*> *packets;
+	Pxf::Util::Array<LiPacket*> *packets;
+	//Pxf::Util::Array<Packet*> *packets;
 	
 	m_Kernel->Log(logtag, "Connecting to tracker at %s.", m_tracker_address);
 	
@@ -52,7 +52,7 @@ int Client::run()
 	// This is our main fail
 	while(!exit)
 	{
-		packets = m_ConnMan.recv_packets(PING_INTERVAL);
+		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
 
 		if (difftime(ping_timestamp, time(NULL)) > PING_INTERVAL/1000)
 		{
@@ -79,11 +79,12 @@ int Client::run()
 
 		// Packet loop
 		// TODO: Change to LiPacket
-		Pxf::Util::Array<Packet*>::iterator p;
+		Pxf::Util::Array<LiPacket*>::iterator p;
+		//Pxf::Util::Array<Packet*>::iterator p;
 		p = packets->begin();
 		while (p != packets->end())
 		{
-			switch((*p)->length)
+			switch((*p)->message_type)
 			{
 				case PONG:
 					m_Kernel->Log(logtag, "Got PONG from %s", (*p)->connection->target_address);
@@ -91,7 +92,7 @@ int Client::run()
 					p = packets->erase(p);
 					continue;
 				default:
-					m_Kernel->Log(logtag, "Unknown packet type: %d", (*p)->length); // TODO: LiPacket...
+					m_Kernel->Log(logtag, "Unknown packet type: %d", (*p)->message_type); // TODO: LiPacket...
 			}
 			
 			p++;
@@ -148,8 +149,9 @@ bool Client::connect_tracker()
 	
 	m_session_id = hello_client->session_id();
 
-	// TODO: Delete proper instance
-	//delete msg;
+	// TODO: Fix deconstructor for LiPacket? And stuff..
+	//delete packets->front();
+	packets->clear();
 	
 	printf("Connected to tracker. Got session_id %d\n", m_session_id);
 
@@ -164,9 +166,21 @@ bool Client::connect_tracker()
 	m_ConnMan.send(c, pkg->data, pkg->length);
 	m_ConnMan.remove_connection(c);
 
-	//m_ConnMan.recv()
-	//...
-	
-	return true;
+	packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(5000);
+
+	if (packets->empty())
+	{
+		// Check that the tracker connected...
+		for (Pxf::Util::Array<Connection*>::iterator c; c != m_ConnMan.m_Connections.end(); c++)
+			if ((*c)->type == TRACKER) return true;
+
+		m_Kernel->Log(m_net_tag, "Tracker could not connect to client. Are the ports open?");
+		return false;
+	}
+	else
+	{
+		m_Kernel->Log(m_net_tag, "Got unknown packet when expecting connection from tracker.");
+		return false;
+	}
 }
 
