@@ -79,6 +79,8 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
+	sprintf(port, "%d", _port);
+
 	if ((status = getaddrinfo(NULL, port, &hints, &res)) != 0)
 	{
 		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
@@ -86,8 +88,6 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	}
 
 	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-
-	sprintf(port, "%d\0", _port);
 
 	if (bind(sck, res->ai_addr, res->ai_addrlen) != 0)
 	{
