@@ -35,6 +35,7 @@ class Client
 		Pxf::Kernel* m_Kernel;
 
 		int m_net_tag;	
+		int m_log_tag;
 		void ping(Connection *_c, int _timestamp);
 		bool connect_tracker();
 };
