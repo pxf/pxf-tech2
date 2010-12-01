@@ -95,6 +95,8 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 		return false;
 	}
 
+	listen(sck, 10);
+
 	void *addr;
 
 	if (res->ai_family == AF_INET)
@@ -112,6 +114,10 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	printf("binding socket:%d\n", sck);
 	_connection->socket = sck;
 	_connection->bound = true;
+
+	FD_SET(sck, &m_read_sockets);
+	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
+	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
 
 	return true;
 }

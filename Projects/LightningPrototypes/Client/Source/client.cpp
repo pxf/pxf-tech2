@@ -12,6 +12,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_tracker_port = _tracker_port;
 	m_local_address = Pxf::StringDuplicate(_local_address);
 	m_local_port = _local_port;
+	printf("m_local_addres : %s   m_local_port : %d\n", m_local_address, m_local_port);
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 

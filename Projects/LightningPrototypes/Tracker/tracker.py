@@ -76,6 +76,7 @@ class Tracker():
         # Connect to the client.
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            print("trying to connect to {0}:{1}".format(message.address, message.port))
             c.connect((message.address, message.port))
         except socket.error:
             # Couldn't connect. Ignore.
@@ -91,6 +92,25 @@ class Tracker():
         self._db.del_client(message.session_id)
         return lightning.OK
     _tr_table[lightning.GOODBYE] = e_goodbye
+    
+    def e_nodesrequest(self, message):
+        avail_cs = self._db.get_available_clients()
+        wants = message.nodes
+        print("client {0} wants {1} nodes.  available: {2}.".format(
+            self._last_session_id
+            , wants
+            , avail_cs
+        ))
+        response = tracker_pb2.NodesResponse()
+        for session_id, num_avail in avail_cs:
+            node = response.nodes.add()
+            node.session_id = session_id
+            client = self._db.get_client(session_id)
+            node.address = client[0]
+            node.port = 0
+        return response
+    _tr_table[lightning.NODES_REQUEST] = e_nodesrequest
+
     # Events end.
     # --------------------------------------------------------------
 
@@ -270,6 +290,7 @@ class Tracker():
 
 
         while True:
+            # TODO: Clean up after dead clients.
             session_id, data = self.recv()
             message_type, message = lightning.unpack(data)
 
