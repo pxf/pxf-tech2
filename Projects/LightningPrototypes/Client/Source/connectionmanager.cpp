@@ -119,7 +119,6 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	_connection->bound = true;
 
 	FD_SET(sck, &m_read_sockets);
-	printf("SET:%i\n", sck);
 	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
 	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
 
@@ -230,13 +229,11 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	set_fdset();
 
 	// TODO: Log error
-	printf("selecting... m_max_socketfd+1 = %d\n", m_max_socketfd+1);
 	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == -1)
 	{
 		m_Kernel->Log(m_log_tag, "Unable to call select().");
 		return NULL;
 	}
-	printf("selecting done.\n");
 
 	//printf("Select\n");
 	Connection *c;
@@ -288,12 +285,14 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				{
 					// New message, read message length
 					recv_bytes = recv(c->socket, (void*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
-					if (recv_bytes == 0)
+					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						// TODO: Terminate connection
 						c->buffer_size = 0;
 						continue;
 					}
+
+					printf("c->buffer_size:%d",c->buffer_size);
 
 					c->buffer = (char*)Pxf::MemoryAllocate(c->buffer_size);
 					
@@ -350,6 +349,8 @@ void ConnectionManager::set_fdset()
 {
 	int max=0;
 	Pxf::Util::Array<Connection*>::iterator c;
+
+	FD_ZERO(&m_read_sockets);
 
 	for(c = m_Connections.begin(); c != m_Connections.end(); c++)
 	{
