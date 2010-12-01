@@ -111,11 +111,11 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	}
 	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
 
-	printf("binding socket:%d\n", sck);
 	_connection->socket = sck;
 	_connection->bound = true;
 
 	FD_SET(sck, &m_read_sockets);
+	printf("SET:%i\n", sck);
 	m_socketfdToConnection.insert(std::make_pair(sck, _connection));
 	m_max_socketfd = (sck > m_max_socketfd) ? sck : m_max_socketfd;
 
@@ -141,10 +141,7 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 	while (i != m_Connections.end())
 	{
 		if ((*i) == _connection)
-		{
 			i = m_Connections.erase(i);
-			printf("removing fuckface.\n");
-		}
 		else
 			i++;
 	}
@@ -202,7 +199,6 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	}
 	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
 
-	printf("connecting socket:%d\n", sck);
 	_connection->socket = sck;
 
 	return true;
@@ -227,6 +223,8 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	timeout.tv_sec = _timeout/1000;
 	timeout.tv_usec = (_timeout%1000)*1000;
 
+	set_fdset();
+
 	// TODO: Log error
 	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == -1)
 	{
@@ -234,11 +232,13 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 		return NULL;
 	}
 
+	//printf("Select\n");
 	Connection *c;
 	for (int i=0; i <= m_max_socketfd; i++) 
 	{
 		if (FD_ISSET(i, &m_read_sockets))
 		{
+			printf("socket:%d\n", i);
 			c = m_socketfdToConnection[i];
 			//if (c == NULL) continue;
 			if (c->bound)
@@ -248,7 +248,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				socklen_t addrlen = sizeof(&remoteaddr);
 				new_connection_fd = accept(i, &remoteaddr, &addrlen);
 
-				m_Kernel->Log(m_log_tag, "Incoming connection from ?"); // TODO: Print address
+				m_Kernel->Log(m_log_tag, "Incoming connection from ?, new socket:%d", new_connection_fd); // TODO: Print address
 
 				if (c->type == TRACKER)
 				{
@@ -257,7 +257,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					
 					bool tracker_connected = false;
 					for (j = m_Connections.begin(); j != m_Connections.end(); j++) {
-						if ((*j)->type == TRACKER) {
+						if (((*j)->type == TRACKER) && !((*j)->bound)) {
 							tracker_connected = true;
 							break;
 						}
@@ -339,6 +339,23 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 
 	return m_Packets;
 }
+
+
+void ConnectionManager::set_fdset()
+{
+	int max=0;
+	Pxf::Util::Array<Connection*>::iterator c;
+
+	for(c = m_Connections.begin(); c != m_Connections.end(); c++)
+	{
+		FD_SET((*c)->socket, &m_read_sockets);
+		if ((*c)->socket > max)
+			max = (*c)->socket;
+	}
+
+	m_max_socketfd = max;
+}
+
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
