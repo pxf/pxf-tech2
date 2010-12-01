@@ -63,6 +63,7 @@ class Tracker():
     
     def e_init_hello(self, message):
         new_session_id = self._db.new_init_client()
+        print("new client id: {0}".format(new_session_id))
         response = tracker_pb2.HelloToClient()
         response.session_id = new_session_id
         self.set_session_id(None, new_session_id)
@@ -72,7 +73,8 @@ class Tracker():
     def e_hello_to_tracker(self, message):
         # Delete the old connection.
         # TODO: Wait until we've successfully connected the new socket?
-        del self._scks[self._last_socket]
+        #del self._scks[self._last_socket]
+        self._db.del_client(self._last_session_id)
         # Connect to the client.
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -83,6 +85,7 @@ class Tracker():
             print("unable to connect to client in return.")
             # TODO: Raise an Exception?
             return None
+        print("connected to client {0}:{1}.".format(message.address, message.port))
         self._db.add_client(message.session_id
             , message.address + ":" + str(message.port), message.available)
         return None
@@ -125,6 +128,8 @@ class Tracker():
             None  takes the client who sent the last packet
         """
 
+        print("set_session_id from {0} to {1}.".format(client,  new_id))
+
         if type(client) == type(str()):
             # client = old_id
             old_id = self._scks[client]['session_id']
@@ -135,6 +140,10 @@ class Tracker():
             for s, si in self._sck.items():
                 if si['session_id'] == old_id:
                     sck = s
+        elif client is None:
+            # client = last used.
+            old_id = self._last_session_id
+            sck = self._last_socket
         else:
             # none.
             return False
@@ -425,9 +434,12 @@ class TrackerDatabase:
 
         Removes the client with the corresponding session_id.
         """
+        
+        print("del_client: {0}.".format(session_id))
 
         if session_id in self._clients.keys():
             del self._clients[session_id]
+            print("deleted.")
             return True
         else:
             return False
