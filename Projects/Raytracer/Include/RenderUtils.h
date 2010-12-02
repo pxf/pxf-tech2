@@ -119,8 +119,8 @@ public:
 	union {
 		// sphere
 		struct {
-			Pxf::Math::Vec3f c;		// p[0]
-			float r;				// p[1].x
+			Pxf::Math::Vec3f c;		// p[0]		
+			float r;				// p[1].x	
 		};
 
 		// triangle
