@@ -13,6 +13,11 @@
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Graphics/PrimitiveBatch.h>
 #include <Pxf/Graphics/Model.h>
+#include <Pxf/Resource/Mesh.h>
+
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/ResourceLoader.h>
+
 #include <Pxf/Input/InputDevice.h>
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Mesh.h>
@@ -56,6 +61,7 @@ int main(int argc, char* argv[])
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
+	res->DumpResourceLoaders();
 	
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;
@@ -118,13 +124,13 @@ int main(int argc, char* argv[])
 	sphere_mat2.reflectiveness = 1.0f;
 	
 	blob.prim_count = 0;
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), plane_mat_white); // bottom
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), plane_mat_white); // top
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), plane_mat_red); // left
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), plane_mat_green); // right
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), plane_mat_white); // back
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-1.0f, 0.0f, 5.0f), 1.5f, sphere_mat1);
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, sphere_mat2);
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), &plane_mat_white); // bottom
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), &plane_mat_white); // top
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), &plane_mat_green); // right
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, &sphere_mat1);
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
 
 	
 	// Add 64 spheres on the floor, should slow down the render a bit. Compare with kd-tree.
@@ -151,7 +157,7 @@ int main(int argc, char* argv[])
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 5.0f, light_mat1);
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 5.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 1;
 	
@@ -176,7 +182,10 @@ int main(int argc, char* argv[])
 	bool guihit = false;
 	
 	// MODEL
-	Model* model_teapot = gfx->CreateModel("data/teapot.ctm");
+	Model* model_teapot = gfx->CreateModel(teapot);
+	Model* model_box = gfx->CreateModel(box);
+
+	triangle_list(box);
 
 	// CAMERA
 	SimpleCamera cam;
@@ -230,8 +239,14 @@ int main(int argc, char* argv[])
 		running = app->Update();
 		guihit = app->GuiHit();
 		
+		if (inp->GetLastKey() == Input::ENTER)
+		{
+			if(!exec_rt) client.run_noblock();
+			exec_rt = !exec_rt;
+		}
+		
 		/* CAMERA FREE-FLY MODE */
-		if(!exec_rt && guihit)
+		if(!exec_rt)
 		{
 			gfx->BindTexture(0,0);
 			gfx->SetProjection(cam.GetProjectionView());
@@ -240,64 +255,72 @@ int main(int argc, char* argv[])
 			glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glColor3f(1.0f,1.0f,1.0f);
+			
+			if (!guihit)
+				MoveCamera(&cam,inp);
 
-			MoveCamera(&cam,inp);
+			model_teapot->Draw();
 		}
+		else
+		{
+			// Setup view!!!!!!!!
+			gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
+			Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
+			gfx->SetProjection(&prjmat);
 
+			// Get results
+			//-------------------------------------
+			if(client.has_results())
+			{
+				TaskResult* res = client.pop_result();
+				int x = res->rect.x / task_size_w;
+				int y = res->rect.y / task_size_h;
 
-		/*
-		// Setup view!!!!!!!!
+				unsigned int idx = y*task_count+x;
+				Pxf::Graphics::GraphicsDevice* gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
+				region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_w, channels);
+				region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
+				region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
+				if (res->final)
+					total_done += 1;
+			}
+
+			// Draw
+			for(int y = 0; y < task_count; y++)
+			{
+				for(int x = 0; x < task_count; x++)
+				{
+					unsigned int idx = y*task_count+x;
+					if (region_textures[idx] == 0)
+						Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(unfinished_task_texture);
+					else
+						Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(region_textures[idx]);
+
+					// Setup quad
+					pbatch->QuadsBegin();
+					pbatch->QuadsDrawTopLeft(x*task_size_w, y*task_size_h, task_size_w, task_size_w);
+					pbatch->QuadsEnd();
+				}
+			}
+			//--------------------------------------
+
+			if (total_done == total_count && !is_done)
+			{
+				//thread_executor.cancel();
+				is_done = true;
+				render_timer.Stop();
+				char title[512];
+				Format(title, "Render time: %d ms", render_timer.Interval());
+				win->SetTitle(title);
+			}
+		}		
+
+		// Reset view 
+		glLoadIdentity();
+
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
 		gfx->SetProjection(&prjmat);
-
-		// Get results
-		//-------------------------------------
-		if(client.has_results())
-		{
-			TaskResult* res = client.pop_result();
-			int x = res->rect.x / task_size_w;
-			int y = res->rect.y / task_size_h;
-
-			unsigned int idx = y*task_count+x;
-			Pxf::Graphics::GraphicsDevice* gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
-			region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_w, channels);
-			region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
-			region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
-			if (res->final)
-				total_done += 1;
-		}
-
-		// Draw
-		for(int y = 0; y < task_count; y++)
-		{
-			for(int x = 0; x < task_count; x++)
-			{
-				unsigned int idx = y*task_count+x;
-				if (region_textures[idx] == 0)
-					Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(unfinished_task_texture);
-				else
-					Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(region_textures[idx]);
-
-				// Setup quad
-				pbatch->QuadsBegin();
-				pbatch->QuadsDrawTopLeft(x*task_size_w, y*task_size_h, task_size_w, task_size_w);
-				pbatch->QuadsEnd();
-			}
-		}
-		//--------------------------------------
-
-		if (total_done == total_count && !is_done)
-		{
-			//thread_executor.cancel();
-			is_done = true;
-			render_timer.Stop();
-			char title[512];
-			Format(title, "Render time: %d ms", render_timer.Interval());
-			win->SetTitle(title);
-		}
-
-		*/
 		
 		app->Draw();
 		
