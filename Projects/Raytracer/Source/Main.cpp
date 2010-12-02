@@ -13,6 +13,8 @@
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Graphics/PrimitiveBatch.h>
 #include <Pxf/Input/InputDevice.h>
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/Mesh.h>
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
@@ -44,7 +46,9 @@ int main(int argc, char* argv[])
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 	kernel->RegisterModule("pri", 0xFFFFFFFF, true);
 	kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
+	kernel->RegisterModule("mesh",Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
 	
+	Resource::ResourceManager* res = kernel->GetResourceManager();
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
@@ -61,6 +65,17 @@ int main(int argc, char* argv[])
 	spec.Resizeable = false;
 	spec.VerticalSync = true;
 	Graphics::Window* win = gfx->OpenWindow(&spec);
+
+	Resource::Mesh::mesh_descriptor* descr;
+	Resource::Mesh* box = res->Acquire<Resource::Mesh>("data/box.ctm");
+	descr = box->GetData();
+	Vec3f* box_vertices = (Vec3f*)descr->vertices;
+	Vec3f* box_normals = (Vec3f*)descr->normals;
+
+	Resource::Mesh* teapot = res->Acquire<Resource::Mesh>("data/teapot.ctm");
+	descr = teapot->GetData();
+	Vec3f* teapot_vertices = (Vec3f*)descr->vertices;
+	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
 	// Generate awesome red output buffer
 	const int w = 128;
@@ -138,7 +153,7 @@ int main(int argc, char* argv[])
 	
 	// create textures and primitive batches
 	Texture *region_textures[task_count*task_count] = {0};
-	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("unfinished.png");
+	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("data/unfinished.png");
 	unfinished_task_texture->SetMagFilter(TEX_FILTER_NEAREST);
 	unfinished_task_texture->SetMinFilter(TEX_FILTER_NEAREST);
 
