@@ -142,10 +142,17 @@ class HelloToTracker : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 port() const;
   inline void set_port(::google::protobuf::int32 value);
   
-  // required int32 available = 4;
+  // required int32 client_port = 4;
+  inline bool has_client_port() const;
+  inline void clear_client_port();
+  static const int kClientPortFieldNumber = 4;
+  inline ::google::protobuf::int32 client_port() const;
+  inline void set_client_port(::google::protobuf::int32 value);
+  
+  // required int32 available = 5;
   inline bool has_available() const;
   inline void clear_available();
-  static const int kAvailableFieldNumber = 4;
+  static const int kAvailableFieldNumber = 5;
   inline ::google::protobuf::int32 available() const;
   inline void set_available(::google::protobuf::int32 value);
   
@@ -158,12 +165,13 @@ class HelloToTracker : public ::google::protobuf::Message {
   ::std::string* address_;
   static const ::std::string _default_address_;
   ::google::protobuf::int32 port_;
+  ::google::protobuf::int32 client_port_;
   ::google::protobuf::int32 available_;
   friend void  protobuf_AddDesc_trackerclient_2eproto();
   friend void protobuf_AssignDesc_trackerclient_2eproto();
   friend void protobuf_ShutdownFile_trackerclient_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1059,19 +1067,35 @@ inline void HelloToTracker::set_port(::google::protobuf::int32 value) {
   port_ = value;
 }
 
-// required int32 available = 4;
-inline bool HelloToTracker::has_available() const {
+// required int32 client_port = 4;
+inline bool HelloToTracker::has_client_port() const {
   return _has_bit(3);
+}
+inline void HelloToTracker::clear_client_port() {
+  client_port_ = 0;
+  _clear_bit(3);
+}
+inline ::google::protobuf::int32 HelloToTracker::client_port() const {
+  return client_port_;
+}
+inline void HelloToTracker::set_client_port(::google::protobuf::int32 value) {
+  _set_bit(3);
+  client_port_ = value;
+}
+
+// required int32 available = 5;
+inline bool HelloToTracker::has_available() const {
+  return _has_bit(4);
 }
 inline void HelloToTracker::clear_available() {
   available_ = 0;
-  _clear_bit(3);
+  _clear_bit(4);
 }
 inline ::google::protobuf::int32 HelloToTracker::available() const {
   return available_;
 }
 inline void HelloToTracker::set_available(::google::protobuf::int32 value) {
-  _set_bit(3);
+  _set_bit(4);
   available_ = value;
 }
 

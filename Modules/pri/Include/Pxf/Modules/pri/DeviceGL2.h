@@ -43,6 +43,8 @@ namespace Pxf{
 			void SetModelView(Math::Mat4 *_matrix);
 			void SwapBuffers();
 			void Translate(Math::Vec3f _translate);
+			void SetDepthFunction(Graphics::DepthFuncType _DepthType);
+			void SetDepthState(bool _State);
 
 			float Print(Graphics::Font* _Font, float _X, float _Y, float _Scale, const char* _Text);
 

@@ -12,11 +12,17 @@
 #include <Pxf/Graphics/WindowSpecifications.h>
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Graphics/PrimitiveBatch.h>
+#include <Pxf/Graphics/Model.h>
 #include <Pxf/Input/InputDevice.h>
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/Mesh.h>
+#include <Pxf/Modules/pri/OpenGL.h>
+
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
 #include "Renderer.h"
+#include "Camera.h"
 
 #include "Fabric/App.h"
 
@@ -44,7 +50,9 @@ int main(int argc, char* argv[])
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 	kernel->RegisterModule("pri", 0xFFFFFFFF, true);
 	kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
+	kernel->RegisterModule("mesh",Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
 	
+	Resource::ResourceManager* res = kernel->GetResourceManager();
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
@@ -61,6 +69,17 @@ int main(int argc, char* argv[])
 	spec.Resizeable = false;
 	spec.VerticalSync = true;
 	Graphics::Window* win = gfx->OpenWindow(&spec);
+
+	Resource::Mesh::mesh_descriptor* descr;
+	Resource::Mesh* box = res->Acquire<Resource::Mesh>("data/box.ctm");
+	descr = box->GetData();
+	Vec3f* box_vertices = (Vec3f*)descr->vertices;
+	Vec3f* box_normals = (Vec3f*)descr->normals;
+
+	Resource::Mesh* teapot = res->Acquire<Resource::Mesh>("data/teapot.ctm");
+	descr = teapot->GetData();
+	Vec3f* teapot_vertices = (Vec3f*)descr->vertices;
+	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
 	// Generate awesome red output buffer
 	const int w = 256;
@@ -138,7 +157,7 @@ int main(int argc, char* argv[])
 	
 	// create textures and primitive batches
 	Texture *region_textures[task_count*task_count] = {0};
-	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("unfinished.png");
+	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("data/unfinished.png");
 	unfinished_task_texture->SetMagFilter(TEX_FILTER_NEAREST);
 	unfinished_task_texture->SetMinFilter(TEX_FILTER_NEAREST);
 
@@ -155,11 +174,24 @@ int main(int argc, char* argv[])
 	app->Boot();
 	bool running = true;
 	
+	// MODEL
+	Model* model_teapot = gfx->CreateModel("data/teapot.ctm");
+
+	// CAMERA
+	SimpleCamera cam;
+
+	gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
+	Math::Mat4 prjmat = Math::Mat4::Perspective(45.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
+
+	cam.SetProjectionView(prjmat);
+	cam.Translate(0.0f,0.0f,10.0f);
+
+	blob.cam = &cam;
 
 	// Raytracer client test
 	//------------------------
 	RaytracerClient client(kernel);
-	client.run_noblock();
+	//client.run_noblock();
 
 	// add a bunch of tasks
 	for(int y = 0; y < task_count; y++)
@@ -175,21 +207,41 @@ int main(int argc, char* argv[])
 			client.push_request(req);
 		}
 	}
+	
+	// DEPTH TEST
+	gfx->SetDepthFunction(DF_LEQUAL);
+	gfx->SetDepthState(true);
 
 	//client.wait();
 	//------------------------
 
-
-	
 	render_timer.Start();
 
 	bool is_done = false;
+	bool exec_rt = false;
+
 	while(win->IsOpen() && running)
 	{
 		inp->Update();
 		if (inp->GetLastKey() == Input::ESC)
 			break;
-			
+		
+		/* CAMERA FREE-FLY MODE */
+		if(!exec_rt)
+		{
+			gfx->BindTexture(0,0);
+			gfx->SetProjection(cam.GetProjectionView());
+			gfx->SetModelView(cam.GetModelView());
+
+			glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glColor3f(1.0f,1.0f,1.0f);
+
+			MoveCamera(&cam,inp);
+		}
+
+
+		/*
 		// Setup view!!!!!!!!
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
@@ -240,6 +292,8 @@ int main(int argc, char* argv[])
 			Format(title, "Render time: %d ms", render_timer.Interval());
 			win->SetTitle(title);
 		}
+
+		*/
 		
 		running = app->Update();
 		app->Draw();
