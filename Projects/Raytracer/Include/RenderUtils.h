@@ -44,17 +44,12 @@ private:
 	material_t m_Materials[64];
 };
 
+/*
 class Prim
 {
 public:
 	Prim(){ }
 	~Prim() { 
-		/*
-		if(box)
-		{
-			delete box;
-			box = 0;
-		} */
 	}
 
 	// create sphere
@@ -125,7 +120,7 @@ public:
 		}
 	}
 
-	/* DATA */
+
 	//union {
 		// sphere
 		//struct {
@@ -153,7 +148,7 @@ public:
 	int material_index;
 	aabb* box;
 	char padding;
-};
+}; */
 
 struct Vertex
 {
