@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
 	Model* model_teapot = gfx->CreateModel(teapot);
 	Model* model_box = gfx->CreateModel(box);
 
-	triangle_list(box);
+	Triangle* triangle_data = triangle_list(box);
 
 	// CAMERA
 	SimpleCamera cam;
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 	Math::Mat4 prjmat = Math::Mat4::Perspective(45.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
 
 	cam.SetProjectionView(prjmat);
-	cam.Translate(0.0f,0.0f,10.0f);
+	cam.Translate(0.0f,20.0f,100.0f);
 
 	blob.cam = &cam;
 

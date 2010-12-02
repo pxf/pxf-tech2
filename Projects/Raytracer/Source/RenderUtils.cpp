@@ -8,24 +8,20 @@ using namespace Math;
 
 Triangle* triangle_list(Mesh* mesh)
 {
-	Triangle* t_list = new Triangle();
 	Mesh::mesh_descriptor* md = mesh->GetData();
-
-	/*
-	bool has_normals;
-	bool has_uvmap;
-	int vertex_count;
-	int triangle_count;
-
-	const float* vertices;
-	const float* normals;
-	const float* texcoords;
-	const unsigned int* indices;
-	*/
 
 	int vertex_count = md->vertex_count;
 	int triangle_count = md->triangle_count;
 	const unsigned int* indices = md->indices;
+
+	Triangle* t_list = new Triangle[triangle_count]();
+
+
+	// set default material to a white material.. 
+	material_t* material_white = new material_t();
+	material_white->ambient = Pxf::Math::Vec3f(0.1f, 0.1f, 0.1f);
+	material_white->diffuse = Pxf::Math::Vec3f(1.0f, 1.0f, 1.0f);
+	material_white->reflectiveness = 0.0f;
 
 	for(int i = 0; i < triangle_count*3; i++)
 	{
@@ -43,16 +39,17 @@ Triangle* triangle_list(Mesh* mesh)
 			texcoord = Math::Vec2f(*(md->texcoords+idy+0), *(md->texcoords+idy+1));
 
 		int t_index = i / 3;
-		int v_index = i % 3;
+		int v_index = i % 3; 
 
-		//t_list[i / 3].vertices[v_index]->v = vertex;
+		Triangle* t = &t_list[i / 3];
+		t->material = material_white;
 
-		// set position
-		/*
-		ptr[i].vertex = vertex;
-		ptr[i].normal = normal;
-		ptr[i].texcoord = texcoord; */
+		Vertex* v = new Vertex();
+		v->v = vertex;
+		v->n = normal;
+		v->uv = texcoord;
+		t->vertices[v_index] = v;
 	}
 
-	return 0;
+	return t_list;
 }

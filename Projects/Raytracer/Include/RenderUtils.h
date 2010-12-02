@@ -12,7 +12,6 @@ namespace Pxf {
 };
 
 class Triangle;
-
 Triangle* triangle_list(Pxf::Resource::Mesh* mesh);
 
 enum PrimType { SpherePrim, PlanePrim, PointLightPrim, AreaLightPrim, TrianglePrim };
@@ -20,12 +19,9 @@ enum PrimType { SpherePrim, PlanePrim, PointLightPrim, AreaLightPrim, TrianglePr
 class MaterialLibrary
 {
 public:
-	/*
 	MaterialLibrary()
 	{
-		material_t white_mat;
-		m_Materials[0] = 
-	} */
+	}
 
 	void Insert(material_t _Mat,int _Index)
 	{
@@ -160,7 +156,10 @@ struct Vertex
 class Primitive
 {
 public:
-	Primitive() { };
+	Primitive() { 
+		
+	};
+
 	virtual ~Primitive() { };
 	virtual bool Intersects(ray_t* ray,intersection_response_t* resp) = 0;
 	virtual PrimType GetType() = 0;
@@ -172,12 +171,13 @@ class Triangle : public Primitive
 {
 public:
 	//Triangle(Vertex* _Vertices);
+	//Triangle() { vertices = new Vertex*() }
 	virtual ~Triangle() { };
 
 	bool Intersects(ray_t* ray,intersection_response_t* resp) { return ray_triangle(vertices[0]->v,vertices[1]->v,vertices[2]->v,ray,resp); }
 	PrimType GetType() { return TrianglePrim; }
 
-	Vertex*				vertices[3];	// 12
+	Vertex*	vertices[3];	// 12
 	Pxf::Math::Vec3f	n;		// 12
 };
 
@@ -209,7 +209,12 @@ class Sphere : public Primitive
 {
 public:
 	//Sphere (Pxf::Math::Vec3f _p, float _r, material_t _material) : Primitive(_material) {p = _p; r = _r;};
-	Sphere (Pxf::Math::Vec3f _p, float _r, material_t* _material) {p = _p; r = _r; material = _material; };
+	Sphere (Pxf::Math::Vec3f _p, float _r, material_t* _material) 
+		: r(_r)
+		, p(_p)
+		{
+			material = _material; 
+		};
 	virtual ~Sphere(){};
 	bool Intersects(ray_t *ray, intersection_response_t* resp) { return ray_sphere(&p, r, ray, resp); };
 	PrimType GetType() { return SpherePrim; }
