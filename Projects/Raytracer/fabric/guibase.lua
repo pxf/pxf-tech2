@@ -694,7 +694,7 @@ function gui:update()
     else
       -- we might have a drag operation on our hands!
       
-      if (self.activewidget.mousedrag) then
+      if (self.activewidget and self.activewidget.mousedrag) then
         self.activewidget:mousedrag(mx-self.mouse.lastpos.x, my-self.mouse.lastpos.y,self.buttonid)
       end
     end
