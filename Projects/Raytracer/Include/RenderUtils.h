@@ -5,7 +5,146 @@
 #include "Material.h"
 #include "Intersections.h"
 
-enum PrimType { SpherePrim, PlanePrim, PointLightPrim, AreaLightPrim };
+enum PrimType { SpherePrim, PlanePrim, PointLightPrim, AreaLightPrim, TrianglePrim };
+
+class MaterialLibrary
+{
+public:
+	/*
+	MaterialLibrary()
+	{
+		material_t white_mat;
+		m_Materials[0] = 
+	} */
+
+	void Insert(material_t _Mat,int _Index)
+	{
+		PXF_ASSERT(_Index >= 0 && _Index < 64,"Invalid bounds");
+		m_Materials[_Index] = _Mat;
+	}
+
+	//void Insert(material_t _Mat);
+	inline material_t GetMaterial(int _Index)
+	{
+		PXF_ASSERT(_Index > 0 && _Index < 64,"Invalid bounds");
+		return m_Materials[_Index];
+	}
+
+private:
+	material_t m_Materials[64];
+};
+
+class Prim
+{
+public:
+	Prim(){ }
+	~Prim() { 
+		/*
+		if(box)
+		{
+			delete box;
+			box = 0;
+		} */
+	}
+
+	// create sphere
+	Prim(Pxf::Math::Vec3f c,float r)
+		: type(SpherePrim)
+		, box(0)
+	{
+		this->c = c;
+		this->r = r;
+
+		box = new aabb(CalcAABB(*this));
+	}
+
+	// Create triangle
+	Prim(Pxf::Math::Vec3f v0,Pxf::Math::Vec3f v1,Pxf::Math::Vec3f v2)
+		: type(type = TrianglePrim)
+		, box(0)
+	{
+		v[0] = v0; 
+		v[1] = v1;
+		v[2] = v2;
+
+		box = new aabb(CalcAABB(*this));
+	}
+
+	// Create Plane
+	Prim(Pxf::Math::Vec3f p,Pxf::Math::Vec3f n)
+		: type(PlanePrim)
+		, box(0)
+	{
+		this->p = p;
+		this->n = n;
+	}
+
+	// Create PointLight
+	Prim(Pxf::Math::Vec3f p)
+		: type(PointLightPrim)
+		, box(0)
+	{
+		this->p = p;
+	}
+	
+	// Create AreaLight
+	Prim(Pxf::Math::Vec3f p,float w,float h,Pxf::Math::Vec3f n,Pxf::Math::Vec3f d,float num_rays)
+		: type(AreaLightPrim)
+		, box(0)
+		, w(w)
+		, h(h)
+		, num_rays(num_rays)
+	{
+		this->p = p;
+		this->n = n;
+		this->d = d;
+	}
+
+	inline int GetType() { return type; }
+	inline int GetMaterial() { return material_index; }
+	inline void SetMaterial(int index) { material_index = index; } 
+
+	bool Intersect(ray_t *ray, intersection_response_t* resp)
+	{
+		switch(type)
+		{
+			case TrianglePrim: return ray_triangle(v,ray,resp); break;
+			case SpherePrim: return ray_sphere(&c,r,ray,resp); break;
+			case PlanePrim: return ray_plane(&c,&n,ray,resp); break;
+			default: return false; break;
+		}
+	}
+
+	/* DATA */
+	union {
+		// sphere
+		struct {
+			Pxf::Math::Vec3f c;		// p[0]		
+			float r;				// p[1].x	
+		};
+
+		// triangle
+		struct {
+			Pxf::Math::Vec3f v[3];
+			Pxf::Math::Vec3f n;
+		};
+
+		// area light
+		struct {
+			Pxf::Math::Vec3f p;		// p[0]
+			float w;				// p[1].x
+			float h;				// p[1].y
+			float num_rays;			// p[1].z
+			Pxf::Math::Vec3f d;		// p[2]
+		};
+	};
+
+	int type;
+	int material_index;
+	aabb* box;
+	char padding;
+};
+
 
 class Primitive
 {

@@ -10,6 +10,7 @@
 #include <Pxf/Graphics/DeviceType.h>
 #include <Pxf/Graphics/TextureDefs.h>
 #include <Pxf/Graphics/VertexBufferDefs.h>
+#include <Pxf/Graphics/GraphicsDefs.h>
 
 namespace Pxf
 {
@@ -55,6 +56,8 @@ namespace Pxf
 			virtual void SetModelView(Math::Mat4 *_matrix) = 0;
 			virtual void Translate(Math::Vec3f _translate) = 0;
 			virtual void SwapBuffers() = 0;
+			virtual void SetDepthFunction(DepthFuncType _DepthType) = 0;
+			virtual void SetDepthState(bool _State) = 0;
 
 			// Font-stuff
 			virtual float Print(Graphics::Font* _Font, float _X, float _Y, float _Scale, const char* _Text) = 0;

@@ -12,13 +12,16 @@
 #include <Pxf/Graphics/WindowSpecifications.h>
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Graphics/PrimitiveBatch.h>
+#include <Pxf/Graphics/Model.h>
 #include <Pxf/Input/InputDevice.h>
+#include <Pxf/Modules/pri/OpenGL.h>
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
 #include "Renderer.h"
+#include "Camera.h"
 
-#include "fabric/App.h"
+#include "Fabric/App.h"
 
 #include <RaytracerClient.h>
 
@@ -155,11 +158,24 @@ int main(int argc, char* argv[])
 	app->Boot();
 	bool running = true;
 	
+	// MODEL
+	Model* model_teapot = gfx->CreateModel("data/teapot.ctm");
+
+	// CAMERA
+	SimpleCamera cam;
+
+	gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
+	Math::Mat4 prjmat = Math::Mat4::Perspective(45.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
+
+	cam.SetProjectionView(prjmat);
+	cam.Translate(0.0f,0.0f,10.0f);
+
+	blob.cam = &cam;
 
 	// Raytracer client test
 	//------------------------
 	RaytracerClient client(kernel);
-	client.run_noblock();
+	//client.run_noblock();
 
 	// add a bunch of tasks
 	for(int y = 0; y < task_count; y++)
@@ -175,21 +191,41 @@ int main(int argc, char* argv[])
 			client.push_request(req);
 		}
 	}
+	
+	// DEPTH TEST
+	gfx->SetDepthFunction(DF_LEQUAL);
+	gfx->SetDepthState(true);
 
 	//client.wait();
 	//------------------------
 
-
-	
 	render_timer.Start();
 
 	bool is_done = false;
+	bool exec_rt = false;
+
 	while(win->IsOpen() && running)
 	{
 		inp->Update();
 		if (inp->GetLastKey() == Input::ESC)
 			break;
-			
+		
+		/* CAMERA FREE-FLY MODE */
+		if(!exec_rt)
+		{
+			gfx->BindTexture(0,0);
+			gfx->SetProjection(cam.GetProjectionView());
+			gfx->SetModelView(cam.GetModelView());
+
+			glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glColor3f(1.0f,1.0f,1.0f);
+
+			MoveCamera(&cam,inp);
+		}
+
+
+		/*
 		// Setup view!!!!!!!!
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
@@ -240,6 +276,8 @@ int main(int argc, char* argv[])
 			Format(title, "Render time: %d ms", render_timer.Interval());
 			win->SetTitle(title);
 		}
+
+		*/
 		
 		running = app->Update();
 		app->Draw();
@@ -256,4 +294,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-

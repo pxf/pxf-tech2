@@ -21,60 +21,6 @@ void PrintStatistics(KDTree* t)
 			stats.timer.Interval());
 }
 
-Primitive* RayNodeIntersect(KDNode* n,const ray_t& r,float t_min,float t_max)
-{
-	Vec3f o = r.o;
-	Vec3f d = r.d;
-	
-	if(n->IsLeaf())
-	{
-		return n->GetPrimitiveData();
-	}
-	else
-	{
-		unsigned axis = n->GetAxis();
-		float split_pos = n->GetSplitPos();
-		float t_split = (o.GetAxis(axis) - split_pos) / d.GetAxis(axis);
-
-		// assign near/far nodes
-		KDNode* near_node = o.GetAxis(axis)<split_pos ? n->GetLeftChild() : n->GetRightChild();
-		KDNode* far_node = o.GetAxis(axis)<split_pos ? n->GetRightChild() : n->GetLeftChild();
-
-		if(t_split > t_max)	// ray only hits near node
-		{
-			return RayNodeIntersect(near_node,r,t_min,t_max);
-		}
-		else if(t_split < t_min) // ray hits right node
-		{
-			if(t_split > 0)	// split is on positive side, ray direction is towards right node
-				return RayNodeIntersect(far_node,r,t_min,t_max);
-			else if(t_split < 0) // 
-				return RayNodeIntersect(near_node,r,t_min,t_max);
-			else // ray is positioned on plane
-			{
-				if(d.GetAxis(axis) < 0)
-					return RayNodeIntersect(far_node,r,t_min,t_max);
-				else
-					return RayNodeIntersect(near_node,r,t_min,t_max);
-			}
-		}
-		else	// ray hits both near/far node
-		{
-			if(t_split > 0) // ray completely traverse both nodes as ray direction is from near to far
-			{
-				Primitive* p = RayNodeIntersect(near_node,r,t_min,t_split);	// check left node first
-				
-				if(p)
-					return p;
-				else
-					return RayNodeIntersect(far_node,r,t_split,t_max); // found nothing in near, check far
-			}
-			else	// ray has origin on near node, but points away from far node
-				return RayNodeIntersect(near_node,r,t_split,t_max);
-		}
-	}
-}
-
 Primitive* RayTreeIntersect(KDTree& t,ray_t& r, float dist)
 {
 	Vec3f o = r.o;
@@ -86,9 +32,6 @@ Primitive* RayTreeIntersect(KDTree& t,ray_t& r, float dist)
 	Vec3f min_pos = box.pos;
 	Vec3f max_pos = min_pos + box.size;
 
-	Vec3f min = (min_pos - o) / d;
-	Vec3f max = (max_pos - o) / d;
-
 	float t_min,t_max;
 
 	Primitive* ret_p = 0;
@@ -97,9 +40,6 @@ Primitive* RayTreeIntersect(KDTree& t,ray_t& r, float dist)
 
 	if(!ray_aabb(&r,&box,&resp))
 		return 0;
-
-	t_min = resp.t_min;
-	t_max = resp.t_max;
 
 	t_min = 0.0f;
 	t_max = dist;
@@ -127,83 +67,93 @@ Primitive* RayTreeIntersect(KDTree& t,ray_t& r, float dist)
 		}
 	}
 
-	ret_p = RayNodeIntersect(node,r,t_min,t_max);
-	
-	return ret_p;
-}
-
-/*
-Primitive* RayTreeIntersect(KDTree& t,const ray_t& r,float dist)
-{
-	KDNode* node = t.GetRoot();
-	aabb box = node->GetAABB();
-	unsigned axis;
-	float split_pos,d,t_min = 0.0f,t_max = dist;
-
-	Vec3f min_p = box.pos;
-	Vec3f max_p = min_p + box.size;
-
-	// extract ray vars
-	Vec3f o = r.o;
-	Vec3f dir = r.d;
 	Vec3f inv_d = r.inv_d;
 
-	// clip line segments to box
-	for(size_t i=0; i<3; i++)
-	{
-		float d_axis = dir.GetAxis(i);
-		float p = o.GetAxis(i) + t_max * d_axis;
+	// init stack
+	KDStack* stack = t.GetStack();
+	int entry_ptr=0,exit_ptr=1;
+	
+	stack[entry_ptr].node = node;
+	stack[entry_ptr].v = o + d*t_min;
 
-		if (d_axis < 0)
-		{
-			if(p < min_p.GetAxis(i))
-				t_max = t_min + (t_max - t_min) * ((o.GetAxis(i) - min_p.GetAxis(i)) / (o.GetAxis(i) - p));
-			if(o.GetAxis(i) > max_p.GetAxis(i))
-				t_min += (t_max - t_min) * ((o.GetAxis(i) - max_p.GetAxis(i)) / (t_max * dir.GetAxis(i)));
-		}
-		else
-		{
-			if(p > max_p.GetAxis(i))
-				t_max = t_min + (t_max - t_min) * ((max_p.GetAxis(i) - o.GetAxis(i)) / (p - o.GetAxis(i)));
-			
-			if(o.GetAxis(i) < min_p.GetAxis(i))
-				t_min += (t_max - t_min) * ((max_p.GetAxis(i) - o.GetAxis(i)) / (t_max * dir.GetAxis(i)));
-		}
+	stack[exit_ptr].node = 0;
+	stack[exit_ptr].v = o + d*t_max;
 
-	}
+	KDNode* near_node;
+	KDNode* far_node;
 
-	Primitive* found_p = 0;
-
+	// build stack
 	while(node)
 	{
-		if(node->IsLeaf())
+		while(!node->IsLeaf())
 		{
-			found_p = node->GetPrimitiveData();
-			break;
+			unsigned axis = node->GetAxis();
+			float split_pos = node->GetSplitPos();
+			
+			// determine near and far nodes 
+
+			if(stack[entry_ptr].v.GetAxis(axis) <= split_pos)
+			{
+				// enter point is on left side of split_position
+				if(stack[exit_ptr].v.GetAxis(axis) <= split_pos)
+				{
+					// ray hit left child
+					node = node->GetLeftChild();
+					continue;
+				}
+
+				// parallel
+				if(stack[exit_ptr].v.GetAxis(axis) == split_pos)
+				{
+					// continue with right child
+					node = node->GetRightChild();
+					continue;
+				}
+
+				// ray hits both children
+				far_node = node->GetRightChild();
+				node = node->GetLeftChild();
+			}
+			// ray origin is on right child
+			else 
+			{
+				// ray hits right only
+				if(stack[exit_ptr].v.GetAxis(axis) > split_pos)
+				{
+					node = node->GetRightChild();
+					continue;
+				}
+
+				// ray hits both, in opposite directions
+				far_node = node->GetLeftChild();
+				node = node->GetRightChild();
+			}
+			
+			// get distance to split position
+			float t_split = (split_pos - o.GetAxis(axis)) / d.GetAxis(axis);
+
+			// set stack pointers
+			int ptr = exit_ptr++;
+			if(exit_ptr == entry_ptr)
+				exit_ptr++;
+
+			stack[exit_ptr].node = far_node;
+			stack[exit_ptr].v = o + d * t_split;
+			stack[exit_ptr].prev = ptr;
 		}
 
-		axis = node->GetAxis();
-		split_pos = node->GetSplitPos(); 
-		d = (split_pos - o.GetAxis(axis)) * inv_d.GetAxis(axis);
+		Primitive* data = node->GetPrimitiveData();
+		bool retval = ray_triangle(data->v,&r, &resp);
+		if(retval)
+			return data;
 
-		KDNode* nearNode = o.GetAxis(axis) < split_pos ? node->GetLeftChild() : node->GetRightChild();
-		KDNode* farNode = o.GetAxis(axis) < split_pos ? node->GetRightChild() : node->GetLeftChild();
-
-		if (split_pos > t_max)
-			node = nearNode;
-		else if(split_pos < t_min)
-		{
-
-
-		}
-
-
-		node = 0;
+		entry_ptr = exit_ptr;
+		node = stack[exit_ptr].node;
+		exit_ptr = stack[entry_ptr].prev;
 	}
 
-	return found_p;
+	return 0;
 }
-*/
 
 bool KDTree::Build(Primitive* _PrimitiveData, unsigned _NbrPrimitives)
 {
@@ -213,8 +163,11 @@ bool KDTree::Build(Primitive* _PrimitiveData, unsigned _NbrPrimitives)
 	}
 
 	m_Statistics.timer.Start();
+
+	m_KDStack = new KDStack[_NbrPrimitives];
 	m_Root->SetPrimitiveData(_PrimitiveData,_NbrPrimitives);
 	Subdivide(m_Root,_NbrPrimitives,m_Root->GetAABB(),0);
+
 	m_Statistics.timer.Stop();
 
 	return true;
@@ -308,7 +261,7 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrimitives,aabb _Box, int _De
 
 	double inv_sav_volume = 1.0f / CalcSurfaceArea(_Box);
 
-	printf("New split on axis %i\n",axis);
+	//printf("New split on axis %i\n",axis);
 
 	for(size_t i = 0; i < _NbrPrimitives * 2; i++)
 	{
@@ -336,10 +289,10 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrimitives,aabb _Box, int _De
 			best_position = i;
 		}
 
-		printf("spos %f larea %f rarea %f cost %f\n",sp.pos, larea,rarea, cost);
+		//printf("spos %f larea %f rarea %f cost %f\n",sp.pos, larea,rarea, cost);
 	}
 
-	printf("-----\n");
+	//printf("-----\n");
 
 	if (no_split_cost < best_cost) 
 	{
