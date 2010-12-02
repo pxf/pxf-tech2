@@ -120,28 +120,29 @@ public:
 		}
 	}
 
-	union {
+
+	//union {
 		// sphere
-		struct {
+		//struct {
 			Pxf::Math::Vec3f c;		// p[0]		
 			float r;				// p[1].x	
-		};
+		//};
 
 		// triangle
-		struct {
+		//struct {
 			Pxf::Math::Vec3f v[3];
 			Pxf::Math::Vec3f n;
-		};
+		//};
 
 		// area light
-		struct {
+		//struct {
 			Pxf::Math::Vec3f p;		// p[0]
 			float w;				// p[1].x
 			float h;				// p[1].y
 			float num_rays;			// p[1].z
 			Pxf::Math::Vec3f d;		// p[2]
-		};
-	};
+		//};
+	//};
 
 	int type;
 	int material_index;

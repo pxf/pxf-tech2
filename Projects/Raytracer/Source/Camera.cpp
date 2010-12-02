@@ -132,7 +132,7 @@ struct mouse_state
 	MS state;
 } ms;
 
-void MoveCamera(Camera* cam,Input::InputDevice* inp)
+void MoveCamera(Camera* cam, Input::InputDevice* inp)
 {
 	SimpleCamera* c = (SimpleCamera*) cam;
 	// Mouse movement:

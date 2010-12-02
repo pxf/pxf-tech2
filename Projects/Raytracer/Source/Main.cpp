@@ -236,6 +236,10 @@ int main(int argc, char* argv[])
 		inp->Update();
 		if (inp->GetLastKey() == Input::ESC)
 			break;
+			
+		running = app->Update();
+		guihit = app->GuiHit();
+		
 		if (inp->GetLastKey() == Input::ENTER)
 		{
 			if(!exec_rt) client.run_noblock();
@@ -252,8 +256,9 @@ int main(int argc, char* argv[])
 			glClearColor(26.0f/255.0f,26.0f/255.0f,26.0f/255.0f,1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glColor3f(1.0f,1.0f,1.0f);
-
-			MoveCamera(&cam,inp);
+			
+			if (!guihit)
+				MoveCamera(&cam,inp);
 
 			model_teapot->Draw();
 		}
@@ -317,11 +322,6 @@ int main(int argc, char* argv[])
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
 		gfx->SetProjection(&prjmat);
-
-		running = app->Update();
-		guihit = app->GuiHit();
-		if (guihit)
-			Pxf::Message("aoe", "gui was hit", guihit);
 		
 		app->Draw();
 		
