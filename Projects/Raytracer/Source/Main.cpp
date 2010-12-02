@@ -334,5 +334,7 @@ int main(int argc, char* argv[])
 	delete app;
 	delete pbatch;
 
+	delete kernel;
+
 	return 0;
 }
