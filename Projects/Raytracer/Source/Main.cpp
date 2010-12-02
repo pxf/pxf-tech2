@@ -29,7 +29,7 @@
 #include "Renderer.h"
 #include "Camera.h"
 
-#include "Fabric/App.h"
+#include "fabric/App.h"
 
 #include <RaytracerClient.h>
 
