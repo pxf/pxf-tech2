@@ -1,7 +1,7 @@
 #include "client.h"
 
 #define INITIAL_QUEUE 6
-#define PING_INTERVAL 1000 // Ping interval in milliseconds
+#define PING_INTERVAL 10000 // Ping interval in milliseconds
 #define PING_TIMEOUT 5000 // Ping timeout in milliseconds
 
 Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port, int _client_port)
@@ -77,6 +77,8 @@ int Client::run()
 				{
 					m_Kernel->Log(m_log_tag, "Connection to %s timed out...", (*i_conn)->target_address);
 					m_ConnMan.remove_connection(*i_conn);
+					if (i_conn == m_ConnMan.m_Connections.end())
+						break;
 					continue;
 				}
 
@@ -100,6 +102,16 @@ int Client::run()
 			if ((*p)->connection->type == CLIENT)
 			{
 				m_Kernel->Log(m_log_tag, "Packet from a client");
+				
+				switch((*p)->message_type)
+				{
+					case 1:
+						break;
+					default:
+						m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
+						p = packets->erase(p);
+						continue;
+				}
 			}
 			else if ((*p)->connection->type == TRACKER)
 			{
@@ -114,10 +126,14 @@ int Client::run()
 						continue;
 					}
 					default:
-						m_Kernel->Log(m_log_tag, "Unknown packet type: %d, p:%d", (*p)->message_type, (int)*p);
+						m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
 						p = packets->erase(p);
 						continue;
 				}
+			}
+			else if ((*p)->connection->type == INTERNAL)
+			{
+				1+1;
 			}
 			else
 			{
