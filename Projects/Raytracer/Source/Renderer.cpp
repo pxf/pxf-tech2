@@ -218,7 +218,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				{
 					// Find reflection
 					Pxf::Math::Vec3f bounce_contrib(0.0f);
-					Pxf::Math::Vec3f eye_vec = -ray->o + closest_resp.p;
+					Pxf::Math::Vec3f eye_vec = closest_resp.p - ray->o;
 					Normalize(eye_vec);
 					Pxf::Math::Vec3f refl = closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
 					
@@ -226,6 +226,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 					ray_t refl_ray;
 					refl_ray.o = closest_resp.p;
 					refl_ray.d = refl;
+					Normalize(refl_ray.d);
 					
 					if (!calc_ray_contrib(&refl_ray, datablob, &bounce_contrib, bounce))
 					{

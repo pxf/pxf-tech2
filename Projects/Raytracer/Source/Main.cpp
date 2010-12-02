@@ -88,10 +88,10 @@ int main(int argc, char* argv[])
 	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
 	// Generate awesome red output buffer
-	const int w = 128;
-	const int h = 128;
+	const int w = 256;
+	const int h = 256;
 	const int channels = 3;
-	const int task_count = 8;
+	const int task_count = 16;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
@@ -101,24 +101,24 @@ int main(int argc, char* argv[])
 	blob.pic_w = w;
 	blob.pic_h = h;
 	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
-	blob.bounce_count = 4; // Number of reflection bounces
+	blob.bounce_count = 5; // Number of reflection bounces
 	blob.interleaved_feedback = 4;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
 	plane_mat_white.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	plane_mat_white.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	plane_mat_white.reflectiveness = 0.3f;
+	plane_mat_white.reflectiveness = 0.0f;
 	plane_mat_red.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	plane_mat_red.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
-	plane_mat_red.reflectiveness = 0.3f;
+	plane_mat_red.reflectiveness = 0.0f;
 	plane_mat_green.ambient = Vec3f(0.0f, 0.1f, 0.0f);
 	plane_mat_green.diffuse = Vec3f(0.0f, 1.0f, 0.0f);
-	plane_mat_green.reflectiveness = 0.3f;
+	plane_mat_green.reflectiveness = 0.0f;
 	
-	sphere_mat1.ambient = Vec3f(0.1f, 0.0f, 0.0f);
-	sphere_mat1.diffuse = Vec3f(1.0f, 0.8f, 0.8f);
-	sphere_mat1.reflectiveness = 0.7f;
+	sphere_mat1.ambient = Vec3f(0.1f, 0.1f, 0.1f);
+	sphere_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
+	sphere_mat1.reflectiveness = 1.0f;
 	sphere_mat2.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	sphere_mat2.reflectiveness = 1.0f;
@@ -132,15 +132,15 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, &sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
 
-	/*
+	
 	// Add 64 spheres on the floor, should slow down the render a bit. Compare with kd-tree.
-	/*for (int y = 0; y < 8; y++)
+	for (int y = 0; y < 8; y++)
 	{
 		for (int x = 0; x < 8; x++)
 		{
 			blob.primitives[blob.prim_count++] = new Sphere(Math::Vec3f(x-3.5f,-4.f,y+2), .5f, (x+y)%2 == 0 ? sphere_mat1 : sphere_mat2);
 		}
-	}*/
+	}
 
 	//blob.prim_count = 7;
 	
@@ -179,6 +179,7 @@ int main(int argc, char* argv[])
 	app->BindExternalFunction("renderstatus", renderstatus_cb);
 	app->Boot();
 	bool running = true;
+	bool guihit = false;
 	
 	// MODEL
 	Model* model_teapot = gfx->CreateModel(teapot);
@@ -317,6 +318,10 @@ int main(int argc, char* argv[])
 		gfx->SetProjection(&prjmat);
 
 		running = app->Update();
+		guihit = app->GuiHit();
+		if (guihit)
+			Pxf::Message("aoe", "gui was hit", guihit);
+		
 		app->Draw();
 		
 		inp->ClearLastKey();
