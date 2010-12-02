@@ -298,7 +298,8 @@ int main(int argc, char* argv[])
 		
 		running = app->Update();
 		guihit = app->GuiHit();
-		Pxf::Message("aoe", "guihit: %d", guihit);
+		if (guihit)
+			Pxf::Message("aoe", "gui was hit", guihit);
 		
 		app->Draw();
 		
