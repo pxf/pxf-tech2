@@ -13,6 +13,11 @@
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Graphics/PrimitiveBatch.h>
 #include <Pxf/Graphics/Model.h>
+#include <Pxf/Resource/Mesh.h>
+
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/ResourceLoader.h>
+
 #include <Pxf/Input/InputDevice.h>
 #include <Pxf/Modules/pri/OpenGL.h>
 #include <ctime>
@@ -47,10 +52,13 @@ int main(int argc, char* argv[])
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 	kernel->RegisterModule("pri", 0xFFFFFFFF, true);
 	kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
+	kernel->RegisterModule("mesh", 0xFFFF, true);
 	
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
+	Resource::ResourceManager*	res = kernel->GetResourceManager();
 	
+	res->DumpResourceLoaders();
 	
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;
@@ -161,6 +169,9 @@ int main(int argc, char* argv[])
 	// MODEL
 	Model* model_teapot = gfx->CreateModel("data/teapot.ctm");
 
+	//Resource::Mesh* aoeu = res->Acquire<Resource::Mesh>("data/test.ctm");
+	//Graphics::Model* m = gfx->CreateModel(aoeu);
+
 	// CAMERA
 	SimpleCamera cam;
 
@@ -222,6 +233,8 @@ int main(int argc, char* argv[])
 			glColor3f(1.0f,1.0f,1.0f);
 
 			MoveCamera(&cam,inp);
+
+			model_teapot->Draw();
 		}
 
 
