@@ -686,7 +686,7 @@ function gui:update()
       
       __guihit = true
       
-      if (self.activewidget.mousepush) then
+      if (self.activewidget and self.activewidget.mousepush) then
         self.activewidget:mousepush(mx,my,self.buttonid)
       end
       
