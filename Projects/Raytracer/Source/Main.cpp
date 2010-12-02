@@ -226,9 +226,12 @@ int main(int argc, char* argv[])
 		inp->Update();
 		if (inp->GetLastKey() == Input::ESC)
 			break;
+			
+		running = app->Update();
+		guihit = app->GuiHit();
 		
 		/* CAMERA FREE-FLY MODE */
-		if(!exec_rt)
+		if(!exec_rt && guihit)
 		{
 			gfx->BindTexture(0,0);
 			gfx->SetProjection(cam.GetProjectionView());
@@ -295,11 +298,6 @@ int main(int argc, char* argv[])
 		}
 
 		*/
-		
-		running = app->Update();
-		guihit = app->GuiHit();
-		if (guihit)
-			Pxf::Message("aoe", "gui was hit", guihit);
 		
 		app->Draw();
 		
