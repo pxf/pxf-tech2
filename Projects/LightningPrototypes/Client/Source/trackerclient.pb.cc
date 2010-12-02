@@ -53,10 +53,11 @@ void protobuf_AssignDesc_trackerclient_2eproto() {
       "trackerclient.proto");
   GOOGLE_CHECK(file != NULL);
   HelloToTracker_descriptor_ = file->message_type(0);
-  static const int HelloToTracker_offsets_[4] = {
+  static const int HelloToTracker_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(HelloToTracker, session_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(HelloToTracker, address_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(HelloToTracker, port_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(HelloToTracker, client_port_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(HelloToTracker, available_),
   };
   HelloToTracker_reflection_ =
@@ -261,21 +262,21 @@ void protobuf_AddDesc_trackerclient_2eproto() {
   ::lightning::protobuf_AddDesc_lightning_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\023trackerclient.proto\022\rtrackerclient\032\017li"
-    "ghtning.proto\"V\n\016HelloToTracker\022\022\n\nsessi"
+    "ghtning.proto\"k\n\016HelloToTracker\022\022\n\nsessi"
     "on_id\030\001 \002(\005\022\017\n\007address\030\002 \002(\t\022\014\n\004port\030\003 \002"
-    "(\005\022\021\n\tavailable\030\004 \002(\005\"#\n\rHelloToClient\022\022"
-    "\n\nsession_id\030\001 \002(\005\"\035\n\007GoodBye\022\022\n\nsession"
-    "_id\030\001 \002(\005\"\031\n\004Ping\022\021\n\tping_data\030\001 \002(\005\"\031\n\004"
-    "Pong\022\021\n\tping_data\030\001 \002(\005\"\244\001\n\010NewBatch\022\022\n\n"
-    "session_id\030\001 \002(\005\022\022\n\nbatch_hash\030\002 \002(\t\022\r\n\005"
-    "tasks\030\003 \002(\005\0225\n\nbatch_type\030\004 \002(\0162!.tracke"
-    "rclient.NewBatch.BatchType\"*\n\tBatchType\022"
-    "\014\n\010RAYTRACE\020\000\022\017\n\013PHOTSHOOTAH\020\001\"1\n\014NodesR"
-    "equest\022\022\n\nsession_id\030\001 \002(\005\022\r\n\005nodes\030\002 \002("
-    "\005\"|\n\rNodesResponse\0220\n\005nodes\030\001 \003(\0132!.trac"
-    "kerclient.NodesResponse.Node\0329\n\004Node\022\022\n\n"
-    "session_id\030\001 \002(\005\022\017\n\007address\030\002 \002(\t\022\014\n\004por"
-    "t\030\003 \002(\005", 607);
+    "(\005\022\023\n\013client_port\030\004 \002(\005\022\021\n\tavailable\030\005 \002"
+    "(\005\"#\n\rHelloToClient\022\022\n\nsession_id\030\001 \002(\005\""
+    "\035\n\007GoodBye\022\022\n\nsession_id\030\001 \002(\005\"\031\n\004Ping\022\021"
+    "\n\tping_data\030\001 \002(\005\"\031\n\004Pong\022\021\n\tping_data\030\001"
+    " \002(\005\"\244\001\n\010NewBatch\022\022\n\nsession_id\030\001 \002(\005\022\022\n"
+    "\nbatch_hash\030\002 \002(\t\022\r\n\005tasks\030\003 \002(\005\0225\n\nbatc"
+    "h_type\030\004 \002(\0162!.trackerclient.NewBatch.Ba"
+    "tchType\"*\n\tBatchType\022\014\n\010RAYTRACE\020\000\022\017\n\013PH"
+    "OTSHOOTAH\020\001\"1\n\014NodesRequest\022\022\n\nsession_i"
+    "d\030\001 \002(\005\022\r\n\005nodes\030\002 \002(\005\"|\n\rNodesResponse\022"
+    "0\n\005nodes\030\001 \003(\0132!.trackerclient.NodesResp"
+    "onse.Node\0329\n\004Node\022\022\n\nsession_id\030\001 \002(\005\022\017\n"
+    "\007address\030\002 \002(\t\022\014\n\004port\030\003 \002(\005", 628);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "trackerclient.proto", &protobuf_RegisterTypes);
   HelloToTracker::default_instance_ = new HelloToTracker();
@@ -314,6 +315,7 @@ const ::std::string HelloToTracker::_default_address_;
 const int HelloToTracker::kSessionIdFieldNumber;
 const int HelloToTracker::kAddressFieldNumber;
 const int HelloToTracker::kPortFieldNumber;
+const int HelloToTracker::kClientPortFieldNumber;
 const int HelloToTracker::kAvailableFieldNumber;
 #endif  // !_MSC_VER
 
@@ -336,6 +338,7 @@ void HelloToTracker::SharedCtor() {
   session_id_ = 0;
   address_ = const_cast< ::std::string*>(&_default_address_);
   port_ = 0;
+  client_port_ = 0;
   available_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -381,6 +384,7 @@ void HelloToTracker::Clear() {
       }
     }
     port_ = 0;
+    client_port_ = 0;
     available_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -437,19 +441,35 @@ bool HelloToTracker::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(32)) goto parse_available;
+        if (input->ExpectTag(32)) goto parse_client_port;
         break;
       }
       
-      // required int32 available = 4;
+      // required int32 client_port = 4;
       case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_client_port:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &client_port_)));
+          _set_bit(3);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(40)) goto parse_available;
+        break;
+      }
+      
+      // required int32 available = 5;
+      case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_available:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &available_)));
-          _set_bit(3);
+          _set_bit(4);
         } else {
           goto handle_uninterpreted;
         }
@@ -494,9 +514,14 @@ void HelloToTracker::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->port(), output);
   }
   
-  // required int32 available = 4;
+  // required int32 client_port = 4;
   if (_has_bit(3)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->available(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->client_port(), output);
+  }
+  
+  // required int32 available = 5;
+  if (_has_bit(4)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->available(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -527,9 +552,14 @@ void HelloToTracker::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->port(), target);
   }
   
-  // required int32 available = 4;
+  // required int32 client_port = 4;
   if (_has_bit(3)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->available(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->client_port(), target);
+  }
+  
+  // required int32 available = 5;
+  if (_has_bit(4)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->available(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -564,7 +594,14 @@ int HelloToTracker::ByteSize() const {
           this->port());
     }
     
-    // required int32 available = 4;
+    // required int32 client_port = 4;
+    if (has_client_port()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->client_port());
+    }
+    
+    // required int32 available = 5;
     if (has_available()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
@@ -608,6 +645,9 @@ void HelloToTracker::MergeFrom(const HelloToTracker& from) {
       set_port(from.port());
     }
     if (from._has_bit(3)) {
+      set_client_port(from.client_port());
+    }
+    if (from._has_bit(4)) {
       set_available(from.available());
     }
   }
@@ -627,7 +667,7 @@ void HelloToTracker::CopyFrom(const HelloToTracker& from) {
 }
 
 bool HelloToTracker::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
+  if ((_has_bits_[0] & 0x0000001f) != 0x0000001f) return false;
   
   return true;
 }
@@ -637,6 +677,7 @@ void HelloToTracker::Swap(HelloToTracker* other) {
     std::swap(session_id_, other->session_id_);
     std::swap(address_, other->address_);
     std::swap(port_, other->port_);
+    std::swap(client_port_, other->client_port_);
     std::swap(available_, other->available_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

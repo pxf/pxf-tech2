@@ -5,6 +5,16 @@
 #include "Material.h"
 #include "Intersections.h"
 
+namespace Pxf {
+	namespace Resource {
+		class Mesh;
+	};
+};
+
+class Triangle;
+
+Triangle* triangle_list(Pxf::Resource::Mesh* mesh);
+
 enum PrimType { SpherePrim, PlanePrim, PointLightPrim, AreaLightPrim, TrianglePrim };
 
 class MaterialLibrary
@@ -145,7 +155,38 @@ public:
 	char padding;
 };
 
+struct Vertex
+{
+	Pxf::Math::Vec3f v;		// 12
+	Pxf::Math::Vec3f n;		// 12
+	Pxf::Math::Vec2f uv;	// 8
+};	// 32
 
+class Primitive
+{
+public:
+	Primitive() { };
+	virtual ~Primitive() { };
+	virtual bool Intersects(ray_t* ray,intersection_response_t* resp) = 0;
+	virtual PrimType GetType() = 0;
+
+	material_t* material;
+};
+
+class Triangle : public Primitive
+{
+public:
+	//Triangle(Vertex* _Vertices);
+	virtual ~Triangle() { };
+
+	bool Intersects(ray_t* ray,intersection_response_t* resp) { return ray_triangle(vertices[0]->v,vertices[1]->v,vertices[2]->v,ray,resp); }
+	PrimType GetType() { return TrianglePrim; }
+
+	Vertex*				vertices[3];	// 12
+	Pxf::Math::Vec3f	n;		// 12
+};
+
+/*
 class Primitive
 {
 public:
@@ -158,56 +199,67 @@ public:
 	
 	virtual PrimType GetType() = 0;
 private:
-	/* data */
+	
+};
+
+*/
+
+class BaseLight : public Primitive
+{
+public:
+	Pxf::Math::Vec3f p;
 };
 
 class Sphere : public Primitive
 {
 public:
-	Sphere (Pxf::Math::Vec3f _p, float _r, material_t _material) : Primitive(_material) {p = _p; r = _r;};
+	//Sphere (Pxf::Math::Vec3f _p, float _r, material_t _material) : Primitive(_material) {p = _p; r = _r;};
+	Sphere (Pxf::Math::Vec3f _p, float _r, material_t* _material) {p = _p; r = _r; material = _material; };
 	virtual ~Sphere(){};
 	bool Intersects(ray_t *ray, intersection_response_t* resp) { return ray_sphere(&p, r, ray, resp); };
 	PrimType GetType() { return SpherePrim; }
 	
 	// data
 	float r;
+	Pxf::Math::Vec3f p;
 };
 
 class Plane : public Primitive
 {
 public:
-	Plane (Pxf::Math::Vec3f _p, Pxf::Math::Vec3f _n, material_t _material) : Primitive(_material) {p = _p; n = _n;};
+	//Plane (Pxf::Math::Vec3f _p, Pxf::Math::Vec3f _n, material_t _material) : Primitive(_material) {p = _p; n = _n;};
+	Plane (Pxf::Math::Vec3f _p, Pxf::Math::Vec3f _n, material_t* _material) {p = _p; n = _n; material = _material; };
 	virtual ~Plane(){};
 	bool Intersects(ray_t *ray, intersection_response_t* resp) { return ray_plane(&p, &n, ray, resp); };
 	PrimType GetType() { return PlanePrim; }
 	
 	// data
 	Pxf::Math::Vec3f n;
+	Pxf::Math::Vec3f p;
 };
 
-class PointLight : public Primitive
+class PointLight : public BaseLight // public Primitive
 {
 public:
-	PointLight (Pxf::Math::Vec3f _p, material_t _material) : Primitive(_material) {p = _p;};
+	PointLight (Pxf::Math::Vec3f _p, material_t* _material) {p = _p; material = _material; };
 	virtual ~PointLight(){};
 	bool Intersects(ray_t *ray, intersection_response_t* resp) { return false; };
 	PrimType GetType() { return PointLightPrim; }
-	
-	// data
 };
 
-class AreaLight : public Primitive
+class AreaLight : public BaseLight//public Primitive
 {
 public:
-	AreaLight (Pxf::Math::Vec3f _p, float _width, float _height, Pxf::Math::Vec3f _n, Pxf::Math::Vec3f _d, float _num_rays, float _strength, material_t _material) : Primitive(_material)
+	AreaLight (Pxf::Math::Vec3f _p, float _width, float _height, Pxf::Math::Vec3f _n, Pxf::Math::Vec3f _d, float _num_rays, float _strength, material_t* _material)
+		: width(_width)
+		, height(_height)
+		, normal(_n)
+		, dir(_d)
+		, num_rays(_num_rays)
+		, strength(_strength)
 	{
 		p = _p;
-		width = _width;
-		height = _height;
-		normal = _n;
-		dir = _d;
-		num_rays = _num_rays;
-		strength = _strength;
+		material = _material;
 	};
 	virtual ~AreaLight(){};
 	bool Intersects(ray_t *ray, intersection_response_t* resp) { return false; };

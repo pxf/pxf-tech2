@@ -22,6 +22,8 @@ google::protobuf::Message *get_protobuf_class(int type)
 		case HELLO_TO_CLIENT: return new trackerclient::HelloToClient;
 		case HELLO_TO_TRACKER: return new trackerclient::HelloToTracker;
 		case GOODBYE: return new trackerclient::GoodBye;
+		case PING: return new trackerclient::Ping;
+		case PONG: return new trackerclient::Pong;
 		case OK: return(NULL);
 	}
 }
@@ -31,6 +33,13 @@ LiPacket::LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type)
 	connection = _c;
 	pack(_proto, _type);
 }
+
+MessageType LiPacket::get_type()
+{
+	message_type = (MessageType)*data;
+	return message_type;
+}
+
 
 char *LiPacket::pack(google::protobuf::Message *_proto, int _type)
 {

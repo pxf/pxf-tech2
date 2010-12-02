@@ -140,7 +140,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 		//Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
 		//Normalize(eye_dir);
 		
-		*res += closest_prim->material.ambient;
+		*res += closest_prim->material->ambient;
 	
 		// loop lights
 		for(int l = 0; l < datablob->light_count; ++l)
@@ -151,7 +151,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 			// create ray to light
 			ray_t light_ray;
 			light_ray.o = closest_resp.p;
-			light_ray.d = datablob->lights[l]->p - closest_resp.p;
+			light_ray.d = ((BaseLight*) datablob->lights[l])->p - closest_resp.p;
 			float light_distance = Length(light_ray.d);
 			Normalize(light_ray.d);
 			light_ray.o += light_ray.d*0.01f;
@@ -168,7 +168,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 			
 				// TODO: add better contributing calculations
 				float ndotl = Dot(closest_resp.n, light_ray.d);
-				*res += closest_prim->material.diffuse * (datablob->lights[l]->material.diffuse * ndotl * att) / (float)datablob->light_count;
+				*res += closest_prim->material->diffuse * (datablob->lights[l]->material->diffuse * ndotl * att) / (float)datablob->light_count;
 		
 			// Area lights
 			} else if (datablob->lights[l]->GetType() == AreaLightPrim)
@@ -176,7 +176,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				AreaLight *light = (AreaLight*)datablob->lights[l];
 				
 				// Calc distance
-				float attscale = Pxf::Math::Clamp(light->strength / Length(light->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
+				float attscale = Pxf::Math::Clamp(light->strength / Length(((BaseLight*) light)->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
 				
 				// construct "up-vector"
 				Vec3f up = Cross(light->normal, light->dir);
@@ -210,11 +210,11 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				
 				// TODO: add better contributing calculations
 				float ndotl = Dot(closest_resp.n, light_ray.d);
-				float reflscale = 1.0f - closest_prim->material.reflectiveness;
-				*res += closest_prim->material.diffuse * datablob->lights[l]->material.diffuse * ndotl * attscale * reflscale * att;
+				float reflscale = 1.0f - closest_prim->material->reflectiveness;
+				*res += closest_prim->material->diffuse * datablob->lights[l]->material->diffuse * ndotl * attscale * reflscale * att;
 				
 				// Shoot reflection rays
-				if (closest_prim->material.reflectiveness > 0.0f)
+				if (closest_prim->material->reflectiveness > 0.0f)
 				{
 					// Find reflection
 					Pxf::Math::Vec3f bounce_contrib(0.0f);
@@ -232,7 +232,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
 						return false;
 					}
-					*res += (bounce_contrib / (float)bounce) * closest_prim->material.reflectiveness * attscale;
+					*res += (bounce_contrib / (float)bounce) * closest_prim->material->reflectiveness * attscale;
 				}
 			}
 		

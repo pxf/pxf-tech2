@@ -5,9 +5,19 @@
 #define _LIGHTNING_H_
 
 enum MessageType {
-	INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, GOODBYE, NEWBATCH,
-	OK, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, TASK_DONE, HATE, 
-	PING, PONG
+	INIT_HELLO = 0,
+	HELLO_TO_CLIENT = 1, 
+	HELLO_TO_TRACKER, 
+	GOODBYE, 
+	NEWBATCH,	
+	OK,
+	NODES_REQUEST,
+	NODES_RESPONSE,
+	BATCH_DONE,
+	TASK_DONE,
+	HATE, 
+	PING,
+	PONG
 };
 
 struct LiPacket : Packet
@@ -15,6 +25,8 @@ struct LiPacket : Packet
 	LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type);
 
 	MessageType message_type;
+
+	MessageType get_type();
 	char *pack(google::protobuf::Message *_proto, int _type);
 	google::protobuf::Message *unpack();
 };
