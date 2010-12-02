@@ -422,6 +422,14 @@ void App::Draw()
     //Message(LOCAL_MSG, "draw() : %ims", m_TimerDraw.Interval());
 }
 
+bool App::GuiHit()
+{
+	lua_getglobal(L, "__guihit");
+	bool guihit = lua_toboolean(L, -1);
+	lua_pop(L, 1);
+	return guihit;
+}
+
 bool App::HandleErrors(int _error)
 {
   if (_error != 0)

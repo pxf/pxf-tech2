@@ -54,6 +54,7 @@ namespace Fabric
         
         bool Update();
         void Draw();
+				bool GuiHit(); // Returns true if the gui handled input last update
         
         // "snigelton" honk honk
         static App* GetInstance();

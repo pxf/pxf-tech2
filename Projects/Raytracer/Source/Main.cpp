@@ -173,6 +173,7 @@ int main(int argc, char* argv[])
 	app->BindExternalFunction("renderstatus", renderstatus_cb);
 	app->Boot();
 	bool running = true;
+	bool guihit = false;
 	
 	// MODEL
 	Model* model_teapot = gfx->CreateModel("data/teapot.ctm");
@@ -296,6 +297,9 @@ int main(int argc, char* argv[])
 		*/
 		
 		running = app->Update();
+		guihit = app->GuiHit();
+		Pxf::Message("aoe", "guihit: %d", guihit);
+		
 		app->Draw();
 		
 		inp->ClearLastKey();

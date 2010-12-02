@@ -659,6 +659,8 @@ function gui:update()
       -- active widget is now the focus widget
       self:set_focus(self.activewidget)
       
+      __guihit = true
+      
       if (self.activewidget.mousepush) then
         self.activewidget:mousepush(mx,my,self.buttonid)
       end
