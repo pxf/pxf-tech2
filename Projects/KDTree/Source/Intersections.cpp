@@ -138,3 +138,4 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 	// TODO: Return normal for intersection also!!
 	return true;
 }
+

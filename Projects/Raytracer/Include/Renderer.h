@@ -2,9 +2,23 @@
 #define _RENDERER_H_
 
 #include "RenderUtils.h"
+#include "KDTree.h"
+#include "Camera.h"
 
 struct batch_blob_t
 {	
+	/*
+	~batch_blob_t() {
+		if(tree)
+		{
+			delete tree;
+			tree = 0;
+		}
+	}*/
+
+	Prim *pData[512];
+	Prim lData[16];
+
 	// scene data
 	Primitive* primitives[256];
 	Primitive* lights[256];
@@ -19,6 +33,8 @@ struct batch_blob_t
 	int samples_per_pixel;
 	
 	// TODO: Add textures, kd-tree etc etc.
+	KDTree* tree;
+	Camera* cam;
 };
 
 struct task_detail_t

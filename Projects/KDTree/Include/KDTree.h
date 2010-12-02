@@ -14,12 +14,6 @@ struct aabb;
 void PrintStatistics(KDTree* t);
 Primitive* RayTreeIntersect(KDTree& t,ray_t& r,float dist);
 
-template<class T>
-T* __cdecl Create()
-{
-	return new T();
-}
-
 struct split_position {
 	float pos;
 	bool start_pos;
@@ -29,9 +23,6 @@ struct split_position {
 struct KDStack
 {
 	KDNode* node;
-	float t_min;
-	float t_max;
-
 	Pxf::Math::Vec3f v;
 	int next,prev;
 };
