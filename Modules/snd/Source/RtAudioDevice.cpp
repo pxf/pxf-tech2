@@ -23,9 +23,15 @@ ZThread::FastMutex g_Lock;
 int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 		double _time, RtAudioStreamStatus _status, void *_device)
 {
-	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
+	g_Lock.acquire();
 
 	RtAudioDevice* device = (RtAudioDevice*)_device;
+
+	if (device->_IsClosed())
+	{
+		g_Lock.release();
+		return 2;
+	}
 
 	if (_status == RTAUDIO_OUTPUT_UNDERFLOW)
 	{
@@ -66,6 +72,7 @@ int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 	}
 
 	// Continue if active, else abort stream.
+	g_Lock.release();
 	return device->IsActive() ? 0 : 2;
 }
 
@@ -76,6 +83,7 @@ RtAudioDevice::RtAudioDevice(Pxf::Kernel* _Kernel)
 	, m_BufferSize(1024)
 	, m_MaxVoices(8)
 	, m_Initialized(false)
+	, m_Closed(false)
 	, m_LogTag(0)
 {
 	m_LogTag = _Kernel->CreateTag("snd");
@@ -120,6 +128,7 @@ bool RtAudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices
 	try
 	{
 		m_Active = true;
+		m_Closed = false;
 		m_DAC->openStream(&params, NULL, RTAUDIO_SINT16, 44100, &buffer_frames, &mix, (void*)this);
 		m_DAC->startStream();
 		m_Initialized = true;
@@ -134,7 +143,9 @@ bool RtAudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices
 RtAudioDevice::~RtAudioDevice()
 {
 	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
+
 	CloseStream();
+	m_Closed = true;
 	delete m_DAC;
 }
 
@@ -147,6 +158,7 @@ void RtAudioDevice::CloseStream()
 		{
 			m_DAC->closeStream();
 			m_DAC->abortStream();
+			m_Closed = true;
 		}
 	}
 	catch (RtError& e)
