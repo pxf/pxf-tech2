@@ -16,9 +16,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
-	// TODO: Change to LiPacket
 	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
-	//m_ConnMan = ConnectionManager(new Pxf::Util::Array<Packet*>);
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
@@ -34,9 +32,7 @@ int Client::run()
 {
 	time_t last_ping, ping_timestamp;
 
-	// TODO: Change to LiPacket
 	Pxf::Util::Array<LiPacket*> *packets;
-	//Pxf::Util::Array<Packet*> *packets;
 	
 	// Setting up socket for clients to connect to
 	Connection *client_c = m_ConnMan.new_connection(CLIENT);
