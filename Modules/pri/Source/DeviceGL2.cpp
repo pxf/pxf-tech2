@@ -197,6 +197,35 @@ float DeviceGL2::Print(Graphics::Font* _Font, float _X, float _Y, float _Scale, 
 	return width*_Scale;
 }
 
+void DeviceGL2::SetDepthFunction(DepthFuncType _DepthType)
+{
+	int _DepthFunc;
+
+	switch(_DepthType)
+	{
+		case DF_NEVER:		_DepthFunc = GL_NEVER; break;
+		case DF_ALWAYS:		_DepthFunc = GL_ALWAYS; break;
+		case DF_LESS:		_DepthFunc = GL_LESS; break;
+		case DF_EQUAL:		_DepthFunc = GL_EQUAL; break;
+		case DF_LEQUAL:		_DepthFunc = GL_LEQUAL; break;
+		case DF_GREATER:	_DepthFunc = GL_GREATER; break;
+		case DF_NOTEQUAL:	_DepthFunc = GL_NOTEQUAL; break;
+		case DF_GEQUAL:		_DepthFunc = GL_GEQUAL; break;
+		default:			_DepthFunc = GL_LESS; break;
+	}
+
+	glDepthFunc(_DepthFunc);
+}
+
+void DeviceGL2::SetDepthState(bool _State)
+{
+	if(_State)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
+
+
 Texture* DeviceGL2::CreateEmptyTexture(int _Width,int _Height, TextureFormatStorage _Format)
 {
 	TextureGL2* _Tex = new TextureGL2(this);

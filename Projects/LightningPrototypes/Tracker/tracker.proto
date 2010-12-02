@@ -6,7 +6,8 @@ message HelloToTracker {
     required int32 session_id = 1;
 	required string address = 2;
     required int32 port = 3;
-	required int32 available = 4;
+    required int32 client_port = 4;
+	required int32 available = 5;
 }
 
 message HelloToClient {
