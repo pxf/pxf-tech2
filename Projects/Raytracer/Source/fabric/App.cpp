@@ -54,9 +54,9 @@ App::App(Graphics::Window* _win, const char* _filepath)
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
     m_inp = Kernel::GetInstance()->GetInputDevice();
     m_snd = Kernel::GetInstance()->GetAudioDevice();
-	  m_net = Kernel::GetInstance()->GetNetworkDevice();
+	m_net = Kernel::GetInstance()->GetNetworkDevice();
     
-	  m_snd->Initialize();
+	m_snd->Initialize();
 
     // Set "snigelton"
     _appinstance = this;
