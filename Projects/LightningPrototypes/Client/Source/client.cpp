@@ -44,7 +44,8 @@ int Client::run()
 	{
 		m_Kernel->Log(m_net_tag, "Could not bind to %s:%d", m_local_address, m_client_port);
 		return false;
-	}	
+	}
+	printf("bound client socket has sockid:%d\n", client_c->socket);
 
 	m_Kernel->Log(m_log_tag, "Connecting to tracker at %s.", m_tracker_address);
 	
@@ -95,16 +96,34 @@ int Client::run()
 		p = packets->begin();
 		while (p != packets->end())
 		{
-			switch((*p)->message_type)
+			(*p)->get_type();
+			if ((*p)->connection->type == CLIENT)
 			{
-				case 11: //PONG
-					m_Kernel->Log(m_log_tag, "Got PONG from %s", (*p)->connection->target_address);
-					(*p)->connection->timestamp = time(NULL);
-					p = packets->erase(p);
-					continue;
-				default:
-					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type); // TODO: LiPacket...
-					m_Kernel->Log(m_log_tag, "PONG==message_type: %d", PONG==(*p)->message_type);
+				m_Kernel->Log(m_log_tag, "Packet from a client");
+			}
+			else if ((*p)->connection->type == TRACKER)
+			{
+				m_Kernel->Log(m_log_tag, "Packet from tracker");
+				switch((*p)->message_type)
+				{
+					case PONG: //PONG
+					{
+						trackerclient::Pong *pong = (trackerclient::Pong*)((*p)->unpack());
+						(*p)->connection->timestamp = time(NULL);
+						p = packets->erase(p);
+						continue;
+					}
+					default:
+						m_Kernel->Log(m_log_tag, "Unknown packet type: %d, p:%d", (*p)->message_type, (int)*p);
+						p = packets->erase(p);
+						continue;
+				}
+			}
+			else
+			{
+				m_Kernel->Log(m_log_tag, "Packet from unknown connection type, dropping");
+				p = packets->erase(p);
+				continue;
 			}
 			
 			p++;

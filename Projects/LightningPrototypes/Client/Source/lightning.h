@@ -25,6 +25,8 @@ struct LiPacket : Packet
 	LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type);
 
 	MessageType message_type;
+
+	MessageType get_type();
 	char *pack(google::protobuf::Message *_proto, int _type);
 	google::protobuf::Message *unpack();
 };
