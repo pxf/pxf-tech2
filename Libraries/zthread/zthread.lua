@@ -14,7 +14,8 @@ else
         --library:AddSourceDirectory("sdk/src/macos/*.cxx")
         library:AddSystemLibrary("pthread")
         library:AddSystemFramework("Carbon")
-        library:AddDefine("ZT_MACOS")
+        --library:AddDefine("ZT_MACOS")
+        library:AddDefine("ZT_POSIX")
     else
         --library:AddIncludeDirectory("sdk/src/linux")
         --library:AddSourceDirectory("sdk/src/linux/*.cxx")

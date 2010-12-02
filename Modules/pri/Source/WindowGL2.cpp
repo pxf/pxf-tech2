@@ -206,6 +206,13 @@ void WindowGL2::SetResizeCallback(WindowSizeCallback fun)
 	glfwSetWindowSizeCallback(fun);
 }
 
+void WindowGL2::SetWindowSize(int _Width, int _Height)
+{
+	m_width = _Width;
+	m_height = _Height;
+	glfwSetWindowSize(_Width, _Height);
+}
+
 void WindowGL2::SetTitle(const char *_title)
 {
 	if (IsOpen())

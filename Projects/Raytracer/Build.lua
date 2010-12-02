@@ -4,8 +4,15 @@ project = NewProject("raytracer")
 
 project:RequireLibrary("glfw")
 project:RequireLibrary("zthread")
+project:RequireLibrary("lua")
+project:RequireLibrary("rtaudio")
+project:RequireLibrary("stb_vorbis")
+project:RequireLibrary("sstat")
+
 project:RequireModule("pri")
+project:RequireModule("snd")
 project:RequireModule("img")
+
 project:AddIncludeDirectory("Include/")
 project:AddSourceDirectory("Source/*.cpp")
 project:Build()

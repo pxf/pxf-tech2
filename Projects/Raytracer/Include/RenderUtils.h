@@ -199,7 +199,7 @@ public:
 class AreaLight : public Primitive
 {
 public:
-	AreaLight (Pxf::Math::Vec3f _p, float _width, float _height, Pxf::Math::Vec3f _n, Pxf::Math::Vec3f _d, float _num_rays, material_t _material) : Primitive(_material)
+	AreaLight (Pxf::Math::Vec3f _p, float _width, float _height, Pxf::Math::Vec3f _n, Pxf::Math::Vec3f _d, float _num_rays, float _strength, material_t _material) : Primitive(_material)
 	{
 		p = _p;
 		width = _width;
@@ -207,12 +207,14 @@ public:
 		normal = _n;
 		dir = _d;
 		num_rays = _num_rays;
+		strength = _strength;
 	};
 	virtual ~AreaLight(){};
 	bool Intersects(ray_t *ray, intersection_response_t* resp) { return false; };
 	PrimType GetType() { return AreaLightPrim; }
 	
 	// data
+	float strength;
 	float num_rays;
 	float width, height;
 	Pxf::Math::Vec3f normal;

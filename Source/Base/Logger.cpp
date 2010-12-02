@@ -4,10 +4,6 @@
 #include <Pxf/Base/Utils.h>
 #include <cstdio>
 
-#ifdef CONF_PLATFORM_MACOSX
-#include <cstdarg>
-#endif
-
 using namespace Pxf;
 
 bool Logger::Write(unsigned int _Tag, const char** _TagTable, unsigned int _TagTableSize, const char* _Message)

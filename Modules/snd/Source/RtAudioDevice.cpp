@@ -8,16 +8,23 @@
 
 #include <RtAudio.h>
 
+#include <zthread/Guard.h>
+#include <zthread/FastMutex.h>
+
 using namespace Pxf;
 using namespace Pxf::Modules;
 
 #define MAX_REGISTERED_SOUNDS 128
+
+ZThread::FastMutex g_Lock;
 
 // TODO: a lock should be used when using voices.
 // TODO: change from Util::Array to a simpler structure for better performance.
 int mix(void *_outbuff, void *_inbuff, unsigned int _num_frames,
 		double _time, RtAudioStreamStatus _status, void *_device)
 {
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
+
 	RtAudioDevice* device = (RtAudioDevice*)_device;
 
 	if (_status == RTAUDIO_OUTPUT_UNDERFLOW)
@@ -126,12 +133,14 @@ bool RtAudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices
 
 RtAudioDevice::~RtAudioDevice()
 {
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
 	CloseStream();
 	delete m_DAC;
 }
 
 void RtAudioDevice::CloseStream()
 {
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
 	try
 	{
 		if (m_DAC->isStreamOpen())
@@ -150,6 +159,8 @@ int RtAudioDevice::RegisterSound(const char* _Filename)
 {
 	if (!m_Initialized)
 		Initialize();
+
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
 
 	Resource::Sound* snd = GetKernel()->GetResourceManager()->Acquire<Resource::Sound>(_Filename);
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
@@ -177,6 +188,8 @@ int RtAudioDevice::RegisterSound(Resource::Sound* _Sound)
 	if (!m_Initialized)
 		Initialize();
 
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
+
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
 		if (m_SoundBank[i] == _Sound)
@@ -203,6 +216,8 @@ int RtAudioDevice::GetSoundID(const Resource::Sound* _Sound)
 	if (!m_Initialized)
 		Initialize();
 
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
+
 	for(int i = 0; i < MAX_REGISTERED_SOUNDS; i++)
 	{
 		if (m_SoundBank[i] == _Sound)
@@ -217,6 +232,8 @@ void RtAudioDevice::UnregisterSound(int _Id)
 {
 	if (!m_Initialized)
 		Initialize();
+
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
 
 	if(m_SoundBank[_Id])
 	{
@@ -235,6 +252,8 @@ void RtAudioDevice::Play(int _SoundID, bool _Loop)
 {
 	if (!m_Initialized)
 		Initialize();
+
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
 
 	if (m_SoundBank[_SoundID])
 	{
@@ -271,6 +290,8 @@ void RtAudioDevice::Stop(int _SoundID)
 	if (!m_Initialized)
 		Initialize();
 
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
+
 	if (m_SoundBank[_SoundID])
 	{
 		for(unsigned i = 0; i < m_MaxVoices; i++)
@@ -291,6 +312,8 @@ void RtAudioDevice::StopAll()
 	if (!m_Initialized)
 		Initialize();
 
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
+
 	for(unsigned i = 0; i < m_MaxVoices; i++)
 	{
 		if (m_ActiveVoices[i].clip)
@@ -307,6 +330,8 @@ void RtAudioDevice::Pause(int _SoundID)
 {
 	if (!m_Initialized)
 		Initialize();
+
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
 
 	if (m_SoundBank[_SoundID])
 	{
@@ -326,6 +351,8 @@ void RtAudioDevice::PauseAll()
 	if (!m_Initialized)
 		Initialize();
 
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
+
 	for(unsigned i = 0; i < m_MaxVoices; i++)
 	{
 		if (m_ActiveVoices[i].clip)
@@ -340,6 +367,8 @@ void RtAudioDevice::DumpInfo()
 {
 	if (!m_Initialized)
 		Initialize();
+
+	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
 
 	/* Enumerate audio devices */
 

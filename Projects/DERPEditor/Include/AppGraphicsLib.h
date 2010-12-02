@@ -1,15 +1,15 @@
-#ifndef __DERPEDITOR_APPGRAPHICSLIB_H__
-#define __DERPEDITOR_APPGRAPHICSLIB_H__
+#ifndef __FABRIC_APPGRAPHICSLIB_H__
+#define __FABRIC_APPGRAPHICSLIB_H__
 
-#include "LuaApp.h"
+#include "fabric/App.h"
 
 #define LUA_LIB
 #include "lua.h"
 #include "lauxlib.h"
 
-#define LUA_APPGRAPHICSLIBNAME "gfx"
+#define FABRIC_GRAPHICSLIBNAME "gfx"
 
-namespace DERPEditor
+namespace Fabric
 {
 	// lib functions
 	int gfx__redrawneeded(lua_State *L);
@@ -41,6 +41,6 @@ namespace DERPEditor
 
 	// Register lib
 	int luaopen_appgraphics(lua_State *L);
-} /* DERPEditor */
+} /* Fabric */
 
-#endif /* __DERPEDITOR_APPGRAPHICSLIB_H__ */
+#endif /* __FABRIC_APPGRAPHICSLIB_H__ */

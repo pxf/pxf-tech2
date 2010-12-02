@@ -28,9 +28,15 @@ struct batch_blob_t
 	// sampling data
 	float samples[256];
 	
+	// bounces
+	int bounce_count;
+	
 	// windowing etc
 	int pic_w, pic_h;
 	int samples_per_pixel;
+	
+	// "interleaved feedback"
+	int interleaved_feedback;
 	
 	// TODO: Add textures, kd-tree etc etc.
 	KDTree* tree;
@@ -55,7 +61,7 @@ struct render_result_t
 	pixel_data_t *data;
 };
 
-bool render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic);
+int render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic, int sub_task_num);
 bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec3f *ed, batch_blob_t *datablob, Pxf::Math::Vec3f *res); // ed = eye direction
 bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel);
 

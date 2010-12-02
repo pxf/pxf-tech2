@@ -10,6 +10,7 @@ namespace Pxf
 	private:
 		uint64 m_Start;
 		uint64 m_Stop;
+		bool m_Stopped;
 	public:
 		Timer();
 		void Start();
