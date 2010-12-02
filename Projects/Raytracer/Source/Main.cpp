@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
 	{
 		for (int x = 0; x < 8; x++)
 		{
-			blob.primitives[blob.prim_count++] = new Sphere(Math::Vec3f(x-3.5f,-4.f,y+2), .5f, (x+y)%2 == 0 ? sphere_mat1 : sphere_mat2);
+			blob.primitives[blob.prim_count++] = new Sphere(Math::Vec3f(x-3.5f,-4.f,y+2), .5f, (x+y)%2 == 0 ? &sphere_mat1 : &sphere_mat2);
 		}
 	}
 

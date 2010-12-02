@@ -172,7 +172,7 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 }
 
 /* HELPER FUNCTIONS */
-
+/*
 aabb CalcAABB(Prim** _Primitives, int _NbrPrim)
 {
 	aabb box;
@@ -260,3 +260,4 @@ aabb CalcAABB(const Prim& _Primitive)
 
 	return _Box;
 }
+*/
