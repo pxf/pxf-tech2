@@ -29,7 +29,7 @@
 #include "Renderer.h"
 #include "Camera.h"
 
-#include "Fabric/App.h"
+#include "fabric/App.h"
 
 #include <RaytracerClient.h>
 
@@ -334,6 +334,8 @@ int main(int argc, char* argv[])
 	
 	delete app;
 	delete pbatch;
+
+	delete kernel;
 
 	return 0;
 }
