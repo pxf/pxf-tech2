@@ -318,9 +318,9 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	fpixel.y = Pxf::Math::Clamp(fpixel.y, 0.0f, 1.0f);
 	fpixel.z = Pxf::Math::Clamp(fpixel.z, 0.0f, 1.0f);
 		
-	pixel->r = (char)(fpixel.r * 255.0f);
-	pixel->g = (char)(fpixel.g * 255.0f);
-	pixel->b = (char)(fpixel.b * 255.0f);	
+	pixel->r = (unsigned char)(fpixel.r * 255.0f);
+	pixel->g = (unsigned char)(fpixel.g * 255.0f);
+	pixel->b = (unsigned char)(fpixel.b * 255.0f);	
 	
 	return true;
 }

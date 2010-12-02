@@ -18,7 +18,7 @@
 #include <cstdlib>
 #include "Renderer.h"
 
-#include "fabric/App.h"
+#include "Fabric/App.h"
 
 #include <RaytracerClient.h>
 
@@ -256,4 +256,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-

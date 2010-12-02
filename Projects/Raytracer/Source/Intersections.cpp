@@ -1,10 +1,69 @@
 #include "Intersections.h"
+#include "RenderUtils.h"
 
 using namespace Pxf;
 using namespace Math;
 
+bool ray_aabb(ray_t* ray,aabb* box,intersection_response_t* resp)
+{
+	float t_min = -100000.0f;	// MIN VAL
+	float t_max = 100000.0f;	// MAX VAL
+	float t1,t2;
+
+	Vec3f hw = box->size*0.5f;
+	Vec3f Ac = box->pos + hw;
+	Vec3f p = Ac - ray->o;
+	Vec3f d = ray->d;
+
+	float f,e;
+
+	Vec3f min = (box->pos - ray->o) / d;
+	Vec3f max = (box->pos + box->size - ray->o) / d;
+
+	for(size_t i=0;i<3;i++)
+	{
+		e = p.GetAxis(i);
+		f = d.GetAxis(i);
+
+		if(fabs(f) > 1.0E-9f)
+		{
+			float t1 = min.GetAxis(i);
+			float t2 = max.GetAxis(i);
+
+			if(t1 > t2) 
+				std::swap(t1,t2);
+			if(t1 > t_min)
+				t_min = t1;
+			if(t2 < t_max) 
+				t_max = t2;
+			if(t_min > t_max) 
+				return false;
+			if(t_max < 0)
+				return false;
+		}
+		else if( (-e -hw.GetAxis(i) > 0) || (-e+hw.GetAxis(i) < 0))
+		{
+			return false;
+		}
+	}
+
+	//aabb_intersection_response_t* r = (aabb_intersection_response_t*) resp;
+	//r->t_min = t_min;
+	//r->t_max = t_max;
+
+	if(t_min < t_max)
+		resp->depth = t_min;
+	else
+		resp->depth = t_max;
+
+	return true;
+}
+
 bool ray_triangle(Pxf::Math::Vec3f* data,ray_t* ray, intersection_response_t* resp)
 {
+	if(!data)
+		return false;
+
 	// STEP 1: Find point in the plane of the triangle
 	Vec3f A = data[0];
 	Vec3f B = data[1];
@@ -16,12 +75,11 @@ bool ray_triangle(Pxf::Math::Vec3f* data,ray_t* ray, intersection_response_t* re
 	Vec3f N = Cross(AB,AC);
 	Normalize(N);
 
-	intersection_response_t r0;
-	if(!ray_plane(&A,&N,ray, &r0))
+	if(!ray_plane(&A,&N,ray, resp))
 		return false;
 
 	// STEP 2: Check wether or not point p is inside triangle (http://www.blackpawn.com/texts/pointinpoly/default.html)
-	Vec3f AP = r0.p - A;	// v2
+	Vec3f AP = resp->p - A;	// v2
 	float dot00 = Dot(AB,AB);	// dot(v0,v0)
 	float dot01 = Dot(AB,AC);	// dot(v0,v1)
 	float dot02	= Dot(AB,AP);	// dot(v0,v2)
@@ -105,4 +163,94 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 	resp->n = *n;
 	Normalize(resp->n);
 	return true;
+}
+
+/* HELPER FUNCTIONS */
+
+aabb CalcAABB(Prim** _Primitives, int _NbrPrim)
+{
+	aabb box;
+
+	if(_Primitives)
+	{
+		box = (*_Primitives[0]->box);
+	}
+
+	// accumulative additions on the bounding boxes
+	for(int i = 1; i < _NbrPrim; i++)
+	{
+		Prim* p = _Primitives[i];
+		aabb tBox = (*p->box);
+		box = box + tBox;
+	}
+
+	return box;
+}
+
+aabb CalcAABB(const Prim& _Primitive)
+{
+	int _Type = _Primitive.type;
+
+	Vec3f _Pos,_Max,_Size;
+
+	// find the smallest component on each point's axis
+	if (_Type == TrianglePrim)
+	{
+		_Pos = _Primitive.v[0];
+		_Max = _Primitive.v[0];
+
+		Vec3f v1 = _Primitive.v[1];
+		Vec3f v2 = _Primitive.v[2];
+
+		// find smallest x
+		if (v1.x < _Pos.x)
+			_Pos.x = v1.x;
+		if (v2.x < _Pos.x)
+			_Pos.x = v2.x;
+
+		// find smallest y
+		if (v1.y < _Pos.y)
+			_Pos.y = v1.y;
+		if (v2.y < _Pos.y)
+			_Pos.y = v2.y;
+
+		// find smallest z
+		if (v1.z < _Pos.z)
+			_Pos.z = v1.z;
+		if (v2.z < _Pos.z)
+			_Pos.z = v2.z;
+
+		// find max values
+		if (v1.x > _Max.x)
+			_Max.x = v1.x;
+		if (v2.x > _Max.x)
+			_Max.x = v2.x;
+		if (v1.y > _Max.y)
+			_Max.y = v1.y;
+		if (v2.y > _Max.y)
+			_Max.y = v2.y;
+		if (v1.z > _Max.z)
+			_Max.z = v1.z;
+		if (v2.z > _Max.z)
+			_Max.z = v2.z;
+
+		_Size = _Max - _Pos;
+	}
+	else if(_Type == SpherePrim)
+	{
+		float r = _Primitive.r;
+		float d = r * 2.0f;
+
+		// box extents
+		_Size = Vec3f(d,d,d);
+
+		// set smallest corner from center point
+		_Pos = _Primitive.c - Vec3f(r,r,r);
+	}
+
+	aabb _Box;
+	_Box.pos = _Pos;
+	_Box.size = _Size;
+
+	return _Box;
 }
