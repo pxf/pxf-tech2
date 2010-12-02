@@ -4,7 +4,7 @@
 #define PING_INTERVAL 1000 // Ping interval in milliseconds
 #define PING_TIMEOUT 5000 // Ping timeout in milliseconds
 
-Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port)
+Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port, int _client_port)
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -12,6 +12,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_tracker_port = _tracker_port;
 	m_local_address = Pxf::StringDuplicate(_local_address);
 	m_local_port = _local_port;
+	m_client_port = _client_port;
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
@@ -37,6 +38,14 @@ int Client::run()
 	Pxf::Util::Array<LiPacket*> *packets;
 	//Pxf::Util::Array<Packet*> *packets;
 	
+	// Setting up socket for clients to connect to
+	Connection *client_c = m_ConnMan.new_connection(CLIENT);
+	if(!m_ConnMan.bind_connection(client_c, m_local_address, m_client_port))
+	{
+		m_Kernel->Log(m_net_tag, "Could not bind to %s:%d", m_local_address, m_client_port);
+		return false;
+	}	
+
 	m_Kernel->Log(m_log_tag, "Connecting to tracker at %s.", m_tracker_address);
 	
 	bool exit = false;
@@ -88,7 +97,7 @@ int Client::run()
 		{
 			switch((*p)->message_type)
 			{
-				case 11:
+				case 11: //PONG
 					m_Kernel->Log(m_log_tag, "Got PONG from %s", (*p)->connection->target_address);
 					(*p)->connection->timestamp = time(NULL);
 					p = packets->erase(p);
@@ -154,6 +163,7 @@ bool Client::connect_tracker()
 	hello_tracker->set_session_id(m_session_id);
 	hello_tracker->set_address(m_local_address);
 	hello_tracker->set_port(m_local_port);
+	hello_tracker->set_client_port(m_client_port);
 	hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
 
 	LiPacket *pkg = new LiPacket(c, hello_tracker, HELLO_TO_TRACKER);
