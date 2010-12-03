@@ -89,10 +89,10 @@ int main(int argc, char* argv[])
 	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
 	// Generate awesome red output buffer
-	const int w = 512;
-	const int h = 512;
+	const int w = 256;
+	const int h = 256;
 	const int channels = 3;
-	const int task_count = 16;
+	const int task_count = 8;
 	int task_size_w = w / task_count;
 	int task_size_h = h / task_count;
 	char pixels[w*h*channels];
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 	batch_blob_t blob;
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 20; // 10 -> 10*10 = 100
+	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
 	blob.bounce_count = 6; // Number of reflection bounces
 	blob.interleaved_feedback = 2;
 	
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.0f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 5.0f, &light_mat1);
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.0f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 1;
 	
