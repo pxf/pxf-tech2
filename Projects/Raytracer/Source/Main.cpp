@@ -280,9 +280,17 @@ int main(int argc, char* argv[])
 
 				unsigned int idx = y*task_count+x;
 				Pxf::Graphics::GraphicsDevice* gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
-				region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_w, channels);
-				region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
-				region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
+				if (region_textures[idx] == 0)
+				{
+					region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_h, channels);
+					region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
+					region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
+				}
+				else
+				{
+					region_textures[idx]->UpdateData((const unsigned char*)res->pixels, 0, 0, task_size_w, task_size_h);
+				}
+
 				if (res->final)
 					total_done += 1;
 			}
