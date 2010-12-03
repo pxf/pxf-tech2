@@ -6,6 +6,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Random.h>
 #include <Pxf/Base/Memory.h>
+#include <Pxf/Base/Platform.h>
 #include <Pxf/Math/Math.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
@@ -100,9 +101,9 @@ int main(int argc, char* argv[])
 	batch_blob_t blob;
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
-	blob.bounce_count = 5; // Number of reflection bounces
-	blob.interleaved_feedback = 4;
+	blob.samples_per_pixel = 20; // 10 -> 10*10 = 100
+	blob.bounce_count = 8; // Number of reflection bounces
+	blob.interleaved_feedback = 2;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -129,7 +130,7 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), &plane_mat_green); // right
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, &sphere_mat1);
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
 
 	
@@ -158,7 +159,7 @@ int main(int argc, char* argv[])
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 5.0f, &light_mat1);
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.0f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 5.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 1;
 	
