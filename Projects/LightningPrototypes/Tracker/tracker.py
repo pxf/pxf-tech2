@@ -76,13 +76,14 @@ class Tracker():
         #del self._scks[self._last_socket]
         self._db.del_client(self._last_session_id)
         # Connect to the client.
-        c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        family = socket.getaddrinfo(message.address, int(message.port))[0][0]
+        c = socket.socket(socket.AF_INET if family == 2 else socket.AF_INET6)
         try:
             print("trying to connect to {0}:{1}".format(message.address, message.port))
             c.connect((message.address, message.port))
-        except socket.error:
+        except socket.error as e:
             # Couldn't connect. Ignore.
-            print("unable to connect to client in return.")
+            print("unable to connect to client in return:".format(str(e)))
             # TODO: Raise an Exception?
             return None
         print("connected to client {0}:{1} on {2}.".format(message.address, message.port, c))
