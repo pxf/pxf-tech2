@@ -16,7 +16,8 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
 	// TODO: Change to LiPacket
-	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
+	Pxf::Util::Array<LiPacket*> *packets = new Pxf::Util::Array<LiPacket*>;
+	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)packets);
 	//m_ConnMan = ConnectionManager(new Pxf::Util::Array<Packet*>);
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_log_tag = m_Kernel->CreateTag("cli");
@@ -101,6 +102,8 @@ int Client::run()
 			p++;
 		}
 	}
+
+	return 0;
 }
 
 
@@ -128,7 +131,11 @@ bool Client::connect_tracker()
 	bound_c->type = TRACKER;
 
 	Connection *c = m_ConnMan.new_connection(TRACKER);
-	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
+	if (!m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port))
+	{
+		m_Kernel->Log(m_net_tag, "Could not connect to tracker.");
+		return false;
+	}
 
 	int type = INIT_HELLO;
 	m_ConnMan.send(c, (char*)&type, 4);
@@ -145,7 +152,7 @@ bool Client::connect_tracker()
 	
 	m_session_id = hello_client->session_id();
 
-	delete packets->front();
+//	delete packets->front();
 	packets->clear();
 	
 	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d, using socket %d", m_session_id, c->socket);

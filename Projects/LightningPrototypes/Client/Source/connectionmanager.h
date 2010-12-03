@@ -14,7 +14,6 @@
 #include <Pxf/Util/Array.h>
 #include <Pxf/Util/Map.h>
 
-#include <arpa/inet.h>
 
 #if defined(CONF_FAMILY_UNIX)
 	#include <sys/types.h>
@@ -22,10 +21,15 @@
 	#include <sys/select.h>
 	#include <unistd.h>
 	#include <netdb.h>
+	#include <arpa/inet.h>
 #endif
 
 #if defined(CONF_FAMILY_WINDOWS)
-	#include <winsock.h>
+	#define WIN32_LEAN_AND_MEAN
+	#define VC_EXTRALEAN
+	#include <WinSock2.h>
+	#include <ws2tcpip.h>
+	#pragma comment(lib,"ws2_32.lib")
 #endif
 
 
@@ -40,7 +44,7 @@ struct Connection {
 	int socket;
 	char *buffer;
 	char *buffer_cur;
-	char target_address[INET6_ADDRSTRLEN];
+	char target_address[16]; // 16 = length of inet6
 	int target_port;
 	int buffer_size;
 	int id; // locally set for connections.

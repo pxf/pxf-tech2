@@ -19,7 +19,11 @@ Connection::~Connection()
 	if (buffer_size != 0)
 		delete buffer;
 
+#if defined(CONF_FAMILY_WINDOWS)
+	closesocket(socket);
+#else // UNIX and Mac
 	close(socket);
+#endif
 }
 
 Packet::~Packet()
@@ -38,6 +42,13 @@ Connection *ConnectionManager::new_connection(ConnectionType _type)
 
 ConnectionManager::ConnectionManager()
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	WSADATA wsaData;
+
+	if (WSAStartup(MAKEWORD(2,0), &wsaData) != 0) {
+		fprintf(stderr, "WSAStartup failed.\n");
+	}
+#endif // CONF_FAMILY_WINDOWS
 	m_NextId = 1;
 	m_max_socketfd = 0;
 	FD_ZERO(&m_read_sockets);
@@ -48,6 +59,13 @@ ConnectionManager::ConnectionManager()
 
 ConnectionManager::ConnectionManager(Pxf::Util::Array<Packet*> *_packets)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	WSADATA wsaData;
+
+	if (WSAStartup(MAKEWORD(2,0), &wsaData) != 0) {
+		fprintf(stderr, "WSAStartup failed.\n");
+	}
+#endif // CONF_FAMILY_WINDOWS
 	m_Packets = _packets;
 
 	// Copypasta
@@ -94,7 +112,9 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 
 	int optval;
 	optval = 1;
+#if defined(CONF_FAMILY_UNIX)
 	setsockopt(sck, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+#endif
 
 	if (bind(sck, res->ai_addr, res->ai_addrlen) != 0)
 	{
@@ -171,7 +191,6 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	//hints.ai_flags = AI_PASSIVE;
 
 	sprintf(port, "%d", _port);
 
@@ -182,6 +201,12 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	}
 
 	sck = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	if (sck == -1)
+	{
+		fprintf(stderr, "unable to create socket.\n");
+		return false;
+	}
+
 	if (connect(sck, res->ai_addr, res->ai_addrlen) != 0)
 	{
 		fprintf(stderr, "failed to connect to %s:%s.\n", _address, port);
@@ -234,9 +259,17 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	// Set all sockets for read
 	set_fdset();
 
+#if defined(CONF_FAMILY_WINDOWS)
+	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == SOCKET_ERROR)
+#else
 	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == -1)
+#endif
 	{
+#if defined(CONF_FAMILY_WINDOWS)
+		m_Kernel->Log(m_log_tag, "Unable to call select(). Error code: %d", WSAGetLastError());
+#else
 		m_Kernel->Log(m_log_tag, "Unable to call select().");
+#endif
 		return NULL;
 	}
 
@@ -288,7 +321,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				if (c->buffer_size == 0)
 				{
 					// New message, read message length
-					recv_bytes = recv(c->socket, (void*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
+					recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						// TODO: Terminate connection
@@ -298,7 +331,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 
 					c->buffer = (char*)Pxf::MemoryAllocate(c->buffer_size);
 					
-					recv_bytes = recv(c->socket, (void*)(c->buffer), c->buffer_size, 0);
+					recv_bytes = recv(c->socket, (char*)(c->buffer), c->buffer_size, 0);
 
 					if (recv_bytes == c->buffer_size)
 					{
@@ -354,8 +387,12 @@ void ConnectionManager::set_fdset()
 
 	FD_ZERO(&m_read_sockets);
 
+	printf("set_fdset size of connections: %d\n", m_Connections.size());
+
 	for(c = m_Connections.begin(); c != m_Connections.end(); c++)
 	{
+		if ((*c)->socket == -1)
+			continue;
 		FD_SET((*c)->socket, &m_read_sockets);
 		if ((*c)->socket > max)
 			max = (*c)->socket;
@@ -370,7 +407,7 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 	int sent, i=0, offset=0;
 
 	// Transmit the length of the message
-	sent = ::send(_connection->socket, &_length, sizeof(_length), 0);
+	sent = ::send(_connection->socket, (char*)&_length, sizeof(_length), 0);
 	if (sent <= 0)
 	{
 		m_Kernel->Log(m_log_tag, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
