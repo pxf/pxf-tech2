@@ -64,11 +64,17 @@ bool ray_triangle(Pxf::Math::Vec3f* data,ray_t* ray, intersection_response_t* re
 	if(!data)
 		return false;
 
-	// STEP 1: Find point in the plane of the triangle
 	Vec3f A = data[0];
 	Vec3f B = data[1];
 	Vec3f C = data[2];
-	
+
+	return ray_triangle(A,B,C,ray,resp);
+}
+
+bool ray_triangle(Pxf::Math::Vec3f A,Pxf::Math::Vec3f B,Pxf::Math::Vec3f C,ray_t* ray, intersection_response_t* resp)
+{
+
+	// STEP 1: Find point in the plane of the triangle
 	Vec3f AB = B - A;		// v0
 	Vec3f AC = C - A;		// v1
 
@@ -166,7 +172,7 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 }
 
 /* HELPER FUNCTIONS */
-
+/*
 aabb CalcAABB(Prim** _Primitives, int _NbrPrim)
 {
 	aabb box;
@@ -254,3 +260,4 @@ aabb CalcAABB(const Prim& _Primitive)
 
 	return _Box;
 }
+*/

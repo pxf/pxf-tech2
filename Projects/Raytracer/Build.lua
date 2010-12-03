@@ -12,6 +12,7 @@ project:RequireLibrary("sstat")
 project:RequireModule("pri")
 project:RequireModule("snd")
 project:RequireModule("img")
+project:RequireModule("mesh")
 
 project:AddIncludeDirectory("Include/")
 project:AddSourceDirectory("Source/*.cpp")

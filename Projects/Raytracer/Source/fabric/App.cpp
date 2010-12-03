@@ -54,9 +54,9 @@ App::App(Graphics::Window* _win, const char* _filepath)
     m_gfx = Kernel::GetInstance()->GetGraphicsDevice();
     m_inp = Kernel::GetInstance()->GetInputDevice();
     m_snd = Kernel::GetInstance()->GetAudioDevice();
-	  m_net = Kernel::GetInstance()->GetNetworkDevice();
+	m_net = Kernel::GetInstance()->GetNetworkDevice();
     
-	  m_snd->Initialize();
+	m_snd->Initialize();
 
     // Set "snigelton"
     _appinstance = this;
@@ -420,6 +420,14 @@ void App::Draw()
     
     m_TimerDraw.Stop();
     //Message(LOCAL_MSG, "draw() : %ims", m_TimerDraw.Interval());
+}
+
+bool App::GuiHit()
+{
+	lua_getglobal(L, "__guihit");
+	bool guihit = lua_toboolean(L, -1);
+	lua_pop(L, 1);
+	return guihit;
 }
 
 bool App::HandleErrors(int _error)

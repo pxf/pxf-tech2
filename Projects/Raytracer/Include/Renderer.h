@@ -16,8 +16,8 @@ struct batch_blob_t
 		}
 	}*/
 
-	Prim *pData[512];
-	Prim lData[16];
+	//Prim *pData[512];
+	//Prim lData[16];
 
 	// scene data
 	Primitive* primitives[256];

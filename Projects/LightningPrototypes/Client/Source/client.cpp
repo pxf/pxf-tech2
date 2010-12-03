@@ -1,10 +1,10 @@
 #include "client.h"
 
 #define INITIAL_QUEUE 6
-#define PING_INTERVAL 1000 // Ping interval in milliseconds
+#define PING_INTERVAL 10000 // Ping interval in milliseconds
 #define PING_TIMEOUT 5000 // Ping timeout in milliseconds
 
-Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port)
+Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port, int _client_port)
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -12,6 +12,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_tracker_port = _tracker_port;
 	m_local_address = Pxf::StringDuplicate(_local_address);
 	m_local_port = _local_port;
+	m_client_port = _client_port;
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
@@ -38,6 +39,15 @@ int Client::run()
 	Pxf::Util::Array<LiPacket*> *packets;
 	//Pxf::Util::Array<Packet*> *packets;
 	
+	// Setting up socket for clients to connect to
+	Connection *client_c = m_ConnMan.new_connection(CLIENT);
+	if(!m_ConnMan.bind_connection(client_c, m_local_address, m_client_port))
+	{
+		m_Kernel->Log(m_net_tag, "Could not bind to %s:%d", m_local_address, m_client_port);
+		return false;
+	}
+	printf("bound client socket has sockid:%d\n", client_c->socket);
+
 	m_Kernel->Log(m_log_tag, "Connecting to tracker at %s.", m_tracker_address);
 	
 	bool exit = false;
@@ -68,6 +78,8 @@ int Client::run()
 				{
 					m_Kernel->Log(m_log_tag, "Connection to %s timed out...", (*i_conn)->target_address);
 					m_ConnMan.remove_connection(*i_conn);
+					if (i_conn == m_ConnMan.m_Connections.end())
+						break;
 					continue;
 				}
 
@@ -87,16 +99,48 @@ int Client::run()
 		p = packets->begin();
 		while (p != packets->end())
 		{
-			switch((*p)->message_type)
+			(*p)->get_type();
+			if ((*p)->connection->type == CLIENT)
 			{
-				case 11:
-					m_Kernel->Log(m_log_tag, "Got PONG from %s", (*p)->connection->target_address);
-					(*p)->connection->timestamp = time(NULL);
-					p = packets->erase(p);
-					continue;
-				default:
-					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type); // TODO: LiPacket...
-					m_Kernel->Log(m_log_tag, "PONG==message_type: %d", PONG==(*p)->message_type);
+				m_Kernel->Log(m_log_tag, "Packet from a client");
+				
+				switch((*p)->message_type)
+				{
+					case 1:
+						break;
+					default:
+						m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
+						p = packets->erase(p);
+						continue;
+				}
+			}
+			else if ((*p)->connection->type == TRACKER)
+			{
+				m_Kernel->Log(m_log_tag, "Packet from tracker");
+				switch((*p)->message_type)
+				{
+					case PONG: //PONG
+					{
+						trackerclient::Pong *pong = (trackerclient::Pong*)((*p)->unpack());
+						(*p)->connection->timestamp = time(NULL);
+						p = packets->erase(p);
+						continue;
+					}
+					default:
+						m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
+						p = packets->erase(p);
+						continue;
+				}
+			}
+			else if ((*p)->connection->type == INTERNAL)
+			{
+				1+1;
+			}
+			else
+			{
+				m_Kernel->Log(m_log_tag, "Packet from unknown connection type, dropping");
+				p = packets->erase(p);
+				continue;
 			}
 			
 			p++;
@@ -161,6 +205,7 @@ bool Client::connect_tracker()
 	hello_tracker->set_session_id(m_session_id);
 	hello_tracker->set_address(m_local_address);
 	hello_tracker->set_port(m_local_port);
+	hello_tracker->set_client_port(m_client_port);
 	hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
 
 	LiPacket *pkg = new LiPacket(c, hello_tracker, HELLO_TO_TRACKER);

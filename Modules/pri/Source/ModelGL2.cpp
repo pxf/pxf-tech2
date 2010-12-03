@@ -48,7 +48,7 @@ bool ModelGL2::Load(Resource::Mesh* _Mesh)
 
 	m_VertexBuffer = GetDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_STATIC_DRAW);
 	m_VertexBuffer->CreateNewBuffer(md.triangle_count*3, sizeof(ModelGL2::Vertex));
-	m_VertexBuffer->SetData(VB_VERTEX_DATA, 0                  , 3); // SetData(Type, OffsetInBytes, NumComponents)
+	m_VertexBuffer->SetData(VB_VERTEX_DATA, 0 , 3); // SetData(Type, OffsetInBytes, NumComponents)
 	
 	if (md.has_normals)
 	{

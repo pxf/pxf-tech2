@@ -116,7 +116,6 @@ bool RaytracerClient::run()
 
 	try
 	{
-
 		m_Executor->wait();
 		m_Kernel->Log(m_LogTag, "Executor is done waiting. Why?");
 	}

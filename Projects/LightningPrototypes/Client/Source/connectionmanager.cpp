@@ -337,6 +337,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					{
 						// Entire message recieved, continue to next available socket
 						Packet* p = new Packet(c, c->buffer_size, c->buffer);
+						//printf("type:%s\n", c->type);
 						m_Packets->push_back(p);
 						clear_connbuf(c);
 						continue;
