@@ -63,6 +63,7 @@ struct render_result_t
 
 int render_task(task_detail_t *task, batch_blob_t *datablob, render_result_t *pic, int sub_task_num);
 bool calc_light_contrib(Pxf::Math::Vec3f *p, Pxf::Math::Vec3f *n, Pxf::Math::Vec3f *ed, batch_blob_t *datablob, Pxf::Math::Vec3f *res); // ed = eye direction
+bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res, int bounce);
 bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *datablob, pixel_data_t *pixel);
 
 #endif /* _RENDERER_H_ */

@@ -89,8 +89,8 @@ int main(int argc, char* argv[])
 	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
 	// Generate awesome red output buffer
-	const int w = 256;
-	const int h = 256;
+	const int w = 512;
+	const int h = 512;
 	const int channels = 3;
 	const int task_count = 16;
 	int task_size_w = w / task_count;
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 	blob.pic_w = w;
 	blob.pic_h = h;
 	blob.samples_per_pixel = 20; // 10 -> 10*10 = 100
-	blob.bounce_count = 8; // Number of reflection bounces
+	blob.bounce_count = 6; // Number of reflection bounces
 	blob.interleaved_feedback = 2;
 	
 	// add a couple of primitives to the data blob
@@ -120,9 +120,11 @@ int main(int argc, char* argv[])
 	sphere_mat1.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	sphere_mat1.reflectiveness = 1.0f;
+	sphere_mat1.matteness = 0.0f;
 	sphere_mat2.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	sphere_mat2.reflectiveness = 1.0f;
+	sphere_mat2.matteness = 1.0f;
 	
 	blob.prim_count = 0;
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), &plane_mat_white); // bottom
