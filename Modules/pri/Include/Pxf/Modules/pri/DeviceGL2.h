@@ -34,6 +34,7 @@ namespace Pxf{
 			virtual ~DeviceGL2();
 
 			Graphics::Window* OpenWindow(Graphics::WindowSpecifications* _pWindowSpecs);
+			Graphics::Window* GetWindow();
 			void CloseWindow();
 
 			Graphics::DeviceType GetDeviceType() { return Graphics::EOpenGL2; }

@@ -45,6 +45,7 @@ namespace Pxf
 
 			// Windowing
 			virtual Window* OpenWindow(WindowSpecifications* _pWindowSpecs) = 0;
+			virtual Window* GetWindow() = 0;
 			virtual void CloseWindow() = 0;
 
 			// Device

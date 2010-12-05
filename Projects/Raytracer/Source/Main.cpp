@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
 	res->DumpResourceLoaders();
-	
+
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;
 	spec.Height = 512;
@@ -89,8 +89,8 @@ int main(int argc, char* argv[])
 	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
 	// Generate awesome red output buffer
-	const int w = 512;
-	const int h = 512;
+	const int w = 128;
+	const int h = 128;
 	const int channels = 3;
 	const int task_count = 16;
 	int task_size_w = w / task_count;
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 	blob.pic_w = w;
 	blob.pic_h = h;
 	blob.samples_per_pixel = 20; // 10 -> 10*10 = 100
-	blob.bounce_count = 6; // Number of reflection bounces
+	blob.bounce_count = 4; // Number of reflection bounces
 	blob.interleaved_feedback = 2;
 	
 	// add a couple of primitives to the data blob
