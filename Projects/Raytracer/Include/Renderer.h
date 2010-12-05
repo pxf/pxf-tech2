@@ -7,20 +7,8 @@
 
 struct batch_blob_t
 {	
-	/*
-	~batch_blob_t() {
-		if(tree)
-		{
-			delete tree;
-			tree = 0;
-		}
-	}*/
-
-	//Prim *pData[512];
-	//Prim lData[16];
-
 	// scene data
-	Primitive* primitives[256];
+	Primitive** primitives;
 	Primitive* lights[256];
 	int prim_count;
 	int light_count;

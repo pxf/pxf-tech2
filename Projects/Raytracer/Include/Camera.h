@@ -71,6 +71,8 @@ public:
 	Pxf::Math::Vec3f GetDir() { return m_ViewDir; }
 	Pxf::Math::Vec3f GetPos() { return m_Eye; }
 
+	//float GetPitch() { return m_PitchDegrees; }
+
 	void SetPerspective(float _fovx, float _aspect, float _znear, float _zfar);
 	void SetRotation(float yaw, float pitch, float roll);
 	void SetLookAt(float x,float y,float z);

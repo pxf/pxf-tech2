@@ -92,7 +92,9 @@ namespace Pxf
 			virtual Graphics::FrameBufferObject* BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject) = 0;
 			virtual void UnbindFrameBufferObject() = 0;
 			
+			// Shaders
 			virtual Shader* CreateShader(const char* _Ident, const char* _VertexShader, const char* _FragmentShader) = 0;
+			virtual Shader* CreateShaderFromPath(const char* _Ident, const char* _VertexShaderPath, const char* _FragmentShaderPath) = 0;
 			virtual void DestroyShader(Shader* _Shader) = 0;
 			virtual Shader* BindShader(Shader* _Shader) = 0;
 			virtual void SetUniformi(Shader* _Shader, const char* _name, int _value) = 0;

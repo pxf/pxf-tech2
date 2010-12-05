@@ -81,6 +81,7 @@ namespace Pxf{
 			Graphics::FrameBufferObject* GetCurrentFrameBufferObject() { return m_CurrentFrameBufferObject; }
 
 			Graphics::Shader* CreateShader(const char* _Ident, const char* _VertexShader, const char* _FragmentShader);
+			Graphics::Shader* CreateShaderFromPath(const char* _Ident, const char* _VertexShaderPath, const char* _FragmentShaderPath);
 			void DestroyShader(Graphics::Shader* _Shader);
 			Graphics::Shader* BindShader(Graphics::Shader* _Shader);
 			virtual void SetUniformi(Graphics::Shader* _Shader, const char* _name, int _value);

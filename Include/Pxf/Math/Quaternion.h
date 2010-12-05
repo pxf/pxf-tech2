@@ -148,7 +148,21 @@ public:
 		out_mtx->m[15] = 1.0f;
 	}
 
-	/*
+	float Quaternion::GetPitch()
+	{
+		return atan2(2*(y*z + w*x), w*w - x*x - y*y + z*z);
+	}
+
+	float Quaternion::GetYaw()
+	{
+	  return asin(-2*(x*z - w*y));
+	}
+
+	float Quaternion::GetRoll()
+	{
+	  return atan2(2*(x*y + w*z), w*w + x*x - y*y - z*z);
+	}
+		/*
 		Operators
 	*/
 
@@ -231,6 +245,20 @@ public:
 		*this = tmp;
 		return *this;
 	}
+
+	/*
+	Vec3f operator * (const Vec3f vec)
+	{
+		Quaternion v;
+		v.x = vec.x;
+		v.y = vec.y;
+		v.z = vec.z;
+		v.w = 0.0f;
+		Quaternion q = *this;
+
+		Quaternion tmp = q * v;
+		return Vec3f(tmp.x,tmp.y,tmp.z);
+	}*/
 	
 	/* Division */
 	Quaternion operator / (const float c) const
