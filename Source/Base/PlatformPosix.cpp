@@ -40,7 +40,7 @@ int64 Platform::GetTime()
 int32 Platform::GetNumberOfProcessors()
 {
 	int n = 1;
-#ifdef CONF_PLATFORM_MACOSX
+/*#ifdef CONF_PLATFORM_MACOSX
 	int mib[2], ncpu;
 	size_t len = 1;
 	mib[0] = CTL_HW;
@@ -54,10 +54,10 @@ int32 Platform::GetNumberOfProcessors()
 		}
 	}
 	return n;
-#else
+#else*/
 	n = (int)sysconf(_SC_NPROCESSORS_ONLN);
 	return n;
-#endif
+//#endif
 }
 
 #endif // CONF_FAMILY_UNIX

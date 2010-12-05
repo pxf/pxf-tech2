@@ -125,6 +125,40 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, int
 	return found;
 }
 
+bool calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec3f *res, float spread, int bounce)
+{
+	Pxf::Math::Vec3f fsubres(0.0f);
+	// find closest primitive
+	for(int sample_x = 0; sample_x < datablob->samples_per_pixel / (bounce+1); ++sample_x)
+	{
+		for(int sample_y = 0; sample_y < datablob->samples_per_pixel / (bounce+1); ++sample_y)
+		{
+			// Offset ray
+			ray_t ray = *primray;
+			Vec3f offset = Vec3f((0.5f * spread) * (datablob->samples[rand() % 255] * 2.0f - 1.0f),
+			                     (0.5f * spread) * (datablob->samples[rand() % 255] * 2.0f - 1.0f),
+			                     (0.5f * spread) * (datablob->samples[rand() % 255] * 2.0f - 1.0f));
+			
+			ray.d += offset;
+			Normalize(ray.d);
+			
+			// Calc direct light
+			Pxf::Math::Vec3f light_contrib;
+			if (!calc_ray_contrib(&ray, datablob, &light_contrib, bounce+1))
+			{
+				Pxf::Message("calculate_pixel", "Light calculations failed!");
+				return false;
+			}
+			fsubres += light_contrib;
+			
+		}
+	}
+	
+	fsubres /= (datablob->samples_per_pixel / (bounce+1)) * (datablob->samples_per_pixel / (bounce+1));
+	*res += fsubres;
+	return true;
+}
+
 
 // calculates direct light contribution for a ray
 bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res, int bounce)
@@ -231,7 +265,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 					refl_ray.d = refl;
 					Normalize(refl_ray.d);
 					
-					if (!calc_ray_contrib(&refl_ray, datablob, &bounce_contrib, bounce))
+					if (!calc_multisample_ray(&refl_ray, datablob, &bounce_contrib, closest_prim->material->matteness, bounce))
 					{
 						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
 						return false;
@@ -305,42 +339,15 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			ray.d = new_screen_coords - cray.o;
 			Normalize(ray.d);
 			
-			// Cast ray and see what we find
-				// Calc direct light
+			// Calc direct light
 			Pxf::Math::Vec3f light_contrib;
-				if (!calc_ray_contrib(&ray, datablob, &light_contrib, 0))
-				{
-					Pxf::Message("calculate_pixel", "Light calculations failed!");
-					return false;
-				}
-				fpixel += light_contrib;
-
-				// Calculate reflection
-				/*float refl = closest_prim->material.reflectiveness;
-				if (refl > 0.0f)
-				{
-					float offset_x = datablob->samples[rand() % 255] * 2.0f - 1.0f;//1.0f / ((int)(rand_sample * 16.0f) % 4);
-					float offset_y = datablob->samples[rand() % 255] * 2.0f - 1.0f;//0.0f;//1.0f / ((int)(rand_sample * 16.0f) / 4);
-					float offset_spread = 1.0f - refl;
-					Math::Vec3f offset = Math::Vec3f(offset_x, offset_y, 0.f) * offset_spread;
-					Math::Vec3f N = closest_resp.n;
-					Math::Vec3f R = N * (ray.d - 2.0f * Dot(ray.d, N));
-					
-					
-					ray_t refl_ray;
-					refl_ray.o = closest_resp.p + R*0.000000001;
-					refl_ray.d = Normalized(R);
-					
-					intersection_response_t closest_resp;
-					if (find_intersection(datablob, &refl_ray, &closest_prim, &closest_resp))
-					{
-						fpixel += (closest_prim->material.ambient * closest_prim->material.diffuse * refl) / 1.3f;
-					}
-
-				}*/
-				
-				// TODO: Calc indirect light using photon map
-			//}
+			if (!calc_ray_contrib(&ray, datablob, &light_contrib, 0))
+			{
+				Pxf::Message("calculate_pixel", "Light calculations failed!");
+				return false;
+			}
+			fpixel += light_contrib;
+			
 		}
 	}
 	

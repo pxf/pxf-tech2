@@ -12,7 +12,7 @@ namespace Pxf{
 		public:
 
 			Window(GraphicsDevice* _Device)
-				: DeviceResource(_Device)
+				: DeviceResource(_Device, false /* _NeedsGLContext = false */)
 			{ }
 
 			typedef void(*WindowSizeCallback)(int _Width, int _Height);

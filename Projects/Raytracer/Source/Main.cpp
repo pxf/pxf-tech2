@@ -6,6 +6,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Random.h>
 #include <Pxf/Base/Memory.h>
+#include <Pxf/Base/Platform.h>
 #include <Pxf/Math/Math.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/Window.h>
@@ -62,7 +63,7 @@ int main(int argc, char* argv[])
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
 	res->DumpResourceLoaders();
-	
+
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;
 	spec.Height = 512;
@@ -90,8 +91,8 @@ int main(int argc, char* argv[])
 	Resource::Mesh* plane_box = res->Acquire<Resource::Mesh>("data/plane_box.ctm");
 
 	// Generate awesome red output buffer
-	const int w = 256;
-	const int h = 256;
+	const int w = 128;
+	const int h = 128;
 	const int channels = 3;
 	const int task_count = 16;
 	int task_size_w = w / task_count;
@@ -102,9 +103,9 @@ int main(int argc, char* argv[])
 	batch_blob_t blob;
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 2; // 10 -> 10*10 = 100
-	blob.bounce_count = 5; // Number of reflection bounces
-	blob.interleaved_feedback = 4;
+	blob.samples_per_pixel = 20; // 10 -> 10*10 = 100
+	blob.bounce_count = 4; // Number of reflection bounces
+	blob.interleaved_feedback = 2;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -121,9 +122,11 @@ int main(int argc, char* argv[])
 	sphere_mat1.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	sphere_mat1.reflectiveness = 1.0f;
+	sphere_mat1.matteness = 0.0f;
 	sphere_mat2.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	sphere_mat2.reflectiveness = 1.0f;
+	sphere_mat2.matteness = 1.0f;
 	
 	/*
 	blob.prim_count = 0;
@@ -133,7 +136,7 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), &plane_mat_green); // right
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(-2.0f, -3.0f, 6.0f), 1.5f, &sphere_mat1);
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
 	*/
 
@@ -162,7 +165,7 @@ int main(int argc, char* argv[])
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 5.0f, &light_mat1);
+	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.0f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 5.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 0;
 	
@@ -304,9 +307,17 @@ int main(int argc, char* argv[])
 
 				unsigned int idx = y*task_count+x;
 				Pxf::Graphics::GraphicsDevice* gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
-				region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_w, channels);
-				region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
-				region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
+				if (region_textures[idx] == 0)
+				{
+					region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_h, channels);
+					region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
+					region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
+				}
+				else
+				{
+					region_textures[idx]->UpdateData((const unsigned char*)res->pixels, 0, 0, task_size_w, task_size_h);
+				}
+
 				if (res->final)
 					total_done += 1;
 			}
