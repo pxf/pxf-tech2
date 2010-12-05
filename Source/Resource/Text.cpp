@@ -31,12 +31,13 @@ Resource::Text* Resource::TextLoader::Load(const char* _FilePath)
 	FileStream f;
 	f.Open(_FilePath, "r");
 	unsigned size = f.GetSize();
-	void* data = new char[size];
+	char* data = new char[size+1];
 	f.Read(data, size);
 	f.Close();
+	data[size] = 0;
 
 	chunk->data = data;
-	chunk->size = size;
+	chunk->size = size+1;
 	chunk->is_static = false;
 	chunk->source = _FilePath;
 
