@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
 	res->DumpResourceLoaders();
-	
+
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;
 	spec.Height = 512;
@@ -89,8 +89,8 @@ int main(int argc, char* argv[])
 	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
 	// Generate awesome red output buffer
-	const int w = 256;
-	const int h = 256;
+	const int w = 128;
+	const int h = 128;
 	const int channels = 3;
 	const int task_count = 8;
 	int task_size_w = w / task_count;
