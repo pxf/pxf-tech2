@@ -16,10 +16,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 
 	m_TaskQueue.reserve(INITIAL_QUEUE); 
 
-	// TODO: Change to LiPacket
-	Pxf::Util::Array<LiPacket*> *packets = new Pxf::Util::Array<LiPacket*>;
-	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)packets);
-	//m_ConnMan = ConnectionManager(new Pxf::Util::Array<Packet*>);
+	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
@@ -35,9 +32,7 @@ int Client::run()
 {
 	time_t last_ping, ping_timestamp;
 
-	// TODO: Change to LiPacket
 	Pxf::Util::Array<LiPacket*> *packets;
-	//Pxf::Util::Array<Packet*> *packets;
 	
 	// Setting up socket for clients to connect to
 	Connection *client_c = m_ConnMan.new_connection(CLIENT);
@@ -121,7 +116,7 @@ int Client::run()
 				{
 					case PONG: //PONG
 					{
-						trackerclient::Pong *pong = (trackerclient::Pong*)((*p)->unpack());
+						lightning::Pong *pong = (lightning::Pong*)((*p)->unpack());
 						(*p)->connection->timestamp = time(NULL);
 						p = packets->erase(p);
 						continue;
@@ -153,8 +148,8 @@ int Client::run()
 
 void Client::ping(Connection *_c, int _timestamp)
 {
-	trackerclient::Ping *ping_tracker = new trackerclient::Ping();
-	ping_tracker->set_ping_data(_timestamp);
+	lightning::Ping *ping_tracker = new lightning::Ping();
+	ping_tracker->set_pingdata(_timestamp);
 
 	LiPacket *pkg = new LiPacket(_c, ping_tracker, PING);
 
@@ -181,7 +176,7 @@ bool Client::connect_tracker()
 		return false;
 	}
 
-	int type = INIT_HELLO;
+	int type = T_INIT;
 	m_ConnMan.send(c, (char*)&type, 4);
 	
 	// Wait for tracker to respond. Timeout after 5 seconds.
@@ -192,7 +187,7 @@ bool Client::connect_tracker()
 		return false;
 	}
 	
-	trackerclient::HelloToClient *hello_client = (trackerclient::HelloToClient*)(packets->front()->unpack());
+	tracker::HelloToClient *hello_client = (tracker::HelloToClient*)(packets->front()->unpack());
 	
 	m_session_id = hello_client->session_id();
 
@@ -201,14 +196,14 @@ bool Client::connect_tracker()
 	
 	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d, using socket %d", m_session_id, c->socket);
 
-	trackerclient::HelloToTracker *hello_tracker = new trackerclient::HelloToTracker();
+	tracker::HelloToTracker *hello_tracker = new tracker::HelloToTracker();
 	hello_tracker->set_session_id(m_session_id);
 	hello_tracker->set_address(m_local_address);
 	hello_tracker->set_port(m_local_port);
 	hello_tracker->set_client_port(m_client_port);
 	hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
 
-	LiPacket *pkg = new LiPacket(c, hello_tracker, HELLO_TO_TRACKER);
+	LiPacket *pkg = new LiPacket(c, hello_tracker, T_HELLO_TRACKER);
 
 	m_ConnMan.send(c, pkg->data, pkg->length);
 	m_Kernel->Log(m_log_tag, "Connection to tracker on socket %d terminated.", c->socket);

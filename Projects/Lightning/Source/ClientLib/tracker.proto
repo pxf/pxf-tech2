@@ -1,0 +1,41 @@
+package tracker;
+
+message HelloToTracker {
+    required int32 session_id = 1;
+	required string address = 2;
+    required int32 port = 3;
+	required int32 client_port = 4;
+	required int32 available = 5;
+}
+
+message HelloToClient {
+	required int32 session_id = 1;
+}
+
+message NewBatch {
+	enum BatchType {
+		RAYTRACE = 0;
+		PHOTSHOOTAH = 1;
+	}
+
+	required int32 session_id = 1;
+	required string batch_hash = 2;
+	required int32 tasks = 3;
+	required BatchType batch_type = 4;
+}
+
+message NodesRequest {
+	required int32 session_id = 1;
+	required int32 nodes = 2;
+}
+
+message NodesResponse {
+	message Node {
+		required int32 session_id  = 1;
+		required string address = 2;
+		required int32 port = 3;
+	}
+	
+	repeated Node nodes = 1;
+}
+

@@ -1,30 +1,29 @@
 #include "lightning.h"
 
-#include <stdio.h>
-
-/*
-Factory[] = {
-	Factory<trackerclient::HelloToClient(),
-	Factory<trackerclient::HelloToTracker()
-};*/
-
-/*void *protoaoeu[3] {
-	NULL,
-	(void*)create_class<trackerclient::HelloToClient>,
-	(void*)create_class<trackerclient::HelloToTracker>,
-};*/
-
 google::protobuf::Message *get_protobuf_class(int type)
 {
 	switch(type)
 	{
-		case INIT_HELLO: return(NULL);
-		case HELLO_TO_CLIENT: return new trackerclient::HelloToClient;
-		case HELLO_TO_TRACKER: return new trackerclient::HelloToTracker;
-		case GOODBYE: return new trackerclient::GoodBye;
-		case PING: return new trackerclient::Ping;
-		case PONG: return new trackerclient::Pong;
+		case GOODBYE: return new lightning::GoodBye;
+		case PING: return new lightning::Ping;
+		case PONG: return new lightning::Pong;
 		case OK: return(NULL);
+
+		case T_INIT: return(NULL);
+		case T_HELLO_CLIENT: return new tracker::HelloToClient;
+		case T_HELLO_TRACKER: return new tracker::HelloToTracker;
+		case T_NEWBATCH: return new tracker::NewBatch;
+		case T_NODES_REQUEST: return new tracker::NodesRequest;
+		case T_NODES_RESPONSE: return new tracker::NodesResponse;
+		case T_BATCH_DONE: return NULL; // TODO: Fill in
+		case T_TASK_DONE: return NULL;
+		case T_HATE: return NULL;
+
+		case C_HELLO: return new client::Hello;
+		case C_ALLOCATE: return new client::AllocateClient;
+		case C_ALLOC_RESP: return new client::AllocateResponse;
+		case C_DATA: return new client::Data;
+		case C_TASKS: return new client::Tasks;
 	}
 }
 

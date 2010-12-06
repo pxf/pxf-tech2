@@ -5,7 +5,6 @@
 
 #include "connectionmanager.h"
 #include "lightning.h"
-#include "iomodule.h"
 
 #ifndef _CLIENT_H_
 #define _CLIENT_H_

@@ -1,23 +1,35 @@
-#include "trackerclient.pb.h"
 #include "connectionmanager.h"
+#include "lightning.pb.h"
+#include "client.pb.h"
+#include "tracker.pb.h"
 
 #ifndef _LIGHTNING_H_
 #define _LIGHTNING_H_
 
 enum MessageType {
-	INIT_HELLO = 0,
-	HELLO_TO_CLIENT = 1, 
-	HELLO_TO_TRACKER, 
-	GOODBYE, 
-	NEWBATCH,	
+	// Common between all instances
 	OK,
-	NODES_REQUEST,
-	NODES_RESPONSE,
-	BATCH_DONE,
-	TASK_DONE,
-	HATE, 
 	PING,
-	PONG
+	PONG,
+	GOODBYE, 
+
+	// Between tracker and client
+	T_INIT,
+	T_HELLO_CLIENT, 
+	T_HELLO_TRACKER, 
+	T_NEWBATCH,	
+	T_NODES_REQUEST,
+	T_NODES_RESPONSE,
+	T_BATCH_DONE,
+	T_TASK_DONE,
+	T_HATE,
+
+	// Between clients
+	C_HELLO,
+	C_ALLOCATE,
+	C_ALLOC_RESP,
+	C_DATA,
+	C_TASKS
 };
 
 struct LiPacket : Packet
