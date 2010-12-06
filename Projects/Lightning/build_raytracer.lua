@@ -8,6 +8,7 @@ project:RequireLibrary("lua")
 project:RequireLibrary("rtaudio")
 project:RequireLibrary("stb_vorbis")
 project:RequireLibrary("sstat")
+project:RequireLibrary("protobuffers")
 
 project:RequireModule("pri")
 project:RequireModule("snd")
