@@ -35,7 +35,7 @@ void protobuf_AssignDesc_lightning_2eproto() {
   GOOGLE_CHECK(file != NULL);
   Ping_descriptor_ = file->message_type(0);
   static const int Ping_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ping, pingdata_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ping, ping_data_),
   };
   Ping_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -50,7 +50,7 @@ void protobuf_AssignDesc_lightning_2eproto() {
       sizeof(Ping));
   Pong_descriptor_ = file->message_type(1);
   static const int Pong_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Pong, pingdata_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Pong, ping_data_),
   };
   Pong_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -116,9 +116,9 @@ void protobuf_AddDesc_lightning_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017lightning.proto\022\tlightning\"\030\n\004Ping\022\020\n\010"
-    "pingdata\030\001 \002(\005\"\030\n\004Pong\022\020\n\010pingdata\030\001 \002(\005"
-    "\"\035\n\007GoodBye\022\022\n\nsession_id\030\001 \002(\005", 111);
+    "\n\017lightning.proto\022\tlightning\"\031\n\004Ping\022\021\n\t"
+    "ping_data\030\001 \002(\005\"\031\n\004Pong\022\021\n\tping_data\030\001 \002"
+    "(\005\"\035\n\007GoodBye\022\022\n\nsession_id\030\001 \002(\005", 113);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "lightning.proto", &protobuf_RegisterTypes);
   Ping::default_instance_ = new Ping();
@@ -141,7 +141,7 @@ struct StaticDescriptorInitializer_lightning_2eproto {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int Ping::kPingdataFieldNumber;
+const int Ping::kPingDataFieldNumber;
 #endif  // !_MSC_VER
 
 Ping::Ping()
@@ -160,7 +160,7 @@ Ping::Ping(const Ping& from)
 
 void Ping::SharedCtor() {
   _cached_size_ = 0;
-  pingdata_ = 0;
+  ping_data_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -195,7 +195,7 @@ Ping* Ping::New() const {
 
 void Ping::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    pingdata_ = 0;
+    ping_data_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -207,13 +207,13 @@ bool Ping::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required int32 pingdata = 1;
+      // required int32 ping_data = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 input, &pingdata_)));
+                 input, &ping_data_)));
           _set_bit(0);
         } else {
           goto handle_uninterpreted;
@@ -240,9 +240,9 @@ bool Ping::MergePartialFromCodedStream(
 
 void Ping::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required int32 pingdata = 1;
+  // required int32 ping_data = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->pingdata(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->ping_data(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -253,9 +253,9 @@ void Ping::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* Ping::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required int32 pingdata = 1;
+  // required int32 ping_data = 1;
   if (_has_bit(0)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->pingdata(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->ping_data(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -269,11 +269,11 @@ int Ping::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required int32 pingdata = 1;
-    if (has_pingdata()) {
+    // required int32 ping_data = 1;
+    if (has_ping_data()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
-          this->pingdata());
+          this->ping_data());
     }
     
   }
@@ -304,7 +304,7 @@ void Ping::MergeFrom(const Ping& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from._has_bit(0)) {
-      set_pingdata(from.pingdata());
+      set_ping_data(from.ping_data());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -330,7 +330,7 @@ bool Ping::IsInitialized() const {
 
 void Ping::Swap(Ping* other) {
   if (other != this) {
-    std::swap(pingdata_, other->pingdata_);
+    std::swap(ping_data_, other->ping_data_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -349,7 +349,7 @@ void Ping::Swap(Ping* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int Pong::kPingdataFieldNumber;
+const int Pong::kPingDataFieldNumber;
 #endif  // !_MSC_VER
 
 Pong::Pong()
@@ -368,7 +368,7 @@ Pong::Pong(const Pong& from)
 
 void Pong::SharedCtor() {
   _cached_size_ = 0;
-  pingdata_ = 0;
+  ping_data_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -403,7 +403,7 @@ Pong* Pong::New() const {
 
 void Pong::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    pingdata_ = 0;
+    ping_data_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -415,13 +415,13 @@ bool Pong::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required int32 pingdata = 1;
+      // required int32 ping_data = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 input, &pingdata_)));
+                 input, &ping_data_)));
           _set_bit(0);
         } else {
           goto handle_uninterpreted;
@@ -448,9 +448,9 @@ bool Pong::MergePartialFromCodedStream(
 
 void Pong::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required int32 pingdata = 1;
+  // required int32 ping_data = 1;
   if (_has_bit(0)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->pingdata(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->ping_data(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -461,9 +461,9 @@ void Pong::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* Pong::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required int32 pingdata = 1;
+  // required int32 ping_data = 1;
   if (_has_bit(0)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->pingdata(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->ping_data(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -477,11 +477,11 @@ int Pong::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required int32 pingdata = 1;
-    if (has_pingdata()) {
+    // required int32 ping_data = 1;
+    if (has_ping_data()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
-          this->pingdata());
+          this->ping_data());
     }
     
   }
@@ -512,7 +512,7 @@ void Pong::MergeFrom(const Pong& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from._has_bit(0)) {
-      set_pingdata(from.pingdata());
+      set_ping_data(from.ping_data());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -538,7 +538,7 @@ bool Pong::IsInitialized() const {
 
 void Pong::Swap(Pong* other) {
   if (other != this) {
-    std::swap(pingdata_, other->pingdata_);
+    std::swap(ping_data_, other->ping_data_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

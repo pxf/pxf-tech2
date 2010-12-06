@@ -92,19 +92,19 @@ class Ping : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required int32 pingdata = 1;
-  inline bool has_pingdata() const;
-  inline void clear_pingdata();
-  static const int kPingdataFieldNumber = 1;
-  inline ::google::protobuf::int32 pingdata() const;
-  inline void set_pingdata(::google::protobuf::int32 value);
+  // required int32 ping_data = 1;
+  inline bool has_ping_data() const;
+  inline void clear_ping_data();
+  static const int kPingDataFieldNumber = 1;
+  inline ::google::protobuf::int32 ping_data() const;
+  inline void set_ping_data(::google::protobuf::int32 value);
   
   // @@protoc_insertion_point(class_scope:lightning.Ping)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::google::protobuf::int32 pingdata_;
+  ::google::protobuf::int32 ping_data_;
   friend void  protobuf_AddDesc_lightning_2eproto();
   friend void protobuf_AssignDesc_lightning_2eproto();
   friend void protobuf_ShutdownFile_lightning_2eproto();
@@ -181,19 +181,19 @@ class Pong : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required int32 pingdata = 1;
-  inline bool has_pingdata() const;
-  inline void clear_pingdata();
-  static const int kPingdataFieldNumber = 1;
-  inline ::google::protobuf::int32 pingdata() const;
-  inline void set_pingdata(::google::protobuf::int32 value);
+  // required int32 ping_data = 1;
+  inline bool has_ping_data() const;
+  inline void clear_ping_data();
+  static const int kPingDataFieldNumber = 1;
+  inline ::google::protobuf::int32 ping_data() const;
+  inline void set_ping_data(::google::protobuf::int32 value);
   
   // @@protoc_insertion_point(class_scope:lightning.Pong)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::google::protobuf::int32 pingdata_;
+  ::google::protobuf::int32 ping_data_;
   friend void  protobuf_AddDesc_lightning_2eproto();
   friend void protobuf_AssignDesc_lightning_2eproto();
   friend void protobuf_ShutdownFile_lightning_2eproto();
@@ -310,40 +310,40 @@ class GoodBye : public ::google::protobuf::Message {
 
 // Ping
 
-// required int32 pingdata = 1;
-inline bool Ping::has_pingdata() const {
+// required int32 ping_data = 1;
+inline bool Ping::has_ping_data() const {
   return _has_bit(0);
 }
-inline void Ping::clear_pingdata() {
-  pingdata_ = 0;
+inline void Ping::clear_ping_data() {
+  ping_data_ = 0;
   _clear_bit(0);
 }
-inline ::google::protobuf::int32 Ping::pingdata() const {
-  return pingdata_;
+inline ::google::protobuf::int32 Ping::ping_data() const {
+  return ping_data_;
 }
-inline void Ping::set_pingdata(::google::protobuf::int32 value) {
+inline void Ping::set_ping_data(::google::protobuf::int32 value) {
   _set_bit(0);
-  pingdata_ = value;
+  ping_data_ = value;
 }
 
 // -------------------------------------------------------------------
 
 // Pong
 
-// required int32 pingdata = 1;
-inline bool Pong::has_pingdata() const {
+// required int32 ping_data = 1;
+inline bool Pong::has_ping_data() const {
   return _has_bit(0);
 }
-inline void Pong::clear_pingdata() {
-  pingdata_ = 0;
+inline void Pong::clear_ping_data() {
+  ping_data_ = 0;
   _clear_bit(0);
 }
-inline ::google::protobuf::int32 Pong::pingdata() const {
-  return pingdata_;
+inline ::google::protobuf::int32 Pong::ping_data() const {
+  return ping_data_;
 }
-inline void Pong::set_pingdata(::google::protobuf::int32 value) {
+inline void Pong::set_ping_data(::google::protobuf::int32 value) {
   _set_bit(0);
-  pingdata_ = value;
+  ping_data_ = value;
 }
 
 // -------------------------------------------------------------------

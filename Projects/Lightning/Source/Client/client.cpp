@@ -149,7 +149,7 @@ int Client::run()
 void Client::ping(Connection *_c, int _timestamp)
 {
 	lightning::Ping *ping_tracker = new lightning::Ping();
-	ping_tracker->set_pingdata(_timestamp);
+	ping_tracker->set_ping_data(_timestamp);
 
 	LiPacket *pkg = new LiPacket(_c, ping_tracker, PING);
 
