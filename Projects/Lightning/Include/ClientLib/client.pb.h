@@ -105,6 +105,20 @@ class Hello : public ::google::protobuf::Message {
   inline void set_address(const char* value, size_t size);
   inline ::std::string* mutable_address();
   
+  // required int32 port = 2;
+  inline bool has_port() const;
+  inline void clear_port();
+  static const int kPortFieldNumber = 2;
+  inline ::google::protobuf::int32 port() const;
+  inline void set_port(::google::protobuf::int32 value);
+  
+  // required int32 session_id = 3;
+  inline bool has_session_id() const;
+  inline void clear_session_id();
+  static const int kSessionIdFieldNumber = 3;
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:client.Hello)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -112,11 +126,13 @@ class Hello : public ::google::protobuf::Message {
   
   ::std::string* address_;
   static const ::std::string _default_address_;
+  ::google::protobuf::int32 port_;
+  ::google::protobuf::int32 session_id_;
   friend void  protobuf_AddDesc_client_2eproto();
   friend void protobuf_AssignDesc_client_2eproto();
   friend void protobuf_ShutdownFile_client_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -719,6 +735,38 @@ inline ::std::string* Hello::mutable_address() {
     address_ = new ::std::string;
   }
   return address_;
+}
+
+// required int32 port = 2;
+inline bool Hello::has_port() const {
+  return _has_bit(1);
+}
+inline void Hello::clear_port() {
+  port_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 Hello::port() const {
+  return port_;
+}
+inline void Hello::set_port(::google::protobuf::int32 value) {
+  _set_bit(1);
+  port_ = value;
+}
+
+// required int32 session_id = 3;
+inline bool Hello::has_session_id() const {
+  return _has_bit(2);
+}
+inline void Hello::clear_session_id() {
+  session_id_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 Hello::session_id() const {
+  return session_id_;
+}
+inline void Hello::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(2);
+  session_id_ = value;
 }
 
 // -------------------------------------------------------------------

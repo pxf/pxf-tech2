@@ -101,8 +101,50 @@ int Client::run()
 				
 				switch((*p)->message_type)
 				{
-					case 1:
-						break;
+					case PING:
+					{
+						lightning::Ping *ping = (lightning::Ping*)((*p)->unpack());
+						lightning::Pong *pong = new lightning::Pong();
+						pong->set_ping_data(ping->ping_data());
+
+						LiPacket *pkg = new LiPacket((*p)->connection, pong, PONG);
+
+						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
+
+						delete pkg;
+						p = packets->erase(p);
+						continue;
+					}
+					case C_HELLO:
+					{
+						// TODO: Do more stuff
+						client::Hello *hello = (client::Hello*)((*p)->unpack());
+						m_Kernel->Log(m_log_tag, "Hello from %s:%d, session id:%d",
+									  hello->address().c_str(),
+									  hello->port(),
+									  hello->session_id());
+						p = packets->erase(p);
+						continue;
+					}
+					case C_ALLOCATE:
+					{
+						// TODO: Do more stuff!
+						client::AllocateClient *alloc = (client::AllocateClient*)((*p)->unpack());
+						Pxf::Util::String str = alloc->batchhash();
+						if (m_Batches.count(str) == 0)
+						{
+							Batch *b;
+							//b->
+							//m_Batches.insert(std::make_pair(alloc->batchhash(), b));
+							m_Batches[str] = b;
+							int ok = OK;
+							m_ConnMan.send((*p)->connection, (char*)&ok, sizeof(ok));
+						}
+						
+					
+						p = packets->erase(p);
+						continue;
+					}
 					default:
 						m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
 						p = packets->erase(p);

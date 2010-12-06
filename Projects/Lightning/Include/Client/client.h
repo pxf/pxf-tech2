@@ -1,4 +1,5 @@
 #include <Pxf/Util/Array.h>
+#include <Pxf/Util/String.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
 #include <zthread/ThreadedExecutor.h>
@@ -34,6 +35,7 @@ class Client
 	private:
 		ConnectionManager m_ConnMan;
 		Pxf::Kernel* m_Kernel;
+		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
 
 		int m_net_tag;	
 		int m_log_tag;

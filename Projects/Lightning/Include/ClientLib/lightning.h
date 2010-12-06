@@ -32,6 +32,20 @@ enum MessageType {
 	C_TASKS
 };
 
+enum BatchType {
+	RAYTRACER
+};
+
+struct Batch
+{
+	char *hash;
+	BatchType type;
+	char *data;
+	int data_size;
+	char *return_address;
+	int return_port;
+};
+
 struct LiPacket : Packet
 {
 	LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type);

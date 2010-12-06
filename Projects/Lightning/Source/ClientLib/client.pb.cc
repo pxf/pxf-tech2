@@ -43,8 +43,10 @@ void protobuf_AssignDesc_client_2eproto() {
       "client.proto");
   GOOGLE_CHECK(file != NULL);
   Hello_descriptor_ = file->message_type(0);
-  static const int Hello_offsets_[1] = {
+  static const int Hello_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Hello, address_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Hello, port_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Hello, session_id_),
   };
   Hello_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -190,16 +192,16 @@ void protobuf_AddDesc_client_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\014client.proto\022\006client\"\030\n\005Hello\022\017\n\007addre"
-    "ss\030\001 \002(\t\"3\n\016AllocateClient\022\016\n\006amount\030\001 \002"
-    "(\005\022\021\n\tbatchhash\030\002 \002(\t\"8\n\020AllocateRespons"
-    "e\022\017\n\007hasdata\030\001 \002(\010\022\023\n\013isavailable\030\002 \002(\010\""
-    "b\n\004Data\022\021\n\tbatchhash\030\001 \002(\t\022\020\n\010datasize\030\002"
-    " \002(\005\022\020\n\010datatype\030\003 \002(\005\022\014\n\004data\030\004 \002(\t\022\025\n\r"
-    "returnaddress\030\005 \002(\t\"d\n\005Tasks\022\021\n\tbatchhas"
-    "h\030\001 \002(\t\022 \n\004task\030\002 \003(\0132\022.client.Tasks.Tas"
-    "k\032&\n\004Task\022\020\n\010tasksize\030\001 \002(\005\022\014\n\004task\030\002 \002("
-    "\t", 361);
+    "\n\014client.proto\022\006client\":\n\005Hello\022\017\n\007addre"
+    "ss\030\001 \002(\t\022\014\n\004port\030\002 \002(\005\022\022\n\nsession_id\030\003 \002"
+    "(\005\"3\n\016AllocateClient\022\016\n\006amount\030\001 \002(\005\022\021\n\t"
+    "batchhash\030\002 \002(\t\"8\n\020AllocateResponse\022\017\n\007h"
+    "asdata\030\001 \002(\010\022\023\n\013isavailable\030\002 \002(\010\"b\n\004Dat"
+    "a\022\021\n\tbatchhash\030\001 \002(\t\022\020\n\010datasize\030\002 \002(\005\022\020"
+    "\n\010datatype\030\003 \002(\005\022\014\n\004data\030\004 \002(\t\022\025\n\rreturn"
+    "address\030\005 \002(\t\"d\n\005Tasks\022\021\n\tbatchhash\030\001 \002("
+    "\t\022 \n\004task\030\002 \003(\0132\022.client.Tasks.Task\032&\n\004T"
+    "ask\022\020\n\010tasksize\030\001 \002(\005\022\014\n\004task\030\002 \002(\t", 395);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "client.proto", &protobuf_RegisterTypes);
   Hello::default_instance_ = new Hello();
@@ -230,6 +232,8 @@ struct StaticDescriptorInitializer_client_2eproto {
 const ::std::string Hello::_default_address_;
 #ifndef _MSC_VER
 const int Hello::kAddressFieldNumber;
+const int Hello::kPortFieldNumber;
+const int Hello::kSessionIdFieldNumber;
 #endif  // !_MSC_VER
 
 Hello::Hello()
@@ -249,6 +253,8 @@ Hello::Hello(const Hello& from)
 void Hello::SharedCtor() {
   _cached_size_ = 0;
   address_ = const_cast< ::std::string*>(&_default_address_);
+  port_ = 0;
+  session_id_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -291,6 +297,8 @@ void Hello::Clear() {
         address_->clear();
       }
     }
+    port_ = 0;
+    session_id_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -311,6 +319,38 @@ bool Hello::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8String(
             this->address().data(), this->address().length(),
             ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_port;
+        break;
+      }
+      
+      // required int32 port = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_port:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &port_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(24)) goto parse_session_id;
+        break;
+      }
+      
+      // required int32 session_id = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_session_id:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(2);
         } else {
           goto handle_uninterpreted;
         }
@@ -345,6 +385,16 @@ void Hello::SerializeWithCachedSizes(
       1, this->address(), output);
   }
   
+  // required int32 port = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->port(), output);
+  }
+  
+  // required int32 session_id = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->session_id(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -363,6 +413,16 @@ void Hello::SerializeWithCachedSizes(
         1, this->address(), target);
   }
   
+  // required int32 port = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->port(), target);
+  }
+  
+  // required int32 session_id = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->session_id(), target);
+  }
+  
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -379,6 +439,20 @@ int Hello::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->address());
+    }
+    
+    // required int32 port = 2;
+    if (has_port()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->port());
+    }
+    
+    // required int32 session_id = 3;
+    if (has_session_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->session_id());
     }
     
   }
@@ -411,6 +485,12 @@ void Hello::MergeFrom(const Hello& from) {
     if (from._has_bit(0)) {
       set_address(from.address());
     }
+    if (from._has_bit(1)) {
+      set_port(from.port());
+    }
+    if (from._has_bit(2)) {
+      set_session_id(from.session_id());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -428,7 +508,7 @@ void Hello::CopyFrom(const Hello& from) {
 }
 
 bool Hello::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
   
   return true;
 }
@@ -436,6 +516,8 @@ bool Hello::IsInitialized() const {
 void Hello::Swap(Hello* other) {
   if (other != this) {
     std::swap(address_, other->address_);
+    std::swap(port_, other->port_);
+    std::swap(session_id_, other->session_id_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

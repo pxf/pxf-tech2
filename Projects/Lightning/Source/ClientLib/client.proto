@@ -2,6 +2,8 @@ package client;
 
 message Hello {
 	required string address = 1;
+	required int32 port = 2;
+	required int32 session_id = 3;
 }
 
 message AllocateClient {
