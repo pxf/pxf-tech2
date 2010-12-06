@@ -141,6 +141,8 @@ int Client::run()
 			p++;
 		}
 	}
+
+	return 0;
 }
 
 
@@ -168,7 +170,11 @@ bool Client::connect_tracker()
 	bound_c->type = TRACKER;
 
 	Connection *c = m_ConnMan.new_connection(TRACKER);
-	m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port);
+	if (!m_ConnMan.connect_connection(c, m_tracker_address, m_tracker_port))
+	{
+		m_Kernel->Log(m_net_tag, "Could not connect to tracker.");
+		return false;
+	}
 
 	int type = INIT_HELLO;
 	m_ConnMan.send(c, (char*)&type, 4);
@@ -185,7 +191,7 @@ bool Client::connect_tracker()
 	
 	m_session_id = hello_client->session_id();
 
-	delete packets->front();
+//	delete packets->front();
 	packets->clear();
 	
 	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d, using socket %d", m_session_id, c->socket);

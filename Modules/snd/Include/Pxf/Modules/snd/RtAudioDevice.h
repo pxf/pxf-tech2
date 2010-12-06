@@ -47,6 +47,7 @@ namespace Pxf
 
 			bool m_Active;
 			bool m_Initialized;
+			bool m_Closed;
 
 			void CloseStream();
 
@@ -71,6 +72,7 @@ namespace Pxf
 		virtual void DumpInfo();
 
 		void _ShowMixerWarning(const char* _Msg);
+		bool _IsClosed() {return m_Closed;}
 
 		Util::Array<Resource::Sound*>* GetSoundBank()
 		{

@@ -26,6 +26,7 @@ namespace Pxf
 
 			void Load(const char* _filepath);
 			void LoadData(const unsigned char* _datachunk, int _width, int _height, int _channels);
+			void UpdateData(const unsigned char* _datachunk, int _offsetx, int _offsety, int _width, int _height);
 			void Unload();
 			void Reload();
 

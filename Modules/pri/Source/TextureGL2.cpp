@@ -97,9 +97,10 @@ void TextureGL2::LoadData(const unsigned char* _datachunk, int _width, int _heig
 			fmt = GL_RGB;
 
 		glGenTextures(1, &m_TextureID);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
+		Texture* old = m_pDevice->BindTexture(this);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, fmt, GL_UNSIGNED_BYTE, NULL);
 		glGenerateMipmapEXT(GL_TEXTURE_2D);
+		m_pDevice->BindTexture(old);
 	}
 	else
 	{	
@@ -118,6 +119,25 @@ void TextureGL2::LoadData(const unsigned char* _datachunk, int _width, int _heig
 		return;
 	}
 	PXFGLCHECK("TextureGL2::LoadData/End");
+}
+
+void TextureGL2::UpdateData(const unsigned char* _datachunk, int _offsetx, int _offsety, int _width, int _height)
+{
+	PXFGLCHECK("TextureGL2::UpdateData/Start");
+	if (!_datachunk)
+	{
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_CRITICAL, "Invalid dataptr in UpdateData");
+		return;
+	}
+
+	GLenum fmt = GL_RGBA;
+	if (m_Channels == 3)
+		fmt = GL_RGB;
+
+	Texture* old = m_pDevice->BindTexture(this);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, _offsetx, _offsety, _width, _height, fmt, GL_UNSIGNED_BYTE, _datachunk);
+	m_pDevice->BindTexture(old);
+	PXFGLCHECK("TextureGL2::UpdateData/Start");
 }
 
 void TextureGL2::Unload()
@@ -197,8 +217,9 @@ void TextureGL2::SetMagFilter(TextureFilter _Filter)
 	else
 		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_WARNING, "invalid mag filter, using 'nearest'");
 	
-	glBindTexture(GL_TEXTURE_2D, m_TextureID);
+	Texture* old = m_pDevice->BindTexture(this);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param);
+	m_pDevice->BindTexture(old);
 	PXFGLCHECK("TextureGL2::SetMagFilter/End");
 }
 
@@ -216,8 +237,9 @@ void TextureGL2::SetMinFilter(TextureFilter _Filter)
 	else if (_Filter == TEX_FILTER_NEAREST_MIPMAP_NEAREST)  param = GL_NEAREST_MIPMAP_NEAREST;
 	else	m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_WARNING, "invalid mag filter, using GL_NEAREST");
 
-	glBindTexture(GL_TEXTURE_2D, m_TextureID);
+	Texture* old = m_pDevice->BindTexture(this);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, param);
+	m_pDevice->BindTexture(old);
 	PXFGLCHECK("TextureGL2::SetMinFilter/End");
 }
 
@@ -233,8 +255,10 @@ void TextureGL2::SetClampMethod(TextureClampMethod _Method)
 	default:
 		PXF_ASSERT(false, "No such clamp method");
 	}
+	Texture* old = m_pDevice->BindTexture(this);
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m);
+	m_pDevice->BindTexture(old);
 	PXFGLCHECK("TextureGL2::SetClampMethod/Start");
 }

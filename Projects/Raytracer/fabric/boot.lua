@@ -23,6 +23,7 @@ print("Render mode: " .. tostring(app._getrenderoption()))
 
 -- store window dimensions for later use
 app.width, app.height = app.getwindimensions()
+__guihit = false
 
 function split(str, pat)
    local t = {}  -- NOTE: use {n = 0} in Lua-5.0
@@ -224,6 +225,7 @@ end
 
 -- basic callfunctions
 function _update()
+  __guihit = false
   if (not error_stop) then
     if (app.rendermode == app.REDRAWMODE_FULL) then
       gfx.redrawneeded()

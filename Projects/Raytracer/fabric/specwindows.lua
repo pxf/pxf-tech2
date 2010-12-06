@@ -105,5 +105,17 @@ function spawn_toolwindow()
     --print(done, total, done / total, time)
   end
   
+  -- add settings saving for minimize button
+
+  
+  if (settings.data.toolbarstate == "compact") then
+    tool_window:toggle_state()
+  end
+  tool_window.s_toggle_state = tool_window.toggle_state
+  function tool_window:toggle_state()
+    tool_window:s_toggle_state()
+    settings.data.toolbarstate = tool_window.state
+    settings:save()
+  end
   gui.windows:add(tool_window)
 end

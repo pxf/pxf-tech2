@@ -35,6 +35,7 @@ DeviceGL2::DeviceGL2(Pxf::Kernel* _Kernel)
 	, m_CurrentFrameBufferObject(0)
 	, m_CurrentShader(0)
 	, m_PrimitiveBatch(0)
+	, m_Window(0)
 	, m_LogTag(0)
 {
 	m_LogTag = _Kernel->CreateTag("gfx");
@@ -68,6 +69,11 @@ Window* DeviceGL2::OpenWindow(WindowSpecifications* _pWindowSpecs)
 {
 	m_Window = new WindowGL2(this, _pWindowSpecs);
 	m_Window->Open();
+	return m_Window;
+}
+
+Window* DeviceGL2::GetWindow()
+{
 	return m_Window;
 }
 

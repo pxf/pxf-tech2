@@ -318,6 +318,31 @@ function gui:create_root()
     
   end
   
+  function rootwid:find_mousehit(mx,my)
+    if (self:hittest(mx,my,mx,my)) then
+      local thit = nil
+      for k,v in pairs(self.childwidgets) do
+        if v then
+          local htest = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+          if htest then
+            thit = htest
+          end
+        end
+        
+        
+      end
+      
+      if not (thit == nil) then
+        -- we hit a child widget, return this one instead
+        return thit
+      end
+      
+      return nil -- always return nil for root object, since the root does not have any "input" (ie. click through it)
+    end
+    
+    return nil
+  end
+  
   return rootwid
 end
 
@@ -659,7 +684,9 @@ function gui:update()
       -- active widget is now the focus widget
       self:set_focus(self.activewidget)
       
-      if (self.activewidget.mousepush) then
+      __guihit = true
+      
+      if (self.activewidget and self.activewidget.mousepush) then
         self.activewidget:mousepush(mx,my,self.buttonid)
       end
       
@@ -667,7 +694,7 @@ function gui:update()
     else
       -- we might have a drag operation on our hands!
       
-      if (self.activewidget.mousedrag) then
+      if (self.activewidget and self.activewidget.mousedrag) then
         self.activewidget:mousedrag(mx-self.mouse.lastpos.x, my-self.mouse.lastpos.y,self.buttonid)
       end
     end
@@ -700,6 +727,10 @@ function gui:update()
   -- update tooltip
   if (self.tooltip.timeout > 0) then
     self.tooltip.timeout = self.tooltip.timeout - 1
+  end
+  
+  if (self.activewidget) then
+    __guihit = true
   end
   
   --[[if (inp.isbuttondown(inp.MOUSE_LEFT)) then
