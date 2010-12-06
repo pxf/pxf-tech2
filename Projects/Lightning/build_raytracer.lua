@@ -15,5 +15,8 @@ project:RequireModule("img")
 project:RequireModule("mesh")
 
 project:AddIncludeDirectory("Include/Raytracer/")
+project:AddIncludeDirectory("Include/ClientLib/")
 project:AddSourceDirectory("Source/Raytracer/*.cpp")
+project:AddSourceDirectory("Source/ClientLib/*.cpp")
+project:AddSourceDirectory("Source/ClientLib/*.cc")
 project:Build()
