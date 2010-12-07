@@ -14,8 +14,6 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_local_port = _local_port;
 	m_client_port = _client_port;
 
-	m_TaskQueue.reserve(INITIAL_QUEUE); 
-
 	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_log_tag = m_Kernel->CreateTag("cli");
@@ -41,7 +39,6 @@ int Client::run()
 		m_Kernel->Log(m_net_tag, "Could not bind to %s:%d", m_local_address, m_client_port);
 		return false;
 	}
-	printf("bound client socket has sockid:%d\n", client_c->socket);
 
 	m_Kernel->Log(m_log_tag, "Connecting to tracker at %s.", m_tracker_address);
 	
@@ -305,7 +302,8 @@ bool Client::connect_tracker()
 	hello_tracker->set_address(m_local_address);
 	hello_tracker->set_port(m_local_port);
 	hello_tracker->set_client_port(m_client_port);
-	hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
+	// TODO: Fix:
+	//hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
 
 	LiPacket *pkg = new LiPacket(c, hello_tracker, T_HELLO_TRACKER);
 
