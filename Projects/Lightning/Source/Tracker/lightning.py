@@ -1,6 +1,6 @@
 import struct, tracker_pb2, lightning_pb2
 
-tracker_address = "95.80.1.56"
+tracker_address = "127.0.0.1"
 tracker_port = 50000
 
 # Common enumerators

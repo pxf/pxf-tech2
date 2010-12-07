@@ -1,3 +1,6 @@
+#ifndef _CLIENT_H_
+#define _CLIENT_H_
+
 #include <Pxf/Util/Array.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Base/String.h>
@@ -6,10 +9,7 @@
 
 #include "connectionmanager.h"
 #include "lightning.h"
-//#include "BlockingTaskQueue.h"
-
-#ifndef _CLIENT_H_
-#define _CLIENT_H_
+#include "BlockingTaskQueue.h"
 
 class Client
 {
@@ -35,7 +35,7 @@ class Client
 		ConnectionManager m_ConnMan;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
-		//BlockingTaskQueue<void*> m_TaskQueue;
+		//BlockingTaskQueue<Packet> m_TaskQueue;
 
 		int m_queue_free;
 		int m_net_tag;	

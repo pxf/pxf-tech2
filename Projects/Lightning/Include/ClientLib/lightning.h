@@ -1,12 +1,12 @@
+#ifndef _LIGHTNING_H_
+#define _LIGHTNING_H_
+
 #include <time.h>
 
 #include "connectionmanager.h"
 #include "lightning.pb.h"
 #include "client.pb.h"
 #include "tracker.pb.h"
-
-#ifndef _LIGHTNING_H_
-#define _LIGHTNING_H_
 
 enum MessageType {
 	// Common between all instances
