@@ -96,7 +96,7 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 	char port[7];
 	
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
+	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
@@ -189,7 +189,7 @@ bool ConnectionManager::connect_connection(Connection *_connection, char *_addre
 	char port[7];
 
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
+	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
 	sprintf(port, "%d", _port);
@@ -284,8 +284,15 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 			{
 				int new_connection_fd;
 				struct sockaddr remoteaddr;
-				socklen_t addrlen = sizeof(&remoteaddr);
+				socklen_t addrlen = sizeof(remoteaddr);
 				new_connection_fd = accept(i, &remoteaddr, &addrlen);
+
+#if defined(CONF_FAMILY_WINDOWS)
+				if (new_connection_fd == INVALID_SOCKET)
+				{
+					printf("invalid socket: %d\n.", WSAGetLastError());
+				}
+#endif
 
 				m_Kernel->Log(m_log_tag, "Incoming connection from ?, new socket:%d", new_connection_fd); // TODO: Print address
 
