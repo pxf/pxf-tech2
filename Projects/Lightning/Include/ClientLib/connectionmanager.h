@@ -34,7 +34,7 @@
 
 
 enum ConnectionType {
-	CLIENT, TRACKER, INTERNAL
+	CLIENT, TRACKER, INTERNAL, ORIGIN
 };
 
 struct Connection {
