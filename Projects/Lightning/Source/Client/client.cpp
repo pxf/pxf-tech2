@@ -144,6 +144,8 @@ int Client::run()
 			
 						LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
 
+						m_Kernel->Log(m_log_tag, "Allocation request from %d.", (*p)->connection->session_id);
+
 						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
 
 						delete alloc_resp;
@@ -175,6 +177,8 @@ int Client::run()
 							data->data().c_str(),
 							b->data_size
 						);
+
+						b->timestamp = time(NULL);
 						
 						Pxf::Util::String str_address = data->returnaddress();
 						b->return_address = (char*)Pxf::MemoryAllocate(str_address.length() + 1);
@@ -185,6 +189,20 @@ int Client::run()
 
 						// Add batch to hashmap
 						m_Batches[hash] = b;
+
+						m_Kernel->Log(m_log_tag, "DATA from %d of type %d.", (*p)->connection->session_id, b->type);
+
+						delete data;
+
+						p = packets->erase(p);
+						continue;
+					}
+					case C_TASKS:
+					{
+						client::Tasks *tasks = (client::Tasks*)((*p)->unpack());
+
+						// TODO: Check that the batch exists.
+						// MASSIVE CODE GOES HERE
 
 						p = packets->erase(p);
 						continue;

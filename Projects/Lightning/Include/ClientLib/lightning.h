@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "connectionmanager.h"
 #include "lightning.pb.h"
 #include "client.pb.h"
@@ -42,6 +44,7 @@ struct Batch
 	BatchType type;
 	char *data;
 	int data_size;
+	time_t timestamp;
 	char *return_address; // Null terminated
 	int return_port;
 };
