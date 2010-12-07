@@ -67,8 +67,8 @@ class Tracker():
         response = tracker_pb2.HelloToClient()
         response.session_id = new_session_id
         self.set_session_id(None, new_session_id)
-        return lightning.HELLO_TO_CLIENT, response
-    _tr_table[lightning.INIT_HELLO] = e_init_hello
+        return lightning.T_HELLO_CLIENT, response
+    _tr_table[lightning.T_INIT] = e_init_hello
 
     def e_hello_to_tracker(self, message):
         # Delete the old connection.
@@ -95,7 +95,7 @@ class Tracker():
         self._db.add_client(message.session_id
             , message.address + ":" + str(message.port), message.available)
         return None
-    _tr_table[lightning.HELLO_TO_TRACKER] = e_hello_to_tracker
+    _tr_table[lightning.T_HELLO_TRACKER] = e_hello_to_tracker
 
     def e_goodbye(self, message):
         self._db.del_client(message.session_id)
@@ -118,7 +118,7 @@ class Tracker():
             node.address = client[0]
             node.port = 0
         return response
-    _tr_table[lightning.NODES_REQUEST] = e_nodesrequest
+    _tr_table[lightning.T_NODES_REQUEST] = e_nodesrequest
 
     # Events end.
     # --------------------------------------------------------------
