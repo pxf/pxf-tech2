@@ -38,12 +38,11 @@ enum BatchType {
 
 struct Batch
 {
-	char *hash;
-	int hashsize;
+	char *hash;		// Null terminated
 	BatchType type;
 	char *data;
 	int data_size;
-	char *return_address;
+	char *return_address; // Null terminated
 	int return_port;
 };
 

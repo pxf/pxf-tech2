@@ -446,6 +446,13 @@ class Data : public ::google::protobuf::Message {
   inline void set_returnaddress(const char* value, size_t size);
   inline ::std::string* mutable_returnaddress();
   
+  // required int32 returnport = 6;
+  inline bool has_returnport() const;
+  inline void clear_returnport();
+  static const int kReturnportFieldNumber = 6;
+  inline ::google::protobuf::int32 returnport() const;
+  inline void set_returnport(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:client.Data)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -459,11 +466,12 @@ class Data : public ::google::protobuf::Message {
   static const ::std::string _default_data_;
   ::std::string* returnaddress_;
   static const ::std::string _default_returnaddress_;
+  ::google::protobuf::int32 returnport_;
   friend void  protobuf_AddDesc_client_2eproto();
   friend void protobuf_AssignDesc_client_2eproto();
   friend void protobuf_ShutdownFile_client_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1027,6 +1035,22 @@ inline ::std::string* Data::mutable_returnaddress() {
     returnaddress_ = new ::std::string;
   }
   return returnaddress_;
+}
+
+// required int32 returnport = 6;
+inline bool Data::has_returnport() const {
+  return _has_bit(5);
+}
+inline void Data::clear_returnport() {
+  returnport_ = 0;
+  _clear_bit(5);
+}
+inline ::google::protobuf::int32 Data::returnport() const {
+  return returnport_;
+}
+inline void Data::set_returnport(::google::protobuf::int32 value) {
+  _set_bit(5);
+  returnport_ = value;
 }
 
 // -------------------------------------------------------------------

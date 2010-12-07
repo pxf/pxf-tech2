@@ -95,7 +95,7 @@ int Client::run()
 		while (p != packets->end())
 		{
 			(*p)->get_type();
-			if ((*p)->connection->type == CLIENT)
+			if ((*p)->connection->type == CLIENT) // TODO: Reduntant, skip this shit?
 			{
 				m_Kernel->Log(m_log_tag, "Packet from a client");
 				
@@ -121,6 +121,9 @@ int Client::run()
 					{
 						// TODO: Do more stuff
 						client::Hello *hello = (client::Hello*)((*p)->unpack());
+						(*p)->connection->session_id = hello->session_id();
+						(*p)->connection->type = CLIENT;
+
 						m_Kernel->Log(m_log_tag, "Hello from %s:%d, session id:%d",
 									  hello->address().c_str(),
 									  hello->port(),
@@ -139,12 +142,6 @@ int Client::run()
 						alloc_resp->set_isavailable(m_queue_free > 0);
 						alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
 			
-						/*Batch *b;
-						b->hashsize = hash.length();
-						b->hash = (char*)Pxf::MemoryAllocate(b->hashsize);
-						hash.copy(b->hash, hash.length());
-						m_Batches[hash] = b;*/
-							
 						LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
 
 						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
@@ -157,7 +154,37 @@ int Client::run()
 					}
 					case C_DATA:
 					{
+						client::Data *data = (client::Data*)((*p)->unpack());
 
+						Pxf::Util::String hash = data->batchhash();
+
+						// TODO: Check that client has allocated the resource and that stuff doesn't exist yet
+
+						Batch *b;
+						
+						b->hash = (char*)Pxf::MemoryAllocate(hash.length() + 1);
+						hash.copy(b->hash, hash.length());
+						b->hash[hash.length()] = '\0';
+
+						b->type = (BatchType)data->datatype();
+
+						b->data_size = data->datasize();
+						b->data = (char*)Pxf::MemoryAllocate(b->data_size);
+						Pxf::MemoryCopy(
+							b->data,
+							data->data().c_str(),
+							b->data_size
+						);
+						
+						Pxf::Util::String str_address = data->returnaddress();
+						b->return_address = (char*)Pxf::MemoryAllocate(str_address.length() + 1);
+						str_address.copy(b->return_address, str_address.length());
+						b->return_address[str_address.length()] = '\0';
+
+						b->return_port = data->returnport();
+
+						// Add batch to hashmap
+						m_Batches[hash] = b;
 
 						p = packets->erase(p);
 						continue;
