@@ -35,7 +35,7 @@ class Client
 		ConnectionManager m_ConnMan;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
-		//BlockingTaskQueue<Packet> m_TaskQueue;
+		BlockingTaskQueue<void*> m_TaskQueue;
 
 		int m_queue_free;
 		int m_net_tag;	

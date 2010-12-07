@@ -8,6 +8,8 @@
 #include <zthread/Condition.h>
 #include <zthread/FastMutex.h>
 
+#include <Pxf/Base/Debug.h>
+
 template <typename T>
 class BlockingTaskQueue
 {
@@ -45,6 +47,12 @@ public:
 		: m_Canceled(false)
 	{
 	
+	}
+
+	BlockingTaskQueue(const T& crap)
+	{
+		// blah blah blah
+		PXF_ASSERT(0, "Not implemented.");
 	}
 
 	~BlockingTaskQueue()
