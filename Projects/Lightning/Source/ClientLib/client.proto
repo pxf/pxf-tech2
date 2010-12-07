@@ -22,6 +22,7 @@ message Data {
 	required int32 datatype = 3;
 	required string data = 4;
 	required string returnaddress = 5;
+	required int32 returnport = 6;
 }
 
 message Tasks {

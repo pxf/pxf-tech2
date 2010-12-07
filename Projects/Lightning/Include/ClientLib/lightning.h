@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "connectionmanager.h"
 #include "lightning.pb.h"
 #include "client.pb.h"
@@ -38,11 +40,12 @@ enum BatchType {
 
 struct Batch
 {
-	char *hash;
+	char *hash;		// Null terminated
 	BatchType type;
 	char *data;
 	int data_size;
-	char *return_address;
+	time_t timestamp;
+	char *return_address; // Null terminated
 	int return_port;
 };
 

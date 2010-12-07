@@ -92,12 +92,13 @@ void protobuf_AssignDesc_client_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AllocateResponse));
   Data_descriptor_ = file->message_type(3);
-  static const int Data_offsets_[5] = {
+  static const int Data_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Data, batchhash_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Data, datasize_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Data, datatype_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Data, data_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Data, returnaddress_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Data, returnport_),
   };
   Data_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -196,12 +197,13 @@ void protobuf_AddDesc_client_2eproto() {
     "ss\030\001 \002(\t\022\014\n\004port\030\002 \002(\005\022\022\n\nsession_id\030\003 \002"
     "(\005\"3\n\016AllocateClient\022\016\n\006amount\030\001 \002(\005\022\021\n\t"
     "batchhash\030\002 \002(\t\"8\n\020AllocateResponse\022\017\n\007h"
-    "asdata\030\001 \002(\010\022\023\n\013isavailable\030\002 \002(\010\"b\n\004Dat"
+    "asdata\030\001 \002(\010\022\023\n\013isavailable\030\002 \002(\010\"v\n\004Dat"
     "a\022\021\n\tbatchhash\030\001 \002(\t\022\020\n\010datasize\030\002 \002(\005\022\020"
     "\n\010datatype\030\003 \002(\005\022\014\n\004data\030\004 \002(\t\022\025\n\rreturn"
-    "address\030\005 \002(\t\"d\n\005Tasks\022\021\n\tbatchhash\030\001 \002("
-    "\t\022 \n\004task\030\002 \003(\0132\022.client.Tasks.Task\032&\n\004T"
-    "ask\022\020\n\010tasksize\030\001 \002(\005\022\014\n\004task\030\002 \002(\t", 395);
+    "address\030\005 \002(\t\022\022\n\nreturnport\030\006 \002(\005\"d\n\005Tas"
+    "ks\022\021\n\tbatchhash\030\001 \002(\t\022 \n\004task\030\002 \003(\0132\022.cl"
+    "ient.Tasks.Task\032&\n\004Task\022\020\n\010tasksize\030\001 \002("
+    "\005\022\014\n\004task\030\002 \002(\t", 415);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "client.proto", &protobuf_RegisterTypes);
   Hello::default_instance_ = new Hello();
@@ -1054,6 +1056,7 @@ const int Data::kDatasizeFieldNumber;
 const int Data::kDatatypeFieldNumber;
 const int Data::kDataFieldNumber;
 const int Data::kReturnaddressFieldNumber;
+const int Data::kReturnportFieldNumber;
 #endif  // !_MSC_VER
 
 Data::Data()
@@ -1077,6 +1080,7 @@ void Data::SharedCtor() {
   datatype_ = 0;
   data_ = const_cast< ::std::string*>(&_default_data_);
   returnaddress_ = const_cast< ::std::string*>(&_default_returnaddress_);
+  returnport_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1137,6 +1141,7 @@ void Data::Clear() {
         returnaddress_->clear();
       }
     }
+    returnport_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1226,6 +1231,22 @@ bool Data::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(48)) goto parse_returnport;
+        break;
+      }
+      
+      // required int32 returnport = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_returnport:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &returnport_)));
+          _set_bit(5);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1285,6 +1306,11 @@ void Data::SerializeWithCachedSizes(
       5, this->returnaddress(), output);
   }
   
+  // required int32 returnport = 6;
+  if (_has_bit(5)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->returnport(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1333,6 +1359,11 @@ void Data::SerializeWithCachedSizes(
         5, this->returnaddress(), target);
   }
   
+  // required int32 returnport = 6;
+  if (_has_bit(5)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->returnport(), target);
+  }
+  
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1379,6 +1410,13 @@ int Data::ByteSize() const {
           this->returnaddress());
     }
     
+    // required int32 returnport = 6;
+    if (has_returnport()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->returnport());
+    }
+    
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -1421,6 +1459,9 @@ void Data::MergeFrom(const Data& from) {
     if (from._has_bit(4)) {
       set_returnaddress(from.returnaddress());
     }
+    if (from._has_bit(5)) {
+      set_returnport(from.returnport());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1438,7 +1479,7 @@ void Data::CopyFrom(const Data& from) {
 }
 
 bool Data::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000001f) != 0x0000001f) return false;
+  if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
   
   return true;
 }
@@ -1450,6 +1491,7 @@ void Data::Swap(Data* other) {
     std::swap(datatype_, other->datatype_);
     std::swap(data_, other->data_);
     std::swap(returnaddress_, other->returnaddress_);
+    std::swap(returnport_, other->returnport_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

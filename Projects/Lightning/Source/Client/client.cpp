@@ -14,8 +14,6 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_local_port = _local_port;
 	m_client_port = _client_port;
 
-	m_TaskQueue.reserve(INITIAL_QUEUE); 
-
 	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_log_tag = m_Kernel->CreateTag("cli");
@@ -41,7 +39,6 @@ int Client::run()
 		m_Kernel->Log(m_net_tag, "Could not bind to %s:%d", m_local_address, m_client_port);
 		return false;
 	}
-	printf("bound client socket has sockid:%d\n", client_c->socket);
 
 	m_Kernel->Log(m_log_tag, "Connecting to tracker at %s.", m_tracker_address);
 	
@@ -95,7 +92,7 @@ int Client::run()
 		while (p != packets->end())
 		{
 			(*p)->get_type();
-			if ((*p)->connection->type == CLIENT)
+			if ((*p)->connection->type == CLIENT) // TODO: Reduntant, skip this shit?
 			{
 				m_Kernel->Log(m_log_tag, "Packet from a client");
 				
@@ -112,6 +109,8 @@ int Client::run()
 						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
 
 						delete pkg;
+						delete pong;
+
 						p = packets->erase(p);
 						continue;
 					}
@@ -119,29 +118,89 @@ int Client::run()
 					{
 						// TODO: Do more stuff
 						client::Hello *hello = (client::Hello*)((*p)->unpack());
+						(*p)->connection->session_id = hello->session_id();
+						(*p)->connection->type = CLIENT;
+
 						m_Kernel->Log(m_log_tag, "Hello from %s:%d, session id:%d",
 									  hello->address().c_str(),
 									  hello->port(),
 									  hello->session_id());
+
 						p = packets->erase(p);
 						continue;
 					}
 					case C_ALLOCATE:
 					{
-						// TODO: Do more stuff!
+						// TODO: Depending on what is said to the client, put client in allocated list, or something
 						client::AllocateClient *alloc = (client::AllocateClient*)((*p)->unpack());
-						Pxf::Util::String str = alloc->batchhash();
-						if (m_Batches.count(str) == 0)
-						{
-							Batch *b;
-							//b->
-							//m_Batches.insert(std::make_pair(alloc->batchhash(), b));
-							m_Batches[str] = b;
-							int ok = OK;
-							m_ConnMan.send((*p)->connection, (char*)&ok, sizeof(ok));
-						}
-						
+						Pxf::Util::String hash = alloc->batchhash();
+
+						client::AllocateResponse *alloc_resp = new client::AllocateResponse();
+						alloc_resp->set_isavailable(m_queue_free > 0);
+						alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
+			
+						LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
+
+						m_Kernel->Log(m_log_tag, "Allocation request from %d.", (*p)->connection->session_id);
+
+						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
+
+						delete alloc_resp;
+						delete pkg;
 					
+						p = packets->erase(p);
+						continue;
+					}
+					case C_DATA:
+					{
+						client::Data *data = (client::Data*)((*p)->unpack());
+
+						Pxf::Util::String hash = data->batchhash();
+
+						// TODO: Check that client has allocated the resource and that stuff doesn't exist yet
+
+						Batch *b;
+						
+						b->hash = (char*)Pxf::MemoryAllocate(hash.length() + 1);
+						hash.copy(b->hash, hash.length());
+						b->hash[hash.length()] = '\0';
+
+						b->type = (BatchType)data->datatype();
+
+						b->data_size = data->datasize();
+						b->data = (char*)Pxf::MemoryAllocate(b->data_size);
+						Pxf::MemoryCopy(
+							b->data,
+							data->data().c_str(),
+							b->data_size
+						);
+
+						b->timestamp = time(NULL);
+						
+						Pxf::Util::String str_address = data->returnaddress();
+						b->return_address = (char*)Pxf::MemoryAllocate(str_address.length() + 1);
+						str_address.copy(b->return_address, str_address.length());
+						b->return_address[str_address.length()] = '\0';
+
+						b->return_port = data->returnport();
+
+						// Add batch to hashmap
+						m_Batches[hash] = b;
+
+						m_Kernel->Log(m_log_tag, "DATA from %d of type %d.", (*p)->connection->session_id, b->type);
+
+						delete data;
+
+						p = packets->erase(p);
+						continue;
+					}
+					case C_TASKS:
+					{
+						client::Tasks *tasks = (client::Tasks*)((*p)->unpack());
+
+						// TODO: Check that the batch exists.
+						// MASSIVE CODE GOES HERE
+
 						p = packets->erase(p);
 						continue;
 					}
@@ -243,7 +302,8 @@ bool Client::connect_tracker()
 	hello_tracker->set_address(m_local_address);
 	hello_tracker->set_port(m_local_port);
 	hello_tracker->set_client_port(m_client_port);
-	hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
+	// TODO: Fix:
+	//hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
 
 	LiPacket *pkg = new LiPacket(c, hello_tracker, T_HELLO_TRACKER);
 

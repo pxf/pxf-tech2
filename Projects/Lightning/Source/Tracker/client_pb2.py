@@ -10,7 +10,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = descriptor.FileDescriptor(
   name='client.proto',
   package='client',
-  serialized_pb='\n\x0c\x63lient.proto\x12\x06\x63lient\":\n\x05Hello\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x02(\t\x12\x0c\n\x04port\x18\x02 \x02(\x05\x12\x12\n\nsession_id\x18\x03 \x02(\x05\"3\n\x0e\x41llocateClient\x12\x0e\n\x06\x61mount\x18\x01 \x02(\x05\x12\x11\n\tbatchhash\x18\x02 \x02(\t\"8\n\x10\x41llocateResponse\x12\x0f\n\x07hasdata\x18\x01 \x02(\x08\x12\x13\n\x0bisavailable\x18\x02 \x02(\x08\"b\n\x04\x44\x61ta\x12\x11\n\tbatchhash\x18\x01 \x02(\t\x12\x10\n\x08\x64\x61tasize\x18\x02 \x02(\x05\x12\x10\n\x08\x64\x61tatype\x18\x03 \x02(\x05\x12\x0c\n\x04\x64\x61ta\x18\x04 \x02(\t\x12\x15\n\rreturnaddress\x18\x05 \x02(\t\"d\n\x05Tasks\x12\x11\n\tbatchhash\x18\x01 \x02(\t\x12 \n\x04task\x18\x02 \x03(\x0b\x32\x12.client.Tasks.Task\x1a&\n\x04Task\x12\x10\n\x08tasksize\x18\x01 \x02(\x05\x12\x0c\n\x04task\x18\x02 \x02(\t')
+  serialized_pb='\n\x0c\x63lient.proto\x12\x06\x63lient\":\n\x05Hello\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x02(\t\x12\x0c\n\x04port\x18\x02 \x02(\x05\x12\x12\n\nsession_id\x18\x03 \x02(\x05\"3\n\x0e\x41llocateClient\x12\x0e\n\x06\x61mount\x18\x01 \x02(\x05\x12\x11\n\tbatchhash\x18\x02 \x02(\t\"8\n\x10\x41llocateResponse\x12\x0f\n\x07hasdata\x18\x01 \x02(\x08\x12\x13\n\x0bisavailable\x18\x02 \x02(\x08\"v\n\x04\x44\x61ta\x12\x11\n\tbatchhash\x18\x01 \x02(\t\x12\x10\n\x08\x64\x61tasize\x18\x02 \x02(\x05\x12\x10\n\x08\x64\x61tatype\x18\x03 \x02(\x05\x12\x0c\n\x04\x64\x61ta\x18\x04 \x02(\t\x12\x15\n\rreturnaddress\x18\x05 \x02(\t\x12\x12\n\nreturnport\x18\x06 \x02(\x05\"d\n\x05Tasks\x12\x11\n\tbatchhash\x18\x01 \x02(\t\x12 \n\x04task\x18\x02 \x03(\x0b\x32\x12.client.Tasks.Task\x1a&\n\x04Task\x12\x10\n\x08tasksize\x18\x01 \x02(\x05\x12\x0c\n\x04task\x18\x02 \x02(\t')
 
 
 
@@ -169,6 +169,13 @@ _DATA = descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    descriptor.FieldDescriptor(
+      name='returnport', full_name='client.Data.returnport', index=5,
+      number=6, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -179,7 +186,7 @@ _DATA = descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=195,
-  serialized_end=293,
+  serialized_end=313,
 )
 
 
@@ -213,8 +220,8 @@ _TASKS_TASK = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=357,
-  serialized_end=395,
+  serialized_start=377,
+  serialized_end=415,
 )
 
 _TASKS = descriptor.Descriptor(
@@ -247,8 +254,8 @@ _TASKS = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=295,
-  serialized_end=395,
+  serialized_start=315,
+  serialized_end=415,
 )
 
 
