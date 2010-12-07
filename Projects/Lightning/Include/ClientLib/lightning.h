@@ -39,6 +39,7 @@ enum BatchType {
 struct Batch
 {
 	char *hash;
+	int hashsize;
 	BatchType type;
 	char *data;
 	int data_size;

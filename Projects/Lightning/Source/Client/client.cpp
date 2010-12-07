@@ -112,6 +112,8 @@ int Client::run()
 						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
 
 						delete pkg;
+						delete pong;
+
 						p = packets->erase(p);
 						continue;
 					}
@@ -123,25 +125,40 @@ int Client::run()
 									  hello->address().c_str(),
 									  hello->port(),
 									  hello->session_id());
+
 						p = packets->erase(p);
 						continue;
 					}
 					case C_ALLOCATE:
 					{
-						// TODO: Do more stuff!
+						// TODO: Depending on what is said to the client, put client in allocated list, or something
 						client::AllocateClient *alloc = (client::AllocateClient*)((*p)->unpack());
-						Pxf::Util::String str = alloc->batchhash();
-						if (m_Batches.count(str) == 0)
-						{
-							Batch *b;
-							//b->
-							//m_Batches.insert(std::make_pair(alloc->batchhash(), b));
-							m_Batches[str] = b;
-							int ok = OK;
-							m_ConnMan.send((*p)->connection, (char*)&ok, sizeof(ok));
-						}
-						
+						Pxf::Util::String hash = alloc->batchhash();
+
+						client::AllocateResponse *alloc_resp = new client::AllocateResponse();
+						alloc_resp->set_isavailable(m_queue_free > 0);
+						alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
+			
+						/*Batch *b;
+						b->hashsize = hash.length();
+						b->hash = (char*)Pxf::MemoryAllocate(b->hashsize);
+						hash.copy(b->hash, hash.length());
+						m_Batches[hash] = b;*/
+							
+						LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
+
+						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
+
+						delete alloc_resp;
+						delete pkg;
 					
+						p = packets->erase(p);
+						continue;
+					}
+					case C_DATA:
+					{
+
+
 						p = packets->erase(p);
 						continue;
 					}
