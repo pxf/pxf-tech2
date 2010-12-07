@@ -278,6 +278,10 @@ int main(int argc, char* argv[])
 		if(!exec_rt)
 		{
 			gfx->BindTexture(0,0);
+			
+			if (!guihit)
+				MoveCamera(&cam,inp);
+			
 			gfx->SetProjection(cam.GetProjectionView());
 			gfx->SetModelView(cam.GetModelView());
 
@@ -285,8 +289,6 @@ int main(int argc, char* argv[])
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glColor3f(1.0f,1.0f,1.0f);
 			
-			if (!guihit)
-				MoveCamera(&cam,inp);
 
 			model_box->Draw();
 		}
