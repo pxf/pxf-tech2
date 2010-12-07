@@ -529,7 +529,8 @@ Graphics::Shader* DeviceGL2::CreateShaderFromPath(const char* _Ident, const char
 	Resource::Text* _VSData = res->Acquire<Resource::Text>(_VertexShaderPath);
 	Resource::Text* _FSData = res->Acquire<Resource::Text>(_FragmentShaderPath);
 
-	printf("%s\n --- \n%s\n",_VSData->Ptr(),_FSData->Ptr());
+	if(!_VSData || !_FSData)
+		return 0;
 
 	ShaderGLSL *_Shader = new ShaderGLSL(this,_Ident,_VSData->Ptr(),_FSData->Ptr());
 

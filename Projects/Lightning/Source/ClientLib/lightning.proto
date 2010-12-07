@@ -1,0 +1,14 @@
+package lightning;
+
+message Ping {
+	required int32 ping_data = 1;
+}
+
+message Pong {
+	required int32 ping_data = 1;
+}
+
+message GoodBye {
+	required int32 session_id = 1;
+}
+

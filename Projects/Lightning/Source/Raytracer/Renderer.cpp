@@ -1,5 +1,4 @@
 #include <Pxf/Math/Vector.h>
-#include <Pxf/Math/Quaternion.h>
 
 #include "Renderer.h"
 #include <Pxf/Math/Math.h>
@@ -107,8 +106,6 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, int
 	
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
-		Primitive* p = datablob->primitives[i];
-
 		// test intersection
 		if (datablob->primitives[i]->Intersects(ray, &closest_resp))
 		{
@@ -287,15 +284,13 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	// Clear pixel
 	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
 	
-	SimpleCamera* cam = (SimpleCamera*) datablob->cam;
-
 	// Center ray
-	Vec3f screen_coords(-1.0f + x, 1.0f - y,0.0f);
+	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
 	ray_t cray;
-	cray.o = Vec3f(0.0f,0.0f,1.41421356f);
-	cray.o += cam->GetPos();
+	cray.o = Vec3f(0.0f,0.0f,-1.41421356f);
+	cray.d = screen_coords - cray.o;
+	Normalize(cray.d);
 
-	Quaternion orientation = (*cam->GetOrientation());
 	if (!calc_multisample_ray(&cray, datablob, &fpixel, 0.001f, 0))
 	{
 		Pxf::Message("calculate_pixel", "Ray shooting failed!");
@@ -303,31 +298,8 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	}
 	//calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec3f *res, float spread, int bounce)
 	
-
-	float pitch = orientation.GetPitch();
-	float yaw = orientation.GetYaw();
-
-	//screen_coords.x = screen_coords.x*cos(pitch) - screen_coords.y*sin(pitch);
-	//screen_coords.y = screen_coords.x*sin(pitch) + screen_coords.y*cos(pitch);
-	//screen_coords.z = screen_coords.x*sin(yaw) + screen_coords.z*cos(yaw);
-
-	screen_coords += cam->GetPos();
-
 	/*
-	Quaternion q;
-	q.x = 0.0f;
-	q.y = screen_coords.x;
-	q.z = screen_coords.y;
-	q.w = screen_coords.z;
-
-	Quaternion orientation = (*cam->GetOrientation());
-	Quaternion res = (orientation * q) * Conjugated(orientation);
-
-	screen_coords = Direction(res);
-	screen_coords += cam->GetPos();
-	*/
-
-
+	
 	// find closest primitive
 	for(int pixel_x = 0; pixel_x < datablob->samples_per_pixel; ++pixel_x)
 	{

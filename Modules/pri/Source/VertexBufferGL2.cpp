@@ -80,6 +80,9 @@ VertexBufferGL2::~VertexBufferGL2()
 
 void VertexBufferGL2::_PreDraw()
 {
+	if(m_VertexAttributes.NumComponents == 0)
+		return;
+
 	PXFGLCHECK("VertexBufferGL2::_PreDraw/Start");
 	unsigned int BufferOffset = 0;
 	if (m_VertexBufferLocation == VB_LOCATION_GPU)

@@ -88,8 +88,6 @@ int main(int argc, char* argv[])
 	Vec3f* teapot_vertices = (Vec3f*)descr->vertices;
 	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
-	Resource::Mesh* plane_box = res->Acquire<Resource::Mesh>("data/plane_box.ctm");
-
 	// Generate awesome red output buffer
 	const int w = 128;
 	const int h = 128;
@@ -128,9 +126,7 @@ int main(int argc, char* argv[])
 	sphere_mat2.reflectiveness = 1.0f;
 	sphere_mat2.matteness = 1.0f;
 	
-	/*
 	blob.prim_count = 0;
-	blob.primitives = new Primitive*[256];
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), &plane_mat_white); // bottom
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), &plane_mat_white); // top
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
@@ -138,8 +134,8 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
-	*/
 
+	
 	// Add 64 spheres on the floor, should slow down the render a bit. Compare with kd-tree.
 	/*
 	for (int y = 0; y < 8; y++)
@@ -167,7 +163,7 @@ int main(int argc, char* argv[])
 	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
 	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.0f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
-	blob.light_count = 0;
+	blob.light_count = 1;
 	
 	// create textures and primitive batches
 	Texture *region_textures[task_count*task_count] = {0};
@@ -192,30 +188,8 @@ int main(int argc, char* argv[])
 	// MODEL
 	Model* model_teapot = gfx->CreateModel(teapot);
 	Model* model_box = gfx->CreateModel(box);
-	Model* model_box_plane = gfx->CreateModel(plane_box);
 
-	Triangle* tri = new Triangle();
-	Vertex* v0 = new Vertex(); 
-	Vertex* v1 = new Vertex();
-	Vertex* v2 = new Vertex();
-
-	v0->v = Vec3f(2.0f,0.0f,6.0f);
-	v1->v = Vec3f(4.0f,0.0f,6.0f);
-	v2->v = Vec3f(3.0f,3.0f,7.0f);
-
-	tri->vertices[0] = v0;
-	tri->vertices[1] = v1;
-	tri->vertices[2] = v2;
-
-	tri->material = &plane_mat_white;
-
-	/*
-	blob.primitives = new Primitive*();
-	blob.primitives[0] = tri;
-	blob.prim_count = 1; */
-
-	blob.primitives = (Primitive**) triangle_list(box);
-	blob.prim_count = box->GetData()->triangle_count;
+	Triangle* triangle_data = triangle_list(box);
 
 	// CAMERA
 	SimpleCamera cam;
@@ -224,7 +198,8 @@ int main(int argc, char* argv[])
 	Math::Mat4 prjmat = Math::Mat4::Perspective(45.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
 
 	cam.SetProjectionView(prjmat);
-	cam.Translate(0.0f,0.0f,-8.0f);
+	cam.Translate(0.0f,20.0f,100.0f);
+
 	blob.cam = &cam;
 
 	// Raytracer client test
@@ -278,10 +253,6 @@ int main(int argc, char* argv[])
 		if(!exec_rt)
 		{
 			gfx->BindTexture(0,0);
-			
-			if (!guihit)
-				MoveCamera(&cam,inp);
-			
 			gfx->SetProjection(cam.GetProjectionView());
 			gfx->SetModelView(cam.GetModelView());
 
@@ -289,8 +260,10 @@ int main(int argc, char* argv[])
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glColor3f(1.0f,1.0f,1.0f);
 			
+			if (!guihit)
+				MoveCamera(&cam,inp);
 
-			model_box->Draw();
+			model_teapot->Draw();
 		}
 		else
 		{
