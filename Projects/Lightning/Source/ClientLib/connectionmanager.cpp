@@ -28,7 +28,8 @@ Connection::~Connection()
 
 Packet::~Packet()
 {
-	delete data;
+	if (data)
+		delete data;
 }
 
 Connection *ConnectionManager::new_connection(ConnectionType _type)
