@@ -9,6 +9,7 @@
 
 #include "connectionmanager.h"
 #include "lightning.h"
+#include "state.h"
 #include "BlockingTaskQueue.h"
 
 class Client
