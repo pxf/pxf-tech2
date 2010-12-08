@@ -126,6 +126,9 @@ int Client::run()
 									  hello->port(),
 									  hello->session_id());
 
+						int type = OK;
+						m_ConnMan.send((*p)->connection, (char*)&type, 4);
+
 						p = packets->erase(p);
 						continue;
 					}
