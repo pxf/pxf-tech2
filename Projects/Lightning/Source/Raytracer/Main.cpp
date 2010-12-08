@@ -119,13 +119,38 @@ int startrender_cb(lua_State* L)
 	hello_pack->set_port(0);
 	hello_pack->set_session_id(-1);
 	LiPacket* hello_lipack = new LiPacket(conn, hello_pack, C_HELLO);
-	cman->send(conn, hello_lipack->data, hello_lipack->length);
+	cman->send((Packet*)hello_lipack);
 	
 	bool ready_to_send = false;
 	while (!ready_to_send)
 	{
 		Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets();
-		exit(2);
+		
+		for(Util::Array<LiPacket*>::iterator tpacket = in->begin(); tpacket != in->end(); ++tpacket)
+		{
+			(*tpacket)->get_type();
+			
+			if ((*tpacket)->message_type == PING)
+			{
+				lightning::Ping *ping = (lightning::Ping*)((*tpacket)->unpack());
+				lightning::Pong *pong = new lightning::Pong();
+				pong->set_ping_data(ping->ping_data());
+				LiPacket *pkg = new LiPacket((*tpacket)->connection, pong, PONG);
+				
+				cman->send((Packet*)pkg);
+				Pxf::Message("oae", "Got PING message!");
+			} else if ((*tpacket)->message_type == OK)
+			{
+				ready_to_send = true;
+				lua_pushstring(L, "time to send data!");
+				Pxf::Message("oae", "Got OK message!");
+				return 1;
+			} else {
+				Pxf::Message("oae", "Got unknown packet type!");
+			}
+		}
+		
+		in->clear();
 	}
 	
 	//LiPacket* packet = new LiPacket();
