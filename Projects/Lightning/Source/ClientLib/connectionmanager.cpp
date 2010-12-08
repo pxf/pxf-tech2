@@ -441,8 +441,13 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 bool ConnectionManager::send(int _id, char *_msg, int _length, bool _is_session_id)
 {
 	Connection *c = get_connection(_id, _is_session_id);
-	return (c == NULL) ? false : send(c, _msg, _length);
 
+	return (c == NULL) ? false : send(c, _msg, _length);
+}
+
+bool ConnectionManager::send(Packet *packet)
+{
+	return send(packet->connection, packet->data, packet->length);
 }
 
 void ConnectionManager::set_highest_fd()
@@ -465,4 +470,5 @@ void inline ConnectionManager::clear_connbuf(Connection *_connection)
 	_connection->buffer_cur = NULL;
 	_connection->buffer_size = 0;
 }
+
 
