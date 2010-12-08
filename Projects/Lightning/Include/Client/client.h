@@ -35,6 +35,7 @@ class Client
 
 	private:
 		ConnectionManager m_ConnMan;
+		State m_State;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
 		BlockingTaskQueue<void*> m_TaskQueue;

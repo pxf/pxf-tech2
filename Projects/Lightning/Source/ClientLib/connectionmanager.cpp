@@ -331,7 +331,6 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
-						// TODO: Terminate connection
 						c->buffer_size = 0;
 						remove_connection(c);
 						continue;
