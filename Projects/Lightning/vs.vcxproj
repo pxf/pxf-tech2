@@ -54,8 +54,8 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">runbam debug</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">runbam debug_dll -c</NMakeCleanCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">runbam debug -c</NMakeCleanCommandLine>
-    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../LightningPrototypes_ddyn.exe</NMakeOutput>
-    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">SampleProject_ddyn.exe</NMakeOutput>
+    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">client_ddyn.exe</NMakeOutput>
+    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">client_ddyn.exe</NMakeOutput>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../../Modules/pri/Include;../../Include; ../../Source, ../../Libraries/glfw/sdk/include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
@@ -68,10 +68,10 @@
     <NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_static|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../runbam release</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../runbam release</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../runbam release -c</NMakeCleanCommandLine>
-    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pxf</NMakeOutput>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">runbam release</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">runbam release</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">runbam release -c</NMakeCleanCommandLine>
+    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">client.exe</NMakeOutput>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../../Include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
     <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
@@ -84,12 +84,6 @@
     <ClCompile Include="..\..\Modules\pri\Source\InputDeviceGLFW.cpp" />
     <ClCompile Include="..\..\Source\Resource\Blob.cpp" />
     <ClCompile Include="..\..\Source\Resource\Text.cpp" />
-    <ClCompile Include="Source\batchprocessor.cpp" />
-    <ClCompile Include="Source\client.cpp" />
-    <ClCompile Include="Source\connectionmanager.cpp" />
-    <ClCompile Include="Source\iomodule.cpp" />
-    <ClCompile Include="Source\lightning.cpp" />
-    <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="..\..\Source\Kernel.cpp" />
     <ClCompile Include="..\..\Source\Module.cpp" />
     <ClCompile Include="..\..\Source\Graphics\DeviceType.cpp" />
@@ -112,6 +106,11 @@
     <ClCompile Include="..\..\Modules\pri\Source\TextureGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp" />
+    <ClCompile Include="Source\ClientLib\client.pb.cc" />
+    <ClCompile Include="Source\ClientLib\connectionmanager.cpp" />
+    <ClCompile Include="Source\ClientLib\lightning.cpp" />
+    <ClCompile Include="Source\Client\client.cpp" />
+    <ClCompile Include="Source\Client\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Input\InputDefs.h" />
@@ -166,11 +165,12 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TypeTraits.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
-    <ClInclude Include="Source\batchprocessor.h" />
-    <ClInclude Include="Source\client.h" />
-    <ClInclude Include="Source\connectionmanager.h" />
-    <ClInclude Include="Source\iomodule.h" />
-    <ClInclude Include="Source\lightning.h" />
+    <ClInclude Include="Include\ClientLib\client.pb.h" />
+    <ClInclude Include="Include\ClientLib\connectionmanager.h" />
+    <ClInclude Include="Include\ClientLib\lightning.h" />
+    <ClInclude Include="Include\ClientLib\lightning.pb.h" />
+    <ClInclude Include="Include\ClientLib\tracker.pb.h" />
+    <ClInclude Include="Include\Client\client.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,3 +1,6 @@
+#ifndef _CLIENT_H_
+#define _CLIENT_H_
+
 #include <Pxf/Util/Array.h>
 #include <Pxf/Util/String.h>
 #include <Pxf/Base/String.h>
@@ -6,15 +9,11 @@
 
 #include "connectionmanager.h"
 #include "lightning.h"
-
-#ifndef _CLIENT_H_
-#define _CLIENT_H_
+#include "BlockingTaskQueue.h"
 
 class Client
 {
 	public:
-		int m_queue_free;
-		Pxf::Util::Array<int> m_TaskQueue;
 		int m_session_id;
 		char *m_tracker_address;
 		int m_tracker_port;
@@ -36,7 +35,9 @@ class Client
 		ConnectionManager m_ConnMan;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
+		BlockingTaskQueue<void*> m_TaskQueue;
 
+		int m_queue_free;
 		int m_net_tag;	
 		int m_log_tag;
 		void ping(Connection *_c, int _timestamp);

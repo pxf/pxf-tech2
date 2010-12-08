@@ -3,16 +3,22 @@ import struct, tracker_pb2, lightning_pb2
 tracker_address = "127.0.0.1"
 tracker_port = 50000
 
-#Enumerators
-OK, PING, PONG, GOODBYE, \
-    INIT_HELLO, HELLO_TO_CLIENT, HELLO_TO_TRACKER, \
-    NEWBATCH, NODES_REQUEST, NODES_RESPONSE, BATCH_DONE, \
-	TASK_DONE, HATE,  = range(13)
+# Common enumerators
+OK, PING, PONG, GOODBYE = range(0,4)
+
+# Tracker <-> Client
+T_INIT, T_HELLO_CLIENT, T_HELLO_TRACKER, T_NEWBATCH, T_NODES_REQUEST \
+    , T_NODES_RESPONSE, T_BATCH_DONE, T_TASK_DONE, T_HATE = range(4, 13)
+
+# Clinet <-> Client
+C_HELLO, C_ALLOCATE, C_ALLOC_RESP, C_DATA, C_TASKS = range(13, 18)
+
+
 
 translate_message_type = {
-    INIT_HELLO: None,
-    HELLO_TO_CLIENT: tracker_pb2.HelloToClient,
-    HELLO_TO_TRACKER: tracker_pb2.HelloToTracker,
+    T_INIT: None,
+    T_HELLO_CLIENT: tracker_pb2.HelloToClient,
+    T_HELLO_TRACKER: tracker_pb2.HelloToTracker,
     GOODBYE: lightning_pb2.GoodBye,
     PING: lightning_pb2.Ping,
     PONG: lightning_pb2.Pong
