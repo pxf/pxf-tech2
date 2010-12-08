@@ -144,13 +144,11 @@ int Client::run()
 				case C_ALLOCATE:
 				{
 					// TODO: Depending on what is said to the client, put client in allocated list, or something
-					// TODO: Check that client has sent HELLO
 					if ((*p)->connection->type != CLIENT)
 					{
 						m_Kernel->Log(m_log_tag, "Client trying to allocate, but hasn't been introduced! Dropping connection.");
 
 						m_ConnMan.remove_connection((*p)->connection);
-
 						break;
 					}
 
@@ -165,6 +163,9 @@ int Client::run()
 					LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
 
 					m_Kernel->Log(m_log_tag, "Allocation request from %d.", (*p)->connection->session_id);
+
+					// Tell the state
+					m_State.m_Allocatees.push_back((*p)->connection);
 
 					m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
 
