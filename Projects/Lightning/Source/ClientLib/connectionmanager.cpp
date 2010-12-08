@@ -157,7 +157,10 @@ bool ConnectionManager::remove_connection(Connection *_connection)
 		FD_CLR(_connection->socket, &m_read_sockets);
 
 	// Remove from the hash map.
-	m_socketfdToConnection.erase(_connection->socket);
+	Pxf::Util::Map<int, struct Connection *>::iterator iter;
+	iter = m_socketfdToConnection.find(_connection->socket);
+	if (iter != m_socketfdToConnection.end())
+		m_socketfdToConnection.erase(iter);
 
 	// Remove from the connection list.
 	Pxf::Util::Array<struct Connection*>::iterator i;
