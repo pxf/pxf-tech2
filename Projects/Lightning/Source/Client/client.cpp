@@ -159,7 +159,7 @@ int Client::run()
 
 						// TODO: Check that client has allocated the resource and that stuff doesn't exist yet
 
-						Batch *b;
+						Batch *b = 0;
 						
 						b->hash = (char*)Pxf::MemoryAllocate(hash.length() + 1);
 						hash.copy(b->hash, hash.length());
