@@ -21,6 +21,8 @@ class Client
 		int m_local_port;
 		int m_client_port;
 
+		Client(const Client& blah) {}
+
 		Client(
 			const char *_tracker_address,
 			int _tracker_port,

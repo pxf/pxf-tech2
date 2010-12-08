@@ -73,7 +73,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	npack->set_interleaved_feedback(blob->interleaved_feedback);
 	
 	
-	for(size_t i = 0; i < 256; ++i)
+	for(size_t i = 0; i < blob->prim_count; ++i)
 	{
 		if (blob->primitives[i]->GetType() == SpherePrim)
 		{
