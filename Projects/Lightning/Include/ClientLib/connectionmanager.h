@@ -101,6 +101,7 @@ class ConnectionManager
 
 		bool send(Connection *_connection, char *_msg, int _length);
 		bool send(int _id, char *_msg, int _length, bool _is_session_id = false);
+		bool send(Packet *packet);
 
 		void set_highest_fd();
 };
