@@ -15,6 +15,8 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_client_port = _client_port;
 
 	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
+	m_State = State();
+
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
@@ -92,154 +94,144 @@ int Client::run()
 		while (p != packets->end())
 		{
 			(*p)->get_type();
-			if ((*p)->connection->type == CLIENT) // TODO: Reduntant, skip this shit?
+
+			switch((*p)->message_type)
 			{
-				m_Kernel->Log(m_log_tag, "Packet from a client");
+				case PING:
+				{
+					lightning::Ping *ping = (lightning::Ping*)((*p)->unpack());
+					lightning::Pong *pong = new lightning::Pong();
+					pong->set_ping_data(ping->ping_data());
+
+					LiPacket *pkg = new LiPacket((*p)->connection, pong, PONG);
+
+					m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
+
+					delete pkg;
+					delete pong;
+
+					break;
+				}
+				case PONG: //PONG
+				{
+					lightning::Pong *pong = (lightning::Pong*)((*p)->unpack());
+					(*p)->connection->timestamp = time(NULL);
+
+					break;
+				}
+				case OK:
+				{
+					// TODO: Check what the connection is waiting for with the State class
+					break;	
+				}
+				case C_HELLO:
+				{
+					// TODO: Do more stuff
+					client::Hello *hello = (client::Hello*)((*p)->unpack());
+					(*p)->connection->session_id = hello->session_id();
+					(*p)->connection->type = CLIENT;
+
+					m_Kernel->Log(m_log_tag, "Hello from %s:%d, session id:%d",
+								  hello->address().c_str(),
+								  hello->port(),
+								  hello->session_id());
+
+					int type = OK;
+					m_ConnMan.send((*p)->connection, (char*)&type, 4);
+
+					break;
+				}
+				case C_ALLOCATE:
+				{
+					// TODO: Depending on what is said to the client, put client in allocated list, or something
+					if ((*p)->connection->type != CLIENT)
+					{
+						m_Kernel->Log(m_log_tag, "Client trying to allocate, but hasn't been introduced! Dropping connection.");
+
+						m_ConnMan.remove_connection((*p)->connection);
+						break;
+					}
+
+
+					client::AllocateClient *alloc = (client::AllocateClient*)((*p)->unpack());
+					Pxf::Util::String hash = alloc->batchhash();
+
+					client::AllocateResponse *alloc_resp = new client::AllocateResponse();
+					alloc_resp->set_isavailable(m_queue_free > 0);
+					alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
+		
+					LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
+
+					m_Kernel->Log(m_log_tag, "Allocation request from %d.", (*p)->connection->session_id);
+
+					// Tell the state
+					m_State.m_Allocatees.push_back((*p)->connection);
+
+					m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
+
+					delete alloc_resp;
+					delete pkg;
 				
-				switch((*p)->message_type)
+					break;
+				}
+				case C_DATA:
 				{
-					case PING:
-					{
-						lightning::Ping *ping = (lightning::Ping*)((*p)->unpack());
-						lightning::Pong *pong = new lightning::Pong();
-						pong->set_ping_data(ping->ping_data());
+					client::Data *data = (client::Data*)((*p)->unpack());
 
-						LiPacket *pkg = new LiPacket((*p)->connection, pong, PONG);
+					Pxf::Util::String hash = data->batchhash();
 
-						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
+					// TODO: Check that client has allocated the resource and that stuff doesn't exist yet
 
-						delete pkg;
-						delete pong;
-
-						p = packets->erase(p);
-						continue;
-					}
-					case C_HELLO:
-					{
-						// TODO: Do more stuff
-						client::Hello *hello = (client::Hello*)((*p)->unpack());
-						(*p)->connection->session_id = hello->session_id();
-						(*p)->connection->type = CLIENT;
-
-						m_Kernel->Log(m_log_tag, "Hello from %s:%d, session id:%d",
-									  hello->address().c_str(),
-									  hello->port(),
-									  hello->session_id());
-
-						p = packets->erase(p);
-						continue;
-					}
-					case C_ALLOCATE:
-					{
-						// TODO: Depending on what is said to the client, put client in allocated list, or something
-						client::AllocateClient *alloc = (client::AllocateClient*)((*p)->unpack());
-						Pxf::Util::String hash = alloc->batchhash();
-
-						client::AllocateResponse *alloc_resp = new client::AllocateResponse();
-						alloc_resp->set_isavailable(m_queue_free > 0);
-						alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
-			
-						LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
-
-						m_Kernel->Log(m_log_tag, "Allocation request from %d.", (*p)->connection->session_id);
-
-						m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
-
-						delete alloc_resp;
-						delete pkg;
+					Batch *b;
 					
-						p = packets->erase(p);
-						continue;
-					}
-					case C_DATA:
-					{
-						client::Data *data = (client::Data*)((*p)->unpack());
+					b->hash = (char*)Pxf::MemoryAllocate(hash.length() + 1);
+					hash.copy(b->hash, hash.length());
+					b->hash[hash.length()] = '\0';
 
-						Pxf::Util::String hash = data->batchhash();
+					b->type = (BatchType)data->datatype();
 
-						// TODO: Check that client has allocated the resource and that stuff doesn't exist yet
+					b->data_size = data->datasize();
+					b->data = (char*)Pxf::MemoryAllocate(b->data_size);
+					Pxf::MemoryCopy(
+						b->data,
+						data->data().c_str(),
+						b->data_size
+					);
 
-						Batch *b = 0;
-						
-						b->hash = (char*)Pxf::MemoryAllocate(hash.length() + 1);
-						hash.copy(b->hash, hash.length());
-						b->hash[hash.length()] = '\0';
+					b->timestamp = time(NULL);
+					
+					Pxf::Util::String str_address = data->returnaddress();
+					b->return_address = (char*)Pxf::MemoryAllocate(str_address.length() + 1);
+					str_address.copy(b->return_address, str_address.length());
+					b->return_address[str_address.length()] = '\0';
 
-						b->type = (BatchType)data->datatype();
+					b->return_port = data->returnport();
 
-						b->data_size = data->datasize();
-						b->data = (char*)Pxf::MemoryAllocate(b->data_size);
-						Pxf::MemoryCopy(
-							b->data,
-							data->data().c_str(),
-							b->data_size
-						);
+					// Add batch to hashmap
+					m_Batches[hash] = b;
 
-						b->timestamp = time(NULL);
-						
-						Pxf::Util::String str_address = data->returnaddress();
-						b->return_address = (char*)Pxf::MemoryAllocate(str_address.length() + 1);
-						str_address.copy(b->return_address, str_address.length());
-						b->return_address[str_address.length()] = '\0';
+					m_Kernel->Log(m_log_tag, "DATA from %d of type %d.", (*p)->connection->session_id, b->type);
 
-						b->return_port = data->returnport();
+					delete data;
 
-						// Add batch to hashmap
-						m_Batches[hash] = b;
-
-						m_Kernel->Log(m_log_tag, "DATA from %d of type %d.", (*p)->connection->session_id, b->type);
-
-						delete data;
-
-						p = packets->erase(p);
-						continue;
-					}
-					case C_TASKS:
-					{
-						client::Tasks *tasks = (client::Tasks*)((*p)->unpack());
-
-						// TODO: Check that the batch exists.
-						// MASSIVE CODE GOES HERE
-
-						p = packets->erase(p);
-						continue;
-					}
-					default:
-						m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
-						p = packets->erase(p);
-						continue;
+					break;
 				}
-			}
-			else if ((*p)->connection->type == TRACKER)
-			{
-				m_Kernel->Log(m_log_tag, "Packet from tracker");
-				switch((*p)->message_type)
+				case C_TASKS:
 				{
-					case PONG: //PONG
-					{
-						lightning::Pong *pong = (lightning::Pong*)((*p)->unpack());
-						(*p)->connection->timestamp = time(NULL);
-						p = packets->erase(p);
-						continue;
-					}
-					default:
-						m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
-						p = packets->erase(p);
-						continue;
+					client::Tasks *tasks = (client::Tasks*)((*p)->unpack());
+
+					// TODO: Check that the batch exists.
+					// MASSIVE CODE GOES HERE
+
+					break;
 				}
+				default:
+					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
+					break;
 			}
-			else if ((*p)->connection->type == INTERNAL)
-			{
-				1+1;
-			}
-			else
-			{
-				m_Kernel->Log(m_log_tag, "Packet from unknown connection type, dropping");
-				p = packets->erase(p);
-				continue;
-			}
-			
-			p++;
+
+			delete (*p);
+			p = packets->erase(p);
 		}
 	}
 

@@ -30,6 +30,12 @@
 #include "Renderer.h"
 #include "Camera.h"
 
+#include "connectionmanager.h"
+#include "lightning.h"
+#include "lightning.pb.h"
+#include "client.pb.h"
+#include "raytracer.pb.h"
+
 #include "fabric/App.h"
 
 #include <RaytracerClient.h>
@@ -42,12 +48,89 @@ int total_done = 0;
 int total_count = 0;
 Pxf::Timer render_timer;
 
+// sup?
+batch_blob_t blob;
+ConnectionManager *cman;
+
+raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
+{
+	raytracer::DataBlob* npack = new raytracer::DataBlob();
+	npack->set_prim_count(blob->prim_count);
+	npack->set_light_count(blob->light_count);
+	
+	for(size_t i = 0; i < 256; ++i)
+	{
+		npack->add_samples(blob->samples[i]);
+	}
+	
+	npack->set_bounce_count(blob->bounce_count);
+	
+	npack->set_pic_w(blob->pic_w);
+	npack->set_pic_h(blob->pic_h);
+	
+	npack->set_samples_per_pixel(blob->samples_per_pixel);
+	
+	npack->set_interleaved_feedback(blob->interleaved_feedback);
+	
+	
+	for(size_t i = 0; i < blob->prim_count; ++i)
+	{
+		if (blob->primitives[i]->GetType() == SpherePrim)
+		{
+			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_spheres();//new raytracer::DataBlob::PrimitiveSphere();
+			raytracer::DataBlob_Vec3f* pos_pack = sphere_pack->mutable_position();
+			pos_pack->set_x(((Sphere*)(blob->primitives[i]))->p.x);
+			pos_pack->set_y(((Sphere*)(blob->primitives[i]))->p.y);
+			pos_pack->set_z(((Sphere*)(blob->primitives[i]))->p.z);
+			
+			//sphere_pack->set_position(pos_pack);
+			sphere_pack->set_size(((Sphere*)(blob->primitives[i]))->r);
+			
+			//npack->add_spheres(sphere_pack);
+		}
+	}
+	
+	return npack;
+	
+}
+
 int renderstatus_cb(lua_State* L)
 {
 	lua_pushnumber(L, total_done);
 	lua_pushnumber(L, total_count);
 	lua_pushnumber(L, (int)render_timer.Interval());
 	return 3;
+}
+
+int startrender_cb(lua_State* L)
+{
+	
+	raytracer::DataBlob* new_pack = gen_packet_from_blob(&blob);
+	
+	Connection *conn = cman->new_connection(ORIGIN);
+	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
+	{
+		lua_pushstring(L, "Could not connect!");
+		return 1;
+	}
+	
+	client::Hello* hello_pack = new client::Hello();
+	hello_pack->set_address("localhost");
+	hello_pack->set_port(0);
+	hello_pack->set_session_id(-1);
+	LiPacket* hello_lipack = new LiPacket(conn, hello_pack, C_HELLO);
+	cman->send(conn, hello_lipack->data, hello_lipack->length);
+	
+	bool ready_to_send = false;
+	while (!ready_to_send)
+	{
+		Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets();
+		exit(2);
+	}
+	
+	//LiPacket* packet = new LiPacket();
+	
+	return 0;
 }
 
 int main(int argc, char* argv[])
@@ -88,6 +171,16 @@ int main(int argc, char* argv[])
 	Vec3f* teapot_vertices = (Vec3f*)descr->vertices;
 	Vec3f* teapot_normals = (Vec3f*)descr->normals;
 	
+	// Setup connection manager and stuff!
+	cman = new ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
+	Connection *conn = cman->new_connection(ORIGIN);
+	if (!cman->bind_connection(conn, "localhost", 4632))
+	{
+		Pxf::Message("aoe", "Bind failed!");
+		exit(2);
+	}
+	
+	
 	// Generate awesome red output buffer
 	const int w = 128;
 	const int h = 128;
@@ -98,7 +191,6 @@ int main(int argc, char* argv[])
 	char pixels[w*h*channels];
 	
 	// job specifics
-	batch_blob_t blob;
 	blob.pic_w = w;
 	blob.pic_h = h;
 	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
@@ -181,6 +273,7 @@ int main(int argc, char* argv[])
 	// Fabric/GUI stuff
 	Fabric::App* app = new Fabric::App(win, "fabric/main.lua");
 	app->BindExternalFunction("renderstatus", renderstatus_cb);
+	app->BindExternalFunction("startrender", startrender_cb);
 	app->Boot();
 	bool running = true;
 	bool guihit = false;
@@ -200,7 +293,7 @@ int main(int argc, char* argv[])
 	cam.SetProjectionView(prjmat);
 	cam.Translate(0.0f,20.0f,100.0f);
 
-	blob.cam = &cam;
+	//blob.cam = &cam;
 
 	// Raytracer client test
 	//------------------------

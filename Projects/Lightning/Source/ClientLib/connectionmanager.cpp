@@ -28,7 +28,8 @@ Connection::~Connection()
 
 Packet::~Packet()
 {
-	delete data;
+	if (data)
+		delete data;
 }
 
 Connection *ConnectionManager::new_connection(ConnectionType _type)
@@ -331,8 +332,8 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
-						// TODO: Terminate connection
 						c->buffer_size = 0;
+						remove_connection(c);
 						continue;
 					}
 
@@ -394,8 +395,6 @@ void ConnectionManager::set_fdset()
 	Pxf::Util::Array<Connection*>::iterator c;
 
 	FD_ZERO(&m_read_sockets);
-
-	printf("set_fdset size of connections: %d\n", m_Connections.size());
 
 	for(c = m_Connections.begin(); c != m_Connections.end(); c++)
 	{

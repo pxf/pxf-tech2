@@ -42,6 +42,10 @@ function spawn_toolwindow()
   tool_stack:addwidget(menubar)
   
   -- spacing
+  local render_button = gui:create_labelbutton(0,0,120,32,"Render",function () print(tostring(startrender("localhost", 50002))) end)
+  tool_stack:addwidget(render_button)
+  
+  -- spacing
   local spacer = gui:create_basewidget(0,0,1,8)
   tool_stack:addwidget(spacer)
   

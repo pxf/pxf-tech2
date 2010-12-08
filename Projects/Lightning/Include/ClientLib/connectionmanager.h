@@ -34,7 +34,7 @@
 
 
 enum ConnectionType {
-	CLIENT, TRACKER, INTERNAL
+	CLIENT, TRACKER, INTERNAL, ORIGIN
 };
 
 struct Connection {
@@ -60,7 +60,12 @@ struct Packet {
 		, length(_length)
 		, data(_data) // TODO: Allocate new memory and copy?
 	{}
-	Packet() {};
+	Packet()
+		: connection(0)
+		, length(0)
+		, data(0)
+	{};
+
 	virtual ~Packet();
 
 	Connection *connection;
