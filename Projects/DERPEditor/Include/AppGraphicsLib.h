@@ -1,13 +1,13 @@
 #ifndef __DERPEDITOR_APPGRAPHICSLIB_H__
 #define __DERPEDITOR_APPGRAPHICSLIB_H__
 
-#include "App.h"
+#include "LuaApp.h"
 
 #define LUA_LIB
 #include "lua.h"
 #include "lauxlib.h"
 
-#define LUA_GRAPHICSLIBNAME "gfx"
+#define LUA_APPGRAPHICSLIBNAME "gfx"
 
 namespace DERPEditor
 {
