@@ -167,7 +167,9 @@ int startrender_cb(lua_State* L)
 				cman->send((Packet*)data_lipack);
 				
 				// Send tasks!
-
+				// TODO
+				
+				ready_to_send = true;
 				
 			} else {
 				Pxf::Message("oae", "Got unknown packet type!");
@@ -178,7 +180,7 @@ int startrender_cb(lua_State* L)
 	}
 	
 
-	lua_pushstring(L, "time to send data!");
+	lua_pushstring(L, "Sent data!");
 	return 1;
 }
 
