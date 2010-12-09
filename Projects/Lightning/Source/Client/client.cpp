@@ -153,7 +153,6 @@ int Client::run()
 						break;
 					}
 
-
 					client::AllocateClient *alloc = (client::AllocateClient*)((*p)->unpack());
 					Pxf::Util::String hash = alloc->batchhash();
 
@@ -163,12 +162,12 @@ int Client::run()
 		
 					LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
 
-					m_Kernel->Log(m_log_tag, "Allocation request from %d.", (*p)->connection->session_id);
+					m_Kernel->Log(m_log_tag, "Allocation request from %d. Granted.", (*p)->connection->session_id);
 
 					// Tell the state
 					m_State.m_Allocatees.push_back((*p)->connection);
 
-					m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
+					m_ConnMan.send((Packet*)pkg);
 
 					delete alloc_resp;
 					delete pkg;
@@ -182,6 +181,12 @@ int Client::run()
 					Pxf::Util::String hash = data->batchhash();
 
 					// TODO: Check that client has allocated the resource and that stuff doesn't exist yet
+					if (count(m_State.m_Allocatees.begin(), m_State.m_Allocatees.end(), (*p)->connection) != 1)
+					{
+						m_Kernel->Log(m_log_tag, "Client has not been allocated!");
+						delete data;
+						break;
+					}
 
 					Batch *b;
 					
