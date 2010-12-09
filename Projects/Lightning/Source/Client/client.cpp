@@ -19,6 +19,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_TaskQueue = new BlockingTaskQueue<Task*>;
+	m_TaskQueue->register_type(RAYTRACER); // TODO: Move to raytracer class
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
