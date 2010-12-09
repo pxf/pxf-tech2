@@ -57,6 +57,20 @@ int Client::run()
 	// This is our main fail
 	while(!exit)
 	{
+		// Check for old batches.
+		Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
+		for(iter = m_Batches.begin(); iter != m_Batches.end();)
+		{
+			if ((time(NULL) - ((*iter).second)->timestamp) > 60*10) // Allow 10 minutes idle.
+			{
+				// It's old.
+				delete (*iter).second;
+				m_Batches.erase(iter);
+			}
+			else
+				iter++;
+		}
+
 		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
 
 		if (difftime(time(NULL), ping_timestamp) > PING_INTERVAL/1000.0f)
