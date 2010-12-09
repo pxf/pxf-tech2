@@ -153,6 +153,31 @@ int startrender_cb(lua_State* L)
 			} else if ((*tpacket)->message_type == C_ALLOC_RESP)
 			{
 				// Send data!
+				
+				/*
+				message Data {
+					required string batchhash = 1;
+					required int32 datasize = 2;
+					required int32 datatype = 3;
+					required string data = 4;
+					required string returnaddress = 5;
+					required int32 returnport = 6;
+				}
+				*/
+				
+				/*char* new_data_string = new char[new_pack->ByteSize()];
+				MemoryCopy(new_pack->SerializeToString().c_str(), new_data_string);*/
+				
+				client::Data* data_pack = new client::Data();
+				data_pack->set_batchhash("LOLWUT");
+				data_pack->set_datasize(new_pack->ByteSize());
+				data_pack->set_datatype(RAYTRACER);
+				data_pack->set_data(new_pack->SerializeAsString());
+				data_pack->set_returnaddress("127.0.0.1");
+				data_pack->set_returnport(4632);
+				
+				LiPacket* data_lipack = new LiPacket(conn, data_pack, C_DATA);
+				cman->send((Packet*)data_lipack);
 
 				Pxf::Message("oae", "Got C_ALLOC_RESP message!");
 			} else {

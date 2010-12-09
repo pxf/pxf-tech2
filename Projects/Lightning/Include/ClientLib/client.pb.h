@@ -426,14 +426,14 @@ class Data : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 datatype() const;
   inline void set_datatype(::google::protobuf::int32 value);
   
-  // required string data = 4;
+  // required bytes data = 4;
   inline bool has_data() const;
   inline void clear_data();
   static const int kDataFieldNumber = 4;
   inline const ::std::string& data() const;
   inline void set_data(const ::std::string& value);
   inline void set_data(const char* value);
-  inline void set_data(const char* value, size_t size);
+  inline void set_data(const void* value, size_t size);
   inline ::std::string* mutable_data();
   
   // required string returnaddress = 5;
@@ -550,14 +550,14 @@ class Tasks_Task : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 tasksize() const;
   inline void set_tasksize(::google::protobuf::int32 value);
   
-  // required string task = 2;
+  // required bytes task = 2;
   inline bool has_task() const;
   inline void clear_task();
   static const int kTaskFieldNumber = 2;
   inline const ::std::string& task() const;
   inline void set_task(const ::std::string& value);
   inline void set_task(const char* value);
-  inline void set_task(const char* value, size_t size);
+  inline void set_task(const void* value, size_t size);
   inline ::std::string* mutable_task();
   
   // @@protoc_insertion_point(class_scope:client.Tasks.Task)
@@ -953,7 +953,7 @@ inline void Data::set_datatype(::google::protobuf::int32 value) {
   datatype_ = value;
 }
 
-// required string data = 4;
+// required bytes data = 4;
 inline bool Data::has_data() const {
   return _has_bit(3);
 }
@@ -980,7 +980,7 @@ inline void Data::set_data(const char* value) {
   }
   data_->assign(value);
 }
-inline void Data::set_data(const char* value, size_t size) {
+inline void Data::set_data(const void* value, size_t size) {
   _set_bit(3);
   if (data_ == &_default_data_) {
     data_ = new ::std::string;
@@ -1073,7 +1073,7 @@ inline void Tasks_Task::set_tasksize(::google::protobuf::int32 value) {
   tasksize_ = value;
 }
 
-// required string task = 2;
+// required bytes task = 2;
 inline bool Tasks_Task::has_task() const {
   return _has_bit(1);
 }
@@ -1100,7 +1100,7 @@ inline void Tasks_Task::set_task(const char* value) {
   }
   task_->assign(value);
 }
-inline void Tasks_Task::set_task(const char* value, size_t size) {
+inline void Tasks_Task::set_task(const void* value, size_t size) {
   _set_bit(1);
   if (task_ == &_default_task_) {
     task_ = new ::std::string;
