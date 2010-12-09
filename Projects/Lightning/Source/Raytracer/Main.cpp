@@ -51,6 +51,11 @@ Pxf::Timer render_timer;
 // sup?
 batch_blob_t blob;
 ConnectionManager *cman;
+struct scene {
+	Resource::Mesh* mesh;
+	Graphics::Model* mdl;
+} current_scene;
+
 
 raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 {
@@ -73,7 +78,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	npack->set_interleaved_feedback(blob->interleaved_feedback);
 	
 	
-	for(size_t i = 0; i < blob->prim_count; ++i)
+	for(size_t i = 0; i < blob->prim_count; i++)
 	{
 		if (blob->primitives[i]->GetType() == SpherePrim)
 		{
@@ -197,15 +202,9 @@ int main(int argc, char* argv[])
 
 	Resource::Mesh::mesh_descriptor* descr;
 	Resource::Mesh* box = res->Acquire<Resource::Mesh>("data/box.ctm");
-	descr = box->GetData();
-	Vec3f* box_vertices = (Vec3f*)descr->vertices;
-	Vec3f* box_normals = (Vec3f*)descr->normals;
-
+	Resource::Mesh* sphere = res->Acquire<Resource::Mesh>("data/sphere.ctm");
 	Resource::Mesh* teapot = res->Acquire<Resource::Mesh>("data/teapot.ctm");
-	descr = teapot->GetData();
-	Vec3f* teapot_vertices = (Vec3f*)descr->vertices;
-	Vec3f* teapot_normals = (Vec3f*)descr->normals;
-	
+
 	// Setup connection manager and stuff!
 	cman = new ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
 	Connection *conn = cman->new_connection(ORIGIN);
@@ -228,7 +227,7 @@ int main(int argc, char* argv[])
 	// job specifics
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
+	blob.samples_per_pixel = 2; // 10 -> 10*10 = 100
 	blob.bounce_count = 6; // Number of reflection bounces
 	blob.interleaved_feedback = 2;
 	
@@ -254,6 +253,8 @@ int main(int argc, char* argv[])
 	sphere_mat2.matteness = 1.0f;
 	
 	blob.prim_count = 0;
+
+	/*
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), &plane_mat_white); // bottom
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), &plane_mat_white); // top
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
@@ -261,6 +262,7 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
+	*/
 
 	//blob.prim_count = 7;
 	
@@ -275,10 +277,10 @@ int main(int argc, char* argv[])
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
 	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	light_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	//blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), light_mat1);
-	blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.0f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
-	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, -4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
+	light_mat2.diffuse = Vec3f(0.0f, 0.0f, 1.0f);
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 60.0f, 15.0f), &light_mat1);
+	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
+	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 1;
 	
 	// create textures and primitive batches
@@ -305,21 +307,23 @@ int main(int argc, char* argv[])
 	// MODELS
 	Model* model_teapot = gfx->CreateModel(teapot);
 	Model* model_box = gfx->CreateModel(box);
+	Model* model_sphere = gfx->CreateModel(sphere);
 
-	//Triangle* triangle_data = triangle_list(box);
+	current_scene.mesh = sphere;
+	current_scene.mdl = model_sphere;
 
 	// CAMERA
 	SimpleCamera cam;
 
 	gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
-	Math::Mat4 prjmat = Math::Mat4::Perspective(45.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
+	Math::Mat4 prjmat = Math::Mat4::Perspective(80.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
 
 	cam.SetProjectionView(prjmat);
 	cam.Translate(0.0f,20.0f,100.0f);
 
 	blob.cam = &cam;
-	//blob.primitives = (Primitive**) triangle_list(box);
-	//blob.prim_count = box->GetData()->triangle_count;
+	blob.primitives = (Primitive**) triangle_list(current_scene.mesh);
+	blob.prim_count = current_scene.mesh->GetData()->triangle_count;
 
 	// Raytracer client test
 	//------------------------
@@ -382,7 +386,10 @@ int main(int argc, char* argv[])
 			if (!guihit)
 				MoveCamera(&cam,inp);
 
-			model_box->Draw();
+			current_scene.mdl->Draw();
+
+			for(size_t i=0; i < blob.light_count; i++)
+				draw_light((BaseLight*) blob.lights[i]);
 		}
 		else
 		{

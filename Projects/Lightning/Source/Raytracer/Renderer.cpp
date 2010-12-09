@@ -284,31 +284,27 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	// Clear pixel
 	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
 	
-	// Get camera
 	SimpleCamera* cam = (SimpleCamera*) datablob->cam;
 
 	// Center ray
-	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
+	Vec3f screen_coords(-1.0f + x, 1.0f - y,0.0f);
 	ray_t cray;
-	cray.o = Vec3f(0.0f,0.0f,-1.41421356f);
-	cray.d = screen_coords - cray.o;
+	cray.o = Vec3f(0.0f,0.0f,1.41421356f);
+	cray.o += cam->GetPos();
 
 	Quaternion orientation = (*cam->GetOrientation());
 	Normalize(orientation);
 
-	cray.d += cam->GetPos();
-	cray.d = orientation * cray.d;
-	Normalize(cray.d);
+	//screen_coords = orientation * screen_coords;
+	//Normalize(screen_coords);
+	screen_coords += cam->GetPos();
 
 	if (!calc_multisample_ray(&cray, datablob, &fpixel, 0.001f, 0))
 	{
 		Pxf::Message("calculate_pixel", "Ray shooting failed!");
 		return false;
 	}
-	//calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec3f *res, float spread, int bounce)
-	
-	/*
-	
+
 	// find closest primitive
 	for(int pixel_x = 0; pixel_x < datablob->samples_per_pixel; ++pixel_x)
 	{
@@ -325,6 +321,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			new_screen_coords.x += (0.5f / ((float)datablob->pic_w)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
 			new_screen_coords.y += (0.5f / ((float)datablob->pic_h)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
 			ray.d = new_screen_coords - cray.o;
+			ray.d = orientation * ray.d;
 			Normalize(ray.d);
 			
 			// Calc direct light
@@ -337,9 +334,9 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			fpixel += light_contrib;
 			
 		}
-	}*/
+	}
 	
-	//fpixel /= datablob->samples_per_pixel * datablob->samples_per_pixel;
+	fpixel /= datablob->samples_per_pixel * datablob->samples_per_pixel;
 	
 	fpixel.x = Pxf::Math::Clamp(fpixel.x, 0.0f, 1.0f);
 	fpixel.y = Pxf::Math::Clamp(fpixel.y, 0.0f, 1.0f);

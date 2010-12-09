@@ -8,7 +8,7 @@
 struct batch_blob_t
 {	
 	// scene data
-	Primitive* primitives[256];
+	Primitive** primitives;
 	Primitive* lights[256];
 	int prim_count;
 	int light_count;
