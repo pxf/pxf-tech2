@@ -188,7 +188,7 @@ int Client::run()
 						break;
 					}
 
-					Batch *b;
+					Batch *b = new Batch();
 					
 					b->hash = (char*)Pxf::MemoryAllocate(hash.length() + 1);
 					hash.copy(b->hash, hash.length());
