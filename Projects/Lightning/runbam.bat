@@ -1,3 +1,3 @@
 @echo off
 REM cd ../../
-bam -s build_client.lua -j 4 %*
+bam -n -s build_client.lua -j 4 %*
