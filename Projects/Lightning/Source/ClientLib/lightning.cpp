@@ -76,7 +76,7 @@ google::protobuf::Message *LiPacket::unpack()
 
 	if (proto == NULL) return NULL;
 
-	proto->ParseFromString(data+sizeof(message_type));
+	proto->ParseFromString(Pxf::Util::String(data+sizeof(message_type), length));
 
 	return proto;
 }

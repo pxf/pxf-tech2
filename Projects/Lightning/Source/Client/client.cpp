@@ -18,6 +18,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_State = State();
 
 	m_Kernel = Pxf::Kernel::GetInstance();
+	m_TaskQueue = new BlockingTaskQueue<Task*>;
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
@@ -58,17 +59,21 @@ int Client::run()
 	while(!exit)
 	{
 		// Check for old batches.
-		Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
-		for(iter = m_Batches.begin(); iter != m_Batches.end();)
+		if ((time(NULL) - last_batch_check) >= 60)
 		{
-			if ((time(NULL) - ((*iter).second)->timestamp) > 60*10) // Allow 10 minutes idle.
+			Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
+			for(iter = m_Batches.begin(); iter != m_Batches.end();)
 			{
-				// It's old.
-				delete (*iter).second;
-				m_Batches.erase(iter);
+				if ((time(NULL) - ((*iter).second)->timestamp) > 60*10) // Allow 10 minutes idle.
+				{
+					// It's old.
+					delete (*iter).second;
+					m_Batches.erase(iter);
+				}
+				else
+					iter++;
 			}
-			else
-				iter++;
+			last_batch_check = time(NULL);
 		}
 
 		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
@@ -135,6 +140,12 @@ int Client::run()
 				case OK:
 				{
 					// TODO: Check what the connection is waiting for with the State class
+					break;	
+				}
+				case GOODBYE:
+				{
+					m_Kernel->Log(m_log_tag, "Client %d disconnected.", (*p)->connection->session_id);
+					m_ConnMan.remove_connection((*p)->connection);
 					break;	
 				}
 				case C_HELLO:
@@ -247,11 +258,27 @@ int Client::run()
 						break;
 					}
 
-					m_Kernel->Log(m_log_tag, "Got %d tasks of type %s from %d",
+					Batch* b = m_Batches[tasks->batchhash()];
+					Task* t;
+					
+					for (int i = 0; i < tasks->task_size(); i++)
+					{
+						t = new Task();
+						t->batch = b;
+						client::Tasks::Task* n_task = new client::Tasks::Task();
+						n_task->CopyFrom(tasks->task(i));
+						t->task = n_task;
+
+						m_TaskQueue->push(b->type, t);
+					}
+
+					m_Kernel->Log(m_log_tag, "Pushed %d tasks of type %s from %d",
 						tasks->task_size(),
-						tasks->batchhash().c_str(),
+						b->type,
 						(*p)->connection->session_id
 					);
+
+					//delete tasks;
 
 					// MASSIVE CODE GOES HERE
 

@@ -193,7 +193,7 @@ int startrender_cb(lua_State* L)
 						task_pack->set_w(task_size_w);
 						task_pack->set_h(task_size_h);
 						
-						client::Tasks_Task* ctask_pack = tasks_pack->add_task();
+						client::Tasks::Task* ctask_pack = tasks_pack->add_task();
 						ctask_pack->set_tasksize(task_pack->ByteSize());
 						ctask_pack->set_task(task_pack->SerializeAsString());
 					}
