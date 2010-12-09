@@ -94,8 +94,6 @@ int Client::run()
 		while (p != packets->end())
 		{
 			(*p)->get_type();
-			printf("message_type: %d\n", (*p)->message_type);
-
 			switch((*p)->message_type)
 			{
 				case PING:
