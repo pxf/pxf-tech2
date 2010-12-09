@@ -239,6 +239,14 @@ int Client::run()
 						(*p)->connection->session_id
 					);
 
+					const client::Tasks_Task& t = tasks->task(0);
+					
+					
+
+					m_Kernel->Log(m_log_tag, "First task size: %d,  %s", t.tasksize(), t.task().c_str());
+
+					delete tasks;
+
 					// MASSIVE CODE GOES HERE
 
 					break;
