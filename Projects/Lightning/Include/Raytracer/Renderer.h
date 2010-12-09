@@ -8,7 +8,7 @@
 struct batch_blob_t
 {	
 	// scene data
-	Primitive* primitives[256];
+	Primitive** primitives;
 	Primitive* lights[256];
 	int prim_count;
 	int light_count;
@@ -27,6 +27,7 @@ struct batch_blob_t
 	int interleaved_feedback;
 	
 	// TODO: Add textures, kd-tree etc etc.
+	Camera* cam;
 	/*KDTree* tree;
 	Camera* cam;*/
 };

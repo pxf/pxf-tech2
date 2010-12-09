@@ -1,5 +1,6 @@
 #include "Intersections.h"
 #include "RenderUtils.h"
+#include "RenderUtilDefs.h"
 
 using namespace Pxf;
 using namespace Math;
@@ -59,33 +60,34 @@ bool ray_aabb(ray_t* ray,aabb* box,intersection_response_t* resp)
 	return true;
 }
 
-bool ray_triangle(Pxf::Math::Vec3f* data,ray_t* ray, intersection_response_t* resp)
+bool ray_triangle(Vertex* data,ray_t* ray, intersection_response_t* resp)
 {
 	if(!data)
 		return false;
 
-	Vec3f A = data[0];
-	Vec3f B = data[1];
-	Vec3f C = data[2];
+	Vertex A = data[0];
+	Vertex B = data[1];
+	Vertex C = data[2];
 
 	return ray_triangle(A,B,C,ray,resp);
 }
 
-bool ray_triangle(Pxf::Math::Vec3f A,Pxf::Math::Vec3f B,Pxf::Math::Vec3f C,ray_t* ray, intersection_response_t* resp)
+//bool ray_triangle(Pxf::Math::Vec3f A,Pxf::Math::Vec3f B,Pxf::Math::Vec3f C,ray_t* ray, intersection_response_t* resp)
+bool ray_triangle(Vertex A,Vertex B,Vertex C,ray_t* ray, intersection_response_t* resp)
 {
 
 	// STEP 1: Find point in the plane of the triangle
-	Vec3f AB = B - A;		// v0
-	Vec3f AC = C - A;		// v1
+	Vec3f AB = B.v - A.v;		// v0
+	Vec3f AC = C.v - A.v;		// v1
 
 	Vec3f N = Cross(AB,AC);
 	Normalize(N);
 
-	if(!ray_plane(&A,&N,ray, resp))
+	if(!ray_plane(&A.v,&N,ray, resp))
 		return false;
 
 	// STEP 2: Check wether or not point p is inside triangle (http://www.blackpawn.com/texts/pointinpoly/default.html)
-	Vec3f AP = resp->p - A;	// v2
+	Vec3f AP = resp->p - A.v;	// v2
 	float dot00 = Dot(AB,AB);	// dot(v0,v0)
 	float dot01 = Dot(AB,AC);	// dot(v0,v1)
 	float dot02	= Dot(AB,AP);	// dot(v0,v2)
@@ -96,6 +98,12 @@ bool ray_triangle(Pxf::Math::Vec3f A,Pxf::Math::Vec3f B,Pxf::Math::Vec3f C,ray_t
 	float inv_denom = 1.0f / (dot00 * dot11 - dot01 * dot01);
 	float u = (dot11 * dot02 - dot01 * dot12) * inv_denom;
 	float v = (dot00 * dot12 - dot01 * dot02) * inv_denom;
+
+	// calculate interpolated normal for point p
+	N = A.n + (B.n - A.n) * u + (C.n - A.n) * v;
+	Normalize(N);
+
+	resp->n = N;
 
 	// bounds check
 	return (u > 0.0f) && (v > 0.0f) && (u + v < 1.0f);

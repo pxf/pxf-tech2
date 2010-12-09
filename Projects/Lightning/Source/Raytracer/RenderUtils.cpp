@@ -1,12 +1,50 @@
 #include "RenderUtils.h"
 #include <Pxf/Resource/Mesh.h>
+#include <Pxf/Modules/pri/OpenGL.h>
 
 using namespace Pxf;
 using namespace Resource;
 using namespace Math;
 
 
-Triangle* triangle_list(Mesh* mesh)
+void draw_light(BaseLight* light)
+{
+	int lType = light->GetType();
+	material_t lMat = (*light->material);
+	Vec3f c = lMat.diffuse;
+	Vec3f p = light->p;
+	glColor3f(c.r,c.g,c.b);
+
+	if(lType == PointLightPrim)
+	{
+		glPointSize(10.0f);
+		glBegin(GL_POINTS);
+		glVertex3f(p.x,p.y,p.z);
+		glEnd();
+	}
+	else if(lType == AreaLightPrim)
+	{
+		//AreaLight (Pxf::Math::Vec3f _p, float _width, float _height, Pxf::Math::Vec3f _n, Pxf::Math::Vec3f _d, float _num_rays, float _strength, material_t* _material)
+		AreaLight* _l = (AreaLight*) light;
+		Vec3f d = _l->dir;
+		Vec3f n = _l->normal;
+		Normalize(n);
+		Vec3f pn = p + n * 10.0f;
+
+
+		glPointSize(10.0f);
+		glBegin(GL_POINTS);
+		glVertex3f(p.x,p.y,p.z);
+		glEnd();
+
+		glBegin(GL_LINES);
+		glVertex3f(p.x,p.y,p.z);
+		glVertex3f(pn.x,pn.y,pn.z);
+		glEnd();
+	}
+}
+
+Triangle** triangle_list(Mesh* mesh)
 {
 	Mesh::mesh_descriptor* md = mesh->GetData();
 
@@ -14,14 +52,17 @@ Triangle* triangle_list(Mesh* mesh)
 	int triangle_count = md->triangle_count;
 	const unsigned int* indices = md->indices;
 
-	Triangle* t_list = new Triangle[triangle_count]();
+	Triangle** t_list = new Triangle*[triangle_count]();
 
+	for(size_t i=0; i < triangle_count; i++)
+		t_list[i] = new Triangle();
 
 	// set default material to a white material.. 
 	material_t* material_white = new material_t();
 	material_white->ambient = Pxf::Math::Vec3f(0.1f, 0.1f, 0.1f);
-	material_white->diffuse = Pxf::Math::Vec3f(1.0f, 1.0f, 1.0f);
+	material_white->diffuse = Pxf::Math::Vec3f(0.2f, 0.2f, 0.2f);
 	material_white->reflectiveness = 0.0f;
+	material_white->matteness = 0.0f;
 
 	for(int i = 0; i < triangle_count*3; i++)
 	{
@@ -41,7 +82,7 @@ Triangle* triangle_list(Mesh* mesh)
 		int t_index = i / 3;
 		int v_index = i % 3; 
 
-		Triangle* t = &t_list[i / 3];
+		Triangle* t = t_list[i / 3];
 		t->material = material_white;
 
 		Vertex* v = new Vertex();

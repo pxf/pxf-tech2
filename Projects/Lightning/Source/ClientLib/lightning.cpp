@@ -25,6 +25,8 @@ google::protobuf::Message *get_protobuf_class(MessageType type)
 		case C_DATA: return new client::Data;
 		case C_TASKS: return new client::Tasks;
 	}
+
+	return NULL;
 }
 
 LiPacket::LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type)
