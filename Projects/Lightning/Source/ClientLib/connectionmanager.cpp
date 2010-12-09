@@ -29,7 +29,7 @@ Connection::~Connection()
 Packet::~Packet()
 {
 	if (data)
-		delete data;
+		MemoryFree(data);
 }
 
 Connection *ConnectionManager::new_connection(ConnectionType _type)
