@@ -141,10 +141,36 @@ int startrender_cb(lua_State* L)
 				Pxf::Message("oae", "Got PING message!");
 			} else if ((*tpacket)->message_type == OK)
 			{
-				ready_to_send = true;
-				lua_pushstring(L, "time to send data!");
+				// Send alloc request
+				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
+				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
+				alloc_reqpack->set_batchhash("LOLWUT"); // TODO: Create a real hash of the batch data blob
+				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
+				cman->send((Packet*)alloc_reqlipack);
+				
 				Pxf::Message("oae", "Got OK message!");
-				return 1;
+				
+			} else if ((*tpacket)->message_type == C_ALLOC_RESP)
+			{
+				Pxf::Message("oae", "Got C_ALLOC_RESP message!");
+				
+				// Send data!
+				client::Data* data_pack = new client::Data();
+				data_pack->set_batchhash("LOLWUT");
+				data_pack->set_datasize(new_pack->ByteSize());
+				data_pack->set_datatype(RAYTRACER);
+				data_pack->set_data(new_pack->SerializeAsString());
+				data_pack->set_returnaddress("127.0.0.1");
+				data_pack->set_returnport(4632);
+				
+				LiPacket* data_lipack = new LiPacket(conn, data_pack, C_DATA);
+				cman->send((Packet*)data_lipack);
+				
+				// Send tasks!
+				// TODO
+				
+				ready_to_send = true;
+				
 			} else {
 				Pxf::Message("oae", "Got unknown packet type!");
 			}
@@ -153,9 +179,9 @@ int startrender_cb(lua_State* L)
 		in->clear();
 	}
 	
-	//LiPacket* packet = new LiPacket();
-	
-	return 0;
+
+	lua_pushstring(L, "Sent data!");
+	return 1;
 }
 
 int main(int argc, char* argv[])
