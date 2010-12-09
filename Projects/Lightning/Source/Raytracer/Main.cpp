@@ -157,9 +157,25 @@ int startrender_cb(lua_State* L)
 				
 			} else if ((*tpacket)->message_type == C_ALLOC_RESP)
 			{
-				// Send data!
-
 				Pxf::Message("oae", "Got C_ALLOC_RESP message!");
+				
+				// Send data!
+				client::Data* data_pack = new client::Data();
+				data_pack->set_batchhash("LOLWUT");
+				data_pack->set_datasize(new_pack->ByteSize());
+				data_pack->set_datatype(RAYTRACER);
+				data_pack->set_data(new_pack->SerializeAsString());
+				data_pack->set_returnaddress("127.0.0.1");
+				data_pack->set_returnport(4632);
+				
+				LiPacket* data_lipack = new LiPacket(conn, data_pack, C_DATA);
+				cman->send((Packet*)data_lipack);
+				
+				// Send tasks!
+				// TODO
+				
+				ready_to_send = true;
+				
 			} else {
 				Pxf::Message("oae", "Got unknown packet type!");
 			}
@@ -169,7 +185,7 @@ int startrender_cb(lua_State* L)
 	}
 	
 
-	lua_pushstring(L, "time to send data!");
+	lua_pushstring(L, "Sent data!");
 	return 1;
 }
 

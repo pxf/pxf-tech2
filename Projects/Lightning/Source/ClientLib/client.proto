@@ -20,7 +20,7 @@ message Data {
 	required string batchhash = 1;
 	required int32 datasize = 2;
 	required int32 datatype = 3;
-	required string data = 4;
+	required bytes data = 4;
 	required string returnaddress = 5;
 	required int32 returnport = 6;
 }
@@ -28,7 +28,7 @@ message Data {
 message Tasks {
 	message Task {
 		required int32 tasksize = 1;
-		required string task = 2;
+		required bytes task = 2;
 	}
 
 	required string batchhash = 1;
