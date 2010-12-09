@@ -6,7 +6,7 @@ using namespace Resource;
 using namespace Math;
 
 
-Triangle* triangle_list(Mesh* mesh)
+Triangle** triangle_list(Mesh* mesh)
 {
 	Mesh::mesh_descriptor* md = mesh->GetData();
 
@@ -14,8 +14,12 @@ Triangle* triangle_list(Mesh* mesh)
 	int triangle_count = md->triangle_count;
 	const unsigned int* indices = md->indices;
 
-	Triangle* t_list = new Triangle[triangle_count]();
+	//Triangle* t_list = new Triangle[triangle_count]();
 
+	Triangle** t_list = new Triangle*[triangle_count]();
+
+	for(size_t i=0; i < triangle_count; i++)
+		t_list[i] = new Triangle();
 
 	// set default material to a white material.. 
 	material_t* material_white = new material_t();
@@ -41,7 +45,7 @@ Triangle* triangle_list(Mesh* mesh)
 		int t_index = i / 3;
 		int v_index = i % 3; 
 
-		Triangle* t = &t_list[i / 3];
+		Triangle* t = t_list[i / 3];
 		t->material = material_white;
 
 		Vertex* v = new Vertex();

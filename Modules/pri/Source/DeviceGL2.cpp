@@ -22,6 +22,7 @@
 #include <Pxf/Resource/Image.h>
 #include <Pxf/Resource/Mesh.h>
 #include <Pxf/Resource/Font.h>
+#include <Pxf/Resource/Text.h>
 
 #include <string.h>
 
@@ -517,6 +518,23 @@ Shader* DeviceGL2::CreateShader(const char* _Ident, const char* _VertexShader, c
 		return new ShaderGLSL(this, _Ident, _VertexShader, _FragmentShader);
 	}
 	return NULL;
+}
+
+Graphics::Shader* DeviceGL2::CreateShaderFromPath(const char* _Ident, const char* _VertexShaderPath, const char* _FragmentShaderPath)
+{
+	if(!_Ident || !_VertexShaderPath || !_FragmentShaderPath)
+		return 0;
+
+	Resource::ResourceManager* res = GetKernel()->GetResourceManager();
+	Resource::Text* _VSData = res->Acquire<Resource::Text>(_VertexShaderPath);
+	Resource::Text* _FSData = res->Acquire<Resource::Text>(_FragmentShaderPath);
+
+	if(!_VSData || !_FSData)
+		return 0;
+
+	ShaderGLSL *_Shader = new ShaderGLSL(this,_Ident,_VSData->Ptr(),_FSData->Ptr());
+
+	return _Shader;
 }
 
 void DeviceGL2::DestroyShader(Shader* _Shader)

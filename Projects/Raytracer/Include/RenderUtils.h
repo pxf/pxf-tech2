@@ -12,7 +12,7 @@ namespace Pxf {
 };
 
 class Triangle;
-Triangle* triangle_list(Pxf::Resource::Mesh* mesh);
+Triangle** triangle_list(Pxf::Resource::Mesh* mesh);
 
 enum PrimType { SpherePrim, PlanePrim, PointLightPrim, AreaLightPrim, TrianglePrim };
 
