@@ -29,7 +29,7 @@ Connection::~Connection()
 Packet::~Packet()
 {
 	if (data)
-		MemoryFree(data);
+		Pxf::MemoryFree(data);
 }
 
 Connection *ConnectionManager::new_connection(ConnectionType _type)
