@@ -71,12 +71,20 @@ public:
 		ZThread::Guard<ZThread::FastMutex> g(m_Lock);
 		Entry_t e(_Type, _Task);
 		m_InternalArray.push_back(e);
+
+		if (m_Conditions.find(_Type) == m_Conditions.end())
+			register_type(_Type);
+
 		m_Conditions[_Type]->signal();
 	}
 
 	T pop(unsigned int _Type)
 	{
 		ZThread::Guard<ZThread::FastMutex> g(m_Lock);
+
+		if (m_Conditions.find(_Type) == m_Conditions.end())
+			register_type(_Type);
+
 		while(count(_Type) == 0 && !m_Canceled)
 			m_Conditions[_Type]->wait();
 
