@@ -46,6 +46,8 @@ class Client
 		int m_log_tag;
 		void ping(Connection *_c, int _timestamp);
 		bool connect_tracker();
+
+		int last_batch_check;
 };
 
 #endif

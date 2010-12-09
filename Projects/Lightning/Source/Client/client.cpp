@@ -59,17 +59,21 @@ int Client::run()
 	while(!exit)
 	{
 		// Check for old batches.
-		Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
-		for(iter = m_Batches.begin(); iter != m_Batches.end();)
+		if ((time(NULL) - last_batch_check) >= 60)
 		{
-			if ((time(NULL) - ((*iter).second)->timestamp) > 60*10) // Allow 10 minutes idle.
+			Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
+			for(iter = m_Batches.begin(); iter != m_Batches.end();)
 			{
-				// It's old.
-				delete (*iter).second;
-				m_Batches.erase(iter);
+				if ((time(NULL) - ((*iter).second)->timestamp) > 60*10) // Allow 10 minutes idle.
+				{
+					// It's old.
+					delete (*iter).second;
+					m_Batches.erase(iter);
+				}
+				else
+					iter++;
 			}
-			else
-				iter++;
+			last_batch_check = time(NULL);
 		}
 
 		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
