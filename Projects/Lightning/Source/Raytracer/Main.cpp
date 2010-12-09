@@ -52,6 +52,14 @@ Pxf::Timer render_timer;
 batch_blob_t blob;
 ConnectionManager *cman;
 
+// task/batch specific globals
+const int w = 128;
+const int h = 128;
+const int channels = 3;
+const int task_count = 8;
+int task_size_w = w / task_count;
+int task_size_h = h / task_count;
+
 raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 {
 	raytracer::DataBlob* npack = new raytracer::DataBlob();
@@ -166,8 +174,27 @@ int startrender_cb(lua_State* L)
 				LiPacket* data_lipack = new LiPacket(conn, data_pack, C_DATA);
 				cman->send((Packet*)data_lipack);
 				
+				
 				// Send tasks!
-				// TODO
+				client::Tasks* tasks_pack = new client::Tasks();
+				tasks_pack->set_batchhash("LOLWUT");
+				for(int y = 0; y < task_count; y++)
+				{
+					for(int x = 0; x < task_count; x++)
+					{
+						raytracer::Task* task_pack = new raytracer::Task();
+						task_pack->set_x(x * task_size_w);
+						task_pack->set_y(y * task_size_h);
+						task_pack->set_w(task_size_w);
+						task_pack->set_h(task_size_h);
+						
+						client::Tasks_Task* ctask_pack = tasks_pack->add_task();
+						ctask_pack->set_tasksize(task_pack->ByteSize());
+						ctask_pack->set_task(task_pack->SerializeAsString());
+					}
+				}
+				LiPacket* tasks_lipack = new LiPacket(conn, tasks_pack, C_TASKS);
+				cman->send((Packet*)tasks_lipack);
 				
 				ready_to_send = true;
 				
@@ -233,12 +260,12 @@ int main(int argc, char* argv[])
 	
 	
 	// Generate awesome red output buffer
-	const int w = 128;
-	const int h = 128;
-	const int channels = 3;
-	const int task_count = 8;
-	int task_size_w = w / task_count;
-	int task_size_h = h / task_count;
+	//const int w = 128;
+	//const int h = 128;
+	//const int channels = 3;
+	//const int task_count = 8;
+	//int task_size_w = w / task_count;
+	//int task_size_h = h / task_count;
 	char pixels[w*h*channels];
 	
 	// job specifics

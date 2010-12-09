@@ -35,6 +35,7 @@ void protobuf_ShutdownFile_raytracer_2eproto();
 class DataBlob;
 class DataBlob_Vec3f;
 class DataBlob_PrimitiveSphere;
+class Task;
 
 // ===================================================================
 
@@ -404,6 +405,119 @@ class DataBlob : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static DataBlob* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class Task : public ::google::protobuf::Message {
+ public:
+  Task();
+  virtual ~Task();
+  
+  Task(const Task& from);
+  
+  inline Task& operator=(const Task& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Task& default_instance();
+  
+  void Swap(Task* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Task* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Task& from);
+  void MergeFrom(const Task& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 x = 1;
+  inline bool has_x() const;
+  inline void clear_x();
+  static const int kXFieldNumber = 1;
+  inline ::google::protobuf::int32 x() const;
+  inline void set_x(::google::protobuf::int32 value);
+  
+  // required int32 y = 2;
+  inline bool has_y() const;
+  inline void clear_y();
+  static const int kYFieldNumber = 2;
+  inline ::google::protobuf::int32 y() const;
+  inline void set_y(::google::protobuf::int32 value);
+  
+  // required int32 w = 3;
+  inline bool has_w() const;
+  inline void clear_w();
+  static const int kWFieldNumber = 3;
+  inline ::google::protobuf::int32 w() const;
+  inline void set_w(::google::protobuf::int32 value);
+  
+  // required int32 h = 4;
+  inline bool has_h() const;
+  inline void clear_h();
+  static const int kHFieldNumber = 4;
+  inline ::google::protobuf::int32 h() const;
+  inline void set_h(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:raytracer.Task)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 x_;
+  ::google::protobuf::int32 y_;
+  ::google::protobuf::int32 w_;
+  ::google::protobuf::int32 h_;
+  friend void  protobuf_AddDesc_raytracer_2eproto();
+  friend void protobuf_AssignDesc_raytracer_2eproto();
+  friend void protobuf_ShutdownFile_raytracer_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Task* default_instance_;
+};
 // ===================================================================
 
 
@@ -660,6 +774,74 @@ DataBlob::spheres() const {
 inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveSphere >*
 DataBlob::mutable_spheres() {
   return &spheres_;
+}
+
+// -------------------------------------------------------------------
+
+// Task
+
+// required int32 x = 1;
+inline bool Task::has_x() const {
+  return _has_bit(0);
+}
+inline void Task::clear_x() {
+  x_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 Task::x() const {
+  return x_;
+}
+inline void Task::set_x(::google::protobuf::int32 value) {
+  _set_bit(0);
+  x_ = value;
+}
+
+// required int32 y = 2;
+inline bool Task::has_y() const {
+  return _has_bit(1);
+}
+inline void Task::clear_y() {
+  y_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 Task::y() const {
+  return y_;
+}
+inline void Task::set_y(::google::protobuf::int32 value) {
+  _set_bit(1);
+  y_ = value;
+}
+
+// required int32 w = 3;
+inline bool Task::has_w() const {
+  return _has_bit(2);
+}
+inline void Task::clear_w() {
+  w_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 Task::w() const {
+  return w_;
+}
+inline void Task::set_w(::google::protobuf::int32 value) {
+  _set_bit(2);
+  w_ = value;
+}
+
+// required int32 h = 4;
+inline bool Task::has_h() const {
+  return _has_bit(3);
+}
+inline void Task::clear_h() {
+  h_ = 0;
+  _clear_bit(3);
+}
+inline ::google::protobuf::int32 Task::h() const {
+  return h_;
+}
+inline void Task::set_h(::google::protobuf::int32 value) {
+  _set_bit(3);
+  h_ = value;
 }
 
 
