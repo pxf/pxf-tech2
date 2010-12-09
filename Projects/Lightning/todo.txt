@@ -1,5 +1,6 @@
 Client:
-	[ ] Check timestamps in current batches every other minute and free batches
+	[x] Check timestamps in current batches every other minute and free batches
 		that haven't been used for a specified amount of time.
 	[ ] Fix an allocated-list-thing for clients
+	[ ] Add job-initiator-ok-list-thing to allocate-state
 

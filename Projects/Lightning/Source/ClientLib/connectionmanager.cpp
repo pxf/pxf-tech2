@@ -98,21 +98,6 @@ void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _typ
 	getpeername(_socket, (struct sockaddr*)&addr, &len);
 	void *addr_in = &(addr.sin_addr);
 	inet_ntop(AF_INET, addr_in, connection->target_address, INET_ADDRSTRLEN);
-
-/*	void *addr;
-
-	if (res->ai_family == AF_INET)
-	{
-		// ipv4
-		struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
-		addr = &(ipv4->sin_addr);
-	} else {
-		// ipv6
-		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
-		addr = &(ipv6->sin6_addr);
-	}
-	inet_ntop(res->ai_family, addr, _connection->target_address, INET6_ADDRSTRLEN);
-*/
 }
 
 bool ConnectionManager::bind_connection(Connection *_connection, char *_address, int _port)
@@ -370,6 +355,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					c->buffer = (char*)Pxf::MemoryAllocate(c->buffer_size);
 					
 					recv_bytes = recv(c->socket, (char*)(c->buffer), c->buffer_size, 0);
+					m_Kernel->Log(m_log_tag, "Read %d bytes", recv_bytes);
 
 					if (recv_bytes == c->buffer_size)
 					{

@@ -1,6 +1,6 @@
 #include "lightning.h"
 
-google::protobuf::Message *get_protobuf_class(int type)
+google::protobuf::Message *get_protobuf_class(MessageType type)
 {
 	switch(type)
 	{
@@ -67,7 +67,7 @@ char *LiPacket::pack(google::protobuf::Message *_proto, int _type)
 google::protobuf::Message *LiPacket::unpack()
 {
 	Pxf::MemoryCopy(
-		(int*)&message_type,
+		(MessageType*)&message_type,
 		data,
 		sizeof(message_type)
 	);
@@ -76,7 +76,7 @@ google::protobuf::Message *LiPacket::unpack()
 
 	if (proto == NULL) return NULL;
 
-	proto->ParseFromString(data+sizeof(message_type));
+	proto->ParseFromString(Pxf::Util::String(data+sizeof(message_type), length));
 
 	return proto;
 }

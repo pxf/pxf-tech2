@@ -3,10 +3,13 @@
 
 #include <time.h>
 
+#include <Pxf/Util/String.h>
+
 #include "connectionmanager.h"
 #include "lightning.pb.h"
 #include "client.pb.h"
 #include "tracker.pb.h"
+#include "raytracer.pb.h" // TODO: Ta bort
 
 enum MessageType {
 	// Common between all instances
@@ -49,6 +52,12 @@ struct Batch
 	int return_port;
 };
 
+struct Task
+{
+	Batch* batch;
+	client::Tasks::Task *task;
+};
+
 struct LiPacket : Packet
 {
 	LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type);
@@ -60,7 +69,7 @@ struct LiPacket : Packet
 	google::protobuf::Message *unpack();
 };
 
-void *get_proto_class(int type);
+void *get_proto_class(MessageType type);
 
 #endif
 

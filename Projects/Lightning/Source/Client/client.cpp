@@ -18,6 +18,8 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_State = State();
 
 	m_Kernel = Pxf::Kernel::GetInstance();
+	m_TaskQueue = new BlockingTaskQueue<Task*>;
+	m_TaskQueue->register_type(RAYTRACER); // TODO: Move to raytracer class
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
@@ -57,6 +59,24 @@ int Client::run()
 	// This is our main fail
 	while(!exit)
 	{
+		// Check for old batches.
+		if ((time(NULL) - last_batch_check) >= 60)
+		{
+			Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
+			for(iter = m_Batches.begin(); iter != m_Batches.end();)
+			{
+				if ((time(NULL) - ((*iter).second)->timestamp) > 60*10) // Allow 10 minutes idle.
+				{
+					// It's old.
+					delete (*iter).second;
+					m_Batches.erase(iter);
+				}
+				else
+					iter++;
+			}
+			last_batch_check = time(NULL);
+		}
+
 		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
 
 		if (difftime(time(NULL), ping_timestamp) > PING_INTERVAL/1000.0f)
@@ -123,6 +143,12 @@ int Client::run()
 					// TODO: Check what the connection is waiting for with the State class
 					break;	
 				}
+				case GOODBYE:
+				{
+					m_Kernel->Log(m_log_tag, "Client %d disconnected.", (*p)->connection->session_id);
+					m_ConnMan.remove_connection((*p)->connection);
+					break;	
+				}
 				case C_HELLO:
 				{
 					// TODO: Do more stuff
@@ -178,7 +204,8 @@ int Client::run()
 
 					Pxf::Util::String hash = data->batchhash();
 
-					// TODO: Check that client has allocated the resource and that stuff doesn't exist yet
+					// Check that client has allocated the resource
+					// TODO: And that stuff doesn't exist yet
 					if (count(m_State.m_Allocatees.begin(), m_State.m_Allocatees.end(), (*p)->connection) != 1)
 					{
 						m_Kernel->Log(m_log_tag, "Client has not been allocated!");
@@ -224,7 +251,36 @@ int Client::run()
 				{
 					client::Tasks *tasks = (client::Tasks*)((*p)->unpack());
 
-					// TODO: Check that the batch exists.
+					if (m_Batches.count(tasks->batchhash()) != 1)
+					{
+						m_Kernel->Log(m_log_tag, "Tasks sent without knowing batch data, dropping tasks!");
+						// TODO: Send tasks to another client?
+						delete tasks;
+						break;
+					}
+
+					Batch* b = m_Batches[tasks->batchhash()];
+					Task* t;
+					
+					for (int i = 0; i < tasks->task_size(); i++)
+					{
+						t = new Task();
+						t->batch = b;
+						client::Tasks::Task* n_task = new client::Tasks::Task();
+						n_task->CopyFrom(tasks->task(i));
+						t->task = n_task;
+
+						m_TaskQueue->push(b->type, t);
+					}
+
+					m_Kernel->Log(m_log_tag, "Pushed %d tasks of type %s from %d",
+						tasks->task_size(),
+						b->type,
+						(*p)->connection->session_id
+					);
+
+					//delete tasks;
+
 					// MASSIVE CODE GOES HERE
 
 					break;
@@ -288,7 +344,7 @@ bool Client::connect_tracker()
 	
 	m_session_id = hello_client->session_id();
 
-//	delete packets->front();
+	delete packets->front();
 	packets->clear();
 	
 	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d, using socket %d", m_session_id, c->socket);
@@ -324,6 +380,8 @@ bool Client::connect_tracker()
 	else
 	{
 		m_Kernel->Log(m_net_tag, "Got unknown packet when expecting connection from tracker.");
+
+		delete packets->front();
 		return false;
 	}
 }

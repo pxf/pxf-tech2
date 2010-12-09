@@ -23,6 +23,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* DataBlob_PrimitiveSphere_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   DataBlob_PrimitiveSphere_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Task_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Task_reflection_ = NULL;
 
 }  // namespace
 
@@ -89,6 +92,24 @@ void protobuf_AssignDesc_raytracer_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DataBlob_PrimitiveSphere));
+  Task_descriptor_ = file->message_type(1);
+  static const int Task_offsets_[4] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Task, x_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Task, y_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Task, w_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Task, h_),
+  };
+  Task_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Task_descriptor_,
+      Task::default_instance_,
+      Task_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Task, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Task, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Task));
 }
 
 namespace {
@@ -107,6 +128,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     DataBlob_Vec3f_descriptor_, &DataBlob_Vec3f::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     DataBlob_PrimitiveSphere_descriptor_, &DataBlob_PrimitiveSphere::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Task_descriptor_, &Task::default_instance());
 }
 
 }  // namespace
@@ -118,6 +141,8 @@ void protobuf_ShutdownFile_raytracer_2eproto() {
   delete DataBlob_Vec3f_reflection_;
   delete DataBlob_PrimitiveSphere::default_instance_;
   delete DataBlob_PrimitiveSphere_reflection_;
+  delete Task::default_instance_;
+  delete Task_reflection_;
 }
 
 void protobuf_AddDesc_raytracer_2eproto() {
@@ -136,15 +161,18 @@ void protobuf_AddDesc_raytracer_2eproto() {
     "taBlob.PrimitiveSphere\032(\n\005Vec3f\022\t\n\001x\030\001 \002"
     "(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002(\002\032L\n\017PrimitiveSph"
     "ere\022+\n\010position\030\001 \002(\0132\031.raytracer.DataBl"
-    "ob.Vec3f\022\014\n\004size\030\002 \002(\002", 382);
+    "ob.Vec3f\022\014\n\004size\030\002 \002(\002\"2\n\004Task\022\t\n\001x\030\001 \002("
+    "\005\022\t\n\001y\030\002 \002(\005\022\t\n\001w\030\003 \002(\005\022\t\n\001h\030\004 \002(\005", 434);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raytracer.proto", &protobuf_RegisterTypes);
   DataBlob::default_instance_ = new DataBlob();
   DataBlob_Vec3f::default_instance_ = new DataBlob_Vec3f();
   DataBlob_PrimitiveSphere::default_instance_ = new DataBlob_PrimitiveSphere();
+  Task::default_instance_ = new Task();
   DataBlob::default_instance_->InitAsDefaultInstance();
   DataBlob_Vec3f::default_instance_->InitAsDefaultInstance();
   DataBlob_PrimitiveSphere::default_instance_->InitAsDefaultInstance();
+  Task::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_raytracer_2eproto);
 }
 
@@ -1224,6 +1252,334 @@ void DataBlob::Swap(DataBlob* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = DataBlob_descriptor_;
   metadata.reflection = DataBlob_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int Task::kXFieldNumber;
+const int Task::kYFieldNumber;
+const int Task::kWFieldNumber;
+const int Task::kHFieldNumber;
+#endif  // !_MSC_VER
+
+Task::Task()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void Task::InitAsDefaultInstance() {
+}
+
+Task::Task(const Task& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void Task::SharedCtor() {
+  _cached_size_ = 0;
+  x_ = 0;
+  y_ = 0;
+  w_ = 0;
+  h_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Task::~Task() {
+  SharedDtor();
+}
+
+void Task::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void Task::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Task::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Task_descriptor_;
+}
+
+const Task& Task::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_raytracer_2eproto();  return *default_instance_;
+}
+
+Task* Task::default_instance_ = NULL;
+
+Task* Task::New() const {
+  return new Task;
+}
+
+void Task::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    x_ = 0;
+    y_ = 0;
+    w_ = 0;
+    h_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Task::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 x = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &x_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_y;
+        break;
+      }
+      
+      // required int32 y = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_y:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &y_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(24)) goto parse_w;
+        break;
+      }
+      
+      // required int32 w = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_w:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &w_)));
+          _set_bit(2);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(32)) goto parse_h;
+        break;
+      }
+      
+      // required int32 h = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_h:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &h_)));
+          _set_bit(3);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void Task::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required int32 x = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->x(), output);
+  }
+  
+  // required int32 y = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->y(), output);
+  }
+  
+  // required int32 w = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->w(), output);
+  }
+  
+  // required int32 h = 4;
+  if (_has_bit(3)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->h(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* Task::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required int32 x = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->x(), target);
+  }
+  
+  // required int32 y = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->y(), target);
+  }
+  
+  // required int32 w = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->w(), target);
+  }
+  
+  // required int32 h = 4;
+  if (_has_bit(3)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->h(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int Task::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 x = 1;
+    if (has_x()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->x());
+    }
+    
+    // required int32 y = 2;
+    if (has_y()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->y());
+    }
+    
+    // required int32 w = 3;
+    if (has_w()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->w());
+    }
+    
+    // required int32 h = 4;
+    if (has_h()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->h());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Task::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Task* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Task*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Task::MergeFrom(const Task& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_x(from.x());
+    }
+    if (from._has_bit(1)) {
+      set_y(from.y());
+    }
+    if (from._has_bit(2)) {
+      set_w(from.w());
+    }
+    if (from._has_bit(3)) {
+      set_h(from.h());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Task::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Task::CopyFrom(const Task& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Task::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
+  
+  return true;
+}
+
+void Task::Swap(Task* other) {
+  if (other != this) {
+    std::swap(x_, other->x_);
+    std::swap(y_, other->y_);
+    std::swap(w_, other->w_);
+    std::swap(h_, other->h_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Task::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Task_descriptor_;
+  metadata.reflection = Task_reflection_;
   return metadata;
 }
 
