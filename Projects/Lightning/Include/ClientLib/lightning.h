@@ -60,7 +60,7 @@ struct LiPacket : Packet
 	google::protobuf::Message *unpack();
 };
 
-void *get_proto_class(int type);
+void *get_proto_class(MessageType type);
 
 #endif
 

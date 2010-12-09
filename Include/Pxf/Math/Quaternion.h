@@ -9,6 +9,9 @@
 namespace Pxf {
 namespace Math {
 
+	class Quaternion;
+	Quaternion Conjugated(const Quaternion& q);
+
 class Quaternion
 {
 public:
@@ -148,7 +151,21 @@ public:
 		out_mtx->m[15] = 1.0f;
 	}
 
-	/*
+	float Quaternion::GetPitch()
+	{
+		return atan2(2*(y*z + w*x), w*w - x*x - y*y + z*z);
+	}
+
+	float Quaternion::GetYaw()
+	{
+	  return asin(-2*(x*z - w*y));
+	}
+
+	float Quaternion::GetRoll()
+	{
+	  return atan2(2*(x*y + w*z), w*w + x*x - y*y - z*z);
+	}
+		/*
 		Operators
 	*/
 
@@ -230,6 +247,25 @@ public:
 		tmp.w = w * o.w - x * o.x - y * o.y - z * o.z;
 		*this = tmp;
 		return *this;
+	}
+
+	Vec3f operator * (const Vec3f& vec) const
+	{
+		Vec3f vn(vec);
+		Normalize(vn);
+ 
+		Quaternion vecQuat, resQuat;
+		vecQuat.x = vn.x;
+		vecQuat.y = vn.y;
+		vecQuat.z = vn.z;
+		vecQuat.w = 0.0f;
+ 
+		Quaternion this_conj = Conjugated(*this);
+
+		resQuat = vecQuat * this_conj;
+		resQuat = *this * resQuat;
+ 
+		return (Vec3f(resQuat.x, resQuat.y, resQuat.z));
 	}
 	
 	/* Division */

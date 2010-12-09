@@ -30,7 +30,7 @@ Resource::Text* Resource::TextLoader::Load(const char* _FilePath)
 	Resource::Chunk* chunk = new Resource::Chunk();
 	FileStream f;
 	f.Open(_FilePath, "rb");
-	unsigned size = f.GetSize();
+	size_t size = f.GetSize();
 	char* data = new char[size+1];
 	f.Read(data, size);
 	f.Close();

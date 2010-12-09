@@ -178,7 +178,8 @@ int Client::run()
 
 					Pxf::Util::String hash = data->batchhash();
 
-					// TODO: Check that client has allocated the resource and that stuff doesn't exist yet
+					// Check that client has allocated the resource
+					// TODO: And that stuff doesn't exist yet
 					if (count(m_State.m_Allocatees.begin(), m_State.m_Allocatees.end(), (*p)->connection) != 1)
 					{
 						m_Kernel->Log(m_log_tag, "Client has not been allocated!");
@@ -224,7 +225,20 @@ int Client::run()
 				{
 					client::Tasks *tasks = (client::Tasks*)((*p)->unpack());
 
-					// TODO: Check that the batch exists.
+					if (m_Batches.count(tasks->batchhash()) != 1)
+					{
+						m_Kernel->Log(m_log_tag, "Tasks sent without knowing batch data, dropping tasks!");
+						// TODO: Send tasks to another client?
+						delete tasks;
+						break;
+					}
+
+					m_Kernel->Log(m_log_tag, "Got %d tasks of type %s from %d",
+						tasks->task_size(),
+						tasks->batchhash().c_str(),
+						(*p)->connection->session_id
+					);
+
 					// MASSIVE CODE GOES HERE
 
 					break;
@@ -288,7 +302,7 @@ bool Client::connect_tracker()
 	
 	m_session_id = hello_client->session_id();
 
-//	delete packets->front();
+	delete packets->front();
 	packets->clear();
 	
 	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d, using socket %d", m_session_id, c->socket);
@@ -324,6 +338,8 @@ bool Client::connect_tracker()
 	else
 	{
 		m_Kernel->Log(m_net_tag, "Got unknown packet when expecting connection from tracker.");
+
+		delete packets->front();
 		return false;
 	}
 }
