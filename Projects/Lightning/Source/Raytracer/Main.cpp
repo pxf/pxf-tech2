@@ -141,10 +141,20 @@ int startrender_cb(lua_State* L)
 				Pxf::Message("oae", "Got PING message!");
 			} else if ((*tpacket)->message_type == OK)
 			{
-				ready_to_send = true;
-				lua_pushstring(L, "time to send data!");
+				// Send alloc request
+				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
+				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
+				alloc_reqpack->set_batchhash("LOLWUT"); // TODO: Create a real hash of the batch data blob
+				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
+				cman->send((Packet*)alloc_reqlipack);
+				
 				Pxf::Message("oae", "Got OK message!");
-				return 1;
+				
+			} else if ((*tpacket)->message_type == C_ALLOC_RESP)
+			{
+				// Send data!
+
+				Pxf::Message("oae", "Got C_ALLOC_RESP message!");
 			} else {
 				Pxf::Message("oae", "Got unknown packet type!");
 			}
@@ -153,9 +163,9 @@ int startrender_cb(lua_State* L)
 		in->clear();
 	}
 	
-	//LiPacket* packet = new LiPacket();
-	
-	return 0;
+
+	lua_pushstring(L, "time to send data!");
+	return 1;
 }
 
 int main(int argc, char* argv[])

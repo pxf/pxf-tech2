@@ -37,7 +37,7 @@ LiPacket::LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type)
 
 MessageType LiPacket::get_type()
 {
-	message_type = (MessageType)*data;
+	message_type = (MessageType)*(int*)data;
 	return message_type;
 }
 
