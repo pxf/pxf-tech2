@@ -151,17 +151,17 @@ public:
 		out_mtx->m[15] = 1.0f;
 	}
 
-	float Quaternion::GetPitch()
+	float GetPitch()
 	{
 		return atan2(2*(y*z + w*x), w*w - x*x - y*y + z*z);
 	}
 
-	float Quaternion::GetYaw()
+	float GetYaw()
 	{
 	  return asin(-2*(x*z - w*y));
 	}
 
-	float Quaternion::GetRoll()
+	float GetRoll()
 	{
 	  return atan2(2*(x*y + w*z), w*w + x*x - y*y - z*z);
 	}
