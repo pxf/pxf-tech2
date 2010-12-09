@@ -252,17 +252,6 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
 
-	
-	// Add 64 spheres on the floor, should slow down the render a bit. Compare with kd-tree.
-	/*
-	for (int y = 0; y < 8; y++)
-	{
-		for (int x = 0; x < 8; x++)
-		{
-			blob.primitives[blob.prim_count++] = new Sphere(Math::Vec3f(x-3.5f,-4.f,y+2), .5f, (x+y)%2 == 0 ? &sphere_mat1 : &sphere_mat2);
-		}
-	}*/
-
 	//blob.prim_count = 7;
 	
 	// generate a couple of random samples
@@ -303,11 +292,11 @@ int main(int argc, char* argv[])
 	bool running = true;
 	bool guihit = false;
 	
-	// MODEL
+	// MODELS
 	Model* model_teapot = gfx->CreateModel(teapot);
 	Model* model_box = gfx->CreateModel(box);
 
-	Triangle* triangle_data = triangle_list(box);
+	//Triangle* triangle_data = triangle_list(box);
 
 	// CAMERA
 	SimpleCamera cam;
@@ -318,7 +307,9 @@ int main(int argc, char* argv[])
 	cam.SetProjectionView(prjmat);
 	cam.Translate(0.0f,20.0f,100.0f);
 
-	//blob.cam = &cam;
+	blob.cam = &cam;
+	//blob.primitives = (Primitive**) triangle_list(box);
+	//blob.prim_count = box->GetData()->triangle_count;
 
 	// Raytracer client test
 	//------------------------
@@ -381,7 +372,7 @@ int main(int argc, char* argv[])
 			if (!guihit)
 				MoveCamera(&cam,inp);
 
-			model_teapot->Draw();
+			model_box->Draw();
 		}
 		else
 		{

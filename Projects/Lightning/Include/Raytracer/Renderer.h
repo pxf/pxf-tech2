@@ -27,6 +27,7 @@ struct batch_blob_t
 	int interleaved_feedback;
 	
 	// TODO: Add textures, kd-tree etc etc.
+	Camera* cam;
 	/*KDTree* tree;
 	Camera* cam;*/
 };

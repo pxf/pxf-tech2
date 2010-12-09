@@ -296,37 +296,17 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	cray.o += cam->GetPos();
 
 	Quaternion orientation = (*cam->GetOrientation());
+	Normalize(orientation);
+
+	//screen_coords = orientation * screen_coords;
+	//Normalize(screen_coords);
+	screen_coords += cam->GetPos();
+
 	if (!calc_multisample_ray(&cray, datablob, &fpixel, 0.001f, 0))
 	{
 		Pxf::Message("calculate_pixel", "Ray shooting failed!");
 		return false;
 	}
-	//calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec3f *res, float spread, int bounce)
-	
-
-	float pitch = orientation.GetPitch();
-	float yaw = orientation.GetYaw();
-
-	//screen_coords.x = screen_coords.x*cos(pitch) - screen_coords.y*sin(pitch);
-	//screen_coords.y = screen_coords.x*sin(pitch) + screen_coords.y*cos(pitch);
-	//screen_coords.z = screen_coords.x*sin(yaw) + screen_coords.z*cos(yaw);
-
-	screen_coords += cam->GetPos();
-
-	/*
-	Quaternion q;
-	q.x = 0.0f;
-	q.y = screen_coords.x;
-	q.z = screen_coords.y;
-	q.w = screen_coords.z;
-
-	Quaternion orientation = (*cam->GetOrientation());
-	Quaternion res = (orientation * q) * Conjugated(orientation);
-
-	screen_coords = Direction(res);
-	screen_coords += cam->GetPos();
-	*/
-
 
 	// find closest primitive
 	for(int pixel_x = 0; pixel_x < datablob->samples_per_pixel; ++pixel_x)
@@ -344,6 +324,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			new_screen_coords.x += (0.5f / ((float)datablob->pic_w)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
 			new_screen_coords.y += (0.5f / ((float)datablob->pic_h)) * (datablob->samples[rand() % 255] * 2.0f - 1.0f);
 			ray.d = new_screen_coords - cray.o;
+			ray.d = orientation * ray.d;
 			Normalize(ray.d);
 			
 			// Calc direct light
@@ -356,7 +337,7 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 			fpixel += light_contrib;
 			
 		}
-	}*/
+	}
 	
 	//fpixel /= datablob->samples_per_pixel * datablob->samples_per_pixel;
 	

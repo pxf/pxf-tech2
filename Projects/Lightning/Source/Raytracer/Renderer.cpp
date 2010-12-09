@@ -284,11 +284,20 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	// Clear pixel
 	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
 	
+	// Get camera
+	SimpleCamera* cam = (SimpleCamera*) datablob->cam;
+
 	// Center ray
 	Vec3f screen_coords(-1.0f + x, 1.0f - y, 0.0f);
 	ray_t cray;
 	cray.o = Vec3f(0.0f,0.0f,-1.41421356f);
 	cray.d = screen_coords - cray.o;
+
+	Quaternion orientation = (*cam->GetOrientation());
+	Normalize(orientation);
+
+	cray.d += cam->GetPos();
+	cray.d = orientation * cray.d;
 	Normalize(cray.d);
 
 	if (!calc_multisample_ray(&cray, datablob, &fpixel, 0.001f, 0))

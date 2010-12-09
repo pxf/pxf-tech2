@@ -9,6 +9,9 @@
 namespace Pxf {
 namespace Math {
 
+	class Quaternion;
+	Quaternion Conjugated(const Quaternion& q);
+
 class Quaternion
 {
 public:
@@ -246,19 +249,24 @@ public:
 		return *this;
 	}
 
-	/*
-	Vec3f operator * (const Vec3f vec)
+	Vec3f operator * (const Vec3f& vec) const
 	{
-		Quaternion v;
-		v.x = vec.x;
-		v.y = vec.y;
-		v.z = vec.z;
-		v.w = 0.0f;
-		Quaternion q = *this;
+		Vec3f vn(vec);
+		Normalize(vn);
+ 
+		Quaternion vecQuat, resQuat;
+		vecQuat.x = vn.x;
+		vecQuat.y = vn.y;
+		vecQuat.z = vn.z;
+		vecQuat.w = 0.0f;
+ 
+		Quaternion this_conj = Conjugated(*this);
 
-		Quaternion tmp = q * v;
-		return Vec3f(tmp.x,tmp.y,tmp.z);
-	}*/
+		resQuat = vecQuat * this_conj;
+		resQuat = *this * resQuat;
+ 
+		return (Vec3f(resQuat.x, resQuat.y, resQuat.z));
+	}
 	
 	/* Division */
 	Quaternion operator / (const float c) const
