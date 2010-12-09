@@ -104,6 +104,19 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, int
 	//Primitive *closest_prim = 0x0;
 	intersection_response_t closest_resp;
 	
+	if(!datablob->tree) return false;
+
+	Primitive* p = RayTreeIntersect(*datablob->tree,*ray,10000.0f,closest_resp);
+
+	if(p) 
+	{
+		closest_depth = closest_resp.depth;
+		*prim = p;
+		*resp = closest_resp;
+		found = true;
+	}
+
+	/*
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
 		// test intersection
@@ -117,7 +130,7 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, int
 				found = true;
 			}
 		}
-	}
+	}*/
 	
 	return found;
 }
@@ -202,7 +215,8 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 			
 				// TODO: add better contributing calculations
 				float ndotl = Dot(closest_resp.n, light_ray.d);
-				*res += closest_prim->material->diffuse * (datablob->lights[l]->material->diffuse * ndotl * att) / (float)datablob->light_count;
+				if(ndotl > 0.0f)
+					*res += closest_prim->material->diffuse * (datablob->lights[l]->material->diffuse * ndotl * att) / (float)datablob->light_count;
 		
 			// Area lights
 			} else if (datablob->lights[l]->GetType() == AreaLightPrim)

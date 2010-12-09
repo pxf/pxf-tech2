@@ -145,6 +145,7 @@
     <ClInclude Include="Include\Raytracer\PhotonMapper.h" />
     <ClInclude Include="Include\Raytracer\RaytracerClient.h" />
     <ClInclude Include="Include\Raytracer\Renderer.h" />
+    <ClInclude Include="Include\Raytracer\RenderUtilDefs.h" />
     <ClInclude Include="Include\Raytracer\RenderUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -7,7 +7,7 @@
 
 using namespace std;
 
-class Prim;
+class Primitive;
 class Vertex;
 
 struct ray_t
@@ -45,13 +45,11 @@ struct aabb {
 bool ray_aabb(ray_t* ray,aabb* box,intersection_response_t* resp);
 bool ray_triangle(Vertex A,Vertex B,Vertex C,ray_t* ray, intersection_response_t* resp);
 bool ray_triangle(Vertex* data,ray_t* ray, intersection_response_t* resp);
-//bool ray_triangle(Pxf::Math::Vec3f A,Pxf::Math::Vec3f B,Pxf::Math::Vec3f C,ray_t* ray, intersection_response_t* resp);
-//bool ray_triangle(Pxf::Math::Vec3f* data,ray_t* ray, intersection_response_t* resp);
 bool ray_sphere(Pxf::Math::Vec3f *c, float r, ray_t *ray, intersection_response_t* resp);
 bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersection_response_t* resp);
 
 // helpers
-aabb CalcAABB(Prim** _Primitives, int _NbrPrim);	// calculate an aabb from a set of primitives
-aabb CalcAABB(const Prim& _Primitive);			// calc aabb from one primitive
+aabb CalcAABB(Primitive** _Primitives, int _NbrPrim);	// calculate an aabb from a set of primitives
+aabb CalcAABB(Primitive& _Primitive);			// calc aabb from one primitive
 
 #endif /* _INTERSECTIONS_H_ */

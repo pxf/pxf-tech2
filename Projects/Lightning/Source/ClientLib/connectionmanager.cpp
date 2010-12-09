@@ -88,8 +88,13 @@ void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _typ
 	m_max_socketfd = (_socket > m_max_socketfd) ? _socket : m_max_socketfd;
 
 	struct sockaddr_in addr;
+	
+#if defined (CONF_FAMILY_WINDOWS)
+	int len = sizeof(addr);
+#else
 	unsigned int len = sizeof(addr);
-
+#endif
+	
 	getpeername(_socket, (struct sockaddr*)&addr, &len);
 	void *addr_in = &(addr.sin_addr);
 	inet_ntop(AF_INET, addr_in, connection->target_address, INET_ADDRSTRLEN);

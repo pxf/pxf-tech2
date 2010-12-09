@@ -180,8 +180,7 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 }
 
 /* HELPER FUNCTIONS */
-/*
-aabb CalcAABB(Prim** _Primitives, int _NbrPrim)
+aabb CalcAABB(Primitive** _Primitives, int _NbrPrim)
 {
 	aabb box;
 
@@ -193,7 +192,7 @@ aabb CalcAABB(Prim** _Primitives, int _NbrPrim)
 	// accumulative additions on the bounding boxes
 	for(int i = 1; i < _NbrPrim; i++)
 	{
-		Prim* p = _Primitives[i];
+		Primitive* p = _Primitives[i];
 		aabb tBox = (*p->box);
 		box = box + tBox;
 	}
@@ -201,20 +200,21 @@ aabb CalcAABB(Prim** _Primitives, int _NbrPrim)
 	return box;
 }
 
-aabb CalcAABB(const Prim& _Primitive)
+aabb CalcAABB(Primitive& _Primitive)
 {
-	int _Type = _Primitive.type;
+	int _Type = _Primitive.GetType();
 
 	Vec3f _Pos,_Max,_Size;
 
 	// find the smallest component on each point's axis
 	if (_Type == TrianglePrim)
 	{
-		_Pos = _Primitive.v[0];
-		_Max = _Primitive.v[0];
+		Triangle* t = ((Triangle*) &_Primitive);
+		_Pos = t->vertices[0]->v;
+		_Max = t->vertices[0]->v;
 
-		Vec3f v1 = _Primitive.v[1];
-		Vec3f v2 = _Primitive.v[2];
+		Vec3f v1 = t->vertices[1]->v;
+		Vec3f v2 = t->vertices[2]->v;
 
 		// find smallest x
 		if (v1.x < _Pos.x)
@@ -252,14 +252,15 @@ aabb CalcAABB(const Prim& _Primitive)
 	}
 	else if(_Type == SpherePrim)
 	{
-		float r = _Primitive.r;
+		Sphere* s = (Sphere*) &_Primitive;
+		float r = s->r;
 		float d = r * 2.0f;
 
 		// box extents
 		_Size = Vec3f(d,d,d);
 
 		// set smallest corner from center point
-		_Pos = _Primitive.c - Vec3f(r,r,r);
+		_Pos = s->p - Vec3f(r,r,r);
 	}
 
 	aabb _Box;
@@ -268,4 +269,3 @@ aabb CalcAABB(const Prim& _Primitive)
 
 	return _Box;
 }
-*/
