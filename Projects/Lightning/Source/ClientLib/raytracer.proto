@@ -1,0 +1,38 @@
+package raytracer;
+
+message DataBlob {
+	
+	message Vec3f {
+		required float x = 1;
+		required float y = 2;
+		required float z = 3;
+	}
+
+	message PrimitiveSphere {
+		required Vec3f position = 1;
+		required float size = 2;
+	}
+
+	required int32 prim_count = 1;
+	required int32 light_count = 2;
+	
+	repeated float samples = 3;
+	
+	required int32 bounce_count = 4;
+	
+	required int32 pic_w = 5;
+	required int32 pic_h = 6;
+	
+	required int32 samples_per_pixel = 7;
+	
+	required int32 interleaved_feedback = 8;
+	
+	repeated PrimitiveSphere spheres = 9;
+}
+
+message Task {
+	required int32 x = 1;
+	required int32 y = 2;
+	required int32 w = 3;
+	required int32 h = 4;
+}

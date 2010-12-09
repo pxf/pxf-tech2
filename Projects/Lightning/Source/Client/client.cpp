@@ -141,6 +141,12 @@ int Client::run()
 					// TODO: Check what the connection is waiting for with the State class
 					break;	
 				}
+				case GOODBYE:
+				{
+					m_Kernel->Log(m_log_tag, "Client %d disconnected.", (*p)->connection->session_id);
+					m_ConnMan.remove_connection((*p)->connection);
+					break;	
+				}
 				case C_HELLO:
 				{
 					// TODO: Do more stuff
@@ -256,6 +262,14 @@ int Client::run()
 						tasks->batchhash().c_str(),
 						(*p)->connection->session_id
 					);
+
+					const client::Tasks::Task& t = tasks->task(0);
+					raytracer::Task* apa = new raytracer::Task;
+					apa->ParseFromString(t.task());
+
+					m_Kernel->Log(m_log_tag, "First task x: %d, w: %d", apa->x(), apa->w());
+
+					delete tasks;
 
 					// MASSIVE CODE GOES HERE
 

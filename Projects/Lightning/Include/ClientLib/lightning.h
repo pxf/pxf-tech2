@@ -3,10 +3,13 @@
 
 #include <time.h>
 
+#include <Pxf/Util/String.h>
+
 #include "connectionmanager.h"
 #include "lightning.pb.h"
 #include "client.pb.h"
 #include "tracker.pb.h"
+#include "raytracer.pb.h" // TODO: Ta bort
 
 enum MessageType {
 	// Common between all instances
