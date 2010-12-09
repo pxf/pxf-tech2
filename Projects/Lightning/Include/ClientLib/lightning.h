@@ -52,6 +52,12 @@ struct Batch
 	int return_port;
 };
 
+struct Task
+{
+	Batch* batch;
+	client::Tasks::Task *task;
+};
+
 struct LiPacket : Packet
 {
 	LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type);

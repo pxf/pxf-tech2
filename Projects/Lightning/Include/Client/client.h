@@ -39,7 +39,7 @@ class Client
 		State m_State;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
-		BlockingTaskQueue<void*> m_TaskQueue;
+		BlockingTaskQueue<Task*>* m_TaskQueue;
 
 		int m_queue_free;
 		int m_net_tag;	

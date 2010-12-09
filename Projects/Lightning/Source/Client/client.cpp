@@ -18,6 +18,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_State = State();
 
 	m_Kernel = Pxf::Kernel::GetInstance();
+	m_TaskQueue = new BlockingTaskQueue<Task*>;
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
@@ -253,19 +254,27 @@ int Client::run()
 						break;
 					}
 
-					m_Kernel->Log(m_log_tag, "Got %d tasks of type %s from %d",
+					Batch* b = m_Batches[tasks->batchhash()];
+					Task* t;
+					
+					for (int i = 0; i < tasks->task_size(); i++)
+					{
+						t = new Task();
+						t->batch = b;
+						client::Tasks::Task* n_task = new client::Tasks::Task();
+						n_task->CopyFrom(tasks->task(i));
+						t->task = n_task;
+
+						m_TaskQueue->push(b->type, t);
+					}
+
+					m_Kernel->Log(m_log_tag, "Pushed %d tasks of type %s from %d",
 						tasks->task_size(),
-						tasks->batchhash().c_str(),
+						b->type,
 						(*p)->connection->session_id
 					);
 
-					const client::Tasks::Task& t = tasks->task(0);
-					raytracer::Task* apa = new raytracer::Task;
-					apa->ParseFromString(t.task());
-
-					m_Kernel->Log(m_log_tag, "First task x: %d, w: %d", apa->x(), apa->w());
-
-					delete tasks;
+					//delete tasks;
 
 					// MASSIVE CODE GOES HERE
 
