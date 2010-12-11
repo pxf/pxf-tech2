@@ -140,7 +140,10 @@ bool WindowGL2::Open()
 		return true;
 	}
 	else
+	{
+		GetDevice()->GetKernel()->Log(m_LogTag, "Faild to open window with properties %dx%d@%d (r: %d g: %d b: %d a: %d d: %d s: %d)", m_width, m_height, m_bits_r+m_bits_g+m_bits_b+m_bits_alpha, m_bits_r, m_bits_g, m_bits_b, m_bits_alpha, m_bits_depth, m_bits_stencil);
 		return false;
+	}
 
 	
 }

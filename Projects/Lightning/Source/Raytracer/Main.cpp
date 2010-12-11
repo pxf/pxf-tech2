@@ -244,6 +244,12 @@ int main(int argc, char* argv[])
 	spec.VerticalSync = true;
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 
+	if (!win)
+	{
+		kernel->Log(0, "No window. Exiting.");
+		return 1;
+	}
+
 	Resource::Mesh::mesh_descriptor* descr;
 	Resource::Mesh* box = res->Acquire<Resource::Mesh>("data/box.ctm");
 	Resource::Mesh* box2 = res->Acquire<Resource::Mesh>("data/box_2.ctm");
