@@ -6,6 +6,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
 #include <zthread/ThreadedExecutor.h>
+#include <zthread/BlockingQueue.h>
 
 #include "connectionmanager.h"
 #include "lightning.h"
@@ -14,10 +15,9 @@
 
 class Client
 {
-	protected:
-		ZThread::ThreadedExecutor* m_ThreadedExecutor;
-
 	public:
+		typedef ZThread::BlockingQueue<client::Result*, ZThread::FastMutex> TaskResultQueue;
+
 		int m_session_id;
 		char *m_tracker_address;
 		int m_tracker_port;
@@ -42,8 +42,11 @@ class Client
 		State m_State;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
-		BlockingTaskQueue<Task*>* m_TaskQueue;
 		Connection* m_tracker;
+
+		ZThread::ThreadedExecutor* m_ThreadedExecutor;
+		BlockingTaskQueue<Task*>* m_TaskQueue;
+		TaskResultQueue* m_ResultQueue;
 
 		int m_queue_free;
 		int m_net_tag;	

@@ -13,7 +13,7 @@ protected:
 	bool m_Canceled;
 	ConnectionManager* m_ConnectionManager;
 public:
-	SendThread(Client* _client, ZThread::BlockingQueue<Result*, ZThread::FastMutex>* _ResultQueue)
+	SendThread(Client* _client, Client::TaskResultQueue* _ResultQueue)
 		: m_Client(_client)
 		, m_Canceled(false)
 	{
@@ -56,7 +56,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_TaskQueue->register_type(RAYTRACER); // TODO: Move to raytracer class
 
 	m_ThreadedExecutor = new ZThread::ThreadedExecutor();
-	m_ThreadedExecutor->execute(new SendThread(this));
+	m_ThreadedExecutor->execute(new SendThread(this, m_ResultQueue));
 
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
