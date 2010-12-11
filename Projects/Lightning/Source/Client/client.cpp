@@ -202,17 +202,12 @@ int Client::run()
 				case OK:
 				{
 					client_state* state = m_State.m_States[(*p)->connection];
-					/*if (state->state == WOK)
+					if (state->state == (WOK & W_HELLO))
 					{
-						switch (state->waitfor)
-						{
-							case WaitFor::HELLO:
-							{
-								//s
-								break;
-							}
-						}
-					}*/
+						// Waiting for OK from a HELLO request
+						m_Kernel->Log(m_log_tag, "Got OK response from HELLO request.");
+						m_State.m_Allocated.push_back((*p)->connection);
+					}
 					// TODO: Check what the connection is waiting for with the State class
 					break;	
 				}

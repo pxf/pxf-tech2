@@ -4,18 +4,14 @@
 #include <deque>
 
 enum ClientState {
-	WOK, // Why? HELLO
-	WALLOC
+	WOK = 2,
+	WALLOC = 8,
+	W_HELLO = 16
 };
-
-//enum WaitFor {
-//	HELLO
-//};
 
 struct client_state
 {
 	ClientState state;
-	//WaitFor	waitfor;
 };
 
 class State
