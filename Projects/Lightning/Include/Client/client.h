@@ -39,13 +39,19 @@ class Client
 		State m_State;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
-		BlockingTaskQueue<void*> m_TaskQueue;
+		BlockingTaskQueue<Task*>* m_TaskQueue;
 
 		int m_queue_free;
 		int m_net_tag;	
 		int m_log_tag;
+		int last_batch_check;
+
 		void ping(Connection *_c, int _timestamp);
 		bool connect_tracker();
+		Pxf::Util::Array<client::Tasks*> split_tasks(client::Tasks*);
+		void push(client::Tasks* _tasks);
+		void forward(Pxf::Util::Array<client::Tasks*> _tasks);
+
 };
 
 #endif

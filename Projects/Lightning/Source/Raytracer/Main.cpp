@@ -35,6 +35,7 @@
 #include "lightning.pb.h"
 #include "client.pb.h"
 #include "raytracer.pb.h"
+#include "KDTree.h"
 
 #include "fabric/App.h"
 
@@ -206,7 +207,7 @@ int startrender_cb(lua_State* L)
 						task_pack->set_w(task_size_w);
 						task_pack->set_h(task_size_h);
 						
-						client::Tasks_Task* ctask_pack = tasks_pack->add_task();
+						client::Tasks::Task* ctask_pack = tasks_pack->add_task();
 						ctask_pack->set_tasksize(task_pack->ByteSize());
 						char *lol = new char[task_pack->ByteSize()];
 						//ctask_pack->set_task(task_pack->SerializeAsString());
@@ -261,8 +262,15 @@ int main(int argc, char* argv[])
 	spec.VerticalSync = true;
 	Graphics::Window* win = gfx->OpenWindow(&spec);
 
+	if (!win)
+	{
+		kernel->Log(0, "No window. Exiting.");
+		return 1;
+	}
+
 	Resource::Mesh::mesh_descriptor* descr;
 	Resource::Mesh* box = res->Acquire<Resource::Mesh>("data/box.ctm");
+	Resource::Mesh* box2 = res->Acquire<Resource::Mesh>("data/box_2.ctm");
 	Resource::Mesh* sphere = res->Acquire<Resource::Mesh>("data/sphere.ctm");
 	Resource::Mesh* teapot = res->Acquire<Resource::Mesh>("data/teapot.ctm");
 
@@ -283,7 +291,7 @@ int main(int argc, char* argv[])
 	// job specifics
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 2; // 10 -> 10*10 = 100
+	blob.samples_per_pixel = 4; // 10 -> 10*10 = 100
 	blob.bounce_count = 6; // Number of reflection bounces
 	blob.interleaved_feedback = 2;
 	
@@ -332,12 +340,13 @@ int main(int argc, char* argv[])
 	
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
-	light_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	light_mat2.diffuse = Vec3f(0.0f, 0.0f, 1.0f);
+	light_mat1.diffuse = Vec3f(0.0f, 0.0f, 1.0f);
+	light_mat2.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
 	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 60.0f, 15.0f), &light_mat1);
+	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -20.0f, -15.0f), &light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
-	blob.light_count = 1;
+	blob.light_count = 2;
 	
 	// create textures and primitive batches
 	Texture *region_textures[task_count*task_count] = {0};
@@ -363,10 +372,11 @@ int main(int argc, char* argv[])
 	// MODELS
 	Model* model_teapot = gfx->CreateModel(teapot);
 	Model* model_box = gfx->CreateModel(box);
+	Model* model_box2 = gfx->CreateModel(box2);
 	Model* model_sphere = gfx->CreateModel(sphere);
 
-	current_scene.mesh = sphere;
-	current_scene.mdl = model_sphere;
+	current_scene.mesh = box2;
+	current_scene.mdl = model_box2;
 
 	// CAMERA
 	SimpleCamera cam;
@@ -377,9 +387,21 @@ int main(int argc, char* argv[])
 	cam.SetProjectionView(prjmat);
 	cam.Translate(0.0f,20.0f,100.0f);
 
+	// PRIMITIVE DATA
+	Primitive** scene_data = (Primitive**) triangle_list(current_scene.mesh);
+	int tri_count = current_scene.mesh->GetData()->triangle_count;
+
+
+	// KD TREE
+	KDTree* tree = new KDTree(3);
+	tree->Build(scene_data,tri_count);
+	Graphics::VertexBuffer* tree_VB = gfx->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
+	CreateVBFromTree(tree,tree_VB);
+
 	blob.cam = &cam;
-	blob.primitives = (Primitive**) triangle_list(current_scene.mesh);
-	blob.prim_count = current_scene.mesh->GetData()->triangle_count;
+	blob.primitives = scene_data;
+	blob.prim_count = tri_count;
+	blob.tree = tree;
 
 	// Raytracer client test
 	//------------------------
@@ -412,6 +434,8 @@ int main(int argc, char* argv[])
 
 	bool is_done = false;
 	bool exec_rt = false;
+
+	float t = 0.0f;
 
 	while(win->IsOpen() && running)
 	{
@@ -468,6 +492,35 @@ int main(int argc, char* argv[])
 
 			for(size_t i=0; i < blob.light_count; i++)
 				draw_light((BaseLight*) blob.lights[i]);
+
+			gfx->DrawBuffer(tree_VB,0);
+
+			// INIT DEBUG RAY
+			t += 0.01f;
+
+			ray_t debug_ray;
+			debug_ray.o = Math::Vec3f(5.0f,25.0f + sin(t*0.25f)*10.0f,50.0f);
+			debug_ray.d = Math::Vec3f(0.0f,-0.2f,-1.0f);
+			Normalize(debug_ray.d);
+
+			Vec3f p0 = debug_ray.o;
+			Vec3f p1 = debug_ray.o + debug_ray.d * 10000.0f;
+
+			// DRAW DEBUG RAY
+			glColor3f(0.0f,1.0f,0.0f);
+			glBegin(GL_LINES);
+				glVertex3f(p0.x,p0.y,p0.z);
+				glVertex3f(p1.x,p1.y,p1.z);
+			glEnd();
+
+			intersection_response_t resp;
+			Primitive* p_res = RayTreeIntersect(*tree,debug_ray,10000.0f,resp);
+
+			if(p_res)
+			{
+				p_res->Draw();
+			}
+
 		}
 		else
 		{
@@ -549,6 +602,12 @@ int main(int argc, char* argv[])
 	
 	delete app;
 	delete pbatch;
+
+	//delete tree; 
+	tree = 0;
+
+	delete [] scene_data; 
+	scene_data = 0;
 
 	delete kernel;
 

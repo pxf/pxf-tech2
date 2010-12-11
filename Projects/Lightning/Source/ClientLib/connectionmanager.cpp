@@ -88,8 +88,13 @@ void ConnectionManager::add_incoming_connection(int _socket, ConnectionType _typ
 	m_max_socketfd = (_socket > m_max_socketfd) ? _socket : m_max_socketfd;
 
 	struct sockaddr_in addr;
+	
+#if defined (CONF_FAMILY_WINDOWS)
+	int len = sizeof(addr);
+#else
 	unsigned int len = sizeof(addr);
-
+#endif
+	
 	getpeername(_socket, (struct sockaddr*)&addr, &len);
 	void *addr_in = &(addr.sin_addr);
 	inet_ntop(AF_INET, addr_in, connection->target_address, INET_ADDRSTRLEN);
@@ -350,6 +355,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					c->buffer = (char*)Pxf::MemoryAllocate(c->buffer_size);
 					
 					recv_bytes = recv(c->socket, (char*)(c->buffer), c->buffer_size, 0);
+					m_Kernel->Log(m_log_tag, "Read %d bytes", recv_bytes);
 
 					if (recv_bytes == c->buffer_size)
 					{

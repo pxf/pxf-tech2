@@ -90,6 +90,9 @@ Triangle** triangle_list(Mesh* mesh)
 		v->n = normal;
 		v->uv = texcoord;
 		t->vertices[v_index] = v;
+
+		if(v_index == 2)
+			t->SetAABB();
 	}
 
 	return t_list;

@@ -10,12 +10,12 @@
 
 class KDNode;
 class KDTree;
-class Prim;
+class Primitive;
 struct aabb;
 
 void PrintStatistics(KDTree* t);
 void CreateVBFromTree(KDTree* t,Pxf::Graphics::VertexBuffer* vb);
-Prim* RayTreeIntersect(KDTree& t,ray_t& r,float dist,intersection_response_t& resp);
+Primitive* RayTreeIntersect(KDTree& t,ray_t& r,float dist,intersection_response_t& resp);
 
 struct split_position {
 	float pos;
@@ -53,8 +53,8 @@ public:
 		}
 	}
 
-	void SetPrimData(Prim** _Data,unsigned _NbrPrims);
-	Prim** GetPrimData() { return m_PrimData; }
+	void SetPrimData(Primitive** _Data,unsigned _NbrPrims);
+	Primitive** GetPrimData() { return m_PrimData; }
 
 	void SetLeftChild(KDNode* _Child) { m_LeftChild = _Child; }
 	void SetRightChild(KDNode* _Child) { m_RightChild = _Child; }
@@ -87,7 +87,7 @@ private:
 	float m_SplitPosition;
 	unsigned m_PrimCount;
 
-	Prim** m_PrimData;
+	Primitive** m_PrimData;
 };
 
 class KDTree {
@@ -98,28 +98,26 @@ public:
 		, m_Dimensions(k)
 		, m_MaxDepth(_MaxDepth)
 		, m_Initialized(false)
-	{ m_Root = new KDNode(); }
+	{ 
+		m_Root = new KDNode(); 
+	}
 
 	~KDTree() {
 		if(m_KDStack)
-			delete [] &m_KDStack; 
-	}
+		{
+			delete [] &m_KDStack;	// DOESNT WORK :(
+			m_KDStack = 0;
+		}
 
-	/*
-	struct split_t
-	{
-		split_t(float s,unsigned a)	{ sp=s; axis=a;	}
-		float sp;
-		unsigned axis;
-	};
-	*/
+		m_SplitBuffer.clear();
+	}
 
 	KDNode* GetRoot() { return m_Root; }
 	KDStack* GetStack() { return m_KDStack; }
 
 	aabb GetAABB() { return m_AABB; }
 
-	bool Build(Prim** _PrimData, unsigned _NbrPrims);
+	bool Build(Primitive** _PrimData, unsigned _NbrPrims);
 	bool IsValid() { return m_Initialized; }
 
 	struct tree_statistics {

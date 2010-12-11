@@ -5,6 +5,8 @@
 #include "KDTree.h"
 #include "Camera.h"
 
+class KDTree;
+
 struct batch_blob_t
 {	
 	// scene data
@@ -28,6 +30,7 @@ struct batch_blob_t
 	
 	// TODO: Add textures, kd-tree etc etc.
 	Camera* cam;
+	KDTree* tree;
 	/*KDTree* tree;
 	Camera* cam;*/
 };

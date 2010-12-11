@@ -18,6 +18,8 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_State = State();
 
 	m_Kernel = Pxf::Kernel::GetInstance();
+	m_TaskQueue = new BlockingTaskQueue<Task*>;
+	m_TaskQueue->register_type(RAYTRACER); // TODO: Move to raytracer class
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
@@ -58,17 +60,21 @@ int Client::run()
 	while(!exit)
 	{
 		// Check for old batches.
-		Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
-		for(iter = m_Batches.begin(); iter != m_Batches.end();)
+		if ((time(NULL) - last_batch_check) >= 60)
 		{
-			if ((time(NULL) - ((*iter).second)->timestamp) > 60*10) // Allow 10 minutes idle.
+			Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
+			for(iter = m_Batches.begin(); iter != m_Batches.end();)
 			{
-				// It's old.
-				delete (*iter).second;
-				m_Batches.erase(iter);
+				if ((time(NULL) - ((*iter).second)->timestamp) > 60*10) // Allow 10 minutes idle.
+				{
+					// It's old.
+					delete (*iter).second;
+					m_Batches.erase(iter);
+				}
+				else
+					iter++;
 			}
-			else
-				iter++;
+			last_batch_check = time(NULL);
 		}
 
 		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
@@ -135,6 +141,12 @@ int Client::run()
 				case OK:
 				{
 					// TODO: Check what the connection is waiting for with the State class
+					break;	
+				}
+				case GOODBYE:
+				{
+					m_Kernel->Log(m_log_tag, "Client %d disconnected.", (*p)->connection->session_id);
+					m_ConnMan.remove_connection((*p)->connection);
 					break;	
 				}
 				case C_HELLO:
@@ -237,21 +249,34 @@ int Client::run()
 				}
 				case C_TASKS:
 				{
-					client::Tasks *tasks = (client::Tasks*)((*p)->unpack());
+					client::Tasks *proto_tasks = (client::Tasks*)((*p)->unpack());
 
-					if (m_Batches.count(tasks->batchhash()) != 1)
+					if (m_Batches.count(proto_tasks->batchhash()) != 1)
 					{
 						m_Kernel->Log(m_log_tag, "Tasks sent without knowing batch data, dropping tasks!");
 						// TODO: Send tasks to another client?
-						delete tasks;
+						delete proto_tasks;
 						break;
 					}
 
-					m_Kernel->Log(m_log_tag, "Got %d tasks of type %s from %d",
-						tasks->task_size(),
-						tasks->batchhash().c_str(),
+					// Split the tasks in subgroups, copies data.
+					Pxf::Util::Array<client::Tasks*> tasks = split_tasks(proto_tasks);
+
+					delete proto_tasks;
+
+					m_Kernel->Log(m_log_tag, "Pushing %d tasks from %d",
+						tasks.back()->task_size(),
 						(*p)->connection->session_id
 					);
+
+					// Push a set of tasks to our queue
+					push(tasks.back());
+					
+					// Remove the set we just used
+					tasks.pop_back();
+
+					// Forward the rest
+					forward(tasks);
 
 					// MASSIVE CODE GOES HERE
 
@@ -268,6 +293,49 @@ int Client::run()
 	}
 
 	return 0;
+}
+
+void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
+{
+	1+1;	
+}
+
+void Client::push(client::Tasks* _tasks)
+{
+	Batch* b = m_Batches[_tasks->batchhash()];
+
+	for (int i = 0; i < _tasks->task_size(); i++)
+	{
+		Task* t = new Task();
+		t->batch = b;
+		client::Tasks::Task* n_task = new client::Tasks::Task();
+		n_task->CopyFrom(_tasks->task(i));
+		t->task = n_task;
+
+		m_TaskQueue->push(b->type, t);
+	}
+}
+
+Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
+{
+	int parts = 2; // TODO: Smarter stuff!
+	int n = _tasks->task_size() / parts;
+	Pxf::Util::Array<client::Tasks*> tasks;
+
+	// Create new tasks sets
+	for (int i = 0; i < parts; i++)
+	{
+		client::Tasks* t = new client::Tasks();
+		t->set_batchhash(_tasks->batchhash());
+		tasks.push_back(t);
+	}
+
+	int b = 0;
+	for (int i = 0; i < _tasks->task_size(); i++) {
+		client::Tasks_Task* t = tasks[b%parts]->add_task();
+		t->CopyFrom(_tasks->task(i));
+		b++;
+	}
 }
 
 
