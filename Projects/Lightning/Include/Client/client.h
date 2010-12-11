@@ -17,7 +17,7 @@
 class Client
 {
 	public:
-		typedef ZThread::BlockingQueue<client::Result*, ZThread::FastMutex> TaskResultQueue;
+		typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
 
 		int m_session_id;
 		char *m_tracker_address;

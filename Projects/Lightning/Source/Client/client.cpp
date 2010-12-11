@@ -1,8 +1,63 @@
 #include "client.h"
 
+#include <zthread/ConcurrentExecutor.h>
+
 #define INITIAL_QUEUE 6
 #define PING_INTERVAL 10000 // Ping interval in milliseconds
 #define PING_TIMEOUT 5000 // Ping timeout in milliseconds
+
+class SendThread : public ZThread::Runnable
+{
+protected:
+	Client* m_Client;
+	bool m_Canceled;
+	ConnectionManager* m_ConnectionManager;
+	Client::TaskResultQueue* m_ResultQueue;
+	Pxf::Util::Map<Pxf::Util::String, Batch*>* m_BatchMap;
+public:
+	SendThread(Client* _client, Client::TaskResultQueue* _ResultQueue
+			  ,Pxf::Util::Map<Pxf::Util::String, Batch*>* _BatchMap)
+		: m_Client(_client)
+		, m_Canceled(false)
+		, m_ResultQueue(_ResultQueue)
+		, m_BatchMap(_BatchMap)
+
+	{
+		m_ConnectionManager = new ConnectionManager();
+	}
+
+	void run()
+	{
+		while(!m_Canceled)
+		{
+			try
+			{
+				client::Result* result = m_ResultQueue->next()->result;
+				Pxf::Util::String batchhash = result->batchhash();
+				Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator \
+					iter = m_BatchMap->find(batchhash);
+
+				if (iter == m_BatchMap->end())
+					continue; /* error */
+
+				char* retaddr = (*iter).second->return_address;
+				int retport = (*iter).second->return_port;
+
+				Connection* conn = m_ConnectionManager->new_connection(CLIENT);
+				m_ConnectionManager->connect_connection(conn, retaddr, retport);
+
+				const char* data = result->result().c_str();
+				int len = result->result().size();
+				m_ConnectionManager->send(conn, (char*)data, len);
+			}
+			catch (ZThread::Cancellation_Exception* e)
+			{
+				m_Canceled = true;
+				break;
+			}
+		}
+	}
+};
 
 Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port, int _client_port)
 {
@@ -20,12 +75,18 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_TaskQueue = new BlockingTaskQueue<Task*>;
 	m_TaskQueue->register_type(RAYTRACER); // TODO: Move to raytracer class
+	m_ResultQueue = new TaskResultQueue();
+
+	m_ThreadedExecutor = new ZThread::ThreadedExecutor();
+	m_ThreadedExecutor->execute(new SendThread(this, m_ResultQueue, &m_Batches));
+
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
 
 Client::~Client()
 {
+	m_ThreadedExecutor->cancel();
 	Pxf::MemoryFree(m_tracker_address);
 	Pxf::MemoryFree(m_local_address);
 }
@@ -34,11 +95,12 @@ int Client::run()
 {
 	time_t last_ping, ping_timestamp;
 
+	Pxf::Util::Array<Packet*> *packets;
+
 	// Start the raytracerclient.
 	// TODO: A list of modules instead of statically loading each.
 	m_Raytracerclient = new RaytracerClient(m_Kernel, m_TaskQueue, m_ResultQueue);
 	m_Raytracerclient->run_noblock();
-	Pxf::Util::Array<Packet*> *packets;
 	
 	// Setting up socket for clients to connect to
 	Connection *client_c = m_ConnMan.new_connection(CLIENT);
@@ -310,11 +372,15 @@ int Client::run()
 			delete p;
 			pack_iter = packets->erase(pack_iter);
 		}
+
+		//list_connections();
+
 	}
 
 	return 0;
 }
 
+// Initiate forwarding of tasks
 void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 {
 	int diff = _tasks.size() - m_State.m_Allocated.size();
@@ -338,6 +404,8 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 	//if (_tasks.size() - diff > 0)
 }
 
+
+// Pushes a set of tasks to the local queue
 void Client::push(client::Tasks* _tasks)
 {
 	Batch* b = m_Batches[_tasks->batchhash()];
@@ -354,6 +422,7 @@ void Client::push(client::Tasks* _tasks)
 	}
 }
 
+// Split the tasks in chunks
 Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 {
 	int parts = 2; // TODO: Smarter stuff!
@@ -374,6 +443,8 @@ Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 		t->CopyFrom(_tasks->task(i));
 		b++;
 	}
+	
+	return tasks;
 }
 
 
@@ -387,6 +458,26 @@ void Client::ping(Connection *_c, int _timestamp)
 	m_ConnMan.send(_c, pkg->data, pkg->length);
 
 	delete pkg;
+}
+
+void Client::list_connections()
+{
+	Pxf::Util::Array<Connection*> cs = m_ConnMan.m_Connections;
+	Pxf::Util::Array<Connection*>::iterator i;
+
+	printf("Current open connections:\n");
+	printf("=========================\n");
+
+	for (i = cs.begin(); i != cs.end(); i++)
+		printf("socket: %d, session_id: %d, type: %d, bound: %s timestamp: %d\n", 
+			(*i)->socket,
+			(*i)->session_id,
+			(*i)->type,
+			(*i)->bound ? "true" : "false",
+			(*i)->timestamp
+		);
+	
+	printf("=========================\n");
 }
 
 /* Connects to the tracker at the specified endpoint */
@@ -422,11 +513,9 @@ bool Client::connect_tracker()
 
 	tracker::HelloToClient *hello_client = (tracker::HelloToClient*)pkg->unpack();
 
-	
 	m_session_id = hello_client->session_id();
 
 	delete pkg;
-
 	packets->clear();
 	
 	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d, using socket %d", m_session_id, c->socket);
@@ -438,7 +527,7 @@ bool Client::connect_tracker()
 	hello_tracker->set_client_port(m_client_port);
 	// TODO: Fix:
 	//hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
-	hello_tracker->set_available(0);
+	hello_tracker->set_available(6);
 
 	pkg = new LiPacket(c, hello_tracker, T_HELLO_TRACKER);
 
@@ -454,10 +543,13 @@ bool Client::connect_tracker()
 		// Check that the tracker connected...
 		Pxf::Util::Array<Connection*>::iterator c;
 		for (c = m_ConnMan.m_Connections.begin(); c != m_ConnMan.m_Connections.end(); c++)
-			if ((*c)->type == TRACKER) return true;
+			if (((*c)->type == TRACKER) && !((*c)->bound))
+			{
+				m_tracker = *c;
+				return true;
+			}
 
 		m_Kernel->Log(m_net_tag, "Tracker could not connect to client. Are the ports open?");
-		list_connections();
 		return false;
 	}
 	else
