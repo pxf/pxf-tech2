@@ -1,6 +1,6 @@
 #include "client.h"
 
-#include <ZThread/ConcurrentExecutor.h>
+#include <zthread/ConcurrentExecutor.h>
 
 #define INITIAL_QUEUE 6
 #define PING_INTERVAL 10000 // Ping interval in milliseconds
