@@ -212,10 +212,33 @@ int Client::run()
 					if (state->state == (WOK & W_HELLO))
 					{
 						// Waiting for OK from a HELLO request
-						m_Kernel->Log(m_log_tag, "Got OK response from HELLO request.");
+						m_Kernel->Log(m_log_tag, "Got OK response on HELLO request from %d.",
+							p->connection->session_id);
 						m_State.m_Allocated.push_back(p->connection);
+
+						if (m_State.m_OutQueue.size() > 0)
+						{
+							m_Kernel->Log(m_log_tag, "Sending ALLOCATE request to %d",
+								p->connection->session_id);
+
+							client::AllocateClient* alloc = new client::AllocateClient();
+							alloc->set_batchhash(m_State.m_OutQueue.front()->batchhash());
+							alloc->set_amount(m_State.m_OutQueue.front()->task_size());
+
+							LiPacket* pkg = new LiPacket(p->connection, alloc, C_ALLOCATE);
+
+							m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+
+							delete alloc;
+							delete pkg;
+						}
+						else
+							m_Kernel->Log(m_log_tag, "No tasks to be forwarded, doing nothing.");
 					}
-					// TODO: Check what the connection is waiting for with the State class
+					else
+						m_Kernel->Log(m_log_tag, "Why did %d send an OK?", p->connection->session_id);
+
+					// TODO: More stuff?
 					break;	
 				}
 				case GOODBYE:
