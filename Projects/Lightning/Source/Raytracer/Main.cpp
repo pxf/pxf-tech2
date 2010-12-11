@@ -130,8 +130,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 		if (blob->primitives[i]->GetType() == TrianglePrim)
 		{
 			raytracer::DataBlob_PrimitiveTriangle* triangle_pack = npack->add_triangles();
-			raytracer::DataBlob_Vertex* vertex_pack = triangle_pack->mutable_vertices();
-
+			raytracer::DataBlob_Vertex* vertex_pack = triangle_pack->add_vertices();
 		}
 		/*
 		else if (blob->primitives[i]->GetType() == SpherePrim)

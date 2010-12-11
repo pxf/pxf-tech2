@@ -14,7 +14,9 @@ message DataBlob {
 	}
 
 	message PrimitiveTriangle {
-		repeated Vertex vertices = 1;
+		Vertex v0 = 1;
+		Vertex v1 = 2;
+		Vertex v2 = 3;
 	}
 
 	message PrimitiveSphere {
