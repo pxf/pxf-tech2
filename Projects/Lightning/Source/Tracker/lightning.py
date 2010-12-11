@@ -19,6 +19,7 @@ translate_message_type = {
     T_INIT: None,
     T_HELLO_CLIENT: tracker_pb2.HelloToClient,
     T_HELLO_TRACKER: tracker_pb2.HelloToTracker,
+    T_NODES_REQUEST: tracker_pb2.NodesRequest,
     GOODBYE: lightning_pb2.GoodBye,
     PING: lightning_pb2.Ping,
     PONG: lightning_pb2.Pong

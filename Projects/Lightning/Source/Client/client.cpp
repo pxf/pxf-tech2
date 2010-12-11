@@ -482,7 +482,7 @@ bool Client::connect_tracker()
 	hello_tracker->set_client_port(m_client_port);
 	// TODO: Fix:
 	//hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
-	hello_tracker->set_available(0);
+	hello_tracker->set_available(6);
 
 	LiPacket *pkg = new LiPacket(c, hello_tracker, T_HELLO_TRACKER);
 
