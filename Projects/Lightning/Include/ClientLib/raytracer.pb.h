@@ -590,17 +590,52 @@ class Result : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 id() const;
   inline void set_id(::google::protobuf::int32 value);
   
-  // required int32 size = 2;
+  // required int32 x = 2;
+  inline bool has_x() const;
+  inline void clear_x();
+  static const int kXFieldNumber = 2;
+  inline ::google::protobuf::int32 x() const;
+  inline void set_x(::google::protobuf::int32 value);
+  
+  // required int32 y = 3;
+  inline bool has_y() const;
+  inline void clear_y();
+  static const int kYFieldNumber = 3;
+  inline ::google::protobuf::int32 y() const;
+  inline void set_y(::google::protobuf::int32 value);
+  
+  // required int32 w = 4;
+  inline bool has_w() const;
+  inline void clear_w();
+  static const int kWFieldNumber = 4;
+  inline ::google::protobuf::int32 w() const;
+  inline void set_w(::google::protobuf::int32 value);
+  
+  // required int32 h = 5;
+  inline bool has_h() const;
+  inline void clear_h();
+  static const int kHFieldNumber = 5;
+  inline ::google::protobuf::int32 h() const;
+  inline void set_h(::google::protobuf::int32 value);
+  
+  // required bool final = 6;
+  inline bool has_final() const;
+  inline void clear_final();
+  static const int kFinalFieldNumber = 6;
+  inline bool final() const;
+  inline void set_final(bool value);
+  
+  // required int32 size = 7;
   inline bool has_size() const;
   inline void clear_size();
-  static const int kSizeFieldNumber = 2;
+  static const int kSizeFieldNumber = 7;
   inline ::google::protobuf::int32 size() const;
   inline void set_size(::google::protobuf::int32 value);
   
-  // required bytes data = 3;
+  // required bytes data = 8;
   inline bool has_data() const;
   inline void clear_data();
-  static const int kDataFieldNumber = 3;
+  static const int kDataFieldNumber = 8;
   inline const ::std::string& data() const;
   inline void set_data(const ::std::string& value);
   inline void set_data(const char* value);
@@ -613,6 +648,11 @@ class Result : public ::google::protobuf::Message {
   mutable int _cached_size_;
   
   ::google::protobuf::int32 id_;
+  ::google::protobuf::int32 x_;
+  ::google::protobuf::int32 y_;
+  ::google::protobuf::int32 w_;
+  ::google::protobuf::int32 h_;
+  bool final_;
   ::google::protobuf::int32 size_;
   ::std::string* data_;
   static const ::std::string _default_data_;
@@ -620,7 +660,7 @@ class Result : public ::google::protobuf::Message {
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -998,58 +1038,138 @@ inline void Result::set_id(::google::protobuf::int32 value) {
   id_ = value;
 }
 
-// required int32 size = 2;
-inline bool Result::has_size() const {
+// required int32 x = 2;
+inline bool Result::has_x() const {
   return _has_bit(1);
+}
+inline void Result::clear_x() {
+  x_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 Result::x() const {
+  return x_;
+}
+inline void Result::set_x(::google::protobuf::int32 value) {
+  _set_bit(1);
+  x_ = value;
+}
+
+// required int32 y = 3;
+inline bool Result::has_y() const {
+  return _has_bit(2);
+}
+inline void Result::clear_y() {
+  y_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 Result::y() const {
+  return y_;
+}
+inline void Result::set_y(::google::protobuf::int32 value) {
+  _set_bit(2);
+  y_ = value;
+}
+
+// required int32 w = 4;
+inline bool Result::has_w() const {
+  return _has_bit(3);
+}
+inline void Result::clear_w() {
+  w_ = 0;
+  _clear_bit(3);
+}
+inline ::google::protobuf::int32 Result::w() const {
+  return w_;
+}
+inline void Result::set_w(::google::protobuf::int32 value) {
+  _set_bit(3);
+  w_ = value;
+}
+
+// required int32 h = 5;
+inline bool Result::has_h() const {
+  return _has_bit(4);
+}
+inline void Result::clear_h() {
+  h_ = 0;
+  _clear_bit(4);
+}
+inline ::google::protobuf::int32 Result::h() const {
+  return h_;
+}
+inline void Result::set_h(::google::protobuf::int32 value) {
+  _set_bit(4);
+  h_ = value;
+}
+
+// required bool final = 6;
+inline bool Result::has_final() const {
+  return _has_bit(5);
+}
+inline void Result::clear_final() {
+  final_ = false;
+  _clear_bit(5);
+}
+inline bool Result::final() const {
+  return final_;
+}
+inline void Result::set_final(bool value) {
+  _set_bit(5);
+  final_ = value;
+}
+
+// required int32 size = 7;
+inline bool Result::has_size() const {
+  return _has_bit(6);
 }
 inline void Result::clear_size() {
   size_ = 0;
-  _clear_bit(1);
+  _clear_bit(6);
 }
 inline ::google::protobuf::int32 Result::size() const {
   return size_;
 }
 inline void Result::set_size(::google::protobuf::int32 value) {
-  _set_bit(1);
+  _set_bit(6);
   size_ = value;
 }
 
-// required bytes data = 3;
+// required bytes data = 8;
 inline bool Result::has_data() const {
-  return _has_bit(2);
+  return _has_bit(7);
 }
 inline void Result::clear_data() {
   if (data_ != &_default_data_) {
     data_->clear();
   }
-  _clear_bit(2);
+  _clear_bit(7);
 }
 inline const ::std::string& Result::data() const {
   return *data_;
 }
 inline void Result::set_data(const ::std::string& value) {
-  _set_bit(2);
+  _set_bit(7);
   if (data_ == &_default_data_) {
     data_ = new ::std::string;
   }
   data_->assign(value);
 }
 inline void Result::set_data(const char* value) {
-  _set_bit(2);
+  _set_bit(7);
   if (data_ == &_default_data_) {
     data_ = new ::std::string;
   }
   data_->assign(value);
 }
 inline void Result::set_data(const void* value, size_t size) {
-  _set_bit(2);
+  _set_bit(7);
   if (data_ == &_default_data_) {
     data_ = new ::std::string;
   }
   data_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* Result::mutable_data() {
-  _set_bit(2);
+  _set_bit(7);
   if (data_ == &_default_data_) {
     data_ = new ::std::string;
   }

@@ -221,6 +221,8 @@ int startrender_cb(lua_State* L)
 				LiPacket* tasks_lipack = new LiPacket(conn, tasks_pack, C_TASKS);
 				cman->send((Packet*)tasks_lipack);
 				
+				cman->remove_connection(conn);
+				
 				ready_to_send = true;
 				
 			} else {
@@ -475,13 +477,13 @@ int main(int argc, char* argv[])
 					Pxf::Graphics::GraphicsDevice* gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
 					if (region_textures[idx] == 0)
 					{
-						region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res_raytrace_packet->data(), task_size_w, task_size_h, channels);
+						region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res_raytrace_packet->data().c_str(), task_size_w, task_size_h, channels);
 						region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
 						region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
 					}
 					else
 					{
-						region_textures[idx]->UpdateData((const unsigned char*)res_raytrace_packet->data(), 0, 0, task_size_w, task_size_h);
+						region_textures[idx]->UpdateData((const unsigned char*)res_raytrace_packet->data().c_str(), 0, 0, task_size_w, task_size_h);
 					}
 					
 					if (res_raytrace_packet->final())
