@@ -460,7 +460,7 @@ int main(int argc, char* argv[])
 					raytracer::Result *res_raytrace_packet = new raytracer::Result();
 					res_raytrace_packet->ParseFromString(res_packet->result());
 					
-					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash(), res_raytrace_packet->id());
+					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash().c_str(), res_raytrace_packet->id());
 					
 				}
 			}
