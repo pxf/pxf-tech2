@@ -48,9 +48,12 @@ int total_done = 0;
 int total_count = 0;
 Pxf::Timer render_timer;
 
-// sup?
-batch_blob_t blob;
+// network connection
 ConnectionManager *cman;
+Connection *recv_conn = 0;
+
+// global blob/scene data
+batch_blob_t blob;
 struct scene {
 	Resource::Mesh* mesh;
 	Graphics::Model* mdl;
@@ -117,6 +120,16 @@ int renderstatus_cb(lua_State* L)
 
 int startrender_cb(lua_State* L)
 {
+	
+	// Open result connection
+	recv_conn = cman->new_connection(ORIGIN);
+	if (!cman->bind_connection(recv_conn, "localhost", lua_tonumber(L, 3)))
+	{
+		cman->remove_connection(recv_conn);
+		recv_conn = 0;
+		lua_pushstring(L, "Could not open result/recieve port!");
+		return 1;
+	}
 	
 	raytracer::DataBlob* new_pack = gen_packet_from_blob(&blob);
 	
@@ -195,7 +208,12 @@ int startrender_cb(lua_State* L)
 						
 						client::Tasks_Task* ctask_pack = tasks_pack->add_task();
 						ctask_pack->set_tasksize(task_pack->ByteSize());
-						ctask_pack->set_task(task_pack->SerializeAsString());
+						char *lol = new char[task_pack->ByteSize()];
+						//ctask_pack->set_task(task_pack->SerializeAsString());
+						task_pack->SerializeToArray(lol, task_pack->ByteSize());
+						ctask_pack->set_task(lol);
+						
+						delete [] lol;
 					}
 				}
 				LiPacket* tasks_lipack = new LiPacket(conn, tasks_pack, C_TASKS);
@@ -250,12 +268,7 @@ int main(int argc, char* argv[])
 
 	// Setup connection manager and stuff!
 	cman = new ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
-	Connection *conn = cman->new_connection(ORIGIN);
-	if (!cman->bind_connection(conn, "localhost", 4632))
-	{
-		Pxf::Message("aoe", "Bind failed!");
-		exit(2);
-	}
+	
 	
 	
 	// Generate awesome red output buffer
@@ -408,6 +421,28 @@ int main(int argc, char* argv[])
 			
 		running = app->Update();
 		guihit = app->GuiHit();
+		
+		// Recieve results via the network
+		if (recv_conn != 0)
+		{
+			Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets();		
+			for(Util::Array<LiPacket*>::iterator tpacket = in->begin(); tpacket != in->end(); ++tpacket)
+			{
+				Pxf::Message("aoe", "Got packet on SOME connection!");
+				(*tpacket)->get_type();
+				if ((*tpacket)->message_type == C_RESULT)
+				{
+					client::Result *res_packet = (client::Result*)((*tpacket)->unpack());
+					raytracer::Result *res_raytrace_packet = new raytracer::Result();
+					res_raytrace_packet->ParseFromString(res_packet->result());
+					
+					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash(), res_raytrace_packet->id());
+					
+				}
+			}
+			
+			in->clear();
+		}
 		
 		if (inp->GetLastKey() == Input::ENTER)
 		{

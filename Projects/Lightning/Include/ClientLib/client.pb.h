@@ -38,6 +38,7 @@ class AllocateResponse;
 class Data;
 class Tasks;
 class Tasks_Task;
+class Result;
 
 // ===================================================================
 
@@ -696,6 +697,111 @@ class Tasks : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static Tasks* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class Result : public ::google::protobuf::Message {
+ public:
+  Result();
+  virtual ~Result();
+  
+  Result(const Result& from);
+  
+  inline Result& operator=(const Result& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Result& default_instance();
+  
+  void Swap(Result* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Result* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Result& from);
+  void MergeFrom(const Result& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required string batchhash = 1;
+  inline bool has_batchhash() const;
+  inline void clear_batchhash();
+  static const int kBatchhashFieldNumber = 1;
+  inline const ::std::string& batchhash() const;
+  inline void set_batchhash(const ::std::string& value);
+  inline void set_batchhash(const char* value);
+  inline void set_batchhash(const char* value, size_t size);
+  inline ::std::string* mutable_batchhash();
+  
+  // required bytes result = 2;
+  inline bool has_result() const;
+  inline void clear_result();
+  static const int kResultFieldNumber = 2;
+  inline const ::std::string& result() const;
+  inline void set_result(const ::std::string& value);
+  inline void set_result(const char* value);
+  inline void set_result(const void* value, size_t size);
+  inline ::std::string* mutable_result();
+  
+  // @@protoc_insertion_point(class_scope:client.Result)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::std::string* batchhash_;
+  static const ::std::string _default_batchhash_;
+  ::std::string* result_;
+  static const ::std::string _default_result_;
+  friend void  protobuf_AddDesc_client_2eproto();
+  friend void protobuf_AssignDesc_client_2eproto();
+  friend void protobuf_ShutdownFile_client_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Result* default_instance_;
+};
 // ===================================================================
 
 
@@ -1184,6 +1290,94 @@ Tasks::task() const {
 inline ::google::protobuf::RepeatedPtrField< ::client::Tasks_Task >*
 Tasks::mutable_task() {
   return &task_;
+}
+
+// -------------------------------------------------------------------
+
+// Result
+
+// required string batchhash = 1;
+inline bool Result::has_batchhash() const {
+  return _has_bit(0);
+}
+inline void Result::clear_batchhash() {
+  if (batchhash_ != &_default_batchhash_) {
+    batchhash_->clear();
+  }
+  _clear_bit(0);
+}
+inline const ::std::string& Result::batchhash() const {
+  return *batchhash_;
+}
+inline void Result::set_batchhash(const ::std::string& value) {
+  _set_bit(0);
+  if (batchhash_ == &_default_batchhash_) {
+    batchhash_ = new ::std::string;
+  }
+  batchhash_->assign(value);
+}
+inline void Result::set_batchhash(const char* value) {
+  _set_bit(0);
+  if (batchhash_ == &_default_batchhash_) {
+    batchhash_ = new ::std::string;
+  }
+  batchhash_->assign(value);
+}
+inline void Result::set_batchhash(const char* value, size_t size) {
+  _set_bit(0);
+  if (batchhash_ == &_default_batchhash_) {
+    batchhash_ = new ::std::string;
+  }
+  batchhash_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Result::mutable_batchhash() {
+  _set_bit(0);
+  if (batchhash_ == &_default_batchhash_) {
+    batchhash_ = new ::std::string;
+  }
+  return batchhash_;
+}
+
+// required bytes result = 2;
+inline bool Result::has_result() const {
+  return _has_bit(1);
+}
+inline void Result::clear_result() {
+  if (result_ != &_default_result_) {
+    result_->clear();
+  }
+  _clear_bit(1);
+}
+inline const ::std::string& Result::result() const {
+  return *result_;
+}
+inline void Result::set_result(const ::std::string& value) {
+  _set_bit(1);
+  if (result_ == &_default_result_) {
+    result_ = new ::std::string;
+  }
+  result_->assign(value);
+}
+inline void Result::set_result(const char* value) {
+  _set_bit(1);
+  if (result_ == &_default_result_) {
+    result_ = new ::std::string;
+  }
+  result_->assign(value);
+}
+inline void Result::set_result(const void* value, size_t size) {
+  _set_bit(1);
+  if (result_ == &_default_result_) {
+    result_ = new ::std::string;
+  }
+  result_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Result::mutable_result() {
+  _set_bit(1);
+  if (result_ == &_default_result_) {
+    result_ = new ::std::string;
+  }
+  return result_;
 }
 
 

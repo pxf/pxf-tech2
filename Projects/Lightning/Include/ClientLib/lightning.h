@@ -31,7 +31,8 @@ enum MessageType {
 	C_ALLOCATE,
 	C_ALLOC_RESP,
 	C_DATA,
-	C_TASKS
+	C_TASKS,
+	C_RESULT
 };
 
 enum BatchType {

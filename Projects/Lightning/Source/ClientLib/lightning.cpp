@@ -24,6 +24,7 @@ google::protobuf::Message *get_protobuf_class(MessageType type)
 		case C_ALLOC_RESP: return new client::AllocateResponse;
 		case C_DATA: return new client::Data;
 		case C_TASKS: return new client::Tasks;
+		case C_RESULT: return new client::Result;
 	}
 
 	return NULL;
