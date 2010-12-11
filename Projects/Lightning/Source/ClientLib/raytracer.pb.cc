@@ -102,8 +102,10 @@ void protobuf_AssignDesc_raytracer_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DataBlob_Vertex));
   DataBlob_PrimitiveTriangle_descriptor_ = DataBlob_descriptor_->nested_type(2);
-  static const int DataBlob_PrimitiveTriangle_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitiveTriangle, vertices_),
+  static const int DataBlob_PrimitiveTriangle_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitiveTriangle, v0_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitiveTriangle, v1_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitiveTriangle, v2_),
   };
   DataBlob_PrimitiveTriangle_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -227,7 +229,7 @@ void protobuf_AddDesc_raytracer_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017raytracer.proto\022\traytracer\"\374\003\n\010DataBlo"
+    "\n\017raytracer.proto\022\traytracer\"\307\004\n\010DataBlo"
     "b\022\022\n\nprim_count\030\001 \002(\005\022\023\n\013light_count\030\002 \002"
     "(\005\022\017\n\007samples\030\003 \003(\002\022\024\n\014bounce_count\030\004 \002("
     "\005\022\r\n\005pic_w\030\005 \002(\005\022\r\n\005pic_h\030\006 \002(\005\022\031\n\021sampl"
@@ -236,15 +238,17 @@ void protobuf_AddDesc_raytracer_2eproto() {
     "DataBlob.PrimitiveTriangle\032(\n\005Vec3f\022\t\n\001x"
     "\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002(\002\032T\n\006Vertex\022$"
     "\n\001p\030\001 \002(\0132\031.raytracer.DataBlob.Vec3f\022$\n\001"
-    "n\030\002 \002(\0132\031.raytracer.DataBlob.Vec3f\032A\n\021Pr"
-    "imitiveTriangle\022,\n\010vertices\030\001 \003(\0132\032.rayt"
-    "racer.DataBlob.Vertex\032L\n\017PrimitiveSphere"
-    "\022+\n\010position\030\001 \002(\0132\031.raytracer.DataBlob."
-    "Vec3f\022\014\n\004size\030\002 \002(\002\">\n\004Task\022\n\n\002id\030\001 \002(\005\022"
-    "\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 "
-    "\002(\005\"k\n\006Result\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001"
-    "y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030\006"
-    " \002(\010\022\014\n\004size\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 712);
+    "n\030\002 \002(\0132\031.raytracer.DataBlob.Vec3f\032\213\001\n\021P"
+    "rimitiveTriangle\022&\n\002v0\030\001 \002(\0132\032.raytracer"
+    ".DataBlob.Vertex\022&\n\002v1\030\002 \002(\0132\032.raytracer"
+    ".DataBlob.Vertex\022&\n\002v2\030\003 \002(\0132\032.raytracer"
+    ".DataBlob.Vertex\032L\n\017PrimitiveSphere\022+\n\010p"
+    "osition\030\001 \002(\0132\031.raytracer.DataBlob.Vec3f"
+    "\022\014\n\004size\030\002 \002(\002\">\n\004Task\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030"
+    "\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\"k"
+    "\n\006Result\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002"
+    "(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030\006 \002(\010\022"
+    "\014\n\004size\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 787);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raytracer.proto", &protobuf_RegisterTypes);
   DataBlob::default_instance_ = new DataBlob();
@@ -821,7 +825,9 @@ void DataBlob_Vertex::Swap(DataBlob_Vertex* other) {
 // -------------------------------------------------------------------
 
 #ifndef _MSC_VER
-const int DataBlob_PrimitiveTriangle::kVerticesFieldNumber;
+const int DataBlob_PrimitiveTriangle::kV0FieldNumber;
+const int DataBlob_PrimitiveTriangle::kV1FieldNumber;
+const int DataBlob_PrimitiveTriangle::kV2FieldNumber;
 #endif  // !_MSC_VER
 
 DataBlob_PrimitiveTriangle::DataBlob_PrimitiveTriangle()
@@ -830,6 +836,9 @@ DataBlob_PrimitiveTriangle::DataBlob_PrimitiveTriangle()
 }
 
 void DataBlob_PrimitiveTriangle::InitAsDefaultInstance() {
+  v0_ = const_cast< ::raytracer::DataBlob_Vertex*>(&::raytracer::DataBlob_Vertex::default_instance());
+  v1_ = const_cast< ::raytracer::DataBlob_Vertex*>(&::raytracer::DataBlob_Vertex::default_instance());
+  v2_ = const_cast< ::raytracer::DataBlob_Vertex*>(&::raytracer::DataBlob_Vertex::default_instance());
 }
 
 DataBlob_PrimitiveTriangle::DataBlob_PrimitiveTriangle(const DataBlob_PrimitiveTriangle& from)
@@ -840,6 +849,9 @@ DataBlob_PrimitiveTriangle::DataBlob_PrimitiveTriangle(const DataBlob_PrimitiveT
 
 void DataBlob_PrimitiveTriangle::SharedCtor() {
   _cached_size_ = 0;
+  v0_ = NULL;
+  v1_ = NULL;
+  v2_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -849,6 +861,9 @@ DataBlob_PrimitiveTriangle::~DataBlob_PrimitiveTriangle() {
 
 void DataBlob_PrimitiveTriangle::SharedDtor() {
   if (this != default_instance_) {
+    delete v0_;
+    delete v1_;
+    delete v2_;
   }
 }
 
@@ -873,7 +888,17 @@ DataBlob_PrimitiveTriangle* DataBlob_PrimitiveTriangle::New() const {
 }
 
 void DataBlob_PrimitiveTriangle::Clear() {
-  vertices_.Clear();
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (_has_bit(0)) {
+      if (v0_ != NULL) v0_->::raytracer::DataBlob_Vertex::Clear();
+    }
+    if (_has_bit(1)) {
+      if (v1_ != NULL) v1_->::raytracer::DataBlob_Vertex::Clear();
+    }
+    if (_has_bit(2)) {
+      if (v2_ != NULL) v2_->::raytracer::DataBlob_Vertex::Clear();
+    }
+  }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -884,17 +909,43 @@ bool DataBlob_PrimitiveTriangle::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .raytracer.DataBlob.Vertex vertices = 1;
+      // required .raytracer.DataBlob.Vertex v0 = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_vertices:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_vertices()));
+               input, mutable_v0()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(10)) goto parse_vertices;
+        if (input->ExpectTag(18)) goto parse_v1;
+        break;
+      }
+      
+      // required .raytracer.DataBlob.Vertex v1 = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_v1:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_v1()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_v2;
+        break;
+      }
+      
+      // required .raytracer.DataBlob.Vertex v2 = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_v2:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_v2()));
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -917,10 +968,22 @@ bool DataBlob_PrimitiveTriangle::MergePartialFromCodedStream(
 
 void DataBlob_PrimitiveTriangle::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // repeated .raytracer.DataBlob.Vertex vertices = 1;
-  for (int i = 0; i < this->vertices_size(); i++) {
+  // required .raytracer.DataBlob.Vertex v0 = 1;
+  if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->vertices(i), output);
+      1, this->v0(), output);
+  }
+  
+  // required .raytracer.DataBlob.Vertex v1 = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->v1(), output);
+  }
+  
+  // required .raytracer.DataBlob.Vertex v2 = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->v2(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -931,11 +994,25 @@ void DataBlob_PrimitiveTriangle::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* DataBlob_PrimitiveTriangle::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // repeated .raytracer.DataBlob.Vertex vertices = 1;
-  for (int i = 0; i < this->vertices_size(); i++) {
+  // required .raytracer.DataBlob.Vertex v0 = 1;
+  if (_has_bit(0)) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        1, this->vertices(i), target);
+        1, this->v0(), target);
+  }
+  
+  // required .raytracer.DataBlob.Vertex v1 = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->v1(), target);
+  }
+  
+  // required .raytracer.DataBlob.Vertex v2 = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        3, this->v2(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -948,14 +1025,29 @@ void DataBlob_PrimitiveTriangle::SerializeWithCachedSizes(
 int DataBlob_PrimitiveTriangle::ByteSize() const {
   int total_size = 0;
   
-  // repeated .raytracer.DataBlob.Vertex vertices = 1;
-  total_size += 1 * this->vertices_size();
-  for (int i = 0; i < this->vertices_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->vertices(i));
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required .raytracer.DataBlob.Vertex v0 = 1;
+    if (has_v0()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->v0());
+    }
+    
+    // required .raytracer.DataBlob.Vertex v1 = 2;
+    if (has_v1()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->v1());
+    }
+    
+    // required .raytracer.DataBlob.Vertex v2 = 3;
+    if (has_v2()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->v2());
+    }
+    
   }
-  
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -981,7 +1073,17 @@ void DataBlob_PrimitiveTriangle::MergeFrom(const ::google::protobuf::Message& fr
 
 void DataBlob_PrimitiveTriangle::MergeFrom(const DataBlob_PrimitiveTriangle& from) {
   GOOGLE_CHECK_NE(&from, this);
-  vertices_.MergeFrom(from.vertices_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      mutable_v0()->::raytracer::DataBlob_Vertex::MergeFrom(from.v0());
+    }
+    if (from._has_bit(1)) {
+      mutable_v1()->::raytracer::DataBlob_Vertex::MergeFrom(from.v1());
+    }
+    if (from._has_bit(2)) {
+      mutable_v2()->::raytracer::DataBlob_Vertex::MergeFrom(from.v2());
+    }
+  }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -998,16 +1100,25 @@ void DataBlob_PrimitiveTriangle::CopyFrom(const DataBlob_PrimitiveTriangle& from
 }
 
 bool DataBlob_PrimitiveTriangle::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
   
-  for (int i = 0; i < vertices_size(); i++) {
-    if (!this->vertices(i).IsInitialized()) return false;
+  if (has_v0()) {
+    if (!this->v0().IsInitialized()) return false;
+  }
+  if (has_v1()) {
+    if (!this->v1().IsInitialized()) return false;
+  }
+  if (has_v2()) {
+    if (!this->v2().IsInitialized()) return false;
   }
   return true;
 }
 
 void DataBlob_PrimitiveTriangle::Swap(DataBlob_PrimitiveTriangle* other) {
   if (other != this) {
-    vertices_.Swap(&other->vertices_);
+    std::swap(v0_, other->v0_);
+    std::swap(v1_, other->v1_);
+    std::swap(v2_, other->v2_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

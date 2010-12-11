@@ -14,9 +14,9 @@ message DataBlob {
 	}
 
 	message PrimitiveTriangle {
-		Vertex v0 = 1;
-		Vertex v1 = 2;
-		Vertex v2 = 3;
+		required Vertex v0 = 1;
+		required Vertex v1 = 2;
+		required Vertex v2 = 3;
 	}
 
 	message PrimitiveSphere {

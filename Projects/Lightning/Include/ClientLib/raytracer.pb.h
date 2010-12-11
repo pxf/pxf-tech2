@@ -298,29 +298,40 @@ class DataBlob_PrimitiveTriangle : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // repeated .raytracer.DataBlob.Vertex vertices = 1;
-  inline int vertices_size() const;
-  inline void clear_vertices();
-  static const int kVerticesFieldNumber = 1;
-  inline const ::raytracer::DataBlob_Vertex& vertices(int index) const;
-  inline ::raytracer::DataBlob_Vertex* mutable_vertices(int index);
-  inline ::raytracer::DataBlob_Vertex* add_vertices();
-  inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_Vertex >&
-      vertices() const;
-  inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_Vertex >*
-      mutable_vertices();
+  // required .raytracer.DataBlob.Vertex v0 = 1;
+  inline bool has_v0() const;
+  inline void clear_v0();
+  static const int kV0FieldNumber = 1;
+  inline const ::raytracer::DataBlob_Vertex& v0() const;
+  inline ::raytracer::DataBlob_Vertex* mutable_v0();
+  
+  // required .raytracer.DataBlob.Vertex v1 = 2;
+  inline bool has_v1() const;
+  inline void clear_v1();
+  static const int kV1FieldNumber = 2;
+  inline const ::raytracer::DataBlob_Vertex& v1() const;
+  inline ::raytracer::DataBlob_Vertex* mutable_v1();
+  
+  // required .raytracer.DataBlob.Vertex v2 = 3;
+  inline bool has_v2() const;
+  inline void clear_v2();
+  static const int kV2FieldNumber = 3;
+  inline const ::raytracer::DataBlob_Vertex& v2() const;
+  inline ::raytracer::DataBlob_Vertex* mutable_v2();
   
   // @@protoc_insertion_point(class_scope:raytracer.DataBlob.PrimitiveTriangle)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
-  ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_Vertex > vertices_;
+  ::raytracer::DataBlob_Vertex* v0_;
+  ::raytracer::DataBlob_Vertex* v1_;
+  ::raytracer::DataBlob_Vertex* v2_;
   friend void  protobuf_AddDesc_raytracer_2eproto();
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -968,29 +979,55 @@ inline ::raytracer::DataBlob_Vec3f* DataBlob_Vertex::mutable_n() {
 
 // DataBlob_PrimitiveTriangle
 
-// repeated .raytracer.DataBlob.Vertex vertices = 1;
-inline int DataBlob_PrimitiveTriangle::vertices_size() const {
-  return vertices_.size();
+// required .raytracer.DataBlob.Vertex v0 = 1;
+inline bool DataBlob_PrimitiveTriangle::has_v0() const {
+  return _has_bit(0);
 }
-inline void DataBlob_PrimitiveTriangle::clear_vertices() {
-  vertices_.Clear();
+inline void DataBlob_PrimitiveTriangle::clear_v0() {
+  if (v0_ != NULL) v0_->::raytracer::DataBlob_Vertex::Clear();
+  _clear_bit(0);
 }
-inline const ::raytracer::DataBlob_Vertex& DataBlob_PrimitiveTriangle::vertices(int index) const {
-  return vertices_.Get(index);
+inline const ::raytracer::DataBlob_Vertex& DataBlob_PrimitiveTriangle::v0() const {
+  return v0_ != NULL ? *v0_ : *default_instance_->v0_;
 }
-inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::mutable_vertices(int index) {
-  return vertices_.Mutable(index);
+inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::mutable_v0() {
+  _set_bit(0);
+  if (v0_ == NULL) v0_ = new ::raytracer::DataBlob_Vertex;
+  return v0_;
 }
-inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::add_vertices() {
-  return vertices_.Add();
+
+// required .raytracer.DataBlob.Vertex v1 = 2;
+inline bool DataBlob_PrimitiveTriangle::has_v1() const {
+  return _has_bit(1);
 }
-inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_Vertex >&
-DataBlob_PrimitiveTriangle::vertices() const {
-  return vertices_;
+inline void DataBlob_PrimitiveTriangle::clear_v1() {
+  if (v1_ != NULL) v1_->::raytracer::DataBlob_Vertex::Clear();
+  _clear_bit(1);
 }
-inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_Vertex >*
-DataBlob_PrimitiveTriangle::mutable_vertices() {
-  return &vertices_;
+inline const ::raytracer::DataBlob_Vertex& DataBlob_PrimitiveTriangle::v1() const {
+  return v1_ != NULL ? *v1_ : *default_instance_->v1_;
+}
+inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::mutable_v1() {
+  _set_bit(1);
+  if (v1_ == NULL) v1_ = new ::raytracer::DataBlob_Vertex;
+  return v1_;
+}
+
+// required .raytracer.DataBlob.Vertex v2 = 3;
+inline bool DataBlob_PrimitiveTriangle::has_v2() const {
+  return _has_bit(2);
+}
+inline void DataBlob_PrimitiveTriangle::clear_v2() {
+  if (v2_ != NULL) v2_->::raytracer::DataBlob_Vertex::Clear();
+  _clear_bit(2);
+}
+inline const ::raytracer::DataBlob_Vertex& DataBlob_PrimitiveTriangle::v2() const {
+  return v2_ != NULL ? *v2_ : *default_instance_->v2_;
+}
+inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::mutable_v2() {
+  _set_bit(2);
+  if (v2_ == NULL) v2_ = new ::raytracer::DataBlob_Vertex;
+  return v2_;
 }
 
 // -------------------------------------------------------------------
