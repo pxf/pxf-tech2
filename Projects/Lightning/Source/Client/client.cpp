@@ -4,6 +4,35 @@
 #define PING_INTERVAL 10000 // Ping interval in milliseconds
 #define PING_TIMEOUT 5000 // Ping timeout in milliseconds
 
+class SendThread : public ZThread::Runnable
+{
+protected:
+	Client* m_Client;
+	bool m_Canceled;
+public:
+	SendThread(Client* _client /*, queue */))
+		: m_Client(_client)
+		, m_Canceled(false)
+	{}
+
+	void run()
+	{
+		while(!m_Canceled)
+		{
+			try
+			{
+				// pop
+				// send
+			}
+			catch (ZThread::Cancellation_Exception* e)
+			{
+				m_Canceled = true;
+				break;
+			}
+		}
+	}
+};
+
 Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port, int _client_port)
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
