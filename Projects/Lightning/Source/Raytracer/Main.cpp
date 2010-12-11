@@ -255,7 +255,7 @@ int startrender_cb(lua_State* L)
 	hello_pack->set_port(0);
 	hello_pack->set_session_id(-1);
 	LiPacket* hello_lipack = new LiPacket(conn, hello_pack, C_HELLO);
-	cman->send((Packet*)hello_lipack);
+	cman->send(conn, hello_lipack->data, hello_lipack->length);
 	
 	bool ready_to_send = false;
 	while (!ready_to_send)
@@ -273,7 +273,7 @@ int startrender_cb(lua_State* L)
 				pong->set_ping_data(ping->ping_data());
 				LiPacket *pkg = new LiPacket((*tpacket)->connection, pong, PONG);
 				
-				cman->send((Packet*)pkg);
+				cman->send(conn, pkg->data, pkg->length);
 				Pxf::Message("oae", "Got PING message!");
 			} else if ((*tpacket)->message_type == OK)
 			{
@@ -282,7 +282,7 @@ int startrender_cb(lua_State* L)
 				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
 				alloc_reqpack->set_batchhash("LOLWUT"); // TODO: Create a real hash of the batch data blob
 				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
-				cman->send((Packet*)alloc_reqlipack);
+				cman->send(conn, alloc_reqlipack->data, alloc_reqlipack->length);
 				
 				Pxf::Message("oae", "Got OK message!");
 				
@@ -300,7 +300,7 @@ int startrender_cb(lua_State* L)
 				data_pack->set_returnport(4632);
 				
 				LiPacket* data_lipack = new LiPacket(conn, data_pack, C_DATA);
-				cman->send((Packet*)data_lipack);
+				cman->send(conn, data_lipack->data, data_lipack->length);
 				
 				
 				// Send tasks!
@@ -328,7 +328,7 @@ int startrender_cb(lua_State* L)
 					}
 				}
 				LiPacket* tasks_lipack = new LiPacket(conn, tasks_pack, C_TASKS);
-				cman->send((Packet*)tasks_lipack);
+				cman->send(conn, tasks_lipack->data, tasks_lipack->length);
 				
 				cman->remove_connection(conn);
 				
@@ -388,7 +388,7 @@ int main(int argc, char* argv[])
 	Resource::Mesh* teapot = res->Acquire<Resource::Mesh>("data/teapot.ctm");
 
 	// Setup connection manager and stuff!
-	cman = new ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
+	cman = new ConnectionManager();
 	char pixels[w*h*channels];
 	
 	// job specifics
@@ -498,11 +498,11 @@ int main(int argc, char* argv[])
 
 	// Raytracer client test
 	//------------------------
-	RaytracerClient client(kernel);
+	//RaytracerClient client(kernel);
 	//client.run_noblock();
 
 	// add a bunch of tasks
-	for(int y = 0; y < task_count; y++)
+	/*for(int y = 0; y < task_count; y++)
 	{
 		for(int x = 0; x < task_count; x++)
 		{
@@ -514,7 +514,7 @@ int main(int argc, char* argv[])
 			req->rect.w = task_size_w;
 			client.push_request(req);
 		}
-	}
+	}*/
 	
 	// DEPTH TEST
 	gfx->SetDepthFunction(DF_LEQUAL);
@@ -585,13 +585,14 @@ int main(int argc, char* argv[])
 			in->clear();
 		}
 		
+		/*
 		if (inp->GetLastKey() == Input::ENTER)
 		{
 			if(!exec_rt) client.run_noblock();
 			exec_rt = !exec_rt;
 		}
 		
-		/* CAMERA FREE-FLY MODE */
+		// CAMERA FREE-FLY MODE
 		if(!exec_rt)
 		{
 			gfx->BindTexture(0,0);
@@ -670,7 +671,7 @@ int main(int argc, char* argv[])
 				if (res->final)
 					total_done += 1;
 			}
-
+			*/
 			// Draw
 			for(int y = 0; y < task_count; y++)
 			{
@@ -699,7 +700,7 @@ int main(int argc, char* argv[])
 				Format(title, "Render time: %d ms", render_timer.Interval());
 				win->SetTitle(title);
 			}
-		}		
+		//}		
 
 		// Reset view 
 		glLoadIdentity();
@@ -714,8 +715,8 @@ int main(int argc, char* argv[])
 		win->Swap();
 	}
 
-	client.cancel();
-	client.wait();
+	//client.cancel();
+	//client.wait();
 	
 	delete app;
 	delete pbatch;

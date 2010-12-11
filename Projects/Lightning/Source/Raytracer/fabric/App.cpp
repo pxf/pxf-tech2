@@ -493,7 +493,6 @@ bool App::CallScriptFunc(const char* _funcname, int nargs)
 
 void App::BindExternalFunction(const char* _funcname, lua_CFunction _funcp)
 {
-	Pxf::Message("aoe", "added a new function: %s", _funcname);
 	m_ExternalFuncs.insert( std::make_pair(_funcname, _funcp));
 }
 
@@ -564,7 +563,7 @@ int App::Print(lua_State *_L)
         const char *s;
         lua_pushvalue(_L, -1);  /* function to be called */
         lua_pushvalue(_L, i);   /* value to print */
-        lua_call(_L, 1, 1);
+        lua_pcall(_L, 1, 1, 0);
         s = lua_tostring(_L, -1);  /* get result */
         if (s == NULL)
             return luaL_error(_L, LUA_QL("tostring") " must return a string to "
