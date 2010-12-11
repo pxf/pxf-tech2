@@ -127,10 +127,49 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	
 	for(size_t i = 0; i < blob->prim_count; i++)
 	{
-		if (blob->primitives[i]->GetType() == TrianglePrim)
+		Primitive* p = blob->primitives[i];
+
+		if (p && (p->GetType() == TrianglePrim))
 		{
+			Triangle* t = (Triangle*) p;
+
 			raytracer::DataBlob_PrimitiveTriangle* triangle_pack = npack->add_triangles();
-			raytracer::DataBlob_Vertex* vertex_pack = triangle_pack->add_vertices();
+			
+			/* VERTEX 0 */
+			raytracer::DataBlob_Vertex* v0 = triangle_pack->mutable_v0();
+			raytracer::DataBlob_Vec3f* v0_p = v0->mutable_p();
+			v0_p->set_x(t->vertices[0]->v.x);
+			v0_p->set_y(t->vertices[0]->v.y);
+			v0_p->set_z(t->vertices[0]->v.z);
+
+			raytracer::DataBlob_Vec3f* v0_n = v0->mutable_n();
+			v0_n->set_x(t->vertices[0]->n.x);
+			v0_n->set_y(t->vertices[0]->n.y);
+			v0_n->set_z(t->vertices[0]->n.z);
+
+			/* VERTEX 1 */
+			raytracer::DataBlob_Vertex* v1 = triangle_pack->mutable_v1();
+			raytracer::DataBlob_Vec3f* v1_p = v1->mutable_p();
+			v1_p->set_x(t->vertices[1]->v.x);
+			v1_p->set_y(t->vertices[1]->v.y);
+			v1_p->set_z(t->vertices[1]->v.z);
+
+			raytracer::DataBlob_Vec3f* v1_n = v1->mutable_n();
+			v1_n->set_x(t->vertices[1]->n.x);
+			v1_n->set_y(t->vertices[1]->n.y);
+			v1_n->set_z(t->vertices[1]->n.z);
+
+			/* VERTEX 2 */
+			raytracer::DataBlob_Vertex* v2 = triangle_pack->mutable_v2();
+			raytracer::DataBlob_Vec3f* v2_p = v2->mutable_p();
+			v2_p->set_x(t->vertices[2]->v.x);
+			v2_p->set_y(t->vertices[2]->v.y);
+			v2_p->set_z(t->vertices[2]->v.z);
+
+			raytracer::DataBlob_Vec3f* v2_n = v2->mutable_n();
+			v2_n->set_x(t->vertices[2]->n.x);
+			v2_n->set_y(t->vertices[2]->n.y);
+			v2_n->set_z(t->vertices[2]->n.z);
 		}
 		/*
 		else if (blob->primitives[i]->GetType() == SpherePrim)
