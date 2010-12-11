@@ -19,6 +19,10 @@ message DataBlob {
 		required Vertex v2 = 3;
 	}
 
+	message PrimitivePointLight {
+		required Vec3f p = 1;
+	}
+
 	message PrimitiveSphere {
 		required Vec3f position = 1;
 		required float size = 2;
@@ -39,6 +43,7 @@ message DataBlob {
 	required int32 interleaved_feedback = 8;
 	
 	repeated PrimitiveTriangle triangles = 9;
+	repeated PrimitivePointLights point_lights = 10;
 }
 
 message Task {

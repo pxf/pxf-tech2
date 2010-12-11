@@ -124,11 +124,24 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	
 	npack->set_interleaved_feedback(blob->interleaved_feedback);
 	
+	/*
+	for(size_t i = 0; i < blob->light_count; i++)
+	{
+		if(blob->lights[i] && blob->lights[i]->GetType == PointLightPrim)
+		{
+			PointLightPrim* l = (PointLightPrim*) blob->lights[i];
+			raytracer::DataBlob_PrimitivePointLight* light_pack = npack->add_point_lights();
+			raytracer::DataBlob_Vec3f* p = light_pack->mutable_p();
+			p->set_x(l->p.x);
+			p->set_y(l->p.y);
+			p->set_y(l->p.z);
+		}
+	}
+	*/
 	
 	for(size_t i = 0; i < blob->prim_count; i++)
 	{
 		Primitive* p = blob->primitives[i];
-
 		if (p && (p->GetType() == TrianglePrim))
 		{
 			Triangle* t = (Triangle*) p;
