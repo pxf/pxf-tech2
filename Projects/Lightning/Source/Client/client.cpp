@@ -290,16 +290,40 @@ int Client::run()
 			delete (*p);
 			p = packets->erase(p);
 		}
+
+		//list_connections();
+
 	}
 
 	return 0;
 }
 
+// Initiate forwarding of tasks
 void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 {
-	1+1;	
+	int diff = _tasks.size() - m_State.m_Allocated.size();
+
+	if (diff > 0)
+	{
+		// More nodes needed
+		tracker::NodesRequest* request = new tracker::NodesRequest();
+		request->set_session_id(m_session_id);
+		request->set_nodes(diff);
+
+		LiPacket* pkg = new LiPacket(m_tracker, request, T_NODES_REQUEST);
+		m_ConnMan.send((Packet*)pkg);
+
+		m_Kernel->Log(m_log_tag, "Requested %d nodes of tracker.", diff);
+
+		delete pkg;
+		delete request;
+	}
+	
+	//if (_tasks.size() - diff > 0)
 }
 
+
+// Pushes a set of tasks to the local queue
 void Client::push(client::Tasks* _tasks)
 {
 	Batch* b = m_Batches[_tasks->batchhash()];
@@ -316,6 +340,7 @@ void Client::push(client::Tasks* _tasks)
 	}
 }
 
+// Split the tasks in chunks
 Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 {
 	int parts = 2; // TODO: Smarter stuff!
@@ -336,6 +361,8 @@ Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 		t->CopyFrom(_tasks->task(i));
 		b++;
 	}
+
+	return tasks;
 }
 
 
@@ -349,6 +376,26 @@ void Client::ping(Connection *_c, int _timestamp)
 	m_ConnMan.send(_c, pkg->data, pkg->length);
 
 	delete pkg;
+}
+
+void Client::list_connections()
+{
+	Pxf::Util::Array<Connection*> cs = m_ConnMan.m_Connections;
+	Pxf::Util::Array<Connection*>::iterator i;
+
+	printf("Current open connections:\n");
+	printf("=========================\n");
+
+	for (i = cs.begin(); i != cs.end(); i++)
+		printf("socket: %d, session_id: %d, type: %d, bound: %s timestamp: %d\n", 
+			(*i)->socket,
+			(*i)->session_id,
+			(*i)->type,
+			(*i)->bound ? "true" : "false",
+			(*i)->timestamp
+		);
+	
+	printf("=========================\n");
 }
 
 /* Connects to the tracker at the specified endpoint */
@@ -412,7 +459,11 @@ bool Client::connect_tracker()
 		// Check that the tracker connected...
 		Pxf::Util::Array<Connection*>::iterator c;
 		for (c = m_ConnMan.m_Connections.begin(); c != m_ConnMan.m_Connections.end(); c++)
-			if ((*c)->type == TRACKER) return true;
+			if (((*c)->type == TRACKER) && !((*c)->bound))
+			{
+				m_tracker = *c;
+				return true;
+			}
 
 		m_Kernel->Log(m_net_tag, "Tracker could not connect to client. Are the ports open?");
 		return false;

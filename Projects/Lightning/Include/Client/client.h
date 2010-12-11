@@ -40,6 +40,7 @@ class Client
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
 		BlockingTaskQueue<Task*>* m_TaskQueue;
+		Connection* m_tracker;
 
 		int m_queue_free;
 		int m_net_tag;	
@@ -51,6 +52,7 @@ class Client
 		Pxf::Util::Array<client::Tasks*> split_tasks(client::Tasks*);
 		void push(client::Tasks* _tasks);
 		void forward(Pxf::Util::Array<client::Tasks*> _tasks);
+		void list_connections();
 
 };
 
