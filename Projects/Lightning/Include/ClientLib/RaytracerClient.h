@@ -68,7 +68,7 @@ protected:
 	unsigned m_LogTag;
 public:
 	typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
-	RaytracerClient(Pxf::Kernel* _Kernel, BlockingTaskQueue<Task*>* _TaskQueue, BlockingTaskQueue<TaskResult*>* _ResultQueue);
+	RaytracerClient(Pxf::Kernel* _Kernel, BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue);
 	~RaytracerClient();
 
 	virtual void push_request(Task* _Request);

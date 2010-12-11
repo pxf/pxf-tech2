@@ -38,7 +38,6 @@ public:
 				task.region[1] = task_data->y();
 				task.region[2] = task_data->x() + task_data->h();
 				task.region[3] = task_data->y() + task_data->w();
-				render_result_t out;
 				raytracer::DataBlob *blob_proto = new raytracer::DataBlob();
 				blob_proto->ParseFromString(req->batch->data);
 
@@ -61,9 +60,9 @@ public:
 				{
 					// TODO: lol, jhonnys grejer.
 				}
-				
 
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
+				render_result_t out;
 
 				while (sub_tasks_left > 0)
 				{
@@ -71,8 +70,16 @@ public:
 
 					TaskResult* res = new TaskResult();
 					res->task = req;
+					raytracer::Result *ray_res = new raytracer::Result();
+					ray_res->set_id(task_data->id());
+					ray_res->set_final((sub_tasks_left == 1));
+					ray_res->set_data(Util::String((char*)out.data, sizeof(pixel_data_t)*task_data->h()*task_data->w()*3));
+
 					client::Result *res_proto = new client::Result();
 					res_proto->set_batchhash(req->batch->hash);
+					res_proto->set_result(ray_res->SerializeAsString());
+
+					sub_tasks_left--;
 				}
 				
 
@@ -112,8 +119,7 @@ public:
 };
 
 
-//RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
-RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel, BlockingTaskQueue<Task*>* _TaskQueue, BlockingTaskQueue<TaskResult*>* _ResultQueue)
+RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel, BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue)
 	: m_Kernel(_Kernel)
 	, m_Executor(0)
 	, m_LogTag(0)
