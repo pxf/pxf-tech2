@@ -335,7 +335,7 @@ int startrender_cb(lua_State* L)
 				ready_to_send = true;
 				
 			} else {
-				Pxf::Message("oae", "Got unknown packet type!");
+				Pxf::Message("oae", "Got unknown packet type %d!", (*tpacket)->message_type);
 			}
 		}
 		
