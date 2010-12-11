@@ -35,6 +35,11 @@ int Client::run()
 	time_t last_ping, ping_timestamp;
 
 	Pxf::Util::Array<LiPacket*> *packets;
+
+	// Start the raytracerclient.
+	// TODO: A list of modules instead of statically loading each.
+	m_Raytracerclient = new RaytracerClient(m_Kernel, m_TaskQueue, m_ResultQueue);
+	m_Raytracerclient->run_noblock();
 	
 	// Setting up socket for clients to connect to
 	Connection *client_c = m_ConnMan.new_connection(CLIENT);
