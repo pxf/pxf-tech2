@@ -58,15 +58,21 @@ struct Task
 	client::Tasks::Task *task;
 };
 
-struct LiPacket : Packet
+struct LiPacket
 {
 	LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type);
-
-	MessageType message_type;
+	LiPacket(Packet* _pkg);
+	~LiPacket();
 
 	MessageType get_type();
 	char *pack(google::protobuf::Message *_proto, int _type);
 	google::protobuf::Message *unpack();
+
+	Packet* __pkg;
+	Connection *connection;
+	MessageType message_type;
+	int length;
+	char* data;
 };
 
 void *get_proto_class(MessageType type);
