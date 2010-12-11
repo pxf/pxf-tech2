@@ -58,6 +58,12 @@ struct Task
 	client::Tasks::Task *task;
 };
 
+struct TaskResult
+{
+	Task* task;
+	client::Result *result;
+};
+
 struct LiPacket
 {
 	LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type);

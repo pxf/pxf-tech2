@@ -12,6 +12,7 @@
 #include "lightning.h"
 #include "state.h"
 #include "BlockingTaskQueue.h"
+#include "RaytracerClient.h"
 
 class Client
 {
@@ -47,6 +48,8 @@ class Client
 		ZThread::ThreadedExecutor* m_ThreadedExecutor;
 		BlockingTaskQueue<Task*>* m_TaskQueue;
 		TaskResultQueue* m_ResultQueue;
+
+		RaytracerClient *m_Raytracerclient;
 
 		int m_queue_free;
 		int m_net_tag;	
