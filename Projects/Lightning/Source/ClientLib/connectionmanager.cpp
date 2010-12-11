@@ -54,26 +54,7 @@ ConnectionManager::ConnectionManager()
 	m_max_socketfd = 0;
 	FD_ZERO(&m_read_sockets);
 
-	m_Kernel = Pxf::Kernel::GetInstance();
-	m_log_tag = m_Kernel->CreateTag("net");
-}
-
-ConnectionManager::ConnectionManager(Pxf::Util::Array<Packet*> *_packets)
-{
-#if defined(CONF_FAMILY_WINDOWS)
-	WSADATA wsaData;
-
-	if (WSAStartup(MAKEWORD(2,0), &wsaData) != 0) {
-		fprintf(stderr, "WSAStartup failed.\n");
-	}
-#endif // CONF_FAMILY_WINDOWS
-	m_Packets = _packets;
-
-	// Copypasta
-	m_NextId = 1;
-	m_max_socketfd = 0;
-	FD_ZERO(&m_read_sockets);
-
+	m_Packets = new Pxf::Util::Array<Packet*>;
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_log_tag = m_Kernel->CreateTag("net");
 }

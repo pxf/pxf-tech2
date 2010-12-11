@@ -260,7 +260,7 @@ int Client::run()
 					// Tell the state
 					m_State.m_Allocatees.push_back(p->connection);
 
-					m_ConnMan.send((Packet*)pkg);
+					m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
 
 					delete alloc_resp;
 					delete pkg;
@@ -388,7 +388,7 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 		request->set_nodes(diff);
 
 		LiPacket* pkg = new LiPacket(m_tracker, request, T_NODES_REQUEST);
-		m_ConnMan.send((Packet*)pkg);
+		m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
 
 		m_Kernel->Log(m_log_tag, "Requested %d nodes of tracker.", diff);
 
@@ -528,7 +528,7 @@ bool Client::connect_tracker()
 
 	pkg = new LiPacket(c, hello_tracker, T_HELLO_TRACKER);
 
-	m_ConnMan.send((Packet*)pkg);
+	m_ConnMan.send(c, pkg->data, pkg->length);
 	m_Kernel->Log(m_log_tag, "Connection to tracker on socket %d terminated.", c->socket);
 	m_ConnMan.remove_connection(c);
 	delete pkg;
@@ -547,6 +547,7 @@ bool Client::connect_tracker()
 			}
 
 		m_Kernel->Log(m_net_tag, "Tracker could not connect to client. Are the ports open?");
+		list_connections();
 		return false;
 	}
 	else

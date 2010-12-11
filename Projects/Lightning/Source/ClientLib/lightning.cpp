@@ -42,7 +42,6 @@ LiPacket::LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type)
 
 LiPacket::LiPacket(Packet* _pkg)
 {
-	printf("data:%d\n", (int)(_pkg->data));
 	__pkg = _pkg;
 	data = _pkg->data;
 	length = _pkg->length;
