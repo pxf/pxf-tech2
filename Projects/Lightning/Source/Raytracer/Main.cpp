@@ -124,7 +124,7 @@ int startrender_cb(lua_State* L)
 	
 	// Open result connection
 	recv_conn = cman->new_connection(ORIGIN);
-	if (!cman->bind_connection(recv_conn, "localhost", lua_tonumber(L, 3)))
+	if (!cman->bind_connection(recv_conn, (char*)lua_tostring(L, 3), lua_tonumber(L, 4)))
 	{
 		cman->remove_connection(recv_conn);
 		recv_conn = 0;
