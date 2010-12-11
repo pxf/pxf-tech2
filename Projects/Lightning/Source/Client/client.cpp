@@ -11,11 +11,14 @@ class SendThread : public ZThread::Runnable
 protected:
 	Client* m_Client;
 	bool m_Canceled;
+	ConnectionManager* m_ConnectionManager;
 public:
-	SendThread(Client* _client /*, queue */)
+	SendThread(Client* _client, ZThread::BlockingQueue<Result*, ZThread::FastMutex>* _ResultQueue)
 		: m_Client(_client)
 		, m_Canceled(false)
-	{}
+	{
+		m_ConnectionManager = new ConnectionManager();
+	}
 
 	void run()
 	{
@@ -24,7 +27,7 @@ public:
 			try
 			{
 				// pop
-				// send
+				// 
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{
@@ -61,6 +64,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 
 Client::~Client()
 {
+	m_ThreadedExecutor->cancel();
 	Pxf::MemoryFree(m_tracker_address);
 	Pxf::MemoryFree(m_local_address);
 }
