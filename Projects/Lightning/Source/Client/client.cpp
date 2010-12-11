@@ -121,6 +121,7 @@ int Client::run()
 	}
 	
 	ping_timestamp = time(NULL);
+	last_batch_check = time(NULL);
 	
 	// This is our main fail
 	while(!exit)
