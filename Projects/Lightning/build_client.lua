@@ -5,6 +5,7 @@ project = NewProject("client")
 --project.settings.debug = True
 --project.settings.static = True
 --project:RequireLibrary("zeromq")
+project:RequireLibrary("glfw")
 project:RequireLibrary("zthread")
 project:RequireLibrary("protobuffers")
 
