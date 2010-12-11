@@ -145,8 +145,6 @@ int Client::run()
 				}
 				case OK:
 				{
-<<<<<<< HEAD
-=======
 					client_state* state = m_State.m_States[p->connection];
 					if (state->state == (WOK & W_HELLO))
 					{
@@ -154,7 +152,6 @@ int Client::run()
 						m_Kernel->Log(m_log_tag, "Got OK response from HELLO request.");
 						m_State.m_Allocated.push_back(p->connection);
 					}
->>>>>>> 1f56e57d134fac3d3283987275a0002f724237f1
 					// TODO: Check what the connection is waiting for with the State class
 					break;	
 				}
@@ -297,8 +294,6 @@ int Client::run()
 
 					break;
 				}
-<<<<<<< HEAD
-=======
 				case T_NODES_RESPONSE:
 				{
 					tracker::NodesResponse *nodes = (tracker::NodesResponse*)(p->unpack());
@@ -307,7 +302,6 @@ int Client::run()
 					delete nodes;
 					break;
 				}
->>>>>>> 1f56e57d134fac3d3283987275a0002f724237f1
 				default:
 					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", p->message_type);
 					break;
@@ -323,9 +317,6 @@ int Client::run()
 
 void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 {
-<<<<<<< HEAD
-	1+1;	
-=======
 	int diff = _tasks.size() - m_State.m_Allocated.size();
 
 	if (diff > 0)
@@ -345,7 +336,6 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 	}
 	
 	//if (_tasks.size() - diff > 0)
->>>>>>> 1f56e57d134fac3d3283987275a0002f724237f1
 }
 
 void Client::push(client::Tasks* _tasks)
