@@ -55,6 +55,8 @@ Connection *recv_conn = 0;
 
 // global blob/scene data
 batch_blob_t blob;
+Graphics::VertexBuffer* tree_VB;
+
 struct scene {
 	Resource::Mesh* mesh;
 	Graphics::Model* mdl;
@@ -68,6 +70,39 @@ const int channels = 3;
 const int task_count = 8;
 int task_size_w = w / task_count;
 int task_size_h = h / task_count;
+
+void load_model(const char* path)
+{
+	Kernel* kernel = Pxf::Kernel::GetInstance();
+	Resource::Mesh* mesh = kernel->GetResourceManager()->Acquire<Resource::Mesh>(path);
+	Graphics::Model* model = kernel->GetGraphicsDevice()->CreateModel(mesh);
+
+	if(mesh && model)
+	{
+		if(current_scene.mesh)
+			kernel->GetResourceManager()->Release<Resource::Mesh>(mesh);
+
+		current_scene.mesh = mesh;
+		current_scene.mdl = model;
+
+		Primitive** scene_data = (Primitive**) triangle_list(mesh);
+		int tri_count = mesh->GetData()->triangle_count;
+
+		blob.tree = new KDTree(3);
+		blob.tree->Build(scene_data,tri_count);
+		blob.primitives = scene_data;
+		blob.prim_count = tri_count;
+
+		if(tree_VB)
+			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
+
+		tree_VB = kernel->GetGraphicsDevice()->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
+		CreateVBFromTree(blob.tree,tree_VB);
+	}
+	else
+		Pxf::Message("Main","Unable to load model");
+
+}
 
 raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 {
@@ -117,6 +152,22 @@ int renderstatus_cb(lua_State* L)
 	lua_pushnumber(L, total_count);
 	lua_pushnumber(L, (int)render_timer.Interval());
 	return 3;
+}
+
+int loadmodel_cb(lua_State* L)
+{
+	if(lua_gettop(L) == 1)
+	{
+		const char* path = lua_tostring(L,1);
+		load_model(path);
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Could not load model, no path passed to function");
+		return 1;
+	}
 }
 
 int startrender_cb(lua_State* L)
@@ -271,6 +322,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+
 	Resource::Mesh::mesh_descriptor* descr;
 	Resource::Mesh* box = res->Acquire<Resource::Mesh>("data/box.ctm");
 	//Resource::Mesh* box2 = res->Acquire<Resource::Mesh>("data/box_2.ctm");
@@ -279,16 +331,6 @@ int main(int argc, char* argv[])
 
 	// Setup connection manager and stuff!
 	cman = new ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
-	
-	
-	
-	// Generate awesome red output buffer
-	//const int w = 128;
-	//const int h = 128;
-	//const int channels = 3;
-	//const int task_count = 8;
-	//int task_size_w = w / task_count;
-	//int task_size_h = h / task_count;
 	char pixels[w*h*channels];
 	
 	// job specifics
@@ -367,6 +409,7 @@ int main(int argc, char* argv[])
 	// Fabric/GUI stuff
 	Fabric::App* app = new Fabric::App(win, "fabric/main.lua");
 	app->BindExternalFunction("renderstatus", renderstatus_cb);
+	app->BindExternalFunction("loadmodel", loadmodel_cb);
 	app->BindExternalFunction("startrender", startrender_cb);
 	app->Boot();
 	bool running = true;
@@ -389,22 +432,11 @@ int main(int argc, char* argv[])
 
 	cam.SetProjectionView(prjmat);
 	cam.Translate(0.0f,20.0f,100.0f);
-
-	// PRIMITIVE DATA
-	Primitive** scene_data = (Primitive**) triangle_list(current_scene.mesh);
-	int tri_count = current_scene.mesh->GetData()->triangle_count;
-
-
-	// KD TREE
-	KDTree* tree = new KDTree(3);
-	tree->Build(scene_data,tri_count);
-	Graphics::VertexBuffer* tree_VB = gfx->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
-	CreateVBFromTree(tree,tree_VB);
-
 	blob.cam = &cam;
-	blob.primitives = scene_data;
-	blob.prim_count = tri_count;
-	blob.tree = tree;
+
+
+	// load a model!
+	load_model("data/box_2.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -541,7 +573,7 @@ int main(int argc, char* argv[])
 			glEnd();
 
 			intersection_response_t resp;
-			Primitive* p_res = RayTreeIntersect(*tree,debug_ray,10000.0f,resp);
+			Primitive* p_res = RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
 
 			if(p_res)
 			{
@@ -629,12 +661,6 @@ int main(int argc, char* argv[])
 	
 	delete app;
 	delete pbatch;
-
-	//delete tree; 
-	tree = 0;
-
-	delete [] scene_data; 
-	scene_data = 0;
 
 	delete kernel;
 

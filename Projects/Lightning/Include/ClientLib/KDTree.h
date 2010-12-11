@@ -109,7 +109,7 @@ public:
 			m_KDStack = 0;
 		}
 
-		m_SplitBuffer.clear();
+		//m_SplitBuffer.clear();
 	}
 
 	KDNode* GetRoot() { return m_Root; }

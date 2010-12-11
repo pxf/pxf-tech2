@@ -1,5 +1,7 @@
 #include "client.h"
 
+#include <ZThread/ConcurrentExecutor.h>
+
 #define INITIAL_QUEUE 6
 #define PING_INTERVAL 10000 // Ping interval in milliseconds
 #define PING_TIMEOUT 5000 // Ping timeout in milliseconds
@@ -9,11 +11,20 @@ class SendThread : public ZThread::Runnable
 protected:
 	Client* m_Client;
 	bool m_Canceled;
+	ConnectionManager* m_ConnectionManager;
+	Client::TaskResultQueue* m_ResultQueue;
+	Pxf::Util::Map<Pxf::Util::String, Batch*>* m_BatchMap;
 public:
-	SendThread(Client* _client /*, queue */)
+	SendThread(Client* _client, Client::TaskResultQueue* _ResultQueue
+			  ,Pxf::Util::Map<Pxf::Util::String, Batch*>* _BatchMap)
 		: m_Client(_client)
 		, m_Canceled(false)
-	{}
+		, m_ResultQueue(_ResultQueue)
+		, m_BatchMap(_BatchMap)
+
+	{
+		m_ConnectionManager = new ConnectionManager();
+	}
 
 	void run()
 	{
@@ -21,8 +32,23 @@ public:
 		{
 			try
 			{
-				// pop
-				// send
+				client::Result* result = m_ResultQueue->next();
+				Pxf::Util::String batchhash = result->batchhash();
+				Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator \
+					iter = m_BatchMap->find(batchhash);
+
+				if (iter == m_BatchMap->end())
+					continue; /* error */
+
+				char* retaddr = (*iter).second->return_address;
+				int retport = (*iter).second->return_port;
+
+				Connection* conn = m_ConnectionManager->new_connection(CLIENT);
+				m_ConnectionManager->connect_connection(conn, retaddr, retport);
+
+				const char* data = result->result().c_str();
+				int len = result->result().size();
+				m_ConnectionManager->send(conn, (char*)data, len);
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{
@@ -49,12 +75,18 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_TaskQueue = new BlockingTaskQueue<Task*>;
 	m_TaskQueue->register_type(RAYTRACER); // TODO: Move to raytracer class
+	m_ResultQueue = new TaskResultQueue();
+
+	m_ThreadedExecutor = new ZThread::ThreadedExecutor();
+	m_ThreadedExecutor->execute(new SendThread(this, m_ResultQueue, &m_Batches));
+
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
 
 Client::~Client()
 {
+	m_ThreadedExecutor->cancel();
 	Pxf::MemoryFree(m_tracker_address);
 	Pxf::MemoryFree(m_local_address);
 }
