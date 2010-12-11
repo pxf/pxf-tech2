@@ -8,6 +8,15 @@ message DataBlob {
 		required float z = 3;
 	}
 
+	message Vertex {
+		required Vec3f p;
+		required Vec3f n;
+	}
+
+	message PrimitiveTriangle {
+		repeated Vertex vertices;
+	}
+
 	message PrimitiveSphere {
 		required Vec3f position = 1;
 		required float size = 2;
@@ -27,7 +36,7 @@ message DataBlob {
 	
 	required int32 interleaved_feedback = 8;
 	
-	repeated PrimitiveSphere spheres = 9;
+	repeated PrimitiveTriangles triangles = 9;
 }
 
 message Task {

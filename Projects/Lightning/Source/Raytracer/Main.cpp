@@ -127,7 +127,14 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	
 	for(size_t i = 0; i < blob->prim_count; i++)
 	{
-		if (blob->primitives[i]->GetType() == SpherePrim)
+		if (blob->primitives[i]->GetType() == TrianglePrim)
+		{
+			raytracer::DataBlob_PrimitiveTriangle* triangle_pack = npack->add_triangles();
+			raytracer::DataBlob_Vertex* vertex_pack = triangle_pack->mutable_vertices();
+
+		}
+		/*
+		else if (blob->primitives[i]->GetType() == SpherePrim)
 		{
 			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_spheres();//new raytracer::DataBlob::PrimitiveSphere();
 			raytracer::DataBlob_Vec3f* pos_pack = sphere_pack->mutable_position();
@@ -139,7 +146,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			sphere_pack->set_size(((Sphere*)(blob->primitives[i]))->r);
 			
 			//npack->add_spheres(sphere_pack);
-		}
+		}*/
 	}
 	
 	return npack;
