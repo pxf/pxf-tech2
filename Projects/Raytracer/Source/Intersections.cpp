@@ -172,8 +172,7 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 }
 
 /* HELPER FUNCTIONS */
-/*
-aabb CalcAABB(Prim** _Primitives, int _NbrPrim)
+aabb CalcAABB(Primitive** _Primitives, int _NbrPrim)
 {
 	aabb box;
 
@@ -193,7 +192,7 @@ aabb CalcAABB(Prim** _Primitives, int _NbrPrim)
 	return box;
 }
 
-aabb CalcAABB(const Prim& _Primitive)
+aabb CalcAABB(const Primitive& _Primitive)
 {
 	int _Type = _Primitive.type;
 
@@ -260,4 +259,3 @@ aabb CalcAABB(const Prim& _Primitive)
 
 	return _Box;
 }
-*/

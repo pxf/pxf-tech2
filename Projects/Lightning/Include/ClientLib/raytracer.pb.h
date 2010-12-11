@@ -36,6 +36,7 @@ class DataBlob;
 class DataBlob_Vec3f;
 class DataBlob_PrimitiveSphere;
 class Task;
+class Result;
 
 // ===================================================================
 
@@ -461,31 +462,38 @@ class Task : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required int32 x = 1;
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // required int32 x = 2;
   inline bool has_x() const;
   inline void clear_x();
-  static const int kXFieldNumber = 1;
+  static const int kXFieldNumber = 2;
   inline ::google::protobuf::int32 x() const;
   inline void set_x(::google::protobuf::int32 value);
   
-  // required int32 y = 2;
+  // required int32 y = 3;
   inline bool has_y() const;
   inline void clear_y();
-  static const int kYFieldNumber = 2;
+  static const int kYFieldNumber = 3;
   inline ::google::protobuf::int32 y() const;
   inline void set_y(::google::protobuf::int32 value);
   
-  // required int32 w = 3;
+  // required int32 w = 4;
   inline bool has_w() const;
   inline void clear_w();
-  static const int kWFieldNumber = 3;
+  static const int kWFieldNumber = 4;
   inline ::google::protobuf::int32 w() const;
   inline void set_w(::google::protobuf::int32 value);
   
-  // required int32 h = 4;
+  // required int32 h = 5;
   inline bool has_h() const;
   inline void clear_h();
-  static const int kHFieldNumber = 4;
+  static const int kHFieldNumber = 5;
   inline ::google::protobuf::int32 h() const;
   inline void set_h(::google::protobuf::int32 value);
   
@@ -494,6 +502,7 @@ class Task : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
+  ::google::protobuf::int32 id_;
   ::google::protobuf::int32 x_;
   ::google::protobuf::int32 y_;
   ::google::protobuf::int32 w_;
@@ -502,7 +511,7 @@ class Task : public ::google::protobuf::Message {
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -517,6 +526,115 @@ class Task : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static Task* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Result : public ::google::protobuf::Message {
+ public:
+  Result();
+  virtual ~Result();
+  
+  Result(const Result& from);
+  
+  inline Result& operator=(const Result& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Result& default_instance();
+  
+  void Swap(Result* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Result* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Result& from);
+  void MergeFrom(const Result& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+  
+  // required int32 size = 2;
+  inline bool has_size() const;
+  inline void clear_size();
+  static const int kSizeFieldNumber = 2;
+  inline ::google::protobuf::int32 size() const;
+  inline void set_size(::google::protobuf::int32 value);
+  
+  // required bytes data = 3;
+  inline bool has_data() const;
+  inline void clear_data();
+  static const int kDataFieldNumber = 3;
+  inline const ::std::string& data() const;
+  inline void set_data(const ::std::string& value);
+  inline void set_data(const char* value);
+  inline void set_data(const void* value, size_t size);
+  inline ::std::string* mutable_data();
+  
+  // @@protoc_insertion_point(class_scope:raytracer.Result)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 id_;
+  ::google::protobuf::int32 size_;
+  ::std::string* data_;
+  static const ::std::string _default_data_;
+  friend void  protobuf_AddDesc_raytracer_2eproto();
+  friend void protobuf_AssignDesc_raytracer_2eproto();
+  friend void protobuf_ShutdownFile_raytracer_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Result* default_instance_;
 };
 // ===================================================================
 
@@ -780,68 +898,162 @@ DataBlob::mutable_spheres() {
 
 // Task
 
-// required int32 x = 1;
-inline bool Task::has_x() const {
+// required int32 id = 1;
+inline bool Task::has_id() const {
   return _has_bit(0);
+}
+inline void Task::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 Task::id() const {
+  return id_;
+}
+inline void Task::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// required int32 x = 2;
+inline bool Task::has_x() const {
+  return _has_bit(1);
 }
 inline void Task::clear_x() {
   x_ = 0;
-  _clear_bit(0);
+  _clear_bit(1);
 }
 inline ::google::protobuf::int32 Task::x() const {
   return x_;
 }
 inline void Task::set_x(::google::protobuf::int32 value) {
-  _set_bit(0);
+  _set_bit(1);
   x_ = value;
 }
 
-// required int32 y = 2;
+// required int32 y = 3;
 inline bool Task::has_y() const {
-  return _has_bit(1);
+  return _has_bit(2);
 }
 inline void Task::clear_y() {
   y_ = 0;
-  _clear_bit(1);
+  _clear_bit(2);
 }
 inline ::google::protobuf::int32 Task::y() const {
   return y_;
 }
 inline void Task::set_y(::google::protobuf::int32 value) {
-  _set_bit(1);
+  _set_bit(2);
   y_ = value;
 }
 
-// required int32 w = 3;
+// required int32 w = 4;
 inline bool Task::has_w() const {
-  return _has_bit(2);
+  return _has_bit(3);
 }
 inline void Task::clear_w() {
   w_ = 0;
-  _clear_bit(2);
+  _clear_bit(3);
 }
 inline ::google::protobuf::int32 Task::w() const {
   return w_;
 }
 inline void Task::set_w(::google::protobuf::int32 value) {
-  _set_bit(2);
+  _set_bit(3);
   w_ = value;
 }
 
-// required int32 h = 4;
+// required int32 h = 5;
 inline bool Task::has_h() const {
-  return _has_bit(3);
+  return _has_bit(4);
 }
 inline void Task::clear_h() {
   h_ = 0;
-  _clear_bit(3);
+  _clear_bit(4);
 }
 inline ::google::protobuf::int32 Task::h() const {
   return h_;
 }
 inline void Task::set_h(::google::protobuf::int32 value) {
-  _set_bit(3);
+  _set_bit(4);
   h_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// Result
+
+// required int32 id = 1;
+inline bool Result::has_id() const {
+  return _has_bit(0);
+}
+inline void Result::clear_id() {
+  id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 Result::id() const {
+  return id_;
+}
+inline void Result::set_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  id_ = value;
+}
+
+// required int32 size = 2;
+inline bool Result::has_size() const {
+  return _has_bit(1);
+}
+inline void Result::clear_size() {
+  size_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 Result::size() const {
+  return size_;
+}
+inline void Result::set_size(::google::protobuf::int32 value) {
+  _set_bit(1);
+  size_ = value;
+}
+
+// required bytes data = 3;
+inline bool Result::has_data() const {
+  return _has_bit(2);
+}
+inline void Result::clear_data() {
+  if (data_ != &_default_data_) {
+    data_->clear();
+  }
+  _clear_bit(2);
+}
+inline const ::std::string& Result::data() const {
+  return *data_;
+}
+inline void Result::set_data(const ::std::string& value) {
+  _set_bit(2);
+  if (data_ == &_default_data_) {
+    data_ = new ::std::string;
+  }
+  data_->assign(value);
+}
+inline void Result::set_data(const char* value) {
+  _set_bit(2);
+  if (data_ == &_default_data_) {
+    data_ = new ::std::string;
+  }
+  data_->assign(value);
+}
+inline void Result::set_data(const void* value, size_t size) {
+  _set_bit(2);
+  if (data_ == &_default_data_) {
+    data_ = new ::std::string;
+  }
+  data_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Result::mutable_data() {
+  _set_bit(2);
+  if (data_ == &_default_data_) {
+    data_ = new ::std::string;
+  }
+  return data_;
 }
 
 

@@ -8,6 +8,8 @@ project = NewProject("client")
 project:RequireLibrary("zthread")
 project:RequireLibrary("protobuffers")
 
+project:RequireModule("pri")
+
 project:AddIncludeDirectory("Include/Client/")
 project:AddIncludeDirectory("Include/ClientLib/")
 

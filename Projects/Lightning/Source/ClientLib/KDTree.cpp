@@ -1,6 +1,7 @@
 #include <KDTree.h>
 #include <algorithm>
 #include <Pxf/Base/Debug.h>
+#include <stdio.h>
 
 using namespace Pxf::Math;
 

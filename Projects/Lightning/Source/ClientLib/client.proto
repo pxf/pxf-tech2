@@ -34,3 +34,8 @@ message Tasks {
 	required string batchhash = 1;
 	repeated Task task = 2;
 }
+
+message Result {
+	required string batchhash = 1;
+	required bytes result = 2;
+}
