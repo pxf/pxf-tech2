@@ -1,5 +1,7 @@
 #include "client.h"
 
+#include <ZThread/ConcurrentExecutor.h>
+
 #define INITIAL_QUEUE 6
 #define PING_INTERVAL 10000 // Ping interval in milliseconds
 #define PING_TIMEOUT 5000 // Ping timeout in milliseconds
@@ -10,7 +12,7 @@ protected:
 	Client* m_Client;
 	bool m_Canceled;
 public:
-	SendThread(Client* _client /*, queue */))
+	SendThread(Client* _client /*, queue */)
 		: m_Client(_client)
 		, m_Canceled(false)
 	{}
@@ -49,6 +51,10 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_TaskQueue = new BlockingTaskQueue<Task*>;
 	m_TaskQueue->register_type(RAYTRACER); // TODO: Move to raytracer class
+
+	m_ThreadedExecutor = new ZThread::ThreadedExecutor();
+	m_ThreadedExecutor->execute(new SendThread(this));
+
 	m_log_tag = m_Kernel->CreateTag("cli");
 	m_net_tag = m_ConnMan.m_log_tag;
 }
@@ -365,6 +371,8 @@ Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 		t->CopyFrom(_tasks->task(i));
 		b++;
 	}
+
+	return tasks;
 }
 
 

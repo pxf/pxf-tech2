@@ -14,6 +14,9 @@
 
 class Client
 {
+	protected:
+		ZThread::ThreadedExecutor* m_ThreadedExecutor;
+
 	public:
 		int m_session_id;
 		char *m_tracker_address;
