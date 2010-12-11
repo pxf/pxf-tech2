@@ -201,8 +201,8 @@ int Client::run()
 				}
 				case OK:
 				{
-					client_state state = m_State.m_States[(*p)->connection];
-					if (state->state == WOK)
+					client_state* state = m_State.m_States[(*p)->connection];
+					/*if (state->state == WOK)
 					{
 						switch (state->waitfor)
 						{
@@ -212,7 +212,7 @@ int Client::run()
 								break;
 							}
 						}
-					}
+					}*/
 					// TODO: Check what the connection is waiting for with the State class
 					break;	
 				}
