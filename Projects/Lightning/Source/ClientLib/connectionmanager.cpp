@@ -433,7 +433,7 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 	sent = ::send(_connection->socket, (char*)&_length, sizeof(_length), 0);
 	if (sent <= 0)
 	{
-		m_Kernel->Log(m_log_tag, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
+		m_Kernel->Log(m_log_tag, "Error while sending to %s: %s: (socket: %d)", _connection->target_address, strerror(errno), _connection->socket);
 		return false;
 	}
 
@@ -441,7 +441,7 @@ bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 		sent = ::send(_connection->socket, _msg+offset, _length-offset, 0);
 		if (sent <= 0)
 		{
-			m_Kernel->Log(m_log_tag, "Error while sending to %s: %s:", _connection->target_address, strerror(errno));
+			m_Kernel->Log(m_log_tag, "Error while sending to %s: %s: (socket: %d)", _connection->target_address, strerror(errno), _connection->socket);
 			return false;
 		}
 		offset += sent;

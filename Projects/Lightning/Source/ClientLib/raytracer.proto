@@ -9,12 +9,12 @@ message DataBlob {
 	}
 
 	message Vertex {
-		required Vec3f p;
-		required Vec3f n;
+		required Vec3f p = 1;
+		required Vec3f n = 2;
 	}
 
 	message PrimitiveTriangle {
-		repeated Vertex vertices;
+		repeated Vertex vertices = 1;
 	}
 
 	message PrimitiveSphere {
@@ -36,7 +36,7 @@ message DataBlob {
 	
 	required int32 interleaved_feedback = 8;
 	
-	repeated PrimitiveTriangles triangles = 9;
+	repeated PrimitiveTriangle triangles = 9;
 }
 
 message Task {
