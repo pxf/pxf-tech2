@@ -311,6 +311,14 @@ int Client::run()
 
 					break;
 				}
+				case T_NODES_RESPONSE:
+				{
+					tracker::NodesResponse *nodes = (tracker::NodesResponse*)((*p)->unpack());
+					m_Kernel->Log(m_log_tag, "Allocation response from tracker, got %d nodes", nodes->nodes_size());
+
+					delete nodes;
+					break;
+				}
 				default:
 					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
 					break;
