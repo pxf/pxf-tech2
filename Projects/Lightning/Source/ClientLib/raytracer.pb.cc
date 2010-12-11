@@ -115,8 +115,13 @@ void protobuf_AssignDesc_raytracer_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Task));
   Result_descriptor_ = file->message_type(2);
-  static const int Result_offsets_[3] = {
+  static const int Result_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Result, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Result, x_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Result, y_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Result, w_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Result, h_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Result, final_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Result, size_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Result, data_),
   };
@@ -188,8 +193,9 @@ void protobuf_AddDesc_raytracer_2eproto() {
     "ere\022+\n\010position\030\001 \002(\0132\031.raytracer.DataBl"
     "ob.Vec3f\022\014\n\004size\030\002 \002(\002\">\n\004Task\022\n\n\002id\030\001 \002"
     "(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h"
-    "\030\005 \002(\005\"0\n\006Result\022\n\n\002id\030\001 \002(\005\022\014\n\004size\030\002 \002"
-    "(\005\022\014\n\004data\030\003 \002(\014", 496);
+    "\030\005 \002(\005\"k\n\006Result\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022"
+    "\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005fina"
+    "l\030\006 \002(\010\022\014\n\004size\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 555);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raytracer.proto", &protobuf_RegisterTypes);
   DataBlob::default_instance_ = new DataBlob();
@@ -1658,6 +1664,11 @@ void Task::Swap(Task* other) {
 const ::std::string Result::_default_data_;
 #ifndef _MSC_VER
 const int Result::kIdFieldNumber;
+const int Result::kXFieldNumber;
+const int Result::kYFieldNumber;
+const int Result::kWFieldNumber;
+const int Result::kHFieldNumber;
+const int Result::kFinalFieldNumber;
 const int Result::kSizeFieldNumber;
 const int Result::kDataFieldNumber;
 #endif  // !_MSC_VER
@@ -1679,6 +1690,11 @@ Result::Result(const Result& from)
 void Result::SharedCtor() {
   _cached_size_ = 0;
   id_ = 0;
+  x_ = 0;
+  y_ = 0;
+  w_ = 0;
+  h_ = 0;
+  final_ = false;
   size_ = 0;
   data_ = const_cast< ::std::string*>(&_default_data_);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1719,8 +1735,13 @@ Result* Result::New() const {
 void Result::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     id_ = 0;
+    x_ = 0;
+    y_ = 0;
+    w_ = 0;
+    h_ = 0;
+    final_ = false;
     size_ = 0;
-    if (_has_bit(2)) {
+    if (_has_bit(7)) {
       if (data_ != &_default_data_) {
         data_->clear();
       }
@@ -1747,28 +1768,108 @@ bool Result::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(16)) goto parse_size;
+        if (input->ExpectTag(16)) goto parse_x;
         break;
       }
       
-      // required int32 size = 2;
+      // required int32 x = 2;
       case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_x:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &x_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(24)) goto parse_y;
+        break;
+      }
+      
+      // required int32 y = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_y:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &y_)));
+          _set_bit(2);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(32)) goto parse_w;
+        break;
+      }
+      
+      // required int32 w = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_w:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &w_)));
+          _set_bit(3);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(40)) goto parse_h;
+        break;
+      }
+      
+      // required int32 h = 5;
+      case 5: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_h:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &h_)));
+          _set_bit(4);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(48)) goto parse_final;
+        break;
+      }
+      
+      // required bool final = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_final:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &final_)));
+          _set_bit(5);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(56)) goto parse_size;
+        break;
+      }
+      
+      // required int32 size = 7;
+      case 7: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_size:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &size_)));
-          _set_bit(1);
+          _set_bit(6);
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(26)) goto parse_data;
+        if (input->ExpectTag(66)) goto parse_data;
         break;
       }
       
-      // required bytes data = 3;
-      case 3: {
+      // required bytes data = 8;
+      case 8: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_data:
@@ -1804,15 +1905,40 @@ void Result::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->id(), output);
   }
   
-  // required int32 size = 2;
+  // required int32 x = 2;
   if (_has_bit(1)) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->size(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->x(), output);
   }
   
-  // required bytes data = 3;
+  // required int32 y = 3;
   if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->y(), output);
+  }
+  
+  // required int32 w = 4;
+  if (_has_bit(3)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->w(), output);
+  }
+  
+  // required int32 h = 5;
+  if (_has_bit(4)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->h(), output);
+  }
+  
+  // required bool final = 6;
+  if (_has_bit(5)) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(6, this->final(), output);
+  }
+  
+  // required int32 size = 7;
+  if (_has_bit(6)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(7, this->size(), output);
+  }
+  
+  // required bytes data = 8;
+  if (_has_bit(7)) {
     ::google::protobuf::internal::WireFormatLite::WriteBytes(
-      3, this->data(), output);
+      8, this->data(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -1828,16 +1954,41 @@ void Result::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->id(), target);
   }
   
-  // required int32 size = 2;
+  // required int32 x = 2;
   if (_has_bit(1)) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->size(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->x(), target);
   }
   
-  // required bytes data = 3;
+  // required int32 y = 3;
   if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->y(), target);
+  }
+  
+  // required int32 w = 4;
+  if (_has_bit(3)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->w(), target);
+  }
+  
+  // required int32 h = 5;
+  if (_has_bit(4)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->h(), target);
+  }
+  
+  // required bool final = 6;
+  if (_has_bit(5)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(6, this->final(), target);
+  }
+  
+  // required int32 size = 7;
+  if (_has_bit(6)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(7, this->size(), target);
+  }
+  
+  // required bytes data = 8;
+  if (_has_bit(7)) {
     target =
       ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
-        3, this->data(), target);
+        8, this->data(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1858,14 +2009,47 @@ int Result::ByteSize() const {
           this->id());
     }
     
-    // required int32 size = 2;
+    // required int32 x = 2;
+    if (has_x()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->x());
+    }
+    
+    // required int32 y = 3;
+    if (has_y()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->y());
+    }
+    
+    // required int32 w = 4;
+    if (has_w()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->w());
+    }
+    
+    // required int32 h = 5;
+    if (has_h()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->h());
+    }
+    
+    // required bool final = 6;
+    if (has_final()) {
+      total_size += 1 + 1;
+    }
+    
+    // required int32 size = 7;
     if (has_size()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->size());
     }
     
-    // required bytes data = 3;
+    // required bytes data = 8;
     if (has_data()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::BytesSize(
@@ -1903,9 +2087,24 @@ void Result::MergeFrom(const Result& from) {
       set_id(from.id());
     }
     if (from._has_bit(1)) {
-      set_size(from.size());
+      set_x(from.x());
     }
     if (from._has_bit(2)) {
+      set_y(from.y());
+    }
+    if (from._has_bit(3)) {
+      set_w(from.w());
+    }
+    if (from._has_bit(4)) {
+      set_h(from.h());
+    }
+    if (from._has_bit(5)) {
+      set_final(from.final());
+    }
+    if (from._has_bit(6)) {
+      set_size(from.size());
+    }
+    if (from._has_bit(7)) {
       set_data(from.data());
     }
   }
@@ -1925,7 +2124,7 @@ void Result::CopyFrom(const Result& from) {
 }
 
 bool Result::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x000000ff) != 0x000000ff) return false;
   
   return true;
 }
@@ -1933,6 +2132,11 @@ bool Result::IsInitialized() const {
 void Result::Swap(Result* other) {
   if (other != this) {
     std::swap(id_, other->id_);
+    std::swap(x_, other->x_);
+    std::swap(y_, other->y_);
+    std::swap(w_, other->w_);
+    std::swap(h_, other->h_);
+    std::swap(final_, other->final_);
     std::swap(size_, other->size_);
     std::swap(data_, other->data_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);

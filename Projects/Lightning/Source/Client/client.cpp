@@ -442,6 +442,7 @@ Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 		t->CopyFrom(_tasks->task(i));
 		b++;
 	}
+	
 	return tasks;
 }
 
