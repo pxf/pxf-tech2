@@ -260,22 +260,24 @@ int startrender_cb(lua_State* L)
 	bool ready_to_send = false;
 	while (!ready_to_send)
 	{
-		Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets();
+		Util::Array<Packet*>* in = cman->recv_packets();
 		
-		for(Util::Array<LiPacket*>::iterator tpacket = in->begin(); tpacket != in->end(); ++tpacket)
+		for(Util::Array<Packet*>::iterator i_tpacket = in->begin(); i_tpacket != in->end(); ++i_tpacket)
 		{
-			(*tpacket)->get_type();
+            LiPacket* tpacket = new LiPacket((*i_tpacket));
+
+			tpacket->get_type();
 			
-			if ((*tpacket)->message_type == PING)
+			if (tpacket->message_type == PING)
 			{
-				lightning::Ping *ping = (lightning::Ping*)((*tpacket)->unpack());
+				lightning::Ping *ping = (lightning::Ping*)(tpacket->unpack());
 				lightning::Pong *pong = new lightning::Pong();
 				pong->set_ping_data(ping->ping_data());
-				LiPacket *pkg = new LiPacket((*tpacket)->connection, pong, PONG);
+				LiPacket *pkg = new LiPacket(tpacket->connection, pong, PONG);
 				
 				cman->send(conn, pkg->data, pkg->length);
 				Pxf::Message("oae", "Got PING message!");
-			} else if ((*tpacket)->message_type == OK)
+			} else if (tpacket->message_type == OK)
 			{
 				// Send alloc request
 				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
@@ -286,7 +288,7 @@ int startrender_cb(lua_State* L)
 				
 				Pxf::Message("oae", "Got OK message!");
 				
-			} else if ((*tpacket)->message_type == C_ALLOC_RESP)
+			} else if (tpacket->message_type == C_ALLOC_RESP)
 			{
 				Pxf::Message("oae", "Got C_ALLOC_RESP message!");
 				
@@ -335,8 +337,9 @@ int startrender_cb(lua_State* L)
 				ready_to_send = true;
 				
 			} else {
-				Pxf::Message("oae", "Got unknown packet type %d!", (*tpacket)->message_type);
+				Pxf::Message("oae", "Got unknown packet type %d!", tpacket->message_type);
 			}
+            delete tpacket;
 		}
 		
 		in->clear();
@@ -542,15 +545,17 @@ int main(int argc, char* argv[])
 		// Recieve results via the network
 		if (recv_conn != 0)
 		{
-			Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets(1);		
-			for(Util::Array<LiPacket*>::iterator tpacket = in->begin(); tpacket != in->end(); ++tpacket)
+			Util::Array<Packet*>* in = cman->recv_packets();
+			for(Util::Array<Packet*>::iterator i_tpacket = in->begin(); i_tpacket != in->end(); ++i_tpacket)
 			{
+				LiPacket* tpacket = new LiPacket((*i_tpacket));
+
 				Pxf::Message("aoe", "Got packet on SOME connection!");
-				(*tpacket)->get_type();
-				if ((*tpacket)->message_type == C_RESULT)
+				tpacket->get_type();
+				if (tpacket->message_type == C_RESULT)
 				{
 					// Got result packet from a client
-					client::Result *res_packet = (client::Result*)((*tpacket)->unpack());
+					client::Result *res_packet = (client::Result*)(tpacket->unpack());
 					raytracer::Result *res_raytrace_packet = new raytracer::Result();
 					
 					// Unravel from client::Result to raytraycer::Result (which includes task id and result data)
@@ -578,10 +583,11 @@ int main(int argc, char* argv[])
 					
 					if (res_raytrace_packet->final())
 						total_done += 1;
-					
+
 				}
+                delete tpacket;
 			}
-			
+
 			in->clear();
 		}
 		
