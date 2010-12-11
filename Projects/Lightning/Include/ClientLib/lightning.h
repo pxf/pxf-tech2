@@ -9,7 +9,6 @@
 #include "lightning.pb.h"
 #include "client.pb.h"
 #include "tracker.pb.h"
-#include "raytracer.pb.h" // TODO: Ta bort
 
 enum MessageType {
 	// Common between all instances
