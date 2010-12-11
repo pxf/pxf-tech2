@@ -14,7 +14,7 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_local_port = _local_port;
 	m_client_port = _client_port;
 
-	m_ConnMan = ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
+	m_ConnMan = ConnectionManager();
 	m_State = State();
 
 	m_Kernel = Pxf::Kernel::GetInstance();
@@ -34,12 +34,11 @@ int Client::run()
 {
 	time_t last_ping, ping_timestamp;
 
-	Pxf::Util::Array<LiPacket*> *packets;
-
 	// Start the raytracerclient.
 	// TODO: A list of modules instead of statically loading each.
 	m_Raytracerclient = new RaytracerClient(m_Kernel, m_TaskQueue, m_ResultQueue);
 	m_Raytracerclient->run_noblock();
+	Pxf::Util::Array<Packet*> *packets;
 	
 	// Setting up socket for clients to connect to
 	Connection *client_c = m_ConnMan.new_connection(CLIENT);
@@ -82,7 +81,7 @@ int Client::run()
 			last_batch_check = time(NULL);
 		}
 
-		packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(PING_INTERVAL);
+		packets = m_ConnMan.recv_packets(PING_INTERVAL);
 
 		if (difftime(time(NULL), ping_timestamp) > PING_INTERVAL/1000.0f)
 		{
@@ -114,22 +113,23 @@ int Client::run()
 		if (packets->empty()) continue;
 
 		// Packet loop
-		Pxf::Util::Array<LiPacket*>::iterator p;
-		p = packets->begin();
-		while (p != packets->end())
+		Pxf::Util::Array<Packet*>::iterator pack_iter;
+		pack_iter = packets->begin();
+		while (pack_iter != packets->end())
 		{
-			(*p)->get_type();
-			switch((*p)->message_type)
+			LiPacket* p = new LiPacket(*pack_iter);
+			p->get_type();
+			switch(p->message_type)
 			{
 				case PING:
 				{
-					lightning::Ping *ping = (lightning::Ping*)((*p)->unpack());
+					lightning::Ping *ping = (lightning::Ping*)(p->unpack());
 					lightning::Pong *pong = new lightning::Pong();
 					pong->set_ping_data(ping->ping_data());
 
-					LiPacket *pkg = new LiPacket((*p)->connection, pong, PONG);
+					LiPacket *pkg = new LiPacket(p->connection, pong, PONG);
 
-					m_ConnMan.send((*p)->connection, pkg->data, pkg->length);
+					m_ConnMan.send(p->connection, pkg->data, pkg->length);
 
 					delete pkg;
 					delete pong;
@@ -138,28 +138,38 @@ int Client::run()
 				}
 				case PONG: //PONG
 				{
-					lightning::Pong *pong = (lightning::Pong*)((*p)->unpack());
-					(*p)->connection->timestamp = time(NULL);
+					lightning::Pong *pong = (lightning::Pong*)(p->unpack());
+					p->connection->timestamp = time(NULL);
 
 					break;
 				}
 				case OK:
 				{
+<<<<<<< HEAD
+=======
+					client_state* state = m_State.m_States[p->connection];
+					if (state->state == (WOK & W_HELLO))
+					{
+						// Waiting for OK from a HELLO request
+						m_Kernel->Log(m_log_tag, "Got OK response from HELLO request.");
+						m_State.m_Allocated.push_back(p->connection);
+					}
+>>>>>>> 1f56e57d134fac3d3283987275a0002f724237f1
 					// TODO: Check what the connection is waiting for with the State class
 					break;	
 				}
 				case GOODBYE:
 				{
-					m_Kernel->Log(m_log_tag, "Client %d disconnected.", (*p)->connection->session_id);
-					m_ConnMan.remove_connection((*p)->connection);
+					m_Kernel->Log(m_log_tag, "Client %d disconnected.", p->connection->session_id);
+					m_ConnMan.remove_connection(p->connection);
 					break;	
 				}
 				case C_HELLO:
 				{
 					// TODO: Do more stuff
-					client::Hello *hello = (client::Hello*)((*p)->unpack());
-					(*p)->connection->session_id = hello->session_id();
-					(*p)->connection->type = CLIENT;
+					client::Hello *hello = (client::Hello*)(p->unpack());
+					p->connection->session_id = hello->session_id();
+					p->connection->type = CLIENT;
 
 					m_Kernel->Log(m_log_tag, "Hello from %s:%d, session id:%d",
 								  hello->address().c_str(),
@@ -167,36 +177,36 @@ int Client::run()
 								  hello->session_id());
 
 					int type = OK;
-					m_ConnMan.send((*p)->connection, (char*)&type, 4);
+					m_ConnMan.send(p->connection, (char*)&type, 4);
 
 					break;
 				}
 				case C_ALLOCATE:
 				{
 					// TODO: Depending on what is said to the client, put client in allocated list, or something
-					if ((*p)->connection->type != CLIENT)
+					if (p->connection->type != CLIENT)
 					{
 						m_Kernel->Log(m_log_tag, "Client trying to allocate, but hasn't been introduced! Dropping connection.");
 
-						m_ConnMan.remove_connection((*p)->connection);
+						m_ConnMan.remove_connection(p->connection);
 						break;
 					}
 
-					client::AllocateClient *alloc = (client::AllocateClient*)((*p)->unpack());
+					client::AllocateClient *alloc = (client::AllocateClient*)(p->unpack());
 					Pxf::Util::String hash = alloc->batchhash();
 
 					client::AllocateResponse *alloc_resp = new client::AllocateResponse();
 					alloc_resp->set_isavailable(m_queue_free > 0);
 					alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
 		
-					LiPacket *pkg = new LiPacket((*p)->connection, alloc_resp, C_ALLOC_RESP);
+					LiPacket *pkg = new LiPacket(p->connection, alloc_resp, C_ALLOC_RESP);
 
-					m_Kernel->Log(m_log_tag, "Allocation request from %d. Granted.", (*p)->connection->session_id);
+					m_Kernel->Log(m_log_tag, "Allocation request from %d. Granted.", p->connection->session_id);
 
 					// Tell the state
-					m_State.m_Allocatees.push_back((*p)->connection);
+					m_State.m_Allocatees.push_back(p->connection);
 
-					m_ConnMan.send((Packet*)pkg);
+					m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
 
 					delete alloc_resp;
 					delete pkg;
@@ -205,13 +215,13 @@ int Client::run()
 				}
 				case C_DATA:
 				{
-					client::Data *data = (client::Data*)((*p)->unpack());
+					client::Data *data = (client::Data*)(p->unpack());
 
 					Pxf::Util::String hash = data->batchhash();
 
 					// Check that client has allocated the resource
 					// TODO: And that stuff doesn't exist yet
-					if (count(m_State.m_Allocatees.begin(), m_State.m_Allocatees.end(), (*p)->connection) != 1)
+					if (count(m_State.m_Allocatees.begin(), m_State.m_Allocatees.end(), p->connection) != 1)
 					{
 						m_Kernel->Log(m_log_tag, "Client has not been allocated!");
 						delete data;
@@ -246,7 +256,7 @@ int Client::run()
 					// Add batch to hashmap
 					m_Batches[hash] = b;
 
-					m_Kernel->Log(m_log_tag, "DATA from %d of type %d.", (*p)->connection->session_id, b->type);
+					m_Kernel->Log(m_log_tag, "DATA from %d of type %d.", p->connection->session_id, b->type);
 
 					delete data;
 
@@ -254,7 +264,7 @@ int Client::run()
 				}
 				case C_TASKS:
 				{
-					client::Tasks *proto_tasks = (client::Tasks*)((*p)->unpack());
+					client::Tasks *proto_tasks = (client::Tasks*)(p->unpack());
 
 					if (m_Batches.count(proto_tasks->batchhash()) != 1)
 					{
@@ -271,7 +281,7 @@ int Client::run()
 
 					m_Kernel->Log(m_log_tag, "Pushing %d tasks from %d",
 						tasks.back()->task_size(),
-						(*p)->connection->session_id
+						p->connection->session_id
 					);
 
 					// Push a set of tasks to our queue
@@ -287,13 +297,24 @@ int Client::run()
 
 					break;
 				}
+<<<<<<< HEAD
+=======
+				case T_NODES_RESPONSE:
+				{
+					tracker::NodesResponse *nodes = (tracker::NodesResponse*)(p->unpack());
+					m_Kernel->Log(m_log_tag, "Allocation response from tracker, got %d nodes", nodes->nodes_size());
+
+					delete nodes;
+					break;
+				}
+>>>>>>> 1f56e57d134fac3d3283987275a0002f724237f1
 				default:
-					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", (*p)->message_type);
+					m_Kernel->Log(m_log_tag, "Unknown packet type: %d", p->message_type);
 					break;
 			}
 
-			delete (*p);
-			p = packets->erase(p);
+			delete p;
+			pack_iter = packets->erase(pack_iter);
 		}
 	}
 
@@ -302,7 +323,29 @@ int Client::run()
 
 void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 {
+<<<<<<< HEAD
 	1+1;	
+=======
+	int diff = _tasks.size() - m_State.m_Allocated.size();
+
+	if (diff > 0)
+	{
+		// More nodes needed
+		tracker::NodesRequest* request = new tracker::NodesRequest();
+		request->set_session_id(m_session_id);
+		request->set_nodes(diff);
+
+		LiPacket* pkg = new LiPacket(m_tracker, request, T_NODES_REQUEST);
+		m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+
+		m_Kernel->Log(m_log_tag, "Requested %d nodes of tracker.", diff);
+
+		delete pkg;
+		delete request;
+	}
+	
+	//if (_tasks.size() - diff > 0)
+>>>>>>> 1f56e57d134fac3d3283987275a0002f724237f1
 }
 
 void Client::push(client::Tasks* _tasks)
@@ -378,18 +421,22 @@ bool Client::connect_tracker()
 	m_ConnMan.send(c, (char*)&type, 4);
 	
 	// Wait for tracker to respond. Timeout after 5 seconds.
-	Pxf::Util::Array<LiPacket*> *packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(5000);
+	Pxf::Util::Array<Packet*> *packets = m_ConnMan.recv_packets(5000);
 	if (packets->size() == 0)
 	{
 		m_Kernel->Log(m_net_tag, "Connection to tracker at %s timed out.", c->target_address);
 		return false;
 	}
-	
-	tracker::HelloToClient *hello_client = (tracker::HelloToClient*)(packets->front()->unpack());
+
+	LiPacket* pkg = new LiPacket(packets->front());
+
+	tracker::HelloToClient *hello_client = (tracker::HelloToClient*)pkg->unpack();
+
 	
 	m_session_id = hello_client->session_id();
 
-	delete packets->front();
+	delete pkg;
+
 	packets->clear();
 	
 	m_Kernel->Log(m_log_tag, "Connected to tracker. Got session_id %d, using socket %d", m_session_id, c->socket);
@@ -403,14 +450,14 @@ bool Client::connect_tracker()
 	//hello_tracker->set_available(m_TaskQueue.capacity()-m_TaskQueue.size());
 	hello_tracker->set_available(0);
 
-	LiPacket *pkg = new LiPacket(c, hello_tracker, T_HELLO_TRACKER);
+	pkg = new LiPacket(c, hello_tracker, T_HELLO_TRACKER);
 
 	m_ConnMan.send(c, pkg->data, pkg->length);
 	m_Kernel->Log(m_log_tag, "Connection to tracker on socket %d terminated.", c->socket);
 	m_ConnMan.remove_connection(c);
 	delete pkg;
 
-	packets = (Pxf::Util::Array<LiPacket*>*)m_ConnMan.recv_packets(5000);
+	packets = m_ConnMan.recv_packets(5000);
 
 	if (packets->empty())
 	{
@@ -420,6 +467,7 @@ bool Client::connect_tracker()
 			if ((*c)->type == TRACKER) return true;
 
 		m_Kernel->Log(m_net_tag, "Tracker could not connect to client. Are the ports open?");
+		list_connections();
 		return false;
 	}
 	else
