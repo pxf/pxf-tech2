@@ -45,6 +45,14 @@ function spawn_toolwindow()
   local render_button = gui:create_labelbutton(0,0,120,32,"Render",function () print(tostring(startrender("localhost", 50002, "localhost", 4632))) end)
   tool_stack:addwidget(render_button)
   
+  -- load model button
+  local load_model_button = gui:create_labelbutton(128,0,120,32,"Load Model",
+		function () 
+			local path = app.opendialog() 
+			loadmodel(path)
+		end)
+  tool_stack:addwidget(load_model_button)
+  
   -- spacing
   local spacer = gui:create_basewidget(0,0,1,8)
   tool_stack:addwidget(spacer)

@@ -55,6 +55,8 @@ Connection *recv_conn = 0;
 
 // global blob/scene data
 batch_blob_t blob;
+Graphics::VertexBuffer* tree_VB;
+
 struct scene {
 	Resource::Mesh* mesh;
 	Graphics::Model* mdl;
@@ -68,6 +70,39 @@ const int channels = 3;
 const int task_count = 8;
 int task_size_w = w / task_count;
 int task_size_h = h / task_count;
+
+void load_model(const char* path)
+{
+	Kernel* kernel = Pxf::Kernel::GetInstance();
+	Resource::Mesh* mesh = kernel->GetResourceManager()->Acquire<Resource::Mesh>(path);
+	Graphics::Model* model = kernel->GetGraphicsDevice()->CreateModel(mesh);
+
+	if(mesh && model)
+	{
+		if(current_scene.mesh)
+			kernel->GetResourceManager()->Release<Resource::Mesh>(mesh);
+
+		current_scene.mesh = mesh;
+		current_scene.mdl = model;
+
+		Primitive** scene_data = (Primitive**) triangle_list(mesh);
+		int tri_count = mesh->GetData()->triangle_count;
+
+		blob.tree = new KDTree(3);
+		blob.tree->Build(scene_data,tri_count);
+		blob.primitives = scene_data;
+		blob.prim_count = tri_count;
+
+		if(tree_VB)
+			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
+
+		tree_VB = kernel->GetGraphicsDevice()->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
+		CreateVBFromTree(blob.tree,tree_VB);
+	}
+	else
+		Pxf::Message("Main","Unable to load model");
+
+}
 
 raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 {
@@ -92,7 +127,13 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	
 	for(size_t i = 0; i < blob->prim_count; i++)
 	{
-		if (blob->primitives[i]->GetType() == SpherePrim)
+		if (blob->primitives[i]->GetType() == TrianglePrim)
+		{
+			raytracer::DataBlob_PrimitiveTriangle* triangle_pack = npack->add_triangles();
+			raytracer::DataBlob_Vertex* vertex_pack = triangle_pack->add_vertices();
+		}
+		/*
+		else if (blob->primitives[i]->GetType() == SpherePrim)
 		{
 			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_spheres();//new raytracer::DataBlob::PrimitiveSphere();
 			raytracer::DataBlob_Vec3f* pos_pack = sphere_pack->mutable_position();
@@ -104,7 +145,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			sphere_pack->set_size(((Sphere*)(blob->primitives[i]))->r);
 			
 			//npack->add_spheres(sphere_pack);
-		}
+		}*/
 	}
 	
 	return npack;
@@ -117,6 +158,22 @@ int renderstatus_cb(lua_State* L)
 	lua_pushnumber(L, total_count);
 	lua_pushnumber(L, (int)render_timer.Interval());
 	return 3;
+}
+
+int loadmodel_cb(lua_State* L)
+{
+	if(lua_gettop(L) == 1)
+	{
+		const char* path = lua_tostring(L,1);
+		load_model(path);
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Could not load model, no path passed to function");
+		return 1;
+	}
 }
 
 int startrender_cb(lua_State* L)
@@ -202,6 +259,7 @@ int startrender_cb(lua_State* L)
 					for(int x = 0; x < task_count; x++)
 					{
 						raytracer::Task* task_pack = new raytracer::Task();
+						task_pack->set_id(y*task_count+x);
 						task_pack->set_x(x * task_size_w);
 						task_pack->set_y(y * task_size_h);
 						task_pack->set_w(task_size_w);
@@ -219,6 +277,8 @@ int startrender_cb(lua_State* L)
 				}
 				LiPacket* tasks_lipack = new LiPacket(conn, tasks_pack, C_TASKS);
 				cman->send((Packet*)tasks_lipack);
+				
+				cman->remove_connection(conn);
 				
 				ready_to_send = true;
 				
@@ -268,24 +328,15 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+
 	Resource::Mesh::mesh_descriptor* descr;
 	Resource::Mesh* box = res->Acquire<Resource::Mesh>("data/box.ctm");
-	Resource::Mesh* box2 = res->Acquire<Resource::Mesh>("data/box_2.ctm");
+	//Resource::Mesh* box2 = res->Acquire<Resource::Mesh>("data/box_2.ctm");
 	Resource::Mesh* sphere = res->Acquire<Resource::Mesh>("data/sphere.ctm");
 	Resource::Mesh* teapot = res->Acquire<Resource::Mesh>("data/teapot.ctm");
 
 	// Setup connection manager and stuff!
 	cman = new ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
-	
-	
-	
-	// Generate awesome red output buffer
-	//const int w = 128;
-	//const int h = 128;
-	//const int channels = 3;
-	//const int task_count = 8;
-	//int task_size_w = w / task_count;
-	//int task_size_h = h / task_count;
 	char pixels[w*h*channels];
 	
 	// job specifics
@@ -364,6 +415,7 @@ int main(int argc, char* argv[])
 	// Fabric/GUI stuff
 	Fabric::App* app = new Fabric::App(win, "fabric/main.lua");
 	app->BindExternalFunction("renderstatus", renderstatus_cb);
+	app->BindExternalFunction("loadmodel", loadmodel_cb);
 	app->BindExternalFunction("startrender", startrender_cb);
 	app->Boot();
 	bool running = true;
@@ -372,11 +424,11 @@ int main(int argc, char* argv[])
 	// MODELS
 	Model* model_teapot = gfx->CreateModel(teapot);
 	Model* model_box = gfx->CreateModel(box);
-	Model* model_box2 = gfx->CreateModel(box2);
+	//Model* model_box2 = gfx->CreateModel(box2);
 	Model* model_sphere = gfx->CreateModel(sphere);
 
-	current_scene.mesh = box2;
-	current_scene.mdl = model_box2;
+	current_scene.mesh = teapot;
+	current_scene.mdl = model_teapot;
 
 	// CAMERA
 	SimpleCamera cam;
@@ -386,22 +438,11 @@ int main(int argc, char* argv[])
 
 	cam.SetProjectionView(prjmat);
 	cam.Translate(0.0f,20.0f,100.0f);
-
-	// PRIMITIVE DATA
-	Primitive** scene_data = (Primitive**) triangle_list(current_scene.mesh);
-	int tri_count = current_scene.mesh->GetData()->triangle_count;
-
-
-	// KD TREE
-	KDTree* tree = new KDTree(3);
-	tree->Build(scene_data,tri_count);
-	Graphics::VertexBuffer* tree_VB = gfx->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
-	CreateVBFromTree(tree,tree_VB);
-
 	blob.cam = &cam;
-	blob.primitives = scene_data;
-	blob.prim_count = tri_count;
-	blob.tree = tree;
+
+
+	// load a model!
+	load_model("data/box_2.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -449,18 +490,42 @@ int main(int argc, char* argv[])
 		// Recieve results via the network
 		if (recv_conn != 0)
 		{
-			Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets();		
+			Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets(1);		
 			for(Util::Array<LiPacket*>::iterator tpacket = in->begin(); tpacket != in->end(); ++tpacket)
 			{
 				Pxf::Message("aoe", "Got packet on SOME connection!");
 				(*tpacket)->get_type();
 				if ((*tpacket)->message_type == C_RESULT)
 				{
+					// Got result packet from a client
 					client::Result *res_packet = (client::Result*)((*tpacket)->unpack());
 					raytracer::Result *res_raytrace_packet = new raytracer::Result();
+					
+					// Unravel from client::Result to raytraycer::Result (which includes task id and result data)
 					res_raytrace_packet->ParseFromString(res_packet->result());
 					
 					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash().c_str(), res_raytrace_packet->id());
+					
+					
+					// Create texture from incomming data
+					int x = res_raytrace_packet->x() / task_size_w;
+					int y = res_raytrace_packet->y() / task_size_h;
+
+					unsigned int idx = res_raytrace_packet->id();
+					Pxf::Graphics::GraphicsDevice* gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
+					if (region_textures[idx] == 0)
+					{
+						region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res_raytrace_packet->data().c_str(), task_size_w, task_size_h, channels);
+						region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
+						region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
+					}
+					else
+					{
+						region_textures[idx]->UpdateData((const unsigned char*)res_raytrace_packet->data().c_str(), 0, 0, task_size_w, task_size_h);
+					}
+					
+					if (res_raytrace_packet->final())
+						total_done += 1;
 					
 				}
 			}
@@ -514,7 +579,7 @@ int main(int argc, char* argv[])
 			glEnd();
 
 			intersection_response_t resp;
-			Primitive* p_res = RayTreeIntersect(*tree,debug_ray,10000.0f,resp);
+			Primitive* p_res = RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
 
 			if(p_res)
 			{
@@ -602,12 +667,6 @@ int main(int argc, char* argv[])
 	
 	delete app;
 	delete pbatch;
-
-	//delete tree; 
-	tree = 0;
-
-	delete [] scene_data; 
-	scene_data = 0;
 
 	delete kernel;
 

@@ -6,6 +6,7 @@
 #include <Pxf/Base/String.h>
 #include <Pxf/Base/Memory.h>
 #include <zthread/ThreadedExecutor.h>
+#include <zthread/BlockingQueue.h>
 
 #include "connectionmanager.h"
 #include "lightning.h"
@@ -16,6 +17,8 @@
 class Client
 {
 	public:
+		typedef ZThread::BlockingQueue<client::Result*, ZThread::FastMutex> TaskResultQueue;
+
 		int m_session_id;
 		char *m_tracker_address;
 		int m_tracker_port;
@@ -40,7 +43,11 @@ class Client
 		State m_State;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
+		Connection* m_tracker;
+
+		ZThread::ThreadedExecutor* m_ThreadedExecutor;
 		BlockingTaskQueue<Task*>* m_TaskQueue;
+		TaskResultQueue* m_ResultQueue;
 
 		RaytracerClient *m_Raytracerclient;
 
@@ -54,6 +61,7 @@ class Client
 		Pxf::Util::Array<client::Tasks*> split_tasks(client::Tasks*);
 		void push(client::Tasks* _tasks);
 		void forward(Pxf::Util::Array<client::Tasks*> _tasks);
+		void list_connections();
 
 };
 
