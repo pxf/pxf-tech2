@@ -26,6 +26,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* DataBlob_PrimitiveTriangle_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   DataBlob_PrimitiveTriangle_reflection_ = NULL;
+const ::google::protobuf::Descriptor* DataBlob_PrimitivePointLight_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  DataBlob_PrimitivePointLight_reflection_ = NULL;
 const ::google::protobuf::Descriptor* DataBlob_PrimitiveSphere_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   DataBlob_PrimitiveSphere_reflection_ = NULL;
@@ -46,7 +49,7 @@ void protobuf_AssignDesc_raytracer_2eproto() {
       "raytracer.proto");
   GOOGLE_CHECK(file != NULL);
   DataBlob_descriptor_ = file->message_type(0);
-  static const int DataBlob_offsets_[9] = {
+  static const int DataBlob_offsets_[10] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, prim_count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, light_count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, samples_),
@@ -56,6 +59,7 @@ void protobuf_AssignDesc_raytracer_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, samples_per_pixel_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, interleaved_feedback_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, triangles_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, point_lights_),
   };
   DataBlob_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -118,7 +122,22 @@ void protobuf_AssignDesc_raytracer_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DataBlob_PrimitiveTriangle));
-  DataBlob_PrimitiveSphere_descriptor_ = DataBlob_descriptor_->nested_type(3);
+  DataBlob_PrimitivePointLight_descriptor_ = DataBlob_descriptor_->nested_type(3);
+  static const int DataBlob_PrimitivePointLight_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitivePointLight, p_),
+  };
+  DataBlob_PrimitivePointLight_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      DataBlob_PrimitivePointLight_descriptor_,
+      DataBlob_PrimitivePointLight::default_instance_,
+      DataBlob_PrimitivePointLight_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitivePointLight, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitivePointLight, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(DataBlob_PrimitivePointLight));
+  DataBlob_PrimitiveSphere_descriptor_ = DataBlob_descriptor_->nested_type(4);
   static const int DataBlob_PrimitiveSphere_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitiveSphere, position_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PrimitiveSphere, size_),
@@ -196,6 +215,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     DataBlob_PrimitiveTriangle_descriptor_, &DataBlob_PrimitiveTriangle::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    DataBlob_PrimitivePointLight_descriptor_, &DataBlob_PrimitivePointLight::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     DataBlob_PrimitiveSphere_descriptor_, &DataBlob_PrimitiveSphere::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Task_descriptor_, &Task::default_instance());
@@ -214,6 +235,8 @@ void protobuf_ShutdownFile_raytracer_2eproto() {
   delete DataBlob_Vertex_reflection_;
   delete DataBlob_PrimitiveTriangle::default_instance_;
   delete DataBlob_PrimitiveTriangle_reflection_;
+  delete DataBlob_PrimitivePointLight::default_instance_;
+  delete DataBlob_PrimitivePointLight_reflection_;
   delete DataBlob_PrimitiveSphere::default_instance_;
   delete DataBlob_PrimitiveSphere_reflection_;
   delete Task::default_instance_;
@@ -229,32 +252,36 @@ void protobuf_AddDesc_raytracer_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017raytracer.proto\022\traytracer\"\307\004\n\010DataBlo"
+    "\n\017raytracer.proto\022\traytracer\"\303\005\n\010DataBlo"
     "b\022\022\n\nprim_count\030\001 \002(\005\022\023\n\013light_count\030\002 \002"
     "(\005\022\017\n\007samples\030\003 \003(\002\022\024\n\014bounce_count\030\004 \002("
     "\005\022\r\n\005pic_w\030\005 \002(\005\022\r\n\005pic_h\030\006 \002(\005\022\031\n\021sampl"
     "es_per_pixel\030\007 \002(\005\022\034\n\024interleaved_feedba"
     "ck\030\010 \002(\005\0228\n\ttriangles\030\t \003(\0132%.raytracer."
-    "DataBlob.PrimitiveTriangle\032(\n\005Vec3f\022\t\n\001x"
-    "\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002(\002\032T\n\006Vertex\022$"
-    "\n\001p\030\001 \002(\0132\031.raytracer.DataBlob.Vec3f\022$\n\001"
-    "n\030\002 \002(\0132\031.raytracer.DataBlob.Vec3f\032\213\001\n\021P"
-    "rimitiveTriangle\022&\n\002v0\030\001 \002(\0132\032.raytracer"
-    ".DataBlob.Vertex\022&\n\002v1\030\002 \002(\0132\032.raytracer"
-    ".DataBlob.Vertex\022&\n\002v2\030\003 \002(\0132\032.raytracer"
-    ".DataBlob.Vertex\032L\n\017PrimitiveSphere\022+\n\010p"
-    "osition\030\001 \002(\0132\031.raytracer.DataBlob.Vec3f"
-    "\022\014\n\004size\030\002 \002(\002\">\n\004Task\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030"
-    "\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\"k"
-    "\n\006Result\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002"
-    "(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030\006 \002(\010\022"
-    "\014\n\004size\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 787);
+    "DataBlob.PrimitiveTriangle\022=\n\014point_ligh"
+    "ts\030\n \003(\0132\'.raytracer.DataBlob.PrimitiveP"
+    "ointLight\032(\n\005Vec3f\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002"
+    "\022\t\n\001z\030\003 \002(\002\032T\n\006Vertex\022$\n\001p\030\001 \002(\0132\031.raytr"
+    "acer.DataBlob.Vec3f\022$\n\001n\030\002 \002(\0132\031.raytrac"
+    "er.DataBlob.Vec3f\032\213\001\n\021PrimitiveTriangle\022"
+    "&\n\002v0\030\001 \002(\0132\032.raytracer.DataBlob.Vertex\022"
+    "&\n\002v1\030\002 \002(\0132\032.raytracer.DataBlob.Vertex\022"
+    "&\n\002v2\030\003 \002(\0132\032.raytracer.DataBlob.Vertex\032"
+    ";\n\023PrimitivePointLight\022$\n\001p\030\001 \002(\0132\031.rayt"
+    "racer.DataBlob.Vec3f\032L\n\017PrimitiveSphere\022"
+    "+\n\010position\030\001 \002(\0132\031.raytracer.DataBlob.V"
+    "ec3f\022\014\n\004size\030\002 \002(\002\">\n\004Task\022\n\n\002id\030\001 \002(\005\022\t"
+    "\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002"
+    "(\005\"k\n\006Result\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y"
+    "\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030\006 "
+    "\002(\010\022\014\n\004size\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 911);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raytracer.proto", &protobuf_RegisterTypes);
   DataBlob::default_instance_ = new DataBlob();
   DataBlob_Vec3f::default_instance_ = new DataBlob_Vec3f();
   DataBlob_Vertex::default_instance_ = new DataBlob_Vertex();
   DataBlob_PrimitiveTriangle::default_instance_ = new DataBlob_PrimitiveTriangle();
+  DataBlob_PrimitivePointLight::default_instance_ = new DataBlob_PrimitivePointLight();
   DataBlob_PrimitiveSphere::default_instance_ = new DataBlob_PrimitiveSphere();
   Task::default_instance_ = new Task();
   Result::default_instance_ = new Result();
@@ -262,6 +289,7 @@ void protobuf_AddDesc_raytracer_2eproto() {
   DataBlob_Vec3f::default_instance_->InitAsDefaultInstance();
   DataBlob_Vertex::default_instance_->InitAsDefaultInstance();
   DataBlob_PrimitiveTriangle::default_instance_->InitAsDefaultInstance();
+  DataBlob_PrimitivePointLight::default_instance_->InitAsDefaultInstance();
   DataBlob_PrimitiveSphere::default_instance_->InitAsDefaultInstance();
   Task::default_instance_->InitAsDefaultInstance();
   Result::default_instance_->InitAsDefaultInstance();
@@ -1137,6 +1165,222 @@ void DataBlob_PrimitiveTriangle::Swap(DataBlob_PrimitiveTriangle* other) {
 // -------------------------------------------------------------------
 
 #ifndef _MSC_VER
+const int DataBlob_PrimitivePointLight::kPFieldNumber;
+#endif  // !_MSC_VER
+
+DataBlob_PrimitivePointLight::DataBlob_PrimitivePointLight()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void DataBlob_PrimitivePointLight::InitAsDefaultInstance() {
+  p_ = const_cast< ::raytracer::DataBlob_Vec3f*>(&::raytracer::DataBlob_Vec3f::default_instance());
+}
+
+DataBlob_PrimitivePointLight::DataBlob_PrimitivePointLight(const DataBlob_PrimitivePointLight& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void DataBlob_PrimitivePointLight::SharedCtor() {
+  _cached_size_ = 0;
+  p_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+DataBlob_PrimitivePointLight::~DataBlob_PrimitivePointLight() {
+  SharedDtor();
+}
+
+void DataBlob_PrimitivePointLight::SharedDtor() {
+  if (this != default_instance_) {
+    delete p_;
+  }
+}
+
+void DataBlob_PrimitivePointLight::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* DataBlob_PrimitivePointLight::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return DataBlob_PrimitivePointLight_descriptor_;
+}
+
+const DataBlob_PrimitivePointLight& DataBlob_PrimitivePointLight::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_raytracer_2eproto();  return *default_instance_;
+}
+
+DataBlob_PrimitivePointLight* DataBlob_PrimitivePointLight::default_instance_ = NULL;
+
+DataBlob_PrimitivePointLight* DataBlob_PrimitivePointLight::New() const {
+  return new DataBlob_PrimitivePointLight;
+}
+
+void DataBlob_PrimitivePointLight::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (_has_bit(0)) {
+      if (p_ != NULL) p_->::raytracer::DataBlob_Vec3f::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool DataBlob_PrimitivePointLight::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required .raytracer.DataBlob.Vec3f p = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_p()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void DataBlob_PrimitivePointLight::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required .raytracer.DataBlob.Vec3f p = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->p(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* DataBlob_PrimitivePointLight::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required .raytracer.DataBlob.Vec3f p = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->p(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int DataBlob_PrimitivePointLight::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required .raytracer.DataBlob.Vec3f p = 1;
+    if (has_p()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->p());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void DataBlob_PrimitivePointLight::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const DataBlob_PrimitivePointLight* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const DataBlob_PrimitivePointLight*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void DataBlob_PrimitivePointLight::MergeFrom(const DataBlob_PrimitivePointLight& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      mutable_p()->::raytracer::DataBlob_Vec3f::MergeFrom(from.p());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void DataBlob_PrimitivePointLight::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void DataBlob_PrimitivePointLight::CopyFrom(const DataBlob_PrimitivePointLight& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool DataBlob_PrimitivePointLight::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  
+  if (has_p()) {
+    if (!this->p().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void DataBlob_PrimitivePointLight::Swap(DataBlob_PrimitivePointLight* other) {
+  if (other != this) {
+    std::swap(p_, other->p_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata DataBlob_PrimitivePointLight::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = DataBlob_PrimitivePointLight_descriptor_;
+  metadata.reflection = DataBlob_PrimitivePointLight_reflection_;
+  return metadata;
+}
+
+
+// -------------------------------------------------------------------
+
+#ifndef _MSC_VER
 const int DataBlob_PrimitiveSphere::kPositionFieldNumber;
 const int DataBlob_PrimitiveSphere::kSizeFieldNumber;
 #endif  // !_MSC_VER
@@ -1400,6 +1644,7 @@ const int DataBlob::kPicHFieldNumber;
 const int DataBlob::kSamplesPerPixelFieldNumber;
 const int DataBlob::kInterleavedFeedbackFieldNumber;
 const int DataBlob::kTrianglesFieldNumber;
+const int DataBlob::kPointLightsFieldNumber;
 #endif  // !_MSC_VER
 
 DataBlob::DataBlob()
@@ -1469,6 +1714,7 @@ void DataBlob::Clear() {
   }
   samples_.Clear();
   triangles_.Clear();
+  point_lights_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -1623,6 +1869,21 @@ bool DataBlob::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(74)) goto parse_triangles;
+        if (input->ExpectTag(82)) goto parse_point_lights;
+        break;
+      }
+      
+      // repeated .raytracer.DataBlob.PrimitivePointLight point_lights = 10;
+      case 10: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_point_lights:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_point_lights()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(82)) goto parse_point_lights;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1692,6 +1953,12 @@ void DataBlob::SerializeWithCachedSizes(
       9, this->triangles(i), output);
   }
   
+  // repeated .raytracer.DataBlob.PrimitivePointLight point_lights = 10;
+  for (int i = 0; i < this->point_lights_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      10, this->point_lights(i), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1746,6 +2013,13 @@ void DataBlob::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         9, this->triangles(i), target);
+  }
+  
+  // repeated .raytracer.DataBlob.PrimitivePointLight point_lights = 10;
+  for (int i = 0; i < this->point_lights_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        10, this->point_lights(i), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1824,6 +2098,14 @@ int DataBlob::ByteSize() const {
         this->triangles(i));
   }
   
+  // repeated .raytracer.DataBlob.PrimitivePointLight point_lights = 10;
+  total_size += 1 * this->point_lights_size();
+  for (int i = 0; i < this->point_lights_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->point_lights(i));
+  }
+  
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -1851,6 +2133,7 @@ void DataBlob::MergeFrom(const DataBlob& from) {
   GOOGLE_CHECK_NE(&from, this);
   samples_.MergeFrom(from.samples_);
   triangles_.MergeFrom(from.triangles_);
+  point_lights_.MergeFrom(from.point_lights_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from._has_bit(0)) {
       set_prim_count(from.prim_count());
@@ -1895,6 +2178,9 @@ bool DataBlob::IsInitialized() const {
   for (int i = 0; i < triangles_size(); i++) {
     if (!this->triangles(i).IsInitialized()) return false;
   }
+  for (int i = 0; i < point_lights_size(); i++) {
+    if (!this->point_lights(i).IsInitialized()) return false;
+  }
   return true;
 }
 
@@ -1909,6 +2195,7 @@ void DataBlob::Swap(DataBlob* other) {
     std::swap(samples_per_pixel_, other->samples_per_pixel_);
     std::swap(interleaved_feedback_, other->interleaved_feedback_);
     triangles_.Swap(&other->triangles_);
+    point_lights_.Swap(&other->point_lights_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

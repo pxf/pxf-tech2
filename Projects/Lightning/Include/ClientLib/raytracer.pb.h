@@ -36,6 +36,7 @@ class DataBlob;
 class DataBlob_Vec3f;
 class DataBlob_Vertex;
 class DataBlob_PrimitiveTriangle;
+class DataBlob_PrimitivePointLight;
 class DataBlob_PrimitiveSphere;
 class Task;
 class Result;
@@ -349,6 +350,95 @@ class DataBlob_PrimitiveTriangle : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class DataBlob_PrimitivePointLight : public ::google::protobuf::Message {
+ public:
+  DataBlob_PrimitivePointLight();
+  virtual ~DataBlob_PrimitivePointLight();
+  
+  DataBlob_PrimitivePointLight(const DataBlob_PrimitivePointLight& from);
+  
+  inline DataBlob_PrimitivePointLight& operator=(const DataBlob_PrimitivePointLight& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DataBlob_PrimitivePointLight& default_instance();
+  
+  void Swap(DataBlob_PrimitivePointLight* other);
+  
+  // implements Message ----------------------------------------------
+  
+  DataBlob_PrimitivePointLight* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DataBlob_PrimitivePointLight& from);
+  void MergeFrom(const DataBlob_PrimitivePointLight& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required .raytracer.DataBlob.Vec3f p = 1;
+  inline bool has_p() const;
+  inline void clear_p();
+  static const int kPFieldNumber = 1;
+  inline const ::raytracer::DataBlob_Vec3f& p() const;
+  inline ::raytracer::DataBlob_Vec3f* mutable_p();
+  
+  // @@protoc_insertion_point(class_scope:raytracer.DataBlob.PrimitivePointLight)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::raytracer::DataBlob_Vec3f* p_;
+  friend void  protobuf_AddDesc_raytracer_2eproto();
+  friend void protobuf_AssignDesc_raytracer_2eproto();
+  friend void protobuf_ShutdownFile_raytracer_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static DataBlob_PrimitivePointLight* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class DataBlob_PrimitiveSphere : public ::google::protobuf::Message {
  public:
   DataBlob_PrimitiveSphere();
@@ -501,6 +591,7 @@ class DataBlob : public ::google::protobuf::Message {
   typedef DataBlob_Vec3f Vec3f;
   typedef DataBlob_Vertex Vertex;
   typedef DataBlob_PrimitiveTriangle PrimitiveTriangle;
+  typedef DataBlob_PrimitivePointLight PrimitivePointLight;
   typedef DataBlob_PrimitiveSphere PrimitiveSphere;
   
   // accessors -------------------------------------------------------
@@ -578,6 +669,18 @@ class DataBlob : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveTriangle >*
       mutable_triangles();
   
+  // repeated .raytracer.DataBlob.PrimitivePointLight point_lights = 10;
+  inline int point_lights_size() const;
+  inline void clear_point_lights();
+  static const int kPointLightsFieldNumber = 10;
+  inline const ::raytracer::DataBlob_PrimitivePointLight& point_lights(int index) const;
+  inline ::raytracer::DataBlob_PrimitivePointLight* mutable_point_lights(int index);
+  inline ::raytracer::DataBlob_PrimitivePointLight* add_point_lights();
+  inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight >&
+      point_lights() const;
+  inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight >*
+      mutable_point_lights();
+  
   // @@protoc_insertion_point(class_scope:raytracer.DataBlob)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -592,11 +695,12 @@ class DataBlob : public ::google::protobuf::Message {
   ::google::protobuf::int32 samples_per_pixel_;
   ::google::protobuf::int32 interleaved_feedback_;
   ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveTriangle > triangles_;
+  ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight > point_lights_;
   friend void  protobuf_AddDesc_raytracer_2eproto();
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(9 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(10 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1032,6 +1136,27 @@ inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::mutable_v2() {
 
 // -------------------------------------------------------------------
 
+// DataBlob_PrimitivePointLight
+
+// required .raytracer.DataBlob.Vec3f p = 1;
+inline bool DataBlob_PrimitivePointLight::has_p() const {
+  return _has_bit(0);
+}
+inline void DataBlob_PrimitivePointLight::clear_p() {
+  if (p_ != NULL) p_->::raytracer::DataBlob_Vec3f::Clear();
+  _clear_bit(0);
+}
+inline const ::raytracer::DataBlob_Vec3f& DataBlob_PrimitivePointLight::p() const {
+  return p_ != NULL ? *p_ : *default_instance_->p_;
+}
+inline ::raytracer::DataBlob_Vec3f* DataBlob_PrimitivePointLight::mutable_p() {
+  _set_bit(0);
+  if (p_ == NULL) p_ = new ::raytracer::DataBlob_Vec3f;
+  return p_;
+}
+
+// -------------------------------------------------------------------
+
 // DataBlob_PrimitiveSphere
 
 // required .raytracer.DataBlob.Vec3f position = 1;
@@ -1231,6 +1356,31 @@ DataBlob::triangles() const {
 inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveTriangle >*
 DataBlob::mutable_triangles() {
   return &triangles_;
+}
+
+// repeated .raytracer.DataBlob.PrimitivePointLight point_lights = 10;
+inline int DataBlob::point_lights_size() const {
+  return point_lights_.size();
+}
+inline void DataBlob::clear_point_lights() {
+  point_lights_.Clear();
+}
+inline const ::raytracer::DataBlob_PrimitivePointLight& DataBlob::point_lights(int index) const {
+  return point_lights_.Get(index);
+}
+inline ::raytracer::DataBlob_PrimitivePointLight* DataBlob::mutable_point_lights(int index) {
+  return point_lights_.Mutable(index);
+}
+inline ::raytracer::DataBlob_PrimitivePointLight* DataBlob::add_point_lights() {
+  return point_lights_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight >&
+DataBlob::point_lights() const {
+  return point_lights_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight >*
+DataBlob::mutable_point_lights() {
+  return &point_lights_;
 }
 
 // -------------------------------------------------------------------
