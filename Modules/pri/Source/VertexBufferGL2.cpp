@@ -91,7 +91,7 @@ void VertexBufferGL2::_PreDraw()
 	}
 	else
 	{
-		BufferOffset = (unsigned int)m_InterleavedData;
+		BufferOffset = (size_t)m_InterleavedData;
 	}
 
 	PXF_ASSERT(m_Attributes & VB_VERTEX_DATA, "Attempt to draw without vertex data.");
