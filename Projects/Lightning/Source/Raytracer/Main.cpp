@@ -703,7 +703,7 @@ int main(int argc, char* argv[])
 				is_done = true;
 				render_timer.Stop();
 				char title[512];
-				Format(title, "Render time: %d ms", render_timer.Interval());
+				sprintf(title, "Render time: %d ms", render_timer.Interval());
 				win->SetTitle(title);
 			}
 		//}		
