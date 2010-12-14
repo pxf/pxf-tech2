@@ -1397,7 +1397,6 @@ int _glfwPlatformOpenWindow( int width, int height,
 
     initGLXExtensions();
 
-	static int count = 1;
     // Choose the best available fbconfig
     {
         unsigned int fbcount;
@@ -1407,7 +1406,6 @@ int _glfwPlatformOpenWindow( int width, int height,
         fbconfigs = getFBConfigs( &fbcount );
         if( !fbconfigs )
         {
-			printf("%d. Failed to get fbconfigs", count);
             _glfwPlatformCloseWindow();
             return GL_FALSE;
         }
@@ -1415,7 +1413,6 @@ int _glfwPlatformOpenWindow( int width, int height,
         result = _glfwChooseFBConfig( fbconfig, fbconfigs, fbcount );
         if( !result )
         {
-			printf("%d. Failed to select fbconfig", count);
             free( fbconfigs );
             _glfwPlatformCloseWindow();
             return GL_FALSE;
@@ -1427,14 +1424,12 @@ int _glfwPlatformOpenWindow( int width, int height,
 
     if( !createContext( wndconfig, (GLXFBConfigID) closest.platformID ) )
     {
-		printf("%d. Failed to create context", count);
         _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
     if( !createWindow( width, height, wndconfig ) )
     {
-		printf("%d. Failed to create window", count);
         _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
