@@ -92,6 +92,10 @@ bool WindowGL2::Open()
 	
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, m_resizeable ? GL_FALSE : GL_TRUE);
 
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
+	//glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
 	if (GL_TRUE == glfwOpenWindow(m_width, m_height, m_bits_r, m_bits_g, m_bits_b, m_bits_alpha, m_bits_depth, m_bits_stencil, t_params))
 	{
 
