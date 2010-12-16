@@ -79,6 +79,8 @@ public:
 					res_proto->set_batchhash(req->batch->hash);
 					res_proto->set_result(ray_res->SerializeAsString());
 
+					m_Client->push_result(res);
+
 					sub_tasks_left--;
 				}
 				
@@ -119,7 +121,7 @@ public:
 };
 
 
-RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel, BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue)
+RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 	: m_Kernel(_Kernel)
 	, m_Executor(0)
 	, m_LogTag(0)
@@ -128,7 +130,13 @@ RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel, BlockingTaskQueue<Task*>*
 	m_LogTag = m_Kernel->CreateTag("RTC");
 	m_NumWorkers = Platform::GetNumberOfProcessors();
 	m_Executor = new ZThread::PoolExecutor(m_NumWorkers);
-	m_TaskQueue.register_type(LightningClient::RayTraceTask);
+}
+
+void RaytracerClient::initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue)
+{
+	m_TaskQueue = _TaskQueue;
+	m_ResultQueue = _ResultQueue;
+	m_TaskQueue->register_type(LightningClient::RayTraceTask);
 }
 
 RaytracerClient::~RaytracerClient()
@@ -140,27 +148,27 @@ RaytracerClient::~RaytracerClient()
 
 void RaytracerClient::push_request(Task* _Request)
 {
-	m_TaskQueue.push(LightningClient::RayTraceTask, _Request);
+	m_TaskQueue->push(LightningClient::RayTraceTask, _Request);
 }
 
 Task* RaytracerClient::pop_request()
 {
-	return m_TaskQueue.pop(LightningClient::RayTraceTask);
+	return m_TaskQueue->pop(LightningClient::RayTraceTask);
 };
 
 void RaytracerClient::push_result(TaskResult* _Result)
 {
-	m_ResultQueue.add(_Result);
+	m_ResultQueue->add(_Result);
 }
 
 TaskResult* RaytracerClient::pop_result()
 {
-	return m_ResultQueue.next();
+	return m_ResultQueue->next();
 }
 
 bool RaytracerClient::has_results()
 {
-	return !m_ResultQueue.empty();
+	return !m_ResultQueue->empty();
 }
 
 bool RaytracerClient::run()
@@ -196,6 +204,6 @@ bool RaytracerClient::wait()
 
 void RaytracerClient::cancel()
 {
-	m_TaskQueue.cancel();
+	m_TaskQueue->cancel();
 	m_Executor->cancel();
 }

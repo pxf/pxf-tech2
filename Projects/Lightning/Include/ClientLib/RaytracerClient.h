@@ -45,10 +45,10 @@ struct TaskResult
 class LightningClient
 {
 protected:
-	BlockingTaskQueue<Task*> m_TaskQueue;
+	BlockingTaskQueue<Task*> *m_TaskQueue;
 	
 	typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
-	TaskResultQueue m_ResultQueue;
+	TaskResultQueue *m_ResultQueue;
 
 	enum TaskType {RayTraceTask, HerpaDerpTask};
 public:
@@ -56,6 +56,8 @@ public:
 	virtual Task* pop_request() = 0;
 	virtual void push_result(TaskResult* _Result) = 0;
 	virtual TaskResult* pop_result() = 0;
+
+	virtual void initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue) = 0;
 
 	virtual bool run() = 0;
 	virtual bool run_noblock() = 0;
@@ -74,8 +76,10 @@ protected:
 	unsigned m_LogTag;
 public:
 	typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
-	RaytracerClient(Pxf::Kernel* _Kernel, BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue);
+	RaytracerClient(Pxf::Kernel* _Kernel);
 	~RaytracerClient();
+
+	virtual void initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue);
 
 	virtual void push_request(Task* _Request);
 	virtual Task* pop_request();

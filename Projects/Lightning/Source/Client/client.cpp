@@ -97,11 +97,6 @@ int Client::run()
 
 	Pxf::Util::Array<Packet*> *packets;
 
-	// Start the raytracerclient.
-	// TODO: A list of modules instead of statically loading each.
-	m_Raytracerclient = new RaytracerClient(m_Kernel, m_TaskQueue, m_ResultQueue);
-	m_Raytracerclient->run_noblock();
-	
 	// Setting up socket for clients to connect to
 	Connection *client_c = m_ConnMan.new_connection(CLIENT);
 	if(!m_ConnMan.bind_connection(client_c, m_local_address, m_client_port))
@@ -368,12 +363,15 @@ int Client::run()
 					);
 
 					// Push a set of tasks to our queue
+					printf("1\n");
 					push(tasks.back());
 					
 					// Remove the set we just used
+					printf("2\n");
 					tasks.pop_back();
 
 					// Forward the rest
+					printf("3\n");
 					forward(tasks);
 
 					// MASSIVE CODE GOES HERE
@@ -471,8 +469,9 @@ Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 	return tasks;
 }
 
-void attach(LightningClient* _client)
+void Client::attach(LightningClient* _client)
 {
+		_client->initialize(m_TaskQueue, m_ResultQueue);
 		_client->run_noblock();
 }
 

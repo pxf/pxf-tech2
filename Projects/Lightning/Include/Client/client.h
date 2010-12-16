@@ -38,6 +38,8 @@ class Client
 		~Client();
 		int run();
 
+		void attach(LightningClient* _client);
+
 	private:
 		ConnectionManager m_ConnMan;
 		State m_State;
@@ -49,15 +51,12 @@ class Client
 		BlockingTaskQueue<Task*>* m_TaskQueue;
 		TaskResultQueue* m_ResultQueue;
 
-		RaytracerClient *m_Raytracerclient;
 
 		int m_queue_free;
 		int m_net_tag;	
 		int m_log_tag;
 		int last_batch_check;
 		
-		void attach(LightningClient* _client);
-
 		void ping(Connection *_c, int _timestamp);
 		bool connect_tracker();
 		Pxf::Util::Array<client::Tasks*> split_tasks(client::Tasks*);
