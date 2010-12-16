@@ -45,10 +45,9 @@ public:
 
 				Connection* conn = m_ConnectionManager->new_connection(CLIENT);
 				m_ConnectionManager->connect_connection(conn, retaddr, retport);
-
-				const char* data = result->result().c_str();
-				int len = result->result().size();
-				m_ConnectionManager->send(conn, (char*)data, len);
+				
+				std::string str = result->SerializeAsString();
+				m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{
