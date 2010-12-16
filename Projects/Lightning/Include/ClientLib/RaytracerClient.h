@@ -56,6 +56,13 @@ public:
 	virtual Task* pop_request() = 0;
 	virtual void push_result(TaskResult* _Result) = 0;
 	virtual TaskResult* pop_result() = 0;
+
+	virtual bool run();
+	virtual bool run_noblock();
+	virtual bool wait();
+
+	vitual void cancel();
+	virtual void interrupt();
 };
 
 
@@ -77,12 +84,12 @@ public:
 	virtual TaskResult* pop_result();
 	bool has_results();
 
-	bool run();
-	bool run_noblock();
-	bool wait();
+	virtual bool run();
+	virtual bool run_noblock();
+	virtual bool wait();
 
-	void cancel();
-	void interrupt();
+	vitual void cancel();
+	virtual void interrupt();
 };
 
 #endif // _RAYTRACER_CLIENT_H_
