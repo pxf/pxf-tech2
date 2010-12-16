@@ -55,6 +55,8 @@ class Client
 		int m_net_tag;	
 		int m_log_tag;
 		int last_batch_check;
+		
+		void attach(LightningClient* _client);
 
 		void ping(Connection *_c, int _timestamp);
 		bool connect_tracker();

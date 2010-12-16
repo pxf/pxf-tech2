@@ -471,6 +471,10 @@ Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 	return tasks;
 }
 
+void attach(LightningClient* _client)
+{
+		_client->run_noblock();
+}
 
 void Client::ping(Connection *_c, int _timestamp)
 {
