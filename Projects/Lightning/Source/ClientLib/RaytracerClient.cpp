@@ -33,6 +33,7 @@ public:
 				raytracer::Task *task_data = new raytracer::Task();
 				task_data->ParseFromString((req->task)->task());
 
+				printf("h: %d   w: %d\n", task_data->h(), task_data->w());
 				task_detail_t task;
 				task.region[0] = task_data->x();
 				task.region[1] = task_data->y();
@@ -45,6 +46,7 @@ public:
 				batch_blob_t blob;
 				blob.prim_count = blob_proto->prim_count();
 				blob.light_count = blob_proto->light_count();
+				printf("count: %d\n", blob.light_count);
 				for(size_t i = 0; i < 256; ++i)
 					blob.samples[i] = blob_proto->samples(i);
 				blob.bounce_count = blob_proto->bounce_count();
@@ -61,11 +63,14 @@ public:
 					// TODO: lol, jhonnys grejer.
 				}
 
+				printf("if %d\n", blob.interleaved_feedback);
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
+				sub_tasks_left = 1;
 				render_result_t out;
 
-				while (sub_tasks_left > 0)
-				{
+				printf("sub_tasks_left: %d\n", sub_tasks_left);
+//				while (sub_tasks_left > 0)
+//				{
 					render_task(&task, &blob, &out, blob.interleaved_feedback*blob.interleaved_feedback - sub_tasks_left);
 
 					TaskResult* res = new TaskResult();
@@ -79,10 +84,11 @@ public:
 					res_proto->set_batchhash(req->batch->hash);
 					res_proto->set_result(ray_res->SerializeAsString());
 
+					printf("pushing result on queue.\n");
 					m_Client->push_result(res);
 
 					sub_tasks_left--;
-				}
+//				}
 				
 
 
