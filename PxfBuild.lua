@@ -1,3 +1,5 @@
+-- Todo: fix unnessecary cross-library/module dependencies
+
 path_prefix = PathDir(ModuleFilename())
 
 function lockglobalenvironment()
