@@ -54,10 +54,15 @@ namespace Fabric
         
         bool Update();
         void Draw();
-				bool GuiHit(); // Returns true if the gui handled input last update
+        void Flush();
+        bool GuiHit(); // Returns true if the gui handled input last update
         
         // "snigelton" honk honk
         static App* GetInstance();
+
+				// Drawstate
+				bool m_Dirty;
+				void SetDirty() { m_Dirty = true; };
         
         // QuadBatches
         unsigned int m_QuadBatchCount;

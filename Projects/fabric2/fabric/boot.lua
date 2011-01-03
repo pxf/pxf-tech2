@@ -1,5 +1,5 @@
 -- some debug output before we start being awesome
-print("app has:")
+--[[print("app has:")
 for k,v in pairs(app) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
 end
@@ -17,9 +17,7 @@ end
 print("inp has:")
 for k,v in pairs(inp) do
   print("        " .. tostring(k) .. " : " .. tostring(v))
-end
-
-print("Render mode: " .. tostring(app._getrenderoption()))
+end]]
 
 -- store window dimensions for later use
 app.width, app.height = app.getwindimensions()

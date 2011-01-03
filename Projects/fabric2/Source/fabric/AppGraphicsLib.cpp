@@ -319,6 +319,7 @@ int Fabric::gfx_drawcentered (lua_State *L) {
   // gfx.drawcentered(x,y,w,h)
   if (lua_gettop(L) == 4)
   {
+		App::GetInstance()->SetDirty();
     QuadBatch* qb = App::GetInstance()->GetActiveQB();
     if (qb != NULL)
     {
@@ -331,6 +332,7 @@ int Fabric::gfx_drawcentered (lua_State *L) {
   // gfx.drawcentered(x, y, w, h, s0, t0, s1, t1)
   else if (lua_gettop(L) == 8)
   {
+		App::GetInstance()->SetDirty();
     QuadBatch* qb = App::GetInstance()->GetActiveQB();
     if (qb != NULL)
     {
@@ -350,6 +352,7 @@ int Fabric::gfx_drawquad (lua_State *L) {
   // gfx.drawquad(x0,y0, x1,y1, x2,y2, x3,y3)
   if (lua_gettop(L) == 8)
   {
+		App::GetInstance()->SetDirty();
     QuadBatch* qb = App::GetInstance()->GetActiveQB();
     if (qb != NULL)
     {
@@ -363,6 +366,7 @@ int Fabric::gfx_drawquad (lua_State *L) {
   // gfx.drawquad(x0,y0, x1,y1, x2,y2, x3,y3, s0, t0, s1, t1)
   else if (lua_gettop(L) == 12)
   {
+		App::GetInstance()->SetDirty();
     QuadBatch* qb = App::GetInstance()->GetActiveQB();
     if (qb != NULL)
     {
@@ -383,6 +387,7 @@ int Fabric::gfx_drawtopleft (lua_State *L) {
   // gfx.drawtopleft(x,y,w,h)
   if (lua_gettop(L) == 4)
   {
+		App::GetInstance()->SetDirty();
     QuadBatch* qb = App::GetInstance()->GetActiveQB();
     if (qb != NULL)
     {
@@ -395,6 +400,7 @@ int Fabric::gfx_drawtopleft (lua_State *L) {
   // gfx.drawtopleft(x, y, w, h, s0, t0, s1, t1)
   else if (lua_gettop(L) == 8)
   {
+		App::GetInstance()->SetDirty();
     QuadBatch* qb = App::GetInstance()->GetActiveQB();
     if (qb != NULL)
     {
@@ -484,7 +490,7 @@ int Fabric::gfx_deleteshader(lua_State *L)
 	if (lua_gettop(L) == 1)
 	{
 		// TODO: Remove shieeeeeeeeeeeet
-		printf("IMMA BIN REMOVIN ZE SHADER\n");
+		printf("--- TODO: IMMA BIN REMOVIN ZE SHADER\n");
 		return 0;
 	}
 	else

@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 	// Start from different script than default.lua ?
 	Util::String appscript = "fabric/default.lua";
 	if (argc > 1)
-		appscript = argv[2];
+		appscript = argv[1];
 	
 	// Fabric setup
 	Fabric::App* app = new Fabric::App(win, appscript.c_str());
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 		app->Draw();
 		
 		inp->ClearLastKey();
-		win->Swap();
+		//win->Swap();
 	}
 	
 	delete app;
