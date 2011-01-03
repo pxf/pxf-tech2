@@ -1,7 +1,7 @@
 #ifndef __FABRIC_TEXTUREDQUADBATCH_H__
 #define __FABRIC_TEXTUREDQUADBATCH_H__
 
-#include "fabric/QuadBatch.h"
+#include "QuadBatch.h"
 
 namespace Fabric
 {

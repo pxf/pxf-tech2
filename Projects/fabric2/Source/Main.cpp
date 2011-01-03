@@ -27,7 +27,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "fabric/App.h"
+#include "App.h"
 
 using namespace Pxf;
 using namespace Graphics;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	spec.Height = 512;
 	spec.ColorBits = 24;
 	spec.AlphaBits = 8;
-	spec.DepthBits = 8;
+	spec.DepthBits = 24;
 	spec.StencilBits = 0;
 	spec.FSAASamples = 0;
 	spec.Fullscreen = false;
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 		appscript = argv[2];
 	
 	// Fabric setup
-	Fabric::App* app = new Fabric::App(win, appscript);
+	Fabric::App* app = new Fabric::App(win, appscript.c_str());
 	app->Boot();
 	bool running = true;
 	bool guihit = false;

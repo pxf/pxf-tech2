@@ -1,11 +1,11 @@
-#include "fabric/App.h"
+#include "App.h"
 
 #include <Pxf/Modules/pri/OpenGL.h>
 
-#include "fabric/AppCoreLib.h"
-#include "fabric/AppInputLib.h"
-#include "fabric/AppGraphicsLib.h"
-#include "fabric/AppSoundLib.h"
+#include "AppCoreLib.h"
+#include "AppInputLib.h"
+#include "AppGraphicsLib.h"
+#include "AppSoundLib.h"
 #include <Pxf/Audio/AudioDevice.h>
 
 #define LOCAL_MSG "Fabric"

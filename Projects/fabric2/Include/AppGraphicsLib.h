@@ -1,7 +1,7 @@
 #ifndef __DERPEDITOR_APPGRAPHICSLIB_H__
 #define __DERPEDITOR_APPGRAPHICSLIB_H__
 
-#include "fabric/App.h"
+#include "App.h"
 
 #define LUA_LIB
 #include "lua.h"

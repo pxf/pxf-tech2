@@ -1,4 +1,4 @@
-#include "fabric/TexturedQuadBatch.h"
+#include "TexturedQuadBatch.h"
 
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>

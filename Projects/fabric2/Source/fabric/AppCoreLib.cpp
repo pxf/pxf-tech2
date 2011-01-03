@@ -1,4 +1,4 @@
-#include "fabric/AppCoreLib.h"
+#include "AppCoreLib.h"
 #include <Pxf/Base/Hash.h>
 #include <Pxf/Base/Path.h>
 #include <sstat.h>

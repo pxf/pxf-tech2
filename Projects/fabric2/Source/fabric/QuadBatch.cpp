@@ -1,4 +1,4 @@
-#include "fabric/QuadBatch.h"
+#include "QuadBatch.h"
 
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>

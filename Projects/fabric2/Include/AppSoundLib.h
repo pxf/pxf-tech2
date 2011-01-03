@@ -1,7 +1,7 @@
 #ifndef __FABRIC_APPSOUNDLIB_H__
 #define __FABRIC_APPSOUNDLIB_H__
 
-#include "fabric/App.h"
+#include "App.h"
 
 #define LUA_LIB
 #include "lua.h"
