@@ -5,6 +5,7 @@
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Graphics/FrameBufferObject.h>
 #include <Pxf/Modules/pri/OpenGL.h>
 
 using namespace Pxf;
@@ -36,6 +37,43 @@ int Fabric::gfx_loadtexture (lua_State *L) {
     inst->m_DepthStep = (FABRIC_DEPTH_RANGE / inst->m_MaxQuadCount);
     inst->m_QuadBatches[inst->m_QuadBatchCount] = new TexturedQuadBatch(quadcount*4,
                                                                         lua_tostring(L, 2),
+                                                                        &(inst->m_CurrentDepth),
+                                                                        &(inst->m_CurrentColor),
+                                                                        &(inst->m_TransformMatrix),
+                                                                        tlinear);
+    lua_pushnumber(L, inst->m_QuadBatchCount); // push qb index as result
+    inst->m_QuadBatchCount++;
+    return 1;
+  } else {
+    lua_pushstring(L, "Invalid argument passed to loadtexture function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int Fabric::gfx_newtexture (lua_State *L) {
+  // new_texture = gfx.newtexture(quadscount, w, h, [linear]) -- w/h - dimensions, format = RGBA8 etc
+  if (lua_gettop(L) == 3 || lua_gettop(L) == 4)
+  {
+		bool tlinear = false;
+		if (lua_gettop(L) == 4)
+		{
+			tlinear = lua_toboolean(L, 4);
+		}
+		
+		// Create empty texture
+		Graphics::Texture* tex = App::GetInstance()->m_gfx->CreateEmptyTexture(lua_tonumber(L, 2), lua_tonumber(L, 3));
+		
+	
+    App* inst = App::GetInstance();
+    int quadcount = lua_tointeger(L, 1);
+    inst->m_MaxQuadCount += quadcount;
+    inst->m_DepthStep = (FABRIC_DEPTH_RANGE / inst->m_MaxQuadCount);
+    inst->m_QuadBatches[inst->m_QuadBatchCount] = new TexturedQuadBatch(quadcount*4,
+                                                                        lua_tonumber(L, 2),
+																																				lua_tonumber(L, 3),
+																																				4,
+																																				tex,
                                                                         &(inst->m_CurrentDepth),
                                                                         &(inst->m_CurrentColor),
                                                                         &(inst->m_TransformMatrix),
@@ -302,6 +340,48 @@ int Fabric::gfx_setalpha (lua_State *L) {
   return 0;
 }
 
+int Fabric::gfx_blending (lua_State *L) {
+  // gfx.blending(sfactor, dfactor) -- specify pixel arithmetic (no params = disable blending)
+  if (lua_gettop(L) == 2)
+  {
+		App::GetInstance()->Flush();
+		
+		glEnable(GL_BLEND);
+		glBlendFunc(lua_tonumber(L, 1), lua_tonumber(L, 2));
+    
+  } else if (lua_gettop(L) == 0)
+	{
+			App::GetInstance()->Flush();
+			glDisable(GL_BLEND);
+
+	 } else {
+    lua_pushstring(L, "Invalid argument passed to setalpha function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int Fabric::gfx_alphatest (lua_State *L) {
+  // gfx.alphatest(func, ref) -- specify the alpha test function (no params = disable alpha test)
+  if (lua_gettop(L) == 2)
+  {
+		App::GetInstance()->Flush();
+		
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(lua_tonumber(L, 1), lua_tonumber(L, 2));
+    
+  } else if (lua_gettop(L) == 0)
+	{
+			App::GetInstance()->Flush();
+			glDisable(GL_ALPHA_TEST);
+
+	 } else {
+    lua_pushstring(L, "Invalid argument passed to setalpha function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int Fabric::gfx_setclearcolor (lua_State *L) {
   // gfx.setclearcolor(r,g,b)
   if (lua_gettop(L) == 3)
@@ -310,6 +390,46 @@ int Fabric::gfx_setclearcolor (lua_State *L) {
     
   } else {
     lua_pushstring(L, "Invalid argument passed to setclearcolor function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int Fabric::gfx_clear (lua_State *L) {
+  // gfx.clear()
+  if (lua_gettop(L) == 0)
+  {
+		glClear(GL_COLOR_BUFFER_BIT);
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to clear function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int Fabric::gfx_setortho (lua_State *L) {
+  // gfx.setview(x,y,w,h)
+  if (lua_gettop(L) == 4)
+  {
+    Math::Mat4 prjmat = Math::Mat4::Ortho(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4), FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
+		App::GetInstance()->m_gfx->SetProjection(&prjmat);
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to setview function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
+int Fabric::gfx_setview (lua_State *L) {
+  // gfx.setortho(x,y,w,h)
+  if (lua_gettop(L) == 4)
+  {
+		App::GetInstance()->m_gfx->SetViewport(lua_tonumber(L, 1), lua_tonumber(L, 2), lua_tonumber(L, 3), lua_tonumber(L, 4));
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to setortho function!");
     lua_error(L);
   }
   return 0;
@@ -383,6 +503,7 @@ int Fabric::gfx_drawquad (lua_State *L) {
   return 0;
 }
 
+
 int Fabric::gfx_drawtopleft (lua_State *L) {
   // gfx.drawtopleft(x,y,w,h)
   if (lua_gettop(L) == 4)
@@ -434,8 +555,8 @@ int Fabric::gfx_createshader(lua_State *L)
 
 		// Set member functions
 		lua_setfield(L, -2, "instance");
-		lua_pushcfunction(L, gfx_bindshader);
-		lua_setfield(L, -2, "bind");
+		//lua_pushcfunction(L, gfx_bindshader);
+		//lua_setfield(L, -2, "bind");
 		lua_pushcfunction(L, gfx_setuniformf);
 		lua_setfield(L, -2, "setuniformf");
 
@@ -451,11 +572,18 @@ int Fabric::gfx_createshader(lua_State *L)
 
 int Fabric::gfx_bindshader(lua_State *L)
 {
-	if (lua_gettop(L) == 1)
+	if (lua_gettop(L) == 0)
 	{
+		App::GetInstance()->Flush();
+		Graphics::Shader* old = App::GetInstance()->m_gfx->BindShader(0);
+		return 0;
+		
+	} else if (lua_gettop(L) == 1)
+	{
+		App::GetInstance()->Flush();
 		lua_getfield(L, 1, "instance");
 		Graphics::Shader* shdr = *(Graphics::Shader**)lua_touserdata(L, -1);
-		//Graphics::Shader* old = App::GetInstance()->m_gfx->BindShader(shdr); // fix l8r
+		Graphics::Shader* old = App::GetInstance()->m_gfx->BindShader(shdr);
 		return 0;
 	}
 	else
@@ -489,8 +617,7 @@ int Fabric::gfx_deleteshader(lua_State *L)
 {
 	if (lua_gettop(L) == 1)
 	{
-		// TODO: Remove shieeeeeeeeeeeet
-		printf("--- TODO: IMMA BIN REMOVIN ZE SHADER\n");
+		App::GetInstance()->m_gfx->DestroyShader(*(Graphics::Shader**)lua_touserdata(L, 1));
 		return 0;
 	}
 	else
@@ -502,24 +629,183 @@ int Fabric::gfx_deleteshader(lua_State *L)
 	return 0;
 }
 
+int Fabric::gfx_newframebuffer(lua_State *L)
+{
+	if (lua_gettop(L) == 0)
+	{
+		lua_newtable(L);
+		Pxf::Graphics::FrameBufferObject** fbo = (Pxf::Graphics::FrameBufferObject**)lua_newuserdata(L, sizeof(Pxf::Graphics::FrameBufferObject*));
+
+		//int width = lua_tonumber(L, 1);
+		//int height = lua_tonumber(L, 2);
+		*fbo = App::GetInstance()->m_gfx->CreateFrameBufferObject();
+		
+		// Set metatable
+		luaL_getmetatable(L, "gfx.framebuffer");
+		lua_setmetatable(L, -2);
+
+		// Set member functions
+		lua_setfield(L, -2, "instance");
+		lua_pushcfunction(L, gfx_attachframebuffer);
+		lua_setfield(L, -2, "attach");
+		lua_pushcfunction(L, gfx_detachframebuffer);
+		lua_setfield(L, -2, "detach");
+		//lua_pushcfunction(L, gfx_bindshader);
+		//lua_setfield(L, -2, "bind");
+		//lua_pushcfunction(L, gfx_setuniformf);
+		//lua_setfield(L, -2, "setuniformf");
+
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to newframebuffer function!");
+		lua_error(L);
+	}
+	return 0;
+}
+
+int Fabric::gfx_attachframebuffer(lua_State *L)
+{
+	// fbo:attach(tex, color_attachment_id)
+	if (lua_gettop(L) == 3)
+	{
+		App::GetInstance()->Flush();
+		lua_getfield(L, 1, "instance");
+		Graphics::FrameBufferObject* fbo = *(Graphics::FrameBufferObject**)lua_touserdata(L, -1);
+		
+		//lua_getfield(L, 2, "instance");
+		TexturedQuadBatch* texqb = (TexturedQuadBatch*)App::GetInstance()->m_QuadBatches[lua_tointeger(L, 2)];
+		Graphics::Texture* tex = texqb->m_Texture;
+		
+		// Attach texture to fbo:
+		int attachment_lut[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT,
+			                      GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT, GL_COLOR_ATTACHMENT6_EXT, GL_COLOR_ATTACHMENT7_EXT,
+			                      GL_COLOR_ATTACHMENT8_EXT, GL_COLOR_ATTACHMENT9_EXT, GL_COLOR_ATTACHMENT10_EXT, GL_COLOR_ATTACHMENT11_EXT,
+			                      GL_COLOR_ATTACHMENT12_EXT, GL_COLOR_ATTACHMENT13_EXT, GL_COLOR_ATTACHMENT14_EXT, GL_COLOR_ATTACHMENT15_EXT};
+		
+		fbo->Attach(tex, attachment_lut[lua_tointeger(L, 3)-1], true);
+		
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to attach function! (of framebuffer)");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int Fabric::gfx_detachframebuffer(lua_State *L)
+{
+	// fbo:detach(color_attachment_id)
+	if (lua_gettop(L) == 2)
+	{
+		lua_getfield(L, 1, "instance");
+		Graphics::FrameBufferObject* fbo = *(Graphics::FrameBufferObject**)lua_touserdata(L, -1);
+		
+		// Attach texture to fbo:
+		int attachment_lut[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT,
+			                      GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT, GL_COLOR_ATTACHMENT6_EXT, GL_COLOR_ATTACHMENT7_EXT,
+			                      GL_COLOR_ATTACHMENT8_EXT, GL_COLOR_ATTACHMENT9_EXT, GL_COLOR_ATTACHMENT10_EXT, GL_COLOR_ATTACHMENT11_EXT,
+			                      GL_COLOR_ATTACHMENT12_EXT, GL_COLOR_ATTACHMENT13_EXT, GL_COLOR_ATTACHMENT14_EXT, GL_COLOR_ATTACHMENT15_EXT};
+		
+		fbo->Detach(attachment_lut[lua_tointeger(L, 2)-1]);
+		
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to detach function! (of framebuffer)");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int Fabric::gfx_bindframebuffer(lua_State *L)
+{
+	// gfx.bindframebuffer(fbo)
+	if (lua_gettop(L) == 1)
+	{
+		App::GetInstance()->Flush();
+		App::GetInstance()->m_UsingFBO = true;
+		
+		lua_getfield(L, 1, "instance");
+		Graphics::FrameBufferObject* fbo = *(Graphics::FrameBufferObject**)lua_touserdata(L, -1);
+		App::GetInstance()->m_gfx->BindFrameBufferObject(fbo);
+		glDisable(GL_DEPTH_TEST);
+		
+		return 0;
+	} else if (lua_gettop(L) == 0)
+	{
+		App::GetInstance()->Flush();
+		App::GetInstance()->m_gfx->UnbindFrameBufferObject();
+		App::GetInstance()->m_UsingFBO = false;
+		glEnable(GL_DEPTH_TEST);
+		
+		App::GetInstance()->m_gfx->SetViewport(0, 0, App::GetInstance()->m_win->GetWidth(), App::GetInstance()->m_win->GetHeight());
+		Math::Mat4 prjmat = Math::Mat4::Ortho(0, App::GetInstance()->m_win->GetWidth(), App::GetInstance()->m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
+		App::GetInstance()->m_gfx->SetProjection(&prjmat);
+
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to bindframebuffer function!");
+		lua_error(L);
+	}
+
+	return 0;
+}
+
+int Fabric::gfx_deleteframebuffer(lua_State *L)
+{
+	if (lua_gettop(L) == 1)
+	{
+		App::GetInstance()->m_gfx->DestroyFrameBufferObject(*(Graphics::FrameBufferObject**)lua_touserdata(L, 1));
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid arguments passed to delete function! (of framebuffer)");
+		lua_error(L);
+	}
+
+	return 0;
+}
 
 int Fabric::luaopen_appgraphics (lua_State *L) {
   const luaL_reg appgraphicslib[] = {
     {"_redrawneeded",   gfx__redrawneeded},
     {"loadidentity",   gfx_loadidentity},
     {"loadtexture",   gfx_loadtexture},
+		{"newtexture",   gfx_newtexture},
     {"rawtexture",   gfx_rawtexture},
     {"bindtexture",   gfx_bindtexture},
+
     {"translate",   gfx_translate},
   	{"scale",   gfx_scale},
   	{"rotate",   gfx_rotate},
+
     {"getcolor",   gfx_getcolor},
     {"setcolor",   gfx_setcolor},
     {"getalpha",   gfx_getalpha},
     {"setalpha",   gfx_setalpha},
+
+		{"clear",   gfx_clear},
+		{"setview",   gfx_setview},
+		{"setortho",   gfx_setortho},
+		{"blending",   gfx_blending},
+		{"alphatest",   gfx_alphatest},
     {"setclearcolor",   gfx_setclearcolor},
 
-	{"createshader",   gfx_createshader},
+		{"bindframebuffer",   gfx_bindframebuffer},
+		{"newframebuffer",   gfx_newframebuffer},
+
+		{"bindshader",   gfx_bindshader},
+		{"createshader",   gfx_createshader},
     
     {"drawcentered",   gfx_drawcentered},
     {"drawquad",   gfx_drawquad},
@@ -528,6 +814,59 @@ int Fabric::luaopen_appgraphics (lua_State *L) {
     };
   
   luaL_register(L, LUA_APPGRAPHICSLIBNAME, appgraphicslib);
+
+	////////////////////////
+	// Push constants/enums
+	
+	// alphatest enums
+  lua_pushnumber(L, GL_NEVER);
+  lua_setfield(L, -2, "NEVER");
+	lua_pushnumber(L, GL_LESS);
+  lua_setfield(L, -2, "LESS");
+	lua_pushnumber(L, GL_EQUAL);
+  lua_setfield(L, -2, "EQUAL");
+	lua_pushnumber(L, GL_LEQUAL);
+  lua_setfield(L, -2, "LEQUAL");
+	lua_pushnumber(L, GL_GREATER);
+  lua_setfield(L, -2, "GREATER");
+	lua_pushnumber(L, GL_NOTEQUAL);
+  lua_setfield(L, -2, "NOTEQUAL");
+	lua_pushnumber(L, GL_GEQUAL);
+  lua_setfield(L, -2, "GEQUAL");
+	lua_pushnumber(L, GL_ALWAYS);
+  lua_setfield(L, -2, "ALWAYS");
+
+	// blending enums
+  lua_pushnumber(L, GL_ZERO);
+  lua_setfield(L, -2, "ZERO");
+	lua_pushnumber(L, GL_ONE);
+  lua_setfield(L, -2, "ONE");
+	lua_pushnumber(L, GL_SRC_COLOR);
+  lua_setfield(L, -2, "SRC_COLOR");
+	lua_pushnumber(L, GL_ONE_MINUS_SRC_COLOR);
+  lua_setfield(L, -2, "ONE_MINUS_SRC_COLOR");
+	lua_pushnumber(L, GL_DST_COLOR);
+  lua_setfield(L, -2, "DST_COLOR");
+	lua_pushnumber(L, GL_ONE_MINUS_DST_COLOR);
+  lua_setfield(L, -2, "ONE_MINUS_DST_COLOR");
+	lua_pushnumber(L, GL_SRC_ALPHA);
+  lua_setfield(L, -2, "SRC_ALPHA");
+	lua_pushnumber(L, GL_ONE_MINUS_SRC_ALPHA);
+  lua_setfield(L, -2, "ONE_MINUS_SRC_ALPHA");
+	lua_pushnumber(L, GL_DST_ALPHA);
+  lua_setfield(L, -2, "DST_ALPHA");
+	lua_pushnumber(L, GL_ONE_MINUS_DST_ALPHA);
+  lua_setfield(L, -2, "ONE_MINUS_DST_ALPHA");
+	lua_pushnumber(L, GL_CONSTANT_COLOR);
+  lua_setfield(L, -2, "CONSTANT_COLOR");
+	lua_pushnumber(L, GL_ONE_MINUS_CONSTANT_COLOR);
+  lua_setfield(L, -2, "ONE_MINUS_CONSTANT_COLOR");
+	lua_pushnumber(L, GL_CONSTANT_ALPHA);
+  lua_setfield(L, -2, "CONSTANT_ALPHA");
+	lua_pushnumber(L, GL_ONE_MINUS_CONSTANT_ALPHA);
+  lua_setfield(L, -2, "ONE_MINUS_CONSTANT_ALPHA");
+	lua_pushnumber(L, GL_SRC_ALPHA_SATURATE);
+  lua_setfield(L, -2, "SRC_ALPHA_SATURATE");
 
 	// set __gc for gfx.rawtex
 	luaL_newmetatable(L, "gfx.rawtex");
@@ -540,10 +879,17 @@ int Fabric::luaopen_appgraphics (lua_State *L) {
 	lua_pushstring(L, "__gc");
 	lua_pushcfunction(L, gfx_deleteshader);
 	lua_settable(L, -3);
+	
+	// set __gc for gfx.framebuffer
+	luaL_newmetatable(L, "gfx.framebuffer");
+	lua_pushstring(L, "__gc");
+	lua_pushcfunction(L, gfx_deleteframebuffer);
+	lua_settable(L, -3);
 
   /*lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
   lua_pushnumber(L, HUGE_VAL);
   lua_setfield(L, -2, "huge");*/
+	
   return 1;
 }

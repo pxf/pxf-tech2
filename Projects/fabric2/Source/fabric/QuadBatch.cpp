@@ -17,14 +17,16 @@ QuadBatch::QuadBatch(unsigned int _size, float* _currentdepth, Vec4f* _currentco
     m_CurrentColor = _currentcolor;
     m_CurrentDepth = _currentdepth;
     m_Transformation = _transformmatrix;
+		m_Bound = false;
+		m_CurrentVert = 0;
     
     m_VertexBuffer = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateVertexBuffer(VB_LOCATION_GPU, VB_USAGE_DYNAMIC_DRAW);
     m_VertexBuffer->CreateNewBuffer(_size, sizeof(QuadVertex) ); // pos = 3, tex coords = 2, colors = 4
     
     m_VertexBuffer->SetData(VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
-	m_VertexBuffer->SetData(VB_COLOR_DATA, sizeof(Vec3f), 4);
-	m_VertexBuffer->SetData(VB_TEXCOORD_DATA, sizeof(Vec3f)+sizeof(Vec4f), 2);
-	m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_QUADS);
+		m_VertexBuffer->SetData(VB_COLOR_DATA, sizeof(Vec3f), 4);
+		m_VertexBuffer->SetData(VB_TEXCOORD_DATA, sizeof(Vec3f)+sizeof(Vec4f), 2);
+		m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_QUADS);
     
     Reset();
 }
@@ -67,12 +69,20 @@ void QuadBatch::SetTextureSubset(float tl_u, float tl_v, float br_u, float br_v)
 
 void QuadBatch::Begin()
 {
+	if (!m_Bound)
+	{
     m_pVertBuf = (QuadVertex*)m_VertexBuffer->MapData(VB_ACCESS_WRITE_ONLY);
+		m_Bound = true;
+	}
 }
 
 void QuadBatch::End()
 {
-    m_VertexBuffer->UnmapData();
+	if (m_Bound)
+	{
+		m_Bound = false;
+		m_VertexBuffer->UnmapData();
+	}
 }
 
 void QuadBatch::Draw()

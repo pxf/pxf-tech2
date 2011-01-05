@@ -63,6 +63,12 @@ namespace Fabric
 				// Drawstate
 				bool m_Dirty;
 				void SetDirty() { m_Dirty = true; };
+				bool m_UsingFBO;
+				
+				// Frame stats
+				int m_FlushCount;
+				int m_SuccessFlushCount;
+				int m_QuadCount;
         
         // QuadBatches
         unsigned int m_QuadBatchCount;

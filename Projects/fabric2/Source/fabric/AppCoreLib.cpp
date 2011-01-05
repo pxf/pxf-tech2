@@ -64,6 +64,23 @@ int Fabric::app_quit(lua_State *L)
   return 0;
 }
 
+int Fabric::app_framestats(lua_State *L)
+{
+  // app.framestats() -- returns stats for previous frame
+  if (lua_gettop(L) == 0)
+  {
+		lua_pushnumber(L, App::GetInstance()->m_QuadCount);
+		lua_pushnumber(L, App::GetInstance()->m_FlushCount);
+		lua_pushnumber(L, App::GetInstance()->m_SuccessFlushCount);
+    return 3;
+    
+  } else {
+    lua_pushstring(L, "Invalid argument passed to framestats function!");
+    lua_error(L);
+  }
+  return 0;
+}
+
 int Fabric::app_getmemusage(lua_State *L)
 {
   // app.getmemusage() -- returns in bytes how much memory the application is using
@@ -216,6 +233,7 @@ int Fabric::luaopen_appcore (lua_State *L) {
     {"reboot",   app_reboot},
     {"quit",   app_quit},
     //{"traceback",   app_traceback},
+		{"framestats",   app_framestats},
     {"getwindimensions",   app_getwindimensions},
 		{"_setwindimensions",   app_setwindimensions},
     

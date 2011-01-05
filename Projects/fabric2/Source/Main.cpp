@@ -79,20 +79,13 @@ int main(int argc, char* argv[])
 	while(win->IsOpen() && running)
 	{
 		inp->Update();
-		if (inp->GetLastKey() == Input::ESC)
-			break;
 			
 		running = app->Update();
 		guihit = app->GuiHit();
 		
-		//gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
-		//Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
-		//gfx->SetProjection(&prjmat);
-		
 		app->Draw();
 		
 		inp->ClearLastKey();
-		//win->Swap();
 	}
 	
 	delete app;

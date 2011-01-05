@@ -39,6 +39,8 @@ namespace Fabric
 				void AddCentered(float x, float y, float w, float h);
 				virtual void End();
 				virtual void Draw();
+				
+				int GetQuadCount() { return m_CurrentVert / 4; }
 		
 	private:
         Pxf::Graphics::VertexBuffer *m_VertexBuffer;
@@ -46,6 +48,7 @@ namespace Fabric
         unsigned int m_VertBufSize;
         
         int m_CurrentVert;
+				bool m_Bound;
         
         // transformation
         Pxf::Math::Mat4* m_Transformation;

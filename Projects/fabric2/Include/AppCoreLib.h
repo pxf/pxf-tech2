@@ -17,6 +17,8 @@ namespace Fabric
 	int app_traceback(lua_State *L);
 	int app_getwindimensions(lua_State *L);
 	int app_setwindimensions(lua_State *L);
+	
+	int app_framestats(lua_State *L);
 
 	int app_getmemusage(lua_State* L);
 	int app_savedialog(lua_State* L);

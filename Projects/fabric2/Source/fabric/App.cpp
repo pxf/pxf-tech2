@@ -40,6 +40,13 @@ App::App(Graphics::Window* _win, const char* _filepath)
     m_RedrawStencil = false;
     m_RedrawFull = false;
     m_RedrawMode = FABRIC_REDRAWMODE_FULL;
+
+		m_Dirty = false;
+		m_UsingFBO = false;
+		
+		m_SuccessFlushCount = 0;
+		m_FlushCount = 0;
+		m_QuadCount = 0;
     
     m_Started = false;
     m_Running = false;
@@ -81,6 +88,8 @@ void App::Init()
   
   m_QuadBatches[m_QuadBatchCount] = new QuadBatch(m_MaxQuadCount, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
   m_QuadBatchCount++;
+
+	m_UsingFBO = false;
   
   // Init GL settings
   //Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
@@ -329,7 +338,6 @@ void App::Flush()
 	// Flush (draw/show) current state
 	if (m_Dirty)
 	{
-		
 		// Close last used QB
 		int t_ActiveQB = m_QuadBatchCurrent;
 		if (m_QuadBatchCurrent >= 0)
@@ -337,7 +345,11 @@ void App::Flush()
 			m_QuadBatches[m_QuadBatchCurrent]->End();
 		}
 		
-		for (int renderpass = 0; renderpass < 2; ++renderpass)
+		int num_passes = 2;
+		if (m_UsingFBO)
+			num_passes = 1;
+		
+		for (int renderpass = 0; renderpass < num_passes; ++renderpass)
 		{
 			if (m_RedrawStencil && !m_RedrawFull)
 			{
@@ -361,16 +373,25 @@ void App::Flush()
 			// Draw all quadbatches
 			for (int i = 0; i < m_QuadBatchCount; ++i)
 			{
+				// Count quads
+				m_QuadCount += m_QuadBatches[i]->GetQuadCount();
+				
+				// Draw!
 			  m_QuadBatches[i]->Draw();
 			}
 
 			// Draw all special raw texuters
 			for(Util::Array<TexturedQuadBatch*>::iterator iter = m_RawTextureQB.begin(); iter != m_RawTextureQB.end(); ++iter)
 			{
+				// Count quads
+				m_QuadCount += (*iter)->GetQuadCount();
+				
+				// Draw!
 				(*iter)->Draw();
 			}
 			
-			m_win->Swap();
+			if (!m_UsingFBO)
+				m_win->Swap();
 		}
 		
 		// The active state is not 'dirty' anymore!
@@ -390,11 +411,17 @@ void App::Flush()
 		
 		// Set active QB to the previously active one
 		if (t_ActiveQB >= 0)
-			m_QuadBatchCurrent = t_ActiveQB;//ChangeActiveQB(t_ActiveQB);
+			ChangeActiveQB(t_ActiveQB);//m_QuadBatchCurrent = t_ActiveQB;
+			
+		// Increase successfull flush count
+		m_SuccessFlushCount += 1;
+		ResetDepth();
 		
 	} else {
-		Message(LOCAL_MSG, "Trying to flush non-dirty state!");
+		//Message(LOCAL_MSG, "Trying to flush non-dirty state!");
 	}
+	
+	m_FlushCount += 1;
 	
 }
 
@@ -410,7 +437,14 @@ void App::Draw()
 	{
 		if (m_RedrawNeeded)
 		{
+			// Reset stats
+			m_SuccessFlushCount = 0;
+			m_FlushCount = 0;
+			m_QuadCount = 0;
+			
+			// Reset draw depth
 			ResetDepth();
+			
 			// Reset all quadbatches
 			for(int i = 0; i < m_QuadBatchCount; ++i)
 			{
@@ -424,12 +458,13 @@ void App::Draw()
 		
 			CallScriptFunc("_draw");
 			Flush();
-
+			
 			m_QuadBatchCurrent = -1;
 			m_TransformMatrix = Math::Mat4::Identity;
 			m_RedrawFull = false;
 			m_RedrawNeeded = false;
 			m_RedrawStencil = false;
+			
 			m_StencilQB->Reset();
  
 		}  
