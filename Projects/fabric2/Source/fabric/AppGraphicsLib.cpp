@@ -399,7 +399,8 @@ int Fabric::gfx_clear (lua_State *L) {
   // gfx.clear()
   if (lua_gettop(L) == 0)
   {
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
   } else {
     lua_pushstring(L, "Invalid argument passed to clear function!");

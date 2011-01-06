@@ -36,8 +36,9 @@ void main()
 
 ]])
 
-local testtex = gfx.newtexture(8, 128, 128)
+local testtex = gfx.newtexture(12, 128, 128)
 local testfbo = gfx.newframebuffer()
+testfbo:attach(testtex, 1)
 local a = 0
 
 function update()
@@ -47,12 +48,10 @@ function update()
   if inp.iskeydown(inp.F1) then
     print(app.framestats())
   end
-  a = a + 0.001
+  a = a + 0.004
 end
 
 function draw(force)
-  gfx.setclearcolor(255,0,255)
-  testfbo:attach(testtex, 1)
   
   gfx.bindframebuffer(testfbo)
   gfx.clear()
@@ -61,20 +60,18 @@ function draw(force)
   gfx.bindshader(testshader)
   
   gfx.bindtexture(runtimeerror_tex)
-  gfx.drawtopleft(0, 0, 128, 128)
+  gfx.translate(64, 64)
+  gfx.rotate(a)
+  gfx.drawcentered(0, 0, 128, 128)
   
   gfx.bindshader()
   gfx.bindframebuffer()
   
-  testfbo:detach(1)
-  
-  gfx.setclearcolor(46.0/255.0,46.0/255.0,46.0/255.0)
-  gfx.bindframebuffer()
+  gfx.loadidentity()
   gfx.clear()
-  --testfbo:detach(1)
-  --gfx.drawcentered(app.width / 2, app.height / 2 - 128,256,256)
-  --gfx.drawcentered(app.width / 2, app.height / 2,256,256)
   gfx.bindtexture(testtex)
+  gfx.drawcentered(app.width / 2, app.height / 2 - 128,256,256)
+  gfx.drawcentered(app.width / 2, app.height / 2,256,256)
   gfx.drawcentered(128 + math.cos(a)*32, 128 + math.sin(a)*32,256,256)
 
 end
