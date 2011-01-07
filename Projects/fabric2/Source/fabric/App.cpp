@@ -43,6 +43,7 @@ App::App(Graphics::Window* _win, const char* _filepath)
 
 		m_Dirty = false;
 		m_UsingFBO = false;
+		m_StalledClear = false;
 		
 		m_SuccessFlushCount = 0;
 		m_FlushCount = 0;
@@ -90,6 +91,7 @@ void App::Init()
   m_QuadBatchCount++;
 
 	m_UsingFBO = false;
+	m_StalledClear = false;
   
   // Init GL settings
   //Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
@@ -370,6 +372,9 @@ void App::Flush()
 				glDisable(GL_STENCIL_TEST);
 			}
 			
+			if (m_StalledClear)
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
 			// Draw all quadbatches
 			for (int i = 0; i < m_QuadBatchCount; ++i)
 			{
@@ -416,6 +421,7 @@ void App::Flush()
 		// Increase successfull flush count
 		m_SuccessFlushCount += 1;
 		ResetDepth();
+		m_StalledClear = false;
 		
 	} else {
 		//Message(LOCAL_MSG, "Trying to flush non-dirty state!");

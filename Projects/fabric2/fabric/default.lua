@@ -31,6 +31,9 @@ function draw(force)
   gfx.bindtexture(logo)
   gfx.clear()
   for i=1,512 do
-    gfx.drawcentered(i-1, app.height / 2 + math.sin(a-i*0.01) * 64 + math.cos((a-i*0.01)*0.6)*128, 1, 64, i-1+a*100, 0, 1, 64)
+    local h = math.cos((a-i*0.08)*0.3)
+    local c = math.abs(h) + 0.2
+    gfx.setcolor(c, c, c)
+    gfx.drawcentered(i-1, app.height / 2 + math.sin(a-i*0.01) * 64 + math.cos((a-i*0.01)*0.6)*128, 1, h*64, i-1+a*100, 0, 1, 64)
   end
 end
