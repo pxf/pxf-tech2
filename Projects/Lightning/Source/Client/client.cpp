@@ -451,8 +451,7 @@ void Client::push(client::Tasks* _tasks)
 		client::Tasks::Task* n_task = new client::Tasks::Task();
 		n_task->CopyFrom(_tasks->task(i));
 		t->task = n_task;
-		
-		
+		t->task->PrintDebugString();		
 		m_TaskQueue->push(b->type, t);
 	}
 }

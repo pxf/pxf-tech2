@@ -35,7 +35,7 @@ public:
 				//printf("raw task data: %s\n", (req->task)->DebugString());
 				//(req->task)->PrintDebugString();
 				
-				if (!task_data->ParseFromString((req->task)->task().c_str()))//Array((const void*)(req->task)->task().c_str(), (req->task)->tasksize()))
+				if (!task_data->ParseFromString((req->task)->task()))//Array((const void*)(req->task)->task().c_str(), (req->task)->tasksize()))
 				{
 					printf("FAILED PARSE!\n");
 				}
@@ -143,7 +143,7 @@ RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 	, m_NumWorkers(1)
 {
 	m_LogTag = m_Kernel->CreateTag("RTC");
-	m_NumWorkers = Platform::GetNumberOfProcessors();
+	m_NumWorkers = 1;//Platform::GetNumberOfProcessors();
 	m_Executor = new ZThread::PoolExecutor(m_NumWorkers);
 }
 
