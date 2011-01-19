@@ -314,12 +314,14 @@ int Client::run()
 					b->type = (BatchType)data->datatype();
 
 					b->data_size = data->datasize();
-					b->data = (char*)Pxf::MemoryAllocate(b->data_size);
+					//b->data = (char*)Pxf::MemoryAllocate(b->data_size);
+					b->data = data->data();
+					/*
 					Pxf::MemoryCopy(
 						b->data,
 						data->data().c_str(),
 						b->data_size
-					);
+					);*/
 
 					b->timestamp = time(NULL);
 					
