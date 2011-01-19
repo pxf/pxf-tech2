@@ -318,15 +318,18 @@ int startrender_cb(lua_State* L)
 						task_pack->set_y(y * task_size_h);
 						task_pack->set_w(task_size_w);
 						task_pack->set_h(task_size_h);
+						printf("id: %d x: %d y: %d w: %d h: %d\n", task_pack->id(), task_pack->x(), task_pack->y(), task_pack->w(), task_pack->h());
 						
 						client::Tasks::Task* ctask_pack = tasks_pack->add_task();
 						ctask_pack->set_tasksize(task_pack->ByteSize());
-						char *lol = new char[task_pack->ByteSize()];
-						//ctask_pack->set_task(task_pack->SerializeAsString());
-						task_pack->SerializeToArray(lol, task_pack->ByteSize());
-						ctask_pack->set_task(lol);
+						//char *lol = new char[task_pack->ByteSize()];
+						ctask_pack->set_task(task_pack->SerializeAsString());
+						ctask_pack->PrintDebugString();
+						//task_pack->SerializeToArray(lol, task_pack->ByteSize());
+						//task_pack->SerializeToString(lol);//, task_pack->ByteSize());
+						//ctask_pack->set_task(lol);
 						
-						delete [] lol;
+						//delete [] lol;
 					}
 				}
 				LiPacket* tasks_lipack = new LiPacket(conn, tasks_pack, C_TASKS);
