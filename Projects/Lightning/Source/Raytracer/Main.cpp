@@ -380,13 +380,6 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-
-	Resource::Mesh::mesh_descriptor* descr;
-	Resource::Mesh* box = res->Acquire<Resource::Mesh>("data/box.ctm");
-	//Resource::Mesh* box2 = res->Acquire<Resource::Mesh>("data/box_2.ctm");
-	Resource::Mesh* sphere = res->Acquire<Resource::Mesh>("data/sphere.ctm");
-	Resource::Mesh* teapot = res->Acquire<Resource::Mesh>("data/teapot.ctm");
-
 	// Setup connection manager and stuff!
 	cman = new ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
 	char pixels[w*h*channels];
@@ -418,20 +411,6 @@ int main(int argc, char* argv[])
 	sphere_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
 	sphere_mat2.reflectiveness = 1.0f;
 	sphere_mat2.matteness = 1.0f;
-	
-	blob.prim_count = 0;
-
-	/*
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), &plane_mat_white); // bottom
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), &plane_mat_white); // top
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), &plane_mat_green); // right
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
-	*/
-
-	//blob.prim_count = 7;
 	
 	// generate a couple of random samples
 	srand ( time(NULL) );
@@ -472,15 +451,6 @@ int main(int argc, char* argv[])
 	app->Boot();
 	bool running = true;
 	bool guihit = false;
-	
-	// MODELS
-	Model* model_teapot = gfx->CreateModel(teapot);
-	Model* model_box = gfx->CreateModel(box);
-	//Model* model_box2 = gfx->CreateModel(box2);
-	Model* model_sphere = gfx->CreateModel(sphere);
-
-	current_scene.mesh = teapot;
-	current_scene.mdl = model_teapot;
 
 	// CAMERA
 	SimpleCamera cam;
@@ -491,7 +461,6 @@ int main(int argc, char* argv[])
 	cam.SetProjectionView(prjmat);
 	cam.Translate(0.0f,20.0f,100.0f);
 	blob.cam = &cam;
-
 
 	// load a model!
 	load_model("data/box_2.ctm");
@@ -605,8 +574,6 @@ int main(int argc, char* argv[])
 			if (!guihit)
 				MoveCamera(&cam,inp);
 
-			current_scene.mdl->Draw();
-
 			for(size_t i=0; i < blob.light_count; i++)
 				draw_light((BaseLight*) blob.lights[i]);
 
@@ -708,7 +675,7 @@ int main(int argc, char* argv[])
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
 		gfx->SetProjection(&prjmat);
 		
-		app->Draw();
+		//app->Draw();
 		
 		inp->ClearLastKey();
 		win->Swap();

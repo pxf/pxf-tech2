@@ -122,8 +122,8 @@ Primitive* RayTreeIntersect(KDTree& t,ray_t& r, float dist,intersection_response
 	if(!ray_aabb(&r,&box,&resp))
 		return 0;
 
-	t_min = -10000.0f;
-	t_max = 10000.0f;
+	t_min = -dist;
+	t_max = dist;
 
 	Vec3f min = (min_pos - o) / d;
 	Vec3f max = (max_pos - o) / d;
@@ -233,7 +233,7 @@ Primitive* RayTreeIntersect(KDTree& t,ray_t& r, float dist,intersection_response
 			}
 			
 			// get distance to split position
-			float t_split = (split_pos - o.GetAxis(axis)) / d.GetAxis(axis);
+			float t_split = (split_pos - o.GetAxis(axis)) * inv_d.GetAxis(axis); //4 d.GetAxis(axis);
 
 			// set stack pointers
 			int ptr = exit_ptr++;
@@ -345,7 +345,10 @@ std::vector<split_position*>* GetSplitPositions(Primitive** p,int size,int axis)
 	Find straddle by doing left+right-total
 	*/
 	size_t i;
+	std::vector<split_position*>::iterator it;
 	// first find all split positions
+
+	int j = 0;
 	for(i=0; i < size; i++)
 	{
 		aabb b = (*p[i]->box);
@@ -360,14 +363,19 @@ std::vector<split_position*>* GetSplitPositions(Primitive** p,int size,int axis)
 		split_position* right = new split_position(); 
 		right->pos = right_border; 
 		right->start = false;
+		
+		/*
+		for(it = list->begin(); it != list->end(); it++,j++)
+		{
+			if((*it)->pos == left_border || (*it)->pos == right_border)
+				it = list->erase(it);
+		}*/
 
 		list->push_back(left);
 		list->push_back(right);
-
-		//printf("split position: %f \n split position: %f\n",left_border,right_border);
 	}
 
-	std::vector<split_position*>::iterator it = list->begin();
+	it = list->begin();
 	int left_count;
 	int right_count;
 	int straddle;
@@ -375,7 +383,8 @@ std::vector<split_position*>* GetSplitPositions(Primitive** p,int size,int axis)
 	aabb b;
 
 	// check primitive bounds with each split position
-	for(it; it != list->end(); it++)
+	i = 0;
+	for(it; it != list->end(); it++,i++)
 	{
 		left_count = 0;
 		right_count = size;
@@ -394,24 +403,12 @@ std::vector<split_position*>* GetSplitPositions(Primitive** p,int size,int axis)
 		straddle = left_count + right_count - size;
 		sp->left_count = left_count;
 		sp->right_count = right_count;
+
+		if(left_count == 0 || right_count == 0)
+		{
+			//it = list->erase(it); continue;
+		}
 	}
-	/*
-	for(size_t i = 0; i < size; i++)
-	{
-		aabb b = (*p[i]->box); 
-		split_position* left = &slist[i*2];
-		split_position* right = &slist[i*2 + 1];
-
-		left->pos = b.pos.GetAxis(axis);
-		right->pos = b.pos.GetAxis(axis) + b.size.GetAxis(axis);
-
-		left->left_count = i;
-		left->right_count = size - i;
-
-		right->left_count = i + 1;
-		right->right_count = size - i - 1;
-	}
-	*/
 
 	return list;
 }
@@ -469,8 +466,7 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 	/*
 	if (_Box.size.x >= _Box.size.y && _Box.size.x >= _Box.size.z) axis = 0;
 	else if (_Box.size.y >= _Box.size.x && _Box.size.y >= _Box.size.z) axis = 1;
-	else axis = 2;
-	*/
+	else axis = 2; */
 
 	// sort Prim Data on 'active' axis
 	Primitive** p = _Node->GetPrimData();
@@ -516,7 +512,7 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 
 		// 0.3 is a fine-tuning value and is taken from this implementation:
 		// http://www.devmaster.net/articles/raytracing_series/part7.php
-		double cost = 0.25 + lcost + rcost; 
+		double cost = 0.3 + lcost + rcost; 
 		
 		i++;
 
@@ -560,13 +556,39 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 	Primitive** _RightList = new Primitive*[best_sp->right_count];// = new Prim[best_sp.right_count];
 
 	// split data into two lists
+
+	int left = 0; int right = 0;
+	for(i=0; i<_NbrPrims; i++)
+	{
+		Primitive* pr = p[i];
+		if(pr->box->pos.GetAxis(axis) < best_sp->pos)
+		{
+			_LeftList[left] = p[i];
+			left++;
+		}
+		else
+		{
+			_RightList[right] = p[i];
+			right++;
+		}
+	}
+
+	/*
+	for(i=0; i<best_sp->left_count; i++)
+		_LeftList[i] = p[i];
+
+	for(i=best_sp->left_count; i < _NbrPrims; i++)
+		_RightList[i-best_sp->left_count] = p[i];
+		*/
+
+	/*
 	for(i=0;i<_NbrPrims; i++)
 	{
 		if(i < best_sp->left_count)
 			_LeftList[i] = p[i];
 		else
 			_RightList[i-best_sp->left_count] = p[i];
-	}
+	}*/
 
 	_LeftChild->SetPrimData(_LeftList,best_sp->left_count);
 	_RightChild->SetPrimData(_RightList,best_sp->right_count);
@@ -595,7 +617,7 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 	if(_Depth < m_MaxDepth)
 	{
 		if(best_sp->left_count > 0)	
-			Subdivide(_LeftChild, best_sp->left_count,_LeftChild->GetAABB(),_Depth + 1);
+			Subdivide(_LeftChild, best_sp->left_count,left_aabb,_Depth + 1);
 		else
 		{
 			if(_LeftChild->IsEmpty())
@@ -604,7 +626,7 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 		}
 		
 		if(best_sp->right_count > 0) 
-			Subdivide(_RightChild, best_sp->right_count,_RightChild->GetAABB(),_Depth + 1);
+			Subdivide(_RightChild, best_sp->right_count,right_aabb,_Depth + 1);
 		else
 		{
 			if(_RightChild->IsEmpty())
