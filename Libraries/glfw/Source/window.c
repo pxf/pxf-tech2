@@ -561,6 +561,7 @@ GLFWAPI int GLFWAPIENTRY glfwOpenWindow( int width, int height,
         return GL_FALSE;
     }
 
+
     // Flag that window is now opened
     _glfwWin.opened = GL_TRUE;
 

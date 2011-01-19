@@ -255,38 +255,40 @@ int startrender_cb(lua_State* L)
 	hello_pack->set_port(0);
 	hello_pack->set_session_id(-1);
 	LiPacket* hello_lipack = new LiPacket(conn, hello_pack, C_HELLO);
-	cman->send((Packet*)hello_lipack);
+	cman->send(conn, hello_lipack->data, hello_lipack->length);
 	
 	bool ready_to_send = false;
 	while (!ready_to_send)
 	{
-		Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets();
+		Util::Array<Packet*>* in = cman->recv_packets();
 		
-		for(Util::Array<LiPacket*>::iterator tpacket = in->begin(); tpacket != in->end(); ++tpacket)
+		for(Util::Array<Packet*>::iterator i_tpacket = in->begin(); i_tpacket != in->end(); ++i_tpacket)
 		{
-			(*tpacket)->get_type();
+            LiPacket* tpacket = new LiPacket((*i_tpacket));
+
+			tpacket->get_type();
 			
-			if ((*tpacket)->message_type == PING)
+			if (tpacket->message_type == PING)
 			{
-				lightning::Ping *ping = (lightning::Ping*)((*tpacket)->unpack());
+				lightning::Ping *ping = (lightning::Ping*)(tpacket->unpack());
 				lightning::Pong *pong = new lightning::Pong();
 				pong->set_ping_data(ping->ping_data());
-				LiPacket *pkg = new LiPacket((*tpacket)->connection, pong, PONG);
+				LiPacket *pkg = new LiPacket(tpacket->connection, pong, PONG);
 				
-				cman->send((Packet*)pkg);
+				cman->send(conn, pkg->data, pkg->length);
 				Pxf::Message("oae", "Got PING message!");
-			} else if ((*tpacket)->message_type == OK)
+			} else if (tpacket->message_type == OK)
 			{
 				// Send alloc request
 				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
 				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
 				alloc_reqpack->set_batchhash("LOLWUT"); // TODO: Create a real hash of the batch data blob
 				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
-				cman->send((Packet*)alloc_reqlipack);
+				cman->send(conn, alloc_reqlipack->data, alloc_reqlipack->length);
 				
 				Pxf::Message("oae", "Got OK message!");
 				
-			} else if ((*tpacket)->message_type == C_ALLOC_RESP)
+			} else if (tpacket->message_type == C_ALLOC_RESP)
 			{
 				Pxf::Message("oae", "Got C_ALLOC_RESP message!");
 				
@@ -300,7 +302,7 @@ int startrender_cb(lua_State* L)
 				data_pack->set_returnport(4632);
 				
 				LiPacket* data_lipack = new LiPacket(conn, data_pack, C_DATA);
-				cman->send((Packet*)data_lipack);
+				cman->send(conn, data_lipack->data, data_lipack->length);
 				
 				
 				// Send tasks!
@@ -328,15 +330,16 @@ int startrender_cb(lua_State* L)
 					}
 				}
 				LiPacket* tasks_lipack = new LiPacket(conn, tasks_pack, C_TASKS);
-				cman->send((Packet*)tasks_lipack);
+				cman->send(conn, tasks_lipack->data, tasks_lipack->length);
 				
 				cman->remove_connection(conn);
 				
 				ready_to_send = true;
 				
 			} else {
-				Pxf::Message("oae", "Got unknown packet type!");
+				Pxf::Message("oae", "Got unknown packet type %d!", tpacket->message_type);
 			}
+            delete tpacket;
 		}
 		
 		in->clear();
@@ -381,7 +384,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Setup connection manager and stuff!
-	cman = new ConnectionManager((Pxf::Util::Array<Packet*>*)(new Pxf::Util::Array<LiPacket*>));
+	cman = new ConnectionManager();
 	char pixels[w*h*channels];
 	
 	// job specifics
@@ -467,11 +470,11 @@ int main(int argc, char* argv[])
 
 	// Raytracer client test
 	//------------------------
-	RaytracerClient client(kernel);
+	//RaytracerClient client(kernel);
 	//client.run_noblock();
 
 	// add a bunch of tasks
-	for(int y = 0; y < task_count; y++)
+	/*for(int y = 0; y < task_count; y++)
 	{
 		for(int x = 0; x < task_count; x++)
 		{
@@ -483,7 +486,7 @@ int main(int argc, char* argv[])
 			req->rect.w = task_size_w;
 			client.push_request(req);
 		}
-	}
+	}*/
 	
 	// DEPTH TEST
 	gfx->SetDepthFunction(DF_LEQUAL);
@@ -511,15 +514,17 @@ int main(int argc, char* argv[])
 		// Recieve results via the network
 		if (recv_conn != 0)
 		{
-			Util::Array<LiPacket*>* in = (Pxf::Util::Array<LiPacket*>*)cman->recv_packets(1);		
-			for(Util::Array<LiPacket*>::iterator tpacket = in->begin(); tpacket != in->end(); ++tpacket)
+			Util::Array<Packet*>* in = cman->recv_packets();
+			for(Util::Array<Packet*>::iterator i_tpacket = in->begin(); i_tpacket != in->end(); ++i_tpacket)
 			{
+				LiPacket* tpacket = new LiPacket((*i_tpacket));
+
 				Pxf::Message("aoe", "Got packet on SOME connection!");
-				(*tpacket)->get_type();
-				if ((*tpacket)->message_type == C_RESULT)
+				tpacket->get_type();
+				if (tpacket->message_type == C_RESULT)
 				{
 					// Got result packet from a client
-					client::Result *res_packet = (client::Result*)((*tpacket)->unpack());
+					client::Result *res_packet = (client::Result*)(tpacket->unpack());
 					raytracer::Result *res_raytrace_packet = new raytracer::Result();
 					
 					// Unravel from client::Result to raytraycer::Result (which includes task id and result data)
@@ -547,20 +552,22 @@ int main(int argc, char* argv[])
 					
 					if (res_raytrace_packet->final())
 						total_done += 1;
-					
+
 				}
+                delete tpacket;
 			}
-			
+
 			in->clear();
 		}
 		
+		/*
 		if (inp->GetLastKey() == Input::ENTER)
 		{
 			if(!exec_rt) client.run_noblock();
 			exec_rt = !exec_rt;
 		}
 		
-		/* CAMERA FREE-FLY MODE */
+		// CAMERA FREE-FLY MODE
 		if(!exec_rt)
 		{
 			gfx->BindTexture(0,0);
@@ -637,7 +644,7 @@ int main(int argc, char* argv[])
 				if (res->final)
 					total_done += 1;
 			}
-
+			*/
 			// Draw
 			for(int y = 0; y < task_count; y++)
 			{
@@ -663,10 +670,10 @@ int main(int argc, char* argv[])
 				is_done = true;
 				render_timer.Stop();
 				char title[512];
-				Format(title, "Render time: %d ms", render_timer.Interval());
+				sprintf(title, "Render time: %d ms", render_timer.Interval());
 				win->SetTitle(title);
 			}
-		}		
+		//}		
 
 		// Reset view 
 		glLoadIdentity();
@@ -681,8 +688,8 @@ int main(int argc, char* argv[])
 		win->Swap();
 	}
 
-	client.cancel();
-	client.wait();
+	//client.cancel();
+	//client.wait();
 	
 	delete app;
 	delete pbatch;

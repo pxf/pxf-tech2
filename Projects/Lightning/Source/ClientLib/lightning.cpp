@@ -1,5 +1,7 @@
 #include "lightning.h"
 
+#include <stdio.h>
+
 google::protobuf::Message *get_protobuf_class(MessageType type)
 {
 	switch(type)
@@ -34,6 +36,22 @@ LiPacket::LiPacket(Connection *_c, google::protobuf::Message *_proto, int _type)
 {
 	connection = _c;
 	pack(_proto, _type);
+
+	__pkg = NULL;
+}
+
+LiPacket::LiPacket(Packet* _pkg)
+{
+	__pkg = _pkg;
+	data = _pkg->data;
+	length = _pkg->length;
+	connection = _pkg->connection;
+}
+
+LiPacket::~LiPacket()
+{
+	if (__pkg)
+		delete __pkg;	
 }
 
 MessageType LiPacket::get_type()
@@ -77,7 +95,7 @@ google::protobuf::Message *LiPacket::unpack()
 
 	if (proto == NULL) return NULL;
 
-	proto->ParseFromString(Pxf::Util::String(data+sizeof(message_type), length));
+	proto->ParseFromString(Pxf::Util::String(data+sizeof(message_type), length-sizeof(message_type)));
 
 	return proto;
 }

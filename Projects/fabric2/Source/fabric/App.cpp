@@ -1,11 +1,11 @@
-#include "fabric/App.h"
+#include "App.h"
 
 #include <Pxf/Modules/pri/OpenGL.h>
 
-#include "fabric/AppCoreLib.h"
-#include "fabric/AppInputLib.h"
-#include "fabric/AppGraphicsLib.h"
-#include "fabric/AppSoundLib.h"
+#include "AppCoreLib.h"
+#include "AppInputLib.h"
+#include "AppGraphicsLib.h"
+#include "AppSoundLib.h"
 #include <Pxf/Audio/AudioDevice.h>
 
 #define LOCAL_MSG "Fabric"
@@ -40,6 +40,14 @@ App::App(Graphics::Window* _win, const char* _filepath)
     m_RedrawStencil = false;
     m_RedrawFull = false;
     m_RedrawMode = FABRIC_REDRAWMODE_FULL;
+
+		m_Dirty = false;
+		m_UsingFBO = false;
+		m_StalledClear = false;
+		
+		m_SuccessFlushCount = 0;
+		m_FlushCount = 0;
+		m_QuadCount = 0;
     
     m_Started = false;
     m_Running = false;
@@ -81,6 +89,9 @@ void App::Init()
   
   m_QuadBatches[m_QuadBatchCount] = new QuadBatch(m_MaxQuadCount, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
   m_QuadBatchCount++;
+
+	m_UsingFBO = false;
+	m_StalledClear = false;
   
   // Init GL settings
   //Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
@@ -324,102 +335,158 @@ void App::Redraw(int x, int y, int w, int h)
   }
 }
 
-void App::Draw()
+void App::Flush()
 {
-	m_TimerDraw.Start();
-    // Setup viewport and matrises
-    // TODO: get window dimensions dynamically
-    m_gfx->SetViewport(0, 0, m_win->GetWidth(), m_win->GetHeight());
-	  Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
-	  m_gfx->SetProjection(&prjmat);
-    
-    if (m_Running)
-    {
-      if (m_RedrawNeeded)
-      {
-		ResetDepth();
+	// Flush (draw/show) current state
+	if (m_Dirty)
+	{
+		// Close last used QB
+		int t_ActiveQB = m_QuadBatchCurrent;
+		if (m_QuadBatchCurrent >= 0)
+		{
+			m_QuadBatches[m_QuadBatchCurrent]->End();
+		}
+		
+		int num_passes = 2;
+		if (m_UsingFBO)
+			num_passes = 1;
+		
+		for (int renderpass = 0; renderpass < num_passes; ++renderpass)
+		{
+			if (m_RedrawStencil && !m_RedrawFull)
+			{
+				glEnable(GL_STENCIL_TEST);
+				glDisable(GL_DEPTH_TEST);
+				glClear(GL_STENCIL_BUFFER_BIT);
+				
+				glStencilFunc(GL_ALWAYS, 0x1, 0x1);
+				glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+				
+				m_StencilQB->Draw();
+				
+				glStencilFunc(GL_EQUAL, 0x1, 0x1);
+				glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
+
+				glEnable(GL_DEPTH_TEST);
+			} else {
+				glDisable(GL_STENCIL_TEST);
+			}
+			
+			if (m_StalledClear)
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			// Draw all quadbatches
+			for (int i = 0; i < m_QuadBatchCount; ++i)
+			{
+				// Count quads
+				m_QuadCount += m_QuadBatches[i]->GetQuadCount();
+				
+				// Draw!
+			  m_QuadBatches[i]->Draw();
+			}
+
+			// Draw all special raw texuters
+			for(Util::Array<TexturedQuadBatch*>::iterator iter = m_RawTextureQB.begin(); iter != m_RawTextureQB.end(); ++iter)
+			{
+				// Count quads
+				m_QuadCount += (*iter)->GetQuadCount();
+				
+				// Draw!
+				(*iter)->Draw();
+			}
+			
+			if (!m_UsingFBO)
+				m_win->Swap();
+		}
+		
+		// The active state is not 'dirty' anymore!
+		m_Dirty = false;
+		
 		// Reset all quadbatches
 		for(int i = 0; i < m_QuadBatchCount; ++i)
 		{
 			m_QuadBatches[i]->Reset();
 		}
+		
 		// reset all special raw texuters
 		for(Util::Array<TexturedQuadBatch*>::iterator iter = m_RawTextureQB.begin(); iter != m_RawTextureQB.end(); ++iter)
 		{
 			(*iter)->Reset();
 		}
-        
-		CallScriptFunc("_draw");
-        
-        
-		// Close last used QB
-		if (m_QuadBatchCurrent >= 0)
-		{
-			m_QuadBatches[m_QuadBatchCurrent]->End();
-		}
+		
+		// Set active QB to the previously active one
+		if (t_ActiveQB >= 0)
+			ChangeActiveQB(t_ActiveQB);//m_QuadBatchCurrent = t_ActiveQB;
+			
+		// Increase successfull flush count
+		m_SuccessFlushCount += 1;
+		ResetDepth();
+		m_StalledClear = false;
+		
+	} else {
+		//Message(LOCAL_MSG, "Trying to flush non-dirty state!");
+	}
+	
+	m_FlushCount += 1;
+	
+}
 
-		for (int renderpass = 0; renderpass < 2; ++renderpass)
+void App::Draw()
+{
+	m_TimerDraw.Start();
+	// Setup viewport and matrises
+	m_gfx->SetViewport(0, 0, m_win->GetWidth(), m_win->GetHeight());
+	Math::Mat4 prjmat = Math::Mat4::Ortho(0, m_win->GetWidth(), m_win->GetHeight(), 0, FABRIC_DEPTH_FAR, FABRIC_DEPTH_NEAR);
+	m_gfx->SetProjection(&prjmat);
+    
+	if (m_Running)
+	{
+		if (m_RedrawNeeded)
 		{
-			//glClear(GL_DEPTH_BUFFER_BIT);
-			if (m_RedrawStencil && !m_RedrawFull)
-			{
-			  glEnable(GL_STENCIL_TEST);
-			  glDisable(GL_DEPTH_TEST);
-			  glClear(GL_STENCIL_BUFFER_BIT);
-          
-			  glStencilFunc(GL_ALWAYS, 0x1, 0x1);
-			  glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-          
-			  m_StencilQB->Draw();
-          
-			  glStencilFunc(GL_EQUAL, 0x1, 0x1);
-			  glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
-          
-			  glEnable(GL_DEPTH_TEST);
-			} else {
-			  glDisable(GL_STENCIL_TEST);
-			}
+			// Reset stats
+			m_SuccessFlushCount = 0;
+			m_FlushCount = 0;
+			m_QuadCount = 0;
 			
-			glClear(GL_DEPTH_BUFFER_BIT);
-        
-			// Draw all quadbatches
-			for (int i = 0; i < m_QuadBatchCount; ++i)
-			{
-			  m_QuadBatches[i]->Draw();
-			}
+			// Reset draw depth
+			ResetDepth();
 			
-			// Draw all special raw texuters
+			// Reset all quadbatches
+			for(int i = 0; i < m_QuadBatchCount; ++i)
+			{
+				m_QuadBatches[i]->Reset();
+			}
+			// reset all special raw texuters
 			for(Util::Array<TexturedQuadBatch*>::iterator iter = m_RawTextureQB.begin(); iter != m_RawTextureQB.end(); ++iter)
 			{
-				(*iter)->Draw();
+				(*iter)->Reset();
 			}
-        
-			//m_win->Swap();
-		}
+		
+			CallScriptFunc("_draw");
+			Flush();
+			
+			m_QuadBatchCurrent = -1;
+			m_TransformMatrix = Math::Mat4::Identity;
+			m_RedrawFull = false;
+			m_RedrawNeeded = false;
+			m_RedrawStencil = false;
+			
+			m_StencilQB->Reset();
+ 
+		}  
+	} else {
+		Math::Mat4 prjmat = Math::Mat4::Ortho(-m_win->GetWidth()/2, m_win->GetWidth()/2, m_win->GetHeight()/2, -m_win->GetHeight()/2, -1000.0f, 1000.0f);
+		m_gfx->SetProjection(&prjmat);
+		glClear(GL_DEPTH_BUFFER_BIT);
 
-        m_QuadBatchCurrent = -1;
-		m_TransformMatrix = Math::Mat4::Identity;
-        m_RedrawFull = false;
-        m_RedrawNeeded = false;
-		m_RedrawStencil = false;
-		m_StencilQB->Reset();
-        
-      }  
-    } else {
-      Math::Mat4 prjmat = Math::Mat4::Ortho(-m_win->GetWidth()/2, m_win->GetWidth()/2, m_win->GetHeight()/2, -m_win->GetHeight()/2, -1000.0f, 1000.0f);
-      m_gfx->SetProjection(&prjmat);
-      //glClearColor(46.0f/255.0f,46.0f/255.0f,46.0f/255.0f,1.0f);
-      //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glClear(GL_DEPTH_BUFFER_BIT);
-      
-      // Display application error
-      m_AppErrorQB->Draw();
-      
-      //m_win->Swap();
-    }
-    
-    m_TimerDraw.Stop();
-    //Message(LOCAL_MSG, "draw() : %ims", m_TimerDraw.Interval());
+		// Display application error
+		m_AppErrorQB->Draw();
+
+		m_win->Swap();
+	}
+	    
+	m_TimerDraw.Stop();
+	//Message(LOCAL_MSG, "draw() : %ims", m_TimerDraw.Interval());
 }
 
 bool App::GuiHit()
@@ -569,8 +636,9 @@ int App::Print(lua_State *_L)
             return luaL_error(_L, LUA_QL("tostring") " must return a string to "
                                   LUA_QL("print"));
         if (i>1)
-            fputs("\t", stdout);
-        fputs("# ", stdout);
+            fputs("\n   -   > ", stdout);
+        else
+						fputs("fabric > ", stdout);
         fputs(s, stdout);
         lua_pop(_L, 1);  /* pop result */
     }

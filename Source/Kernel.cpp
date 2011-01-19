@@ -14,10 +14,8 @@
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
 
-#ifdef CONF_FAMILY_UNIX
 #include <cstdio>
 #include <cstdarg>
-#endif
 
 Pxf::Kernel* Pxf::Kernel::s_Kernel = 0;
 const unsigned Pxf::Kernel::KERNEL_VERSION = PXF_PACKSHORT2(1, 3);
@@ -207,14 +205,12 @@ void Pxf::Kernel::Log(unsigned int _Tag, const char* _Message, ...)
 
 	// Write to loggers	
 	char Buffer[4092];
-#ifdef CONF_FAMILY_UNIX
+
 	va_list va;
 	va_start(va, _Message);
 	vsprintf(Buffer, _Message, va);
 	va_end(va);
-#else
-	FormatArgumentList(Buffer, &_Message);
-#endif
+
 	LoggerEntry_t* iter = m_Loggers;
 	while(iter)
 	{

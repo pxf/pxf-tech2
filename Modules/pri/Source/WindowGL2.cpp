@@ -74,10 +74,10 @@ WindowGL2::~WindowGL2()
 bool WindowGL2::Open()
 {
 	int t_params = GLFW_WINDOW;
-
+	
 	if (IsOpen())
 		return false; // can't open an already open window
-
+		
 	// Enable fullscreen
 	if (m_fullscreen)
 		t_params = GLFW_FULLSCREEN;
@@ -85,6 +85,7 @@ bool WindowGL2::Open()
 	// Enable vertical sync
 	if (m_vsync)
 		glfwSwapInterval(1);
+	
 
 	// Set number of FSAA samples
 	if (m_fsaa_samples > 0)
@@ -92,9 +93,14 @@ bool WindowGL2::Open()
 	
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, m_resizeable ? GL_FALSE : GL_TRUE);
 
+	//glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
+	//glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
+	//glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+	
 	if (GL_TRUE == glfwOpenWindow(m_width, m_height, m_bits_r, m_bits_g, m_bits_b, m_bits_alpha, m_bits_depth, m_bits_stencil, t_params))
 	{
-
+		
 		// If we are a window, set title, and position us in the center of the screen
 		if (!m_fullscreen)
 		{

@@ -5,8 +5,8 @@
 
 enum ClientState {
 	WOK = 2,
-	WALLOC = 8,
-	W_HELLO = 16
+	WALLOC = 4,
+	W_HELLO = 8
 };
 
 struct client_state

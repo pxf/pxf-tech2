@@ -35,10 +35,10 @@ namespace Pxf
 	//		char buff[100]
 	//		formatArgumentList(buff, &foo)
 	// TODO inline these?
-	int FormatArgumentList(char* _Dest, const char** _Format);
+	//int FormatArgumentList(char* _Dest, const char** _Format);
 
 	// format(buff, "%s", "aoeu")
-	int Format(char* _Dest, const char* _Format, ...);
+	//int Format(char* _Dest, const char* _Format, ...);
 
 	// Swaps the content of a and b
 	template <typename T> 

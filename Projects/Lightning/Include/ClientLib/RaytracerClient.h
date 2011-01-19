@@ -11,8 +11,13 @@
 
 #include <BlockingTaskQueue.h>
 
+#include "raytracer.pb.h"
+
+#include <lightning.h>
+
 struct batch_blob_t;
 
+/*
 struct Rect_t
 {
 	int x, y;
@@ -23,7 +28,6 @@ struct Rect_t
 		, w(0), h(0)
 	{}
 };
-
 
 struct TaskRequest
 {
@@ -37,21 +41,29 @@ struct TaskResult
 	uint8* pixels;
 	bool final;
 };
-
+*/
 class LightningClient
 {
 protected:
-	BlockingTaskQueue<TaskRequest*> m_TaskQueue;
+	BlockingTaskQueue<Task*> *m_TaskQueue;
 	
 	typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
-	TaskResultQueue m_ResultQueue;
+	TaskResultQueue *m_ResultQueue;
 
 	enum TaskType {RayTraceTask, HerpaDerpTask};
 public:
-	virtual void push_request(TaskRequest* _Request) = 0;
-	virtual TaskRequest* pop_request() = 0;
+	virtual void push_request(Task* _Request) = 0;
+	virtual Task* pop_request() = 0;
 	virtual void push_result(TaskResult* _Result) = 0;
 	virtual TaskResult* pop_result() = 0;
+
+	virtual void initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue) = 0;
+
+	virtual bool run() = 0;
+	virtual bool run_noblock() = 0;
+	virtual bool wait() = 0;
+
+	virtual void cancel() = 0;
 };
 
 
@@ -63,21 +75,23 @@ protected:
 	unsigned m_NumWorkers;
 	unsigned m_LogTag;
 public:
+	typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
 	RaytracerClient(Pxf::Kernel* _Kernel);
 	~RaytracerClient();
 
-	virtual void push_request(TaskRequest* _Request);
-	virtual TaskRequest* pop_request();
+	virtual void initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue);
+
+	virtual void push_request(Task* _Request);
+	virtual Task* pop_request();
 	virtual void push_result(TaskResult* _Result);
 	virtual TaskResult* pop_result();
 	bool has_results();
 
-	bool run();
-	bool run_noblock();
-	bool wait();
+	virtual bool run();
+	virtual bool run_noblock();
+	virtual bool wait();
 
-	void cancel();
-	void interrupt();
+	virtual void cancel();
 };
 
 #endif // _RAYTRACER_CLIENT_H_

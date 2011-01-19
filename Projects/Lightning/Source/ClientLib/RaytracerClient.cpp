@@ -7,10 +7,9 @@
 	#include <windows.h>
 #endif
 
-using namespace ZThread;
 using namespace Pxf;
 
-class Worker : public Runnable
+class Worker : public ZThread::Runnable
 {
 protected:
 	LightningClient* m_Client;
@@ -29,9 +28,71 @@ public:
 		{
 			try
 			{
-				TaskRequest* req = m_Client->pop_request();
+				Task* req = m_Client->pop_request();
 
-				batch_blob_t* blob  = req->blob;
+				raytracer::Task *task_data = new raytracer::Task();
+				task_data->ParseFromString((req->task)->task());
+
+				printf("h: %d   w: %d\n", task_data->h(), task_data->w());
+				task_detail_t task;
+				task.region[0] = task_data->x();
+				task.region[1] = task_data->y();
+				task.region[2] = task_data->x() + task_data->h();
+				task.region[3] = task_data->y() + task_data->w();
+				raytracer::DataBlob *blob_proto = new raytracer::DataBlob();
+				blob_proto->ParseFromString(req->batch->data);
+
+				// Create the blob from the DataBlob-proto.
+				batch_blob_t blob;
+				blob.prim_count = blob_proto->prim_count();
+				blob.light_count = blob_proto->light_count();
+				printf("count: %d\n", blob.light_count);
+				for(size_t i = 0; i < 256; ++i)
+					blob.samples[i] = blob_proto->samples(i);
+				blob.bounce_count = blob_proto->bounce_count();
+
+				blob.pic_w = blob_proto->pic_w();
+				blob.pic_h = blob_proto->pic_h();
+
+				blob.samples_per_pixel = blob_proto->samples_per_pixel();
+
+				blob.interleaved_feedback = blob_proto->interleaved_feedback();
+
+				for(size_t i = 0; i < blob.prim_count; i++)
+				{
+					// TODO: lol, jhonnys grejer.
+				}
+
+				printf("if %d\n", blob.interleaved_feedback);
+				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
+				sub_tasks_left = 1;
+				render_result_t out;
+
+				printf("sub_tasks_left: %d\n", sub_tasks_left);
+//				while (sub_tasks_left > 0)
+//				{
+					render_task(&task, &blob, &out, blob.interleaved_feedback*blob.interleaved_feedback - sub_tasks_left);
+
+					TaskResult* res = new TaskResult();
+					res->task = req;
+					raytracer::Result *ray_res = new raytracer::Result();
+					ray_res->set_id(task_data->id());
+					ray_res->set_final((sub_tasks_left == 1));
+					ray_res->set_data(Util::String((char*)out.data, sizeof(pixel_data_t)*task_data->h()*task_data->w()*3));
+
+					client::Result *res_proto = new client::Result();
+					res_proto->set_batchhash(req->batch->hash);
+					res_proto->set_result(ray_res->SerializeAsString());
+
+					printf("pushing result on queue.\n");
+					m_Client->push_result(res);
+
+					sub_tasks_left--;
+//				}
+				
+
+
+/*				batch_blob_t* blob  = req->blob;
 				task_detail_t task;
 				task.region[0] = req->rect.x;
 				task.region[1] = req->rect.y;
@@ -52,11 +113,11 @@ public:
 					else
 						res->final = false;
 					m_Client->push_result(res);
-				}
+				}*/
 
 				
 			}
-			catch (Cancellation_Exception)
+			catch (ZThread::Cancellation_Exception)
 			{
 				m_Canceled = true;
 				break;
@@ -74,8 +135,14 @@ RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 {
 	m_LogTag = m_Kernel->CreateTag("RTC");
 	m_NumWorkers = Platform::GetNumberOfProcessors();
-	m_Executor = new PoolExecutor(m_NumWorkers);
-	m_TaskQueue.register_type(LightningClient::RayTraceTask);
+	m_Executor = new ZThread::PoolExecutor(m_NumWorkers);
+}
+
+void RaytracerClient::initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue)
+{
+	m_TaskQueue = _TaskQueue;
+	m_ResultQueue = _ResultQueue;
+	m_TaskQueue->register_type(LightningClient::RayTraceTask);
 }
 
 RaytracerClient::~RaytracerClient()
@@ -85,29 +152,29 @@ RaytracerClient::~RaytracerClient()
 	delete m_Executor;
 }
 
-void RaytracerClient::push_request(TaskRequest* _Request)
+void RaytracerClient::push_request(Task* _Request)
 {
-	m_TaskQueue.push(LightningClient::RayTraceTask, _Request);
+	m_TaskQueue->push(LightningClient::RayTraceTask, _Request);
 }
 
-TaskRequest* RaytracerClient::pop_request()
+Task* RaytracerClient::pop_request()
 {
-	return m_TaskQueue.pop(LightningClient::RayTraceTask);
+	return m_TaskQueue->pop(LightningClient::RayTraceTask);
 };
 
 void RaytracerClient::push_result(TaskResult* _Result)
 {
-	m_ResultQueue.add(_Result);
+	m_ResultQueue->add(_Result);
 }
 
 TaskResult* RaytracerClient::pop_result()
 {
-	return m_ResultQueue.next();
+	return m_ResultQueue->next();
 }
 
 bool RaytracerClient::has_results()
 {
-	return !m_ResultQueue.empty();
+	return !m_ResultQueue->empty();
 }
 
 bool RaytracerClient::run()
@@ -119,7 +186,7 @@ bool RaytracerClient::run()
 		m_Executor->wait();
 		m_Kernel->Log(m_LogTag, "Executor is done waiting. Why?");
 	}
-	catch(Cancellation_Exception* e)
+	catch(ZThread::Cancellation_Exception* e)
 	{
 		m_Kernel->Log(m_LogTag, "Executor cancelled.");
 		return false;
@@ -143,6 +210,6 @@ bool RaytracerClient::wait()
 
 void RaytracerClient::cancel()
 {
-	m_TaskQueue.cancel();
+	m_TaskQueue->cancel();
 	m_Executor->cancel();
 }
