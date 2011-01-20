@@ -8,24 +8,13 @@ message DataBlob {
 		required float z = 3;
 	}
 
-	message Vertex {
-		required Vec3f p = 1;
-		required Vec3f n = 2;
-	}
-
-	message PrimitiveTriangle {
-		required Vertex v0 = 1;
-		required Vertex v1 = 2;
-		required Vertex v2 = 3;
-	}
-
-	message PrimitivePointLight {
-		required Vec3f p = 1;
-	}
-
 	message PrimitiveSphere {
 		required Vec3f position = 1;
 		required float size = 2;
+	}
+	
+	message PointLight {
+		required Vec3f position = 1;
 	}
 
 	required int32 prim_count = 1;
@@ -42,8 +31,8 @@ message DataBlob {
 	
 	required int32 interleaved_feedback = 8;
 	
-	repeated PrimitiveTriangle triangles = 9;
-	repeated PrimitivePointLight point_lights = 10;
+	repeated PrimitiveSphere primitives = 9;
+	repeated PointLight lights = 10;
 }
 
 message Task {

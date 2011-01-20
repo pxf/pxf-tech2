@@ -10,7 +10,7 @@ class KDTree;
 struct batch_blob_t
 {	
 	// scene data
-	Primitive** primitives;
+	Primitive* primitives[256];
 	Primitive* lights[256];
 	int prim_count;
 	int light_count;

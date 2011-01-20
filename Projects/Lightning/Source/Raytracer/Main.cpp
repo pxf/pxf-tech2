@@ -88,10 +88,11 @@ void load_model(const char* path)
 		Primitive** scene_data = (Primitive**) triangle_list(mesh);
 		int tri_count = mesh->GetData()->triangle_count;
 
-		blob.tree = new KDTree(3);
+		// TODO: update/fix this when we are using triangles again!
+		/*blob.tree = new KDTree(3);
 		blob.tree->Build(scene_data,tri_count);
 		blob.primitives = scene_data;
-		blob.prim_count = tri_count;
+		blob.prim_count = tri_count;*/
 
 		if(tree_VB)
 			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
@@ -124,23 +125,25 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	
 	npack->set_interleaved_feedback(blob->interleaved_feedback);
 	
-	/*
+	
 	for(size_t i = 0; i < blob->light_count; i++)
 	{
-		if(blob->lights[i] && blob->lights[i]->GetType == PointLightPrim)
+		if(blob->lights[i] && blob->lights[i]->GetType() == PointLightPrim)
 		{
-			PointLightPrim* l = (PointLightPrim*) blob->lights[i];
-			raytracer::DataBlob_PrimitivePointLight* light_pack = npack->add_point_lights();
-			raytracer::DataBlob_Vec3f* p = light_pack->mutable_p();
+			PointLight* l = (PointLight*) blob->lights[i];
+			raytracer::DataBlob::PointLight* light_pack = npack->add_lights();
+			raytracer::DataBlob::Vec3f* p = light_pack->mutable_position();
 			p->set_x(l->p.x);
 			p->set_y(l->p.y);
-			p->set_y(l->p.z);
+			p->set_z(l->p.z);
 		}
 	}
-	*/
+	
+	
 	
 	for(size_t i = 0; i < blob->prim_count; i++)
 	{
+	/*
 		Primitive* p = blob->primitives[i];
 		if (p && (p->GetType() == TrianglePrim))
 		{
@@ -148,7 +151,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 
 			raytracer::DataBlob_PrimitiveTriangle* triangle_pack = npack->add_triangles();
 			
-			/* VERTEX 0 */
+			// VERTEX 0
 			raytracer::DataBlob_Vertex* v0 = triangle_pack->mutable_v0();
 			raytracer::DataBlob_Vec3f* v0_p = v0->mutable_p();
 			v0_p->set_x(t->vertices[0]->v.x);
@@ -160,7 +163,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v0_n->set_y(t->vertices[0]->n.y);
 			v0_n->set_z(t->vertices[0]->n.z);
 
-			/* VERTEX 1 */
+			// VERTEX 1
 			raytracer::DataBlob_Vertex* v1 = triangle_pack->mutable_v1();
 			raytracer::DataBlob_Vec3f* v1_p = v1->mutable_p();
 			v1_p->set_x(t->vertices[1]->v.x);
@@ -172,7 +175,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v1_n->set_y(t->vertices[1]->n.y);
 			v1_n->set_z(t->vertices[1]->n.z);
 
-			/* VERTEX 2 */
+			// VERTEX 2
 			raytracer::DataBlob_Vertex* v2 = triangle_pack->mutable_v2();
 			raytracer::DataBlob_Vec3f* v2_p = v2->mutable_p();
 			v2_p->set_x(t->vertices[2]->v.x);
@@ -184,20 +187,18 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v2_n->set_y(t->vertices[2]->n.y);
 			v2_n->set_z(t->vertices[2]->n.z);
 		}
-		/*
-		else if (blob->primitives[i]->GetType() == SpherePrim)
+		else */
+		if (blob->primitives[i]->GetType() == SpherePrim)
 		{
-			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_spheres();//new raytracer::DataBlob::PrimitiveSphere();
+			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_primitives();
 			raytracer::DataBlob_Vec3f* pos_pack = sphere_pack->mutable_position();
 			pos_pack->set_x(((Sphere*)(blob->primitives[i]))->p.x);
 			pos_pack->set_y(((Sphere*)(blob->primitives[i]))->p.y);
 			pos_pack->set_z(((Sphere*)(blob->primitives[i]))->p.z);
 			
-			//sphere_pack->set_position(pos_pack);
 			sphere_pack->set_size(((Sphere*)(blob->primitives[i]))->r);
 			
-			//npack->add_spheres(sphere_pack);
-		}*/
+		}
 	}
 	
 	return npack;
@@ -433,11 +434,11 @@ int main(int argc, char* argv[])
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), &plane_mat_green); // right
 	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
+	*/
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
 	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
-	*/
 
-	//blob.prim_count = 7;
+	//blob.prim_count = 2;
 	
 	// generate a couple of random samples
 	srand ( time(NULL) );
@@ -500,7 +501,7 @@ int main(int argc, char* argv[])
 
 
 	// load a model!
-	load_model("data/box_2.ctm");
+	//load_model("data/box_2.ctm");
 
 	// Raytracer client test
 	//------------------------
