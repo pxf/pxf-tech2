@@ -64,7 +64,6 @@ namespace Fabric
 				bool m_Dirty;
 				void SetDirty() { m_Dirty = true; };
 				bool m_UsingFBO;
-				bool m_StalledClear;
 				
 				// Frame stats
 				int m_FlushCount;
