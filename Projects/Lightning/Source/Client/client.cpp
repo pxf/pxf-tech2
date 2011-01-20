@@ -454,10 +454,15 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 		m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
 		delete pkg;
 	}
+	// TODO: Delete the tasks that just have been sent
 	
-	// TODO: Check which iterator ended first
-	
-	//if (_tasks.size() - diff > 0)
+	// Check which iterator finished first
+	if (i != m_State.m_Allocated.end())
+	{
+		// Not all tasks could be forwarded, store the rest in the state
+		for ( ; j != _tasks.end(); j++)
+			m_State.m_OutQueue.push_back((*j));
+	}
 }
 
 
