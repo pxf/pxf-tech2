@@ -10,12 +10,12 @@
 
 class KDNode;
 class KDTree;
-class Primitive;
+class triangle_t;
 struct aabb;
 
 void PrintStatistics(KDTree* t);
 void CreateVBFromTree(KDTree* t,Pxf::Graphics::VertexBuffer* vb);
-Primitive* RayTreeIntersect(KDTree& t,ray_t& r,float dist,intersection_response_t& resp);
+triangle_t* RayTreeIntersect(KDTree& t,ray_t& r,float dist,intersection_response_t& resp);
 
 struct split_position {
 	float pos;
@@ -53,8 +53,8 @@ public:
 		}
 	}
 
-	void SetPrimData(Primitive** _Data,unsigned _NbrPrims);
-	Primitive** GetPrimData() { return m_PrimData; }
+	void SetPrimData(triangle_t* _Data,unsigned _NbrPrims);
+	triangle_t* GetPrimData() { return m_PrimData; }
 
 	void SetLeftChild(KDNode* _Child) { m_LeftChild = _Child; }
 	void SetRightChild(KDNode* _Child) { m_RightChild = _Child; }
@@ -87,7 +87,7 @@ private:
 	float m_SplitPosition;
 	unsigned m_PrimCount;
 
-	Primitive** m_PrimData;
+	triangle_t* m_PrimData;
 };
 
 class KDTree {
@@ -117,7 +117,7 @@ public:
 
 	aabb GetAABB() { return m_AABB; }
 
-	bool Build(Primitive** _PrimData, unsigned _NbrPrims);
+	bool Build(triangle_t* _PrimData, unsigned _NbrPrims);
 	bool IsValid() { return m_Initialized; }
 
 	struct tree_statistics {

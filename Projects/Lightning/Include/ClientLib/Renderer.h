@@ -10,7 +10,7 @@ class KDTree;
 struct batch_blob_t
 {	
 	// scene data
-	Primitive** primitives;
+	triangle_t* primitives;
 	Primitive* lights[256];
 	int prim_count;
 	int light_count;
@@ -27,12 +27,11 @@ struct batch_blob_t
 	
 	// "interleaved feedback"
 	int interleaved_feedback;
-	
-	// TODO: Add textures, kd-tree etc etc.
+
+	MaterialLibrary materials;
+
 	Camera* cam;
 	KDTree* tree;
-	/*KDTree* tree;
-	Camera* cam;*/
 };
 
 struct task_detail_t

@@ -85,7 +85,10 @@ void load_model(const char* path)
 		current_scene.mesh = mesh;
 		current_scene.mdl = model;
 
-		Primitive** scene_data = (Primitive**) triangle_list(mesh);
+
+		triangle_t* scene_data = triangle_list(mesh);
+		//Primitive** scene_data = (Primitive**) triangle_list(mesh);
+
 		int tri_count = mesh->GetData()->triangle_count;
 
 		blob.tree = new KDTree(3);
@@ -139,20 +142,29 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	}
 	*/
 
+	// pack materials
 
-	npack->set_primitive_data((char*)blob->primitives,blob->prim_count);
+	size_t materials_size = sizeof(MaterialLibrary);
+	npack->set_materials(Util::String((char*) &blob->materials,materials_size));
+
+	size_t penis = sizeof(aabb);
+
+	size_t triangle_size = sizeof(Triangle);
+	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
 	
+	/*
 	for(size_t i = 0; i < blob->prim_count; i++)
 	{
-		Primitive* p = blob->primitives[i];
+		triangle_t* p = blob->primitives[i];
 
+		
 		if (p && (p->GetType() == TrianglePrim))
 		{
 			Triangle* t = (Triangle*) p;
 
 			raytracer::DataBlob_PrimitiveTriangle* triangle_pack = npack->add_triangles();
 			
-			/* VERTEX 0 */
+			// VERTEX 0 
 			raytracer::DataBlob_Vertex* v0 = triangle_pack->mutable_v0();
 			raytracer::DataBlob_Vec3f* v0_p = v0->mutable_p();
 			v0_p->set_x(t->vertices[0]->v.x);
@@ -164,7 +176,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v0_n->set_y(t->vertices[0]->n.y);
 			v0_n->set_z(t->vertices[0]->n.z);
 
-			/* VERTEX 1 */
+			// VERTEX 1 
 			raytracer::DataBlob_Vertex* v1 = triangle_pack->mutable_v1();
 			raytracer::DataBlob_Vec3f* v1_p = v1->mutable_p();
 			v1_p->set_x(t->vertices[1]->v.x);
@@ -176,7 +188,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v1_n->set_y(t->vertices[1]->n.y);
 			v1_n->set_z(t->vertices[1]->n.z);
 
-			/* VERTEX 2 */
+			// VERTEX 2 
 			raytracer::DataBlob_Vertex* v2 = triangle_pack->mutable_v2();
 			raytracer::DataBlob_Vec3f* v2_p = v2->mutable_p();
 			v2_p->set_x(t->vertices[2]->v.x);
@@ -188,8 +200,10 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v2_n->set_y(t->vertices[2]->n.y);
 			v2_n->set_z(t->vertices[2]->n.z);
 		}
+		*/
+		
 		/*
-		else if (blob->primitives[i]->GetType() == SpherePrim)
+		if (blob->primitives[i]->GetType() == SpherePrim)
 		{
 			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_spheres();//new raytracer::DataBlob::PrimitiveSphere();
 			raytracer::DataBlob_Vec3f* pos_pack = sphere_pack->mutable_position();
@@ -201,9 +215,10 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			sphere_pack->set_size(((Sphere*)(blob->primitives[i]))->r);
 			
 			//npack->add_spheres(sphere_pack);
-		}*/
+		}
 	}
-	
+	*/
+
 	return npack;
 	
 }
@@ -434,8 +449,12 @@ int main(int argc, char* argv[])
 	material_t light_mat1,light_mat2;
 	light_mat1.diffuse = Vec3f(0.0f, 0.0f, 1.0f);
 	light_mat2.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 60.0f, 15.0f), &light_mat1);
-	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -20.0f, -15.0f), &light_mat2);
+
+	blob.materials.Insert(light_mat1,0);
+	blob.materials.Insert(light_mat2,1);
+
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 60.0f, 15.0f), 0);//&light_mat1);
+	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -20.0f, -15.0f), 1); //&light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 2;
@@ -612,11 +631,11 @@ int main(int argc, char* argv[])
 			glEnd();
 
 			intersection_response_t resp;
-			Primitive* p_res = RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+			triangle_t* p_res = RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
 
 			if(p_res)
 			{
-				p_res->Draw();
+				//p_res->Draw();
 			}
 
 		}

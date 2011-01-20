@@ -1,5 +1,6 @@
 #include <RaytracerClient.h>
 #include <Pxf/Base/Platform.h>
+#include <string>
 
 #include <Renderer.h>
 
@@ -67,11 +68,13 @@ public:
 
 				blob.interleaved_feedback = blob_proto->interleaved_feedback();
 
-				for(size_t i = 0; i < blob.prim_count; i++)
-				{
-					//raytracer::DataBlob::PrimitiveTriangle* tri = blob_proto->triangles(i);
-					std::String* tData = blob_proto->primitive_data();
-				}
+				std::string mData = blob_proto->materials();
+				std::string pData = blob_proto->primitive_data();
+
+				const char* p = pData.c_str();
+
+				triangle_t* triangles = (triangle_t*) p;
+				MaterialLibrary* materials = (MaterialLibrary*) mData.c_str();
 
 				printf("if %d\n", blob.interleaved_feedback);
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;

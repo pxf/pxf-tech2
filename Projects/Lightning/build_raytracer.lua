@@ -2,7 +2,7 @@ Import("../../PxfBuild.lua")
 
 project = NewProject("raytracer")
 
---project:RequireLibrary("glfw")
+project:RequireLibrary("glfw")
 project:RequireLibrary("zthread")
 project:RequireLibrary("lua")
 project:RequireLibrary("sstat")
