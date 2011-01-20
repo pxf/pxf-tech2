@@ -29,7 +29,7 @@ public:
 			try
 			{
 				Task* req = m_Client->pop_request();
-				req->task->PrintDebugString();
+				//req->task->PrintDebugString();
 
 				raytracer::Task *task_data = new raytracer::Task();
 				//printf("raw task data: %s\n", (req->task)->DebugString());
@@ -94,7 +94,7 @@ public:
 				}
 
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
-				sub_tasks_left = 1;
+				//sub_tasks_left = 1;
 				render_result_t out;
 
 				//printf("sub_tasks_left: %d\n", sub_tasks_left);
@@ -103,15 +103,24 @@ public:
 					render_task(&task, &blob, &out, blob.interleaved_feedback*blob.interleaved_feedback - sub_tasks_left);
 
 					TaskResult* res = new TaskResult();
+					
 					res->task = req;
+					
 					raytracer::Result *ray_res = new raytracer::Result();
 					ray_res->set_id(task_data->id());
 					ray_res->set_final((sub_tasks_left == 1));
+					ray_res->set_x(task_data->x());
+					ray_res->set_y(task_data->y());
+					ray_res->set_w(task_data->w());
+					ray_res->set_h(task_data->h());
+					ray_res->set_size(sizeof(pixel_data_t)*task_data->h()*task_data->w()*3);
 					ray_res->set_data(Util::String((char*)out.data, sizeof(pixel_data_t)*task_data->h()*task_data->w()*3));
 
 					client::Result *res_proto = new client::Result();
 					res_proto->set_batchhash(req->batch->hash);
 					res_proto->set_result(ray_res->SerializeAsString());
+					
+					res->result = res_proto;
 
 					printf("pushing result on queue.\n");
 					m_Client->push_result(res);
