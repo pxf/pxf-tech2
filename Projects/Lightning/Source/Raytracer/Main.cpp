@@ -233,7 +233,7 @@ int startrender_cb(lua_State* L)
 {
 	
 	// Open result connection
-	recv_conn = cman->new_connection(ORIGIN);
+	recv_conn = cman->new_connection(CLIENT);
 	if (!cman->bind_connection(recv_conn, (char*)lua_tostring(L, 3), lua_tonumber(L, 4)))
 	{
 		cman->remove_connection(recv_conn);
@@ -244,7 +244,7 @@ int startrender_cb(lua_State* L)
 	
 	raytracer::DataBlob* new_pack = gen_packet_from_blob(&blob);
 	
-	Connection *conn = cman->new_connection(ORIGIN);
+	Connection *conn = cman->new_connection(CLIENT);
 	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
 	{
 		lua_pushstring(L, "Could not connect!");
@@ -319,13 +319,13 @@ int startrender_cb(lua_State* L)
 						task_pack->set_y(y * task_size_h);
 						task_pack->set_w(task_size_w);
 						task_pack->set_h(task_size_h);
-						printf("id: %d x: %d y: %d w: %d h: %d\n", task_pack->id(), task_pack->x(), task_pack->y(), task_pack->w(), task_pack->h());
+						//printf("id: %d x: %d y: %d w: %d h: %d\n", task_pack->id(), task_pack->x(), task_pack->y(), task_pack->w(), task_pack->h());
 						
 						client::Tasks::Task* ctask_pack = tasks_pack->add_task();
 						ctask_pack->set_tasksize(task_pack->ByteSize());
 						//char *lol = new char[task_pack->ByteSize()];
 						ctask_pack->set_task(task_pack->SerializeAsString());
-						ctask_pack->PrintDebugString();
+						//ctask_pack->PrintDebugString();
 						//task_pack->SerializeToArray(lol, task_pack->ByteSize());
 						//task_pack->SerializeToString(lol);//, task_pack->ByteSize());
 						//ctask_pack->set_task(lol);
@@ -652,6 +652,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
+		
 			// Setup view!!!!!!!!
 			gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 			Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
@@ -682,6 +683,10 @@ int main(int argc, char* argv[])
 					total_done += 1;
 			}
 			*/
+			// Setup view!!!!!!!!
+			gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
+			prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
+			gfx->SetProjection(&prjmat);
 			// Draw
 			for(int y = 0; y < task_count; y++)
 			{

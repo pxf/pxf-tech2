@@ -462,11 +462,12 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 	Pxf::Util::Array<client::Tasks*>::iterator j;
 	i = m_State.m_Allocated.begin();
 	j = _tasks.begin();
-
+	/*
 	for ( ; ((i != m_State.m_Allocated.end()) || (j != _tasks.end())) ;  i++, j++ )
 	{
 		LiPacket *pkg = new LiPacket(*i, *j, C_TASKS);
 	}
+	*/
 	// TODO: Check which iterator ended first
 	
 	//if (_tasks.size() - diff > 0)
