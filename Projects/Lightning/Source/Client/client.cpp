@@ -46,8 +46,10 @@ public:
 				Connection* conn = m_ConnectionManager->new_connection(CLIENT);
 				m_ConnectionManager->connect_connection(conn, retaddr, retport);
 				
-				std::string str = result->SerializeAsString();
-				m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
+				//std::string str = result->SerializeAsString();
+				LiPacket* pkg = new LiPacket(conn, result, C_RESULT);
+				m_ConnectionManager->send(pkg->connection, pkg->data, pkg->length);
+				//m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{
@@ -290,6 +292,25 @@ int Client::run()
 				
 					break;
 				}
+				case C_ALLOC_RESP:
+				{
+					client::AllocateResponse *resp = (client::AllocateResponse*)(p->unpack());
+					
+					if (!resp->has_isavailable())
+					{
+						// TODO: Do something smart, blacklist? Can't remember :(
+					}
+
+					if (!resp->has_hasdata())
+					{
+						// TODO: Send data
+
+
+					}
+
+					// TODO: Send pending tasks. I forgot where they are stored..
+				
+				}
 				case C_DATA:
 				{
 					client::Data *data = (client::Data*)(p->unpack());
@@ -435,6 +456,18 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 		delete pkg;
 		delete request;
 	}
+
+	// Send what we can send
+	Pxf::Util::Array<Connection*>::iterator i;
+	Pxf::Util::Array<client::Tasks*>::iterator j;
+	i = m_State.m_Allocated.begin();
+	j = _tasks.begin();
+
+	for ( ; ((i != m_State.m_Allocated.end()) || (j != _tasks.end())) ;  i++, j++ )
+	{
+		LiPacket *pkg = new LiPacket(*i, *j, C_TASKS);
+	}
+	// TODO: Check which iterator ended first
 	
 	//if (_tasks.size() - diff > 0)
 }
