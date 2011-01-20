@@ -385,27 +385,12 @@ int Client::run()
 					);
 
 					// Push a set of tasks to our queue
-					printf("1\n");
-					
-					// TODO: create Task*'s out of client::Tasks* and push each one!
-					/*Batch* batchpointer = m_Batches[tasks.back()->batchhash()];
-					
-					for(size_t i = 0; i < tasks.back()->task_size(); ++i)
-					{
-						Task* ready_task = new Task();
-						//client::Tasks::Task* taskpointer = 
-						ready_task->task = tasks.back()->task(i);
-						ready_task->batch = batchpointer;//tasks.back()->task[i];
-						push(ready_task);
-					}*/
 					push(tasks.back());
 					
 					// Remove the set we just used
-					printf("2\n");
 					tasks.pop_back();
 
 					// Forward the rest
-					printf("3\n");
 					forward(tasks);
 
 					// MASSIVE CODE GOES HERE
@@ -462,15 +447,22 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 	Pxf::Util::Array<client::Tasks*>::iterator j;
 	i = m_State.m_Allocated.begin();
 	j = _tasks.begin();
-	/*
-	for ( ; ((i != m_State.m_Allocated.end()) || (j != _tasks.end())) ;  i++, j++ )
+
+	for ( ; ((i != m_State.m_Allocated.end()) && (j != _tasks.end())) ;  i++, j++ )
 	{
 		LiPacket *pkg = new LiPacket(*i, *j, C_TASKS);
+		m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+		delete pkg;
 	}
-	*/
-	// TODO: Check which iterator ended first
+	// TODO: Delete the tasks that just have been sent
 	
-	//if (_tasks.size() - diff > 0)
+	// Check which iterator finished first
+	if (i != m_State.m_Allocated.end())
+	{
+		// Not all tasks could be forwarded, store the rest in the state
+		for ( ; j != _tasks.end(); j++)
+			m_State.m_OutQueue.push_back((*j));
+	}
 }
 
 
