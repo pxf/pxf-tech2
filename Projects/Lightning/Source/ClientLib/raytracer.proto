@@ -44,6 +44,8 @@ message DataBlob {
 	
 	repeated PrimitiveTriangle triangles = 9;
 	repeated PrimitivePointLight point_lights = 10;
+
+	required bytes primitive_data = 11;
 }
 
 message Task {

@@ -138,10 +138,14 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 		}
 	}
 	*/
+
+
+	npack->set_primitive_data((char*)blob->primitives,blob->prim_count);
 	
 	for(size_t i = 0; i < blob->prim_count; i++)
 	{
 		Primitive* p = blob->primitives[i];
+
 		if (p && (p->GetType() == TrianglePrim))
 		{
 			Triangle* t = (Triangle*) p;
@@ -565,7 +569,7 @@ int main(int argc, char* argv[])
 		{
 			if(!exec_rt) client.run_noblock();
 			exec_rt = !exec_rt;
-		}
+		}*/
 		
 		// CAMERA FREE-FLY MODE
 		if(!exec_rt)
@@ -613,6 +617,7 @@ int main(int argc, char* argv[])
 			}
 
 		}
+		/*
 		else
 		{
 			// Setup view!!!!!!!!
@@ -643,8 +648,8 @@ int main(int argc, char* argv[])
 
 				if (res->final)
 					total_done += 1;
-			}
-			*/
+			}*/
+			
 			// Draw
 			for(int y = 0; y < task_count; y++)
 			{
@@ -682,7 +687,7 @@ int main(int argc, char* argv[])
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
 		gfx->SetProjection(&prjmat);
 		
-		//app->Draw();
+		app->Draw();
 		
 		inp->ClearLastKey();
 		win->Swap();

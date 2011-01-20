@@ -324,12 +324,13 @@ inline bool sort_z(Primitive* a,Primitive* b)
 
 void SortPrims(Primitive** p, unsigned size,int axis)
 {
-	if (axis == 0)
-		std::sort(p,p+size,sort_x);
-	else if(axis == 1)
-		std::sort(p,p+size,sort_y);
-	else if(axis == 2)
-		std::sort(p,p+size,sort_z);
+	switch(axis)
+	{
+	case 0: std::sort(p,p+size,sort_x); break;
+	case 1: std::sort(p,p+size,sort_y); break;
+	case 2: std::sort(p,p+size,sort_z); break;
+	default: break;
+	}
 }
 
 std::vector<split_position*>* GetSplitPositions(Primitive** p,int size,int axis)

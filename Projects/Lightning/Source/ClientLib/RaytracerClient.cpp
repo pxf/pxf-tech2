@@ -60,7 +60,8 @@ public:
 
 				for(size_t i = 0; i < blob.prim_count; i++)
 				{
-					// TODO: lol, jhonnys grejer.
+					//raytracer::DataBlob::PrimitiveTriangle* tri = blob_proto->triangles(i);
+					std::String* tData = blob_proto->primitive_data();
 				}
 
 				printf("if %d\n", blob.interleaved_feedback);
