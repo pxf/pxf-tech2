@@ -76,6 +76,7 @@ public:
 	void SetLookAt(float x,float y,float z);
 	void SetPosition(float x,float y,float z);
 	void SetPosition(const Pxf::Math::Vec3f &_Pos);
+	void SetOrientation(Pxf::Math::Quaternion *_Orientation);
 	void Translate(float x,float y,float z);
 	void Translate(Pxf::Math::Vec3f v);
 

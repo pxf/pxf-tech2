@@ -36,6 +36,7 @@ class DataBlob;
 class DataBlob_Vec3f;
 class DataBlob_PrimitiveSphere;
 class DataBlob_PointLight;
+class DataBlob_Camera;
 class Task;
 class Result;
 
@@ -332,6 +333,127 @@ class DataBlob_PointLight : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class DataBlob_Camera : public ::google::protobuf::Message {
+ public:
+  DataBlob_Camera();
+  virtual ~DataBlob_Camera();
+  
+  DataBlob_Camera(const DataBlob_Camera& from);
+  
+  inline DataBlob_Camera& operator=(const DataBlob_Camera& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DataBlob_Camera& default_instance();
+  
+  void Swap(DataBlob_Camera* other);
+  
+  // implements Message ----------------------------------------------
+  
+  DataBlob_Camera* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DataBlob_Camera& from);
+  void MergeFrom(const DataBlob_Camera& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required .raytracer.DataBlob.Vec3f position = 1;
+  inline bool has_position() const;
+  inline void clear_position();
+  static const int kPositionFieldNumber = 1;
+  inline const ::raytracer::DataBlob_Vec3f& position() const;
+  inline ::raytracer::DataBlob_Vec3f* mutable_position();
+  
+  // required float orient_x = 2;
+  inline bool has_orient_x() const;
+  inline void clear_orient_x();
+  static const int kOrientXFieldNumber = 2;
+  inline float orient_x() const;
+  inline void set_orient_x(float value);
+  
+  // required float orient_y = 3;
+  inline bool has_orient_y() const;
+  inline void clear_orient_y();
+  static const int kOrientYFieldNumber = 3;
+  inline float orient_y() const;
+  inline void set_orient_y(float value);
+  
+  // required float orient_z = 4;
+  inline bool has_orient_z() const;
+  inline void clear_orient_z();
+  static const int kOrientZFieldNumber = 4;
+  inline float orient_z() const;
+  inline void set_orient_z(float value);
+  
+  // required float orient_w = 5;
+  inline bool has_orient_w() const;
+  inline void clear_orient_w();
+  static const int kOrientWFieldNumber = 5;
+  inline float orient_w() const;
+  inline void set_orient_w(float value);
+  
+  // @@protoc_insertion_point(class_scope:raytracer.DataBlob.Camera)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::raytracer::DataBlob_Vec3f* position_;
+  float orient_x_;
+  float orient_y_;
+  float orient_z_;
+  float orient_w_;
+  friend void  protobuf_AddDesc_raytracer_2eproto();
+  friend void protobuf_AssignDesc_raytracer_2eproto();
+  friend void protobuf_ShutdownFile_raytracer_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static DataBlob_Camera* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class DataBlob : public ::google::protobuf::Message {
  public:
   DataBlob();
@@ -387,6 +509,7 @@ class DataBlob : public ::google::protobuf::Message {
   typedef DataBlob_Vec3f Vec3f;
   typedef DataBlob_PrimitiveSphere PrimitiveSphere;
   typedef DataBlob_PointLight PointLight;
+  typedef DataBlob_Camera Camera;
   
   // accessors -------------------------------------------------------
   
@@ -475,6 +598,13 @@ class DataBlob : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight >*
       mutable_lights();
   
+  // required .raytracer.DataBlob.Camera cam = 11;
+  inline bool has_cam() const;
+  inline void clear_cam();
+  static const int kCamFieldNumber = 11;
+  inline const ::raytracer::DataBlob_Camera& cam() const;
+  inline ::raytracer::DataBlob_Camera* mutable_cam();
+  
   // @@protoc_insertion_point(class_scope:raytracer.DataBlob)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -490,11 +620,12 @@ class DataBlob : public ::google::protobuf::Message {
   ::google::protobuf::int32 interleaved_feedback_;
   ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveSphere > primitives_;
   ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight > lights_;
+  ::raytracer::DataBlob_Camera* cam_;
   friend void  protobuf_AddDesc_raytracer_2eproto();
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(10 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(11 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -895,6 +1026,91 @@ inline ::raytracer::DataBlob_Vec3f* DataBlob_PointLight::mutable_position() {
 
 // -------------------------------------------------------------------
 
+// DataBlob_Camera
+
+// required .raytracer.DataBlob.Vec3f position = 1;
+inline bool DataBlob_Camera::has_position() const {
+  return _has_bit(0);
+}
+inline void DataBlob_Camera::clear_position() {
+  if (position_ != NULL) position_->::raytracer::DataBlob_Vec3f::Clear();
+  _clear_bit(0);
+}
+inline const ::raytracer::DataBlob_Vec3f& DataBlob_Camera::position() const {
+  return position_ != NULL ? *position_ : *default_instance_->position_;
+}
+inline ::raytracer::DataBlob_Vec3f* DataBlob_Camera::mutable_position() {
+  _set_bit(0);
+  if (position_ == NULL) position_ = new ::raytracer::DataBlob_Vec3f;
+  return position_;
+}
+
+// required float orient_x = 2;
+inline bool DataBlob_Camera::has_orient_x() const {
+  return _has_bit(1);
+}
+inline void DataBlob_Camera::clear_orient_x() {
+  orient_x_ = 0;
+  _clear_bit(1);
+}
+inline float DataBlob_Camera::orient_x() const {
+  return orient_x_;
+}
+inline void DataBlob_Camera::set_orient_x(float value) {
+  _set_bit(1);
+  orient_x_ = value;
+}
+
+// required float orient_y = 3;
+inline bool DataBlob_Camera::has_orient_y() const {
+  return _has_bit(2);
+}
+inline void DataBlob_Camera::clear_orient_y() {
+  orient_y_ = 0;
+  _clear_bit(2);
+}
+inline float DataBlob_Camera::orient_y() const {
+  return orient_y_;
+}
+inline void DataBlob_Camera::set_orient_y(float value) {
+  _set_bit(2);
+  orient_y_ = value;
+}
+
+// required float orient_z = 4;
+inline bool DataBlob_Camera::has_orient_z() const {
+  return _has_bit(3);
+}
+inline void DataBlob_Camera::clear_orient_z() {
+  orient_z_ = 0;
+  _clear_bit(3);
+}
+inline float DataBlob_Camera::orient_z() const {
+  return orient_z_;
+}
+inline void DataBlob_Camera::set_orient_z(float value) {
+  _set_bit(3);
+  orient_z_ = value;
+}
+
+// required float orient_w = 5;
+inline bool DataBlob_Camera::has_orient_w() const {
+  return _has_bit(4);
+}
+inline void DataBlob_Camera::clear_orient_w() {
+  orient_w_ = 0;
+  _clear_bit(4);
+}
+inline float DataBlob_Camera::orient_w() const {
+  return orient_w_;
+}
+inline void DataBlob_Camera::set_orient_w(float value) {
+  _set_bit(4);
+  orient_w_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // DataBlob
 
 // required int32 prim_count = 1;
@@ -1082,6 +1298,23 @@ DataBlob::lights() const {
 inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight >*
 DataBlob::mutable_lights() {
   return &lights_;
+}
+
+// required .raytracer.DataBlob.Camera cam = 11;
+inline bool DataBlob::has_cam() const {
+  return _has_bit(10);
+}
+inline void DataBlob::clear_cam() {
+  if (cam_ != NULL) cam_->::raytracer::DataBlob_Camera::Clear();
+  _clear_bit(10);
+}
+inline const ::raytracer::DataBlob_Camera& DataBlob::cam() const {
+  return cam_ != NULL ? *cam_ : *default_instance_->cam_;
+}
+inline ::raytracer::DataBlob_Camera* DataBlob::mutable_cam() {
+  _set_bit(10);
+  if (cam_ == NULL) cam_ = new ::raytracer::DataBlob_Camera;
+  return cam_;
 }
 
 // -------------------------------------------------------------------

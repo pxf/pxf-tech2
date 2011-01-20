@@ -66,7 +66,19 @@ public:
 				blob.samples_per_pixel = blob_proto->samples_per_pixel();
 
 				blob.interleaved_feedback = blob_proto->interleaved_feedback();
-
+				
+				// unpack camera pos and orientation
+				SimpleCamera cam;
+				Pxf::Math::Quaternion camorient;
+				camorient.x = blob_proto->cam().orient_x();
+				camorient.y = blob_proto->cam().orient_y();
+				camorient.z = blob_proto->cam().orient_z();
+				camorient.w = blob_proto->cam().orient_w();
+				cam.SetOrientation(&camorient);
+				cam.SetPosition(blob_proto->cam().position().x(), blob_proto->cam().position().y(), blob_proto->cam().position().z());
+				blob.cam = &cam;
+				
+				// unpack primitives
 				for(size_t i = 0; i < blob.prim_count; i++)
 				{
 					material_t *sphere_mat1 = new material_t();
@@ -81,6 +93,7 @@ public:
 					blob.primitives[i] = new Sphere(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), blob_proto->primitives(i).size(), sphere_mat1);
 				}
 				
+				// unpack lights!
 				for(size_t i = 0; i < blob.light_count; i++)
 				{
 					material_t *light_mat1 = new material_t();

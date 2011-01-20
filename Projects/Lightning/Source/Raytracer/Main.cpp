@@ -56,6 +56,7 @@ Connection *recv_conn = 0;
 // global blob/scene data
 batch_blob_t blob;
 Graphics::VertexBuffer* tree_VB;
+SimpleCamera cam;
 
 struct scene {
 	Resource::Mesh* mesh;
@@ -125,7 +126,19 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	
 	npack->set_interleaved_feedback(blob->interleaved_feedback);
 	
+	// pack camera!
+	raytracer::DataBlob::Camera* c = npack->mutable_cam();
+	raytracer::DataBlob::Vec3f* cp = c->mutable_position();
+	cp->set_x(cam.GetPos().x);
+	cp->set_y(cam.GetPos().y);
+	cp->set_z(cam.GetPos().z);
 	
+	c->set_orient_x(cam.GetOrientation()->x);
+	c->set_orient_y(cam.GetOrientation()->y);
+	c->set_orient_z(cam.GetOrientation()->z);
+	c->set_orient_w(cam.GetOrientation()->w);
+	
+	// pack lights!
 	for(size_t i = 0; i < blob->light_count; i++)
 	{
 		if(blob->lights[i] && blob->lights[i]->GetType() == PointLightPrim)
@@ -489,9 +502,6 @@ int main(int argc, char* argv[])
 	current_scene.mesh = teapot;
 	current_scene.mdl = model_teapot;
 
-	// CAMERA
-	SimpleCamera cam;
-
 	gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 	Math::Mat4 prjmat = Math::Mat4::Perspective(80.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
 
@@ -562,7 +572,7 @@ int main(int argc, char* argv[])
 					client::Result *res_packet = (client::Result*)(tpacket->unpack());
 					raytracer::Result *res_raytrace_packet = new raytracer::Result();
 					
-					// Unravel from client::Result to raytraycer::Result (which includes task id and result data)
+					// Unravel from client::Result to raytracer::Result (which includes task id and result data)
 					res_raytrace_packet->ParseFromString(res_packet->result());
 					
 					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash().c_str(), res_raytrace_packet->id());

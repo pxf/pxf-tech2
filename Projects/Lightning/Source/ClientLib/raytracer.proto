@@ -16,6 +16,14 @@ message DataBlob {
 	message PointLight {
 		required Vec3f position = 1;
 	}
+	
+	message Camera {
+		required Vec3f position = 1;
+		required float orient_x = 2;
+		required float orient_y = 3;
+		required float orient_z = 4;
+		required float orient_w = 5;
+	}
 
 	required int32 prim_count = 1;
 	required int32 light_count = 2;
@@ -33,6 +41,8 @@ message DataBlob {
 	
 	repeated PrimitiveSphere primitives = 9;
 	repeated PointLight lights = 10;
+	
+	required Camera cam = 11;
 }
 
 message Task {
