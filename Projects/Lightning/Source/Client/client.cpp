@@ -314,12 +314,14 @@ int Client::run()
 					b->type = (BatchType)data->datatype();
 
 					b->data_size = data->datasize();
-					b->data = (char*)Pxf::MemoryAllocate(b->data_size);
+					//b->data = (char*)Pxf::MemoryAllocate(b->data_size);
+					b->data = data->data();
+					/*
 					Pxf::MemoryCopy(
 						b->data,
 						data->data().c_str(),
 						b->data_size
-					);
+					);*/
 
 					b->timestamp = time(NULL);
 					
@@ -363,6 +365,18 @@ int Client::run()
 
 					// Push a set of tasks to our queue
 					printf("1\n");
+					
+					// TODO: create Task*'s out of client::Tasks* and push each one!
+					/*Batch* batchpointer = m_Batches[tasks.back()->batchhash()];
+					
+					for(size_t i = 0; i < tasks.back()->task_size(); ++i)
+					{
+						Task* ready_task = new Task();
+						//client::Tasks::Task* taskpointer = 
+						ready_task->task = tasks.back()->task(i);
+						ready_task->batch = batchpointer;//tasks.back()->task[i];
+						push(ready_task);
+					}*/
 					push(tasks.back());
 					
 					// Remove the set we just used
@@ -433,12 +447,13 @@ void Client::push(client::Tasks* _tasks)
 
 	for (int i = 0; i < _tasks->task_size(); i++)
 	{
+	
 		Task* t = new Task();
 		t->batch = b;
 		client::Tasks::Task* n_task = new client::Tasks::Task();
 		n_task->CopyFrom(_tasks->task(i));
 		t->task = n_task;
-
+		t->task->PrintDebugString();		
 		m_TaskQueue->push(b->type, t);
 	}
 }

@@ -45,7 +45,7 @@ struct Batch
 {
 	char *hash;		// Null terminated
 	BatchType type;
-	char *data;
+	std::string data;
 	int data_size;
 	time_t timestamp;
 	char *return_address; // Null terminated
