@@ -28,7 +28,7 @@ message Data {
 message Tasks {
 	message Task {
 		required int32 tasksize = 1;
-		required bytes task = 2;
+		required string task = 2;
 	}
 
 	required string batchhash = 1;

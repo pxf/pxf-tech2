@@ -29,9 +29,18 @@ public:
 			try
 			{
 				Task* req = m_Client->pop_request();
+				req->task->PrintDebugString();
 
 				raytracer::Task *task_data = new raytracer::Task();
-				task_data->ParseFromString((req->task)->task());
+				//printf("raw task data: %s\n", (req->task)->DebugString());
+				//(req->task)->PrintDebugString();
+				
+				if (!task_data->ParseFromString((req->task)->task()))//Array((const void*)(req->task)->task().c_str(), (req->task)->tasksize()))
+				{
+					printf("FAILED PARSE!\n");
+				}
+				task_data->PrintDebugString();
+				printf("size lols: %d\n", task_data->ByteSize());
 
 				printf("h: %d   w: %d\n", task_data->h(), task_data->w());
 				task_detail_t task;
@@ -134,7 +143,7 @@ RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 	, m_NumWorkers(1)
 {
 	m_LogTag = m_Kernel->CreateTag("RTC");
-	m_NumWorkers = Platform::GetNumberOfProcessors();
+	m_NumWorkers = 1;//Platform::GetNumberOfProcessors();
 	m_Executor = new ZThread::PoolExecutor(m_NumWorkers);
 }
 
