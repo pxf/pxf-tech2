@@ -65,8 +65,8 @@ struct scene {
 
 
 // task/batch specific globals
-const int w = 128;
-const int h = 128;
+const int w = 256;
+const int h = 256;
 const int channels = 3;
 const int task_count = 8;
 int task_size_w = w / task_count;
@@ -416,7 +416,7 @@ int main(int argc, char* argv[])
 	blob.pic_h = h;
 	blob.samples_per_pixel = 4; // 10 -> 10*10 = 100
 	blob.bounce_count = 6; // Number of reflection bounces
-	blob.interleaved_feedback = 2;
+	blob.interleaved_feedback = 1;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -506,7 +506,8 @@ int main(int argc, char* argv[])
 	Math::Mat4 prjmat = Math::Mat4::Perspective(80.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
 
 	cam.SetProjectionView(prjmat);
-	cam.Translate(0.0f,20.0f,100.0f);
+	//cam.Translate(0.0f,20.0f,100.0f);
+	cam.Translate(0.0f,0.0f,20.0f);
 	blob.cam = &cam;
 
 

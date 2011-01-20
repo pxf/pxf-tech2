@@ -551,14 +551,14 @@ class Tasks_Task : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 tasksize() const;
   inline void set_tasksize(::google::protobuf::int32 value);
   
-  // required string task = 2;
+  // required bytes task = 2;
   inline bool has_task() const;
   inline void clear_task();
   static const int kTaskFieldNumber = 2;
   inline const ::std::string& task() const;
   inline void set_task(const ::std::string& value);
   inline void set_task(const char* value);
-  inline void set_task(const char* value, size_t size);
+  inline void set_task(const void* value, size_t size);
   inline ::std::string* mutable_task();
   
   // @@protoc_insertion_point(class_scope:client.Tasks.Task)
@@ -1179,7 +1179,7 @@ inline void Tasks_Task::set_tasksize(::google::protobuf::int32 value) {
   tasksize_ = value;
 }
 
-// required string task = 2;
+// required bytes task = 2;
 inline bool Tasks_Task::has_task() const {
   return _has_bit(1);
 }
@@ -1206,7 +1206,7 @@ inline void Tasks_Task::set_task(const char* value) {
   }
   task_->assign(value);
 }
-inline void Tasks_Task::set_task(const char* value, size_t size) {
+inline void Tasks_Task::set_task(const void* value, size_t size) {
   _set_bit(1);
   if (task_ == &_default_task_) {
     task_ = new ::std::string;
