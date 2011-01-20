@@ -40,9 +40,9 @@ public:
 					printf("FAILED PARSE!\n");
 				}
 				task_data->PrintDebugString();
-				printf("size lols: %d\n", task_data->ByteSize());
+				//printf("size lols: %d\n", task_data->ByteSize());
 
-				printf("h: %d   w: %d\n", task_data->h(), task_data->w());
+				//printf("h: %d   w: %d\n", task_data->h(), task_data->w());
 				task_detail_t task;
 				task.region[0] = task_data->x();
 				task.region[1] = task_data->y();
@@ -55,7 +55,7 @@ public:
 				batch_blob_t blob;
 				blob.prim_count = blob_proto->prim_count();
 				blob.light_count = blob_proto->light_count();
-				printf("count: %d\n", blob.light_count);
+				//printf("count: %d\n", blob.light_count);
 				for(size_t i = 0; i < 256; ++i)
 					blob.samples[i] = blob_proto->samples(i);
 				blob.bounce_count = blob_proto->bounce_count();
@@ -69,17 +69,37 @@ public:
 
 				for(size_t i = 0; i < blob.prim_count; i++)
 				{
+					material_t *sphere_mat1 = new material_t();
+
+					sphere_mat1->ambient = Math::Vec3f(0.1f, 0.1f, 0.1f);
+					sphere_mat1->diffuse = Math::Vec3f(1.0f, 1.0f, 1.0f);
+					sphere_mat1->reflectiveness = 1.0f;
+					
 					// TODO: lol, jhonnys grejer.
+					//raytracer::DataBlob::PrimitiveSphere *pb_sphere = blob_proto->primitives(i);
+					raytracer::DataBlob::Vec3f pb_pos = blob_proto->primitives(i).position();
+					blob.primitives[i] = new Sphere(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), blob_proto->primitives(i).size(), sphere_mat1);
+				}
+				
+				for(size_t i = 0; i < blob.light_count; i++)
+				{
+					material_t *light_mat1 = new material_t();
+
+					light_mat1->ambient = Math::Vec3f(0.1f, 0.1f, 0.1f);
+					light_mat1->diffuse = Math::Vec3f(1.0f, 1.0f, 1.0f);
+					
+					// TODO: lol, jhonnys grejer.
+					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position();
+					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), light_mat1);
 				}
 
-				printf("if %d\n", blob.interleaved_feedback);
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
 				sub_tasks_left = 1;
 				render_result_t out;
 
-				printf("sub_tasks_left: %d\n", sub_tasks_left);
-//				while (sub_tasks_left > 0)
-//				{
+				//printf("sub_tasks_left: %d\n", sub_tasks_left);
+				while (sub_tasks_left > 0)
+				{
 					render_task(&task, &blob, &out, blob.interleaved_feedback*blob.interleaved_feedback - sub_tasks_left);
 
 					TaskResult* res = new TaskResult();
@@ -97,7 +117,7 @@ public:
 					m_Client->push_result(res);
 
 					sub_tasks_left--;
-//				}
+				}
 				
 
 
