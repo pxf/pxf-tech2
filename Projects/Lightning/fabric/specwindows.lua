@@ -1,3 +1,22 @@
+function gui:create_stackdivider(x,y,w,h)
+  local wid = gui:create_basewidget(x,y,w,h)
+  
+  wid.sdraw = wid.draw
+  
+  function wid:draw(force)
+    if (self.redraw_needed or force) then
+      gfx.translate(self.drawbox.x, self.drawbox.y)
+    
+      -- line
+			gfx.drawtopleft(2,self.drawbox.h / 2 + 2,self.drawbox.w-4,1, 1,5,1,1)
+      
+      gfx.translate(-self.drawbox.x, -self.drawbox.y)
+		end
+  end
+  
+  return wid
+end
+
 function spawn_error_dialog(msg)
   local error_dialog = gui:create_window("errordialog"..msg[1], app.width / 2 - 250,app.height / 2 - 75, 500,120, true, "Error")
   local msg_panel = gui:create_centeredmultiline_label(0,10,500,100,msg)
@@ -11,7 +30,7 @@ function spawn_error_dialog(msg)
 end
 
 function spawn_toolwindow()
-  local tool_window = gui:create_window("tool_window", settings.data.toolpos[1],settings.data.toolpos[2],300,200, false, "Lightning Demo", true)
+  local tool_window = gui:create_window("tool_window", settings.data.toolpos[1],settings.data.toolpos[2],300,400, false, "Lightning Demo", true)
   -- store move pos
   tool_window.s_mousedrag = tool_window.mousedrag
   tool_window.label.s_mousedrag = tool_window.label.mousedrag
@@ -24,7 +43,7 @@ function spawn_toolwindow()
   tool_window.label.mousedrag = tool_window.mousedrag
   tool_window.panel.mousedrag = tool_window.mousedrag
   
-  local tool_stack = gui:create_verticalstack(10,5,400,20)
+  local tool_stack = gui:create_verticalstack(10,5,300,20)
   tool_window.panel:addwidget(tool_stack)
   
   -- file menu
@@ -41,10 +60,6 @@ function spawn_toolwindow()
   menubar.widget_type = "menubar"
   tool_stack:addwidget(menubar)
   
-  -- spacing
-  local render_button = gui:create_labelbutton(0,0,120,32,"Render",function () print(startrender("localhost", 50002, "localhost", 4632)) end)
-  tool_stack:addwidget(render_button)
-  
   -- load model button
   local load_model_button = gui:create_labelbutton(128,0,120,32,"Load Model",
 		function () 
@@ -54,8 +69,46 @@ function spawn_toolwindow()
   tool_stack:addwidget(load_model_button)
   
   -- spacing
-  local spacer = gui:create_basewidget(0,0,1,8)
+  local spacer = gui:create_stackdivider(0,0,280,20)
   tool_stack:addwidget(spacer)
+  
+  -- label for host input fields
+  local host_label = gui:create_labelpanel(0,0,280,26,"Render host:")
+  tool_stack:addwidget(host_label)
+  
+  -- host-input stack
+  local host_inputs = gui:create_horizontalstack(0,0,280,32)
+  tool_stack:addwidget(host_inputs)
+  
+  -- ip input
+  local ip_input = gui:create_textinput(0,0,200,false,"localhost", function (self) print("changed to: " .. tostring(self.value)) end)
+  host_inputs:addwidget(ip_input)
+  
+  -- label divider between ip and port fields
+  local input_divider = gui:create_labelpanel(0,0,22,20,":")
+  host_inputs:addwidget(input_divider)
+  
+  -- port input
+  local port_input = gui:create_textinput(0,0,58,false,"50002", function (self) print("changed to: " .. tostring(self.value)) end)
+  host_inputs:addwidget(port_input)
+  
+  -- render button
+  local render_button = gui:create_labelbutton(0,0,120,32,"Render", function () 
+    print("Trying to send job to: " .. tostring(ip_input.value) .. ":" .. tostring(port_input.value))
+    local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value), "localhost", 4632)
+    if not succ then
+      spawn_error_dialog({msg})
+    end
+  end)
+  tool_stack:addwidget(render_button)
+  
+  -- divider
+  local spacer = gui:create_stackdivider(0,0,280,20)
+  tool_stack:addwidget(spacer)
+  
+  -- label for render progress
+  local progress_label = gui:create_labelpanel(0,0,280,26,"Render progress:")
+  tool_stack:addwidget(progress_label)
   
   -- progressbar
   local progress = gui:create_progressbar(0,0,280,12,0.0)

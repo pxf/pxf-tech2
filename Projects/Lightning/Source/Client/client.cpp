@@ -299,16 +299,16 @@ int Client::run()
 					if (!resp->has_isavailable())
 					{
 						// TODO: Do something smart, blacklist? Can't remember :(
+						// But don't send any tasks
 					}
 
 					if (!resp->has_hasdata())
 					{
-						// TODO: Send data
-
-
+						// TODO: Send data.
+						// There's no way of knowing what data to send though, so find a way for that
 					}
 
-					// TODO: Send pending tasks. I forgot where they are stored..
+					// TODO: Send pending tasks.
 				
 				}
 				case C_DATA:

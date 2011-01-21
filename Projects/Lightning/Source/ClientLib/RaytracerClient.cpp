@@ -143,8 +143,8 @@ public:
 					ray_res->set_y(task_data->y());
 					ray_res->set_w(task_data->w());
 					ray_res->set_h(task_data->h());
-					ray_res->set_size(sizeof(pixel_data_t)*task_data->h()*task_data->w()*3);
-					ray_res->set_data(Util::String((char*)out.data, sizeof(pixel_data_t)*task_data->h()*task_data->w()*3));
+					ray_res->set_size(sizeof(pixel_data_t)*task_data->h()*task_data->w());
+					ray_res->set_data(Util::String((char*)out.data, sizeof(pixel_data_t)*task_data->h()*task_data->w()));
 
 					client::Result *res_proto = new client::Result();
 					res_proto->set_batchhash(req->batch->hash);
