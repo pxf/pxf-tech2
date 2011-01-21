@@ -2,19 +2,16 @@
 #define _COMMON_H_
 
 #include <Pxf/Math/Vector.h>
-
-/* Common useful math functions */
-float Min(float a,float b);
-float Max(float a,float b);
-void swap(float& a,float& b);
+#include "Intersections.h"
 
 /* Axis Aligned Bounding Box Defs*/
-struct aabb;
+//struct aabb;
 struct Primitive;
 
 aabb CalcAABB(Primitive* _Primitives, int _NbrPrim);
 void CalcAABB(Primitive* _Primitive,aabb& _Box);
 
+/*
 struct aabb {
 	aabb operator+(const aabb& box)
 	{
@@ -30,7 +27,7 @@ struct aabb {
 
 	Pxf::Math::Vec3f pos;
 	Pxf::Math::Vec3f size;
-};
+}; */
 
 /* Primitive Def */
 struct Primitive {

@@ -46,7 +46,7 @@ void protobuf_AssignDesc_raytracer_2eproto() {
       "raytracer.proto");
   GOOGLE_CHECK(file != NULL);
   DataBlob_descriptor_ = file->message_type(0);
-  static const int DataBlob_offsets_[11] = {
+  static const int DataBlob_offsets_[13] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, prim_count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, light_count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, samples_),
@@ -58,6 +58,8 @@ void protobuf_AssignDesc_raytracer_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, primitives_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, lights_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, cam_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, primitive_data_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob, materials_),
   };
   DataBlob_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -232,7 +234,7 @@ void protobuf_AddDesc_raytracer_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017raytracer.proto\022\traytracer\"\365\004\n\010DataBlo"
+    "\n\017raytracer.proto\022\traytracer\"\240\005\n\010DataBlo"
     "b\022\022\n\nprim_count\030\001 \002(\005\022\023\n\013light_count\030\002 \002"
     "(\005\022\017\n\007samples\030\003 \003(\002\022\024\n\014bounce_count\030\004 \002("
     "\005\022\r\n\005pic_w\030\005 \002(\005\022\r\n\005pic_h\030\006 \002(\005\022\031\n\021sampl"
@@ -240,19 +242,20 @@ void protobuf_AddDesc_raytracer_2eproto() {
     "ck\030\010 \002(\005\0227\n\nprimitives\030\t \003(\0132#.raytracer"
     ".DataBlob.PrimitiveSphere\022.\n\006lights\030\n \003("
     "\0132\036.raytracer.DataBlob.PointLight\022\'\n\003cam"
-    "\030\013 \002(\0132\032.raytracer.DataBlob.Camera\032(\n\005Ve"
-    "c3f\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002(\002\032L\n\017"
-    "PrimitiveSphere\022+\n\010position\030\001 \002(\0132\031.rayt"
-    "racer.DataBlob.Vec3f\022\014\n\004size\030\002 \002(\002\0329\n\nPo"
-    "intLight\022+\n\010position\030\001 \002(\0132\031.raytracer.D"
-    "ataBlob.Vec3f\032}\n\006Camera\022+\n\010position\030\001 \002("
-    "\0132\031.raytracer.DataBlob.Vec3f\022\020\n\010orient_x"
-    "\030\002 \002(\002\022\020\n\010orient_y\030\003 \002(\002\022\020\n\010orient_z\030\004 \002"
-    "(\002\022\020\n\010orient_w\030\005 \002(\002\">\n\004Task\022\n\n\002id\030\001 \002(\005"
-    "\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005"
-    " \002(\005\"k\n\006Result\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n"
-    "\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030"
-    "\006 \002(\010\022\014\n\004size\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 833);
+    "\030\013 \002(\0132\032.raytracer.DataBlob.Camera\022\026\n\016pr"
+    "imitive_data\030\014 \002(\014\022\021\n\tmaterials\030\r \002(\014\032(\n"
+    "\005Vec3f\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002(\002\032"
+    "L\n\017PrimitiveSphere\022+\n\010position\030\001 \002(\0132\031.r"
+    "aytracer.DataBlob.Vec3f\022\014\n\004size\030\002 \002(\002\0329\n"
+    "\nPointLight\022+\n\010position\030\001 \002(\0132\031.raytrace"
+    "r.DataBlob.Vec3f\032}\n\006Camera\022+\n\010position\030\001"
+    " \002(\0132\031.raytracer.DataBlob.Vec3f\022\020\n\010orien"
+    "t_x\030\002 \002(\002\022\020\n\010orient_y\030\003 \002(\002\022\020\n\010orient_z\030"
+    "\004 \002(\002\022\020\n\010orient_w\030\005 \002(\002\">\n\004Task\022\n\n\002id\030\001 "
+    "\002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001"
+    "h\030\005 \002(\005\"k\n\006Result\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005"
+    "\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005fin"
+    "al\030\006 \002(\010\022\014\n\004size\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 876);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raytracer.proto", &protobuf_RegisterTypes);
   DataBlob::default_instance_ = new DataBlob();
@@ -1402,6 +1405,8 @@ void DataBlob_Camera::Swap(DataBlob_Camera* other) {
 
 // -------------------------------------------------------------------
 
+const ::std::string DataBlob::_default_primitive_data_;
+const ::std::string DataBlob::_default_materials_;
 #ifndef _MSC_VER
 const int DataBlob::kPrimCountFieldNumber;
 const int DataBlob::kLightCountFieldNumber;
@@ -1414,6 +1419,8 @@ const int DataBlob::kInterleavedFeedbackFieldNumber;
 const int DataBlob::kPrimitivesFieldNumber;
 const int DataBlob::kLightsFieldNumber;
 const int DataBlob::kCamFieldNumber;
+const int DataBlob::kPrimitiveDataFieldNumber;
+const int DataBlob::kMaterialsFieldNumber;
 #endif  // !_MSC_VER
 
 DataBlob::DataBlob()
@@ -1441,6 +1448,8 @@ void DataBlob::SharedCtor() {
   samples_per_pixel_ = 0;
   interleaved_feedback_ = 0;
   cam_ = NULL;
+  primitive_data_ = const_cast< ::std::string*>(&_default_primitive_data_);
+  materials_ = const_cast< ::std::string*>(&_default_materials_);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1449,6 +1458,12 @@ DataBlob::~DataBlob() {
 }
 
 void DataBlob::SharedDtor() {
+  if (primitive_data_ != &_default_primitive_data_) {
+    delete primitive_data_;
+  }
+  if (materials_ != &_default_materials_) {
+    delete materials_;
+  }
   if (this != default_instance_) {
     delete cam_;
   }
@@ -1487,6 +1502,16 @@ void DataBlob::Clear() {
   if (_has_bits_[10 / 32] & (0xffu << (10 % 32))) {
     if (_has_bit(10)) {
       if (cam_ != NULL) cam_->::raytracer::DataBlob_Camera::Clear();
+    }
+    if (_has_bit(11)) {
+      if (primitive_data_ != &_default_primitive_data_) {
+        primitive_data_->clear();
+      }
+    }
+    if (_has_bit(12)) {
+      if (materials_ != &_default_materials_) {
+        materials_->clear();
+      }
     }
   }
   samples_.Clear();
@@ -1675,6 +1700,34 @@ bool DataBlob::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(98)) goto parse_primitive_data;
+        break;
+      }
+      
+      // required bytes primitive_data = 12;
+      case 12: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_primitive_data:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_primitive_data()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(106)) goto parse_materials;
+        break;
+      }
+      
+      // required bytes materials = 13;
+      case 13: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_materials:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_materials()));
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1756,6 +1809,18 @@ void DataBlob::SerializeWithCachedSizes(
       11, this->cam(), output);
   }
   
+  // required bytes primitive_data = 12;
+  if (_has_bit(11)) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytes(
+      12, this->primitive_data(), output);
+  }
+  
+  // required bytes materials = 13;
+  if (_has_bit(12)) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytes(
+      13, this->materials(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1826,6 +1891,20 @@ void DataBlob::SerializeWithCachedSizes(
         11, this->cam(), target);
   }
   
+  // required bytes primitive_data = 12;
+  if (_has_bit(11)) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        12, this->primitive_data(), target);
+  }
+  
+  // required bytes materials = 13;
+  if (_has_bit(12)) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        13, this->materials(), target);
+  }
+  
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1893,6 +1972,20 @@ int DataBlob::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->cam());
+    }
+    
+    // required bytes primitive_data = 12;
+    if (has_primitive_data()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::BytesSize(
+          this->primitive_data());
+    }
+    
+    // required bytes materials = 13;
+    if (has_materials()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::BytesSize(
+          this->materials());
     }
     
   }
@@ -1974,6 +2067,12 @@ void DataBlob::MergeFrom(const DataBlob& from) {
     if (from._has_bit(10)) {
       mutable_cam()->::raytracer::DataBlob_Camera::MergeFrom(from.cam());
     }
+    if (from._has_bit(11)) {
+      set_primitive_data(from.primitive_data());
+    }
+    if (from._has_bit(12)) {
+      set_materials(from.materials());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1991,7 +2090,7 @@ void DataBlob::CopyFrom(const DataBlob& from) {
 }
 
 bool DataBlob::IsInitialized() const {
-  if ((_has_bits_[0] & 0x000004fb) != 0x000004fb) return false;
+  if ((_has_bits_[0] & 0x00001cfb) != 0x00001cfb) return false;
   
   for (int i = 0; i < primitives_size(); i++) {
     if (!this->primitives(i).IsInitialized()) return false;
@@ -2018,6 +2117,8 @@ void DataBlob::Swap(DataBlob* other) {
     primitives_.Swap(&other->primitives_);
     lights_.Swap(&other->lights_);
     std::swap(cam_, other->cam_);
+    std::swap(primitive_data_, other->primitive_data_);
+    std::swap(materials_, other->materials_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

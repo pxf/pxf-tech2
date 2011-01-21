@@ -60,20 +60,20 @@ bool ray_aabb(ray_t* ray,aabb* box,intersection_response_t* resp)
 	return true;
 }
 
-bool ray_triangle(Vertex* data,ray_t* ray, intersection_response_t* resp)
+bool ray_triangle(vertex_t* data,ray_t* ray, intersection_response_t* resp)
 {
 	if(!data)
 		return false;
 
-	Vertex A = data[0];
-	Vertex B = data[1];
-	Vertex C = data[2];
+	vertex_t A = data[0];
+	vertex_t B = data[1];
+	vertex_t C = data[2];
 
 	return ray_triangle(A,B,C,ray,resp);
 }
 
 //bool ray_triangle(Pxf::Math::Vec3f A,Pxf::Math::Vec3f B,Pxf::Math::Vec3f C,ray_t* ray, intersection_response_t* resp)
-bool ray_triangle(Vertex A,Vertex B,Vertex C,ray_t* ray, intersection_response_t* resp)
+bool ray_triangle(vertex_t A,vertex_t B,vertex_t C,ray_t* ray, intersection_response_t* resp)
 {
 
 	// STEP 1: Find point in the plane of the triangle
@@ -180,76 +180,75 @@ bool ray_plane(Pxf::Math::Vec3f *c, Pxf::Math::Vec3f *n, ray_t *ray, intersectio
 }
 
 /* HELPER FUNCTIONS */
-aabb CalcAABB(Primitive** _Primitives, int _NbrPrim)
+aabb CalcAABB(triangle_t* _Primitives, int _NbrPrim)
 {
 	aabb box;
 
 	if(_Primitives)
 	{
-		box = (*_Primitives[0]->box);
+		box = _Primitives[0].box;
 	}
 
 	// accumulative additions on the bounding boxes
 	for(int i = 1; i < _NbrPrim; i++)
 	{
-		Primitive* p = _Primitives[i];
-		aabb tBox = (*p->box);
+		triangle_t p = _Primitives[i];
+		aabb tBox = p.box;
 		box = box + tBox;
 	}
 
 	return box;
 }
 
-aabb CalcAABB(Primitive& _Primitive)
+aabb CalcAABB(triangle_t& t)
 {
-	int _Type = _Primitive.GetType();
+	//int _Type = _Primitive.GetType();
 
 	Vec3f _Pos,_Max,_Size;
 
 	// find the smallest component on each point's axis
-	if (_Type == TrianglePrim)
-	{
-		Triangle* t = ((Triangle*) &_Primitive);
-		_Pos = t->vertices[0]->v;
-		_Max = t->vertices[0]->v;
 
-		Vec3f v1 = t->vertices[1]->v;
-		Vec3f v2 = t->vertices[2]->v;
+	_Pos = t.vertices[0].v;
+	_Max = t.vertices[0].v;
 
-		// find smallest x
-		if (v1.x < _Pos.x)
-			_Pos.x = v1.x;
-		if (v2.x < _Pos.x)
-			_Pos.x = v2.x;
+	Vec3f v1 = t.vertices[1].v;
+	Vec3f v2 = t.vertices[2].v;
 
-		// find smallest y
-		if (v1.y < _Pos.y)
-			_Pos.y = v1.y;
-		if (v2.y < _Pos.y)
-			_Pos.y = v2.y;
+	// find smallest x
+	if (v1.x < _Pos.x)
+		_Pos.x = v1.x;
+	if (v2.x < _Pos.x)
+		_Pos.x = v2.x;
 
-		// find smallest z
-		if (v1.z < _Pos.z)
-			_Pos.z = v1.z;
-		if (v2.z < _Pos.z)
-			_Pos.z = v2.z;
+	// find smallest y
+	if (v1.y < _Pos.y)
+		_Pos.y = v1.y;
+	if (v2.y < _Pos.y)
+		_Pos.y = v2.y;
 
-		// find max values
-		if (v1.x > _Max.x)
-			_Max.x = v1.x;
-		if (v2.x > _Max.x)
-			_Max.x = v2.x;
-		if (v1.y > _Max.y)
-			_Max.y = v1.y;
-		if (v2.y > _Max.y)
-			_Max.y = v2.y;
-		if (v1.z > _Max.z)
-			_Max.z = v1.z;
-		if (v2.z > _Max.z)
-			_Max.z = v2.z;
+	// find smallest z
+	if (v1.z < _Pos.z)
+		_Pos.z = v1.z;
+	if (v2.z < _Pos.z)
+		_Pos.z = v2.z;
 
-		_Size = _Max - _Pos;
-	}
+	// find max values
+	if (v1.x > _Max.x)
+		_Max.x = v1.x;
+	if (v2.x > _Max.x)
+		_Max.x = v2.x;
+	if (v1.y > _Max.y)
+		_Max.y = v1.y;
+	if (v2.y > _Max.y)
+		_Max.y = v2.y;
+	if (v1.z > _Max.z)
+		_Max.z = v1.z;
+	if (v2.z > _Max.z)
+		_Max.z = v2.z;
+
+	_Size = _Max - _Pos;
+
+	/*
 	else if(_Type == SpherePrim)
 	{
 		Sphere* s = (Sphere*) &_Primitive;
@@ -261,7 +260,7 @@ aabb CalcAABB(Primitive& _Primitive)
 
 		// set smallest corner from center point
 		_Pos = s->p - Vec3f(r,r,r);
-	}
+	}*/
 
 	aabb _Box;
 	_Box.pos = _Pos;

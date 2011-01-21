@@ -83,7 +83,9 @@ bool find_any_intersection_closer_than(batch_blob_t *datablob, ray_t *ray, float
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
 		// test intersection
-		if (datablob->primitives[i]->Intersects(ray, &closest_resp))
+		//if (datablob->primitives[i]->Intersects(ray, &closest_resp))
+
+		if(ray_triangle(datablob->primitives[i].vertices,ray,&closest_resp))
 		{
 			if (max_distance > closest_resp.depth)
 			{
@@ -96,7 +98,7 @@ bool find_any_intersection_closer_than(batch_blob_t *datablob, ray_t *ray, float
 	return false;
 }
 
-bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, intersection_response_t *resp)
+bool find_intersection(batch_blob_t *datablob, ray_t *ray, triangle_t **prim, intersection_response_t *resp)
 {
 	// Loop geometry
 	float closest_depth = 100000000000000.0f;
@@ -106,7 +108,7 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, int
 	
 	/*if(!datablob->tree) return false;
 
-	Primitive* p = RayTreeIntersect(*datablob->tree,*ray,10000.0f,closest_resp);
+	triangle_t* p = RayTreeIntersect(*datablob->tree,*ray,10000.0f,closest_resp);
 
 	if(p) 
 	{
@@ -120,12 +122,14 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, Primitive **prim, int
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
 		// test intersection
-		if (datablob->primitives[i]->Intersects(ray, &closest_resp))
+
+		//if (datablob->primitives[i]->Intersects(ray, &closest_resp))
+		if(ray_triangle(datablob->primitives[i].vertices,ray,&closest_resp))
 		{
 			if (closest_depth > closest_resp.depth)
 			{
 				closest_depth = closest_resp.depth;
-				*prim = datablob->primitives[i];
+				*prim = &datablob->primitives[i];
 				*resp = closest_resp;
 				found = true;
 			}
@@ -180,20 +184,23 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 		return true;
 	}
 	
-	Primitive *closest_prim = 0x0;
+	triangle_t *closest_prim = 0x0;
 	intersection_response_t closest_resp;
 	if (find_intersection(datablob, ray, &closest_prim, &closest_resp))
 	{
 		//Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
 		//Normalize(eye_dir);
 		
-		*res += closest_prim->material->ambient;
+		material_t m = datablob->materials.GetMaterial(closest_prim->material_index);
+		*res += m.ambient;
 	
 		// loop lights
 		for(int l = 0; l < datablob->light_count; ++l)
 		{
 			// Always assume we see the light
 			float att = 1.0f;
+
+			material_t l_mat = datablob->materials.GetMaterial(datablob->lights[l]->material_index);
 		
 			// create ray to light
 			ray_t light_ray;
@@ -216,7 +223,8 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				// TODO: add better contributing calculations
 				float ndotl = Dot(closest_resp.n, light_ray.d);
 				if(ndotl > 0.0f)
-					*res += closest_prim->material->diffuse * (datablob->lights[l]->material->diffuse * ndotl * att) / (float)datablob->light_count;
+					*res += m.diffuse * (l_mat.diffuse * ndotl * att) / (float)datablob->light_count;
+					//*res += closest_prim->material->diffuse * (datablob->lights[l]->material->diffuse * ndotl * att) / (float)datablob->light_count;
 		
 			// Area lights
 			} else if (datablob->lights[l]->GetType() == AreaLightPrim)
@@ -258,11 +266,11 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				
 				// TODO: add better contributing calculations
 				float ndotl = Dot(closest_resp.n, light_ray.d);
-				float reflscale = 1.0f - closest_prim->material->reflectiveness;
-				*res += closest_prim->material->diffuse * datablob->lights[l]->material->diffuse * ndotl * attscale * reflscale * att;
+				float reflscale = 1.0f - m.reflectiveness;
+				*res += m.diffuse * l_mat.diffuse * ndotl * attscale * reflscale * att;
 				
 				// Shoot reflection rays
-				if (closest_prim->material->reflectiveness > 0.0f)
+				if (m.reflectiveness > 0.0f)
 				{
 					// Find reflection
 					Pxf::Math::Vec3f bounce_contrib(0.0f);
@@ -276,12 +284,12 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 					refl_ray.d = refl;
 					Normalize(refl_ray.d);
 					
-					if (!calc_multisample_ray(&refl_ray, datablob, &bounce_contrib, closest_prim->material->matteness, bounce))
+					if (!calc_multisample_ray(&refl_ray, datablob, &bounce_contrib, m.matteness, bounce))
 					{
 						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
 						return false;
 					}
-					*res += (bounce_contrib / (float)bounce) * closest_prim->material->reflectiveness * attscale;
+					*res += (bounce_contrib / (float)bounce) * m.reflectiveness * attscale;
 				}
 			}
 		

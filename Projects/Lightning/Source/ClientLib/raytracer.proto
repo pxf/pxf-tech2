@@ -43,6 +43,9 @@ message DataBlob {
 	repeated PointLight lights = 10;
 	
 	required Camera cam = 11;
+
+	required bytes primitive_data = 12;
+	required bytes materials = 13;
 }
 
 message Task {

@@ -1,5 +1,6 @@
 #include <RaytracerClient.h>
 #include <Pxf/Base/Platform.h>
+#include <string>
 
 #include <Renderer.h>
 
@@ -79,6 +80,16 @@ public:
 				blob.cam = &cam;
 				
 				// unpack primitives
+				std::string mData = blob_proto->materials();
+				std::string pData = blob_proto->primitive_data();
+
+				triangle_t* triangles = (triangle_t*) pData.c_str();
+				MaterialLibrary* materials = (MaterialLibrary*) mData.c_str();
+
+				blob.primitives = triangles;
+				blob.materials = *materials;
+
+				/*
 				for(size_t i = 0; i < blob.prim_count; i++)
 				{
 					material_t *sphere_mat1 = new material_t();
@@ -90,20 +101,26 @@ public:
 					// TODO: lol, jhonnys grejer.
 					//raytracer::DataBlob::PrimitiveSphere *pb_sphere = blob_proto->primitives(i);
 					raytracer::DataBlob::Vec3f pb_pos = blob_proto->primitives(i).position();
-					blob.primitives[i] = new Sphere(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), blob_proto->primitives(i).size(), sphere_mat1);
-				}
+					blob.primitives[i] = Sphere(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), blob_proto->primitives(i).size(), 0);
+				}*/
 				
 				// unpack lights!
 				for(size_t i = 0; i < blob.light_count; i++)
 				{
+					/*
 					material_t *light_mat1 = new material_t();
 
 					light_mat1->ambient = Math::Vec3f(0.1f, 0.1f, 0.1f);
 					light_mat1->diffuse = Math::Vec3f(1.0f, 1.0f, 1.0f);
+
+					*/
 					
 					// TODO: lol, jhonnys grejer.
 					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position();
-					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), light_mat1);
+					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), 0);
+				
+
+				//printf("if %d\n", blob.interleaved_feedback);
 				}
 
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
