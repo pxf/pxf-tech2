@@ -69,9 +69,9 @@ function spawn_toolwindow()
   tool_stack:addwidget(interleaved_inputs)
   
   -- interleaved slider
-  local interleaved_value = gui:create_labelpanel(0,0,20,26,"0")
-  local interleaved_slider = gui:create_slider(0,0,260,20,0,8,function (self) interleaved_value.label_text = tostring(self.value) end, true)
-  interleaved_slider:setvalue(0)
+  local interleaved_value = gui:create_labelpanel(0,0,20,26,"1")
+  local interleaved_slider = gui:create_slider(0,0,260,20,1,5,function (self) interleaved_value.label_text = tostring(self.value*self.value) end, true)
+  interleaved_slider:setvalue(1)
   interleaved_inputs:addwidget(interleaved_slider)
   
   -- interleaved label
