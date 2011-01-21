@@ -246,13 +246,18 @@ int startrender_cb(lua_State* L)
 {
 	
 	// Open result connection
+	if (recv_conn)
+	{
+		cman->remove_connection(recv_conn);
+	}
 	recv_conn = cman->new_connection(CLIENT);
 	if (!cman->bind_connection(recv_conn, (char*)lua_tostring(L, 3), lua_tonumber(L, 4)))
 	{
 		cman->remove_connection(recv_conn);
 		recv_conn = 0;
-		lua_pushstring(L, "Could not open result/recieve port!");
-		return 1;
+		lua_pushboolean(L, false);
+		lua_pushstring(L, "Could not open result/recieve connection!");
+		return 2;
 	}
 	
 	raytracer::DataBlob* new_pack = gen_packet_from_blob(&blob);
@@ -260,8 +265,9 @@ int startrender_cb(lua_State* L)
 	Connection *conn = cman->new_connection(CLIENT);
 	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
 	{
-		lua_pushstring(L, "Could not connect!");
-		return 1;
+		lua_pushboolean(L, false);
+		lua_pushstring(L, "Could not connect to render client!");
+		return 2;
 	}
 	
 	client::Hello* hello_pack = new client::Hello();
@@ -356,15 +362,15 @@ int startrender_cb(lua_State* L)
 			} else {
 				Pxf::Message("oae", "Got unknown packet type %d!", tpacket->message_type);
 			}
-            delete tpacket;
+        delete tpacket;
 		}
 		
 		in->clear();
 	}
 	
-
+	lua_pushboolean(L, true);
 	lua_pushstring(L, "Sent data!");
-	return 1;
+	return 2;
 }
 
 int main(int argc, char* argv[])
