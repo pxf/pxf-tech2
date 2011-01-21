@@ -13,7 +13,7 @@ class KDTree;
 class triangle_t;
 struct aabb;
 
-void PrintStatistics(KDTree* t);
+//void PrintStatistics(KDTree* t);
 void CreateVBFromTree(KDTree* t,Pxf::Graphics::VertexBuffer* vb);
 triangle_t* RayTreeIntersect(KDTree& t,ray_t& r,float dist,intersection_response_t& resp);
 
@@ -70,17 +70,12 @@ public:
 	unsigned GetPrimCount() { return m_PrimCount; }
 	void SetPrimCount(unsigned _PrimCount) { m_PrimCount = _PrimCount; } 
 
-	aabb GetAABB() { return m_AABB; }
-	void SetAABB(aabb _AABB) { m_AABB = _AABB; }
-
 	void SetIsLeaf(bool _Val) { m_IsLeaf = _Val; }
 	bool IsLeaf() { return m_IsLeaf; }
 	bool IsEmpty() { return !m_PrimData; }
 private:
 	KDNode* m_LeftChild;
 	KDNode* m_RightChild;
-
-	aabb m_AABB;
 
 	bool m_IsLeaf;
 	unsigned m_Axis;
@@ -105,7 +100,7 @@ public:
 	~KDTree() {
 		if(m_KDStack)
 		{
-			delete [] &m_KDStack;	// DOESNT WORK :(
+			delete [] &m_KDStack;
 			m_KDStack = 0;
 		}
 
@@ -120,15 +115,6 @@ public:
 	bool Build(triangle_t* _PrimData, unsigned _NbrPrims);
 	bool IsValid() { return m_Initialized; }
 
-	struct tree_statistics {
-		tree_statistics() { leaves=0; nodes=0; empty_leaves=0; splits=0;}
-		unsigned nodes;
-		unsigned empty_leaves;
-		unsigned leaves;
-		unsigned splits;
-		Pxf::Timer timer; 
-	};
-	tree_statistics GetStats() { return m_Statistics; }
 	std::vector<Pxf::Math::Vec3f> GetSplitList() { return m_SplitBuffer; }
 private:
 	KDStack* m_KDStack;
@@ -137,7 +123,6 @@ private:
 	unsigned m_Dimensions;
 
 	aabb m_AABB;
-	tree_statistics m_Statistics;
 
 	void Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box,int _Depth);
 	bool m_Initialized;
