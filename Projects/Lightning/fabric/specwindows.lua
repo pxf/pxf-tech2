@@ -30,7 +30,7 @@ function spawn_error_dialog(msg)
 end
 
 function spawn_toolwindow()
-  local tool_window = gui:create_window("tool_window", settings.data.toolpos[1],settings.data.toolpos[2],300,400, false, "Lightning Demo", true)
+  local tool_window = gui:create_window("tool_window", settings.data.toolpos[1],settings.data.toolpos[2],300,450, false, "Lightning Ray-Tracer", true)
   -- store move pos
   tool_window.s_mousedrag = tool_window.mousedrag
   tool_window.label.s_mousedrag = tool_window.label.mousedrag
@@ -77,6 +77,26 @@ function spawn_toolwindow()
   -- interleaved label
   interleaved_inputs:addwidget(interleaved_value)
   
+  
+  
+  
+  -- task count label
+  local taskcount_label = gui:create_labelpanel(0,0,280,26,"Task count:")
+  tool_stack:addwidget(taskcount_label)
+  
+  -- task count-input stack
+  local taskcount_inputs = gui:create_horizontalstack(0,0,280,32)
+  tool_stack:addwidget(taskcount_inputs)
+  
+  -- task count slider
+  local taskcount_value = gui:create_labelpanel(0,0,60,26,"1x1")
+  local taskcount_slider = gui:create_slider(0,0,220,20,1,8,function (self) taskcount_value.label_text = tostring(2^self.value) .. "x" ..  tostring(2^self.value) end, true)
+  taskcount_slider:setvalue(1)
+  taskcount_inputs:addwidget(taskcount_slider)
+  
+  -- task count label
+  taskcount_inputs:addwidget(taskcount_value)
+  
   -- load model button
   local load_model_button = gui:create_labelbutton(128,0,120,32,"Load Model",
 		function () 
@@ -116,7 +136,7 @@ function spawn_toolwindow()
     print("Trying to send job to: " .. tostring(ip_input.value) .. ":" .. tostring(port_input.value))
     local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value), -- remote client
                                   "localhost", 4632,                                    -- result ip:port
-                                  interleaved_slider.value)                             -- interleaved feedback
+                                  interleaved_slider.value*interleaved_slider.value)    -- interleaved feedback
     if not succ then
       spawn_error_dialog({msg})
     end
