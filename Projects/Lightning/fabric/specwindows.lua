@@ -70,7 +70,7 @@ function spawn_toolwindow()
   
   -- interleaved slider
   local interleaved_value = gui:create_labelpanel(0,0,20,26,"1")
-  local interleaved_slider = gui:create_slider(0,0,260,20,1,8,function (self) interleaved_value.label_text = tostring(self.value) end, true)
+  local interleaved_slider = gui:create_slider(0,0,260,20,1,5,function (self) interleaved_value.label_text = tostring(self.value*self.value) end, true)
   interleaved_slider:setvalue(1)
   interleaved_inputs:addwidget(interleaved_slider)
   
