@@ -127,10 +127,11 @@ public:
 				//sub_tasks_left = 1;
 				render_result_t out;
 
-				//printf("sub_tasks_left: %d\n", sub_tasks_left);
+				printf("started rendering task id: %d (sub_task_left: %d)\n", task_data->id(), sub_tasks_left);
 				while (sub_tasks_left > 0)
 				{
 					render_task(&task, &blob, &out, blob.interleaved_feedback*blob.interleaved_feedback - sub_tasks_left);
+					printf("done rendering task id: %d (sub_task_left: %d)\n", task_data->id(), sub_tasks_left);
 
 					TaskResult* res = new TaskResult();
 					
