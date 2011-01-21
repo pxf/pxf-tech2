@@ -1561,3 +1561,135 @@ function gui:create_progressbar(x,y,w,h,progress)
 end
 
 
+function gui:create_slider(x,y,w,h,min,max,on_change,discreet)
+	local wid = gui:create_basewidget(x,y,w,h)
+	local slide_button = gui:create_basewidget(w*0.5-5,0,10,h)
+	
+	wid.on_change = on_change
+	wid.value = min
+	slide_button.max_pos = w-10
+	
+	wid:addwidget(slide_button)
+	
+	if discreet then
+		wid.discreet = true
+	end
+	
+	function wid:setvalue(value)
+		if not value then
+			return nil
+		end
+		
+		if value < min then
+			value = min
+		elseif value > max then
+			value = max
+		end
+		
+		if self.discreet then
+			value = math.floor(value)
+		end
+		
+		local new_x = (value / (max - min)) * slide_button.max_pos
+		
+		self.value = value
+		slide_button:move_abs(new_x,slide_button.drawbox.y)
+	end
+	
+	local tmp = 0.0
+	
+	function slide_button:mouserelease()
+		wid.drag = false
+	end
+	
+	function slide_button:mousedrag(dx,dy)
+	  -- move slider relative
+		self:needsredraw()
+		
+		wid.drag = true
+		
+		local step = (self.max_pos) / (max - min)
+		
+		tmp = tmp + dx
+		
+		if wid.discreet then
+			if tmp > step or tmp < -step then
+				self:move_relative(tmp,0)
+				tmp = 0.0
+			end
+		else
+			self:move_relative(dx,0)
+		end
+		
+		-- sanity check
+		if (self.drawbox.x < 0) then
+			self:move_abs(0,0)
+		elseif (self.drawbox.x > self.max_pos) then
+			self:move_abs(self.max_pos,0)
+		end
+		
+		self:needsredraw()
+		
+		-- get new value
+		local pos = self.drawbox.x / self.max_pos
+		
+		wid:setvalue(pos * (max - min))
+		
+		--wid.value = pos * (max - min)
+		
+		if (wid.on_change) then
+		  wid:on_change(wid.value)
+	  end
+	end
+	
+	function slide_button:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+				
+			local offset_y = (self.drawbox.h - 10) * 0.5
+			gfx.drawtopleft(2,offset_y,6,10,18,226,6,10)
+			
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+		end
+	end
+	
+	wid.super_draw = wid.draw
+	function wid:draw(force)
+		if (self.redraw_needed or force) then
+			gfx.drawtopleft(self.drawbox.x,self.drawbox.y+self.drawbox.h * 0.5 - 1,1,3,18,237,1,1)
+			gfx.drawtopleft(self.drawbox.x + 1,self.drawbox.y+self.drawbox.h * 0.5 -1,self.drawbox.w-2,3,19,237,1,3)
+			gfx.drawtopleft(self.drawbox.x + self.drawbox.w - 1,self.drawbox.y+self.drawbox.h * 0.5 - 1,1,3,20,237,1,3)
+		end
+		
+		self:super_draw(force)
+	end
+	
+	function wid:mousepush(mx,my,button)
+		local x,y = self:find_abspos(self)
+		x = mx - x
+		y = my - y
+		
+		local step = (slide_button.max_pos) / (max - min)
+		local pos = x / slide_button.max_pos
+		
+		local new_value = pos * (max - min)
+		
+		self:setvalue(new_value)
+		
+		self.drag = true
+	end
+	
+	function wid:mousedrag(dx,dy,button)
+		if self.drag then
+			slide_button:mousedrag(dx,dy)
+		end
+	end
+	
+	function wid:mouserelease(mx,my,button)
+		self.drag = false
+	end
+	
+	return wid
+end
+
+
