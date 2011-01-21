@@ -46,7 +46,8 @@ using namespace Graphics;
 using namespace Math;
 
 int total_done = 0;
-int total_count = 0;
+int total_count = 0; 
+bool show_result = false;
 Pxf::Timer render_timer;
 
 // network connection
@@ -93,10 +94,10 @@ void load_model(const char* path)
 		int tri_count = mesh->GetData()->triangle_count;
 
 		// TODO: update/fix this when we are using triangles again!
-		/*blob.tree = new KDTree(3);
+		blob.tree = new KDTree(3);
 		blob.tree->Build(scene_data,tri_count);
 		blob.primitives = scene_data;
-		blob.prim_count = tri_count;*/
+		blob.prim_count = tri_count;
 
 		if(tree_VB)
 			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
@@ -154,8 +155,6 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			p->set_z(l->p.z);
 		}
 	}
-<<<<<<< HEAD
-	*/
 
 	// pack materials
 
@@ -166,103 +165,8 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 
 	size_t triangle_size = sizeof(Triangle);
 	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
-=======
-	
-	
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
-	
-	/*
-	for(size_t i = 0; i < blob->prim_count; i++)
-	{
-<<<<<<< HEAD
-		triangle_t* p = blob->primitives[i];
-
-		
-=======
-	/*
-		Primitive* p = blob->primitives[i];
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
-		if (p && (p->GetType() == TrianglePrim))
-		{
-			Triangle* t = (Triangle*) p;
-
-			raytracer::DataBlob_PrimitiveTriangle* triangle_pack = npack->add_triangles();
-			
-<<<<<<< HEAD
-			// VERTEX 0 
-=======
-			// VERTEX 0
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
-			raytracer::DataBlob_Vertex* v0 = triangle_pack->mutable_v0();
-			raytracer::DataBlob_Vec3f* v0_p = v0->mutable_p();
-			v0_p->set_x(t->vertices[0]->v.x);
-			v0_p->set_y(t->vertices[0]->v.y);
-			v0_p->set_z(t->vertices[0]->v.z);
-
-			raytracer::DataBlob_Vec3f* v0_n = v0->mutable_n();
-			v0_n->set_x(t->vertices[0]->n.x);
-			v0_n->set_y(t->vertices[0]->n.y);
-			v0_n->set_z(t->vertices[0]->n.z);
-
-<<<<<<< HEAD
-			// VERTEX 1 
-=======
-			// VERTEX 1
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
-			raytracer::DataBlob_Vertex* v1 = triangle_pack->mutable_v1();
-			raytracer::DataBlob_Vec3f* v1_p = v1->mutable_p();
-			v1_p->set_x(t->vertices[1]->v.x);
-			v1_p->set_y(t->vertices[1]->v.y);
-			v1_p->set_z(t->vertices[1]->v.z);
-
-			raytracer::DataBlob_Vec3f* v1_n = v1->mutable_n();
-			v1_n->set_x(t->vertices[1]->n.x);
-			v1_n->set_y(t->vertices[1]->n.y);
-			v1_n->set_z(t->vertices[1]->n.z);
-
-<<<<<<< HEAD
-			// VERTEX 2 
-=======
-			// VERTEX 2
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
-			raytracer::DataBlob_Vertex* v2 = triangle_pack->mutable_v2();
-			raytracer::DataBlob_Vec3f* v2_p = v2->mutable_p();
-			v2_p->set_x(t->vertices[2]->v.x);
-			v2_p->set_y(t->vertices[2]->v.y);
-			v2_p->set_z(t->vertices[2]->v.z);
-
-			raytracer::DataBlob_Vec3f* v2_n = v2->mutable_n();
-			v2_n->set_x(t->vertices[2]->n.x);
-			v2_n->set_y(t->vertices[2]->n.y);
-			v2_n->set_z(t->vertices[2]->n.z);
-		}
-<<<<<<< HEAD
-		*/
-		
-		/*
-=======
-		else */
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
-		if (blob->primitives[i]->GetType() == SpherePrim)
-		{
-			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_primitives();
-			raytracer::DataBlob_Vec3f* pos_pack = sphere_pack->mutable_position();
-			pos_pack->set_x(((Sphere*)(blob->primitives[i]))->p.x);
-			pos_pack->set_y(((Sphere*)(blob->primitives[i]))->p.y);
-			pos_pack->set_z(((Sphere*)(blob->primitives[i]))->p.z);
-			
-			sphere_pack->set_size(((Sphere*)(blob->primitives[i]))->r);
-			
-<<<<<<< HEAD
-			//npack->add_spheres(sphere_pack);
-=======
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
-		}
-	}
-	*/
 
 	return npack;
-	
 }
 
 int renderstatus_cb(lua_State* L)
@@ -409,6 +313,7 @@ int startrender_cb(lua_State* L)
 		in->clear();
 	}
 	
+	show_result = true;
 
 	lua_pushstring(L, "Sent data!");
 	return 1;
@@ -479,23 +384,8 @@ int main(int argc, char* argv[])
 	sphere_mat2.reflectiveness = 1.0f;
 	sphere_mat2.matteness = 1.0f;
 	
-<<<<<<< HEAD
-=======
 	blob.prim_count = 0;
 
-	/*
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), &plane_mat_white); // bottom
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), &plane_mat_white); // top
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), &plane_mat_green); // right
-	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
-	*/
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
-	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
-
-	//blob.prim_count = 2;
-	
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 	// generate a couple of random samples
 	srand ( time(NULL) );
 	for(int i = 0; i < 256; ++i)
@@ -507,7 +397,9 @@ int main(int argc, char* argv[])
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
 	light_mat1.diffuse = Vec3f(0.0f, 0.0f, 1.0f);
+	light_mat1.ambient = Vec3f(0.1f,0.1f,0.1f);
 	light_mat2.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
+	light_mat2.ambient = Vec3f(0.1f,0.1f,0.1f);
 
 	blob.materials.Insert(light_mat1,0);
 	blob.materials.Insert(light_mat2,1);
@@ -549,7 +441,7 @@ int main(int argc, char* argv[])
 	blob.cam = &cam;
 
 	// load a model!
-	//load_model("data/box_2.ctm");
+	load_model("data/box_2.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -642,16 +534,7 @@ int main(int argc, char* argv[])
 
 			in->clear();
 		}
-		
-		/*
-		if (inp->GetLastKey() == Input::ENTER)
-		{
-			if(!exec_rt) client.run_noblock();
-			exec_rt = !exec_rt;
-		}*/
-		
-		// CAMERA FREE-FLY MODE
-		if(!exec_rt)
+		else
 		{
 			gfx->BindTexture(0,0);
 			gfx->SetProjection(cam.GetProjectionView());
@@ -694,51 +577,16 @@ int main(int argc, char* argv[])
 			{
 				//p_res->Draw();
 			}
-
 		}
-		/*
-		else
+
+		glLoadIdentity();
+		// Setup view!!!!!!!!
+		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
+		prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
+		gfx->SetProjection(&prjmat);
+
+		if(show_result)
 		{
-		
-			// Setup view!!!!!!!!
-			gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
-			Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
-			gfx->SetProjection(&prjmat);
-
-			// Get results
-			//-------------------------------------
-			if(client.has_results())
-			{
-				TaskResult* res = client.pop_result();
-				int x = res->rect.x / task_size_w;
-				int y = res->rect.y / task_size_h;
-
-				unsigned int idx = y*task_count+x;
-				Pxf::Graphics::GraphicsDevice* gfx = Pxf::Kernel::GetInstance()->GetGraphicsDevice();
-				if (region_textures[idx] == 0)
-				{
-					region_textures[idx] = gfx->CreateTextureFromData((const unsigned char*)res->pixels, task_size_w, task_size_h, channels);
-					region_textures[idx]->SetMagFilter(TEX_FILTER_NEAREST);
-					region_textures[idx]->SetMinFilter(TEX_FILTER_NEAREST);
-				}
-				else
-				{
-					region_textures[idx]->UpdateData((const unsigned char*)res->pixels, 0, 0, task_size_w, task_size_h);
-				}
-
-				if (res->final)
-					total_done += 1;
-<<<<<<< HEAD
-			}*/
-			
-=======
-			}
-			*/
-			// Setup view!!!!!!!!
-			gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
-			prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
-			gfx->SetProjection(&prjmat);
->>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 			// Draw
 			for(int y = 0; y < task_count; y++)
 			{
@@ -758,7 +606,10 @@ int main(int argc, char* argv[])
 			}
 			//--------------------------------------
 
-			if (total_done == total_count && !is_done)
+			
+		}
+		
+		if (total_done == total_count && !is_done)
 			{
 				//thread_executor.cancel();
 				is_done = true;
@@ -768,9 +619,6 @@ int main(int argc, char* argv[])
 				win->SetTitle(title);
 			}
 		//}		
-
-		// Reset view 
-		glLoadIdentity();
 
 		gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 		Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);

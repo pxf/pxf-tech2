@@ -122,12 +122,14 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, triangle_t **prim, in
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
 		// test intersection
-		if (datablob->primitives[i]->Intersects(ray, &closest_resp))
+
+		//if (datablob->primitives[i]->Intersects(ray, &closest_resp))
+		if(ray_triangle(datablob->primitives[i].vertices,ray,&closest_resp))
 		{
 			if (closest_depth > closest_resp.depth)
 			{
 				closest_depth = closest_resp.depth;
-				*prim = datablob->primitives[i];
+				*prim = &datablob->primitives[i];
 				*resp = closest_resp;
 				found = true;
 			}

@@ -38,7 +38,7 @@ public:
 	//void Insert(material_t _Mat);
 	inline material_t GetMaterial(int _Index)
 	{
-		PXF_ASSERT(_Index > 0 && _Index < 64,"Invalid bounds");
+		PXF_ASSERT(_Index >= 0 && _Index < 64,"Invalid bounds");
 		return m_Materials[_Index];
 	}
 
