@@ -1,6 +1,7 @@
 #include <Pxf/Kernel.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Utils.h>
+#include <Pxf/Base/Hash.h>
 #include <Pxf/Base/Timer.h>
 #include <Pxf/Base/Logger.h>
 #include <Pxf/Base/String.h>
@@ -27,6 +28,7 @@
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
 #include "Renderer.h"
 #include "Camera.h"
 
@@ -260,7 +262,6 @@ int startrender_cb(lua_State* L)
 		return 2;
 	}
 	
-	raytracer::DataBlob* new_pack = gen_packet_from_blob(&blob);
 	
 	Connection *conn = cman->new_connection(CLIENT);
 	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
@@ -270,12 +271,33 @@ int startrender_cb(lua_State* L)
 		return 2;
 	}
 	
+	// create hello packet
 	client::Hello* hello_pack = new client::Hello();
 	hello_pack->set_address("localhost");
 	hello_pack->set_port(0);
 	hello_pack->set_session_id(-1);
 	LiPacket* hello_lipack = new LiPacket(conn, hello_pack, C_HELLO);
 	cman->send(conn, hello_lipack->data, hello_lipack->length);
+	
+	// Create datablob
+	raytracer::DataBlob* new_pack = gen_packet_from_blob(&blob);
+	
+	// Create hash of datablob
+	Util::String serialized_batch = new_pack->SerializeAsString();
+	unsigned long new_hash_num = Hash((const char *)serialized_batch.c_str(), serialized_batch.size());
+	std::stringstream ss;
+	ss << new_hash_num;
+	Util::String new_hash_str = ss.str();
+
+	// Create datablob packets	
+	client::Data* data_pack = new client::Data();
+	data_pack->set_batchhash(new_hash_str);
+	data_pack->set_datasize(new_pack->ByteSize());
+	data_pack->set_datatype(RAYTRACER);
+	data_pack->set_data(new_pack->SerializeAsString());
+	data_pack->set_returnaddress("127.0.0.1");
+	data_pack->set_returnport(4632);
+	
 	
 	bool ready_to_send = false;
 	while (!ready_to_send)
@@ -302,7 +324,7 @@ int startrender_cb(lua_State* L)
 				// Send alloc request
 				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
 				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
-				alloc_reqpack->set_batchhash("LOLWUT"); // TODO: Create a real hash of the batch data blob
+				alloc_reqpack->set_batchhash(new_hash_str); // TODO: Create a real hash of the batch data blob
 				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
 				cman->send(conn, alloc_reqlipack->data, alloc_reqlipack->length);
 				
@@ -312,22 +334,13 @@ int startrender_cb(lua_State* L)
 			{
 				Pxf::Message("oae", "Got C_ALLOC_RESP message!");
 				
-				// Send data!
-				client::Data* data_pack = new client::Data();
-				data_pack->set_batchhash("LOLWUT");
-				data_pack->set_datasize(new_pack->ByteSize());
-				data_pack->set_datatype(RAYTRACER);
-				data_pack->set_data(new_pack->SerializeAsString());
-				data_pack->set_returnaddress("127.0.0.1");
-				data_pack->set_returnport(4632);
-				
+				// send datablob
 				LiPacket* data_lipack = new LiPacket(conn, data_pack, C_DATA);
 				cman->send(conn, data_lipack->data, data_lipack->length);
-				
-				
+
 				// Send tasks!
 				client::Tasks* tasks_pack = new client::Tasks();
-				tasks_pack->set_batchhash("LOLWUT");
+				tasks_pack->set_batchhash(new_hash_str);
 				for(int y = 0; y < task_count; y++)
 				{
 					for(int x = 0; x < task_count; x++)
@@ -339,7 +352,7 @@ int startrender_cb(lua_State* L)
 						task_pack->set_w(task_size_w);
 						task_pack->set_h(task_size_h);
 						//printf("id: %d x: %d y: %d w: %d h: %d\n", task_pack->id(), task_pack->x(), task_pack->y(), task_pack->w(), task_pack->h());
-						
+
 						client::Tasks::Task* ctask_pack = tasks_pack->add_task();
 						ctask_pack->set_tasksize(task_pack->ByteSize());
 						//char *lol = new char[task_pack->ByteSize()];
@@ -348,10 +361,11 @@ int startrender_cb(lua_State* L)
 						//task_pack->SerializeToArray(lol, task_pack->ByteSize());
 						//task_pack->SerializeToString(lol);//, task_pack->ByteSize());
 						//ctask_pack->set_task(lol);
-						
+
 						//delete [] lol;
 					}
 				}
+				
 				LiPacket* tasks_lipack = new LiPacket(conn, tasks_pack, C_TASKS);
 				cman->send(conn, tasks_lipack->data, tasks_lipack->length);
 				
