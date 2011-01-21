@@ -5,23 +5,6 @@
 
 using namespace Pxf::Math;
 
-void PrintStatistics(KDTree* t)
-{
-	KDTree::tree_statistics stats = t->GetStats();
-	size_t node_size = stats.nodes * sizeof(KDNode);
-	size_t leaves_size = (stats.leaves-stats.empty_leaves) * sizeof(triangle_t);
-
-	printf("---- KD Tree Statistics ----\n#nodes: %i\n#leaves: %i\n#empty leaves: %i\n#splits: %i\n#nodes.size: %i\n#leaves.size(non-empty): %i\n#tree.size: %i\n#build time: %i\n", 
-			stats.nodes,
-			stats.leaves,
-			stats.empty_leaves,
-			stats.splits,
-			node_size,
-			leaves_size,
-			node_size + leaves_size,
-			stats.timer.Interval());
-}
-
 void CreateVBFromTree(KDTree* t,Pxf::Graphics::VertexBuffer* vb)
 {
 	PXF_ASSERT(t,"Invalid Tree");
@@ -36,7 +19,7 @@ void CreateVBFromTree(KDTree* t,Pxf::Graphics::VertexBuffer* vb)
 	if(split_points.empty())
 		return;
 
-	aabb b = node->GetAABB();
+	aabb b = t->GetAABB(); //node->GetAABB();
 
 	Vec3f p = b.pos;
 	Vec3f w = b.size,h = b.size,d = b.size;
@@ -44,48 +27,6 @@ void CreateVBFromTree(KDTree* t,Pxf::Graphics::VertexBuffer* vb)
 	w.y = 0; w.z = 0;
 	h.x = 0; h.z = 0;
 	d.x = 0; d.y = 0;
-
-	// front face
-	/*
-	split_points.push_back(p);
-	split_points.push_back(p+w);
-
-	split_points.push_back(p);
-	split_points.push_back(p+h);
-
-	split_points.push_back(p+h);
-	split_points.push_back(p+h+w);
-
-	split_points.push_back(p+w);
-	split_points.push_back(p+w+h);
-
-	// side face
-	split_points.push_back(p);
-	split_points.push_back(p+d);
-
-	split_points.push_back(p+d);
-	split_points.push_back(p+d+h);
-
-	split_points.push_back(p+h);
-	split_points.push_back(p+h+d);
-
-	// back face
-	split_points.push_back(p+d);
-	split_points.push_back(p+d+w);
-
-	split_points.push_back(p+d+h);
-	split_points.push_back(p+d+h+w);
-
-	split_points.push_back(p+d+w);
-	split_points.push_back(p+d+w+h);
-
-	// other side
-	split_points.push_back(p+w);
-	split_points.push_back(p+w+d);
-
-	split_points.push_back(p+w+h);
-	split_points.push_back(p+w+h+d);
-	*/
 
 	vb->CreateNewBuffer(split_points.size(),sizeof(Vec3f));
 	vb->SetData(Pxf::Graphics::VB_VERTEX_DATA,0,3);
@@ -110,7 +51,7 @@ triangle_t* RayTreeIntersect(KDTree& t,ray_t& r, float dist,intersection_respons
 	Vec3f d = r.d;
 
 	KDNode* node = t.GetRoot();
-	aabb box = node->GetAABB();
+	aabb box = t.GetAABB(); //node->GetAABB();
 
 	Vec3f min_pos = box.pos;
 	Vec3f max_pos = min_pos + box.size;
@@ -289,13 +230,11 @@ bool KDTree::Build(triangle_t* _PrimData, unsigned _NbrPrims)
 		return false;
 	}
 
-	m_Statistics.timer.Start();
-
 	m_KDStack = new KDStack[_NbrPrims];
 	m_Root->SetPrimData(_PrimData,_NbrPrims);
-	Subdivide(m_Root,_NbrPrims,m_Root->GetAABB(),0);
 
-	m_Statistics.timer.Stop();
+	m_AABB = CalcAABB(_PrimData,_NbrPrims); 
+	Subdivide(m_Root,_NbrPrims,m_AABB,0); // m_Root->GetAABB(),0);
 
 	m_Initialized = true;
 
@@ -529,17 +468,9 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 
 	if (no_split_cost < best_cost) 
 	{
-		
-		//printf("no split on axis %i !\n",axis);
-		m_Statistics.leaves++;
-
 		delete(split_list);
 		return;
 	}
-
-	//printf("-----\n");
-
-	m_Statistics.splits++;
 
 	split_position* best_sp = split_list->at(best_position);//split_list[best_position];
 
@@ -551,8 +482,6 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 
 	KDNode* _RightChild = new KDNode(); 
 	_Node->SetRightChild(_RightChild);
-
-	m_Statistics.nodes = m_Statistics.nodes + 2;
 
 	triangle_t* _LeftList = new triangle_t[best_sp->left_count];// = new Prim[best_sp.left_count];
 	triangle_t* _RightList = new triangle_t[best_sp->right_count];// = new Prim[best_sp.right_count];
@@ -600,13 +529,13 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 	//left_aabb.size.SetAxis(axis,best_sp.pos - left_aabb.pos.GetAxis(axis));
 	left_aabb.size.SetAxis(axis,best_sp->pos - _Box.pos.GetAxis(axis));
 
- 	_LeftChild->SetAABB(left_aabb);
+// 	_LeftChild->SetAABB(left_aabb);
 
 	right_aabb = _Box;
 	right_aabb.size.SetAxis(axis,_Box.size.GetAxis(axis) - (best_sp->pos - _Box.pos.GetAxis(axis)));//left_aabb.size.GetAxis(axis));
 	right_aabb.pos.SetAxis(axis,best_sp->pos);
 
-	_RightChild->SetAABB(right_aabb);
+//	_RightChild->SetAABB(right_aabb);
 
 	_Node->SetIsLeaf(false);
 
@@ -619,21 +548,9 @@ void KDTree::Subdivide(KDNode* _Node, unsigned _NbrPrims,aabb _Box, int _Depth)
 	{
 		if(best_sp->left_count > 0)	
 			Subdivide(_LeftChild, best_sp->left_count,left_aabb,_Depth + 1);
-		else
-		{
-			if(_LeftChild->IsEmpty())
-				m_Statistics.empty_leaves++;
-			m_Statistics.leaves++;
-		}
 		
 		if(best_sp->right_count > 0) 
 			Subdivide(_RightChild, best_sp->right_count,right_aabb,_Depth + 1);
-		else
-		{
-			if(_RightChild->IsEmpty())
-				m_Statistics.empty_leaves++;
-			m_Statistics.leaves++;
-		}
 	}
 }
 
@@ -645,7 +562,7 @@ void KDNode::SetPrimData(triangle_t* _Data,unsigned _NbrPrims)
 		return;
 	}
 
-	m_AABB = CalcAABB(_Data,_NbrPrims);
+//	m_AABB = CalcAABB(_Data,_NbrPrims);
 	m_PrimData = _Data;
 	m_PrimCount = _NbrPrims;
 }
