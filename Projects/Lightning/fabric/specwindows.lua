@@ -60,6 +60,23 @@ function spawn_toolwindow()
   menubar.widget_type = "menubar"
   tool_stack:addwidget(menubar)
   
+  -- interleaved label
+  local interleaved_label = gui:create_labelpanel(0,0,280,26,"Interleaved feedback:")
+  tool_stack:addwidget(interleaved_label)
+  
+  -- interleaved-input stack
+  local interleaved_inputs = gui:create_horizontalstack(0,0,280,32)
+  tool_stack:addwidget(interleaved_inputs)
+  
+  -- interleaved slider
+  local interleaved_value = gui:create_labelpanel(0,0,20,26,"0")
+  local interleaved_slider = gui:create_slider(0,0,260,20,0,8,function (self) interleaved_value.label_text = tostring(self.value) end, true)
+  interleaved_slider:setvalue(0)
+  interleaved_inputs:addwidget(interleaved_slider)
+  
+  -- interleaved label
+  interleaved_inputs:addwidget(interleaved_value)
+  
   -- load model button
   local load_model_button = gui:create_labelbutton(128,0,120,32,"Load Model",
 		function () 
@@ -67,6 +84,8 @@ function spawn_toolwindow()
 			loadmodel(path)
 		end)
   tool_stack:addwidget(load_model_button)
+  
+  
   
   -- spacing
   local spacer = gui:create_stackdivider(0,0,280,20)
@@ -95,7 +114,9 @@ function spawn_toolwindow()
   -- render button
   local render_button = gui:create_labelbutton(0,0,120,32,"Render", function () 
     print("Trying to send job to: " .. tostring(ip_input.value) .. ":" .. tostring(port_input.value))
-    local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value), "localhost", 4632)
+    local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value), -- remote client
+                                  "localhost", 4632,                                    -- result ip:port
+                                  interleaved_slider.value)                             -- interleaved feedback
     if not succ then
       spawn_error_dialog({msg})
     end
@@ -115,11 +136,11 @@ function spawn_toolwindow()
   tool_stack:addwidget(progress)
   
   -- progress blocks label
-  local progress_label_blocks = gui:create_centeredlabelpanel(0,0,300,16,"Blocks: -/-")
+  local progress_label_blocks = gui:create_centeredlabelpanel(0,0,300,16,"")
   tool_stack:addwidget(progress_label_blocks)
   
   -- progress time est
-  local progress_label_time = gui:create_centeredlabelpanel(0,0,300,16,"- ms")
+  local progress_label_time = gui:create_centeredlabelpanel(0,0,300,16,"")
   tool_stack:addwidget(progress_label_time)
 
   -- fancify time
@@ -142,29 +163,36 @@ function spawn_toolwindow()
     
     progress.progress = done / total
     
+    if (done == 0) then
+      
+      progress_label_blocks.label_text = ""
+      
+    else    
     
-    if not (old_done == done) then
-      old_done = done
+      if not (old_done == done) then
+        old_done = done
       
-      est_time = 0
-      if (done > 0) then
-        local delta_time_block = time / done
-        est_time = (total - done) * delta_time_block
+        est_time = 0
+        if (done > 0) then
+          local delta_time_block = time / done
+          est_time = (total - done) * delta_time_block
+        end
+      
+        old_time = time
+      
+        progress_label_blocks.label_text = "Blocks: " .. tostring(done) .. "/" .. tostring(total)
+        if (done == total) then
+          progress_label_blocks.label_text = "Done!"
+        end
       end
-      
-      old_time = time
-      
-      progress_label_blocks.label_text = "Blocks: " .. tostring(done) .. "/" .. tostring(total)
+    
+      local delta_time = time - old_time
       if (done == total) then
-        progress_label_blocks.label_text = "Done!"
+        progress_label_time.label_text = "Total time: " .. fancy_time(time)
+      else
+        progress_label_time.label_text = fancy_time(time) .. " (est. " .. fancy_time(est_time - delta_time) .. ")"
       end
-    end
     
-    local delta_time = time - old_time
-    if (done == total) then
-      progress_label_time.label_text = "Total time: " .. fancy_time(time)
-    else
-      progress_label_time.label_text = fancy_time(time) .. " (est. " .. fancy_time(est_time - delta_time) .. ")"
     end
     
     --print(done, total, done / total, time)

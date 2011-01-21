@@ -50,6 +50,7 @@ public:
 				LiPacket* pkg = new LiPacket(conn, result, C_RESULT);
 				m_ConnectionManager->send(pkg->connection, pkg->data, pkg->length);
 				//m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
+				m_ConnectionManager->remove_connection(conn);
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{

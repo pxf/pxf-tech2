@@ -152,7 +152,7 @@ public:
 					
 					res->result = res_proto;
 
-					printf("pushing result on queue.\n");
+					printf("pushing result on queue (%d).\n", sub_tasks_left);
 					m_Client->push_result(res);
 
 					sub_tasks_left--;

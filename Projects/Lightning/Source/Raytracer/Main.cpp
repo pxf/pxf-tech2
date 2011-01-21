@@ -231,6 +231,7 @@ int startrender_cb(lua_State* L)
 	cman->send(conn, hello_lipack->data, hello_lipack->length);
 	
 	// Create datablob
+	blob.interleaved_feedback = lua_tointeger(L, 5);
 	raytracer::DataBlob* new_pack = gen_packet_from_blob(&blob);
 	
 	// Create hash of datablob
