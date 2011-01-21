@@ -8,24 +8,21 @@ message DataBlob {
 		required float z = 3;
 	}
 
-	message Vertex {
-		required Vec3f p = 1;
-		required Vec3f n = 2;
-	}
-
-	message PrimitiveTriangle {
-		required Vertex v0 = 1;
-		required Vertex v1 = 2;
-		required Vertex v2 = 3;
-	}
-
-	message PrimitivePointLight {
-		required Vec3f p = 1;
-	}
-
 	message PrimitiveSphere {
 		required Vec3f position = 1;
 		required float size = 2;
+	}
+	
+	message PointLight {
+		required Vec3f position = 1;
+	}
+	
+	message Camera {
+		required Vec3f position = 1;
+		required float orient_x = 2;
+		required float orient_y = 3;
+		required float orient_z = 4;
+		required float orient_w = 5;
 	}
 
 	required int32 prim_count = 1;
@@ -42,11 +39,13 @@ message DataBlob {
 	
 	required int32 interleaved_feedback = 8;
 	
-	repeated PrimitiveTriangle triangles = 9;
-	repeated PrimitivePointLight point_lights = 10;
+	repeated PrimitiveSphere primitives = 9;
+	repeated PointLight lights = 10;
+	
+	required Camera cam = 11;
 
-	required bytes primitive_data = 11;
-	required bytes materials = 12;
+	required bytes primitive_data = 12;
+	required bytes materials = 13;
 }
 
 message Task {

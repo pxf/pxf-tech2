@@ -30,7 +30,7 @@ public:
 			try
 			{
 				Task* req = m_Client->pop_request();
-				req->task->PrintDebugString();
+				//req->task->PrintDebugString();
 
 				raytracer::Task *task_data = new raytracer::Task();
 				//printf("raw task data: %s\n", (req->task)->DebugString());
@@ -41,9 +41,9 @@ public:
 					printf("FAILED PARSE!\n");
 				}
 				task_data->PrintDebugString();
-				printf("size lols: %d\n", task_data->ByteSize());
+				//printf("size lols: %d\n", task_data->ByteSize());
 
-				printf("h: %d   w: %d\n", task_data->h(), task_data->w());
+				//printf("h: %d   w: %d\n", task_data->h(), task_data->w());
 				task_detail_t task;
 				task.region[0] = task_data->x();
 				task.region[1] = task_data->y();
@@ -56,7 +56,7 @@ public:
 				batch_blob_t blob;
 				blob.prim_count = blob_proto->prim_count();
 				blob.light_count = blob_proto->light_count();
-				printf("count: %d\n", blob.light_count);
+				//printf("count: %d\n", blob.light_count);
 				for(size_t i = 0; i < 256; ++i)
 					blob.samples[i] = blob_proto->samples(i);
 				blob.bounce_count = blob_proto->bounce_count();
@@ -67,41 +67,88 @@ public:
 				blob.samples_per_pixel = blob_proto->samples_per_pixel();
 
 				blob.interleaved_feedback = blob_proto->interleaved_feedback();
-
+				
+				// unpack camera pos and orientation
+				SimpleCamera cam;
+				Pxf::Math::Quaternion camorient;
+				camorient.x = blob_proto->cam().orient_x();
+				camorient.y = blob_proto->cam().orient_y();
+				camorient.z = blob_proto->cam().orient_z();
+				camorient.w = blob_proto->cam().orient_w();
+				cam.SetOrientation(&camorient);
+				cam.SetPosition(blob_proto->cam().position().x(), blob_proto->cam().position().y(), blob_proto->cam().position().z());
+				blob.cam = &cam;
+				
+				// unpack primitives
 				std::string mData = blob_proto->materials();
 				std::string pData = blob_proto->primitive_data();
+				for(size_t i = 0; i < blob.prim_count; i++)
+				{
+					material_t *sphere_mat1 = new material_t();
 
+					sphere_mat1->ambient = Math::Vec3f(0.1f, 0.1f, 0.1f);
+					sphere_mat1->diffuse = Math::Vec3f(1.0f, 1.0f, 1.0f);
+					sphere_mat1->reflectiveness = 1.0f;
+					
+					// TODO: lol, jhonnys grejer.
+					//raytracer::DataBlob::PrimitiveSphere *pb_sphere = blob_proto->primitives(i);
+					raytracer::DataBlob::Vec3f pb_pos = blob_proto->primitives(i).position();
+					blob.primitives[i] = new Sphere(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), blob_proto->primitives(i).size(), sphere_mat1);
+				}
+				
+				// unpack lights!
+				for(size_t i = 0; i < blob.light_count; i++)
+				{
+					material_t *light_mat1 = new material_t();
+
+					light_mat1->ambient = Math::Vec3f(0.1f, 0.1f, 0.1f);
+					light_mat1->diffuse = Math::Vec3f(1.0f, 1.0f, 1.0f);
+					
+					// TODO: lol, jhonnys grejer.
+					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position();
+					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), light_mat1);
 				const char* p = pData.c_str();
 
 				triangle_t* triangles = (triangle_t*) p;
 				MaterialLibrary* materials = (MaterialLibrary*) mData.c_str();
 
 				printf("if %d\n", blob.interleaved_feedback);
+				}
+
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
-				sub_tasks_left = 1;
+				//sub_tasks_left = 1;
 				render_result_t out;
 
-				printf("sub_tasks_left: %d\n", sub_tasks_left);
-//				while (sub_tasks_left > 0)
-//				{
+				//printf("sub_tasks_left: %d\n", sub_tasks_left);
+				while (sub_tasks_left > 0)
+				{
 					render_task(&task, &blob, &out, blob.interleaved_feedback*blob.interleaved_feedback - sub_tasks_left);
 
 					TaskResult* res = new TaskResult();
+					
 					res->task = req;
+					
 					raytracer::Result *ray_res = new raytracer::Result();
 					ray_res->set_id(task_data->id());
 					ray_res->set_final((sub_tasks_left == 1));
+					ray_res->set_x(task_data->x());
+					ray_res->set_y(task_data->y());
+					ray_res->set_w(task_data->w());
+					ray_res->set_h(task_data->h());
+					ray_res->set_size(sizeof(pixel_data_t)*task_data->h()*task_data->w()*3);
 					ray_res->set_data(Util::String((char*)out.data, sizeof(pixel_data_t)*task_data->h()*task_data->w()*3));
 
 					client::Result *res_proto = new client::Result();
 					res_proto->set_batchhash(req->batch->hash);
 					res_proto->set_result(ray_res->SerializeAsString());
+					
+					res->result = res_proto;
 
 					printf("pushing result on queue.\n");
 					m_Client->push_result(res);
 
 					sub_tasks_left--;
-//				}
+				}
 				
 
 

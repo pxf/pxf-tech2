@@ -83,6 +83,14 @@ void SimpleCamera::SetPosition(const Vec3f &_Pos)
 	SetPosition(_Pos.x,_Pos.y,_Pos.z);
 }
 
+void SimpleCamera::SetOrientation(Pxf::Math::Quaternion *_Orientation)
+{
+	m_Orientation.x = _Orientation->x;
+	m_Orientation.y = _Orientation->y;
+	m_Orientation.z = _Orientation->z;
+	m_Orientation.w = _Orientation->w;
+}
+
 void SimpleCamera::Translate(float x,float y,float z)
 {
 	Vec3f p(x,y,z);

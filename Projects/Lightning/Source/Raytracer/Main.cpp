@@ -56,6 +56,7 @@ Connection *recv_conn = 0;
 // global blob/scene data
 batch_blob_t blob;
 Graphics::VertexBuffer* tree_VB;
+SimpleCamera cam;
 
 struct scene {
 	Resource::Mesh* mesh;
@@ -64,8 +65,8 @@ struct scene {
 
 
 // task/batch specific globals
-const int w = 128;
-const int h = 128;
+const int w = 256;
+const int h = 256;
 const int channels = 3;
 const int task_count = 8;
 int task_size_w = w / task_count;
@@ -91,10 +92,11 @@ void load_model(const char* path)
 
 		int tri_count = mesh->GetData()->triangle_count;
 
-		blob.tree = new KDTree(3);
+		// TODO: update/fix this when we are using triangles again!
+		/*blob.tree = new KDTree(3);
 		blob.tree->Build(scene_data,tri_count);
 		blob.primitives = scene_data;
-		blob.prim_count = tri_count;
+		blob.prim_count = tri_count;*/
 
 		if(tree_VB)
 			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
@@ -127,19 +129,32 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	
 	npack->set_interleaved_feedback(blob->interleaved_feedback);
 	
-	/*
+	// pack camera!
+	raytracer::DataBlob::Camera* c = npack->mutable_cam();
+	raytracer::DataBlob::Vec3f* cp = c->mutable_position();
+	cp->set_x(cam.GetPos().x);
+	cp->set_y(cam.GetPos().y);
+	cp->set_z(cam.GetPos().z);
+	
+	c->set_orient_x(cam.GetOrientation()->x);
+	c->set_orient_y(cam.GetOrientation()->y);
+	c->set_orient_z(cam.GetOrientation()->z);
+	c->set_orient_w(cam.GetOrientation()->w);
+	
+	// pack lights!
 	for(size_t i = 0; i < blob->light_count; i++)
 	{
-		if(blob->lights[i] && blob->lights[i]->GetType == PointLightPrim)
+		if(blob->lights[i] && blob->lights[i]->GetType() == PointLightPrim)
 		{
-			PointLightPrim* l = (PointLightPrim*) blob->lights[i];
-			raytracer::DataBlob_PrimitivePointLight* light_pack = npack->add_point_lights();
-			raytracer::DataBlob_Vec3f* p = light_pack->mutable_p();
+			PointLight* l = (PointLight*) blob->lights[i];
+			raytracer::DataBlob::PointLight* light_pack = npack->add_lights();
+			raytracer::DataBlob::Vec3f* p = light_pack->mutable_position();
 			p->set_x(l->p.x);
 			p->set_y(l->p.y);
-			p->set_y(l->p.z);
+			p->set_z(l->p.z);
 		}
 	}
+<<<<<<< HEAD
 	*/
 
 	// pack materials
@@ -151,20 +166,33 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 
 	size_t triangle_size = sizeof(Triangle);
 	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
+=======
+	
+	
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 	
 	/*
 	for(size_t i = 0; i < blob->prim_count; i++)
 	{
+<<<<<<< HEAD
 		triangle_t* p = blob->primitives[i];
 
 		
+=======
+	/*
+		Primitive* p = blob->primitives[i];
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 		if (p && (p->GetType() == TrianglePrim))
 		{
 			Triangle* t = (Triangle*) p;
 
 			raytracer::DataBlob_PrimitiveTriangle* triangle_pack = npack->add_triangles();
 			
+<<<<<<< HEAD
 			// VERTEX 0 
+=======
+			// VERTEX 0
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 			raytracer::DataBlob_Vertex* v0 = triangle_pack->mutable_v0();
 			raytracer::DataBlob_Vec3f* v0_p = v0->mutable_p();
 			v0_p->set_x(t->vertices[0]->v.x);
@@ -176,7 +204,11 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v0_n->set_y(t->vertices[0]->n.y);
 			v0_n->set_z(t->vertices[0]->n.z);
 
+<<<<<<< HEAD
 			// VERTEX 1 
+=======
+			// VERTEX 1
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 			raytracer::DataBlob_Vertex* v1 = triangle_pack->mutable_v1();
 			raytracer::DataBlob_Vec3f* v1_p = v1->mutable_p();
 			v1_p->set_x(t->vertices[1]->v.x);
@@ -188,7 +220,11 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v1_n->set_y(t->vertices[1]->n.y);
 			v1_n->set_z(t->vertices[1]->n.z);
 
+<<<<<<< HEAD
 			// VERTEX 2 
+=======
+			// VERTEX 2
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 			raytracer::DataBlob_Vertex* v2 = triangle_pack->mutable_v2();
 			raytracer::DataBlob_Vec3f* v2_p = v2->mutable_p();
 			v2_p->set_x(t->vertices[2]->v.x);
@@ -200,21 +236,27 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			v2_n->set_y(t->vertices[2]->n.y);
 			v2_n->set_z(t->vertices[2]->n.z);
 		}
+<<<<<<< HEAD
 		*/
 		
 		/*
+=======
+		else */
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 		if (blob->primitives[i]->GetType() == SpherePrim)
 		{
-			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_spheres();//new raytracer::DataBlob::PrimitiveSphere();
+			raytracer::DataBlob_PrimitiveSphere* sphere_pack = npack->add_primitives();
 			raytracer::DataBlob_Vec3f* pos_pack = sphere_pack->mutable_position();
 			pos_pack->set_x(((Sphere*)(blob->primitives[i]))->p.x);
 			pos_pack->set_y(((Sphere*)(blob->primitives[i]))->p.y);
 			pos_pack->set_z(((Sphere*)(blob->primitives[i]))->p.z);
 			
-			//sphere_pack->set_position(pos_pack);
 			sphere_pack->set_size(((Sphere*)(blob->primitives[i]))->r);
 			
+<<<<<<< HEAD
 			//npack->add_spheres(sphere_pack);
+=======
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 		}
 	}
 	*/
@@ -251,7 +293,7 @@ int startrender_cb(lua_State* L)
 {
 	
 	// Open result connection
-	recv_conn = cman->new_connection(ORIGIN);
+	recv_conn = cman->new_connection(CLIENT);
 	if (!cman->bind_connection(recv_conn, (char*)lua_tostring(L, 3), lua_tonumber(L, 4)))
 	{
 		cman->remove_connection(recv_conn);
@@ -262,7 +304,7 @@ int startrender_cb(lua_State* L)
 	
 	raytracer::DataBlob* new_pack = gen_packet_from_blob(&blob);
 	
-	Connection *conn = cman->new_connection(ORIGIN);
+	Connection *conn = cman->new_connection(CLIENT);
 	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
 	{
 		lua_pushstring(L, "Could not connect!");
@@ -337,13 +379,13 @@ int startrender_cb(lua_State* L)
 						task_pack->set_y(y * task_size_h);
 						task_pack->set_w(task_size_w);
 						task_pack->set_h(task_size_h);
-						printf("id: %d x: %d y: %d w: %d h: %d\n", task_pack->id(), task_pack->x(), task_pack->y(), task_pack->w(), task_pack->h());
+						//printf("id: %d x: %d y: %d w: %d h: %d\n", task_pack->id(), task_pack->x(), task_pack->y(), task_pack->w(), task_pack->h());
 						
 						client::Tasks::Task* ctask_pack = tasks_pack->add_task();
 						ctask_pack->set_tasksize(task_pack->ByteSize());
 						//char *lol = new char[task_pack->ByteSize()];
 						ctask_pack->set_task(task_pack->SerializeAsString());
-						ctask_pack->PrintDebugString();
+						//ctask_pack->PrintDebugString();
 						//task_pack->SerializeToArray(lol, task_pack->ByteSize());
 						//task_pack->SerializeToString(lol);//, task_pack->ByteSize());
 						//ctask_pack->set_task(lol);
@@ -414,7 +456,7 @@ int main(int argc, char* argv[])
 	blob.pic_h = h;
 	blob.samples_per_pixel = 4; // 10 -> 10*10 = 100
 	blob.bounce_count = 6; // Number of reflection bounces
-	blob.interleaved_feedback = 2;
+	blob.interleaved_feedback = 1;
 	
 	// add a couple of primitives to the data blob
 	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
@@ -437,6 +479,23 @@ int main(int argc, char* argv[])
 	sphere_mat2.reflectiveness = 1.0f;
 	sphere_mat2.matteness = 1.0f;
 	
+<<<<<<< HEAD
+=======
+	blob.prim_count = 0;
+
+	/*
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, -5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, 1.0f, 0.0f), &plane_mat_white); // bottom
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 5.0f, 0.0f), Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), &plane_mat_white); // top
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(-5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), &plane_mat_red); // left
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(5.0f, 0.0f, 0.0f), Pxf::Math::Vec3f(-1.0f, 0.0f, 0.0f), &plane_mat_green); // right
+	blob.primitives[blob.prim_count++] = new Plane(Pxf::Math::Vec3f(0.0f, 0.0f, 10.0f), Pxf::Math::Vec3f(0.0f, 0.0f, -1.0f), &plane_mat_white); // back
+	*/
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(0.0f, -3.0f, 4.0f), 1.5f, &sphere_mat1);
+	blob.primitives[blob.prim_count++] = new Sphere(Pxf::Math::Vec3f(2.0f, 0.0f, 8.0f), 2.0f, &sphere_mat2);
+
+	//blob.prim_count = 2;
+	
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 	// generate a couple of random samples
 	srand ( time(NULL) );
 	for(int i = 0; i < 256; ++i)
@@ -481,18 +540,16 @@ int main(int argc, char* argv[])
 	bool running = true;
 	bool guihit = false;
 
-	// CAMERA
-	SimpleCamera cam;
-
 	gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 	Math::Mat4 prjmat = Math::Mat4::Perspective(80.0f, win->GetWidth() / win->GetHeight(), 1.0f,10000.0f); // (-300.0f, 300.0f, 300.0f,-300.0f, 1.0f, 100000.0f);
 
 	cam.SetProjectionView(prjmat);
-	cam.Translate(0.0f,20.0f,100.0f);
+	//cam.Translate(0.0f,20.0f,100.0f);
+	cam.Translate(0.0f,0.0f,20.0f);
 	blob.cam = &cam;
 
 	// load a model!
-	load_model("data/box_2.ctm");
+	//load_model("data/box_2.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -553,7 +610,7 @@ int main(int argc, char* argv[])
 					client::Result *res_packet = (client::Result*)(tpacket->unpack());
 					raytracer::Result *res_raytrace_packet = new raytracer::Result();
 					
-					// Unravel from client::Result to raytraycer::Result (which includes task id and result data)
+					// Unravel from client::Result to raytracer::Result (which includes task id and result data)
 					res_raytrace_packet->ParseFromString(res_packet->result());
 					
 					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash().c_str(), res_raytrace_packet->id());
@@ -642,6 +699,7 @@ int main(int argc, char* argv[])
 		/*
 		else
 		{
+		
 			// Setup view!!!!!!!!
 			gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
 			Math::Mat4 prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
@@ -670,8 +728,17 @@ int main(int argc, char* argv[])
 
 				if (res->final)
 					total_done += 1;
+<<<<<<< HEAD
 			}*/
 			
+=======
+			}
+			*/
+			// Setup view!!!!!!!!
+			gfx->SetViewport(0, 0, win->GetWidth(), win->GetHeight());
+			prjmat = Math::Mat4::Ortho(0, w, h, 0, -0.1f, 100.0f);
+			gfx->SetProjection(&prjmat);
+>>>>>>> 9d7da093d060d0f8c98db8fa8f8d0307fa0e2ed4
 			// Draw
 			for(int y = 0; y < task_count; y++)
 			{

@@ -34,10 +34,9 @@ void protobuf_ShutdownFile_raytracer_2eproto();
 
 class DataBlob;
 class DataBlob_Vec3f;
-class DataBlob_Vertex;
-class DataBlob_PrimitiveTriangle;
-class DataBlob_PrimitivePointLight;
 class DataBlob_PrimitiveSphere;
+class DataBlob_PointLight;
+class DataBlob_Camera;
 class Task;
 class Result;
 
@@ -148,297 +147,6 @@ class DataBlob_Vec3f : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class DataBlob_Vertex : public ::google::protobuf::Message {
- public:
-  DataBlob_Vertex();
-  virtual ~DataBlob_Vertex();
-  
-  DataBlob_Vertex(const DataBlob_Vertex& from);
-  
-  inline DataBlob_Vertex& operator=(const DataBlob_Vertex& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-  
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-  
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const DataBlob_Vertex& default_instance();
-  
-  void Swap(DataBlob_Vertex* other);
-  
-  // implements Message ----------------------------------------------
-  
-  DataBlob_Vertex* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const DataBlob_Vertex& from);
-  void MergeFrom(const DataBlob_Vertex& from);
-  void Clear();
-  bool IsInitialized() const;
-  
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  
-  ::google::protobuf::Metadata GetMetadata() const;
-  
-  // nested types ----------------------------------------------------
-  
-  // accessors -------------------------------------------------------
-  
-  // required .raytracer.DataBlob.Vec3f p = 1;
-  inline bool has_p() const;
-  inline void clear_p();
-  static const int kPFieldNumber = 1;
-  inline const ::raytracer::DataBlob_Vec3f& p() const;
-  inline ::raytracer::DataBlob_Vec3f* mutable_p();
-  
-  // required .raytracer.DataBlob.Vec3f n = 2;
-  inline bool has_n() const;
-  inline void clear_n();
-  static const int kNFieldNumber = 2;
-  inline const ::raytracer::DataBlob_Vec3f& n() const;
-  inline ::raytracer::DataBlob_Vec3f* mutable_n();
-  
-  // @@protoc_insertion_point(class_scope:raytracer.DataBlob.Vertex)
- private:
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-  mutable int _cached_size_;
-  
-  ::raytracer::DataBlob_Vec3f* p_;
-  ::raytracer::DataBlob_Vec3f* n_;
-  friend void  protobuf_AddDesc_raytracer_2eproto();
-  friend void protobuf_AssignDesc_raytracer_2eproto();
-  friend void protobuf_ShutdownFile_raytracer_2eproto();
-  
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
-  
-  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
-  inline bool _has_bit(int index) const {
-    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
-  }
-  inline void _set_bit(int index) {
-    _has_bits_[index / 32] |= (1u << (index % 32));
-  }
-  inline void _clear_bit(int index) {
-    _has_bits_[index / 32] &= ~(1u << (index % 32));
-  }
-  
-  void InitAsDefaultInstance();
-  static DataBlob_Vertex* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class DataBlob_PrimitiveTriangle : public ::google::protobuf::Message {
- public:
-  DataBlob_PrimitiveTriangle();
-  virtual ~DataBlob_PrimitiveTriangle();
-  
-  DataBlob_PrimitiveTriangle(const DataBlob_PrimitiveTriangle& from);
-  
-  inline DataBlob_PrimitiveTriangle& operator=(const DataBlob_PrimitiveTriangle& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-  
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-  
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const DataBlob_PrimitiveTriangle& default_instance();
-  
-  void Swap(DataBlob_PrimitiveTriangle* other);
-  
-  // implements Message ----------------------------------------------
-  
-  DataBlob_PrimitiveTriangle* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const DataBlob_PrimitiveTriangle& from);
-  void MergeFrom(const DataBlob_PrimitiveTriangle& from);
-  void Clear();
-  bool IsInitialized() const;
-  
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  
-  ::google::protobuf::Metadata GetMetadata() const;
-  
-  // nested types ----------------------------------------------------
-  
-  // accessors -------------------------------------------------------
-  
-  // required .raytracer.DataBlob.Vertex v0 = 1;
-  inline bool has_v0() const;
-  inline void clear_v0();
-  static const int kV0FieldNumber = 1;
-  inline const ::raytracer::DataBlob_Vertex& v0() const;
-  inline ::raytracer::DataBlob_Vertex* mutable_v0();
-  
-  // required .raytracer.DataBlob.Vertex v1 = 2;
-  inline bool has_v1() const;
-  inline void clear_v1();
-  static const int kV1FieldNumber = 2;
-  inline const ::raytracer::DataBlob_Vertex& v1() const;
-  inline ::raytracer::DataBlob_Vertex* mutable_v1();
-  
-  // required .raytracer.DataBlob.Vertex v2 = 3;
-  inline bool has_v2() const;
-  inline void clear_v2();
-  static const int kV2FieldNumber = 3;
-  inline const ::raytracer::DataBlob_Vertex& v2() const;
-  inline ::raytracer::DataBlob_Vertex* mutable_v2();
-  
-  // @@protoc_insertion_point(class_scope:raytracer.DataBlob.PrimitiveTriangle)
- private:
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-  mutable int _cached_size_;
-  
-  ::raytracer::DataBlob_Vertex* v0_;
-  ::raytracer::DataBlob_Vertex* v1_;
-  ::raytracer::DataBlob_Vertex* v2_;
-  friend void  protobuf_AddDesc_raytracer_2eproto();
-  friend void protobuf_AssignDesc_raytracer_2eproto();
-  friend void protobuf_ShutdownFile_raytracer_2eproto();
-  
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
-  
-  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
-  inline bool _has_bit(int index) const {
-    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
-  }
-  inline void _set_bit(int index) {
-    _has_bits_[index / 32] |= (1u << (index % 32));
-  }
-  inline void _clear_bit(int index) {
-    _has_bits_[index / 32] &= ~(1u << (index % 32));
-  }
-  
-  void InitAsDefaultInstance();
-  static DataBlob_PrimitiveTriangle* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class DataBlob_PrimitivePointLight : public ::google::protobuf::Message {
- public:
-  DataBlob_PrimitivePointLight();
-  virtual ~DataBlob_PrimitivePointLight();
-  
-  DataBlob_PrimitivePointLight(const DataBlob_PrimitivePointLight& from);
-  
-  inline DataBlob_PrimitivePointLight& operator=(const DataBlob_PrimitivePointLight& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-  
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-  
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const DataBlob_PrimitivePointLight& default_instance();
-  
-  void Swap(DataBlob_PrimitivePointLight* other);
-  
-  // implements Message ----------------------------------------------
-  
-  DataBlob_PrimitivePointLight* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const DataBlob_PrimitivePointLight& from);
-  void MergeFrom(const DataBlob_PrimitivePointLight& from);
-  void Clear();
-  bool IsInitialized() const;
-  
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  
-  ::google::protobuf::Metadata GetMetadata() const;
-  
-  // nested types ----------------------------------------------------
-  
-  // accessors -------------------------------------------------------
-  
-  // required .raytracer.DataBlob.Vec3f p = 1;
-  inline bool has_p() const;
-  inline void clear_p();
-  static const int kPFieldNumber = 1;
-  inline const ::raytracer::DataBlob_Vec3f& p() const;
-  inline ::raytracer::DataBlob_Vec3f* mutable_p();
-  
-  // @@protoc_insertion_point(class_scope:raytracer.DataBlob.PrimitivePointLight)
- private:
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-  mutable int _cached_size_;
-  
-  ::raytracer::DataBlob_Vec3f* p_;
-  friend void  protobuf_AddDesc_raytracer_2eproto();
-  friend void protobuf_AssignDesc_raytracer_2eproto();
-  friend void protobuf_ShutdownFile_raytracer_2eproto();
-  
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
-  
-  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
-  inline bool _has_bit(int index) const {
-    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
-  }
-  inline void _set_bit(int index) {
-    _has_bits_[index / 32] |= (1u << (index % 32));
-  }
-  inline void _clear_bit(int index) {
-    _has_bits_[index / 32] &= ~(1u << (index % 32));
-  }
-  
-  void InitAsDefaultInstance();
-  static DataBlob_PrimitivePointLight* default_instance_;
-};
-// -------------------------------------------------------------------
-
 class DataBlob_PrimitiveSphere : public ::google::protobuf::Message {
  public:
   DataBlob_PrimitiveSphere();
@@ -536,6 +244,216 @@ class DataBlob_PrimitiveSphere : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class DataBlob_PointLight : public ::google::protobuf::Message {
+ public:
+  DataBlob_PointLight();
+  virtual ~DataBlob_PointLight();
+  
+  DataBlob_PointLight(const DataBlob_PointLight& from);
+  
+  inline DataBlob_PointLight& operator=(const DataBlob_PointLight& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DataBlob_PointLight& default_instance();
+  
+  void Swap(DataBlob_PointLight* other);
+  
+  // implements Message ----------------------------------------------
+  
+  DataBlob_PointLight* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DataBlob_PointLight& from);
+  void MergeFrom(const DataBlob_PointLight& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required .raytracer.DataBlob.Vec3f position = 1;
+  inline bool has_position() const;
+  inline void clear_position();
+  static const int kPositionFieldNumber = 1;
+  inline const ::raytracer::DataBlob_Vec3f& position() const;
+  inline ::raytracer::DataBlob_Vec3f* mutable_position();
+  
+  // @@protoc_insertion_point(class_scope:raytracer.DataBlob.PointLight)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::raytracer::DataBlob_Vec3f* position_;
+  friend void  protobuf_AddDesc_raytracer_2eproto();
+  friend void protobuf_AssignDesc_raytracer_2eproto();
+  friend void protobuf_ShutdownFile_raytracer_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static DataBlob_PointLight* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class DataBlob_Camera : public ::google::protobuf::Message {
+ public:
+  DataBlob_Camera();
+  virtual ~DataBlob_Camera();
+  
+  DataBlob_Camera(const DataBlob_Camera& from);
+  
+  inline DataBlob_Camera& operator=(const DataBlob_Camera& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DataBlob_Camera& default_instance();
+  
+  void Swap(DataBlob_Camera* other);
+  
+  // implements Message ----------------------------------------------
+  
+  DataBlob_Camera* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DataBlob_Camera& from);
+  void MergeFrom(const DataBlob_Camera& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required .raytracer.DataBlob.Vec3f position = 1;
+  inline bool has_position() const;
+  inline void clear_position();
+  static const int kPositionFieldNumber = 1;
+  inline const ::raytracer::DataBlob_Vec3f& position() const;
+  inline ::raytracer::DataBlob_Vec3f* mutable_position();
+  
+  // required float orient_x = 2;
+  inline bool has_orient_x() const;
+  inline void clear_orient_x();
+  static const int kOrientXFieldNumber = 2;
+  inline float orient_x() const;
+  inline void set_orient_x(float value);
+  
+  // required float orient_y = 3;
+  inline bool has_orient_y() const;
+  inline void clear_orient_y();
+  static const int kOrientYFieldNumber = 3;
+  inline float orient_y() const;
+  inline void set_orient_y(float value);
+  
+  // required float orient_z = 4;
+  inline bool has_orient_z() const;
+  inline void clear_orient_z();
+  static const int kOrientZFieldNumber = 4;
+  inline float orient_z() const;
+  inline void set_orient_z(float value);
+  
+  // required float orient_w = 5;
+  inline bool has_orient_w() const;
+  inline void clear_orient_w();
+  static const int kOrientWFieldNumber = 5;
+  inline float orient_w() const;
+  inline void set_orient_w(float value);
+  
+  // @@protoc_insertion_point(class_scope:raytracer.DataBlob.Camera)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::raytracer::DataBlob_Vec3f* position_;
+  float orient_x_;
+  float orient_y_;
+  float orient_z_;
+  float orient_w_;
+  friend void  protobuf_AddDesc_raytracer_2eproto();
+  friend void protobuf_AssignDesc_raytracer_2eproto();
+  friend void protobuf_ShutdownFile_raytracer_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static DataBlob_Camera* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class DataBlob : public ::google::protobuf::Message {
  public:
   DataBlob();
@@ -589,10 +507,9 @@ class DataBlob : public ::google::protobuf::Message {
   // nested types ----------------------------------------------------
   
   typedef DataBlob_Vec3f Vec3f;
-  typedef DataBlob_Vertex Vertex;
-  typedef DataBlob_PrimitiveTriangle PrimitiveTriangle;
-  typedef DataBlob_PrimitivePointLight PrimitivePointLight;
   typedef DataBlob_PrimitiveSphere PrimitiveSphere;
+  typedef DataBlob_PointLight PointLight;
+  typedef DataBlob_Camera Camera;
   
   // accessors -------------------------------------------------------
   
@@ -657,44 +574,51 @@ class DataBlob : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 interleaved_feedback() const;
   inline void set_interleaved_feedback(::google::protobuf::int32 value);
   
-  // repeated .raytracer.DataBlob.PrimitiveTriangle triangles = 9;
-  inline int triangles_size() const;
-  inline void clear_triangles();
-  static const int kTrianglesFieldNumber = 9;
-  inline const ::raytracer::DataBlob_PrimitiveTriangle& triangles(int index) const;
-  inline ::raytracer::DataBlob_PrimitiveTriangle* mutable_triangles(int index);
-  inline ::raytracer::DataBlob_PrimitiveTriangle* add_triangles();
-  inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveTriangle >&
-      triangles() const;
-  inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveTriangle >*
-      mutable_triangles();
+  // repeated .raytracer.DataBlob.PrimitiveSphere primitives = 9;
+  inline int primitives_size() const;
+  inline void clear_primitives();
+  static const int kPrimitivesFieldNumber = 9;
+  inline const ::raytracer::DataBlob_PrimitiveSphere& primitives(int index) const;
+  inline ::raytracer::DataBlob_PrimitiveSphere* mutable_primitives(int index);
+  inline ::raytracer::DataBlob_PrimitiveSphere* add_primitives();
+  inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveSphere >&
+      primitives() const;
+  inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveSphere >*
+      mutable_primitives();
   
-  // repeated .raytracer.DataBlob.PrimitivePointLight point_lights = 10;
-  inline int point_lights_size() const;
-  inline void clear_point_lights();
-  static const int kPointLightsFieldNumber = 10;
-  inline const ::raytracer::DataBlob_PrimitivePointLight& point_lights(int index) const;
-  inline ::raytracer::DataBlob_PrimitivePointLight* mutable_point_lights(int index);
-  inline ::raytracer::DataBlob_PrimitivePointLight* add_point_lights();
-  inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight >&
-      point_lights() const;
-  inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight >*
-      mutable_point_lights();
+  // repeated .raytracer.DataBlob.PointLight lights = 10;
+  inline int lights_size() const;
+  inline void clear_lights();
+  static const int kLightsFieldNumber = 10;
+  inline const ::raytracer::DataBlob_PointLight& lights(int index) const;
+  inline ::raytracer::DataBlob_PointLight* mutable_lights(int index);
+  inline ::raytracer::DataBlob_PointLight* add_lights();
+  inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight >&
+      lights() const;
+  inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight >*
+      mutable_lights();
   
-  // required bytes primitive_data = 11;
+  // required .raytracer.DataBlob.Camera cam = 11;
+  inline bool has_cam() const;
+  inline void clear_cam();
+  static const int kCamFieldNumber = 11;
+  inline const ::raytracer::DataBlob_Camera& cam() const;
+  inline ::raytracer::DataBlob_Camera* mutable_cam();
+  
+  // required bytes primitive_data = 12;
   inline bool has_primitive_data() const;
   inline void clear_primitive_data();
-  static const int kPrimitiveDataFieldNumber = 11;
+  static const int kPrimitiveDataFieldNumber = 12;
   inline const ::std::string& primitive_data() const;
   inline void set_primitive_data(const ::std::string& value);
   inline void set_primitive_data(const char* value);
   inline void set_primitive_data(const void* value, size_t size);
   inline ::std::string* mutable_primitive_data();
   
-  // required bytes materials = 12;
+  // required bytes materials = 13;
   inline bool has_materials() const;
   inline void clear_materials();
-  static const int kMaterialsFieldNumber = 12;
+  static const int kMaterialsFieldNumber = 13;
   inline const ::std::string& materials() const;
   inline void set_materials(const ::std::string& value);
   inline void set_materials(const char* value);
@@ -714,8 +638,9 @@ class DataBlob : public ::google::protobuf::Message {
   ::google::protobuf::int32 pic_h_;
   ::google::protobuf::int32 samples_per_pixel_;
   ::google::protobuf::int32 interleaved_feedback_;
-  ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveTriangle > triangles_;
-  ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight > point_lights_;
+  ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveSphere > primitives_;
+  ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight > lights_;
+  ::raytracer::DataBlob_Camera* cam_;
   ::std::string* primitive_data_;
   static const ::std::string _default_primitive_data_;
   ::std::string* materials_;
@@ -724,7 +649,7 @@ class DataBlob : public ::google::protobuf::Message {
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(12 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(13 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1067,120 +992,6 @@ inline void DataBlob_Vec3f::set_z(float value) {
 
 // -------------------------------------------------------------------
 
-// DataBlob_Vertex
-
-// required .raytracer.DataBlob.Vec3f p = 1;
-inline bool DataBlob_Vertex::has_p() const {
-  return _has_bit(0);
-}
-inline void DataBlob_Vertex::clear_p() {
-  if (p_ != NULL) p_->::raytracer::DataBlob_Vec3f::Clear();
-  _clear_bit(0);
-}
-inline const ::raytracer::DataBlob_Vec3f& DataBlob_Vertex::p() const {
-  return p_ != NULL ? *p_ : *default_instance_->p_;
-}
-inline ::raytracer::DataBlob_Vec3f* DataBlob_Vertex::mutable_p() {
-  _set_bit(0);
-  if (p_ == NULL) p_ = new ::raytracer::DataBlob_Vec3f;
-  return p_;
-}
-
-// required .raytracer.DataBlob.Vec3f n = 2;
-inline bool DataBlob_Vertex::has_n() const {
-  return _has_bit(1);
-}
-inline void DataBlob_Vertex::clear_n() {
-  if (n_ != NULL) n_->::raytracer::DataBlob_Vec3f::Clear();
-  _clear_bit(1);
-}
-inline const ::raytracer::DataBlob_Vec3f& DataBlob_Vertex::n() const {
-  return n_ != NULL ? *n_ : *default_instance_->n_;
-}
-inline ::raytracer::DataBlob_Vec3f* DataBlob_Vertex::mutable_n() {
-  _set_bit(1);
-  if (n_ == NULL) n_ = new ::raytracer::DataBlob_Vec3f;
-  return n_;
-}
-
-// -------------------------------------------------------------------
-
-// DataBlob_PrimitiveTriangle
-
-// required .raytracer.DataBlob.Vertex v0 = 1;
-inline bool DataBlob_PrimitiveTriangle::has_v0() const {
-  return _has_bit(0);
-}
-inline void DataBlob_PrimitiveTriangle::clear_v0() {
-  if (v0_ != NULL) v0_->::raytracer::DataBlob_Vertex::Clear();
-  _clear_bit(0);
-}
-inline const ::raytracer::DataBlob_Vertex& DataBlob_PrimitiveTriangle::v0() const {
-  return v0_ != NULL ? *v0_ : *default_instance_->v0_;
-}
-inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::mutable_v0() {
-  _set_bit(0);
-  if (v0_ == NULL) v0_ = new ::raytracer::DataBlob_Vertex;
-  return v0_;
-}
-
-// required .raytracer.DataBlob.Vertex v1 = 2;
-inline bool DataBlob_PrimitiveTriangle::has_v1() const {
-  return _has_bit(1);
-}
-inline void DataBlob_PrimitiveTriangle::clear_v1() {
-  if (v1_ != NULL) v1_->::raytracer::DataBlob_Vertex::Clear();
-  _clear_bit(1);
-}
-inline const ::raytracer::DataBlob_Vertex& DataBlob_PrimitiveTriangle::v1() const {
-  return v1_ != NULL ? *v1_ : *default_instance_->v1_;
-}
-inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::mutable_v1() {
-  _set_bit(1);
-  if (v1_ == NULL) v1_ = new ::raytracer::DataBlob_Vertex;
-  return v1_;
-}
-
-// required .raytracer.DataBlob.Vertex v2 = 3;
-inline bool DataBlob_PrimitiveTriangle::has_v2() const {
-  return _has_bit(2);
-}
-inline void DataBlob_PrimitiveTriangle::clear_v2() {
-  if (v2_ != NULL) v2_->::raytracer::DataBlob_Vertex::Clear();
-  _clear_bit(2);
-}
-inline const ::raytracer::DataBlob_Vertex& DataBlob_PrimitiveTriangle::v2() const {
-  return v2_ != NULL ? *v2_ : *default_instance_->v2_;
-}
-inline ::raytracer::DataBlob_Vertex* DataBlob_PrimitiveTriangle::mutable_v2() {
-  _set_bit(2);
-  if (v2_ == NULL) v2_ = new ::raytracer::DataBlob_Vertex;
-  return v2_;
-}
-
-// -------------------------------------------------------------------
-
-// DataBlob_PrimitivePointLight
-
-// required .raytracer.DataBlob.Vec3f p = 1;
-inline bool DataBlob_PrimitivePointLight::has_p() const {
-  return _has_bit(0);
-}
-inline void DataBlob_PrimitivePointLight::clear_p() {
-  if (p_ != NULL) p_->::raytracer::DataBlob_Vec3f::Clear();
-  _clear_bit(0);
-}
-inline const ::raytracer::DataBlob_Vec3f& DataBlob_PrimitivePointLight::p() const {
-  return p_ != NULL ? *p_ : *default_instance_->p_;
-}
-inline ::raytracer::DataBlob_Vec3f* DataBlob_PrimitivePointLight::mutable_p() {
-  _set_bit(0);
-  if (p_ == NULL) p_ = new ::raytracer::DataBlob_Vec3f;
-  return p_;
-}
-
-// -------------------------------------------------------------------
-
 // DataBlob_PrimitiveSphere
 
 // required .raytracer.DataBlob.Vec3f position = 1;
@@ -1214,6 +1025,112 @@ inline float DataBlob_PrimitiveSphere::size() const {
 inline void DataBlob_PrimitiveSphere::set_size(float value) {
   _set_bit(1);
   size_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// DataBlob_PointLight
+
+// required .raytracer.DataBlob.Vec3f position = 1;
+inline bool DataBlob_PointLight::has_position() const {
+  return _has_bit(0);
+}
+inline void DataBlob_PointLight::clear_position() {
+  if (position_ != NULL) position_->::raytracer::DataBlob_Vec3f::Clear();
+  _clear_bit(0);
+}
+inline const ::raytracer::DataBlob_Vec3f& DataBlob_PointLight::position() const {
+  return position_ != NULL ? *position_ : *default_instance_->position_;
+}
+inline ::raytracer::DataBlob_Vec3f* DataBlob_PointLight::mutable_position() {
+  _set_bit(0);
+  if (position_ == NULL) position_ = new ::raytracer::DataBlob_Vec3f;
+  return position_;
+}
+
+// -------------------------------------------------------------------
+
+// DataBlob_Camera
+
+// required .raytracer.DataBlob.Vec3f position = 1;
+inline bool DataBlob_Camera::has_position() const {
+  return _has_bit(0);
+}
+inline void DataBlob_Camera::clear_position() {
+  if (position_ != NULL) position_->::raytracer::DataBlob_Vec3f::Clear();
+  _clear_bit(0);
+}
+inline const ::raytracer::DataBlob_Vec3f& DataBlob_Camera::position() const {
+  return position_ != NULL ? *position_ : *default_instance_->position_;
+}
+inline ::raytracer::DataBlob_Vec3f* DataBlob_Camera::mutable_position() {
+  _set_bit(0);
+  if (position_ == NULL) position_ = new ::raytracer::DataBlob_Vec3f;
+  return position_;
+}
+
+// required float orient_x = 2;
+inline bool DataBlob_Camera::has_orient_x() const {
+  return _has_bit(1);
+}
+inline void DataBlob_Camera::clear_orient_x() {
+  orient_x_ = 0;
+  _clear_bit(1);
+}
+inline float DataBlob_Camera::orient_x() const {
+  return orient_x_;
+}
+inline void DataBlob_Camera::set_orient_x(float value) {
+  _set_bit(1);
+  orient_x_ = value;
+}
+
+// required float orient_y = 3;
+inline bool DataBlob_Camera::has_orient_y() const {
+  return _has_bit(2);
+}
+inline void DataBlob_Camera::clear_orient_y() {
+  orient_y_ = 0;
+  _clear_bit(2);
+}
+inline float DataBlob_Camera::orient_y() const {
+  return orient_y_;
+}
+inline void DataBlob_Camera::set_orient_y(float value) {
+  _set_bit(2);
+  orient_y_ = value;
+}
+
+// required float orient_z = 4;
+inline bool DataBlob_Camera::has_orient_z() const {
+  return _has_bit(3);
+}
+inline void DataBlob_Camera::clear_orient_z() {
+  orient_z_ = 0;
+  _clear_bit(3);
+}
+inline float DataBlob_Camera::orient_z() const {
+  return orient_z_;
+}
+inline void DataBlob_Camera::set_orient_z(float value) {
+  _set_bit(3);
+  orient_z_ = value;
+}
+
+// required float orient_w = 5;
+inline bool DataBlob_Camera::has_orient_w() const {
+  return _has_bit(4);
+}
+inline void DataBlob_Camera::clear_orient_w() {
+  orient_w_ = 0;
+  _clear_bit(4);
+}
+inline float DataBlob_Camera::orient_w() const {
+  return orient_w_;
+}
+inline void DataBlob_Camera::set_orient_w(float value) {
+  _set_bit(4);
+  orient_w_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -1357,134 +1274,151 @@ inline void DataBlob::set_interleaved_feedback(::google::protobuf::int32 value) 
   interleaved_feedback_ = value;
 }
 
-// repeated .raytracer.DataBlob.PrimitiveTriangle triangles = 9;
-inline int DataBlob::triangles_size() const {
-  return triangles_.size();
+// repeated .raytracer.DataBlob.PrimitiveSphere primitives = 9;
+inline int DataBlob::primitives_size() const {
+  return primitives_.size();
 }
-inline void DataBlob::clear_triangles() {
-  triangles_.Clear();
+inline void DataBlob::clear_primitives() {
+  primitives_.Clear();
 }
-inline const ::raytracer::DataBlob_PrimitiveTriangle& DataBlob::triangles(int index) const {
-  return triangles_.Get(index);
+inline const ::raytracer::DataBlob_PrimitiveSphere& DataBlob::primitives(int index) const {
+  return primitives_.Get(index);
 }
-inline ::raytracer::DataBlob_PrimitiveTriangle* DataBlob::mutable_triangles(int index) {
-  return triangles_.Mutable(index);
+inline ::raytracer::DataBlob_PrimitiveSphere* DataBlob::mutable_primitives(int index) {
+  return primitives_.Mutable(index);
 }
-inline ::raytracer::DataBlob_PrimitiveTriangle* DataBlob::add_triangles() {
-  return triangles_.Add();
+inline ::raytracer::DataBlob_PrimitiveSphere* DataBlob::add_primitives() {
+  return primitives_.Add();
 }
-inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveTriangle >&
-DataBlob::triangles() const {
-  return triangles_;
+inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveSphere >&
+DataBlob::primitives() const {
+  return primitives_;
 }
-inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveTriangle >*
-DataBlob::mutable_triangles() {
-  return &triangles_;
-}
-
-// repeated .raytracer.DataBlob.PrimitivePointLight point_lights = 10;
-inline int DataBlob::point_lights_size() const {
-  return point_lights_.size();
-}
-inline void DataBlob::clear_point_lights() {
-  point_lights_.Clear();
-}
-inline const ::raytracer::DataBlob_PrimitivePointLight& DataBlob::point_lights(int index) const {
-  return point_lights_.Get(index);
-}
-inline ::raytracer::DataBlob_PrimitivePointLight* DataBlob::mutable_point_lights(int index) {
-  return point_lights_.Mutable(index);
-}
-inline ::raytracer::DataBlob_PrimitivePointLight* DataBlob::add_point_lights() {
-  return point_lights_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight >&
-DataBlob::point_lights() const {
-  return point_lights_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitivePointLight >*
-DataBlob::mutable_point_lights() {
-  return &point_lights_;
+inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveSphere >*
+DataBlob::mutable_primitives() {
+  return &primitives_;
 }
 
-// required bytes primitive_data = 11;
-inline bool DataBlob::has_primitive_data() const {
+// repeated .raytracer.DataBlob.PointLight lights = 10;
+inline int DataBlob::lights_size() const {
+  return lights_.size();
+}
+inline void DataBlob::clear_lights() {
+  lights_.Clear();
+}
+inline const ::raytracer::DataBlob_PointLight& DataBlob::lights(int index) const {
+  return lights_.Get(index);
+}
+inline ::raytracer::DataBlob_PointLight* DataBlob::mutable_lights(int index) {
+  return lights_.Mutable(index);
+}
+inline ::raytracer::DataBlob_PointLight* DataBlob::add_lights() {
+  return lights_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight >&
+DataBlob::lights() const {
+  return lights_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight >*
+DataBlob::mutable_lights() {
+  return &lights_;
+}
+
+// required .raytracer.DataBlob.Camera cam = 11;
+inline bool DataBlob::has_cam() const {
   return _has_bit(10);
+}
+inline void DataBlob::clear_cam() {
+  if (cam_ != NULL) cam_->::raytracer::DataBlob_Camera::Clear();
+  _clear_bit(10);
+}
+inline const ::raytracer::DataBlob_Camera& DataBlob::cam() const {
+  return cam_ != NULL ? *cam_ : *default_instance_->cam_;
+}
+inline ::raytracer::DataBlob_Camera* DataBlob::mutable_cam() {
+  _set_bit(10);
+  if (cam_ == NULL) cam_ = new ::raytracer::DataBlob_Camera;
+  return cam_;
+}
+
+// required bytes primitive_data = 12;
+inline bool DataBlob::has_primitive_data() const {
+  return _has_bit(11);
 }
 inline void DataBlob::clear_primitive_data() {
   if (primitive_data_ != &_default_primitive_data_) {
     primitive_data_->clear();
   }
-  _clear_bit(10);
+  _clear_bit(11);
 }
 inline const ::std::string& DataBlob::primitive_data() const {
   return *primitive_data_;
 }
 inline void DataBlob::set_primitive_data(const ::std::string& value) {
-  _set_bit(10);
+  _set_bit(11);
   if (primitive_data_ == &_default_primitive_data_) {
     primitive_data_ = new ::std::string;
   }
   primitive_data_->assign(value);
 }
 inline void DataBlob::set_primitive_data(const char* value) {
-  _set_bit(10);
+  _set_bit(11);
   if (primitive_data_ == &_default_primitive_data_) {
     primitive_data_ = new ::std::string;
   }
   primitive_data_->assign(value);
 }
 inline void DataBlob::set_primitive_data(const void* value, size_t size) {
-  _set_bit(10);
+  _set_bit(11);
   if (primitive_data_ == &_default_primitive_data_) {
     primitive_data_ = new ::std::string;
   }
   primitive_data_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* DataBlob::mutable_primitive_data() {
-  _set_bit(10);
+  _set_bit(11);
   if (primitive_data_ == &_default_primitive_data_) {
     primitive_data_ = new ::std::string;
   }
   return primitive_data_;
 }
 
-// required bytes materials = 12;
+// required bytes materials = 13;
 inline bool DataBlob::has_materials() const {
-  return _has_bit(11);
+  return _has_bit(12);
 }
 inline void DataBlob::clear_materials() {
   if (materials_ != &_default_materials_) {
     materials_->clear();
   }
-  _clear_bit(11);
+  _clear_bit(12);
 }
 inline const ::std::string& DataBlob::materials() const {
   return *materials_;
 }
 inline void DataBlob::set_materials(const ::std::string& value) {
-  _set_bit(11);
+  _set_bit(12);
   if (materials_ == &_default_materials_) {
     materials_ = new ::std::string;
   }
   materials_->assign(value);
 }
 inline void DataBlob::set_materials(const char* value) {
-  _set_bit(11);
+  _set_bit(12);
   if (materials_ == &_default_materials_) {
     materials_ = new ::std::string;
   }
   materials_->assign(value);
 }
 inline void DataBlob::set_materials(const void* value, size_t size) {
-  _set_bit(11);
+  _set_bit(12);
   if (materials_ == &_default_materials_) {
     materials_ = new ::std::string;
   }
   materials_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* DataBlob::mutable_materials() {
-  _set_bit(11);
+  _set_bit(12);
   if (materials_ == &_default_materials_) {
     materials_ = new ::std::string;
   }
