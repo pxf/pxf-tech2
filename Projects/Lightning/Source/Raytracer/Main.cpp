@@ -596,6 +596,7 @@ int main(int argc, char* argv[])
 
 			if(p_res)
 			{
+				draw_triangle(*p_res);
 				//p_res->Draw();
 			}
 		}

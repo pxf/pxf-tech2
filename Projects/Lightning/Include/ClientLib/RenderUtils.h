@@ -14,10 +14,11 @@ namespace Pxf {
 };
 
 class Triangle;
-class triangle_t;
+struct triangle_t;
 class BaseLight;
 
 void draw_light(BaseLight* light);
+void draw_triangle(triangle_t t);
 triangle_t* triangle_list(Pxf::Resource::Mesh* mesh);
 
 enum PrimType { UndefinedPrim, SpherePrim, PlanePrim, PointLightPrim, AreaLightPrim, TrianglePrim };

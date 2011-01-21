@@ -45,48 +45,6 @@ void CreateVBFromTree(KDTree* t,Pxf::Graphics::VertexBuffer* vb)
 	h.x = 0; h.z = 0;
 	d.x = 0; d.y = 0;
 
-	// front face
-	/*
-	split_points.push_back(p);
-	split_points.push_back(p+w);
-
-	split_points.push_back(p);
-	split_points.push_back(p+h);
-
-	split_points.push_back(p+h);
-	split_points.push_back(p+h+w);
-
-	split_points.push_back(p+w);
-	split_points.push_back(p+w+h);
-
-	// side face
-	split_points.push_back(p);
-	split_points.push_back(p+d);
-
-	split_points.push_back(p+d);
-	split_points.push_back(p+d+h);
-
-	split_points.push_back(p+h);
-	split_points.push_back(p+h+d);
-
-	// back face
-	split_points.push_back(p+d);
-	split_points.push_back(p+d+w);
-
-	split_points.push_back(p+d+h);
-	split_points.push_back(p+d+h+w);
-
-	split_points.push_back(p+d+w);
-	split_points.push_back(p+d+w+h);
-
-	// other side
-	split_points.push_back(p+w);
-	split_points.push_back(p+w+d);
-
-	split_points.push_back(p+w+h);
-	split_points.push_back(p+w+h+d);
-	*/
-
 	vb->CreateNewBuffer(split_points.size(),sizeof(Vec3f));
 	vb->SetData(Pxf::Graphics::VB_VERTEX_DATA,0,3);
 	vb->SetPrimitive(Pxf::Graphics::VB_PRIMITIVE_LINES);

@@ -44,6 +44,15 @@ void draw_light(BaseLight* light)
 	}
 }
 
+void draw_triangle(triangle_t t)
+{
+	glBegin(GL_TRIANGLES);
+	glVertex3f(t.vertices[0].v.x,t.vertices[0].v.y,t.vertices[0].v.z);
+	glVertex3f(t.vertices[1].v.x,t.vertices[1].v.y,t.vertices[1].v.z);
+	glVertex3f(t.vertices[2].v.x,t.vertices[2].v.y,t.vertices[2].v.z);
+	glEnd();
+}
+
 triangle_t* triangle_list(Mesh* mesh)
 {
 	Mesh::mesh_descriptor* md = mesh->GetData();
