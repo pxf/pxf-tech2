@@ -3,7 +3,6 @@
 import struct
 import traceback
 
-#import zmq
 import socket
 import select
 
@@ -31,18 +30,6 @@ class Tracker():
         self._sck_listen.listen(10)
 
         self._db = TrackerDatabase()
-
-        #self._context = zmq.Context()
-        #self._sck_in = self._context.socket(zmq.REP)
-        #try:
-        #    self._sck_in.bind("tcp://{0}:{1}".format(lightning.tracker_address
-        #                        , lightning.tracker_port))
-        #except Exception as e:
-        #    print("Unable to bind socket for incoming (sending) connections.")
-        #    traceback.print_exc()
-        #    return
-        #self._sck_out = self._context.socket(zmq.REQ)
-        #self._sck_out.setsockopt(zmq.IDENTITY, "0")
 
     
     # --------------------------------------------------------------
@@ -115,9 +102,10 @@ class Tracker():
             node = response.nodes.add()
             node.session_id = session_id
             client = self._db.get_client(session_id)
-            node.address = client[0]
-            node.port = 0
-        return response
+            node.address, port = client[0].split(':')
+            node.port = int(port)
+            #node.port = 0
+        return lightning.T_NODES_RESPONSE, response
     _tr_table[lightning.T_NODES_REQUEST] = e_nodesrequest
 
     # Events end.
@@ -185,6 +173,7 @@ class Tracker():
 
         if client is None:
             # Couldn't find the client.
+            print("unable to find client.")
             return False
 
         if type(data) == type(str()):
@@ -195,6 +184,7 @@ class Tracker():
             msg = lightning.pack(data)
         else:
             # Unknown format.
+            print("unknown format.")
             return False
 
         # Add the length of the packet.

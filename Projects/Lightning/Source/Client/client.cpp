@@ -262,6 +262,7 @@ int Client::run()
 				}
 				case C_ALLOCATE:
 				{
+					printf("ALLOCATION!");
 					// TODO: Depending on what is said to the client, put client in allocated list, or something
 					if (p->connection->type != CLIENT)
 					{
@@ -277,6 +278,7 @@ int Client::run()
 					client::AllocateResponse *alloc_resp = new client::AllocateResponse();
 					alloc_resp->set_isavailable(m_queue_free > 0);
 					alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
+					alloc_resp->set_batchhash(alloc->batchhash());
 		
 					LiPacket *pkg = new LiPacket(p->connection, alloc_resp, C_ALLOC_RESP);
 
@@ -296,7 +298,7 @@ int Client::run()
 				{
 					client::AllocateResponse *resp = (client::AllocateResponse*)(p->unpack());
 					
-					if (!resp->has_isavailable())
+					if (resp->has_isavailable() == 0)
 					{
 						// TODO: Do something smart, blacklist? Can't remember :(
 						// But don't send any tasks
@@ -309,6 +311,7 @@ int Client::run()
 					}
 
 					// TODO: Send pending tasks.
+					printf("GOT A CLIENT FOR MY TASKS\r\n");
 				
 				}
 				case C_DATA:
@@ -401,6 +404,30 @@ int Client::run()
 				{
 					tracker::NodesResponse *nodes = (tracker::NodesResponse*)(p->unpack());
 					m_Kernel->Log(m_log_tag, "Allocation response from tracker, got %d nodes", nodes->nodes_size());
+
+					for(int i=0;i<nodes->nodes_size();i++)
+					{
+						m_Kernel->Log(m_log_tag, "node %d: %s:%d.", i, nodes->nodes(i).address().c_str(), nodes->nodes(i).port());
+
+						Connection *new_node = m_ConnMan.new_connection(CLIENT);
+						m_ConnMan.connect_connection(new_node, (char*)nodes->nodes(i).address().c_str(), nodes->nodes(i).port());
+						
+						client_state* state = new client_state;
+						state->state = (ClientState)(WOK & W_HELLO);
+						m_State.m_States[new_node] = state;
+						// TODO: Send hello.
+						/*
+						client::AllocateClient* alloc_reqpack = new client::AllocateClient();
+						alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
+						alloc_reqpack->set_batchhash("LOLWUT"); // TODO: Create a real hash of the batch data blob
+
+						LiPacket* alloc_reqlipack = new LiPacket(p->connection, alloc_reqpack, C_ALLOCATE);
+						m_ConnMan.send(new_node, alloc_reqlipack->data, alloc_reqlipack->length);
+						*/
+					}
+	
+					
+					Pxf::Message("oae", "Got OK message!");
 
 					delete nodes;
 					break;
