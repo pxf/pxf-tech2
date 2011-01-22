@@ -82,6 +82,7 @@
     <ClCompile Include="..\..\Modules\pri\Source\TextureGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp" />
+    <ClCompile Include="Source\ClientLib\KDTree.cpp" />
     <ClCompile Include="Source\Raytracer\Camera.cpp" />
     <ClCompile Include="Source\Raytracer\Intersections.cpp" />
     <ClCompile Include="Source\Raytracer\Main.cpp" />

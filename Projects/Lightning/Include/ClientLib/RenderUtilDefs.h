@@ -3,7 +3,7 @@
 
 #include <Pxf/Math/Vector.h>
 
-struct Vertex
+struct vertex_t
 {
 	Pxf::Math::Vec3f v;		// 12
 	Pxf::Math::Vec3f n;		// 12

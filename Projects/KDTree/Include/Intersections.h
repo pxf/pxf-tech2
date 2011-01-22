@@ -3,6 +3,7 @@
 
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Math/Vector.h>
+#include <algorithms>
 #include <Common.h>
 
 
@@ -30,7 +31,7 @@ struct aabb {
 	aabb operator+(const aabb& box)
 	{
 		aabb new_box;
-		new_box.pos = Pxf::Math::Vec3f(Min(pos.x,box.pos.x),Min(pos.y,box.pos.y),Min(pos.z,box.pos.z));
+		new_box.pos = Pxf::Math::Vec3f(std::min(pos.x,box.pos.x),Min(pos.y,box.pos.y),Min(pos.z,box.pos.z));
 		new_box.size = Pxf::Math::Vec3f(Max(pos.x + size.x,box.pos.x + box.size.x),
 									Max(pos.y + size.y,box.pos.y + box.size.y),
 									Max(pos.z + size.z,box.pos.z + box.size.z));

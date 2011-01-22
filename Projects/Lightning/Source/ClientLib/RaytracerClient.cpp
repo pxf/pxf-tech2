@@ -1,5 +1,6 @@
 #include <RaytracerClient.h>
 #include <Pxf/Base/Platform.h>
+#include <string>
 
 #include <Renderer.h>
 
@@ -79,6 +80,16 @@ public:
 				blob.cam = &cam;
 				
 				// unpack primitives
+				std::string mData = blob_proto->materials();
+				std::string pData = blob_proto->primitive_data();
+
+				triangle_t* triangles = (triangle_t*) pData.c_str();
+				MaterialLibrary* materials = (MaterialLibrary*) mData.c_str();
+
+				blob.primitives = triangles;
+				blob.materials = *materials;
+
+				/*
 				for(size_t i = 0; i < blob.prim_count; i++)
 				{
 					material_t *sphere_mat1 = new material_t();
@@ -90,30 +101,37 @@ public:
 					// TODO: lol, jhonnys grejer.
 					//raytracer::DataBlob::PrimitiveSphere *pb_sphere = blob_proto->primitives(i);
 					raytracer::DataBlob::Vec3f pb_pos = blob_proto->primitives(i).position();
-					blob.primitives[i] = new Sphere(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), blob_proto->primitives(i).size(), sphere_mat1);
-				}
+					blob.primitives[i] = Sphere(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), blob_proto->primitives(i).size(), 0);
+				}*/
 				
 				// unpack lights!
 				for(size_t i = 0; i < blob.light_count; i++)
 				{
+					/*
 					material_t *light_mat1 = new material_t();
 
 					light_mat1->ambient = Math::Vec3f(0.1f, 0.1f, 0.1f);
 					light_mat1->diffuse = Math::Vec3f(1.0f, 1.0f, 1.0f);
+
+					*/
 					
 					// TODO: lol, jhonnys grejer.
 					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position();
-					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), light_mat1);
+					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), 0);
+				
+
+				//printf("if %d\n", blob.interleaved_feedback);
 				}
 
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
 				//sub_tasks_left = 1;
 				render_result_t out;
 
-				//printf("sub_tasks_left: %d\n", sub_tasks_left);
+				printf("started rendering task id: %d (sub_task_left: %d)\n", task_data->id(), sub_tasks_left);
 				while (sub_tasks_left > 0)
 				{
 					render_task(&task, &blob, &out, blob.interleaved_feedback*blob.interleaved_feedback - sub_tasks_left);
+					printf("done rendering task id: %d (sub_task_left: %d)\n", task_data->id(), sub_tasks_left);
 
 					TaskResult* res = new TaskResult();
 					
@@ -126,8 +144,8 @@ public:
 					ray_res->set_y(task_data->y());
 					ray_res->set_w(task_data->w());
 					ray_res->set_h(task_data->h());
-					ray_res->set_size(sizeof(pixel_data_t)*task_data->h()*task_data->w()*3);
-					ray_res->set_data(Util::String((char*)out.data, sizeof(pixel_data_t)*task_data->h()*task_data->w()*3));
+					ray_res->set_size(sizeof(pixel_data_t)*task_data->h()*task_data->w());
+					ray_res->set_data(Util::String((char*)out.data, sizeof(pixel_data_t)*task_data->h()*task_data->w()));
 
 					client::Result *res_proto = new client::Result();
 					res_proto->set_batchhash(req->batch->hash);
@@ -135,7 +153,7 @@ public:
 					
 					res->result = res_proto;
 
-					printf("pushing result on queue.\n");
+					printf("pushing result on queue (%d).\n", sub_tasks_left);
 					m_Client->push_result(res);
 
 					sub_tasks_left--;

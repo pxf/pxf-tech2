@@ -605,6 +605,26 @@ class DataBlob : public ::google::protobuf::Message {
   inline const ::raytracer::DataBlob_Camera& cam() const;
   inline ::raytracer::DataBlob_Camera* mutable_cam();
   
+  // required bytes primitive_data = 12;
+  inline bool has_primitive_data() const;
+  inline void clear_primitive_data();
+  static const int kPrimitiveDataFieldNumber = 12;
+  inline const ::std::string& primitive_data() const;
+  inline void set_primitive_data(const ::std::string& value);
+  inline void set_primitive_data(const char* value);
+  inline void set_primitive_data(const void* value, size_t size);
+  inline ::std::string* mutable_primitive_data();
+  
+  // required bytes materials = 13;
+  inline bool has_materials() const;
+  inline void clear_materials();
+  static const int kMaterialsFieldNumber = 13;
+  inline const ::std::string& materials() const;
+  inline void set_materials(const ::std::string& value);
+  inline void set_materials(const char* value);
+  inline void set_materials(const void* value, size_t size);
+  inline ::std::string* mutable_materials();
+  
   // @@protoc_insertion_point(class_scope:raytracer.DataBlob)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -621,11 +641,15 @@ class DataBlob : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PrimitiveSphere > primitives_;
   ::google::protobuf::RepeatedPtrField< ::raytracer::DataBlob_PointLight > lights_;
   ::raytracer::DataBlob_Camera* cam_;
+  ::std::string* primitive_data_;
+  static const ::std::string _default_primitive_data_;
+  ::std::string* materials_;
+  static const ::std::string _default_materials_;
   friend void  protobuf_AddDesc_raytracer_2eproto();
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(11 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(13 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1315,6 +1339,90 @@ inline ::raytracer::DataBlob_Camera* DataBlob::mutable_cam() {
   _set_bit(10);
   if (cam_ == NULL) cam_ = new ::raytracer::DataBlob_Camera;
   return cam_;
+}
+
+// required bytes primitive_data = 12;
+inline bool DataBlob::has_primitive_data() const {
+  return _has_bit(11);
+}
+inline void DataBlob::clear_primitive_data() {
+  if (primitive_data_ != &_default_primitive_data_) {
+    primitive_data_->clear();
+  }
+  _clear_bit(11);
+}
+inline const ::std::string& DataBlob::primitive_data() const {
+  return *primitive_data_;
+}
+inline void DataBlob::set_primitive_data(const ::std::string& value) {
+  _set_bit(11);
+  if (primitive_data_ == &_default_primitive_data_) {
+    primitive_data_ = new ::std::string;
+  }
+  primitive_data_->assign(value);
+}
+inline void DataBlob::set_primitive_data(const char* value) {
+  _set_bit(11);
+  if (primitive_data_ == &_default_primitive_data_) {
+    primitive_data_ = new ::std::string;
+  }
+  primitive_data_->assign(value);
+}
+inline void DataBlob::set_primitive_data(const void* value, size_t size) {
+  _set_bit(11);
+  if (primitive_data_ == &_default_primitive_data_) {
+    primitive_data_ = new ::std::string;
+  }
+  primitive_data_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* DataBlob::mutable_primitive_data() {
+  _set_bit(11);
+  if (primitive_data_ == &_default_primitive_data_) {
+    primitive_data_ = new ::std::string;
+  }
+  return primitive_data_;
+}
+
+// required bytes materials = 13;
+inline bool DataBlob::has_materials() const {
+  return _has_bit(12);
+}
+inline void DataBlob::clear_materials() {
+  if (materials_ != &_default_materials_) {
+    materials_->clear();
+  }
+  _clear_bit(12);
+}
+inline const ::std::string& DataBlob::materials() const {
+  return *materials_;
+}
+inline void DataBlob::set_materials(const ::std::string& value) {
+  _set_bit(12);
+  if (materials_ == &_default_materials_) {
+    materials_ = new ::std::string;
+  }
+  materials_->assign(value);
+}
+inline void DataBlob::set_materials(const char* value) {
+  _set_bit(12);
+  if (materials_ == &_default_materials_) {
+    materials_ = new ::std::string;
+  }
+  materials_->assign(value);
+}
+inline void DataBlob::set_materials(const void* value, size_t size) {
+  _set_bit(12);
+  if (materials_ == &_default_materials_) {
+    materials_ = new ::std::string;
+  }
+  materials_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* DataBlob::mutable_materials() {
+  _set_bit(12);
+  if (materials_ == &_default_materials_) {
+    materials_ = new ::std::string;
+  }
+  return materials_;
 }
 
 // -------------------------------------------------------------------
