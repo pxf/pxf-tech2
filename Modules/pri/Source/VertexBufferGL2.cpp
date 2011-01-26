@@ -108,7 +108,56 @@ void VertexBufferGL2::_PreDraw()
 	if(m_Attributes & VB_TEXCOORD_DATA)
 	{
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(m_TexCoordAttributes.NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes.StrideOffset));
+		glTexCoordPointer(m_TexCoordAttributes[0].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[0].StrideOffset));
+	}
+
+	if(m_Attributes & VB_TEXCOORD1_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE1);
+		glTexCoordPointer(m_TexCoordAttributes[1].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[1].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD2_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE2);
+		glTexCoordPointer(m_TexCoordAttributes[2].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[2].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD3_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE3);
+		glTexCoordPointer(m_TexCoordAttributes[3].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[3].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD4_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE4);
+		glTexCoordPointer(m_TexCoordAttributes[4].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[4].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD5_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE5);
+		glTexCoordPointer(m_TexCoordAttributes[5].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[5].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD6_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE6);
+		glTexCoordPointer(m_TexCoordAttributes[6].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[6].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD7_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE7);
+		glTexCoordPointer(m_TexCoordAttributes[7].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[7].StrideOffset)); 
 	}
 
 	if(m_Attributes & VB_COLOR_DATA)

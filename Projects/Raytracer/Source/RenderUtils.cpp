@@ -14,8 +14,6 @@ Triangle** triangle_list(Mesh* mesh)
 	int triangle_count = md->triangle_count;
 	const unsigned int* indices = md->indices;
 
-	//Triangle* t_list = new Triangle[triangle_count]();
-
 	Triangle** t_list = new Triangle*[triangle_count]();
 
 	for(size_t i=0; i < triangle_count; i++)
