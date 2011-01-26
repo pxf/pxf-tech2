@@ -8,7 +8,7 @@
 #include <Pxf/Math/Vector.h>
 
 // TODO: Support attribute data: http://www.opengl.org/wiki/Vertex_Array_Objects
-
+// todo: glBindAttribLocation, glVertexAttribPointer
 namespace Pxf
 {
 	namespace Graphics
