@@ -105,7 +105,7 @@ void VertexBufferGL2::_PreDraw()
 		glNormalPointer(GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_NormalAttributes.StrideOffset));
 	}
 
-	if(m_Attributes & VB_TEXCOORD_DATA)
+	if(m_Attributes & VB_TEXCOORD0_DATA)
 	{
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(m_TexCoordAttributes[0].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[0].StrideOffset));
@@ -196,7 +196,7 @@ void VertexBufferGL2::_PostDraw()
 		glDisableClientState(GL_NORMAL_ARRAY);
 	}
 
-	if(m_Attributes & VB_TEXCOORD_DATA)
+	if(m_Attributes & VB_TEXCOORD0_DATA)
 	{
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}

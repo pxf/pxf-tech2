@@ -17,7 +17,7 @@ SimpleQuad::SimpleQuad(float x1, float y1, float x2, float y2)
   m_QuadVB->CreateNewBuffer(4, sizeof(QuadVertex) );
   m_QuadVB->SetData(VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
 	m_QuadVB->SetData(VB_COLOR_DATA, sizeof(Vec3f), 4);
-	m_QuadVB->SetData(VB_TEXCOORD_DATA, sizeof(Vec3f)+sizeof(Vec4f), 2);
+	m_QuadVB->SetData(VB_TEXCOORD0_DATA, sizeof(Vec3f)+sizeof(Vec4f), 2);
 	m_QuadVB->SetPrimitive(VB_PRIMITIVE_QUADS);
 	
 	Math::Vec2f tCurrentCoords[4];

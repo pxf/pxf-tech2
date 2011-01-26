@@ -23,7 +23,7 @@ PrimitiveBatch::PrimitiveBatch(GraphicsDevice* _pDevice)
 
 	m_VertexBuffer->CreateNewBuffer(4 * 1024, sizeof(Vertex));
 	m_VertexBuffer->SetData(VB_VERTEX_DATA, 0, 3);
-	m_VertexBuffer->SetData(VB_TEXCOORD_DATA, sizeof(Math::Vec3f), 2);
+	m_VertexBuffer->SetData(VB_TEXCOORD0_DATA, sizeof(Math::Vec3f), 2);
 	m_VertexBuffer->SetData(VB_COLOR_DATA, sizeof(Math::Vec2f)+sizeof(Math::Vec3f), 4);
 
 	// set z index of vertices to something low

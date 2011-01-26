@@ -24,10 +24,17 @@ namespace Pxf
 				uint8 NumComponents;
 				uint8 StrideOffset;
 				uint8 TextureUnit;
+				uint8 AttributeIndex;
 
-				AttributeData() { }
+				AttributeData()
+				{
+					NumComponents = 0;
+					StrideOffset = 0;
+					AttributeIndex = 0;
+				}
 				AttributeData(uint8 _NumComponents, uint8 _StrideOffset, uint8 _TextureUnit = 0)
 				{
+					AttributeIndex = 0;
 					NumComponents = _NumComponents;
 					StrideOffset = _StrideOffset;
 				}
@@ -50,6 +57,7 @@ namespace Pxf
 			AttributeData m_IndexAttributes;
 			AttributeData m_EdgeFlagAttributes;
 			AttributeData* m_TexCoordAttributes;
+			//AttributeData* m_CustomVertexAttributes;
 
 		public:
 			VertexBuffer(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
@@ -60,7 +68,6 @@ namespace Pxf
 				, m_VertexBufferUsageFlag(_VertexBufferUsageFlag)
 				, m_VertexAttributes(0, 0)
 				, m_NormalAttributes(0, 0)
-				//, m_TexCoordAttributes(0, 0)
 				, m_TexCoordAttributes(0)
 				, m_ColorAttributes(0, 0)
 				, m_IndexAttributes(0, 0)
@@ -100,7 +107,7 @@ namespace Pxf
 				case VB_NORMAL_DATA:	m_NormalAttributes.StrideOffset = _StrideOffset;
 										m_NormalAttributes.NumComponents = _NumComponents;
 										break;
-				case VB_TEXCOORD_DATA:	m_TexCoordAttributes[0].StrideOffset = _StrideOffset;
+				case VB_TEXCOORD0_DATA:	m_TexCoordAttributes[0].StrideOffset = _StrideOffset;
 										m_TexCoordAttributes[0].NumComponents = _NumComponents;
 										break;
 				case VB_TEXCOORD1_DATA:	m_TexCoordAttributes[1].StrideOffset = _StrideOffset;
@@ -142,7 +149,7 @@ namespace Pxf
 				{
 				case VB_VERTEX_DATA:   return m_VertexAttributes.StrideOffset;
 				case VB_NORMAL_DATA:   return m_NormalAttributes.StrideOffset;
-				case VB_TEXCOORD_DATA: return m_TexCoordAttributes[0].StrideOffset;
+				case VB_TEXCOORD0_DATA: return m_TexCoordAttributes[0].StrideOffset;
 				case VB_COLOR_DATA:    return m_ColorAttributes.StrideOffset;
 				case VB_INDEX_DATA:    return m_IndexAttributes.StrideOffset;
 				case VB_EDGEFLAG_DATA: return m_EdgeFlagAttributes.StrideOffset;
@@ -158,7 +165,7 @@ namespace Pxf
 				{
 				case VB_VERTEX_DATA:   return m_VertexAttributes.NumComponents;
 				case VB_NORMAL_DATA:   return m_NormalAttributes.NumComponents;
-				case VB_TEXCOORD_DATA: return m_TexCoordAttributes[0].NumComponents;
+				case VB_TEXCOORD0_DATA: return m_TexCoordAttributes[0].NumComponents;
 				case VB_COLOR_DATA:    return m_ColorAttributes.NumComponents;
 				case VB_INDEX_DATA:    return m_IndexAttributes.NumComponents;
 				case VB_EDGEFLAG_DATA: return m_EdgeFlagAttributes.NumComponents;
