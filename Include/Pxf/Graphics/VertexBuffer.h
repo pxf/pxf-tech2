@@ -23,7 +23,10 @@ namespace Pxf
 			{
 				uint8 NumComponents;
 				uint8 StrideOffset;
-				AttributeData(uint8 _NumComponents, uint8 _StrideOffset)
+				uint8 TextureUnit;
+
+				AttributeData() { }
+				AttributeData(uint8 _NumComponents, uint8 _StrideOffset, uint8 _TextureUnit = 0)
 				{
 					NumComponents = _NumComponents;
 					StrideOffset = _StrideOffset;
@@ -43,10 +46,10 @@ namespace Pxf
 
 			AttributeData m_VertexAttributes;
 			AttributeData m_NormalAttributes;
-			AttributeData m_TexCoordAttributes;
 			AttributeData m_ColorAttributes;
 			AttributeData m_IndexAttributes;
 			AttributeData m_EdgeFlagAttributes;
+			AttributeData* m_TexCoordAttributes;
 
 		public:
 			VertexBuffer(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
@@ -57,7 +60,8 @@ namespace Pxf
 				, m_VertexBufferUsageFlag(_VertexBufferUsageFlag)
 				, m_VertexAttributes(0, 0)
 				, m_NormalAttributes(0, 0)
-				, m_TexCoordAttributes(0, 0)
+				//, m_TexCoordAttributes(0, 0)
+				, m_TexCoordAttributes(0)
 				, m_ColorAttributes(0, 0)
 				, m_IndexAttributes(0, 0)
 				, m_EdgeFlagAttributes(0, 0)
@@ -66,7 +70,9 @@ namespace Pxf
 				, m_VertexCount(0)
 				, m_ByteCount(0)
 				, m_IsMapped(false)
-			{}
+			{
+				m_TexCoordAttributes = new AttributeData[8]();
+			}
 			
 			virtual ~VertexBuffer(){};
 
@@ -94,8 +100,29 @@ namespace Pxf
 				case VB_NORMAL_DATA:	m_NormalAttributes.StrideOffset = _StrideOffset;
 										m_NormalAttributes.NumComponents = _NumComponents;
 										break;
-				case VB_TEXCOORD_DATA:	m_TexCoordAttributes.StrideOffset = _StrideOffset;
-										m_TexCoordAttributes.NumComponents = _NumComponents;
+				case VB_TEXCOORD_DATA:	m_TexCoordAttributes[0].StrideOffset = _StrideOffset;
+										m_TexCoordAttributes[0].NumComponents = _NumComponents;
+										break;
+				case VB_TEXCOORD1_DATA:	m_TexCoordAttributes[1].StrideOffset = _StrideOffset;
+										m_TexCoordAttributes[1].NumComponents = _NumComponents;
+										break;
+				case VB_TEXCOORD2_DATA:	m_TexCoordAttributes[2].StrideOffset = _StrideOffset;
+										m_TexCoordAttributes[2].NumComponents = _NumComponents;
+										break;
+				case VB_TEXCOORD3_DATA:	m_TexCoordAttributes[3].StrideOffset = _StrideOffset;
+										m_TexCoordAttributes[3].NumComponents = _NumComponents;
+										break;
+				case VB_TEXCOORD4_DATA:	m_TexCoordAttributes[4].StrideOffset = _StrideOffset;
+										m_TexCoordAttributes[4].NumComponents = _NumComponents;
+										break;
+				case VB_TEXCOORD5_DATA:	m_TexCoordAttributes[5].StrideOffset = _StrideOffset;
+										m_TexCoordAttributes[5].NumComponents = _NumComponents;
+										break;
+				case VB_TEXCOORD6_DATA:	m_TexCoordAttributes[6].StrideOffset = _StrideOffset;
+										m_TexCoordAttributes[6].NumComponents = _NumComponents;
+										break;
+				case VB_TEXCOORD7_DATA:	m_TexCoordAttributes[7].StrideOffset = _StrideOffset;
+										m_TexCoordAttributes[7].NumComponents = _NumComponents;
 										break;
 				case VB_COLOR_DATA:		m_ColorAttributes.StrideOffset = _StrideOffset;
 										m_ColorAttributes.NumComponents = _NumComponents;
@@ -115,7 +142,7 @@ namespace Pxf
 				{
 				case VB_VERTEX_DATA:   return m_VertexAttributes.StrideOffset;
 				case VB_NORMAL_DATA:   return m_NormalAttributes.StrideOffset;
-				case VB_TEXCOORD_DATA: return m_TexCoordAttributes.StrideOffset;
+				case VB_TEXCOORD_DATA: return m_TexCoordAttributes[0].StrideOffset;
 				case VB_COLOR_DATA:    return m_ColorAttributes.StrideOffset;
 				case VB_INDEX_DATA:    return m_IndexAttributes.StrideOffset;
 				case VB_EDGEFLAG_DATA: return m_EdgeFlagAttributes.StrideOffset;
@@ -131,7 +158,7 @@ namespace Pxf
 				{
 				case VB_VERTEX_DATA:   return m_VertexAttributes.NumComponents;
 				case VB_NORMAL_DATA:   return m_NormalAttributes.NumComponents;
-				case VB_TEXCOORD_DATA: return m_TexCoordAttributes.NumComponents;
+				case VB_TEXCOORD_DATA: return m_TexCoordAttributes[0].NumComponents;
 				case VB_COLOR_DATA:    return m_ColorAttributes.NumComponents;
 				case VB_INDEX_DATA:    return m_IndexAttributes.NumComponents;
 				case VB_EDGEFLAG_DATA: return m_EdgeFlagAttributes.NumComponents;
