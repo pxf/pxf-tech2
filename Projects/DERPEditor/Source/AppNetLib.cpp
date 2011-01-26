@@ -90,7 +90,7 @@ int DERPEditor::net_send_file(lua_State *L)
 		if (!s.OpenReadBinary(path))
 		{
 			char msg[4096];
-			Format(msg, "Could not open file to send (send_file): '%s'", path);
+			//Format(msg, "Could not open file to send (send_file): '%s'", path);
 			lua_pushstring(L, msg);
 			lua_error(L);
 			return 0;
@@ -125,7 +125,7 @@ int DERPEditor::net_send_file(lua_State *L)
 		delete data;
 
 		char ret[256];
-		Format(ret, "%X_%s", hash, filename);
+		//Format(ret, "%X_%s", hash, filename);
 
 		lua_pushstring(L, ret);
 		

@@ -320,6 +320,16 @@ class AllocateResponse : public ::google::protobuf::Message {
   inline bool isavailable() const;
   inline void set_isavailable(bool value);
   
+  // required string batchhash = 3;
+  inline bool has_batchhash() const;
+  inline void clear_batchhash();
+  static const int kBatchhashFieldNumber = 3;
+  inline const ::std::string& batchhash() const;
+  inline void set_batchhash(const ::std::string& value);
+  inline void set_batchhash(const char* value);
+  inline void set_batchhash(const char* value, size_t size);
+  inline ::std::string* mutable_batchhash();
+  
   // @@protoc_insertion_point(class_scope:client.AllocateResponse)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -327,11 +337,13 @@ class AllocateResponse : public ::google::protobuf::Message {
   
   bool hasdata_;
   bool isavailable_;
+  ::std::string* batchhash_;
+  static const ::std::string _default_batchhash_;
   friend void  protobuf_AddDesc_client_2eproto();
   friend void protobuf_AssignDesc_client_2eproto();
   friend void protobuf_ShutdownFile_client_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -979,6 +991,48 @@ inline bool AllocateResponse::isavailable() const {
 inline void AllocateResponse::set_isavailable(bool value) {
   _set_bit(1);
   isavailable_ = value;
+}
+
+// required string batchhash = 3;
+inline bool AllocateResponse::has_batchhash() const {
+  return _has_bit(2);
+}
+inline void AllocateResponse::clear_batchhash() {
+  if (batchhash_ != &_default_batchhash_) {
+    batchhash_->clear();
+  }
+  _clear_bit(2);
+}
+inline const ::std::string& AllocateResponse::batchhash() const {
+  return *batchhash_;
+}
+inline void AllocateResponse::set_batchhash(const ::std::string& value) {
+  _set_bit(2);
+  if (batchhash_ == &_default_batchhash_) {
+    batchhash_ = new ::std::string;
+  }
+  batchhash_->assign(value);
+}
+inline void AllocateResponse::set_batchhash(const char* value) {
+  _set_bit(2);
+  if (batchhash_ == &_default_batchhash_) {
+    batchhash_ = new ::std::string;
+  }
+  batchhash_->assign(value);
+}
+inline void AllocateResponse::set_batchhash(const char* value, size_t size) {
+  _set_bit(2);
+  if (batchhash_ == &_default_batchhash_) {
+    batchhash_ = new ::std::string;
+  }
+  batchhash_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* AllocateResponse::mutable_batchhash() {
+  _set_bit(2);
+  if (batchhash_ == &_default_batchhash_) {
+    batchhash_ = new ::std::string;
+  }
+  return batchhash_;
 }
 
 // -------------------------------------------------------------------
