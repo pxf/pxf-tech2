@@ -18,28 +18,33 @@ namespace Pxf
 		//! Abstract class for vertex buffer
 		class VertexBuffer : public DeviceResource
 		{
-		private:
+		protected:
 			struct AttributeData
 			{
 				uint8 NumComponents;
 				uint8 StrideOffset;
-				uint8 TextureUnit;
-				uint8 AttributeIndex;
+				int8 AttributeIndex;
+				DeviceDataType AttributeType;
+				bool AttributeNormalized;
 
 				AttributeData()
 				{
 					NumComponents = 0;
 					StrideOffset = 0;
-					AttributeIndex = 0;
+					AttributeIndex = -1;
+					AttributeType = DDT_FLOAT;
+					AttributeNormalized = false;
 				}
-				AttributeData(uint8 _NumComponents, uint8 _StrideOffset, uint8 _TextureUnit = 0)
+				AttributeData(uint8 _NumComponents, uint8 _StrideOffset)
 				{
-					AttributeIndex = 0;
 					NumComponents = _NumComponents;
 					StrideOffset = _StrideOffset;
+					AttributeIndex = -1;
+					AttributeType = DDT_FLOAT;
+					AttributeNormalized = false;
 				}
 			};
-		protected:
+
 			uint32 m_Attributes;
 			VertexBufferPrimitiveType m_PrimitiveType;
 			VertexBufferLocation m_VertexBufferLocation;
@@ -57,7 +62,6 @@ namespace Pxf
 			AttributeData m_IndexAttributes;
 			AttributeData m_EdgeFlagAttributes;
 			AttributeData* m_TexCoordAttributes;
-			//AttributeData* m_CustomVertexAttributes;
 
 		public:
 			VertexBuffer(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
@@ -95,6 +99,8 @@ namespace Pxf
 
 			virtual void* MapData(VertexBufferAccessFlag _AccessFlag) = 0;
 			virtual void UnmapData() = 0;
+
+			virtual void SetCustomData(uint32 _Index, DeviceDataType _Type, bool _Normalized, uint8 _StrideOffset, uint8 _NumComponents) = 0;
 
 			void SetData(VertexBufferAttribute _AttribType, uint8 _StrideOffset, uint8 _NumComponents)
 			{

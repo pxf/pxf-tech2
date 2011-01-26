@@ -5,8 +5,10 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Stream.h>
 #include <Pxf/Base/Logger.h>
+#include <Pxf/Base/Memory.h>
 
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <Pxf/Modules/pri/OpenGLUtils.h>
 #include <Pxf/Modules/pri/UniGL.h>
 
 #define LOCAL_MSG "VertexBuffer"
@@ -51,6 +53,10 @@ VertexBufferGL2::VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation 
 	, m_BufferObjectId(0)
 	, m_LogTag(0)
 {
+	m_NumCustomVertexAttributes = 0;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &m_NumCustomVertexAttributes);
+	m_CustomVertexAttributes = new AttributeData[m_NumCustomVertexAttributes]();
+
 	m_LogTag = m_pDevice->GetKernel()->CreateTag("gfx");
 	if (_VertexBufferLocation == VB_LOCATION_GPU)
 	{
@@ -177,6 +183,19 @@ void VertexBufferGL2::_PreDraw()
 		glEnableClientState(GL_EDGE_FLAG_ARRAY);
 		glEdgeFlagPointer(m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_EdgeFlagAttributes.StrideOffset));
 	}
+
+	for (int i=0; i < m_NumCustomVertexAttributes; i++)
+	{
+		AttributeData* data = &m_CustomVertexAttributes[i];
+		if (data->AttributeIndex >= 0)
+		{
+			GLenum gltype = LookupDDT(data->AttributeType);
+			glEnableVertexAttribArray(i);
+			glVertexAttribPointer(i, data->NumComponents, gltype, data->AttributeNormalized,
+								  m_VertexSize, GL::BufferObjectPtr(BufferOffset + data->StrideOffset));
+		}
+	}
+
 	PXFGLCHECK("VertexBufferGL2::_PreDraw/End");
 }
 
@@ -215,6 +234,16 @@ void VertexBufferGL2::_PostDraw()
 	{
 		glDisableClientState(GL_EDGE_FLAG_ARRAY);
 	}
+
+	for (int i=0; i < m_NumCustomVertexAttributes; i++)
+	{
+		AttributeData* data = &m_CustomVertexAttributes[i];
+		if (data->AttributeIndex >= 0)
+		{
+			glDisableVertexAttribArray(i);
+		}
+	}
+
 	PXFGLCHECK("VertexBufferGL2::_PostDraw/End");
 }
 
@@ -334,3 +363,12 @@ void VertexBufferGL2::UnmapData()
 	PXFGLCHECK("VertexBufferGL2::UnmapData/End");
 }
 
+void VertexBufferGL2::SetCustomData(uint32 _Index, DeviceDataType _Type, bool _Normalized, uint8 _StrideOffset, uint8 _NumComponents)
+{
+	PXF_ASSERT(_Index >= 0 && _Index < m_NumCustomVertexAttributes, "Invalid index");
+	m_CustomVertexAttributes[_Index].NumComponents = _NumComponents;
+	m_CustomVertexAttributes[_Index].StrideOffset = _StrideOffset;
+	m_CustomVertexAttributes[_Index].AttributeIndex = _Index;
+	m_CustomVertexAttributes[_Index].AttributeType = _Type;
+	m_CustomVertexAttributes[_Index].AttributeNormalized = _Normalized;
+}

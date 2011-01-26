@@ -562,6 +562,14 @@ Shader* DeviceGL2::BindShader(Shader* _Shader)
 	return previous;
 }
 
+void DeviceGL2::BindAttributeLocation(Graphics::Shader* _Shader, unsigned _Index, const char* _Name)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	glBindAttribLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _Index, _Name);
+	BindShader(old_shader);
+}
+
 void DeviceGL2::SetUniformi(Graphics::Shader* _Shader, const char* _name, int _value)
 {
 	Shader* old_shader = m_CurrentShader;
