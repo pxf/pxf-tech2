@@ -8,7 +8,7 @@
 #include <Pxf/Math/Vector.h>
 
 // TODO: Support attribute data: http://www.opengl.org/wiki/Vertex_Array_Objects
-
+// todo: glBindAttribLocation, glVertexAttribPointer
 namespace Pxf
 {
 	namespace Graphics
@@ -18,21 +18,33 @@ namespace Pxf
 		//! Abstract class for vertex buffer
 		class VertexBuffer : public DeviceResource
 		{
-		private:
+		protected:
 			struct AttributeData
 			{
 				uint8 NumComponents;
 				uint8 StrideOffset;
-				uint8 TextureUnit;
+				int8 AttributeIndex;
+				DeviceDataType AttributeType;
+				bool AttributeNormalized;
 
-				AttributeData() { }
-				AttributeData(uint8 _NumComponents, uint8 _StrideOffset, uint8 _TextureUnit = 0)
+				AttributeData()
+				{
+					NumComponents = 0;
+					StrideOffset = 0;
+					AttributeIndex = -1;
+					AttributeType = DDT_FLOAT;
+					AttributeNormalized = false;
+				}
+				AttributeData(uint8 _NumComponents, uint8 _StrideOffset)
 				{
 					NumComponents = _NumComponents;
 					StrideOffset = _StrideOffset;
+					AttributeIndex = -1;
+					AttributeType = DDT_FLOAT;
+					AttributeNormalized = false;
 				}
 			};
-		protected:
+
 			uint32 m_Attributes;
 			VertexBufferPrimitiveType m_PrimitiveType;
 			VertexBufferLocation m_VertexBufferLocation;
@@ -60,7 +72,6 @@ namespace Pxf
 				, m_VertexBufferUsageFlag(_VertexBufferUsageFlag)
 				, m_VertexAttributes(0, 0)
 				, m_NormalAttributes(0, 0)
-				//, m_TexCoordAttributes(0, 0)
 				, m_TexCoordAttributes(0)
 				, m_ColorAttributes(0, 0)
 				, m_IndexAttributes(0, 0)
@@ -89,6 +100,8 @@ namespace Pxf
 			virtual void* MapData(VertexBufferAccessFlag _AccessFlag) = 0;
 			virtual void UnmapData() = 0;
 
+			virtual void SetCustomData(uint32 _Index, DeviceDataType _Type, bool _Normalized, uint8 _StrideOffset, uint8 _NumComponents) = 0;
+
 			void SetData(VertexBufferAttribute _AttribType, uint8 _StrideOffset, uint8 _NumComponents)
 			{
 				m_Attributes |= _AttribType;
@@ -100,7 +113,7 @@ namespace Pxf
 				case VB_NORMAL_DATA:	m_NormalAttributes.StrideOffset = _StrideOffset;
 										m_NormalAttributes.NumComponents = _NumComponents;
 										break;
-				case VB_TEXCOORD_DATA:	m_TexCoordAttributes[0].StrideOffset = _StrideOffset;
+				case VB_TEXCOORD0_DATA:	m_TexCoordAttributes[0].StrideOffset = _StrideOffset;
 										m_TexCoordAttributes[0].NumComponents = _NumComponents;
 										break;
 				case VB_TEXCOORD1_DATA:	m_TexCoordAttributes[1].StrideOffset = _StrideOffset;
@@ -142,7 +155,7 @@ namespace Pxf
 				{
 				case VB_VERTEX_DATA:   return m_VertexAttributes.StrideOffset;
 				case VB_NORMAL_DATA:   return m_NormalAttributes.StrideOffset;
-				case VB_TEXCOORD_DATA: return m_TexCoordAttributes[0].StrideOffset;
+				case VB_TEXCOORD0_DATA: return m_TexCoordAttributes[0].StrideOffset;
 				case VB_COLOR_DATA:    return m_ColorAttributes.StrideOffset;
 				case VB_INDEX_DATA:    return m_IndexAttributes.StrideOffset;
 				case VB_EDGEFLAG_DATA: return m_EdgeFlagAttributes.StrideOffset;
@@ -158,7 +171,7 @@ namespace Pxf
 				{
 				case VB_VERTEX_DATA:   return m_VertexAttributes.NumComponents;
 				case VB_NORMAL_DATA:   return m_NormalAttributes.NumComponents;
-				case VB_TEXCOORD_DATA: return m_TexCoordAttributes[0].NumComponents;
+				case VB_TEXCOORD0_DATA: return m_TexCoordAttributes[0].NumComponents;
 				case VB_COLOR_DATA:    return m_ColorAttributes.NumComponents;
 				case VB_INDEX_DATA:    return m_IndexAttributes.NumComponents;
 				case VB_EDGEFLAG_DATA: return m_EdgeFlagAttributes.NumComponents;

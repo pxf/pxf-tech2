@@ -25,7 +25,7 @@ QuadBatch::QuadBatch(unsigned int _size, float* _currentdepth, Vec4f* _currentco
     
     m_VertexBuffer->SetData(VB_VERTEX_DATA, 0, 3); // SetData(Type, OffsetInBytes, NumComponents)
 		m_VertexBuffer->SetData(VB_COLOR_DATA, sizeof(Vec3f), 4);
-		m_VertexBuffer->SetData(VB_TEXCOORD_DATA, sizeof(Vec3f)+sizeof(Vec4f), 2);
+		m_VertexBuffer->SetData(VB_TEXCOORD0_DATA, sizeof(Vec3f)+sizeof(Vec4f), 2);
 		m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_QUADS);
     
     Reset();

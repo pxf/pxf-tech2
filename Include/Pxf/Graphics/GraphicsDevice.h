@@ -98,6 +98,7 @@ namespace Pxf
 			virtual Shader* CreateShaderFromPath(const char* _Ident, const char* _VertexShaderPath, const char* _FragmentShaderPath) = 0;
 			virtual void DestroyShader(Shader* _Shader) = 0;
 			virtual Shader* BindShader(Shader* _Shader) = 0;
+			virtual void BindAttributeLocation(Shader* _Shader, unsigned _Index, const char* _Name) = 0;
 			virtual void SetUniformi(Shader* _Shader, const char* _name, int _value) = 0;
 			virtual void SetUniformf(Shader* _Shader, const char* _name, float _value) = 0;
 			virtual void SetUniformVec2(Shader* _Shader, const char* _name, const Math::Vec2f* _value) = 0;
