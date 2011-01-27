@@ -16,6 +16,7 @@ namespace Pxf
 
 			bool CheckForCompilationErrors(unsigned _ShaderHandle);
 			bool CheckForLinkerErrors(unsigned _ProgramHandle);
+
 		public:
 			ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const char* _VertexShader, const char* _FragmentShader);
 			virtual ~ShaderGLSL();
@@ -24,6 +25,14 @@ namespace Pxf
 			{
 				return m_ProgramHandle;
 			}
+
+			bool Load(const char* _VertexShader,const char* _FragmentShader);
+			bool Unload();
+
+			const char* m_FragmentPath;
+			const char* m_VertexPath;
+			time_t m_FragmentLastUpdated;
+			time_t m_VertexLastUpdated;
 		};
 	}
 }

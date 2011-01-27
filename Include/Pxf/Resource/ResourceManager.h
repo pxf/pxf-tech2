@@ -44,6 +44,38 @@ namespace Resource
 		}
 
 		template <typename ResourceType>
+		ResourceType* Reload(const char* _FilePath,const char* _ForcedExt = 0)
+		{
+			if(!_FilePath) return NULL;
+
+			const char* fileext = _ForcedExt;
+			ResourceBase* resource = NULL;
+
+			if (_ForcedExt == 0)
+				fileext = PathExt(_FilePath);
+
+			Pxf::Util::Map<Util::String,ResourceBase*>::iterator 
+				resit = m_LoadedResources->find(_FilePath);
+
+			if(resit == m_LoadedResources->end())
+			{
+				m_Kernel->Log(m_LogTag | Logger::IS_WARNING, "Failed to reload resource '%s'", _FilePath);
+				return NULL;
+			}
+			else
+			{
+
+				resource = (ResourceBase*) resit->second;
+				resource->m_Loader->Destroy(resource);
+
+				//m_LoadedResources->erase(resit);
+				//m_LoadedResources->insert(std::make_pair(_FilePath, resource));
+			}
+
+			return (ResourceType*)resource;
+		}
+
+		template <typename ResourceType>
 		ResourceType* Acquire(const char* _FilePath, const char* _ForcedExt = 0)
 		{
 			ResourceBase* resource = NULL;
