@@ -142,8 +142,8 @@ bool RtAudioDevice::Initialize(unsigned int _BufferSize, unsigned int _MaxVoices
 
 RtAudioDevice::~RtAudioDevice()
 {
+	StopAll();
 	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
-
 	CloseStream();
 	m_Closed = true;
 	delete m_DAC;
@@ -151,7 +151,6 @@ RtAudioDevice::~RtAudioDevice()
 
 void RtAudioDevice::CloseStream()
 {
-	ZThread::Guard<ZThread::FastMutex> g(g_Lock);
 	try
 	{
 		if (m_DAC->isStreamOpen())
