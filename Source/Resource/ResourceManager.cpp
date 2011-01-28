@@ -13,6 +13,7 @@ Resource::ResourceManager::ResourceManager(Kernel* _Kernel)
 	m_LogTag = m_Kernel->CreateTag("res");
 	m_ResourceLoaders = new Pxf::Util::Map<Util::String, ResourceLoader*>();
 	m_LoadedResources = new Pxf::Util::Map<Util::String, ResourceBase*>();
+	m_CachedFiles = new Pxf::Util::Map<Util::String, DataBlob*>();
 
 	RegisterResourceLoader("blob", new Resource::BlobLoader(Pxf::Kernel::GetInstance()));
 	RegisterResourceLoader("txt", new Resource::TextLoader(Pxf::Kernel::GetInstance()));
