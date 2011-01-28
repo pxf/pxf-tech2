@@ -25,6 +25,7 @@
 #include <Pxf/Resource/Text.h>
 
 #include <string.h>
+#include <sys/stat.h>
 
 using namespace Pxf;
 using namespace Pxf::Graphics;
@@ -535,6 +536,15 @@ Graphics::Shader* DeviceGL2::CreateShaderFromPath(const char* _Ident, const char
 		return 0;
 
 	ShaderGLSL *_Shader = new ShaderGLSL(this,_Ident,_VSData->Ptr(),_FSData->Ptr());
+	
+	_Shader->m_FragmentPath = _FragmentShaderPath;
+	_Shader->m_VertexPath = _VertexShaderPath;
+
+	struct stat _Info; 
+	if(!stat(_FragmentShaderPath,&_Info))
+		_Shader->m_FragmentLastUpdated = _Info.st_mtime;
+	if(!stat(_VertexShaderPath,&_Info))
+		_Shader->m_VertexLastUpdated = _Info.st_mtime;
 
 	return _Shader;
 }
@@ -560,6 +570,14 @@ Shader* DeviceGL2::BindShader(Shader* _Shader)
 	}
 
 	return previous;
+}
+
+void DeviceGL2::BindAttributeLocation(Graphics::Shader* _Shader, unsigned _Index, const char* _Name)
+{
+	Shader* old_shader = m_CurrentShader;
+	BindShader(_Shader);
+	glBindAttribLocation(((ShaderGLSL*)_Shader)->GetProgramHandle(), _Index, _Name);
+	BindShader(old_shader);
 }
 
 void DeviceGL2::SetUniformi(Graphics::Shader* _Shader, const char* _name, int _value)

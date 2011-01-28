@@ -5,6 +5,18 @@ namespace Pxf
 {
 	namespace Graphics
 	{
+		enum DeviceDataType
+		{
+			DDT_BYTE = 0,
+			DDT_UNSIGNED_BYTE,
+			DDT_SHORT,
+			DDT_UNSIGNED_SHORT,
+			DDT_INT,
+			DDT_UNSIGNED_INT,
+			DDT_FLOAT,
+			DDT_DOUBLE
+		};
+
 		enum DeviceType
 		{
 			EOpenGL2,

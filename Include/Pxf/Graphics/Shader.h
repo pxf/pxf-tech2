@@ -18,6 +18,7 @@ namespace Pxf {
 			{}
 
 			virtual ~Shader(){};
+			virtual bool Load(const char* _VertexProgram,const char* _FragmentProgram) {return true;};
 			
 			bool IsValid() const { return m_Valid; }
 		};

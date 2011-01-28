@@ -15,7 +15,9 @@ namespace Pxf
 		//! Abstract class for vertex buffer
 		class VertexBufferGL2 : public VertexBuffer
 		{
-		private:
+		protected:
+			AttributeData* m_CustomVertexAttributes;
+			int m_NumCustomVertexAttributes;
 			unsigned m_BufferObjectId;
 			unsigned m_LogTag;
 		public:
@@ -29,6 +31,8 @@ namespace Pxf
 
 			void* MapData(VertexBufferAccessFlag _AccessFlag);
 			void UnmapData();
+
+			void SetCustomData(uint32 _Index, DeviceDataType _Type, bool _Normalized, uint8 _StrideOffset, uint8 _NumComponents);
 
 			void _PreDraw();
 			void _PostDraw();

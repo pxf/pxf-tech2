@@ -57,7 +57,7 @@ bool ModelGL2::Load(Resource::Mesh* _Mesh)
 	
 	if (md.has_uvmap)
 	{
-		m_VertexBuffer->SetData(VB_TEXCOORD_DATA, sizeof(Math::Vec3f)*2, 2);
+		m_VertexBuffer->SetData(VB_TEXCOORD0_DATA, sizeof(Math::Vec3f)*2, 2);
 	}
 	
 	m_VertexBuffer->SetPrimitive(VB_PRIMITIVE_TRIANGLES);

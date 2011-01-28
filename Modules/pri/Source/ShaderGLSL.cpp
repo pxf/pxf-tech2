@@ -13,9 +13,33 @@ using namespace Pxf::Graphics;
 
 ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const char* _VertexShader, const char* _FragmentShader)
 	: Shader(_pDevice)
+	, m_VertexPath(0)
+	, m_FragmentPath(0)
 	, m_LogTag(0)
 {
 	m_LogTag = m_pDevice->GetKernel()->CreateTag("gfx");
+
+	Load(_VertexShader,_FragmentShader);
+
+	if (m_Valid)	
+		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_INFORMATION, "Shader '%s' was compiled and linked successfully", _Identifier);
+}
+
+bool ShaderGLSL::Unload()
+{
+	if(!m_Valid) return true;
+
+	GL::UseProgram(0);
+	GL::DetachShader(m_ProgramHandle,m_VertexShaderHandle);
+	GL::DetachShader(m_ProgramHandle,m_FragmentShaderHandle);
+	m_Valid = false;
+
+	return true;
+}
+
+bool ShaderGLSL::Load(const char* _VertexShader,const char* _FragmentShader)
+{
+	Unload();
 
 	PXFGLCHECK("ShaderGLSL::ShaderGLSL/Start");
 	if (_VertexShader && _FragmentShader)
@@ -44,10 +68,9 @@ ShaderGLSL::ShaderGLSL(GraphicsDevice* _pDevice, const char* _Identifier, const 
 		if (!CheckForLinkerErrors(m_ProgramHandle))
 			m_Valid = false;
 	}
-
-	if (m_Valid)	
-		m_pDevice->GetKernel()->Log(m_LogTag | Logger::IS_INFORMATION, "Shader '%s' was compiled and linked successfully", _Identifier);
 	PXFGLCHECK("ShaderGLSL::ShaderGLSL/End");
+
+	return true;
 }
 
 ShaderGLSL::~ShaderGLSL()

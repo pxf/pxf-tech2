@@ -5,8 +5,10 @@
 #include <Pxf/Base/Utils.h>
 #include <Pxf/Base/Stream.h>
 #include <Pxf/Base/Logger.h>
+#include <Pxf/Base/Memory.h>
 
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <Pxf/Modules/pri/OpenGLUtils.h>
 #include <Pxf/Modules/pri/UniGL.h>
 
 #define LOCAL_MSG "VertexBuffer"
@@ -51,6 +53,10 @@ VertexBufferGL2::VertexBufferGL2(GraphicsDevice* _pDevice, VertexBufferLocation 
 	, m_BufferObjectId(0)
 	, m_LogTag(0)
 {
+	m_NumCustomVertexAttributes = 0;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &m_NumCustomVertexAttributes);
+	m_CustomVertexAttributes = new AttributeData[m_NumCustomVertexAttributes]();
+
 	m_LogTag = m_pDevice->GetKernel()->CreateTag("gfx");
 	if (_VertexBufferLocation == VB_LOCATION_GPU)
 	{
@@ -105,10 +111,59 @@ void VertexBufferGL2::_PreDraw()
 		glNormalPointer(GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_NormalAttributes.StrideOffset));
 	}
 
-	if(m_Attributes & VB_TEXCOORD_DATA)
+	if(m_Attributes & VB_TEXCOORD0_DATA)
 	{
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(m_TexCoordAttributes.NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes.StrideOffset));
+		glTexCoordPointer(m_TexCoordAttributes[0].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[0].StrideOffset));
+	}
+
+	if(m_Attributes & VB_TEXCOORD1_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE1);
+		glTexCoordPointer(m_TexCoordAttributes[1].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[1].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD2_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE2);
+		glTexCoordPointer(m_TexCoordAttributes[2].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[2].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD3_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE3);
+		glTexCoordPointer(m_TexCoordAttributes[3].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[3].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD4_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE4);
+		glTexCoordPointer(m_TexCoordAttributes[4].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[4].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD5_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE5);
+		glTexCoordPointer(m_TexCoordAttributes[5].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[5].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD6_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE6);
+		glTexCoordPointer(m_TexCoordAttributes[6].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[6].StrideOffset)); 
+	}
+
+	if(m_Attributes & VB_TEXCOORD7_DATA)
+	{
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE7);
+		glTexCoordPointer(m_TexCoordAttributes[7].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[7].StrideOffset)); 
 	}
 
 	if(m_Attributes & VB_COLOR_DATA)
@@ -128,6 +183,19 @@ void VertexBufferGL2::_PreDraw()
 		glEnableClientState(GL_EDGE_FLAG_ARRAY);
 		glEdgeFlagPointer(m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_EdgeFlagAttributes.StrideOffset));
 	}
+
+	for (int i=0; i < m_NumCustomVertexAttributes; i++)
+	{
+		AttributeData* data = &m_CustomVertexAttributes[i];
+		if (data->AttributeIndex >= 0)
+		{
+			GLenum gltype = LookupDDT(data->AttributeType);
+			glEnableVertexAttribArray(i);
+			glVertexAttribPointer(i, data->NumComponents, gltype, data->AttributeNormalized,
+								  m_VertexSize, GL::BufferObjectPtr(BufferOffset + data->StrideOffset));
+		}
+	}
+
 	PXFGLCHECK("VertexBufferGL2::_PreDraw/End");
 }
 
@@ -147,7 +215,7 @@ void VertexBufferGL2::_PostDraw()
 		glDisableClientState(GL_NORMAL_ARRAY);
 	}
 
-	if(m_Attributes & VB_TEXCOORD_DATA)
+	if(m_Attributes & VB_TEXCOORD0_DATA)
 	{
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
@@ -166,6 +234,16 @@ void VertexBufferGL2::_PostDraw()
 	{
 		glDisableClientState(GL_EDGE_FLAG_ARRAY);
 	}
+
+	for (int i=0; i < m_NumCustomVertexAttributes; i++)
+	{
+		AttributeData* data = &m_CustomVertexAttributes[i];
+		if (data->AttributeIndex >= 0)
+		{
+			glDisableVertexAttribArray(i);
+		}
+	}
+
 	PXFGLCHECK("VertexBufferGL2::_PostDraw/End");
 }
 
@@ -285,3 +363,12 @@ void VertexBufferGL2::UnmapData()
 	PXFGLCHECK("VertexBufferGL2::UnmapData/End");
 }
 
+void VertexBufferGL2::SetCustomData(uint32 _Index, DeviceDataType _Type, bool _Normalized, uint8 _StrideOffset, uint8 _NumComponents)
+{
+	PXF_ASSERT(_Index >= 0 && _Index < m_NumCustomVertexAttributes, "Invalid index");
+	m_CustomVertexAttributes[_Index].NumComponents = _NumComponents;
+	m_CustomVertexAttributes[_Index].StrideOffset = _StrideOffset;
+	m_CustomVertexAttributes[_Index].AttributeIndex = _Index;
+	m_CustomVertexAttributes[_Index].AttributeType = _Type;
+	m_CustomVertexAttributes[_Index].AttributeNormalized = _Normalized;
+}

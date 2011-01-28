@@ -44,6 +44,46 @@ namespace Resource
 		}
 
 		template <typename ResourceType>
+		ResourceType* GetResource(const char* _Path)
+		{
+			if(!_Path) return NULL;
+
+			ResourceBase* resource = NULL;
+
+			Pxf::Util::Map<Util::String,ResourceBase*>::iterator 
+				resit = m_LoadedResources->find(_Path);
+
+			if(resit == m_LoadedResources->end())
+			{
+				m_Kernel->Log(m_LogTag | Logger::IS_WARNING, "Resource '%s' does not exist", _Path);
+				return NULL;
+			}
+
+			resource = (ResourceBase*) resit->second;
+
+			return (ResourceType*) resource;
+		}
+
+		template <typename ResourceType>
+		ResourceType* Reload(ResourceType* _Resource)
+		{
+			if(!_Resource) return NULL;
+
+			const char* _Path = _Resource->GetSource();
+			ResourceLoader* rs = (ResourceLoader*) _Resource->m_Loader;
+			ResourceBase* resource = rs->Load(_Path);
+
+			rs->Destroy(_Resource);
+
+			Pxf::Util::Map<Util::String,ResourceBase*>::iterator 
+				resit = m_LoadedResources->find(_Path);
+
+			resit->second = resource;
+
+			return (ResourceType*)resource;
+		}
+
+		template <typename ResourceType>
 		ResourceType* Acquire(const char* _FilePath, const char* _ForcedExt = 0)
 		{
 			ResourceBase* resource = NULL;
