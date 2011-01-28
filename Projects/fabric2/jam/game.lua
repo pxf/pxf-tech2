@@ -7,6 +7,9 @@ function new_game()
 	
 	function game:update()
 		-- physics simulation
+		if(self.current_level) then
+			-- add gravity etc.
+		end
 	end
 	
 	function game:draw(force)
@@ -25,15 +28,18 @@ function new_level(name,num_actors)
 	local level = {}
 	level.actors = {}
 	level.win_conditions = {}
-	level.name = name	
+	level.name = name
 	level.dimensions = {x,y}
+	
+	for i in range(num_actors) do
+		table.insert(actors,generate_actor())
+	end
 	
 	return level
 end	
 
-function generate_actor()
+function generate_actor(x,y)
 	local actor = {}
-	actor.position = nil
 	
 	return actor
 end
