@@ -86,6 +86,8 @@ int main(int argc, char* argv[])
 		app->Draw();
 		
 		inp->ClearLastKey();
+
+		//win->Swap();
 	}
 	
 	delete app;
