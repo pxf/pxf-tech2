@@ -602,7 +602,7 @@ void App::_register_own_callbacks()
 {
   // Register own callbacks
 	lua_register(L, "print", Print);
-	lua_register(L, "loadfile", LoadFile);
+//	lua_register(L, "loadfile", LoadFile);
 //	lua_register(L, "require", ImportFile);
     
 	// Create empty luagame table
@@ -663,9 +663,15 @@ int App::LoadFile(lua_State *_L)
 	if (numarg == 1)
 	{
 		const char* path = lua_tostring(_L, 1);
+		std::string s;
+		if (!Pxf::IsSuffix(path, ".lua"))
+		{
+			s = std::string(path) + ".lua";
+			path = s.c_str();
+		}
 		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
-		Resource::Text* text = res->Acquire<Resource::Text>(path);
-		lua_pushstring(_L, text->Ptr());
+		Resource::Text* text = res->Acquire<Resource::Text>(path, "txt");
+		luaL_loadstring(_L, text->Ptr());
 		res->Release(text);
 		return 1;
 	}
