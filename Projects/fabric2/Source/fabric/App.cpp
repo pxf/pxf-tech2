@@ -7,6 +7,7 @@
 #include "AppGraphicsLib.h"
 #include "AppSoundLib.h"
 #include <Pxf/Audio/AudioDevice.h>
+#include <Pxf/Base/String.h>
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/Text.h>
 
@@ -154,6 +155,15 @@ void App::CleanUp()
     m_TransformMatrix = Math::Mat4::Identity;
 }
 
+static int luaL_exec(lua_State* L, const char* filepath)
+{
+	Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
+	Resource::Text* text = res->Acquire<Resource::Text>(filepath, "txt");
+	int s = luaL_loadstring(L, text->Ptr());
+	res->Release(text);
+	return s;
+}
+
 bool App::Boot()
 {
   // Init ourselves
@@ -170,7 +180,8 @@ bool App::Boot()
   
   ////////////////////////////////
   // Load bootstrap script
-  int s = luaL_loadfile(L, "fabric/boot.lua");
+  //int s = luaL_loadfile(L, "fabric/boot.lua");
+  int s = luaL_exec(L, "fabric/boot.lua");
   
   if (!s)
 	{
@@ -188,7 +199,7 @@ bool App::Boot()
 		    
       //////////////////////////
       // Load main app script   
-      s = luaL_loadfile(L, m_Filepath);
+      s = luaL_exec(L, m_Filepath);
     	if (!s)
     	{
     		s = lua_pcall(L, 0, LUA_MULTRET, 0);
@@ -592,6 +603,7 @@ void App::_register_own_callbacks()
   // Register own callbacks
 	lua_register(L, "print", Print);
 	lua_register(L, "loadfile", LoadFile);
+//	lua_register(L, "require", ImportFile);
     
 	// Create empty luagame table
 	lua_newtable(L);
@@ -651,12 +663,46 @@ int App::LoadFile(lua_State *_L)
 	if (numarg == 1)
 	{
 		const char* path = lua_tostring(_L, 1);
-
 		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
 		Resource::Text* text = res->Acquire<Resource::Text>(path);
 		lua_pushstring(_L, text->Ptr());
 		res->Release(text);
 		return 1;
+	}
+	else
+	{
+		lua_pushstring(_L, "Invalid argument passed to loadfile function!");
+		lua_error(_L);
+	}
+	return 0;
+}
+
+int App::ImportFile(lua_State *_L)
+{
+	int numarg = lua_gettop(_L);
+	if (numarg == 1)
+	{
+		const char* path = lua_tostring(_L, 1);
+		std::string s;
+		if (!Pxf::IsSuffix(path, ".lua"))
+		{
+			s = std::string(path) + ".lua";
+			path = s.c_str();
+		}
+		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
+		Resource::Text* text = res->Acquire<Resource::Text>(path, "txt");
+		char* code = text->Ptr();
+		int result = luaL_loadstring(_L, code);
+		if (result != 0)
+		{
+			char err[4096];
+			const char* blah = lua_tostring(_L, -1);
+			sprintf(err, "loadfile failed with error code %d, %s", result, blah);
+			lua_pushstring(_L, err);
+			lua_error(_L);
+		}
+		res->Release(text);
+		return 0;
 	}
 	else
 	{

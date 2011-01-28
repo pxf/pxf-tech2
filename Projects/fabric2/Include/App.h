@@ -144,6 +144,7 @@ namespace Fabric
         // Callback methods
         static int Print(lua_State *_L);
 		static int LoadFile(lua_State *_L);
+		static int ImportFile(lua_State *_L);
     };
     
 } /* Fabric */

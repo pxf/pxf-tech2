@@ -124,6 +124,9 @@ namespace Resource
 						DataBlob* datablob = cached_iter->second;
 						resource = (ResourceType*)(loaderit->second->CreateFrom(datablob->data
 																			   ,datablob->size));
+						resource->m_References = 1;
+						resource->m_Chunk->is_static = true;
+						resource->m_Chunk->source = _FilePath;
 						m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Loading cached version of '%s'", _FilePath);
 					}
 					else
