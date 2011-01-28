@@ -20,10 +20,16 @@ namespace Resource
 	class ResourceManager
 	{
 	private:
+		struct DataBlob
+		{
+			const unsigned char* data;
+			unsigned size;
+		};
 		Kernel* m_Kernel;
 		unsigned m_LogTag;
 		Pxf::Util::Map<Util::String, ResourceLoader*>* m_ResourceLoaders;
 		Pxf::Util::Map<Util::String, ResourceBase*>* m_LoadedResources;
+		Pxf::Util::Map<Util::String, DataBlob*>* m_CachedFiles;
 	public:
 		ResourceManager(Kernel* _Kernel);
 		~ResourceManager();
@@ -31,6 +37,14 @@ namespace Resource
 		void RegisterResourceLoader(const char* _Ext, Resource::ResourceLoader* _ResourceLoader);
 
 		void DumpResourceLoaders();
+
+		void RegisterCachedFile(const char* _Path, const unsigned char* _DataPtr, unsigned _Size)
+		{
+			DataBlob* datablob = new DataBlob;
+			datablob->data = _DataPtr;
+			datablob->size = _Size;
+			m_CachedFiles->insert(std::make_pair(_Path, datablob));
+		}
 
 		template <typename T>
 		T* FindResourceLoader(const char* _Ext)
@@ -103,7 +117,21 @@ namespace Resource
 				
 				if (loaderit != m_ResourceLoaders->end())
 				{
-					resource = (ResourceType*)loaderit->second->Load(_FilePath);
+					Pxf::Util::Map<Util::String, DataBlob*>::iterator cached_iter = m_CachedFiles->find(_FilePath);
+					if (cached_iter != m_CachedFiles->end())
+					{
+						// Create from cached data
+						DataBlob* datablob = cached_iter->second;
+						resource = (ResourceType*)(loaderit->second->CreateFrom(datablob->data
+																			   ,datablob->size));
+						m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Loading cached version of '%s'", _FilePath);
+					}
+					else
+					{
+						// Load from disk
+						resource = (ResourceType*)loaderit->second->Load(_FilePath);
+					}
+
 					if (!resource)
 					{
 						m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to load resource '%s'", _FilePath);

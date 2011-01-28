@@ -7,6 +7,8 @@
 #include "AppGraphicsLib.h"
 #include "AppSoundLib.h"
 #include <Pxf/Audio/AudioDevice.h>
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/Text.h>
 
 #define LOCAL_MSG "Fabric"
 
@@ -587,6 +589,7 @@ void App::_register_own_callbacks()
 {
   // Register own callbacks
 	lua_register(L, "print", Print);
+	lua_register(L, "loadfile", LoadFile);
     
 	// Create empty luagame table
 	lua_newtable(L);
@@ -638,6 +641,27 @@ int App::Print(lua_State *_L)
     }
     fputs("\n", stdout);
     return 0;
+}
+
+int App::LoadFile(lua_State *_L)
+{
+	int numarg = lua_gettop(_L);
+	if (numarg == 1)
+	{
+		const char* path = lua_tostring(_L, 1);
+
+		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
+		Resource::Text* text = res->Acquire<Resource::Text>(path);
+		lua_pushstring(_L, text->Ptr());
+		res->Release(text);
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(_L, "Invalid argument passed to loadfile function!");
+		lua_error(_L);
+	}
+	return 0;
 }
 
 
