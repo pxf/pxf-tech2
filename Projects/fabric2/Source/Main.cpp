@@ -51,11 +51,14 @@ int main(int argc, char* argv[])
 	res->DumpResourceLoaders();
 
 	// Add preloaded resources
-	for(int i = 0; i < sizeof(preloaded_files)/sizeof(preloaded_files[0]); i++)
+	if (preloaded_files)
 	{
-		res->RegisterCachedFile(preloaded_files[i].path
-						  	   ,preloaded_files[i].data
-							   ,preloaded_files[i].size);
+		for(int i = 0; i < sizeof(preloaded_files)/sizeof(preloaded_files[0]); i++)
+		{
+			res->RegisterCachedFile(preloaded_files[i].path
+				,preloaded_files[i].data
+				,preloaded_files[i].size);
+		}
 	}
 
 	Resource::Text* luamain = res->Acquire<Resource::Text>("jam/main.lua", "txt");
