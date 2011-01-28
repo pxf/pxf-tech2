@@ -2,7 +2,7 @@ Import("../../PxfBuild.lua")
 
 project = NewProject("fabric2")
 
---project:RequireLibrary("glfw")
+project:RequireLibrary("glfw")
 project:RequireLibrary("lua")
 project:RequireLibrary("sstat")
 
