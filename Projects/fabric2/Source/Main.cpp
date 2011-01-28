@@ -14,7 +14,7 @@
 #include <Pxf/Graphics/Texture.h>
 #include <Pxf/Graphics/PrimitiveBatch.h>
 #include <Pxf/Graphics/Model.h>
-#include <Pxf/Resource/Mesh.h>
+#include <Pxf/Resource/Text.h>
 
 #include <Pxf/Resource/ResourceManager.h>
 #include <Pxf/Resource/ResourceLoader.h>
@@ -26,8 +26,8 @@
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
-
 #include "App.h"
+#include "../PreloadedResources.h"
 
 using namespace Pxf;
 using namespace Graphics;
@@ -37,7 +37,11 @@ int main(int argc, char* argv[])
 {
 	Pxf::RandSetSeed(time(NULL));
 	Kernel* kernel = Pxf::Kernel::GetInstance();
-	kernel->RegisterModule("pri", 0xFFFFFFFF, true);
+	kernel->RegisterModule("pri", Pxf::System::SYSTEM_TYPE_GRAPHICSDEVICE |
+								  Pxf::System::SYSTEM_TYPE_INPUTDEVICE, true);
+	kernel->RegisterModule("snd", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER |
+								  Pxf::System::SYSTEM_TYPE_AUDIODEVICE, true);
+	kernel->RegisterModule("json",Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
 	kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
 	
 	Resource::ResourceManager* res = kernel->GetResourceManager();
@@ -45,6 +49,16 @@ int main(int argc, char* argv[])
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
 	res->DumpResourceLoaders();
+
+	// Add preloaded resources
+	for(int i = 0; i < sizeof(preloaded_files)/sizeof(preloaded_files[0]); i++)
+	{
+		res->RegisterCachedFile(preloaded_files[i].path
+						  	   ,preloaded_files[i].data
+							   ,preloaded_files[i].size);
+	}
+
+	Resource::Text* luamain = res->Acquire<Resource::Text>("jam/main.lua", "txt");
 
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;

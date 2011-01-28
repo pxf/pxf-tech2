@@ -7,6 +7,8 @@
 #include "AppGraphicsLib.h"
 #include "AppSoundLib.h"
 #include <Pxf/Audio/AudioDevice.h>
+#include <Pxf/Resource/ResourceManager.h>
+#include <Pxf/Resource/Text.h>
 
 #define LOCAL_MSG "Fabric"
 
@@ -345,13 +347,14 @@ void App::Flush()
 			m_QuadBatches[m_QuadBatchCurrent]->End();
 		}
 		
-		int num_passes = 2;
+		int num_passes = 1;
+		//int num_passes = 2;
 		if (m_UsingFBO)
 			num_passes = 1;
 		
 		for (int renderpass = 0; renderpass < num_passes; ++renderpass)
 		{
-			if (m_RedrawStencil && !m_RedrawFull)
+			/*if (m_RedrawStencil && !m_RedrawFull)
 			{
 				glEnable(GL_STENCIL_TEST);
 				glDisable(GL_DEPTH_TEST);
@@ -366,9 +369,9 @@ void App::Flush()
 				glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
 
 				glEnable(GL_DEPTH_TEST);
-			} else {
+			} else {*/
 				glDisable(GL_STENCIL_TEST);
-			}
+			//}
 			
 			// Draw all quadbatches
 			for (int i = 0; i < m_QuadBatchCount; ++i)
@@ -390,8 +393,8 @@ void App::Flush()
 				(*iter)->Draw();
 			}
 			
-			if (!m_UsingFBO)
-				m_win->Swap();
+			/*if (!m_UsingFBO)
+				m_win->Swap();*/
 		}
 		
 		// The active state is not 'dirty' anymore!
@@ -458,6 +461,7 @@ void App::Draw()
 		
 			CallScriptFunc("_draw");
 			Flush();
+			m_win->Swap();
 			
 			m_QuadBatchCurrent = -1;
 			m_TransformMatrix = Math::Mat4::Identity;
@@ -587,6 +591,7 @@ void App::_register_own_callbacks()
 {
   // Register own callbacks
 	lua_register(L, "print", Print);
+	lua_register(L, "loadfile", LoadFile);
     
 	// Create empty luagame table
 	lua_newtable(L);
@@ -638,6 +643,27 @@ int App::Print(lua_State *_L)
     }
     fputs("\n", stdout);
     return 0;
+}
+
+int App::LoadFile(lua_State *_L)
+{
+	int numarg = lua_gettop(_L);
+	if (numarg == 1)
+	{
+		const char* path = lua_tostring(_L, 1);
+
+		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
+		Resource::Text* text = res->Acquire<Resource::Text>(path);
+		lua_pushstring(_L, text->Ptr());
+		res->Release(text);
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(_L, "Invalid argument passed to loadfile function!");
+		lua_error(_L);
+	}
+	return 0;
 }
 
 
