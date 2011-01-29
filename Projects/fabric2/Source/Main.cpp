@@ -99,16 +99,32 @@ int main(int argc, char* argv[])
 	bool running = true;
 	bool guihit = false;
 
+	Pxf::Timer racetimer;
+	uint64 framelength = 16;
+	uint64 frametotal = 0;
+	racetimer.Start();
+
 	while(win->IsOpen() && running)
 	{
+		while (frametotal < framelength)
+		{
+			racetimer.Stop();
+			frametotal += racetimer.Interval();
+			racetimer.Start();
+			glfwSleep(0.004);
+		}
+		frametotal = 0;
 		inp->Update();
 			
 		running = app->Update();
 		guihit = app->GuiHit();
 		
 		app->Draw();
-		
 		inp->ClearLastKey();
+
+		char tmp[4096];
+		sprintf(tmp, "%d", win->GetFPS());
+		win->SetTitle(tmp);
 
 		//win->Swap();
 	}
