@@ -1,79 +1,140 @@
 require("jam/physics")
 
+local STATE_RUNNING = 0
+local STATE_PAUSED = 1
+
 -- game state
 function new_game()
 	local game = {}
 	game.levels = {}
 	game.current_level = nil
 	game.gravity = vec(0.0,0.5)
+	game.state = STATE_RUNNING
 	
 	local freq = 1.0 / 60.0
 	
 	function game:update()
 		-- physics simulation
-		if(self.current_level) then
+		if(self.current_level and self.state == STATE_RUNNING) then
 			-- apply forces and calculate position
 			local grid = self.current_level.grid
 			
 			for k,v in pairs(self.current_level.actors) do
-				v:add_force(self.gravity)
-				
-				-- get old grid cell index
-				local p0 = v.body.body.c
-
-				--v.body.velocity = v.body.velocity + self.gravity
-				
-				-- f = m*a, a = f / m
-				local inv_m = 1 / v.body.mass
-				local a = vec(v.body.force.x * inv_m,v.body.force.y * inv_m)
-				
-				v.body.velocity = v.body.velocity + vec(a.x*freq,a.y*freq)
-				
-				local p1 = v.body.body.c + vec(v.body.velocity.x * freq,v.body.velocity.y * freq)
-				
-				-- REMOVE THIS!!! use proper boundary checks later
-				if(p1.x >= self.current_level.dimensions.w) then
-					p1.x = self.current_level.dimensions.w
-				end
-				
-				if(p1.y >= self.current_level.dimensions.h) then
-					p1.y = self.current_level.dimensions.h
-				end
-				
-				v.body.body.c = p1
-			
-				local x = v.body.body.c.x
-				local y = v.body.body.c.y
-				
-				-- calculate cell index
-				local c_index = math.floor(x / self.current_level.grid.step_x)
-				local r_index = math.floor(y / self.current_level.grid.step_y)
-				local index = self.current_level.grid.cw * r_index + c_index + 1
-				
-				if not (index == v.cell_index) and index <= grid.max_index then
-					local cells = self.current_level.grid.cells
+				if not v.static then
+					v:add_force(self.gravity)
 					
-					-- remove from old cell
-					for k,a in pairs(cells[v.cell_index].items) do
-						if v == a then
-							cells[v.cell_index].items[k] = nil
-						end
+					-- get old grid cell index
+					local p0 = v.body.body.c
+
+					--v.body.velocity = v.body.velocity + self.gravity
+					
+					-- f = m*a, a = f / m
+					local inv_m = 1 / v.body.mass
+					local a = vec(v.body.force.x * inv_m,v.body.force.y * inv_m)
+					
+					v.body.velocity = v.body.velocity + vec(a.x*freq,a.y*freq)
+					--print("id: " .. v.id .. " velocity: " .. v.body.velocity.x .. "," .. v.body.velocity.y)
+					
+					local p1 = v.body.body.c + vec(v.body.velocity.x * freq,v.body.velocity.y * freq)
+					
+					-- REMOVE THIS!!! use proper boundary checks later
+					if(p1.x >= self.current_level.dimensions.w) then
+						p1.x = self.current_level.dimensions.w
 					end
 					
-					-- insert to new cell
-					table.insert(cells[index].items,v)
-					v.cell_index = index
+					if(p1.y >= self.current_level.dimensions.h) then
+						p1.y = self.current_level.dimensions.h
+					end
+					
+					v.body.body.c = p1
+				
+					local x = v.body.body.c.x
+					local y = v.body.body.c.y
+					
+					-- calculate cell index
+					local c_index = math.floor(x / self.current_level.grid.step_x)
+					local r_index = math.floor(y / self.current_level.grid.step_y)
+					local index = self.current_level.grid.cw * r_index + c_index + 1
+					
+					if not (index == v.cell_index) and index <= grid.max_index then
+						local cells = self.current_level.grid.cells
+						
+						-- remove from old cell
+						for k,a in pairs(cells[v.cell_index].items) do
+							if v == a then
+								cells[v.cell_index].items[k] = nil
+							end
+						end
+						
+						-- insert to new cell
+						table.insert(cells[index].items,v)
+						v.cell_index = index
+					end
 				end
 			end
 			
-			-- check collisions
-			for k,cell in pairs(grid) do
-				
-				
+			local collision_hits = { }
 			
+			-- check collisions
+			for k,v in pairs(self.current_level.actors) do
+				--local cell = self.current_level.grid.cells[v.cell_index]
+				
+				-- check collision against every neighbouring cell
+				-- gather items from all cells
+				local candidates = {}
+				local index = v.cell_index
+				
+				-- 0: top left
+				local index0 = index - grid.cw - 1 
+				grid:cell_collision(candidates,v,index0)
+				
+				-- 1: top middle
+				local index1 = index0 + 1
+				grid:cell_collision(candidates,v,index1)
+				
+				-- 2: top right
+				local index2 = index1 + 1
+				grid:cell_collision(candidates,v,index2)
+				
+				-- 3: mid left
+				index0 = index - 1
+				grid:cell_collision(candidates,v,index0)
+				
+				-- 4: mid mid
+				grid:cell_collision(candidates,v,index)
+				
+				-- 5: mid right
+				index2 = index + 1
+				grid:cell_collision(candidates,v,index2)
+				
+				-- 6: bottom left
+				local index0 = index + grid.cw - 1 
+				grid:cell_collision(candidates,v,index0)
+				
+				-- 7: bottom middle
+				local index1 = index0 + 1
+				grid:cell_collision(candidates,v,index1)
+				
+				-- 8: bottom right
+				local index2 = index1 + 1
+				grid:cell_collision(candidates,v,index2)
+				
+				for k,a in pairs(candidates) do
+					local hit = sphere_sphere_collision(a,v)
+					
+					if hit then
+						table.insert(collision_hits,{a = a,b = v})						
+						--print("collision!")
+					end
+				end
 			end
 			
-			-- 
+			-- collision response?
+			for k,v in pairs(collision_hits) do
+				--print("body " .. v.b.id .. " vel: " .. v.b.body.velocity.x .. "," .. v.b.body.velocity.y)
+			
+				sphere_sphere_response(v.a,v.b)
+			end
 		end
 	end
 	
@@ -98,6 +159,14 @@ function new_game()
 			self.current_level = level
 		end
 	end
+	
+	function game:pause()
+		if self.state == STATE_RUNNING then
+			self.state = STATE_PAUSED
+		else
+			self.state = STATE_RUNNING
+		end
+	end
 		
 	return game
 end
@@ -108,22 +177,25 @@ function new_level(name,num_actors,w,h)
 	level.actors = {}
 	level.win_conditions = {}
 	level.name = name
-	level.grid = grid(w,h,8,8)
+	level.grid = new_grid(w,h,8,8)
 	level.dimensions = {w = w,h = h}
+	level.num_actors = 0
+	
+	function level:new_actor(x,y,static)
+		local actor = generate_actor(x,y)
+		actor.static = static
+		
+		table.insert(self.actors,actor)
+		self.grid:insert(actor)
+		actor.id = self.num_actors
+		self.num_actors = self.num_actors + 1
+	end
 	
 	for i=1,num_actors,1 do
-		local x = 10.0 + i*15.0
+		local x = 10.0 + i*9
 		local y = 65.0
 		
-		local actor = generate_actor(x,y)
-		
-		table.insert(level.actors,actor)
-		local c_index = math.floor(x / level.grid.step_x)
-		local r_index = math.floor(y / level.grid.step_y)
-		local index = c_index * level.grid.ch + c_index + 1
-		
-		actor.cell_index = index
-		table.insert(level.grid.cells[index].items,actor)
+		level:new_actor(x,y,false)
 	end
 	
 	return level
@@ -132,10 +204,11 @@ end
 function generate_actor(x,y)
 	local hs = 5.0	-- half-size
 	local r = math.sqrt(hs^2 + hs^2)
-	
 	local actor = {}
+	
 	actor.body = physics_body(x,y,5.0,1.0)
 	actor.cell_index = nil
+	actor.static = false
 	
 	function actor:draw(force)
 		local p = self.body:position()
@@ -155,7 +228,7 @@ function generate_actor(x,y)
 	return actor
 end
 
-function grid(w,h,cw,ch)
+function new_grid(w,h,cw,ch)
 	local g = {}
 	g.cells = {}
 	g.cw = cw
@@ -171,6 +244,32 @@ function grid(w,h,cw,ch)
 			
 			table.insert(g.cells,{x0 = x0,y0 = y0, items = { }})
 		end
+	end
+	
+	function g:cell_collision(candidates,a,i)
+		if i <= 0 or i > self.max_index then
+			return nil
+		end
+		
+		local items = self.cells[i].items
+		
+		for k,v in pairs(items) do
+			if not (v == a) then
+				table.insert(candidates,v)
+			end
+		end
+	end
+	
+	function g:insert(a)
+		local x = a.body.body.c.x
+		local y = a.body.body.c.y
+	
+		local c_index = math.floor(x / g.step_x)
+		local r_index = math.floor(y / g.step_y)
+		local index = c_index * g.ch + c_index + 1
+		
+		a.cell_index = index
+		table.insert(g.cells[index].items,a)
 	end
 	
 	return g

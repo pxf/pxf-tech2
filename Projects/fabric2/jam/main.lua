@@ -9,11 +9,26 @@ settings:save()
 
 local game = new_game()
 
-local level0 = new_level("LVL 1",1,512,512)
+local level0 = new_level("LVL 1",2,512,512)
+level0:new_actor(25,400,true)
+
 game:add_level(level0)
+
 --game:add_level("LVL 1",32)
 
 local last_keypress = nil
+
+
+function toggle_button(b,fun)
+	if not (inp.iskeydown(b)) then
+		if last_keypress == b then
+			fun()
+			last_keypress = nil
+		end
+	else
+		last_keypress = b
+	end
+end
 
 function update()
 	if inp.iskeydown(inp.ESC) then
@@ -23,15 +38,16 @@ function update()
 		print(app.framestats())
 	end
 	
-	if not (inp.iskeydown("R")) then
-		if last_keypress == "R" then
+	toggle_button("R",
+		function () 
 			print("rebooting..")
 			app.reboot()
-			last_keypress = nil
-		end
-	else
-		last_keypress = "R"
-	end
+		end)
+		
+	toggle_button("P",
+		function () 
+			game:pause()
+		end)
 	
 	game:update()
 end
