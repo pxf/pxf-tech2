@@ -155,6 +155,8 @@ void RtAudioDevice::CloseStream()
 	{
 		if (m_DAC->isStreamOpen())
 		{
+			// HACK: Why both? An exception is thrown when calling abortStream
+			// when the stream is closed.
 			m_DAC->closeStream();
 			m_DAC->abortStream();
 			m_Closed = true;

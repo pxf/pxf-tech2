@@ -119,6 +119,8 @@ namespace Resource
 				{
 					// Attempt to load from disk
 					resource = (ResourceType*)loaderit->second->Load(_FilePath);
+					if (resource)
+						m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Loading '%s' from disk.", _FilePath);
 
 					if (!resource)
 					{

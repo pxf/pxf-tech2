@@ -1,7 +1,9 @@
 require("fabric/guibase")
 require("fabric/guistdwidgets")
-require("fabric/guiwindows")
+require("jam/guiwindows")
 
 gui:init()
 
-print("LOOOOOOOOOOOOOL")
+function gamejam_init(settings)
+	spawn_gamemenu()
+end

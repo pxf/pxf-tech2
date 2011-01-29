@@ -679,6 +679,10 @@ function gui:update()
     if (not self.mouse.pushed) then
       --self.activewidget
       self.activewidget = self.widgets:find_mousehit(mx,my)
+      if not self.activewidget then
+        -- no active widget found
+        return
+      end
       --print("new active widget: " .. tostring(self.activewidget) .. " (has type " .. self.activewidget.widget_type .. ")")
       
       -- active widget is now the focus widget
@@ -753,7 +757,6 @@ function gui:draw(force)
   
   local oldtex = gfx.bindtexture(self.themetex)
   self.widgets:draw(force)
-  
   -- Draw tooltip
   if (self.tooltip.timeout > 0) then
     gfx.translate(self.tooltip.x,self.tooltip.y)
