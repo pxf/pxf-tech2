@@ -53,6 +53,9 @@ end
 -- create vector
 function vec(x,y)
   local v = {x,y}
+  v.x = v[1]
+  v.y = v[2]
+  
   if (y == nil) then
     v[2] = v[1]
   end
