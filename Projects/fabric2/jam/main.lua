@@ -9,7 +9,9 @@ settings:save()
 
 local game = new_game()
 
-game:add_level("LVL 1",32)
+local level0 = new_level("LVL 1",32)
+game:add_level(level0)
+--game:add_level("LVL 1",32)
 
 function update()
 	if inp.iskeydown(inp.ESC) then
