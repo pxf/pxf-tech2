@@ -314,7 +314,8 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	
 	if(!lib->Load(FilePath))
 	{
-		if (lib->GetError())
+		Log(m_KernelTag | Logger::IS_DEBUG, "What? '%s' => '%x'", FilePath, lib->GetError());
+		if (lib->GetError() != 0x0)
 		{
 			char buffer[4096];
 			size_t len = StringLength(lib->GetError());
