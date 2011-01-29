@@ -9,8 +9,29 @@ settings:save()
 
 local game = new_game()
 
-local level0 = new_level("LVL 1",2,512,512)
-level0:new_actor(25,400,true)
+local level0 = new_level("LVL 1",0,512,512)
+
+for i=1,10 do
+	level0:new_actor(i*5,507,true)
+end
+
+
+for i = 1,8 do
+	local x = math.random(35,45.5)
+	local y = math.random(0,450.5)
+	
+	local s = math.random(0,1)
+	
+	if(s < 0.5) then
+		s = true
+	else
+		s = false
+	end
+	
+	local a = level0:new_actor(x,y,false)
+end
+
+level0:new_actor(40,500,true)
 
 game:add_level(level0)
 
