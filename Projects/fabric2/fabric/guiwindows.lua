@@ -80,7 +80,7 @@ end
 ---------------------------------------
 -- standard window gui widget
 function gui:create_window(id,x,y,w,h,modal,label,live_forever)
-  local shadow_size = 8
+    local shadow_size = 8
 	local window = gui:create_basewidget(x-shadow_size,y-shadow_size,w+shadow_size*2,h+shadow_size*2)
 	window.winid = id
 	window.title_height = 24

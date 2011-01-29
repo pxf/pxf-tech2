@@ -1,11 +1,14 @@
 require("fabric/settingshandler")
 require("jam/game")
+require("jam/gui")
 
 ----------------------------------------------
 -- settings
-settings = new_settings_handler("settings.ini", {rendersize = 512})
+settings = new_settings_handler("settings.ini", {rendersize = 512, toolbarstate = "full"})
 settings:load()
 settings:save()
+
+gamejam_init(settings)
 
 local game = new_game()
 
@@ -70,10 +73,15 @@ function update()
 			game:pause()
 		end)
 	
+	gui:update()
 	game:update()
 end
 
 function draw(force)
 	gfx.clear()
 	game:draw(force)
+	
+	gfx.loadidentity()
+	gfx.setcolor(1, 1, 1)
+	gui:draw(true)
 end

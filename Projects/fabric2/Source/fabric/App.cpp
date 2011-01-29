@@ -602,8 +602,8 @@ void App::_register_own_callbacks()
 {
   // Register own callbacks
 	lua_register(L, "print", Print);
-//	lua_register(L, "loadfile", LoadFile);
-//	lua_register(L, "require", ImportFile);
+	lua_register(L, "loadfile", LoadFile);
+	lua_register(L, "require", ImportFile);
     
 	// Create empty luagame table
 	lua_newtable(L);
@@ -697,18 +697,26 @@ int App::ImportFile(lua_State *_L)
 		}
 		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
 		Resource::Text* text = res->Acquire<Resource::Text>(path, "txt");
+		if (!text)
+		{
+			lua_pushstring(_L, "Error loading file!");
+			lua_error(_L);
+			return 0;
+		}
 		char* code = text->Ptr();
 		int result = luaL_loadstring(_L, code);
 		if (result != 0)
 		{
 			char err[4096];
 			const char* blah = lua_tostring(_L, -1);
-			sprintf(err, "loadfile failed with error code %d, %s", result, blah);
+			sprintf(err, "require failed with error code %d, %s", result, blah);
 			lua_pushstring(_L, err);
 			lua_error(_L);
+			return 0;
 		}
 		res->Release(text);
-		return 0;
+		lua_pcall(_L, 0, 1, 0);
+		return 1;
 	}
 	else
 	{

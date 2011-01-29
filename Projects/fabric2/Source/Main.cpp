@@ -43,7 +43,13 @@ int main(int argc, char* argv[])
 								  Pxf::System::SYSTEM_TYPE_AUDIODEVICE, true);
 	kernel->RegisterModule("json",Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
 	kernel->RegisterModule("img", Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, true);
-	
+
+	unsigned logtag = kernel->CreateTag("main");
+	kernel->Log(logtag | Logger::IS_INFORMATION, "-----------------------------------------------------------");
+	kernel->Log(logtag | Logger::IS_INFORMATION, "Any errors displayed above are safe to ignore.");
+	kernel->Log(logtag | Logger::IS_INFORMATION, "These libraries are already embedded within the executable.");
+	kernel->Log(logtag | Logger::IS_INFORMATION, "-----------------------------------------------------------");
+
 	Resource::ResourceManager* res = kernel->GetResourceManager();
 	Graphics::GraphicsDevice* gfx = kernel->GetGraphicsDevice();
 	Input::InputDevice* inp = kernel->GetInputDevice();
