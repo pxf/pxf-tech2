@@ -7,8 +7,38 @@
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/FrameBufferObject.h>
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <Pxf/Resource/Image.h>
+#include <Pxf/Resource/ResourceManager.h>
 
 using namespace Pxf;
+
+int Fabric::gfx_getrawimage (lua_State* L) {
+	// gfx.getrawimage(filepath)
+	if (lua_gettop(L) == 1)
+	{
+		Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
+		Resource::Image* img = res->Acquire<Resource::Image>(lua_tostring(L, 1));
+		lua_createtable(L, img->Width()*img->Height()*img->Channels(), 0);
+		for(int y = 0; y < img->Height(); ++y)
+		{
+			for(int x = 0; x < img->Width(); ++x)
+			{
+				for(int c = 0; c < img->Channels(); ++c)
+				{
+					lua_pushnumber(L, y*img->Width()*img->Channels()+x*img->Channels()+c);
+					lua_pushnumber(L, img->Ptr()[y*img->Width()*img->Channels()+x*img->Channels()+c]);
+					lua_settable(L, -3);
+				}
+			}
+		}
+	
+		return 1;
+	} else {
+    lua_pushstring(L, "Invalid argument passed to loadtexture function!");
+    lua_error(L);
+  }
+  return 0;
+}
 
 int Fabric::gfx__redrawneeded (lua_State *L) {
   // gxf.redrawneeded(x,y,w,h) -- x,y,h,w optional, otherwise = full redraw
@@ -22,13 +52,14 @@ int Fabric::gfx__redrawneeded (lua_State *L) {
 }
 
 int Fabric::gfx_loadtexture (lua_State *L) {
-  // new_texture = gfx.loadtexture(123, "file.png") -- 123 = max quads count
+  // new_texture = gfx.loadtexture(123, "file.png", linear = false) -- 123 = max quads count
   if (lua_gettop(L) == 2 || lua_gettop(L) == 3)
   {
 		bool tlinear = false;
 		if (lua_gettop(L) == 3)
 		{
 			tlinear = lua_toboolean(L, 3);
+			printf("should be linear %d\n", tlinear);
 		}
 	
     App* inst = App::GetInstance();
@@ -779,6 +810,7 @@ int Fabric::gfx_deleteframebuffer(lua_State *L)
 
 int Fabric::luaopen_appgraphics (lua_State *L) {
   const luaL_reg appgraphicslib[] = {
+		{"getrawimage", gfx_getrawimage},
     {"_redrawneeded",   gfx__redrawneeded},
     {"loadidentity",   gfx_loadidentity},
     {"loadtexture",   gfx_loadtexture},

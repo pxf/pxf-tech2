@@ -12,6 +12,7 @@
 namespace Fabric
 {
 	// lib functions
+	int gfx_getrawimage (lua_State* L);
 	int gfx__redrawneeded(lua_State *L);
 	int gfx_loadidentity(lua_State *L);
 	

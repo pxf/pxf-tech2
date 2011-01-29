@@ -2,6 +2,9 @@
 #define _PXF_MODULES_PRI_SHADERGLSL_H_
 #include <Pxf/Graphics/Shader.h>
 
+#include <time.h>
+
+
 namespace Pxf
 {
 	namespace Graphics
