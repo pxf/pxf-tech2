@@ -314,15 +314,22 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	
 	if(!lib->Load(FilePath))
 	{
-		char buffer[4096];
-		size_t len = StringLength(lib->GetError());
-		StringCopy(buffer, lib->GetError(), len);
-		for (int i = len; i--;)
+		if (lib->GetError())
 		{
-			if (buffer[i] == '\n' || buffer[i] == '\r')
-				buffer[i] = 0x00;
+			char buffer[4096];
+			size_t len = StringLength(lib->GetError());
+			StringCopy(buffer, lib->GetError(), len);
+			for (int i = len; i--;)
+			{
+				if (buffer[i] == '\n' || buffer[i] == '\r')
+					buffer[i] = 0x00;
+			}
+			Log(m_KernelTag, "Error loading '%s' => '%s'", FilePath, buffer);
 		}
-		Log(m_KernelTag, "Error loading '%s' => '%s'", FilePath, buffer);
+		else
+		{
+			Log(m_KernelTag, "Error loading '%s' => 'unknown'", FilePath);
+		}
 		return false;
 	}
 	
