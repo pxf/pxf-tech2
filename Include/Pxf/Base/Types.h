@@ -9,6 +9,7 @@ typedef unsigned int uint;
 
 #if defined(CONF_COMPILER_GCC)
 	typedef unsigned char uint8;
+	typedef signed char int8;
 	typedef unsigned short uint16;
 #ifndef _UINT32
 	typedef unsigned long uint32;
