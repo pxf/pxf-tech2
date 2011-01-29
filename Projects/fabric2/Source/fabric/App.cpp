@@ -18,6 +18,9 @@ using namespace Pxf;
 using namespace Pxf::Graphics;
 
 static App* _appinstance;
+
+Pxf::Timer g_TimerRuntime;
+
 App* App::GetInstance()
 {
     return _appinstance;
@@ -168,6 +171,8 @@ bool App::Boot()
 {
   // Init ourselves
   Init();
+
+  g_TimerRuntime.Start();
   
   // Init lua state
   L = luaL_newstate();
@@ -602,6 +607,7 @@ void App::_register_own_callbacks()
 {
   // Register own callbacks
 	lua_register(L, "print", Print);
+	lua_register(L, "uptime", Uptime);
 	lua_register(L, "loadfile", LoadFile);
 	lua_register(L, "require", ImportFile);
     
@@ -629,6 +635,23 @@ void App::_register_own_callbacks()
 
 ///////////////////////////////////////////////////////////////////
 // Callback methods
+int App::Uptime(lua_State *_L)
+{
+	int n = lua_gettop(_L);
+	if (n != 0)
+	{
+		lua_pushstring(_L, "Uptime function takes no arguments.");
+		lua_error(_L);
+	}
+	else
+	{
+		double time = g_TimerRuntime.Interval() / 1000.f;
+		lua_pushnumber(_L, time);
+		return 1;
+	}
+	return 0;
+}
+
 int App::Print(lua_State *_L)
 {
     
