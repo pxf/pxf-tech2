@@ -1,0 +1,304 @@
+require("jam/liq")
+
+function create_dfworld( filepath )
+  local dfworld = {tex = {gfx.loadtexture(1, filepath, true),
+                          gfx.loadtexture(1, filepath, true)},
+                   fbo = gfx.newframebuffer(),
+                   active_tex = 1,
+                   sec_tex = 2,
+                   bindata = {},
+                   size = {512, 512},
+                   feathersize = 32}
+                   
+  -- constants
+  dfworld.solidvalue = 128
+  
+  -- load binary data
+  --dfworld.bindata = gfx.getrawimage(filepath)
+  local bindata = gfx.getrawimage(filepath)
+  for y=0,511 do
+    for x=0,511 do
+      if (tonumber(bindata[y*512*4+x*4+3]) >= dfworld.solidvalue) then
+        dfworld.bindata[y*512+x] = true
+      else
+        dfworld.bindata[y*512+x] = false
+      end
+    end
+  end
+  
+  -- function to test intersection
+  function dfworld:hittest(x,y)
+    if (self.bindata[y*self.size[1]+x]) then
+      return true
+    end
+    
+    return false
+  end
+  
+  -- set binaray data at pos
+  function dfworld:setbindata(x,y,data)
+    self.bindata[y*self.size[1]+x] = data
+  end
+  
+  -- df circle shader
+  dfworld.df_circle_shader = gfx.createshader("df_circle", [[
+  varying vec4 pos;
+  void main() {
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+    pos = gl_Vertex;
+  	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  }
+
+
+  ]], [[
+  uniform sampler2D tex;
+  uniform float masksize;
+  uniform float feathersize;
+  uniform float rel_x;
+  uniform float rel_y;
+  varying vec4 pos;
+  void main()
+  {
+    float quadsize = masksize + feathersize / 2.0;
+    float realsize = masksize - feathersize / 2.0;
+    float dx = pos.x - rel_x;
+    float dy = pos.y - rel_y;
+    
+    float distance_to_center = sqrt(dx*dx + dy*dy);
+    float distance_to_realsize = distance_to_center - realsize / 2.0;
+    float weighted_distance = abs(distance_to_realsize) / (feathersize / 2.0);
+    float final_dist = clamp(weighted_distance, 0.0, 1.0);
+    
+    vec4 old_tex = texture2D(tex, pos.st / 512.0);
+    
+    if (final_dist < old_tex.a)
+    {
+      gl_FragColor = vec4(0.0, 0.0, 0.0, final_dist);
+    } else {
+      gl_FragColor = vec4(0.0, 0.0, 0.0, old_tex.a);
+    }
+  }
+
+  ]])
+  
+  -- modification functions
+  function dfworld:cutcircle(x,y,size)
+    print("cut at " .. x .. ", " .. y .. ", size: " .. size)
+    
+    
+    -- draw to fbo
+    self.fbo:attach(self.tex[self.sec_tex], 1)
+    gfx.bindframebuffer(self.fbo)
+    gfx.clear()
+    gfx.setview(0,0,512,512)
+    gfx.setortho(0,512,0,512)
+    
+    -- copy from active to sec
+    local oldtex = gfx.bindtexture(self.tex[self.active_tex])
+    gfx.blending()
+    gfx.alphatest()
+    gfx.drawtopleft(0,0,512,512)
+    
+    -- TODO: render new hole
+    --gfx.bindtexture(0)
+    gfx.bindshader(self.df_circle_shader)
+    local newquadsize = size + self.feathersize
+    self.df_circle_shader:setuniformf("masksize", size)
+    self.df_circle_shader:setuniformf("feathersize", self.feathersize)
+    self.df_circle_shader:setuniformf("rel_x", x)
+    self.df_circle_shader:setuniformf("rel_y", y)
+    gfx.drawcentered(x,y,newquadsize,newquadsize)
+    gfx.bindshader()
+    
+    gfx.bindtexture(oldtex)
+    
+    -- detach fbo and tex
+    gfx.bindframebuffer()
+    self.fbo:detach(1)
+    
+    -- switch ping-pong-fbo/tex
+    if (self.active_tex == 1) then
+      self.active_tex = 2
+      self.sec_tex = 1
+    else
+      self.active_tex = 1
+      self.sec_tex = 2
+    end
+    
+    -- mask out from bindata
+    for ty=-size/2,0 do
+      for tx=-size/2,0 do
+        -- find value at delta pos
+        local dx,dy
+        dx = x + tx
+        dy = y + ty
+        if (self:hittest(dx,dy)) then
+          local d = math.abs(math.sqrt(tx*tx + ty*ty))
+          if (d <= size/2) then
+            
+            for i=1,2 do
+              for ofx=dx,dx+(size-tx) do
+                if (i == 1) then
+                  self:setbindata(ofx,dy,false)
+                else
+                  self:setbindata(ofx,y-ty,false)
+                end
+              end
+            end
+            
+            break
+          end
+        end
+      end
+    end
+  end
+  
+  -- df render shader
+  dfworld.df_render_shader = gfx.createshader("df_render", [[
+
+  void main() {
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+  	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  }
+
+
+  ]], [[
+  uniform sampler2D tex;
+  void main()
+  {
+  	// Setting Each Pixel To Red
+  	vec4 color = texture2D(tex, gl_TexCoord[0].st);
+  	if (color.a < 0.7)
+	  {
+	    gl_FragColor = vec4(0.6, 0.0, 0.0, color.a);
+	  } else {
+	    gl_FragColor = vec4(1.0, 0.0, 0.0, color.a);
+	  }
+  }
+
+  ]])
+  
+  function dfworld:draw()
+    local oldtex = gfx.bindtexture(self.tex[self.active_tex])
+    gfx.bindshader(self.df_render_shader)
+    gfx.alphatest(gfx.GEQUAL, 0.5)
+    gfx.drawcentered(0,0,512,512)
+    
+    gfx.alphatest()
+    gfx.blending()
+    gfx.bindshader()
+    gfx.bindtexture(oldtex)
+  end
+  
+  return dfworld
+end
+
+
+world = create_dfworld("jam/leveltest.png")--leveltest.png"))
+zoom = 1
+
+scroll_x = 0
+scroll_y = 0
+scrolling = false
+zooming = false
+mouse_x = 0
+mouse_y = 0
+
+
+local aliq = create_new_liq(128,128,32, 20)
+local bliq = create_new_liq(100,20,32, 20)
+
+function update()
+  if inp.iskeydown(inp.ESC) then
+		app.quit()
+	end
+	if inp.iskeydown(inp.TAB) then
+		app.reboot()
+	end
+	--zoom = zoom + 0.001
+	
+	local mx,my = inp.getmousepos()
+	--bliq.x = mx
+	--bliq.y = my
+	--aliq:apply_force(0, 9.82)
+	bliq:apply_force(0, 9.82)
+	
+	aliq:step(1.0/60.0)
+	bliq:step(1.0/60.0)
+	
+	local res = aliq:intersect(bliq)
+	if (res ~= nil) then
+	  local nx = res.x
+	  local ny = res.y
+	  bliq:apply_force(nx,ny)
+	  local res2 = vec(0,0)-res
+	  local nx = res2.x
+	  local ny = res2.y
+	  aliq:apply_force(nx,ny)
+  end
+	
+	--print(aliq:intersect(bliq))
+	
+	
+	
+	if (inp.isbuttondown(inp.MOUSE_LEFT)) then
+	  new_mouse_x, new_mouse_y = inp.getmousepos()
+	  if (world:hittest(new_mouse_x, new_mouse_y)) then
+	    print("hit")
+    else
+      print("miss")
+    end
+	  
+	  if (scrolling and inp.iskeydown(inp.SPACE)) then
+	    --new_mouse_x, new_mouse_y = inp.getmousepos()
+	    scroll_x = scroll_x + (new_mouse_x - mouse_x)
+	    scroll_y = scroll_y + (new_mouse_y - mouse_y)
+	    mouse_x = new_mouse_x
+	    mouse_y = new_mouse_y
+	    --print(scroll_x, scroll_y)
+    else
+      scrolling = true
+      mouse_x, mouse_y = inp.getmousepos()
+    end
+  else
+    scrolling = false
+  end
+  
+  if (inp.isbuttondown(inp.MOUSE_MIDDLE)) then
+    local mx,my = inp.getmousepos()
+    world:cutcircle(mx,my,32)
+  end
+	
+	if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
+	  
+	  if (zooming) then
+	    new_mouse_x, new_mouse_y = inp.getmousepos()
+	    zoom = zoom + (new_mouse_y - mouse_y) * 0.01
+	    mouse_y = new_mouse_y
+    else
+      zooming = true
+      mouse_x, mouse_y = inp.getmousepos()
+    end
+  else
+    zooming = false
+  end
+end
+
+function draw()
+  gfx.clear()
+  gfx.loadidentity()
+  local w,h = app.getwindimensions()
+  gfx.translate(w / 2, h / 2)
+  gfx.scale(zoom)
+  gfx.translate(scroll_x, scroll_y)
+  world:draw()
+  
+  gfx.loadidentity()
+  
+  aliq:draw()
+  bliq:draw()
+  
+  gfx.alphatest(gfx.GEQUAL, 0.5)
+  panic.text("esc = quit", 12, 12)
+  panic.text("tab = reboot", 12, 12+16)
+end
