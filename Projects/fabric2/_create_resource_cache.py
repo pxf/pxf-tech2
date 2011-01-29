@@ -1,6 +1,7 @@
 import os
 
 IGNORE_FILTER = ['.svn']
+IGNORE_TYPES = ['.psd']
 DATA_FOLDERS=['data', 'jam', 'fabric']
 
 def get_resource_list(root):
@@ -9,6 +10,9 @@ def get_resource_list(root):
         if any([ignore in root for ignore in IGNORE_FILTER]):
             continue
         for file in files:
+            base, ext = os.path.splitext(file)
+            if ext in IGNORE_TYPES:
+                continue
             path = os.path.join(root, file)
             resource_list.append(path,)
     return resource_list
@@ -28,7 +32,6 @@ def create_data_file(resources):
                  "};\n\n"
 
     def hexify(name, data):
-        print data
         chunk_size = len(data)
         hex_chunk = ["0x%x"%byte + ("\n\t" if index % 20 == 0 else "") 
                      for index, byte in enumerate(data)]
