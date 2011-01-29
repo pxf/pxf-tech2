@@ -28,13 +28,15 @@ def create_data_file(resources):
                  "};\n\n"
 
     def hexify(name, data):
+        print data
         chunk_size = len(data)
         hex_chunk = ["0x%x"%byte + ("\n\t" if index % 20 == 0 else "") 
                      for index, byte in enumerate(data)]
         hex_data = "const unsigned char %s[] = {" % name
         hex_data += ",".join(hex_chunk)
+        hex_data += ", 0x00"
         hex_data += "};\n"
-        return hex_data, chunk_size
+        return hex_data, chunk_size+1
 
     file_size_map = {}
     for file in resources:

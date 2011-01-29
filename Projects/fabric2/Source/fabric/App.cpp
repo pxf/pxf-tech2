@@ -602,8 +602,8 @@ void App::_register_own_callbacks()
 {
   // Register own callbacks
 	lua_register(L, "print", Print);
-//	lua_register(L, "loadfile", LoadFile);
-//	lua_register(L, "require", ImportFile);
+	lua_register(L, "loadfile", LoadFile);
+	lua_register(L, "require", ImportFile);
     
 	// Create empty luagame table
 	lua_newtable(L);
@@ -703,12 +703,14 @@ int App::ImportFile(lua_State *_L)
 		{
 			char err[4096];
 			const char* blah = lua_tostring(_L, -1);
-			sprintf(err, "loadfile failed with error code %d, %s", result, blah);
+			sprintf(err, "require failed with error code %d, %s", result, blah);
 			lua_pushstring(_L, err);
 			lua_error(_L);
+			return 0;
 		}
 		res->Release(text);
-		return 0;
+		lua_pcall(_L, 0, 1, 0);
+		return 1;
 	}
 	else
 	{
