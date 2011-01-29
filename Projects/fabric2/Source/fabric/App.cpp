@@ -697,6 +697,12 @@ int App::ImportFile(lua_State *_L)
 		}
 		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
 		Resource::Text* text = res->Acquire<Resource::Text>(path, "txt");
+		if (!text)
+		{
+			lua_pushstring(_L, "Error loading file!");
+			lua_error(_L);
+			return 0;
+		}
 		char* code = text->Ptr();
 		int result = luaL_loadstring(_L, code);
 		if (result != 0)

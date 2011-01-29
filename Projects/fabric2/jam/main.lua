@@ -1,5 +1,6 @@
 require("fabric/settingshandler")
 require("jam/game")
+require("jam/gui")
 
 ----------------------------------------------
 -- settings
