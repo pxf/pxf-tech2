@@ -11,6 +11,7 @@ local game = new_game()
 
 local level0 = new_level("LVL 1",32)
 game:add_level(level0)
+
 --game:add_level("LVL 1",32)
 
 function update()
