@@ -1,7 +1,7 @@
 import os
 
 IGNORE_FILTER = ['.svn']
-DATA_FOLDERS=['data', 'jam']
+DATA_FOLDERS=['data', 'jam', 'fabric']
 
 def get_resource_list(root):
     resource_list = []
@@ -14,7 +14,7 @@ def get_resource_list(root):
     return resource_list
 
 def mangle_filename(path):
-    return path.replace(os.path.sep, "_").replace(".", "_")
+    return path.replace(os.path.sep, "_").replace(".", "_").replace("-", "_")
     
 def create_data_file(resources):
     data_file = "#ifndef _PRELOADEDRESOURCES_\n"\
