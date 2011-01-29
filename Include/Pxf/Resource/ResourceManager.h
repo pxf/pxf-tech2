@@ -117,28 +117,30 @@ namespace Resource
 				
 				if (loaderit != m_ResourceLoaders->end())
 				{
-					Pxf::Util::Map<Util::String, DataBlob*>::iterator cached_iter = m_CachedFiles->find(_FilePath);
-					if (cached_iter != m_CachedFiles->end())
-					{
-						// Create from cached data
-						DataBlob* datablob = cached_iter->second;
-						resource = (ResourceType*)(loaderit->second->CreateFrom(datablob->data
-																			   ,datablob->size));
-						resource->m_References = 1;
-						resource->m_Chunk->is_static = true;
-						resource->m_Chunk->source = _FilePath;
-						m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Loading cached version of '%s'", _FilePath);
-					}
-					else
-					{
-						// Load from disk
-						resource = (ResourceType*)loaderit->second->Load(_FilePath);
-					}
+					// Attempt to load from disk
+					resource = (ResourceType*)loaderit->second->Load(_FilePath);
+					if (resource)
+						m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Loading '%s' from disk.", _FilePath);
 
 					if (!resource)
 					{
-						m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to load resource '%s'", _FilePath);
-						return NULL;
+						// If it failed, try a cached resource
+						Pxf::Util::Map<Util::String, DataBlob*>::iterator cached_iter = m_CachedFiles->find(_FilePath);
+						if (cached_iter != m_CachedFiles->end())
+						{
+							// Create from cached data
+							DataBlob* datablob = cached_iter->second;
+							resource = (ResourceType*)(loaderit->second->CreateFrom(datablob->data
+								,datablob->size));
+							resource->m_Chunk->is_static = true;
+							resource->m_Chunk->source = _FilePath;
+							m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Loading cached version of '%s'", _FilePath);
+						}
+						else
+						{
+							m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "Failed to load resource '%s'", _FilePath);
+							return NULL;
+						}
 					}
 					m_LoadedResources->insert(std::make_pair(_FilePath, resource));
 				}

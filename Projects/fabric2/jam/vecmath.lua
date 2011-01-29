@@ -34,12 +34,26 @@ function vec_sub(v1,v2)
   return vec(v1[1] - v2[1], v1[2] - v2[2])
 end
 
+function vec_norm(v)
+	local d = vec_len(v)
+	
+	if d == 0 then
+		return vec(0,0)
+	end
+	
+	return vec(v.x / d,v.y / d)
+end
+
 function vec_len(v)
   return math.sqrt(v[1]*v[1] + v[2]*v[2])
 end
 
 function vec_cross(v)
   return vec(v[2], -v[1])
+end
+
+function vec_dot(v1,v2)
+	return v1.x*v2.x + v1.y*v2.y
 end
 
 function vec_print(a,b)
@@ -53,6 +67,9 @@ end
 -- create vector
 function vec(x,y)
   local v = {x,y}
+  v.x = v[1]
+  v.y = v[2]
+  
   if (y == nil) then
     v[2] = v[1]
   end
@@ -63,6 +80,8 @@ function vec(x,y)
               __concat = vec_print}
   v.len = vec_len
   v.cross = vec_cross
+  v.norm = vec_norm
+  v.dot = vec_dot
   
   
   setmetatable(v, mt)
