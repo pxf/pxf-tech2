@@ -105,18 +105,12 @@ function create_liq_world()
                     fbo = gfx.newframebuffer(),
                     bg_tex = gfx.newtexture(1, 512, 512, true)}
 					
-	liqworld.grid = new_grid(512,512,8,8)				
+	liqworld.grid = new_grid(512,512,32,32)				
 
   function liqworld:add_liq(a)
     table.insert(self.liqs, a)
-  end
-  
-  function liqworld:build_grid()
-	for k,v in pairs(self.liqs) do
-		self.grid:insert(v)
-		
-		--print(v.cell_index)
-	end
+	
+	self.grid:insert(a)
   end
   
   liqworld.df_render_shader = gfx.createshader("df_render", [[
@@ -302,7 +296,6 @@ function create_liq_world()
 	local grid = self.grid
 	
 	local amp = 0.5
-	
 	for k,v in pairs(self.liqs) do
 		local i = v.cell_index
 		
@@ -394,8 +387,7 @@ function create_liq_world()
         end
         
       end
-    end 
-	--]]
+    end --]]
   end
   
   return liqworld
@@ -459,7 +451,7 @@ function new_grid(w,h,cw,ch)
 		
 		a.cell_index = index
 		table.insert(g.cells[index].items,a)
-		print(index)
+		--print(index)
 	end
 	
 	return g

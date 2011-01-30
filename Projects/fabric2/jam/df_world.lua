@@ -311,7 +311,7 @@ function create_new_game()
 local newgame = {}
 
 local liq_world = create_liq_world()
-liq_world:build_grid()
+--liq_world:build_grid()
 --liq_world:add_liq(aliq)
 --liq_world:add_liq(bliq)
 for i=1,60 do
@@ -388,10 +388,7 @@ function newgame:update()
   end
 	
 	if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
-	
-		print("poop")
-	 --[[ 
-	  if (zooming) then
+			  if (zooming) then
 	    new_mouse_x, new_mouse_y = inp.getmousepos()
 	    zoom = zoom + (new_mouse_y - mouse_y) * 0.01
 	    mouse_y = new_mouse_y
@@ -400,7 +397,7 @@ function newgame:update()
 			mouse_x, mouse_y = inp.getmousepos()
 		end
 		else
-		zooming = false --]]
+		zooming = false
   end
 end
 
