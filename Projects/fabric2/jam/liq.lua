@@ -22,7 +22,7 @@ function create_new_liq(x,y,size, mass)
   function liq:draw()
     --gfx.bindtexture(0)
     if (math.abs(self.vel[2]) > 1) then
-      gfx.drawcentered(self.x-self.vel[1]*2, self.y-self.vel[2]*2, 16, 16)
+      gfx.drawcentered(self.x-self.vel[1]*1.5, self.y-self.vel[2]*1.5, 12, 12)
       gfx.drawcentered(self.x-self.vel[1], self.y-self.vel[2], 24, 24)
     end
     gfx.drawcentered(self.x, self.y, 32, 32)--self.size * 2, self.size * 2)
