@@ -40,6 +40,97 @@ function create_dfworld( filepath )
     self.bindata[y*self.size[1]+x] = data
   end
   
+  -- xx --> err?
+  -- xx
+  
+  -- xo --> recheck 1
+  -- oo
+  
+  -- xx --> |
+  -- oo
+  
+  -- xo --> -
+  -- xo
+  
+  -- xo --> /
+  -- ox
+  
+  -- xo --> /
+  -- xx
+  
+  -- ox --> recheck 2
+  -- oo
+  
+  ------
+  -- ox --> \
+  -- xo
+  
+  -- ox --> \
+  -- xx
+  
+  -- ox --> -
+  -- ox
+  ------
+  
+  -- oo --> recheck 3
+  -- xo
+  
+  -- oo --> |
+  -- xx
+  
+  ------
+  
+  -- oo --> recheck 4
+  -- ox
+  
+  function dfworld:get_response_vec(x,y)
+    local p1,p2,p3,p4
+    p1 = self:hittest(x,y)
+    p2 = self:hittest(x+1,y)
+    p3 = self:hittest(x,y+1)
+    p4 = self:hittest(x+1,y+1)
+    
+    --local res = vec(0,0)
+    if (p1) then
+      if (p2 and (not p3) and (not p4)) then
+        --res.y = 1
+        return "|"--res
+      elseif ((not p2) and p3 and (not p4)) then
+        --res.x = 1
+        return "-"--res
+      elseif ((not p2) and p3 or p4) then
+        --res.x = 0.5
+        --res.y = 0.5
+        return "/"--res
+      end
+      
+      return self:get_response_vec(x-1,y-1)
+      
+    elseif (p2) then
+      if (p3) then
+        --res.x = -0.5
+        --res.y = 0.5
+        return "\\"--res
+      elseif (p4) then
+        --res.x = 1
+        return "-"--res
+      end
+      
+      return self:get_response_vec(x+2,y-1)
+    
+    elseif (p3) then
+      if (p4) then
+        --res.y = 1
+        return "-"--res
+      end
+      
+      return self:get_response_vec(x-1,y+2)
+    
+    else
+      return self:get_response_vec(x+2,y+2)
+    end
+  end
+  
   -- df circle shader
   dfworld.df_circle_shader = gfx.createshader("df_circle", [[
   varying vec4 pos;
@@ -182,7 +273,7 @@ function create_dfworld( filepath )
     local oldtex = gfx.bindtexture(self.tex[self.active_tex])
     gfx.bindshader(self.df_render_shader)
     gfx.alphatest(gfx.GEQUAL, 0.5)
-    gfx.drawcentered(0,0,512,512)
+    gfx.drawtopleft(0,0,512,512)
     
     gfx.alphatest()
     gfx.blending()
@@ -205,8 +296,15 @@ mouse_x = 0
 mouse_y = 0
 
 
-local aliq = create_new_liq(128,128,32, 20)
-local bliq = create_new_liq(100,20,32, 20)
+--local aliq = create_new_liq(40,20,16, 20)
+--local bliq = create_new_liq(20,20,16, 20)
+local liq_world = create_liq_world()
+--liq_world:add_liq(aliq)
+--liq_world:add_liq(bliq)
+for i=1,60 do
+  liq_world:add_liq(create_new_liq(40+math.random(0,30),20+math.random(0,20),8, 20))
+end
+
 
 function update()
   if inp.iskeydown(inp.ESC) then
@@ -215,31 +313,8 @@ function update()
 	if inp.iskeydown(inp.TAB) then
 		app.reboot()
 	end
-	--zoom = zoom + 0.001
 	
-	local mx,my = inp.getmousepos()
-	--bliq.x = mx
-	--bliq.y = my
-	--aliq:apply_force(0, 9.82)
-	bliq:apply_force(0, 9.82)
-	
-	aliq:step(1.0/60.0)
-	bliq:step(1.0/60.0)
-	
-	local res = aliq:intersect(bliq)
-	if (res ~= nil) then
-	  local nx = res.x
-	  local ny = res.y
-	  bliq:apply_force(nx,ny)
-	  local res2 = vec(0,0)-res
-	  local nx = res2.x
-	  local ny = res2.y
-	  aliq:apply_force(nx,ny)
-  end
-	
-	--print(aliq:intersect(bliq))
-	
-	
+	liq_world:step(0.5, world)
 	
 	if (inp.isbuttondown(inp.MOUSE_LEFT)) then
 	  new_mouse_x, new_mouse_y = inp.getmousepos()
@@ -288,15 +363,15 @@ function draw()
   gfx.clear()
   gfx.loadidentity()
   local w,h = app.getwindimensions()
-  gfx.translate(w / 2, h / 2)
-  gfx.scale(zoom)
-  gfx.translate(scroll_x, scroll_y)
+  --gfx.translate(w / 2, h / 2)
+  --gfx.scale(zoom)
+  --gfx.translate(scroll_x, scroll_y)
+  
+  liq_world:draw()
+  
   world:draw()
   
   gfx.loadidentity()
-  
-  aliq:draw()
-  bliq:draw()
   
   gfx.alphatest(gfx.GEQUAL, 0.5)
   panic.text("esc = quit", 12, 12)

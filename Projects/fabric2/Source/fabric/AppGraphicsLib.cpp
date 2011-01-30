@@ -34,7 +34,7 @@ int Fabric::gfx_getrawimage (lua_State* L) {
 	
 		return 1;
 	} else {
-    lua_pushstring(L, "Invalid argument passed to loadtexture function!");
+    lua_pushstring(L, "Invalid argument passed to getrawimage function!");
     lua_error(L);
   }
   return 0;

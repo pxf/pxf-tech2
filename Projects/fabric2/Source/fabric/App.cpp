@@ -368,6 +368,8 @@ void App::Flush()
 		if (m_UsingFBO)
 			num_passes = 1;
 		
+		glClear(GL_DEPTH_BUFFER_BIT);
+		
 		for (int renderpass = 0; renderpass < num_passes; ++renderpass)
 		{
 			/*if (m_RedrawStencil && !m_RedrawFull)

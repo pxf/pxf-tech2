@@ -23,7 +23,7 @@ extern "C" {
 
 #define FABRIC_TABLE "app"
 
-#define FABRIC_MAXQB 8
+#define FABRIC_MAXQB 16
 //#define FABRIC_QBSIZE 2048
 #define FABRIC_DEPTH_RANGE 200.0f
 #define FABRIC_DEPTH_FAR 100.0f

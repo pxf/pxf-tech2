@@ -41,7 +41,7 @@ function vec_norm(v)
 		return vec(0,0)
 	end
 	
-	return vec(v.x / d,v.y / d)
+	return vec(v[1] / d, v[2] / d)
 end
 
 function vec_len(v)
