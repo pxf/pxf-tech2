@@ -336,19 +336,21 @@ function newgame:update()
 		liq_world:add_liq(l)
 	  
 	  if (world:hittest(new_mouse_x, new_mouse_y)) then
-	    --print("hit")
+	    print("hit")
     else
-      --print("miss")
+		print("miss")
     end
 	
-	if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
+	--[[if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
+	
+		print("sup")
 		for i = -2,4 do
 			for j = -2,4 do
 				local l = create_new_liq(new_mouse_x + i,new_mouse_y + j,8, 20, time)
 				liq_world:add_liq(l)
 			end
 		end
-	end
+	end]]--
 	  
 	  if (scrolling and inp.iskeydown(inp.SPACE)) then
 	    --new_mouse_x, new_mouse_y = inp.getmousepos()
@@ -371,17 +373,19 @@ function newgame:update()
   end
 	
 	if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
-	  
+	
+		print("poop")
+	 --[[ 
 	  if (zooming) then
 	    new_mouse_x, new_mouse_y = inp.getmousepos()
 	    zoom = zoom + (new_mouse_y - mouse_y) * 0.01
 	    mouse_y = new_mouse_y
-    else
-      zooming = true
-      mouse_x, mouse_y = inp.getmousepos()
-    end
-  else
-    zooming = false
+		else
+			zooming = true
+			mouse_x, mouse_y = inp.getmousepos()
+		end
+		else
+		zooming = false --]]
   end
 end
 
