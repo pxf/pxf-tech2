@@ -1,6 +1,6 @@
 require("jam/vecmath")
 
-local liq_render_shader = gfx.createshader("df_render", [[
+liq_render_shader = gfx.createshader("df_render", [[
 
 void main() {
   gl_TexCoord[0] = gl_MultiTexCoord0;
@@ -15,12 +15,14 @@ void main()
 {
 	vec4 color = texture2D(tex, gl_TexCoord[0].st);
 	
-	if (liqtype == 0)
-	  color.rgb = vec3(0.3, 0.3, 1.0);
-	elseif (liqtype == 1)
-	  color.rgb = vec3(1.0, 0.3, 0.3);
+	if (liqtype == 1)
+	  color.g = 0.0;
+	else if (liqtype == 2)
+	  color.g = 1.0;
+  else
+    color.g = 1.0;
 	  
-  gl_FragColor = vec4(1.0,1.0,1.0,color.a);//vec4(water_tex.rgb * vec3(0.5, 0.5, 1.0), color.r);
+  gl_FragColor = vec4(color.rgb,color.a);
 }
 
 ]])
@@ -124,11 +126,18 @@ function create_liq_world()
   	water_coords.y += offset_x*0.5;
   	
   	vec4 water_tex = texture2D(tex2, water_coords);
+  	
+  	vec3 out_color = vec3(1.0, 1.0, 1.0);
+  	if (color.g >= 0.5)
+  	  out_color = vec3(0.2, 0.2, 1.0);
+	  else
+	    out_color = vec3(1.0, 0.2, 0.2);
+  	
   	if (color.r < 0.8)
 	  {
-	    gl_FragColor = vec4(water_tex.rgb * vec3(1.0, 1.0, 1.0), color.r);
+	    gl_FragColor = vec4(water_tex.rgb * out_color.rgb * vec3(1.0, 1.0, 1.0), color.r);
 	  } else {
-	    gl_FragColor = vec4(water_tex.rgb * vec3(0.8, 0.8, 0.8), color.r);
+	    gl_FragColor = vec4(water_tex.rgb * out_color.rgb * vec3(0.8, 0.8, 0.8), color.r);
 	  }
   }
 
@@ -149,7 +158,8 @@ function create_liq_world()
     gfx.alphatest()
     gfx.bindshader(liq_render_shader)
     for i=1,#self.liqs do
-      self.liq_render_shader:setuniformi("liqtype", self.liqs[i].liqtype)
+      liq_render_shader:setuniformi("liqtype", self.liqs[i].liqtype)
+      print(self.liqs[i].liqtype)
       self.liqs[i]:draw()
     end
     gfx.blending()
