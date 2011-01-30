@@ -21,6 +21,10 @@ function create_new_liq(x,y,size, mass)
   
   function liq:draw()
     --gfx.bindtexture(0)
+    if (math.abs(self.vel[2]) > 1) then
+      gfx.drawcentered(self.x-self.vel[1], self.y-self.vel[2], 16, 16)
+      gfx.drawcentered(self.x-self.vel[1]/2.0, self.y-self.vel[2]/2.0, 24, 24)
+    end
     gfx.drawcentered(self.x, self.y, 32, 32)--self.size * 2, self.size * 2)
   end
   
@@ -197,7 +201,7 @@ function create_liq_world()
         
         -- normalize refl vect and multiply by amount intersection itwas
         --refl_force = vec(0,0) - refl_force
-        refl_force = refl_force:norm() * vec(50, 50)
+        refl_force = refl_force:norm() * vec(60, 60)
         self.liqs[i]:apply_force(refl_force[1], refl_force[2])
         
       end
