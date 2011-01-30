@@ -730,6 +730,7 @@ int App::ImportFile(lua_State *_L)
 		}
 		char* code = text->Ptr();
 		int result = luaL_loadstring(_L, code);
+		res->Release(text);
 		if (result != 0)
 		{
 			char err[4096];
@@ -739,7 +740,6 @@ int App::ImportFile(lua_State *_L)
 			lua_error(_L);
 			return 0;
 		}
-		res->Release(text);
 		lua_pcall(_L, 0, 1, 0);
 		return 1;
 	}

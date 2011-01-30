@@ -2,6 +2,7 @@
 #define _PXF_RESOURCE_CHUNK_H_
 
 #include <Pxf/Util/Noncopyable.h>
+#include <Pxf/Util/String.h>
 
 namespace Pxf {
 namespace Resource {
@@ -11,13 +12,13 @@ namespace Resource {
 	public:
 		void* data;
 		unsigned size;
-		const char* source;
+		Util::String source;
 		bool is_static;
 		
 		Chunk()
 			: data(0)
 			, size(0)
-			, source(0)
+			, source("")
 			, is_static(false) 
 		{}
 		

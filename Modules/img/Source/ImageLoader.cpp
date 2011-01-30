@@ -31,7 +31,7 @@ bool Modules::SOILImage::Build()
 	if (!m_ImageData)
 	{
 		const char* error = SOIL_last_result();
-		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "failed to create image from '%s'", m_Chunk->source ? m_Chunk->source : "unknown");
+		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, "failed to create image from '%s'", GetSource() ? GetSource() : "unknown");
 		m_Kernel->Log(m_LogTag | Logger::IS_CRITICAL, error);
 		return false;
 	}
