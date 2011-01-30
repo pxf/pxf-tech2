@@ -33,6 +33,7 @@ function create_new_liq(x,y, size, mass, liqtype, life_time)
 			   
 	liq.elapsed_time = 0.0
 	liq.life_time = life_time
+	liq.cell_index = nil
   
   function liq:intersect(b)
     local tx = b.x - self.x
@@ -52,6 +53,7 @@ function create_new_liq(x,y, size, mass, liqtype, life_time)
   function liq:draw()
     --gfx.bindtexture(0)
     if (math.abs(self.vel[2]) > 1) then
+		
       gfx.drawcentered(self.x-self.vel[1]*1.5, self.y-self.vel[2]*1.5, 12, 12)
       gfx.drawcentered(self.x-self.vel[1], self.y-self.vel[2], 24, 24)
     end
@@ -186,6 +188,7 @@ function create_liq_world()
     self.df_render_shader:bindtexunit(self.water_tex, 1)
     self.df_render_shader:setuniformi("tex2", 1)
     self.df_render_shader:setuniformf("offset_x", self.wateranim)
+
     
     gfx.alphatest(gfx.GEQUAL, 0.5)
     gfx.drawtopleft(0,0,512,512)
@@ -196,10 +199,31 @@ function create_liq_world()
   function liqworld:step(time, df_world)
     liqworld.wateranim = liqworld.wateranim + 0.05
     
+	for k,v in pairs(self.liqs) do
+		v:apply_force(0, 9.82)
+		
+		if v.life_time then
+			v.elapsed_time = v.elapsed_time + time
+			
+			if v.elapsed_time >= v.life_time then
+				self.grid:remove(v)
+				table.remove(self.liqs,k)
+			end
+		end
+	end
+	
+	--[[
     -- apply gravity
     for i=1,#self.liqs do
+		if self
+		
+		self.liqs[i].elapsed_time = self.liqs[i].elapsed_time + time
+		
+		if self.liqs[i].
+	
       self.liqs[i]:apply_force(0, 9.82)
     end
+	]]--
     
     -- step each liq
     for i=1,#self.liqs do
@@ -410,8 +434,18 @@ function new_grid(w,h,cw,ch)
 	
 	function g:remove(a)
 		local index = a.cell_index
-	
-		local items = self.cells[index].items
+		
+		if (index > 0) and (index <= self.ch*self.cw) then
+		
+			local items = self.cells[index].items
+			
+			for k,v in pairs(items) do
+				if v == a then
+					table.remove(items,k)
+				end
+			end
+		
+		end
 	end
 	
 	function g:insert(a)
@@ -425,6 +459,7 @@ function new_grid(w,h,cw,ch)
 		
 		a.cell_index = index
 		table.insert(g.cells[index].items,a)
+		print(index)
 	end
 	
 	return g
