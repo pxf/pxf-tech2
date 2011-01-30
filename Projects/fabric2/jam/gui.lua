@@ -4,6 +4,6 @@ require("jam/guiwindows")
 
 gui:init()
 
-function gamejam_init(settings)
+--[[function gamejam_init(settings)
 	spawn_gamemenu()
-end
+end]]

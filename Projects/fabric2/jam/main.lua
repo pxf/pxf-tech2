@@ -9,12 +9,14 @@ settings = new_settings_handler("settings.ini", {rendersize = 512, toolbarstate 
 settings:load()
 settings:save()
 
-gamejam_init(settings)
+--gamejam_init(settings)
+game = {}
+spawn_gamemenu(game)
 
 
 music = snd.newsound("data/sound/ggj11.ogg")
 
-local game = create_new_game()
+--game = nil--create_new_game()
 
 --[[
 local level0 = new_level("LVL 1",0,512,512)
@@ -77,14 +79,18 @@ function update()
 		end)
 	
 	gui:update()
-	game:update()
+	if (game.game) then
+  	game.game:update()
+  end
 end
 
 function draw(force)
 	gfx.clear()
-	game:draw()
+	if (game.game) then
+  	game.game:draw()
+  end
 	
 	gfx.loadidentity()
 	gfx.setcolor(1, 1, 1)
-	gui:draw()
+	gui:draw(true)
 end
