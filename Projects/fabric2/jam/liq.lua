@@ -20,7 +20,7 @@ function create_new_liq(x,y,size, mass)
   end
   
   function liq:draw()
-    gfx.bindtexture(0)
+    --gfx.bindtexture(0)
     gfx.drawcentered(self.x, self.y, 32, 32)--self.size * 2, self.size * 2)
   end
   
@@ -38,7 +38,7 @@ function create_new_liq(x,y,size, mass)
     self.x = self.old_x
     self.y = self.old_y
     
-    local inv = (vec(0,0) - vec(self.vel[1], self.vel[2])) * vec(0.9, 0.4)
+    local inv = (vec(0,0) - vec(self.vel[1], self.vel[2])) * vec(1.0, 0.4)
     self.vel[1] = inv.x
     self.vel[2] = inv.y
   end
@@ -64,21 +64,63 @@ end
 
 
 function create_liq_world()
-  local liqworld = {liqs = {}, liq_tex = gfx.loadtexture(1024, "jam/liq.png", true)}
+  local liqworld = {liqs = {}, liq_tex = gfx.loadtexture(1024, "jam/liq.png", true),
+                    fbo = gfx.newframebuffer(), 
+                    bg_tex = gfx.newtexture(1, 512, 512)}
   
   function liqworld:add_liq(a)
     table.insert(self.liqs, a)
   end
   
+  liqworld.df_render_shader = gfx.createshader("df_render", [[
+
+  void main() {
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+  	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  }
+
+
+  ]], [[
+  uniform sampler2D tex;
+  void main()
+  {
+  	vec4 color = texture2D(tex, gl_TexCoord[0].st);
+  	if (color.r < 0.8)
+	  {
+	    gl_FragColor = vec4(0.5, 0.5, 1.0, color.r);
+	  } else {
+	    gl_FragColor = vec4(0.4, 0.4, 1.0, color.r);
+	  }
+  }
+
+  ]])
+  
+  
   function liqworld:draw()
+    
+    -- bind fbo
+    self.fbo:attach(self.bg_tex, 1)
+    gfx.bindframebuffer(self.fbo)
+    gfx.clear()
+    gfx.setview(0,0,512,512)
+    gfx.setortho(0,512,0,512)
+    
     local oldtex = gfx.bindtexture(self.liq_tex)
-    --GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    --gfx.blending(gfx.SRC_ALPHA, gfx.ONE_MINUS_SRC_ALPHA)
-    gfx.alphatest(gfx.GEQUAL, 0.5)
+    gfx.blending(gfx.SRC_ALPHA, gfx.ONE_MINUS_SRC_ALPHA)
+    gfx.alphatest()
     for i=1,#self.liqs do
       self.liqs[i]:draw()
     end
     gfx.blending()
+    
+    gfx.bindframebuffer()
+    self.fbo:detach(1)
+    
+    gfx.bindtexture(self.bg_tex)
+    gfx.bindshader(self.df_render_shader)
+    gfx.alphatest(gfx.GEQUAL, 0.5)
+    gfx.drawtopleft(0,0,512,512)
+    gfx.bindshader()
     gfx.bindtexture(oldtex)
   end
   
