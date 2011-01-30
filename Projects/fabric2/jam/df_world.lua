@@ -311,7 +311,7 @@ function create_new_game()
 local newgame = {}
 
 local liq_world = create_liq_world()
-liq_world:build_grid()
+
 --liq_world:add_liq(aliq)
 --liq_world:add_liq(bliq)
 for i=1,60 do
@@ -322,6 +322,8 @@ for i=1,60 do
                                    math.random(1,2)),
                                    30)
 end
+
+liq_world:build_grid()
 
 local world = create_dfworld("jam/leveltest.png")--leveltest.png"))
 local zoom = 1
