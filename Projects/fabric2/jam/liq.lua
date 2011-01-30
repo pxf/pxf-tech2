@@ -1,8 +1,11 @@
 require("jam/vecmath")
 
-function create_new_liq(x,y,size, mass)
+function create_new_liq(x,y,size, mass,life_time)
   local liq = {x = x, y = y, size = size, forces = {0,0}, mass = mass,
                vel = {0,0}}
+			   
+	liq.elapsed_time = 0.0
+	liq.life_time = life_time
   
   function liq:intersect(b)
     local tx = b.x - self.x
@@ -71,9 +74,19 @@ function create_liq_world()
   local liqworld = {liqs = {}, liq_tex = gfx.loadtexture(1024, "jam/liq.png", true),
                     fbo = gfx.newframebuffer(), 
                     bg_tex = gfx.newtexture(1, 512, 512)}
-  
+					
+	liqworld.grid = new_grid(512,512,8,8)				
+
   function liqworld:add_liq(a)
     table.insert(self.liqs, a)
+  end
+  
+  function liqworld:build_grid()
+	for k,v in pairs(self.liqs) do
+		self.grid:insert(v)
+		
+		--print(v.cell_index)
+	end
   end
   
   liqworld.df_render_shader = gfx.createshader("df_render", [[
@@ -208,6 +221,86 @@ function create_liq_world()
     end
     
     -- perform intersection on each liq
+	
+	local grid = self.grid
+	
+	local amp = 0.5
+	
+	for k,v in pairs(self.liqs) do
+		local i = v.cell_index
+		
+		-- calc new index
+		
+		local x = v.x
+		local y = v.y
+	
+		local c_index = math.floor(x / grid.step_x)
+		local r_index = math.floor(y / grid.step_y)
+		
+		local index = r_index * grid.ch + c_index + 1
+		
+		if not (i == index) then
+			v.cell_index = index
+		end
+		
+		index = v.cell_index
+		
+		local candidates = {}
+		
+		-- 0: top left
+		local index0 = index - grid.cw - 1 
+		
+		--print(index,index0)
+		
+		grid:cell_collision(candidates,v,index0)
+		
+		-- 1: top middle
+		local index1 = index0 + 1
+		grid:cell_collision(candidates,v,index1)
+		
+		-- 2: top right
+		local index2 = index1 + 1
+		grid:cell_collision(candidates,v,index2)
+		
+		-- 3: mid left
+		index0 = index - 1
+		grid:cell_collision(candidates,v,index0)
+		
+		-- 4: mid mid
+		grid:cell_collision(candidates,v,index)
+		
+		-- 5: mid right
+		index2 = index + 1
+		grid:cell_collision(candidates,v,index2)
+		
+		-- 6: bottom left
+		local index0 = index + grid.cw - 1 
+		grid:cell_collision(candidates,v,index0)
+		
+		-- 7: bottom middle
+		local index1 = index0 + 1
+		grid:cell_collision(candidates,v,index1)
+		
+		-- 8: bottom right
+		local index2 = index1 + 1
+		grid:cell_collision(candidates,v,index2)
+		
+		for _,c in pairs(candidates) do
+			local res = v:intersect(c)
+			
+			if (res ~= nil) then
+				local nx = res.x
+				local ny = res.y
+				c:apply_force(nx*amp,ny*amp)
+				local res2 = vec(0,0)-res
+				local nx = res2.x
+				local ny = res2.y
+				v:apply_force(nx*amp,ny*amp)			
+			end
+		end
+	end
+	
+	--[[
     local amp = 0.5
     for i=1,#self.liqs do
       for j=i,#self.liqs do
@@ -224,9 +317,62 @@ function create_liq_world()
         end
         
       end
-    end
+    end 
+	--]]
   end
   
   return liqworld
 end
 
+function new_grid(w,h,cw,ch)
+	local g = {}
+	g.cells = {}
+	g.cw = cw
+	g.ch = ch
+	g.step_x = w / cw
+	g.step_y = h / ch
+	g.max_index = ch * cw
+	
+	for i = 1,ch do
+		for j = 1,cw do
+			local x = j * g.step_x
+			local y = j * g.step_y
+			
+			table.insert(g.cells,{x = x,y = y, items = { }})
+		end
+	end
+	
+	function g:cell_collision(candidates,a,i)
+		if (i > 0) and (i <= self.ch*self.cw) then
+			local items = self.cells[i].items
+			
+			for k,v in pairs(items) do
+				if not (v == a) then
+					table.insert(candidates,v)
+				end
+			end
+		
+		end
+	end
+	
+	function g:remove(a)
+		local index = a.cell_index
+	
+		local items = self.cells[index].items
+	end
+	
+	function g:insert(a)
+		local x = a.x
+		local y = a.y
+	
+		local c_index = math.floor(x / g.step_x)
+		local r_index = math.floor(y / g.step_y)
+		
+		local index = r_index * g.ch + c_index + 1
+		
+		a.cell_index = index
+		table.insert(g.cells[index].items,a)
+	end
+	
+	return g
+end
