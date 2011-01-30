@@ -311,7 +311,7 @@ function create_liq_world()
 		local c_index = math.floor(x / grid.step_x)
 		local r_index = math.floor(y / grid.step_y)
 		
-		local index = r_index * grid.ch + c_index + 1
+		local index = r_index * grid.ch + c_index 
 		
 		if not (i == index) then
 			v.cell_index = index
