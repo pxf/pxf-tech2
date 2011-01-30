@@ -51,6 +51,8 @@ namespace Fabric
 	int gfx_deleteshader(lua_State *L);
 	int gfx_bindshader(lua_State *L);
 	int gfx_setuniformf(lua_State *L);
+	int gfx_setuniformi(lua_State *L);
+	int gfx_bindtexunit(lua_State *L);
 
 	// special raw texture handling
 	int gfx_rawtexture(lua_State *L);

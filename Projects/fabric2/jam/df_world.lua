@@ -4,6 +4,7 @@ function create_dfworld( filepath )
   local dfworld = {tex = {gfx.loadtexture(1, filepath, true),
                           gfx.loadtexture(1, filepath, true)},
                    fbo = gfx.newframebuffer(),
+                   --mudtex = gfx.loadtexture(1, "jam/", false)
                    active_tex = 1,
                    sec_tex = 2,
                    bindata = {},
@@ -285,15 +286,6 @@ function create_dfworld( filepath )
 end
 
 
-world = create_dfworld("jam/leveltest.png")--leveltest.png"))
-zoom = 1
-
-scroll_x = 0
-scroll_y = 0
-scrolling = false
-zooming = false
-mouse_x = 0
-mouse_y = 0
 
 
 --local aliq = create_new_liq(40,20,16, 20)
@@ -305,8 +297,24 @@ for i=1,60 do
   liq_world:add_liq(create_new_liq(40+math.random(0,30),20+math.random(0,20),8, 20))
 end
 
+-- local ett_nytt_spel = create_new_game()
+-- ett_nytt_spel:update()
 
-function update()
+function create_new_game()
+local newgame = {}
+
+
+local world = create_dfworld("jam/leveltest.png")--leveltest.png"))
+local zoom = 1
+local 
+local scroll_x = 0
+local scroll_y = 0
+local scrolling = false
+local zooming = false
+local mouse_x = 0
+local mouse_y = 0
+
+function newgame:update()
   if inp.iskeydown(inp.ESC) then
 		app.quit()
 	end
@@ -359,13 +367,13 @@ function update()
   end
 end
 
-function draw()
+function newgame:draw()
   gfx.clear()
   gfx.loadidentity()
   local w,h = app.getwindimensions()
   --gfx.translate(w / 2, h / 2)
-  --gfx.scale(zoom)
-  --gfx.translate(scroll_x, scroll_y)
+  gfx.scale(zoom)
+  gfx.translate(scroll_x, scroll_y)
   
   liq_world:draw()
   
@@ -376,4 +384,8 @@ function draw()
   gfx.alphatest(gfx.GEQUAL, 0.5)
   panic.text("esc = quit", 12, 12)
   panic.text("tab = reboot", 12, 12+16)
+end
+
+
+return newgame
 end
