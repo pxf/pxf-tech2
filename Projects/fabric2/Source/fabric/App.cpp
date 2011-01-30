@@ -610,8 +610,8 @@ void App::_register_own_callbacks()
   // Register own callbacks
 	lua_register(L, "print", Print);
 	lua_register(L, "uptime", Uptime);
-	lua_register(L, "loadfile", LoadFile);
-	lua_register(L, "require", ImportFile);
+//	lua_register(L, "loadfile", LoadFile);
+//	lua_register(L, "require", ImportFile);
     
 	// Create empty luagame table
 	lua_newtable(L);
