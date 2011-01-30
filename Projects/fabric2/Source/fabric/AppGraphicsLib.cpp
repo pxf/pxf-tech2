@@ -591,6 +591,10 @@ int Fabric::gfx_createshader(lua_State *L)
 		//lua_setfield(L, -2, "bind");
 		lua_pushcfunction(L, gfx_setuniformf);
 		lua_setfield(L, -2, "setuniformf");
+		lua_pushcfunction(L, gfx_setuniformi);
+		lua_setfield(L, -2, "setuniformi");
+		lua_pushcfunction(L, gfx_bindtexunit);
+		lua_setfield(L, -2, "bindtexunit");
 
 		return 1;
 	}
@@ -640,6 +644,49 @@ int Fabric::gfx_setuniformf(lua_State *L)
 	else
 	{
 		lua_pushstring(L, "Invalid argument passed to setuniformf function!");
+		lua_error(L);
+	}
+	return 0;
+}
+
+int Fabric::gfx_setuniformi(lua_State *L)
+{
+	if (lua_gettop(L) == 3)
+	{
+		lua_getfield(L, 1, "instance");
+		Graphics::Shader* shdr = *(Graphics::Shader**)lua_touserdata(L, -1);
+		const char* name = lua_tostring(L, 2);
+		int value = (float)lua_tonumber(L, 3);
+		App::GetInstance()->m_gfx->SetUniformi(shdr, name, value);
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to setuniformi function!");
+		lua_error(L);
+	}
+	return 0;
+}
+
+int Fabric::gfx_bindtexunit(lua_State *L)
+{
+	// shader:bindtexunit(tex, unit)
+	if (lua_gettop(L) == 3)
+	{
+		lua_getfield(L, 1, "instance");
+		Graphics::Shader* shdr = *(Graphics::Shader**)lua_touserdata(L, -1);
+		int tex_id = lua_tointeger(L, 2);
+		int unit_id = (float)lua_tointeger(L, 3);
+		//const char* uniformname = lua_tostring(L, 4);
+		
+		Graphics::Texture* texptr = ((TexturedQuadBatch*)App::GetInstance()->m_QuadBatches[tex_id])->m_Texture;
+		Pxf::Kernel::GetInstance()->GetGraphicsDevice()->BindTexture(texptr, unit_id);
+		//App::GetInstance()->m_gfx->SetUniformi(shdr, uniformname, unit_id);
+		return 0;
+	}
+	else
+	{
+		lua_pushstring(L, "Invalid argument passed to bindtexunit function!");
 		lua_error(L);
 	}
 	return 0;

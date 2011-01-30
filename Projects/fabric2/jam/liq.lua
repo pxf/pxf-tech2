@@ -45,7 +45,7 @@ function create_new_liq(x,y,size, mass,life_time)
     self.x = self.old_x
     self.y = self.old_y
     
-    local inv = (vec(0,0) - vec(self.vel[1], self.vel[2])) * vec(1.0, 0.4)
+    local inv = (vec(0,0) - vec(self.vel[1], self.vel[2])) * vec(0.999, 0.4)
     self.vel[1] = inv.x
     self.vel[2] = inv.y
   end
@@ -72,8 +72,9 @@ end
 
 function create_liq_world()
   local liqworld = {liqs = {}, liq_tex = gfx.loadtexture(1024, "jam/liq.png", true),
+                    water_tex = gfx.loadtexture(1, "jam/waterrepeat.png", false),
                     fbo = gfx.newframebuffer(), 
-                    bg_tex = gfx.newtexture(1, 512, 512)}
+                    bg_tex = gfx.newtexture(1, 512, 512, true)}
 					
 	liqworld.grid = new_grid(512,512,8,8)				
 
@@ -99,20 +100,29 @@ function create_liq_world()
 
   ]], [[
   uniform sampler2D tex;
+  uniform sampler2D tex2;
+  uniform float offset_x;
+  uniform float offset_y;
   void main()
   {
   	vec4 color = texture2D(tex, gl_TexCoord[0].st);
+  	vec2 water_coords = gl_TexCoord[0].st*32.0;
+  	
+  	water_coords.x += cos(water_coords.y*0.5+offset_x);
+  	water_coords.y += offset_x*0.5;
+  	
+  	vec4 water_tex = texture2D(tex2, water_coords);
   	if (color.r < 0.8)
 	  {
-	    gl_FragColor = vec4(0.5, 0.5, 1.0, color.r);
+	    gl_FragColor = vec4(water_tex.rgb * vec3(0.5, 0.5, 1.0), color.r);
 	  } else {
-	    gl_FragColor = vec4(0.4, 0.4, 1.0, color.r);
+	    gl_FragColor = vec4(water_tex.rgb * vec3(0.9, 0.9, 1.0), color.r);
 	  }
   }
 
   ]])
   
-  
+  liqworld.wateranim = 0
   function liqworld:draw()
     
     -- bind fbo
@@ -135,6 +145,11 @@ function create_liq_world()
     
     gfx.bindtexture(self.bg_tex)
     gfx.bindshader(self.df_render_shader)
+    
+    self.df_render_shader:bindtexunit(self.water_tex, 1)
+    self.df_render_shader:setuniformi("tex2", 1)
+    self.df_render_shader:setuniformf("offset_x", self.wateranim)
+    
     gfx.alphatest(gfx.GEQUAL, 0.5)
     gfx.drawtopleft(0,0,512,512)
     gfx.bindshader()
@@ -142,6 +157,7 @@ function create_liq_world()
   end
   
   function liqworld:step(time, df_world)
+    liqworld.wateranim = liqworld.wateranim + 0.05
     
     -- apply gravity
     for i=1,#self.liqs do

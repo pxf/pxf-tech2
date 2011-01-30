@@ -29,7 +29,7 @@ function spawn_error_dialog(msg)
   gui.windows:add(error_dialog)
 end
 
-function spawn_gamemenu()
+function spawn_gamemenu(game)
   local tool_window = gui:create_window("tool_window", (512-200)/2, 20,200,150, false, "pxf-finalsolution", true)
   
   -- store move pos
@@ -61,6 +61,7 @@ function spawn_gamemenu()
                 function () 
                     print("Start game")
                     snd.playsound(music, true)
+                    game.game = create_new_game()
                 end)
   btn_credz = gui:create_labelbutton(25,0, 180, 25, "Credits",
                 function () 
