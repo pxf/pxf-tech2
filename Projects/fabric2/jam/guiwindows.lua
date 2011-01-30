@@ -60,6 +60,7 @@ function spawn_gamemenu()
   btn_start = gui:create_labelbutton(25,0, 180, 25, "Start game",
                 function () 
                     print("Start game")
+                    snd.playsound(music, true)
                 end)
   btn_credz = gui:create_labelbutton(25,0, 180, 25, "Credits",
                 function () 

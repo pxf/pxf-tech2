@@ -10,6 +10,8 @@ settings:save()
 
 gamejam_init(settings)
 
+music = snd.newsound("data/sound/ggj11.ogg")
+
 local game = new_game()
 
 local level0 = new_level("LVL 1",0,512,512)
