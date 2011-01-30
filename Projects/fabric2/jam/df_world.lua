@@ -290,19 +290,33 @@ end
 
 --local aliq = create_new_liq(40,20,16, 20)
 --local bliq = create_new_liq(20,20,16, 20)
+--local liq_world = create_liq_world()
+--liq_world:add_liq(aliq)
+--liq_world:add_liq(bliq)
+--[[for i=1,100 do
+	local l = create_new_liq(40+math.random(0,30),20+math.random(0,20),8, 20)
+	liq_world:add_liq(l)
+
+end]]
+--
 
 
 -- local ett_nytt_spel = create_new_game()
--- ett_nytt_spel:update()
 
 function create_new_game()
 local newgame = {}
 
 local liq_world = create_liq_world()
+liq_world:build_grid()
 --liq_world:add_liq(aliq)
 --liq_world:add_liq(bliq)
 for i=1,60 do
-  liq_world:add_liq(create_new_liq(40+math.random(0,30),20+math.random(0,20),8, 20, math.random(1,2)))
+  liq_world:add_liq(create_new_liq(40+math.random(0,30),
+                                   20+math.random(0,20),
+                                   8,
+                                   20,
+                                   math.random(1,2)),
+                                   30)
 end
 
 local world = create_dfworld("jam/leveltest.png")--leveltest.png"))
