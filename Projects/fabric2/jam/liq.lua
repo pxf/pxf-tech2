@@ -1,8 +1,27 @@
 require("jam/vecmath")
 
-function create_new_liq(x,y,size, mass)
+local liq_render_shader = gfx.createshader("df_render", [[
+
+void main() {
+  gl_TexCoord[0] = gl_MultiTexCoord0;
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+}
+
+
+]], [[
+uniform sampler2D tex;
+uniform int liqtype;
+void main()
+{
+	vec4 color = texture2D(tex, gl_TexCoord[0].st);
+  gl_FragColor = vec4(1.0,1.0,1.0,color.a);//vec4(water_tex.rgb * vec3(0.5, 0.5, 1.0), color.r);
+}
+
+]])
+
+function create_new_liq(x,y,size, mass, liqtype)
   local liq = {x = x, y = y, size = size, forces = {0,0}, mass = mass,
-               vel = {0,0}}
+               vel = {0,0}, liqtype = liqtype}
   
   function liq:intersect(b)
     local tx = b.x - self.x
@@ -70,7 +89,7 @@ end
 function create_liq_world()
   local liqworld = {liqs = {}, liq_tex = gfx.loadtexture(1024, "jam/liq.png", true),
                     water_tex = gfx.loadtexture(1, "jam/waterrepeat.png", false),
-                    fbo = gfx.newframebuffer(), 
+                    fbo = gfx.newframebuffer(),
                     bg_tex = gfx.newtexture(1, 512, 512, true)}
   
   function liqworld:add_liq(a)
@@ -101,9 +120,9 @@ function create_liq_world()
   	vec4 water_tex = texture2D(tex2, water_coords);
   	if (color.r < 0.8)
 	  {
-	    gl_FragColor = vec4(water_tex.rgb * vec3(0.5, 0.5, 1.0), color.r);
+	    gl_FragColor = vec4(water_tex.rgb * vec3(0.4, 0.4, 1.0), color.r);
 	  } else {
-	    gl_FragColor = vec4(water_tex.rgb * vec3(0.9, 0.9, 1.0), color.r);
+	    gl_FragColor = vec4(water_tex.rgb * vec3(0.3, 0.3, 1.0), color.r);
 	  }
   }
 
@@ -122,6 +141,7 @@ function create_liq_world()
     local oldtex = gfx.bindtexture(self.liq_tex)
     gfx.blending(gfx.SRC_ALPHA, gfx.ONE_MINUS_SRC_ALPHA)
     gfx.alphatest()
+    --gfx.bindshader(liq_render_shader)
     for i=1,#self.liqs do
       self.liqs[i]:draw()
     end
