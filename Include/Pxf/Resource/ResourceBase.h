@@ -37,7 +37,7 @@ namespace Resource {
 
 		const char* GetSource() const
 		{
-			return m_Chunk->source;
+			return m_Chunk->source.c_str();
 		}
 
 		void _AddRef()

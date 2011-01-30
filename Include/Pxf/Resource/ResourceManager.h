@@ -166,7 +166,8 @@ namespace Resource
 		{
 			if (_Resource)
 			{
-				if (!_Resource->GetSource())
+				const char* source = _Resource->GetSource();
+				if (!source)
 				{
 					m_Kernel->Log(m_LogTag | Logger::IS_WARNING, "Removing unmanaged resource (fixme)");
 					_Resource->m_Loader->Destroy((ResourceType*)_Resource);
@@ -177,17 +178,17 @@ namespace Resource
 
 				if (_Resource->m_References <= 0 || _Purge)
 				{
-					Util::Map<Util::String, ResourceBase*>::iterator iter = m_LoadedResources->find(_Resource->GetSource());
+					Util::Map<Util::String, ResourceBase*>::iterator iter = m_LoadedResources->find(source);
 					if (iter != m_LoadedResources->end())
 					{
-						m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Purging resource holding '%s' (%s)", _Resource->GetSource(), _Purge? "Forced":"No more refs");
+						m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Purging resource holding '%s' (%s)", source, _Purge? "Forced":"No more refs");
 						m_LoadedResources->erase(iter);
 					}
 
 					_Resource->m_Loader->Destroy((ResourceType*)_Resource);
 				}
 				else
-					m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Releasing resource holding '%s' [refs = %d]", _Resource->GetSource(), _Resource->m_References);
+					m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Releasing resource holding '%s' [refs = %d]", source, _Resource->m_References);
 			}
 		}
 		

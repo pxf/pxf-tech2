@@ -30,7 +30,7 @@ bool BitmapFont::Build()
 	const uint32 SECTION_KERNINGS = ByteswapNtoL(0x53C70004);
 	const uint32 SECTION_IMAGE	= ByteswapNtoL(0x53C70005);
 
-	m_Kernel->Log(m_LogTag, "Creating font for file '%s'", m_Chunk->source ? m_Chunk->source : "unknown");
+	m_Kernel->Log(m_LogTag, "Creating font for file '%s'", GetSource() ? GetSource() : "unknown");
 
 	// Check chunk
 	if (m_Chunk->size < 512) // Appropriate value? Anyone? Hm. :/
