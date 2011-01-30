@@ -366,9 +366,9 @@ function newgame:update()
 		liq_world:add_liq(l)
 	  
 	  if (world:hittest(new_mouse_x, new_mouse_y)) then
-	    print("hit")
+	    --print("hit")
     else
-		print("miss")
+		--print("miss")
     end
 	
 	--[[if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
