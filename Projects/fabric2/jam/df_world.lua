@@ -4,7 +4,7 @@ function create_dfworld( filepath )
   local dfworld = {tex = {gfx.loadtexture(1, filepath, true),
                           gfx.loadtexture(1, filepath, true)},
                    fbo = gfx.newframebuffer(),
-                   --mudtex = gfx.loadtexture(1, "jam/", false)
+                   mudtex = gfx.loadtexture(1, "data/textures/dirt.png", false),
                    active_tex = 1,
                    sec_tex = 2,
                    bindata = {},
@@ -256,15 +256,17 @@ function create_dfworld( filepath )
 
   ]], [[
   uniform sampler2D tex;
+  uniform sampler2D tex2;
   void main()
   {
   	// Setting Each Pixel To Red
   	vec4 color = texture2D(tex, gl_TexCoord[0].st);
+  	vec4 mud_tex = texture2D(tex2, gl_TexCoord[0].st*16.0);
   	if (color.a < 0.7)
 	  {
-	    gl_FragColor = vec4(0.6, 0.0, 0.0, color.a);
+	    gl_FragColor = vec4(mud_tex.rgb * vec3(0.6, 0.0, 0.0), color.a);
 	  } else {
-	    gl_FragColor = vec4(1.0, 0.0, 0.0, color.a);
+	    gl_FragColor = vec4(mud_tex.rgb, color.a);
 	  }
   }
 
@@ -273,6 +275,9 @@ function create_dfworld( filepath )
   function dfworld:draw()
     local oldtex = gfx.bindtexture(self.tex[self.active_tex])
     gfx.bindshader(self.df_render_shader)
+    self.df_render_shader:bindtexunit(self.mudtex, 1)
+    self.df_render_shader:setuniformi("tex2", 1)
+    
     gfx.alphatest(gfx.GEQUAL, 0.5)
     gfx.drawtopleft(0,0,512,512)
     
