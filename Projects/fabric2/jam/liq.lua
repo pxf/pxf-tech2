@@ -14,6 +14,12 @@ uniform int liqtype;
 void main()
 {
 	vec4 color = texture2D(tex, gl_TexCoord[0].st);
+	
+	if (liqtype == 0)
+	  color.rgb = vec3(0.3, 0.3, 1.0);
+	elseif (liqtype == 1)
+	  color.rgb = vec3(1.0, 0.3, 0.3);
+	  
   gl_FragColor = vec4(1.0,1.0,1.0,color.a);//vec4(water_tex.rgb * vec3(0.5, 0.5, 1.0), color.r);
 }
 
@@ -120,9 +126,9 @@ function create_liq_world()
   	vec4 water_tex = texture2D(tex2, water_coords);
   	if (color.r < 0.8)
 	  {
-	    gl_FragColor = vec4(water_tex.rgb * vec3(0.4, 0.4, 1.0), color.r);
+	    gl_FragColor = vec4(water_tex.rgb * vec3(1.0, 1.0, 1.0), color.r);
 	  } else {
-	    gl_FragColor = vec4(water_tex.rgb * vec3(0.3, 0.3, 1.0), color.r);
+	    gl_FragColor = vec4(water_tex.rgb * vec3(0.8, 0.8, 0.8), color.r);
 	  }
   }
 
@@ -141,8 +147,9 @@ function create_liq_world()
     local oldtex = gfx.bindtexture(self.liq_tex)
     gfx.blending(gfx.SRC_ALPHA, gfx.ONE_MINUS_SRC_ALPHA)
     gfx.alphatest()
-    --gfx.bindshader(liq_render_shader)
+    gfx.bindshader(liq_render_shader)
     for i=1,#self.liqs do
+      self.liq_render_shader:setuniformi("liqtype", self.liqs[i].liqtype)
       self.liqs[i]:draw()
     end
     gfx.blending()
