@@ -314,11 +314,12 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	
 	if(!lib->Load(FilePath))
 	{
-		if (lib->GetError() != 0x0)
+		const char* error = lib->GetError();
+		if (error != 0x0)
 		{
 			char buffer[4096];
-			size_t len = StringLength(lib->GetError());
-			StringCopy(buffer, lib->GetError(), len);
+			size_t len = StringLength(error);
+			StringCopy(buffer, error, len);
 			for (int i = len; i--;)
 			{
 				if (buffer[i] == '\n' || buffer[i] == '\r')
