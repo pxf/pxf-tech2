@@ -320,8 +320,8 @@ local liq_world = create_liq_world()
 --liq_world:add_liq(aliq)
 --liq_world:add_liq(bliq)
 for i=1,60 do
-  liq_world:add_liq(create_new_liq(40+math.random(0,30),
-                                   20+math.random(0,20),
+  liq_world:add_liq(create_new_liq(284+math.random(0,30),
+                                   246+math.random(0,20),
                                    8,
                                    20,
                                    math.random(1,2)),
