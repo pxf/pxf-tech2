@@ -1,6 +1,7 @@
 require("fabric/settingshandler")
 require("jam/game")
 require("jam/gui")
+require("jam/df_world")
 
 ----------------------------------------------
 -- settings
@@ -10,10 +11,12 @@ settings:save()
 
 gamejam_init(settings)
 
+
 music = snd.newsound("data/sound/ggj11.ogg")
 
-local game = new_game()
+local game = create_new_game()
 
+--[[
 local level0 = new_level("LVL 1",0,512,512)
 
 for i=1,10 do
@@ -41,10 +44,8 @@ level0:new_actor(40,500,true)
 game:add_level(level0)
 
 --game:add_level("LVL 1",32)
-
+]]
 local last_keypress = nil
-
-
 function toggle_button(b,fun)
 	if not (inp.iskeydown(b)) then
 		if last_keypress == b then
@@ -81,9 +82,9 @@ end
 
 function draw(force)
 	gfx.clear()
-	game:draw(force)
+	game:draw()
 	
 	gfx.loadidentity()
 	gfx.setcolor(1, 1, 1)
-	gui:draw(true)
+	gui:draw()
 end

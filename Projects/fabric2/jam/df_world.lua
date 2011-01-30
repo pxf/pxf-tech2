@@ -306,7 +306,6 @@ local newgame = {}
 
 local world = create_dfworld("jam/leveltest.png")--leveltest.png"))
 local zoom = 1
-local 
 local scroll_x = 0
 local scroll_y = 0
 local scrolling = false
