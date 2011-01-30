@@ -1,8 +1,35 @@
 require("jam/vecmath")
 
-function create_new_liq(x,y,size, mass,life_time)
+liq_render_shader = gfx.createshader("df_render", [[
+
+void main() {
+  gl_TexCoord[0] = gl_MultiTexCoord0;
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+}
+
+
+]], [[
+uniform sampler2D tex;
+uniform int liqtype;
+void main()
+{
+	vec4 color = texture2D(tex, gl_TexCoord[0].st);
+	
+	if (liqtype == 1)
+	  color.g = 0.0;
+	else if (liqtype == 2)
+	  color.g = 1.0;
+  else
+    color.g = 1.0;
+	  
+  gl_FragColor = vec4(color.rgb,color.a);
+}
+
+]])
+
+function create_new_liq(x,y, size, mass, liqtype, life_time)
   local liq = {x = x, y = y, size = size, forces = {0,0}, mass = mass,
-               vel = {0,0}}
+               vel = {0,0}, liqtype = liqtype}
 			   
 	liq.elapsed_time = 0.0
 	liq.life_time = life_time
@@ -75,7 +102,7 @@ end
 function create_liq_world()
   local liqworld = {liqs = {}, liq_tex = gfx.loadtexture(1024, "jam/liq.png", true),
                     water_tex = gfx.loadtexture(1, "jam/waterrepeat.png", false),
-                    fbo = gfx.newframebuffer(), 
+                    fbo = gfx.newframebuffer(),
                     bg_tex = gfx.newtexture(1, 512, 512, true)}
 					
 	liqworld.grid = new_grid(512,512,8,8)				
@@ -114,11 +141,18 @@ function create_liq_world()
   	water_coords.y += offset_x*0.5;
   	
   	vec4 water_tex = texture2D(tex2, water_coords);
+  	
+  	vec3 out_color = vec3(1.0, 1.0, 1.0);
+  	if (color.g >= 0.5)
+  	  out_color = vec3(0.2, 0.2, 1.0);
+	  else
+	    out_color = vec3(1.0, 0.2, 0.2);
+  	
   	if (color.r < 0.8)
 	  {
-	    gl_FragColor = vec4(water_tex.rgb * vec3(0.5, 0.5, 1.0), color.r);
+	    gl_FragColor = vec4(water_tex.rgb * out_color.rgb * vec3(1.0, 1.0, 1.0), color.r);
 	  } else {
-	    gl_FragColor = vec4(water_tex.rgb * vec3(0.9, 0.9, 1.0), color.r);
+	    gl_FragColor = vec4(water_tex.rgb * out_color.rgb * vec3(0.8, 0.8, 0.8), color.r);
 	  }
   }
 
@@ -137,7 +171,10 @@ function create_liq_world()
     local oldtex = gfx.bindtexture(self.liq_tex)
     gfx.blending(gfx.SRC_ALPHA, gfx.ONE_MINUS_SRC_ALPHA)
     gfx.alphatest()
+    gfx.bindshader(liq_render_shader)
     for i=1,#self.liqs do
+      liq_render_shader:setuniformi("liqtype", self.liqs[i].liqtype)
+      --print(self.liqs[i].liqtype)
       self.liqs[i]:draw()
     end
     gfx.blending()

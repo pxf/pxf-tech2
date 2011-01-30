@@ -653,6 +653,7 @@ int Fabric::gfx_setuniformi(lua_State *L)
 {
 	if (lua_gettop(L) == 3)
 	{
+		App::GetInstance()->Flush();
 		lua_getfield(L, 1, "instance");
 		Graphics::Shader* shdr = *(Graphics::Shader**)lua_touserdata(L, -1);
 		const char* name = lua_tostring(L, 2);
