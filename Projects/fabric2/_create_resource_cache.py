@@ -2,6 +2,7 @@ import os
 
 IGNORE_FILTER = ['.svn']
 IGNORE_TYPES = ['.psd']
+IGNORE_FILES = ['testlevel.tga', 'testlevel.png']
 DATA_FOLDERS=['data', 'jam', 'fabric']
 
 def get_resource_list(root):
@@ -11,7 +12,8 @@ def get_resource_list(root):
             continue
         for file in files:
             base, ext = os.path.splitext(file)
-            if ext in IGNORE_TYPES:
+            if ext in IGNORE_TYPES or file in IGNORE_FILES:
+                print("Ignoring file: {0}".format(file))
                 continue
             path = os.path.join(root, file)
             resource_list.append(path,)
@@ -65,7 +67,7 @@ def main():
     resources = []
     for datadirs in DATA_FOLDERS:
         resources += get_resource_list(datadirs)
-    print resources
+    print(resources)
     data_file = create_data_file(resources)
     with open("PreloadedResources.h", "w") as f:
         f.write(data_file)

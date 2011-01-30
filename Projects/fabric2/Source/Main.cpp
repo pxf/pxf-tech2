@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 	}
 	
 	// Start from different script than default.lua ?
-	Util::String appscript = "fabric/default.lua";
+	Util::String appscript = "jam/main.lua";
 	if (argc > 1)
 		appscript = argv[1];
 	
