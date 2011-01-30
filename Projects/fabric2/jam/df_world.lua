@@ -293,8 +293,10 @@ end
 local liq_world = create_liq_world()
 --liq_world:add_liq(aliq)
 --liq_world:add_liq(bliq)
-for i=1,100 do
-	local l = create_new_liq(40+math.random(0,30),20+math.random(0,20),8, 20)
+for i=1,50 do
+	local time = math.random(100,300)
+
+	local l = create_new_liq(40+math.random(0,30),20+math.random(0,20),8, 20, time)
 	liq_world:add_liq(l)
 
 end
@@ -327,11 +329,26 @@ function newgame:update()
 	
 	if (inp.isbuttondown(inp.MOUSE_LEFT)) then
 	  new_mouse_x, new_mouse_y = inp.getmousepos()
+	  
+		local time = math.random(100,300)
+
+		local l = create_new_liq(new_mouse_x,new_mouse_y,8, 20, time)
+		liq_world:add_liq(l)
+	  
 	  if (world:hittest(new_mouse_x, new_mouse_y)) then
-	    print("hit")
+	    --print("hit")
     else
-      print("miss")
+      --print("miss")
     end
+	
+	if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
+		for i = -2,4 do
+			for j = -2,4 do
+				local l = create_new_liq(new_mouse_x + i,new_mouse_y + j,8, 20, time)
+				liq_world:add_liq(l)
+			end
+		end
+	end
 	  
 	  if (scrolling and inp.iskeydown(inp.SPACE)) then
 	    --new_mouse_x, new_mouse_y = inp.getmousepos()
@@ -383,8 +400,10 @@ function newgame:draw()
   gfx.loadidentity()
   
   gfx.alphatest(gfx.GEQUAL, 0.5)
+  
   panic.text("esc = quit", 12, 12)
   panic.text("tab = reboot", 12, 12+16)
+  panic.text("particles: " .. #liq_world.liqs, 12,12+32)
 end
 
 
