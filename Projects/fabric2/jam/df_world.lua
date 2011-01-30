@@ -412,10 +412,14 @@ function newgame:draw()
   gfx.loadidentity()
   local w,h = app.getwindimensions()
   --gfx.translate(w / 2, h / 2)
+  --gfx.scale(zoom)
+  --gfx.translate(scroll_x, scroll_y)
+  
+  liq_world:draw(scroll_x, scroll_y, zoom)
+  
+  gfx.loadidentity()
   gfx.scale(zoom)
   gfx.translate(scroll_x, scroll_y)
-  
-  liq_world:draw()
   
   world:draw()
   

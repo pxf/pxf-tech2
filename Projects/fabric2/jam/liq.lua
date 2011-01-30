@@ -159,7 +159,7 @@ function create_liq_world()
   ]])
   
   liqworld.wateranim = 0
-  function liqworld:draw()
+  function liqworld:draw(x,y,z)
     
     -- bind fbo
     self.fbo:attach(self.bg_tex, 1)
@@ -167,6 +167,7 @@ function create_liq_world()
     gfx.clear()
     gfx.setview(0,0,512,512)
     gfx.setortho(0,512,0,512)
+    gfx.loadidentity()
     
     local oldtex = gfx.bindtexture(self.liq_tex)
     gfx.blending(gfx.SRC_ALPHA, gfx.ONE_MINUS_SRC_ALPHA)
@@ -181,6 +182,9 @@ function create_liq_world()
     
     gfx.bindframebuffer()
     self.fbo:detach(1)
+    
+    gfx.scale(z)
+    gfx.translate(x,y)
     
     gfx.bindtexture(self.bg_tex)
     gfx.bindshader(self.df_render_shader)
