@@ -638,6 +638,27 @@ int pxf_loader (lua_State *_L)
 
 static void register_resource_loader(lua_State* L)
 {
+/*
+	// get table.insert
+    lua_getglobal(L, "table");
+    lua_getfield(L, -1, "insert");
+    lua_remove(L, -2);
+
+    // get package.loaders
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "loaders");
+    lua_remove(L, -2);
+
+    // insert physfs loader
+    lua_pushvalue(L, -2);
+    lua_pushvalue(L, -2);
+    lua_pushnumber(L, 2);
+    lua_pushcfunction(L, pxf_loader);
+    lua_call(L, 3, 0);
+
+    lua_pop(L, 2);
+*/
+
     lua_getfield(L, LUA_GLOBALSINDEX, "package");
 	lua_getfield(L, -1, "loaders");
 	lua_remove(L, -2);
@@ -652,6 +673,7 @@ static void register_resource_loader(lua_State* L)
     lua_pushcfunction(L, pxf_loader);
     lua_rawset(L, -3);
 	lua_pop(L, 1);
+
 }
 
 void App::_register_own_callbacks()

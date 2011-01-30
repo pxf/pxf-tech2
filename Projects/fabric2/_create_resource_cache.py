@@ -39,9 +39,8 @@ def create_data_file(resources):
                      for index, byte in enumerate(data)]
         hex_data = "const unsigned char %s[] = {" % name
         hex_data += ",".join(hex_chunk)
-        hex_data += ", 0x00"
         hex_data += "};\n"
-        return hex_data, chunk_size+1
+        return hex_data, chunk_size
 
     file_size_map = {}
     for file in resources:
