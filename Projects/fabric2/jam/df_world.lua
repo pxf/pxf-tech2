@@ -348,8 +348,16 @@ function newgame:update()
 	  new_mouse_x, new_mouse_y = inp.getmousepos()
 	  
 		local time = math.random(100,300)
-
-		local l = create_new_liq(new_mouse_x,new_mouse_y,8, 20, time)
+		local rnd = math.random(0,1)
+		local t
+		
+		if rnd < 0.5 then
+			t = 1
+		else
+			t = 2
+		end
+	
+		local l = create_new_liq(new_mouse_x,new_mouse_y,8, 20, t, time)
 		liq_world:add_liq(l)
 	  
 	  if (world:hittest(new_mouse_x, new_mouse_y)) then
