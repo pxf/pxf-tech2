@@ -622,9 +622,9 @@ int pxf_loader (lua_State *_L)
     {
         int size = text->Length();
         const char* data = text->Ptr();
-        luaL_loadbuffer(_L, data, size, path.c_str());
+        luaL_loadbuffer(_L, data, size-1, path.c_str());
 		res->Release(text);
-		printf("Loaded: <%s> BUT WHY DOES IT CRASH?\n", path.c_str());
+		return 1;
     }
     else
     {
@@ -636,7 +636,7 @@ int pxf_loader (lua_State *_L)
     return 1;
 }
 
-static void register_resource_loader(lua_State* L)
+static void register_resource_loader(lua_State* _L)
 {
 /*
 	// get table.insert
@@ -659,29 +659,30 @@ static void register_resource_loader(lua_State* L)
     lua_pop(L, 2);
 */
 
-    lua_getfield(L, LUA_GLOBALSINDEX, "package");
-	lua_getfield(L, -1, "loaders");
-	lua_remove(L, -2);
+    lua_getfield(_L, LUA_GLOBALSINDEX, "package");
+	lua_getfield(_L, -1, "loaders");
+	lua_remove(_L, -2);
 	int loader_count = 0;
-    lua_pushnil(L);
-    while (lua_next(L, -2) != 0)
+    lua_pushnil(_L);
+    while (lua_next(_L, -2) != 0)
     {
-        lua_pop(L, 1);
+        lua_pop(_L, 1);
         loader_count++;
     }
-    lua_pushinteger(L, loader_count + 1);
-    lua_pushcfunction(L, pxf_loader);
-    lua_rawset(L, -3);
-	lua_pop(L, 1);
+    lua_pushinteger(_L, loader_count + 1);
+    lua_pushcfunction(_L, pxf_loader);
+    lua_rawset(_L, -3);
+	lua_pop(_L, 1);
 
 }
 
 void App::_register_own_callbacks()
 {
-  // Register own callbacks
+	register_resource_loader(L);
+
+	// Register own callbacks
 	lua_register(L, "print", Print);
 	lua_register(L, "uptime", Uptime);
-	register_resource_loader(L);
     
 	// Create empty luagame table
 	lua_newtable(L);
