@@ -80,7 +80,7 @@ class Tracker():
             , ('session_id', message.session_id)
         ])
         self._db.add_client(message.session_id
-            , message.address + ":" + str(message.port), message.available)
+            , message.address + ":" + str(message.client_port), message.available)
         return None
     _tr_table[lightning.T_HELLO_TRACKER] = e_hello_to_tracker
 
