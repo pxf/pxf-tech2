@@ -103,8 +103,8 @@ int main(int argc, char* argv[])
 	batch_blob_t blob;
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 10; // 10 -> 10*10 = 100
-	blob.bounce_count = 6; // Number of reflection bounces
+	blob.samples_per_pixel = 2; // 10 -> 10*10 = 100
+	blob.bounce_count = 1; // Number of reflection bounces
 	blob.interleaved_feedback = 2;
 	
 	// add a couple of primitives to the data blob
