@@ -54,6 +54,7 @@ public:
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{
+					printf("ALLOCATION!");
 				m_Canceled = true;
 				break;
 			}
@@ -263,7 +264,6 @@ int Client::run()
 				}
 				case C_ALLOCATE:
 				{
-					printf("ALLOCATION!");
 					// TODO: Depending on what is said to the client, put client in allocated list, or something
 					if (p->connection->type != CLIENT)
 					{
