@@ -417,14 +417,14 @@ int Client::run()
 						state->state = (ClientState)(WOK & W_HELLO);
 						m_State.m_States[new_node] = state;
 						// TODO: Send hello.
-						/*
+						
 						client::AllocateClient* alloc_reqpack = new client::AllocateClient();
 						alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
 						alloc_reqpack->set_batchhash("LOLWUT"); // TODO: Create a real hash of the batch data blob
 
 						LiPacket* alloc_reqlipack = new LiPacket(p->connection, alloc_reqpack, C_ALLOCATE);
 						m_ConnMan.send(new_node, alloc_reqlipack->data, alloc_reqlipack->length);
-						*/
+						
 					}
 	
 					
