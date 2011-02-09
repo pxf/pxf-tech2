@@ -307,14 +307,14 @@ int Client::run()
 					m_Kernel->Log(m_log_tag, "Recieved allocation response.\n");
 					client::AllocateResponse *resp = (client::AllocateResponse*)(p->unpack());
 					
-					if (resp->has_isavailable() == 0)
+					if (resp->isavailable() == 0)
 					{
 						// TODO: Do something smart, blacklist? Can't remember :(
 						// But don't send any tasks
 					}
 
-					printf("remote hasdata: %d\n", resp->has_hasdata());
-					if (!(resp->has_hasdata()))
+					printf("remote hasdata: %d\n", resp->hasdata());
+					if (!(resp->hasdata()))
 					{
 						m_Kernel->Log(m_log_tag, "Target client does not have data, sending...\n");
 						// TODO: Send data.
