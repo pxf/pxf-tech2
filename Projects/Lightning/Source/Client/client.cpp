@@ -316,6 +316,21 @@ int Client::run()
 						m_Kernel->Log(m_log_tag, "Target client does not have data, sending...\n");
 						// TODO: Send data.
 						// There's no way of knowing what data to send though, so find a way for that
+						// the way is resp->batchhash
+						Batch* b = m_Batches[resp->batchhash()];
+						client::Data* data = new client::Data();
+						data->set_batchhash(b->hash);
+						data->set_datasize(b->data_size);
+						data->set_datatype(b->type);
+						data->set_data(b->data);
+						data->set_returnaddress(b->return_address);
+						data->set_returnport(b->return_port);
+
+						LiPacket* pkg = new LiPacket(p->connection, data, C_DATA);
+						m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+
+						delete pkg;
+						delete data;
 					}
 
 					// TODO: Send pending tasks.
