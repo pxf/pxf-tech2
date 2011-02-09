@@ -8,7 +8,8 @@ message Hello {
 
 message AllocateClient {
 	required int32 amount = 1;
-	required string batchhash = 2;
+	required int32 datatype = 2;
+	required string batchhash = 3;
 }
 
 message AllocateResponse {
