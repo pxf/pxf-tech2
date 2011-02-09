@@ -277,6 +277,7 @@ int startrender_cb(lua_State* L)
 				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
 				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
 				alloc_reqpack->set_batchhash(new_hash_str); // TODO: Create a real hash of the batch data blob
+				alloc_reqpack->set_datatype(RAYTRACER);
 				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
 				cman->send(conn, alloc_reqlipack->data, alloc_reqlipack->length);
 				

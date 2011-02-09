@@ -63,8 +63,9 @@ void protobuf_AssignDesc_client_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Hello));
   AllocateClient_descriptor_ = file->message_type(1);
-  static const int AllocateClient_offsets_[2] = {
+  static const int AllocateClient_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AllocateClient, amount_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AllocateClient, datatype_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AllocateClient, batchhash_),
   };
   AllocateClient_reflection_ =
@@ -219,16 +220,17 @@ void protobuf_AddDesc_client_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014client.proto\022\006client\":\n\005Hello\022\017\n\007addre"
     "ss\030\001 \002(\t\022\014\n\004port\030\002 \002(\005\022\022\n\nsession_id\030\003 \002"
-    "(\005\"3\n\016AllocateClient\022\016\n\006amount\030\001 \002(\005\022\021\n\t"
-    "batchhash\030\002 \002(\t\"K\n\020AllocateResponse\022\017\n\007h"
-    "asdata\030\001 \002(\010\022\023\n\013isavailable\030\002 \002(\010\022\021\n\tbat"
-    "chhash\030\003 \002(\t\"v\n\004Data\022\021\n\tbatchhash\030\001 \002(\t\022"
-    "\020\n\010datasize\030\002 \002(\005\022\020\n\010datatype\030\003 \002(\005\022\014\n\004d"
-    "ata\030\004 \002(\014\022\025\n\rreturnaddress\030\005 \002(\t\022\022\n\nretu"
-    "rnport\030\006 \002(\005\"d\n\005Tasks\022\021\n\tbatchhash\030\001 \002(\t"
-    "\022 \n\004task\030\002 \003(\0132\022.client.Tasks.Task\032&\n\004Ta"
-    "sk\022\020\n\010tasksize\030\001 \002(\005\022\014\n\004task\030\002 \002(\014\"+\n\006Re"
-    "sult\022\021\n\tbatchhash\030\001 \002(\t\022\016\n\006result\030\002 \002(\014", 479);
+    "(\005\"E\n\016AllocateClient\022\016\n\006amount\030\001 \002(\005\022\020\n\010"
+    "datatype\030\002 \002(\005\022\021\n\tbatchhash\030\003 \002(\t\"K\n\020All"
+    "ocateResponse\022\017\n\007hasdata\030\001 \002(\010\022\023\n\013isavai"
+    "lable\030\002 \002(\010\022\021\n\tbatchhash\030\003 \002(\t\"v\n\004Data\022\021"
+    "\n\tbatchhash\030\001 \002(\t\022\020\n\010datasize\030\002 \002(\005\022\020\n\010d"
+    "atatype\030\003 \002(\005\022\014\n\004data\030\004 \002(\014\022\025\n\rreturnadd"
+    "ress\030\005 \002(\t\022\022\n\nreturnport\030\006 \002(\005\"d\n\005Tasks\022"
+    "\021\n\tbatchhash\030\001 \002(\t\022 \n\004task\030\002 \003(\0132\022.clien"
+    "t.Tasks.Task\032&\n\004Task\022\020\n\010tasksize\030\001 \002(\005\022\014"
+    "\n\004task\030\002 \002(\014\"+\n\006Result\022\021\n\tbatchhash\030\001 \002("
+    "\t\022\016\n\006result\030\002 \002(\014", 497);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "client.proto", &protobuf_RegisterTypes);
   Hello::default_instance_ = new Hello();
@@ -567,6 +569,7 @@ void Hello::Swap(Hello* other) {
 const ::std::string AllocateClient::_default_batchhash_;
 #ifndef _MSC_VER
 const int AllocateClient::kAmountFieldNumber;
+const int AllocateClient::kDatatypeFieldNumber;
 const int AllocateClient::kBatchhashFieldNumber;
 #endif  // !_MSC_VER
 
@@ -587,6 +590,7 @@ AllocateClient::AllocateClient(const AllocateClient& from)
 void AllocateClient::SharedCtor() {
   _cached_size_ = 0;
   amount_ = 0;
+  datatype_ = 0;
   batchhash_ = const_cast< ::std::string*>(&_default_batchhash_);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -626,7 +630,8 @@ AllocateClient* AllocateClient::New() const {
 void AllocateClient::Clear() {
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     amount_ = 0;
-    if (_has_bit(1)) {
+    datatype_ = 0;
+    if (_has_bit(2)) {
       if (batchhash_ != &_default_batchhash_) {
         batchhash_->clear();
       }
@@ -653,12 +658,28 @@ bool AllocateClient::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_batchhash;
+        if (input->ExpectTag(16)) goto parse_datatype;
         break;
       }
       
-      // required string batchhash = 2;
+      // required int32 datatype = 2;
       case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_datatype:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &datatype_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_batchhash;
+        break;
+      }
+      
+      // required string batchhash = 3;
+      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_batchhash:
@@ -697,13 +718,18 @@ void AllocateClient::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->amount(), output);
   }
   
-  // required string batchhash = 2;
+  // required int32 datatype = 2;
   if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->datatype(), output);
+  }
+  
+  // required string batchhash = 3;
+  if (_has_bit(2)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->batchhash().data(), this->batchhash().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      2, this->batchhash(), output);
+      3, this->batchhash(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -719,14 +745,19 @@ void AllocateClient::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->amount(), target);
   }
   
-  // required string batchhash = 2;
+  // required int32 datatype = 2;
   if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->datatype(), target);
+  }
+  
+  // required string batchhash = 3;
+  if (_has_bit(2)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->batchhash().data(), this->batchhash().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->batchhash(), target);
+        3, this->batchhash(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -747,7 +778,14 @@ int AllocateClient::ByteSize() const {
           this->amount());
     }
     
-    // required string batchhash = 2;
+    // required int32 datatype = 2;
+    if (has_datatype()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->datatype());
+    }
+    
+    // required string batchhash = 3;
     if (has_batchhash()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -785,6 +823,9 @@ void AllocateClient::MergeFrom(const AllocateClient& from) {
       set_amount(from.amount());
     }
     if (from._has_bit(1)) {
+      set_datatype(from.datatype());
+    }
+    if (from._has_bit(2)) {
       set_batchhash(from.batchhash());
     }
   }
@@ -804,7 +845,7 @@ void AllocateClient::CopyFrom(const AllocateClient& from) {
 }
 
 bool AllocateClient::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
   
   return true;
 }
@@ -812,6 +853,7 @@ bool AllocateClient::IsInitialized() const {
 void AllocateClient::Swap(AllocateClient* other) {
   if (other != this) {
     std::swap(amount_, other->amount_);
+    std::swap(datatype_, other->datatype_);
     std::swap(batchhash_, other->batchhash_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
