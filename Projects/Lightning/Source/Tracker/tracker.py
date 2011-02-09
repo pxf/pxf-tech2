@@ -99,6 +99,8 @@ class Tracker():
         ))
         response = tracker_pb2.NodesResponse()
         for session_id, num_avail in avail_cs:
+            if session_id == self._last_session_id:
+                continue # shouldn't send the same back.
             node = response.nodes.add()
             node.session_id = session_id
             client = self._db.get_client(session_id)
