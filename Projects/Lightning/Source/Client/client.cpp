@@ -283,6 +283,8 @@ int Client::run()
 
 					client::AllocateResponse *alloc_resp = new client::AllocateResponse();
 					alloc_resp->set_isavailable(m_queue_free > 0);
+					bool aoe = (m_Batches.count(hash) == 1);
+					//printf("hasdata: %d \n", aoe);
 					alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
 					alloc_resp->set_batchhash(alloc->batchhash());
 		
@@ -311,7 +313,8 @@ int Client::run()
 						// But don't send any tasks
 					}
 
-					if (!resp->has_hasdata())
+					printf("remote hasdata: %d\n", resp->has_hasdata());
+					if (!(resp->has_hasdata()))
 					{
 						m_Kernel->Log(m_log_tag, "Target client does not have data, sending...\n");
 						// TODO: Send data.
