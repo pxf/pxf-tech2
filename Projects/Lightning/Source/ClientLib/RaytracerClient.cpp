@@ -40,7 +40,7 @@ public:
 				{
 					printf("FAILED PARSE!\n");
 				}
-				task_data->PrintDebugString();
+				//task_data->PrintDebugString();
 				//printf("size lols: %d\n", task_data->ByteSize());
 
 				//printf("h: %d   w: %d\n", task_data->h(), task_data->w());

@@ -212,10 +212,17 @@ class AllocateClient : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 amount() const;
   inline void set_amount(::google::protobuf::int32 value);
   
-  // required string batchhash = 2;
+  // required int32 datatype = 2;
+  inline bool has_datatype() const;
+  inline void clear_datatype();
+  static const int kDatatypeFieldNumber = 2;
+  inline ::google::protobuf::int32 datatype() const;
+  inline void set_datatype(::google::protobuf::int32 value);
+  
+  // required string batchhash = 3;
   inline bool has_batchhash() const;
   inline void clear_batchhash();
-  static const int kBatchhashFieldNumber = 2;
+  static const int kBatchhashFieldNumber = 3;
   inline const ::std::string& batchhash() const;
   inline void set_batchhash(const ::std::string& value);
   inline void set_batchhash(const char* value);
@@ -228,13 +235,14 @@ class AllocateClient : public ::google::protobuf::Message {
   mutable int _cached_size_;
   
   ::google::protobuf::int32 amount_;
+  ::google::protobuf::int32 datatype_;
   ::std::string* batchhash_;
   static const ::std::string _default_batchhash_;
   friend void  protobuf_AddDesc_client_2eproto();
   friend void protobuf_AssignDesc_client_2eproto();
   friend void protobuf_ShutdownFile_client_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -915,42 +923,58 @@ inline void AllocateClient::set_amount(::google::protobuf::int32 value) {
   amount_ = value;
 }
 
-// required string batchhash = 2;
-inline bool AllocateClient::has_batchhash() const {
+// required int32 datatype = 2;
+inline bool AllocateClient::has_datatype() const {
   return _has_bit(1);
+}
+inline void AllocateClient::clear_datatype() {
+  datatype_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 AllocateClient::datatype() const {
+  return datatype_;
+}
+inline void AllocateClient::set_datatype(::google::protobuf::int32 value) {
+  _set_bit(1);
+  datatype_ = value;
+}
+
+// required string batchhash = 3;
+inline bool AllocateClient::has_batchhash() const {
+  return _has_bit(2);
 }
 inline void AllocateClient::clear_batchhash() {
   if (batchhash_ != &_default_batchhash_) {
     batchhash_->clear();
   }
-  _clear_bit(1);
+  _clear_bit(2);
 }
 inline const ::std::string& AllocateClient::batchhash() const {
   return *batchhash_;
 }
 inline void AllocateClient::set_batchhash(const ::std::string& value) {
-  _set_bit(1);
+  _set_bit(2);
   if (batchhash_ == &_default_batchhash_) {
     batchhash_ = new ::std::string;
   }
   batchhash_->assign(value);
 }
 inline void AllocateClient::set_batchhash(const char* value) {
-  _set_bit(1);
+  _set_bit(2);
   if (batchhash_ == &_default_batchhash_) {
     batchhash_ = new ::std::string;
   }
   batchhash_->assign(value);
 }
 inline void AllocateClient::set_batchhash(const char* value, size_t size) {
-  _set_bit(1);
+  _set_bit(2);
   if (batchhash_ == &_default_batchhash_) {
     batchhash_ = new ::std::string;
   }
   batchhash_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* AllocateClient::mutable_batchhash() {
-  _set_bit(1);
+  _set_bit(2);
   if (batchhash_ == &_default_batchhash_) {
     batchhash_ = new ::std::string;
   }

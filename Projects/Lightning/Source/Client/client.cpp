@@ -54,6 +54,7 @@ public:
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{
+					printf("ALLOCATION!");
 				m_Canceled = true;
 				break;
 			}
@@ -123,7 +124,8 @@ int Client::run()
 	// This is our main fail
 	while(!exit)
 	{
-		// Check for old batches.
+		// Check for old batches. 
+		/* TODO: Make sure there are no current tasks still awaiting processing for the batch
 		if ((time(NULL) - last_batch_check) >= 60)
 		{
 			Pxf::Util::Map<Pxf::Util::String, Batch*>::iterator iter;
@@ -139,7 +141,7 @@ int Client::run()
 					iter++;
 			}
 			last_batch_check = time(NULL);
-		}
+		}*/
 
 		packets = m_ConnMan.recv_packets(PING_INTERVAL);
 
@@ -220,6 +222,7 @@ int Client::run()
 
 							client::AllocateClient* alloc = new client::AllocateClient();
 							alloc->set_batchhash(m_State.m_OutQueue.front()->batchhash());
+							alloc->set_datatype(RAYTRACER); // TODO: Check actual type..
 							alloc->set_amount(m_State.m_OutQueue.front()->task_size());
 
 							LiPacket* pkg = new LiPacket(p->connection, alloc, C_ALLOCATE);
@@ -263,7 +266,6 @@ int Client::run()
 				}
 				case C_ALLOCATE:
 				{
-					printf("ALLOCATION!");
 					// TODO: Depending on what is said to the client, put client in allocated list, or something
 					if (p->connection->type != CLIENT)
 					{
@@ -276,8 +278,13 @@ int Client::run()
 					client::AllocateClient *alloc = (client::AllocateClient*)(p->unpack());
 					Pxf::Util::String hash = alloc->batchhash();
 
+					// TODO: Check that the client actually is able to process the specified type
+					// alloc->datatype();
+
 					client::AllocateResponse *alloc_resp = new client::AllocateResponse();
 					alloc_resp->set_isavailable(m_queue_free > 0);
+					bool aoe = (m_Batches.count(hash) == 1);
+					//printf("hasdata: %d \n", aoe);
 					alloc_resp->set_hasdata(m_Batches.count(hash) == 1);
 					alloc_resp->set_batchhash(alloc->batchhash());
 		
@@ -297,26 +304,64 @@ int Client::run()
 				}
 				case C_ALLOC_RESP:
 				{
+					m_Kernel->Log(m_log_tag, "Recieved allocation response.\n");
 					client::AllocateResponse *resp = (client::AllocateResponse*)(p->unpack());
 					
-					if (resp->has_isavailable() == 0)
+					if (resp->isavailable() == 0)
 					{
 						// TODO: Do something smart, blacklist? Can't remember :(
 						// But don't send any tasks
 					}
 
-					if (!resp->has_hasdata())
+					printf("remote hasdata: %d\n", resp->hasdata());
+					if (!(resp->hasdata()))
 					{
+						m_Kernel->Log(m_log_tag, "Target client does not have data, sending...\n");
 						// TODO: Send data.
 						// There's no way of knowing what data to send though, so find a way for that
+						// the way is resp->batchhash
+						Batch* b = m_Batches[resp->batchhash()];
+						client::Data* data = new client::Data();
+						data->set_batchhash(b->hash);
+						data->set_datasize(b->data_size);
+						data->set_datatype(b->type);
+						data->set_data(b->data);
+						data->set_returnaddress(b->return_address);
+						data->set_returnport(b->return_port);
+
+						LiPacket* pkg = new LiPacket(p->connection, data, C_DATA);
+						m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+
+						delete pkg;
+						delete data;
 					}
 
 					// TODO: Send pending tasks.
-					printf("GOT A CLIENT FOR MY TASKS\r\n");
-				
+
+					// Send all tasks for now
+					std::deque<client::Tasks*>::iterator i = m_State.m_OutQueue.begin();
+
+					while (i != m_State.m_OutQueue.end())
+					{
+						if ( ((*i)->batchhash()).compare(resp->batchhash()) == 0 )
+						{
+							LiPacket* pkg = new LiPacket(p->connection, (*i), C_TASKS);
+							m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+
+							delete pkg;
+							delete (*i);
+							i = m_State.m_OutQueue.erase(i);
+						}
+						else
+							i++;
+					}
+
+					delete resp;
+					break;
 				}
 				case C_DATA:
 				{
+					printf("------------------- ny data\n");
 					client::Data *data = (client::Data*)(p->unpack());
 
 					Pxf::Util::String hash = data->batchhash();
@@ -383,21 +428,24 @@ int Client::run()
 
 					delete proto_tasks;
 
-					m_Kernel->Log(m_log_tag, "Pushing %d tasks from %d",
-						tasks.back()->task_size(),
-						p->connection->session_id
-					);
+					if (tasks.back()->task_size() > 0)
+					{
+						m_Kernel->Log(m_log_tag, "Pushing %d tasks from %d",
+							tasks.back()->task_size(),
+							p->connection->session_id
+						);
 
-					// Push a set of tasks to our queue
-					push(tasks.back());
-					
-					// Remove the set we just used
-					tasks.pop_back();
+						// Push a set of tasks to our queue
+						push(tasks.back());
+						
+						// Remove the set we just used
+						tasks.pop_back();
 
-					// Forward the rest
-					forward(tasks);
+						// Forward the rest
+						forward(tasks);
 
-					// MASSIVE CODE GOES HERE
+						// MASSIVE CODE GOES HERE?
+					}
 
 					break;
 				}
@@ -416,19 +464,18 @@ int Client::run()
 						client_state* state = new client_state;
 						state->state = (ClientState)(WOK & W_HELLO);
 						m_State.m_States[new_node] = state;
-						// TODO: Send hello.
-						/*
-						client::AllocateClient* alloc_reqpack = new client::AllocateClient();
-						alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
-						alloc_reqpack->set_batchhash("LOLWUT"); // TODO: Create a real hash of the batch data blob
 
-						LiPacket* alloc_reqlipack = new LiPacket(p->connection, alloc_reqpack, C_ALLOCATE);
-						m_ConnMan.send(new_node, alloc_reqlipack->data, alloc_reqlipack->length);
-						*/
+						client::Hello* hello = new client::Hello();
+						hello->set_address("aoeu"); // TODO
+						hello->set_port(m_client_port);
+						hello->set_session_id(m_session_id);
+
+						LiPacket* hello_pkg = new LiPacket(new_node, hello, C_HELLO);
+						m_ConnMan.send(new_node, hello_pkg->data, hello_pkg->length);
+
+						delete hello;
+						delete hello_pkg;
 					}
-	
-					
-					Pxf::Message("oae", "Got OK message!");
 
 					delete nodes;
 					break;
@@ -479,17 +526,22 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 	for ( ; ((i != m_State.m_Allocated.end()) && (j != _tasks.end())) ;  i++, j++ )
 	{
 		LiPacket *pkg = new LiPacket(*i, *j, C_TASKS);
+		m_Kernel->Log(m_log_tag, "Sending tasks to client %d\n", (*i)->session_id);
 		m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
 		delete pkg;
 	}
 	// TODO: Delete the tasks that just have been sent
 	
 	// Check which iterator finished first
-	if (i != m_State.m_Allocated.end())
+	if ( i == m_State.m_Allocated.end())
 	{
+		m_Kernel->Log(m_log_tag, "Not all tasks could be sent, awaiting tracker response\n");
 		// Not all tasks could be forwarded, store the rest in the state
 		for ( ; j != _tasks.end(); j++)
+		{
 			m_State.m_OutQueue.push_back((*j));
+			m_Kernel->Log(m_log_tag, "Push task to OutQueue\n");
+		}
 	}
 }
 
@@ -507,7 +559,6 @@ void Client::push(client::Tasks* _tasks)
 		client::Tasks::Task* n_task = new client::Tasks::Task();
 		n_task->CopyFrom(_tasks->task(i));
 		t->task = n_task;
-		t->task->PrintDebugString();		
 		m_TaskQueue->push(b->type, t);
 	}
 }
