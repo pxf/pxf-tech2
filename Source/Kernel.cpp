@@ -269,7 +269,6 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	unsigned len = StringLength(_FilePath);
 	unsigned offset = 0;
 	
-// TODO: Redo this
 #if defined(CONF_PLATFORM_MACOSX)
 	if (!Pxf::IsPrefix(_FilePath, "./"))
 	{
@@ -387,8 +386,6 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 		Log(m_KernelTag | Logger::IS_WARNING, "Warning - Module API version mismatch (%d.%d is recommended)", currmmaj, currmmin);
 	}
 	
-	//Log(m_KernelTag | Logger::IS_DEBUG, "Registered %s (dylib, kv: %d.%d, mv: %d.%d) to kernel %x", module->GetIdentifier(), kmaj, kmin, mmaj, mmin, this);
-	
 	if (!replaced)
 		m_AvailableModules.push_back(new ModuleEntry_t(lib, module, DestroyInstance));
 
@@ -407,7 +404,7 @@ bool Pxf::Kernel::RegisterModule(Pxf::Module* _Module)
 {
 	m_AvailableModules.push_back(new ModuleEntry_t(_Module, DestroyBuiltInInstance));
 	
-	// TODO: Need to be able to specify which parts of the built-ins to use...
+	// TODO,XXX: Need to be able to specify which parts of the built-ins to use...
 	_Module->RegisterSystem(this, 0xFFFFFFFF);
 	return true;
 }

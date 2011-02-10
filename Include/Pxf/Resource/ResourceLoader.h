@@ -11,8 +11,6 @@ namespace Resource
 	
 	class ResourceLoader : public Pxf::System
 	{
-	private:
-		// virtual void Init() = 0;
 	public:
 		ResourceLoader(Pxf::Kernel* _Kernel, const char* _Identifier)
 			: Pxf::System(_Kernel, Pxf::System::SYSTEM_TYPE_RESOURCE_LOADER, _Identifier)

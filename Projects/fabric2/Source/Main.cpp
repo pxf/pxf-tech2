@@ -29,9 +29,13 @@
 #include "App.h"
 #include "../PreloadedResources.h"
 
+#include <Pxf/Base/Stream.h>
+
 using namespace Pxf;
 using namespace Graphics;
 using namespace Math;
+
+
 
 int main(int argc, char* argv[])
 {
