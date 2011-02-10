@@ -3,6 +3,12 @@
 
 #ifdef CONF_WITH_LIBRARY_JSONCPP
 
+/*
+	TODO: Look into Simple JSON (support for comments, 
+	has default root object, uses = instead of : for key-value
+	assignment)
+*/
+
 #include <json/json.h>
 
 #include <Pxf/Resource/ResourceBase.h>

@@ -616,24 +616,24 @@ int pxf_loader (lua_State *_L)
     if (!Pxf::IsSuffix(path.c_str(), ".lua"))
         path += ".lua";
     Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
-	// todo: check-cache in resource manager
-    Resource::Text* text = res->Acquire<Resource::Text>(path.c_str(), "txt");
-    if (text)
-    {
-        int size = text->Length();
-        const char* data = text->Ptr();
-        luaL_loadbuffer(_L, data, size-1, path.c_str());
-		res->Release(text);
-		return 1;
-    }
-    else
-    {
-        std::string err = "Error loading file: " + path;
-        lua_pushstring(_L, err.c_str());
-		lua_error(_L);
-		return 0;
-    }
-    return 1;
+	if (res->HasCachedFile(path.c_str()))
+	{
+		Resource::Text* text = res->Acquire<Resource::Text>(path.c_str(), "txt");
+		if (text)
+		{
+			int size = text->Length();
+			const char* data = text->Ptr();
+			luaL_loadbuffer(_L, data, size-1, path.c_str());
+			res->Release(text);
+			return 1;
+		}
+	}
+
+    std::string err = "Error loading file: " + path;
+    lua_pushstring(_L, err.c_str());
+	lua_error(_L);
+	return 0;
+
 }
 
 static void register_resource_loader(lua_State* _L)

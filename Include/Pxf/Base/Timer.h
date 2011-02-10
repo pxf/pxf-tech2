@@ -3,6 +3,12 @@
 
 #include <Pxf/Base/Types.h>
 
+/*
+	Basic timer with millisecond percision.
+
+	TODO: Microseconds.
+*/
+
 namespace Pxf
 {
 	class Timer

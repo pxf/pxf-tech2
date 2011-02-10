@@ -1,6 +1,20 @@
 #ifndef _PXF_BASE_SHAREDLIBRARY_H_
 #define _PXF_BASE_SHAREDLIBRARY_H_
 
+/*
+	Shared libraries
+
+	Example usage:
+		auto dylib = new SharedLibrary();
+		char* error = dylib->GetError();
+		if(error) { puts(error); }
+		dylib->Load("blah.dll");
+		auto f = dylib->LookupName("do_thing");
+		f();
+		dylib.Close();
+		delete dylib;
+*/
+
 #include <Pxf/Base/Config.h>
 
 #ifdef CONF_FAMILY_WINDOWS
