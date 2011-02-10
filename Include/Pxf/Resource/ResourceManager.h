@@ -46,6 +46,12 @@ namespace Resource
 			m_CachedFiles->insert(std::make_pair(_Path, datablob));
 		}
 
+		bool HasCachedFile(const char* _FilePath)
+		{
+			Pxf::Util::Map<Util::String, DataBlob*>::iterator cached_iter = m_CachedFiles->find(_FilePath);
+			return cached_iter != m_CachedFiles->end();
+		}
+
 		template <typename T>
 		T* FindResourceLoader(const char* _Ext)
 		{
