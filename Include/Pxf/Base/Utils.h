@@ -31,22 +31,13 @@ namespace Pxf
 		}
 	}
 
-	//	void f(char *foo, ...)
-	//		char buff[100]
-	//		formatArgumentList(buff, &foo)
-	// TODO inline these?
-	//int FormatArgumentList(char* _Dest, const char** _Format);
-
-	// format(buff, "%s", "aoeu")
-	//int Format(char* _Dest, const char* _Format, ...);
-
 	// Swaps the content of a and b
 	template <typename T> 
 	inline void Swap(T& a, T& b)
 	{
 		T t; t = a; a = b; b = t;
 	}
-	
+
 	/* Numeric compare functions */
 
 	/* Returns the absolute value of a */

@@ -90,6 +90,15 @@
 #		define CONF_COMPILER_STRING "unknown"
 #	endif
 
+#	if defined(CONF_FAMILY_WINDOWS)
+#		define CONF_DYLIB_EXT ".dll"
+#	elif defined(CONF_FAMILY_UNIX && CONF_PLATFORM_MACOSX)
+#		define CONF_DYLIB_EXT ".dylib"
+#	elif defined(CONF_FAMILY_UNIX)
+# 		define CONF_DYLIB_EXT ".so"
+#	else
+#		error "Look into how dynamic libs work for this platform, and fix me"
+#	endif
 // Debug
 #include<assert.h>
 #	if defined(_DEBUG) && !defined(CONF_DEBUG)

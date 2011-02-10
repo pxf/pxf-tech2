@@ -55,6 +55,15 @@ Pxf::Kernel::~Kernel()
 	if (m_AudioDevice)
 		delete m_AudioDevice;
 
+	if (m_InputDevice)
+		delete m_InputDevice;
+	
+	if (m_GraphicsDevice)
+		delete m_GraphicsDevice;
+
+	if (m_NetworkDevice)
+		delete m_NetworkDevice;
+
 	if (m_ResourceManager)
 		delete m_ResourceManager;
 
@@ -124,8 +133,6 @@ void Pxf::Kernel::RegisterGraphicsDevice(Pxf::Graphics::GraphicsDevice* _Device)
 
 Pxf::Graphics::GraphicsDevice* Pxf::Kernel::GetGraphicsDevice()
 {
-	//if (!m_GraphicsDevice)
-	//	m_GraphicsDevice = new Pxf::Graphics::NullGraphicsDevice(this);
 	return m_GraphicsDevice;
 }
 
@@ -137,8 +144,6 @@ void Pxf::Kernel::RegisterNetworkDevice(Pxf::Network::NetworkDevice* _Device)
 
 Pxf::Network::NetworkDevice* Pxf::Kernel::GetNetworkDevice()
 {
-	//if (!m_GraphicsDevice)
-	//	m_GraphicsDevice = new Pxf::Graphics::NullGraphicsDevice(this);
 	return m_NetworkDevice;
 }
 
@@ -244,7 +249,6 @@ unsigned int Pxf::Kernel::FindTagID(const char* _TagName)
 	return 0;
 }
 
-//TODO: Should the build file define PXF_MODULE_EXT instead?
 static const char* get_full_module_ext()
 {
 	#ifdef CONF_DEBUG
@@ -253,27 +257,8 @@ static const char* get_full_module_ext()
 		#define MODULE_SUFFIX "_s"
 	#endif
 	
-	#if defined(CONF_FAMILY_WINDOWS)
-		#define MODULE_EXT ".dll"
-	#elif defined(CONF_FAMILY_UNIX) && defined(CONF_PLATFORM_MACOSX)
-		#define MODULE_EXT ".dylib"
-	#else
-		#define MODULE_EXT ".so"
-	#endif
-	#define RETVAL MODULE_SUFFIX MODULE_EXT
+	#define RETVAL MODULE_SUFFIX CONF_DYLIB_EXT
 	return RETVAL;
-}
-
-static const char* get_module_ext()
-{
-	#if defined(CONF_FAMILY_WINDOWS)
-		#define MODULE_EXT ".dll"
-	#elif defined(CONF_FAMILY_UNIX) && defined(CONF_PLATFORM_MACOSX)
-		#define MODULE_EXT ".dylib"
-	#else
-		#define MODULE_EXT ".so"
-	#endif
-	return MODULE_EXT;
 }
 
 bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _OverrideBuiltin)
@@ -301,7 +286,7 @@ bool Pxf::Kernel::RegisterModule(const char* _FilePath, unsigned _Filter, bool _
 	
 	
 	StringCopy(FilePath+offset, _FilePath, len);
-	if (!Pxf::IsSuffix(_FilePath, get_module_ext()))
+	if (!Pxf::IsSuffix(_FilePath, CONF_DYLIB_EXT))
 	{
 		unsigned slen = StringLength(suffix);
 		for(int i = len; i < len+slen; i++)
