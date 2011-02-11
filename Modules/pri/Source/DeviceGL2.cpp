@@ -271,7 +271,6 @@ static GLuint _texture_units_array[16] = {GL_TEXTURE0_ARB, GL_TEXTURE1_ARB, GL_T
 										GL_TEXTURE15_ARB};
 Texture* DeviceGL2::BindTexture(Texture* _texture)
 {
-	PXFGLCHECK("DeviceGL2::BindTexture/Start");
 	Texture* ret = m_BindHistory[0];
 	m_BindHistory[0] = _texture;
 	glActiveTextureARB(_texture_units_array[0]);
@@ -283,14 +282,12 @@ Texture* DeviceGL2::BindTexture(Texture* _texture)
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
 	}
-	PXFGLCHECK("DeviceGL2::BindTexture/End");
 	return ret;
 }
 
 
 Texture* DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
 {
-	PXFGLCHECK("DeviceGL2::BindTexture2/Start");
 	Texture* ret = m_BindHistory[_texture_unit];
 	m_BindHistory[_texture_unit] = _texture;
 	glActiveTextureARB(_texture_units_array[_texture_unit]);
@@ -300,7 +297,6 @@ Texture* DeviceGL2::BindTexture(Texture* _texture, unsigned int _texture_unit)
 	} else {
 		glBindTexture(GL_TEXTURE_2D, ((TextureGL2*)_texture)->GetTextureID());
 	}
-	PXFGLCHECK("DeviceGL2::BindTexture2/End");
 	return ret;
 }
 
@@ -330,7 +326,6 @@ static void flip_image(int x, int y, int w, int h, int c, unsigned char* pixelda
 
 Graphics::Texture* DeviceGL2::CreateTextureFromFramebuffer()
 {
-	PXFGLCHECK("DeviceGL2::CreateTextureFromFramebuffer/Start");
 	int x = 0;
 	int y = 0;
 	int w = m_Window->GetWidth();
@@ -342,14 +337,13 @@ Graphics::Texture* DeviceGL2::CreateTextureFromFramebuffer()
 	flip_image(x, y, w, h, c, pixeldata);
 	Texture* tex = CreateTextureFromData(pixeldata, w, h, c);
 	MemoryFree(pixeldata);
-	PXFGLCHECK("DeviceGL2::CreateTextureFromFramebuffer/End");
+	PXFGLCHECK("DeviceGL2::CreateTextureFromFramebuffer");
 	return tex;
 }
 
 
 Resource::Image* DeviceGL2::CreateImageFromTexture(Graphics::Texture* _texture)
 {
-	PXFGLCHECK("DeviceGL2::CreateImageFromTexture/Start");
 	Resource::ImageLoader* ldr = GetKernel()->GetResourceManager()->FindResourceLoader<Resource::ImageLoader>("png");
 	int width = _texture->GetWidth();
 	int height = _texture->GetHeight();
@@ -362,7 +356,7 @@ Resource::Image* DeviceGL2::CreateImageFromTexture(Graphics::Texture* _texture)
 	
 	Resource::Image* img = ldr->CreateFromRaw(width, height, channels, pixels);
 	MemoryFree(pixels);
-	PXFGLCHECK("DeviceGL2::CreateImageFromTexture/End");
+	PXFGLCHECK("DeviceGL2::CreateImageFromTexture");
 	return img;
 }
 
@@ -412,7 +406,6 @@ static unsigned LookupPrimitiveType(VertexBufferPrimitiveType _PrimitiveType)
 
 void DeviceGL2::DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount)
 {
-	PXFGLCHECK("DeviceGL2::DrawBuffer/Start");
 	PXF_ASSERT(_VertexCount <= _pVertexBuffer->GetVertexCount(), "Attempting to draw too many vertices");
 
 	if (m_Window->IsMinimized())
@@ -425,7 +418,7 @@ void DeviceGL2::DrawBuffer(VertexBuffer* _pVertexBuffer, unsigned _VertexCount)
 		vertex_count = _VertexCount;
 	glDrawArrays(primitive, 0, vertex_count);
 	_pVertexBuffer->_PostDraw();
-	PXFGLCHECK("DeviceGL2::DrawBuffer/End");
+	PXFGLCHECK("DeviceGL2::DrawBuffer");
 }
 
 RenderBuffer* DeviceGL2::CreateRenderBuffer(unsigned _Format, unsigned _Width, unsigned _Height)
@@ -469,13 +462,8 @@ void DeviceGL2::DestroyFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 
 Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject* _pFrameBufferObject)
 {
-	PXFGLCHECK("DeviceGL2::BindFrameBufferObject/Start");
-	// prepare drawing
-
 	if(_pFrameBufferObject)
 	{
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
 		Graphics::FrameBufferObject* _OldFBO = m_CurrentFrameBufferObject;
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ((FrameBufferObjectGL2*) _pFrameBufferObject)->GetHandle());
 		m_CurrentFrameBufferObject = _pFrameBufferObject;
@@ -491,7 +479,6 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		else
 			glDrawBuffer(_attachment_lut[0]);
 
-		PXFGLCHECK("DeviceGL2::BindFrameBufferObject/End");
 		return _OldFBO;
 	}
 	else
@@ -500,8 +487,6 @@ Graphics::FrameBufferObject* DeviceGL2::BindFrameBufferObject(FrameBufferObject*
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		m_CurrentFrameBufferObject = 0;
 		glDrawBuffer(GL_BACK);
-
-		PXFGLCHECK("DeviceGL2::BindFrameBufferObject/End");
 		return _OldFBO;
 	}
 }
