@@ -247,8 +247,8 @@ int startrender_cb(lua_State* L)
 	data_pack->set_datasize(new_pack->ByteSize());
 	data_pack->set_datatype(RAYTRACER);
 	data_pack->set_data(new_pack->SerializeAsString());
-	data_pack->set_returnaddress("129.16.72.27");//"127.0.0.1");
-	data_pack->set_returnport(4632);
+	data_pack->set_returnaddress((char*)lua_tostring(L, 3));//("129.16.72.27");//"127.0.0.1");
+	data_pack->set_returnport(lua_tonumber(L, 4));
 	
 	
 	bool ready_to_send = false;
