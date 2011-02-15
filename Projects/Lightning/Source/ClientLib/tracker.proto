@@ -31,7 +31,7 @@ message NodesRequest {
 
 message NodesResponse {
 	message Node {
-		required int32 session_id  = 1;
+		required int32 session_id = 1;
 		required string address = 2;
 		required int32 port = 3;
 	}
@@ -39,3 +39,12 @@ message NodesResponse {
 	repeated Node nodes = 1;
 }
 
+message NodeAvailable {
+    required int32 session_id = 1;
+    required int32 available = 2;
+}
+
+message NodeConnection {
+    required int32 session_id = 1;
+    required int32 connected_to_id = 2;
+}
