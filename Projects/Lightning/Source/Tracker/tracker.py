@@ -343,7 +343,7 @@ class TrackerDatabase:
     _batchse = dict()
     
     # Testing something out here! /sven
-    _html_path = "/home/sweetfish/www/lightning/index.html" #"/home/sweetfish/www.md5/tracker/index.html"
+    _html_path = "index.html" #"/home/sweetfish/www.md5/tracker/index.html"
 
     _next_id = 1
 
