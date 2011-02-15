@@ -34,6 +34,10 @@ function new_settings_handler(filename, defaults)
   	local file = io.output(self.filename, "w")
   	io.write(serialdata)
   	file:close()
+  	--for k,v in pairs(self.data) do
+  	-- print(k,v)
+  	--end
+  	print("Saved settings to: " .. self.filename)
   end
   
   function settings:load()
@@ -49,6 +53,7 @@ function new_settings_handler(filename, defaults)
     	end
     	file:close()
     end
+    print("Loaded settings from: " .. self.filename)
   end
   
   return settings
