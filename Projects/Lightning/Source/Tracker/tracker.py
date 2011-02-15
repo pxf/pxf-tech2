@@ -343,6 +343,9 @@ class TrackerDatabase:
     _waitlist = dict()
     
     _batchse = dict()
+    
+    # Testing something out here! /sven
+    _html_path = "/home/sweetfish/www/lightning/index.html" #"/home/sweetfish/www.md5/tracker/index.html"
 
     _next_id = 1
 
@@ -351,6 +354,80 @@ class TrackerDatabase:
 
     def __del__(self):
         pass
+    
+    def update_html(self):
+        if self._html_path:
+            html_head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+            	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+            <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+            <head>
+            	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            	<style type="text/css" media="screen">
+                    * {
+                        padding: 0;
+                        margin: 0;
+                    }
+                    
+                    html {
+                        padding: 20px;
+                        background-color: #eee;
+                        font-family: Arial, "MS Trebuchet", sans-serif;
+                        font-size: 0.9em;
+                        width: 600px;
+                        margin: auto;
+                    }
+                    
+                    ul {
+                        list-style: none;
+                    }
+                    
+                    li {
+                        padding: 10px;
+                        background-color: #0f0;
+                        width: 100%;
+                        color: #000;
+                        margin-bottom: 2px;
+                    }
+                    
+                    .session_id {
+                        color: #080;
+                    }
+                    
+                    .address {
+                        font-weight: bold;
+                    }
+                    
+                </style>
+            	<title>Lightning - Tracker</title>
+            </head>
+
+            <body>
+            <h1>Connected clients</h1>
+            <ul>
+            """
+            
+            html_footer = """
+            </ul>
+
+            </body>
+            </html>
+            
+            """
+            
+            html_final = html_head
+            
+            for k,c in self._clients.items():
+                html_final += "<li><span class=\"session_id\">(#" + str(k) + ")</span> <span class=\"address\">" + str(c[0]) + "</span></li>"
+            
+            html_final += html_footer
+            
+            # TODO: Save html to file!
+            #print html_final
+            f = open(self._html_path, 'w')
+            f.write(html_final)
+            f.close()
+            
 
     def new_batch(self, batch_hash, batch_type):
         """new_batch() -> ."""
@@ -427,6 +504,8 @@ class TrackerDatabase:
         assert(session_id not in self._clients.keys())
         
         self._clients[session_id] = (address, available)
+        
+        self.update_html()
 
         return True
 
@@ -438,6 +517,7 @@ class TrackerDatabase:
         
         if session_id in self._clients.keys():
             del self._clients[session_id]
+            self.update_html()
             return True
         else:
             return False

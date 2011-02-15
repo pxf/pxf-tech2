@@ -74,7 +74,7 @@ function create_new_liq(x,y, size, mass, liqtype, life_time)
     self.x = self.old_x
     self.y = self.old_y
     
-    local inv = (vec(0,0) - vec(self.vel[1], self.vel[2])) * vec(0.999, 0.4)
+    local inv = (vec(0,0) - vec(self.vel[1], self.vel[2])) * vec(0.8, 0.4)
     self.vel[1] = inv.x
     self.vel[2] = inv.y
   end
@@ -86,6 +86,17 @@ function create_new_liq(x,y, size, mass, liqtype, life_time)
     -- f = ma, a = f / m, v = s/t, s = v * t, v = a * t = (f / m) * t
     self.vel[1] = self.vel[1] + (self.forces[1] / self.mass) * time
     self.vel[2] = self.vel[2] + (self.forces[2] / self.mass) * time
+    
+    local max_vel = 8
+    local dir_vel = vec(self.vel[1], self.vel[2])
+    local cur_vel = dir_vel:len()
+    dir_vel = dir_vel:norm()
+    if (cur_vel > max_vel) then
+      cur_vel = max_vel
+    end
+    
+    self.vel[1] = dir_vel[1] * cur_vel
+    self.vel[2] = dir_vel[2] * cur_vel
     
     -- step pos
     self.x = self.x + self.vel[1] * time
@@ -238,7 +249,7 @@ function create_liq_world()
         local res = df_world:get_response_vec(math.floor(self.liqs[i].x), math.floor(self.liqs[i].y))
         self.liqs[i]:inverse_step()
         
-        local rel = vec(0,0)
+        --[[local rel = vec(0,0)
         local new_x = math.floor(self.liqs[i].x)
         local new_y = math.floor(self.liqs[i].y)
         if (new_x < old_x) then
@@ -285,12 +296,16 @@ function create_liq_world()
             refl_force[1] = -1
             refl_force[2] = 1
           end
-        end
+        end]]
         
         -- normalize refl vect and multiply by amount intersection itwas
         --refl_force = vec(0,0) - refl_force
-        refl_force = refl_force:norm() * vec(60, 60)
-        self.liqs[i]:apply_force(refl_force[1], refl_force[2])
+        --refl_force = refl_force:norm() * vec(60, 60)
+        --self.liqs[i]:apply_force(refl_force[1], refl_force[2])
+        
+          local refl_force = vec(res[1], res[2]) * vec(60,60)
+          --print(refl_force[1], refl_force[2])
+          self.liqs[i]:apply_force(refl_force[1], refl_force[2])
         
       end
     end
@@ -299,7 +314,7 @@ function create_liq_world()
 	
 	local grid = self.grid
 	
-	local amp = 0.5
+	local amp = 100.0
 	for k,v in pairs(self.liqs) do
 		local i = v.cell_index
 		
