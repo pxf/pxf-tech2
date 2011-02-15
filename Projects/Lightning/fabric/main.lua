@@ -12,7 +12,9 @@ gui:init()
 settings = new_settings_handler("settings.ini", {rendersize = 512,
                                                  scale = 1,
                                                  toolpos = {0,0},
-                                                 toolbarstate = "full"
+                                                 toolbarstate = "full",
+                                                 clienthost = "dorsin.csbnet.se",
+                                                 clientport = "50001"
                                                 })
 settings:load()
 settings:save()

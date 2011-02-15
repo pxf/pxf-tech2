@@ -120,7 +120,7 @@ function spawn_toolwindow()
   tool_stack:addwidget(host_inputs)
   
   -- ip input
-  local ip_input = gui:create_textinput(0,0,200,false,"localhost", function (self) print("changed to: " .. tostring(self.value)) end)
+  local ip_input = gui:create_textinput(0,0,200,false,settings.data.clienthost, function (self) settings.data.clienthost = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
   host_inputs:addwidget(ip_input)
   
   -- label divider between ip and port fields
@@ -128,7 +128,7 @@ function spawn_toolwindow()
   host_inputs:addwidget(input_divider)
   
   -- port input
-  local port_input = gui:create_textinput(0,0,58,false,"50002", function (self) print("changed to: " .. tostring(self.value)) end)
+  local port_input = gui:create_textinput(0,0,58,false,settings.data.clientport, function (self) settings.data.clientport = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
   host_inputs:addwidget(port_input)
   
   -- render button
