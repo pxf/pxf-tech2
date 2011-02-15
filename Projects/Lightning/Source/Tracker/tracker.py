@@ -2,6 +2,7 @@
 
 import struct
 import traceback
+import sys
 
 import socket
 import select
@@ -23,10 +24,11 @@ class Tracker():
     _last_session_id = None
     _last_socket = None
 
-    def __init__(self):
+    def __init__(self, address="127.0.0.1", port=50000):
+        print("Tracker binding to {0}:{1}.".format(address, port))
         self._sck_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sck_listen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._sck_listen.bind((lightning.tracker_address, lightning.tracker_port))
+        self._sck_listen.bind((address, port))
         self._sck_listen.listen(10)
 
         self._db = TrackerDatabase()
@@ -553,7 +555,13 @@ class TrackerDatabase:
         return session_id
 
 def main():
-    tracker = Tracker()
+    if len(sys.argv) < 2:
+        print("usage: {0} [port] [address]".format(sys.argv[0]))
+        return
+
+    address = "127.0.0.1" if len(sys.argv) < 3 else sys.argv[2]
+    port = 50000 if len(sys.argv) < 2 else int(sys.argv[1])
+    tracker = Tracker(address, port)
     tracker.run()
 
 

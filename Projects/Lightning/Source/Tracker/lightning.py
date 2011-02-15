@@ -1,7 +1,7 @@
 import struct, tracker_pb2, lightning_pb2
 
-tracker_address = "dorsin.csbnet.se" #"127.0.0.1"
-tracker_port = 50000
+#tracker_address = "127.0.0.1" #"127.0.0.1"
+#tracker_port = 50000
 
 # Common enumerators
 OK, PING, PONG, GOODBYE = range(0,4)
