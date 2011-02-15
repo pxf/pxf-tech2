@@ -89,7 +89,7 @@ void App::Init()
 {
   m_RedrawMode = FABRIC_REDRAWMODE_FULL;
   
-  m_MaxQuadCount = 2048*2;
+  m_MaxQuadCount = 1024*1024;//2048*2;
   m_DepthStep = (FABRIC_DEPTH_RANGE / m_MaxQuadCount);
   
   m_QuadBatches[m_QuadBatchCount] = new QuadBatch(m_MaxQuadCount, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
