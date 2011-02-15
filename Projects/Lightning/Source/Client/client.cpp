@@ -567,7 +567,7 @@ void Client::push(client::Tasks* _tasks)
 Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 {
 	//int parts = 2; // TODO: Smarter stuff!
-	int parts = _tasks->task_size() < 2 ? : ;
+	int parts = _tasks->task_size() < 2 ? 1 : 2;
 	//int n = _tasks->task_size() / parts;
 	Pxf::Util::Array<client::Tasks*> tasks;
 
