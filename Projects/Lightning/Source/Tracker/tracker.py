@@ -251,8 +251,10 @@ class Tracker():
                 continue
             if tmp == '':
                 print("client disconnected.")
+                if len([ x for x in self._scks.values() \
+                    if x['session_id'] == self._last_session_id ]) < 2:
+                    self._db.del_client(self._last_session_id)
                 del self._scks[r]
-                self._db.del_client(self._last_session_id)
                 continue
             client_data['buffer'] += tmp
 
@@ -436,7 +438,6 @@ class TrackerDatabase:
         
         if session_id in self._clients.keys():
             del self._clients[session_id]
-            print("deleted.")
             return True
         else:
             return False
