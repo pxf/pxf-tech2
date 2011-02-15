@@ -14,7 +14,9 @@ settings = new_settings_handler("settings.ini", {rendersize = 512,
                                                  toolpos = {0,0},
                                                  toolbarstate = "full",
                                                  clienthost = "dorsin.csbnet.se",
-                                                 clientport = "50001"
+                                                 clientport = "50001",
+                                                 localhost = "127.0.0.1",
+                                                 localport = "4632"
                                                 })
 settings:load()
 settings:save()

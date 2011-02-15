@@ -131,12 +131,34 @@ function spawn_toolwindow()
   local port_input = gui:create_textinput(0,0,58,false,settings.data.clientport, function (self) settings.data.clientport = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
   host_inputs:addwidget(port_input)
   
+  
+  -- label for localhost input fields
+  local localhost_label = gui:create_labelpanel(0,0,280,26,"Receive address and port:")
+  tool_stack:addwidget(localhost_label)
+  
+  -- localhost-input stack
+  local localhost_inputs = gui:create_horizontalstack(0,0,280,32)
+  tool_stack:addwidget(localhost_inputs)
+  
+  -- ip input
+  local localip_input = gui:create_textinput(0,0,200,false,settings.data.localhost, function (self) settings.data.localhost = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
+  localhost_inputs:addwidget(localip_input)
+  
+  -- label divider between ip and port fields
+  local localinput_divider = gui:create_labelpanel(0,0,22,20,":")
+  localhost_inputs:addwidget(localinput_divider)
+  
+  -- port input
+  local localport_input = gui:create_textinput(0,0,58,false,settings.data.localport, function (self) settings.data.localport = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
+  localhost_inputs:addwidget(localport_input)
+  
+  
   -- render button
   local render_button = gui:create_labelbutton(0,0,120,32,"Render", function () 
     print("Trying to send job to: " .. tostring(ip_input.value) .. ":" .. tostring(port_input.value))
-    local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value), -- remote client
-                                  "localhost", 4632,                                    -- result ip:port
-                                  interleaved_slider.value*interleaved_slider.value)    -- interleaved feedback
+    local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value),           -- remote client
+                                  tostring(localip_input.value), tostring(localport_input.value), -- result ip:port
+                                  interleaved_slider.value*interleaved_slider.value)              -- interleaved feedback
     if not succ then
       spawn_error_dialog({msg})
     end

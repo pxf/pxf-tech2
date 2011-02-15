@@ -236,7 +236,7 @@ int startrender_cb(lua_State* L)
 	
 	// Create hash of datablob
 	Util::String serialized_batch = new_pack->SerializeAsString();
-	unsigned long new_hash_num = Hash((const char *)serialized_batch.c_str(), serialized_batch.size());
+	unsigned long new_hash_num = RandUI32();//Hash((const char *)serialized_batch.c_str(), serialized_batch.size());
 	std::stringstream ss;
 	ss << new_hash_num;
 	Util::String new_hash_str = ss.str();
