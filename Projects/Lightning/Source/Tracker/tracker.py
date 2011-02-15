@@ -109,6 +109,14 @@ class Tracker():
             #node.port = 0
         return lightning.T_NODES_RESPONSE, response
     _tr_table[lightning.T_NODES_REQUEST] = e_nodesrequest
+    
+    def e_nodeavailable(self, message):
+        pass
+    _tr_table[lightning.T_NODE_AVAILABLE] = e_nodeavailable
+
+    def e_nodeconnection(self, message):
+        pass
+    _tr_table[lightning.T_NODE_CONNECTION] = e_nodeconnection
 
     # Events end.
     # --------------------------------------------------------------
@@ -301,7 +309,6 @@ class Tracker():
 
 
         while True:
-            # TODO: Clean up after dead clients.
             session_id, data = self.recv()
             message_type, message = lightning.unpack(data)
 
@@ -343,7 +350,7 @@ class TrackerDatabase:
     _blacklist = dict()
     _waitlist = dict()
     
-    _batchse = dict()
+    _batches = dict()
     
     # Testing something out here! /sven
     _html_path = "index.html" #"/home/sweetfish/www.md5/tracker/index.html"

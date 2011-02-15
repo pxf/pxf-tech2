@@ -8,10 +8,10 @@ OK, PING, PONG, GOODBYE = range(0,4)
 
 # Tracker <-> Client
 T_INIT, T_HELLO_CLIENT, T_HELLO_TRACKER, T_NEWBATCH, T_NODES_REQUEST \
-    , T_NODES_RESPONSE, T_BATCH_DONE, T_TASK_DONE, T_HATE = range(4, 13)
+    , T_NODES_RESPONSE, T_BATCH_DONE, T_TASK_DONE, T_HATE, T_NODE_AVAILABLE, T_NODE_CONNECTION = range(4, 15)
 
 # Client <-> Client
-C_HELLO, C_ALLOCATE, C_ALLOC_RESP, C_DATA, C_TASKS = range(13, 18)
+C_HELLO, C_ALLOCATE, C_ALLOC_RESP, C_DATA, C_TASKS = range(15, 20)
 
 
 
@@ -20,6 +20,8 @@ translate_message_type = {
     T_HELLO_CLIENT: tracker_pb2.HelloToClient,
     T_HELLO_TRACKER: tracker_pb2.HelloToTracker,
     T_NODES_REQUEST: tracker_pb2.NodesRequest,
+    T_NODE_AVAILABLE: tracker_pb2.NodeAvailable,
+    T_NODE_CONNECTION: tracker_pb2.NodeConnection,
     GOODBYE: lightning_pb2.GoodBye,
     PING: lightning_pb2.Ping,
     PONG: lightning_pb2.Pong
