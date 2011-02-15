@@ -11,7 +11,8 @@
 #include <Pxf/Resource/Chunk.h>
 #include <Pxf/Util/String.h>
 
-// TODO: Handle non-file resources
+// TODO: Too much implementation details in this file. 
+//		 Try to de-template a few functions.
 
 namespace Pxf {
 namespace Resource
@@ -44,6 +45,12 @@ namespace Resource
 			datablob->data = _DataPtr;
 			datablob->size = _Size;
 			m_CachedFiles->insert(std::make_pair(_Path, datablob));
+		}
+
+		bool HasCachedFile(const char* _FilePath)
+		{
+			Pxf::Util::Map<Util::String, DataBlob*>::iterator cached_iter = m_CachedFiles->find(_FilePath);
+			return cached_iter != m_CachedFiles->end();
 		}
 
 		template <typename T>
@@ -160,7 +167,6 @@ namespace Resource
 			return (ResourceType*)resource;
 		}
 		
-		// TODO: just use ResourceBase* _Resource...
 		template <typename ResourceType>
 		void Release(ResourceType* _Resource, bool _Purge = false)
 		{

@@ -1,6 +1,15 @@
 #ifndef _PXF_BASE_STRING_H_
 #define _PXF_BASE_STRING_H_
 
+/*
+	Various string routines, written a long long time ago.
+
+	Warning: Minefield. Beware of nukes.
+
+	TODO: StripWhitespace(char* str), StripChars(char* str, char* chars)
+*/
+
+
 namespace Pxf {
 
 /* String manipulation functions */

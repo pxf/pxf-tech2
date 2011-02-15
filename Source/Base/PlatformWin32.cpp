@@ -31,7 +31,7 @@ void Platform::Initialize()
 	else
 	{
 		m_Frequency = -1;
-		// TODO: Error or fallback on timeGetTime()
+		// TODO:  fallback on timeGetTime()?
 	}
 }
 

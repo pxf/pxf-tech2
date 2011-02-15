@@ -31,6 +31,7 @@ bool FileStream::Close()
 uint FileStream::Read(void* _Buffer, uint _Count)
 {
 	PXF_ASSERT(IsValid(), "FileStream::Read: Invalid handle");
+	PXF_ASSERT(m_Offset + _Count <= m_Size, "FileStream::Read: out of range");
 	uint BytesRead = fread(_Buffer, 1, _Count, (FILE*)m_Handle);
 
 	if (ferror((FILE*)m_Handle))
@@ -44,6 +45,7 @@ uint FileStream::Read(void* _Buffer, uint _Count)
 uint FileStream::Write(const void* _Buffer, uint _Count)
 {
 	PXF_ASSERT(IsValid(), "FileStream::Read: Invalid handle");
+	PXF_ASSERT(m_Offset + _Count <= m_Size, "FileStream:Write: out of range");
 	uint BytesWritten = fwrite(_Buffer, _Count, 1, (FILE*)m_Handle);
 
 	if (ferror((FILE*)m_Handle))

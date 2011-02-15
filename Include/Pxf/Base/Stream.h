@@ -27,6 +27,8 @@ public:
 		return 0;
 	}
 
+	// L = Little, N = Native, B = Big
+	// i.e ReadN(ative)E(ndian)
 	template<typename T> T ReadNE() { T v; Read(&v, sizeof(T)); return v;}
 	template<typename T> T ReadBE() { return ByteswapBtoN(ReadNE<T>()); }
 	template<typename T> T ReadLE() { return ByteswapLtoN(ReadNE<T>()); }
@@ -117,8 +119,6 @@ public:
 	}
 };
 
-
-// REMEMBER Check bounds when reading and writing! Add DynamicMemoryStream?
 class MemoryStream : public Stream
 {
 private:
