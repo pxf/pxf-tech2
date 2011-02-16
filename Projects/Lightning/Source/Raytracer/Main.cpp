@@ -373,8 +373,8 @@ int main(int argc, char* argv[])
 	res->DumpResourceLoaders();
 
 	Graphics::WindowSpecifications spec;
-	spec.Width = 712;
-	spec.Height = 712;
+	spec.Width = 512;
+	spec.Height = 512;
 	spec.ColorBits = 24;
 	spec.AlphaBits = 8;
 	spec.DepthBits = 8;
