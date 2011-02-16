@@ -66,6 +66,8 @@ struct scene {
 	Graphics::Model* mdl;
 } current_scene;
 
+// recieved clients/parts info
+Util::Map<Util::String, int> recieved_clients;
 
 // task/batch specific globals
 const int w = 256;
@@ -169,6 +171,20 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
 
 	return npack;
+};
+
+int clientsstatus_cb(lua_State* L)
+{
+	Util::Map<Util::String,int>::iterator it;
+	
+	// loop recieved_clients
+	lua_newtable(L);
+	for (it=recieved_clients.begin() ; it != recieved_clients.end(); it++ )
+	{
+		lua_pushnumber(L, (*it).second);
+		lua_setfield (L, -2, (*it).first.c_str());
+	}
+	return 1;
 }
 
 int renderstatus_cb(lua_State* L)
@@ -357,8 +373,8 @@ int main(int argc, char* argv[])
 	res->DumpResourceLoaders();
 
 	Graphics::WindowSpecifications spec;
-	spec.Width = 512;
-	spec.Height = 512;
+	spec.Width = 712;
+	spec.Height = 712;
 	spec.ColorBits = 24;
 	spec.AlphaBits = 8;
 	spec.DepthBits = 8;
@@ -451,6 +467,7 @@ int main(int argc, char* argv[])
 	app->BindExternalFunction("renderstatus", renderstatus_cb);
 	app->BindExternalFunction("loadmodel", loadmodel_cb);
 	app->BindExternalFunction("startrender", startrender_cb);
+	app->BindExternalFunction("clientsstatus", clientsstatus_cb);
 	app->Boot();
 	bool running = true;
 	bool guihit = false;
@@ -530,6 +547,13 @@ int main(int argc, char* argv[])
 					
 					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash().c_str(), res_raytrace_packet->id());
 					
+					// update recieved clients list
+					if (recieved_clients.find(tpacket->connection->target_address) == recieved_clients.end())
+					{
+						recieved_clients.insert(pair<Util::String,int>(tpacket->connection->target_address,1));
+					} else {
+						recieved_clients[tpacket->connection->target_address] += 1;
+					}
 					
 					// Create texture from incomming data
 					int x = res_raytrace_packet->x() / task_size_w;

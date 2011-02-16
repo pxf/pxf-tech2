@@ -31,8 +31,8 @@ end
 
 function spawn_toolwindow()
   --local tool_window = gui:create_window("tool_window", settings.data.toolpos[1],settings.data.toolpos[2],300,450, false, "Lightning Ray-Tracer", true)
-  local tool_window = gui:create_scrollable_panel(5,0,300,app.height*2)
-  local tool_scroller = gui:create_horizontal_scroll(0,0,5,app.height, function (self, value) tool_window:move_abs(5, -value*(tool_window.drawbox.h/2)) end)
+  local tool_window = gui:create_scrollable_panel(app.width-300-5,0,300,app.height*2)
+  local tool_scroller = gui:create_horizontal_scroll(app.width-5,0,5,app.height, function (self, value) tool_window:move_abs(app.width-300-5, -value*(tool_window.drawbox.h/2)) end)
   gui.widgets:addwidget(tool_scroller)
   gui.widgets:addwidget(tool_window)
   
@@ -213,6 +213,13 @@ function spawn_toolwindow()
   -- progress time est
   local progress_label_time = gui:create_centeredlabelpanel(0,0,300,16,"")
   tool_stack:addwidget(progress_label_time)
+  
+  local spacer = gui:create_stackdivider(0,0,280,20)
+  tool_stack:addwidget(spacer)
+  
+  -- client results list
+  local client_res_list = gui:create_multiline_label(0,0,300,300,{"-"})
+  tool_stack:addwidget(client_res_list)
 
   -- fancify time
   function fancy_time(in_ms)
@@ -230,6 +237,17 @@ function spawn_toolwindow()
   tool_window.s_update = tool_window.update
   function tool_window:update()
     self:s_update()
+    
+    -- get clients and result
+    local clientres = clientsstatus()
+    local clientres_labellist = {}
+    local clientres_count = 1
+    for k,v in pairs(clientres) do
+      table.insert(clientres_labellist, "#" .. tostring(clientres_count) .. " " .. tostring(k) .. " (^(1,0,0){" .. tostring(v) .. "})")
+      clientres_count = clientres_count + 1
+    end
+    client_res_list.lines = clientres_labellist
+    
     local done,total,time = renderstatus()
     
     progress.progress = done / total
@@ -271,7 +289,7 @@ function spawn_toolwindow()
   
   -- add settings saving for minimize button
 
-  
+  --[[
   if (settings.data.toolbarstate == "compact") then
     tool_window:toggle_state()
   end
@@ -280,7 +298,7 @@ function spawn_toolwindow()
     tool_window:s_toggle_state()
     settings.data.toolbarstate = tool_window.state
     settings:save()
-  end
+  end]]
   --gui.windows:add(tool_window)
   
   return tool_window, tool_scroller
