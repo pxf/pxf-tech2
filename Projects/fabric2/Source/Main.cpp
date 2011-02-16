@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "App.h"
+#include "Grid.h"
 #include "../PreloadedResources.h"
 
 using namespace Pxf;
@@ -103,6 +104,20 @@ int main(int argc, char* argv[])
 	uint64 framelength = 16;
 	uint64 frametotal = 0;
 	racetimer.Start();
+
+	Grid<int> g(512,512,8);
+
+	for(int i=0; i < 100; i++)
+	{
+		int x = rand() % 512;
+		int y = rand() % 512;
+
+		GridObject<int>* o = new GridObject<int>();
+		o->r = 8;
+		o->p = Pxf::Math::Vec2i(x,y);
+
+		g.Insert(o);
+	}
 
 	while(win->IsOpen() && running)
 	{

@@ -50,7 +50,7 @@ private:
 struct triangle_t
 {
 	unsigned material_index;	// 4
-	aabb box;					// 24
+	//aabb box;					// 24
 	vertex_t vertices[3];		// 96
 	Pxf::Math::Vec3f n;			// 12
 };

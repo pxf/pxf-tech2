@@ -362,14 +362,16 @@ function newgame:update()
 			t = 2
 		end
 	
-		local l = create_new_liq(new_mouse_x,new_mouse_y,8, 20, t, time)
-		liq_world:add_liq(l)
+		if new_mouse_x < 512 and new_mouse_y < 512 then
+			local l = create_new_liq(new_mouse_x,new_mouse_y,8, 20, t, time)
+			liq_world:add_liq(l)
+		end
 	  
-	  if (world:hittest(new_mouse_x, new_mouse_y)) then
+		if (world:hittest(new_mouse_x, new_mouse_y)) then
 	    --print("hit")
-    else
-		--print("miss")
-    end
+		else
+			--print("miss")
+		end
 	
 	--[[if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
 	

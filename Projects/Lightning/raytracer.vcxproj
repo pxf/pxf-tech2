@@ -82,7 +82,7 @@
     <ClCompile Include="..\..\Modules\pri\Source\TextureGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\VertexBufferGL2.cpp" />
     <ClCompile Include="..\..\Modules\pri\Source\WindowGL2.cpp" />
-    <ClCompile Include="Source\ClientLib\KDTree.cpp" />
+    <ClCompile Include="Source\ClientLib\BVH.cpp" />
     <ClCompile Include="Source\Raytracer\Camera.cpp" />
     <ClCompile Include="Source\Raytracer\Intersections.cpp" />
     <ClCompile Include="Source\Raytracer\Main.cpp" />
@@ -138,10 +138,10 @@
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\TypeTraits.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\VertexBufferGL2.h" />
     <ClInclude Include="..\..\Modules\pri\Include\Pxf\Modules\pri\WindowGL2.h" />
+    <ClInclude Include="Include\ClientLib\BVH.h" />
     <ClInclude Include="Include\Raytracer\BlockingTaskQueue.h" />
     <ClInclude Include="Include\Raytracer\Camera.h" />
     <ClInclude Include="Include\Raytracer\Intersections.h" />
-    <ClInclude Include="Include\Raytracer\KDTree.h" />
     <ClInclude Include="Include\Raytracer\Material.h" />
     <ClInclude Include="Include\Raytracer\PhotonMapper.h" />
     <ClInclude Include="Include\Raytracer\RaytracerClient.h" />

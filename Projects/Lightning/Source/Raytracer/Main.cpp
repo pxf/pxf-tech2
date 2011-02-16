@@ -37,7 +37,8 @@
 #include "lightning.pb.h"
 #include "client.pb.h"
 #include "raytracer.pb.h"
-#include "KDTree.h"
+//#include "KDTree.h"
+#include "BVH.h"
 
 #include "fabric/App.h"
 
@@ -96,16 +97,19 @@ void load_model(const char* path)
 		int tri_count = mesh->GetData()->triangle_count;
 
 		// TODO: update/fix this when we are using triangles again!
-		blob.tree = new KDTree(3);
-		blob.tree->Build(scene_data,tri_count);
+		//blob.tree = new KDTree(3);
+		//blob.tree->Build(scene_data,tri_count);
 		blob.primitives = scene_data;
 		blob.prim_count = tri_count;
+
+
+		blob.tree = build(scene_data,tri_count);
 
 		if(tree_VB)
 			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
 
 		tree_VB = kernel->GetGraphicsDevice()->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
-		CreateVBFromTree(blob.tree,tree_VB);
+		//CreateVBFromTree(blob.tree,tree_VB);
 	}
 	else
 		Pxf::Message("Main","Unable to load model");
@@ -162,8 +166,6 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 
 	size_t materials_size = sizeof(MaterialLibrary);
 	npack->set_materials(Util::String((char*) &blob->materials,materials_size));
-
-	size_t penis = sizeof(aabb);
 
 	size_t triangle_size = sizeof(Triangle);
 	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
@@ -572,20 +574,20 @@ int main(int argc, char* argv[])
 			for(size_t i=0; i < blob.light_count; i++)
 				draw_light((BaseLight*) blob.lights[i]);
 
-			gfx->DrawBuffer(tree_VB,0);
+			//gfx->DrawBuffer(tree_VB,0);
 
 			// INIT DEBUG RAY
 			t += 0.01f;
 
 			ray_t debug_ray;
-			debug_ray.o = Math::Vec3f(5.0f,25.0f + sin(t*0.25f)*10.0f,50.0f);
+			debug_ray.o = Math::Vec3f(-5.0f  + sin(t*0.25f)*10.0f,25.0f + sin(t*0.25f)*10.0f,50.0f);
 			debug_ray.d = Math::Vec3f(0.0f,-0.2f,-1.0f);
 			Normalize(debug_ray.d);
 
 			Vec3f p0 = debug_ray.o;
 			Vec3f p1 = debug_ray.o + debug_ray.d * 10000.0f;
 
-			// DRAW DEBUG RAY
+			// DEBUG STUFF
 			glColor3f(0.0f,1.0f,0.0f);
 			glBegin(GL_LINES);
 				glVertex3f(p0.x,p0.y,p0.z);
@@ -593,10 +595,17 @@ int main(int argc, char* argv[])
 			glEnd();
 
 			intersection_response_t resp;
-			triangle_t* p_res = RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+
+			glColor3f(0.25f,0.25f,0.25f);
+			//gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);
+
+			glColor3f(1.0f,0.0f,0.0f);
+			gfx->DrawBuffer(blob.tree->debug_buffer,0);
 
 			if(p_res)
 			{
+				glColor3f(0.0f,0.0f,1.0f);
 				draw_triangle(*p_res);
 				//p_res->Draw();
 			}
