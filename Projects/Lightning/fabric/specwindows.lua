@@ -37,7 +37,7 @@ function spawn_toolwindow()
   gui.widgets:addwidget(tool_window)
   
   tool_window.scroll = function (self, mx, my)
-    local deltaval = tool_scroller.value - my / self.drawbox.h
+    local deltaval = tool_scroller.value - my / (self.drawbox.h / 2)
     tool_scroller:setvalue(deltaval)
   end
   
