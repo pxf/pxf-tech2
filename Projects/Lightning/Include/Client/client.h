@@ -52,7 +52,6 @@ class Client
 		TaskResultQueue* m_ResultQueue;
 
 
-		int m_queue_free;
 		int m_net_tag;	
 		int m_log_tag;
 		int last_batch_check;
@@ -63,6 +62,10 @@ class Client
 		void push(client::Tasks* _tasks);
 		void forward(Pxf::Util::Array<client::Tasks*> _tasks);
 		void list_connections();
+		Task* copy_task(const client::Tasks::Task& _task, Batch* _batch);
+
+		void request_nodes(int _amount);
+		void allocate_client(Connection* _c, Batch* _b, int _amount);
 
 };
 
