@@ -400,8 +400,11 @@ int Client::run()
 								i = m_State.m_OutQueue.erase(i);
 								m_State.m_OutQueue.push_back(keep_t);
 
+								delete (*i);
 								delete send_t;
 								delete pkg;
+
+								break;
 							}
 						}
 						else
@@ -594,7 +597,7 @@ int Client::run()
 						
 						client_state* state = new client_state;
 						state->state = (ClientState)(WOK & W_HELLO);
-						state->send_tasks = m_State.m_OutQueue.size() / (nodes->nodes_size() ? nodes->nodes_size() : 1);
+						state->send_tasks = m_State.m_OutQueue.front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1);
 						m_State.m_States[new_node] = state;
 
 						client::Hello* hello = new client::Hello();
