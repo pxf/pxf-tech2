@@ -30,21 +30,50 @@ function spawn_error_dialog(msg)
 end
 
 function spawn_toolwindow()
-  local tool_window = gui:create_window("tool_window", settings.data.toolpos[1],settings.data.toolpos[2],300,450, false, "Lightning Ray-Tracer", true)
+  --local tool_window = gui:create_window("tool_window", settings.data.toolpos[1],settings.data.toolpos[2],300,450, false, "Lightning Ray-Tracer", true)
+  local tool_window = gui:create_scrollable_panel(5,0,300,app.height*2)
+  local tool_scroller = gui:create_horizontal_scroll(0,0,5,app.height, function (self, value) tool_window:move_abs(5, -value*(tool_window.drawbox.h/2)) end)
+  gui.widgets:addwidget(tool_scroller)
+  gui.widgets:addwidget(tool_window)
+  
+  tool_window.scroll = function (self, mx, my)
+    local deltaval = tool_scroller.value - my / self.drawbox.h
+    tool_scroller:setvalue(deltaval)
+  end
+  
   -- store move pos
   tool_window.s_mousedrag = tool_window.mousedrag
-  tool_window.label.s_mousedrag = tool_window.label.mousedrag
-  tool_window.panel.s_mousedrag = tool_window.panel.mousedrag
-  function tool_window:mousedrag(dx,dy,button)
+  --tool_window.label.s_mousedrag = tool_window.label.mousedrag
+  --tool_window.panel.s_mousedrag = tool_window.panel.mousedrag
+  --[[function tool_window:mousedrag(dx,dy,button)
     self:s_mousedrag(dx,dy,button)
     settings.data.toolpos[1] = tool_window.drawbox.x
     settings.data.toolpos[2] = tool_window.drawbox.y
+  end]]
+  --tool_window.label.mousedrag = tool_window.mousedrag
+  --tool_window.panel.mousedrag = tool_window.mousedrag
+  
+  -- tool panel draw:
+  tool_window.s_draw = tool_window.draw
+  function tool_window:draw(force)
+    if (self.redraw_needed or force) and (self.visible) then
+  		gfx.translate(self.drawbox.x,self.drawbox.y)
+  		
+      -- bg
+  		local a = gfx.getalpha()
+  		gfx.setalpha(0.9)
+  		gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h, 2, 2, 1, 1)
+  		gfx.setalpha(a)
+  		
+  		gfx.translate(-self.drawbox.x,-self.drawbox.y)
+  	end
+		
+		self:s_draw(force)
+		
   end
-  tool_window.label.mousedrag = tool_window.mousedrag
-  tool_window.panel.mousedrag = tool_window.mousedrag
   
   local tool_stack = gui:create_verticalstack(10,5,300,20)
-  tool_window.panel:addwidget(tool_stack)
+  tool_window:addwidget(tool_stack)
   
   -- file menu
   local file_menu = {{"Reboot", {tooltip = "Reboots the application. (Reloads all scripts and textures.)", onclick = 
@@ -120,7 +149,7 @@ function spawn_toolwindow()
   tool_stack:addwidget(host_inputs)
   
   -- ip input
-  local ip_input = gui:create_textinput(0,0,200,false,"localhost", function (self) print("changed to: " .. tostring(self.value)) end)
+  local ip_input = gui:create_textinput(0,0,200,false,settings.data.clienthost, function (self) settings.data.clienthost = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
   host_inputs:addwidget(ip_input)
   
   -- label divider between ip and port fields
@@ -128,15 +157,37 @@ function spawn_toolwindow()
   host_inputs:addwidget(input_divider)
   
   -- port input
-  local port_input = gui:create_textinput(0,0,58,false,"50002", function (self) print("changed to: " .. tostring(self.value)) end)
+  local port_input = gui:create_textinput(0,0,58,false,settings.data.clientport, function (self) settings.data.clientport = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
   host_inputs:addwidget(port_input)
+  
+  
+  -- label for localhost input fields
+  local localhost_label = gui:create_labelpanel(0,0,280,26,"Receive address and port:")
+  tool_stack:addwidget(localhost_label)
+  
+  -- localhost-input stack
+  local localhost_inputs = gui:create_horizontalstack(0,0,280,32)
+  tool_stack:addwidget(localhost_inputs)
+  
+  -- ip input
+  local localip_input = gui:create_textinput(0,0,200,false,settings.data.localhost, function (self) settings.data.localhost = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
+  localhost_inputs:addwidget(localip_input)
+  
+  -- label divider between ip and port fields
+  local localinput_divider = gui:create_labelpanel(0,0,22,20,":")
+  localhost_inputs:addwidget(localinput_divider)
+  
+  -- port input
+  local localport_input = gui:create_textinput(0,0,58,false,settings.data.localport, function (self) settings.data.localport = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
+  localhost_inputs:addwidget(localport_input)
+  
   
   -- render button
   local render_button = gui:create_labelbutton(0,0,120,32,"Render", function () 
     print("Trying to send job to: " .. tostring(ip_input.value) .. ":" .. tostring(port_input.value))
-    local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value), -- remote client
-                                  "localhost", 4632,                                    -- result ip:port
-                                  interleaved_slider.value*interleaved_slider.value)    -- interleaved feedback
+    local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value),           -- remote client
+                                  tostring(localip_input.value), tostring(localport_input.value), -- result ip:port
+                                  interleaved_slider.value*interleaved_slider.value)              -- interleaved feedback
     if not succ then
       spawn_error_dialog({msg})
     end
@@ -230,5 +281,7 @@ function spawn_toolwindow()
     settings.data.toolbarstate = tool_window.state
     settings:save()
   end
-  gui.windows:add(tool_window)
+  --gui.windows:add(tool_window)
+  
+  return tool_window, tool_scroller
 end

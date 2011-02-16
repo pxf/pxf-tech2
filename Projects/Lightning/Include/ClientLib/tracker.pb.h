@@ -38,6 +38,8 @@ class NewBatch;
 class NodesRequest;
 class NodesResponse;
 class NodesResponse_Node;
+class NodeAvailable;
+class NodeConnection;
 
 enum NewBatch_BatchType {
   NewBatch_BatchType_RAYTRACE = 0,
@@ -715,6 +717,200 @@ class NodesResponse : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static NodesResponse* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class NodeAvailable : public ::google::protobuf::Message {
+ public:
+  NodeAvailable();
+  virtual ~NodeAvailable();
+  
+  NodeAvailable(const NodeAvailable& from);
+  
+  inline NodeAvailable& operator=(const NodeAvailable& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const NodeAvailable& default_instance();
+  
+  void Swap(NodeAvailable* other);
+  
+  // implements Message ----------------------------------------------
+  
+  NodeAvailable* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const NodeAvailable& from);
+  void MergeFrom(const NodeAvailable& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 session_id = 1;
+  inline bool has_session_id() const;
+  inline void clear_session_id();
+  static const int kSessionIdFieldNumber = 1;
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
+  
+  // required int32 available = 2;
+  inline bool has_available() const;
+  inline void clear_available();
+  static const int kAvailableFieldNumber = 2;
+  inline ::google::protobuf::int32 available() const;
+  inline void set_available(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:tracker.NodeAvailable)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 session_id_;
+  ::google::protobuf::int32 available_;
+  friend void  protobuf_AddDesc_tracker_2eproto();
+  friend void protobuf_AssignDesc_tracker_2eproto();
+  friend void protobuf_ShutdownFile_tracker_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static NodeAvailable* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class NodeConnection : public ::google::protobuf::Message {
+ public:
+  NodeConnection();
+  virtual ~NodeConnection();
+  
+  NodeConnection(const NodeConnection& from);
+  
+  inline NodeConnection& operator=(const NodeConnection& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const NodeConnection& default_instance();
+  
+  void Swap(NodeConnection* other);
+  
+  // implements Message ----------------------------------------------
+  
+  NodeConnection* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const NodeConnection& from);
+  void MergeFrom(const NodeConnection& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 session_id = 1;
+  inline bool has_session_id() const;
+  inline void clear_session_id();
+  static const int kSessionIdFieldNumber = 1;
+  inline ::google::protobuf::int32 session_id() const;
+  inline void set_session_id(::google::protobuf::int32 value);
+  
+  // required int32 connected_to_id = 2;
+  inline bool has_connected_to_id() const;
+  inline void clear_connected_to_id();
+  static const int kConnectedToIdFieldNumber = 2;
+  inline ::google::protobuf::int32 connected_to_id() const;
+  inline void set_connected_to_id(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:tracker.NodeConnection)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 session_id_;
+  ::google::protobuf::int32 connected_to_id_;
+  friend void  protobuf_AddDesc_tracker_2eproto();
+  friend void protobuf_AssignDesc_tracker_2eproto();
+  friend void protobuf_ShutdownFile_tracker_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static NodeConnection* default_instance_;
+};
 // ===================================================================
 
 
@@ -1084,6 +1280,78 @@ NodesResponse::nodes() const {
 inline ::google::protobuf::RepeatedPtrField< ::tracker::NodesResponse_Node >*
 NodesResponse::mutable_nodes() {
   return &nodes_;
+}
+
+// -------------------------------------------------------------------
+
+// NodeAvailable
+
+// required int32 session_id = 1;
+inline bool NodeAvailable::has_session_id() const {
+  return _has_bit(0);
+}
+inline void NodeAvailable::clear_session_id() {
+  session_id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 NodeAvailable::session_id() const {
+  return session_id_;
+}
+inline void NodeAvailable::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  session_id_ = value;
+}
+
+// required int32 available = 2;
+inline bool NodeAvailable::has_available() const {
+  return _has_bit(1);
+}
+inline void NodeAvailable::clear_available() {
+  available_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 NodeAvailable::available() const {
+  return available_;
+}
+inline void NodeAvailable::set_available(::google::protobuf::int32 value) {
+  _set_bit(1);
+  available_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// NodeConnection
+
+// required int32 session_id = 1;
+inline bool NodeConnection::has_session_id() const {
+  return _has_bit(0);
+}
+inline void NodeConnection::clear_session_id() {
+  session_id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 NodeConnection::session_id() const {
+  return session_id_;
+}
+inline void NodeConnection::set_session_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  session_id_ = value;
+}
+
+// required int32 connected_to_id = 2;
+inline bool NodeConnection::has_connected_to_id() const {
+  return _has_bit(1);
+}
+inline void NodeConnection::clear_connected_to_id() {
+  connected_to_id_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 NodeConnection::connected_to_id() const {
+  return connected_to_id_;
+}
+inline void NodeConnection::set_connected_to_id(::google::protobuf::int32 value) {
+  _set_bit(1);
+  connected_to_id_ = value;
 }
 
 

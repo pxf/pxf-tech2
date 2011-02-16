@@ -91,7 +91,7 @@ void App::Init()
 {
   m_RedrawMode = FABRIC_REDRAWMODE_FULL;
   
-  m_MaxQuadCount = 2048*2;
+  m_MaxQuadCount = 1024*1024;//2048*2;
   m_DepthStep = (FABRIC_DEPTH_RANGE / m_MaxQuadCount);
   
   m_QuadBatches[m_QuadBatchCount] = new QuadBatch(m_MaxQuadCount, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
@@ -164,9 +164,13 @@ static int luaL_exec(lua_State* L, const char* filepath)
 {
 	Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
 	Resource::Text* text = res->Acquire<Resource::Text>(filepath, "txt");
-	int s = luaL_loadstring(L, text->Ptr());
-	res->Release(text);
-	return s;
+	if (text)
+	{
+		int s = luaL_loadstring(L, text->Ptr());
+		res->Release(text);
+		return s;
+	}
+	return 0;
 }
 
 bool App::Boot()
@@ -607,13 +611,80 @@ void App::_register_lua_libs_callbacks()
   luaL_openlibs(L);
 }
 
+int pxf_loader (lua_State *_L)
+{
+    std::string path = luaL_checkstring(_L, 1);
+	printf("Loading: %s\n", path.c_str());
+    if (!Pxf::IsSuffix(path.c_str(), ".lua"))
+        path += ".lua";
+    Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
+	if (res->HasCachedFile(path.c_str()))
+	{
+		Resource::Text* text = res->Acquire<Resource::Text>(path.c_str(), "txt");
+		if (text)
+		{
+			int size = text->Length();
+			const char* data = text->Ptr();
+			luaL_loadbuffer(_L, data, size-1, path.c_str());
+			res->Release(text);
+			return 1;
+		}
+	}
+
+    std::string err = "Error loading file: " + path;
+    lua_pushstring(_L, err.c_str());
+	lua_error(_L);
+	return 0;
+
+}
+
+static void register_resource_loader(lua_State* _L)
+{
+/*
+	// get table.insert
+    lua_getglobal(L, "table");
+    lua_getfield(L, -1, "insert");
+    lua_remove(L, -2);
+
+    // get package.loaders
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "loaders");
+    lua_remove(L, -2);
+
+    // insert physfs loader
+    lua_pushvalue(L, -2);
+    lua_pushvalue(L, -2);
+    lua_pushnumber(L, 2);
+    lua_pushcfunction(L, pxf_loader);
+    lua_call(L, 3, 0);
+
+    lua_pop(L, 2);
+*/
+
+    lua_getfield(_L, LUA_GLOBALSINDEX, "package");
+	lua_getfield(_L, -1, "loaders");
+	lua_remove(_L, -2);
+	int loader_count = 0;
+    lua_pushnil(_L);
+    while (lua_next(_L, -2) != 0)
+    {
+        lua_pop(_L, 1);
+        loader_count++;
+    }
+    lua_pushinteger(_L, loader_count + 1);
+    lua_pushcfunction(_L, pxf_loader);
+    lua_rawset(_L, -3);
+	lua_pop(_L, 1);
+
+}
+
 void App::_register_own_callbacks()
 {
-  // Register own callbacks
+	register_resource_loader(L);
+
+	// Register own callbacks
 	lua_register(L, "print", Print);
 	lua_register(L, "uptime", Uptime);
-	lua_register(L, "loadfile", LoadFile);
-	lua_register(L, "require", ImportFile);
     
 	// Create empty luagame table
 	lua_newtable(L);
@@ -684,74 +755,3 @@ int App::Print(lua_State *_L)
     fputs("\n", stdout);
     return 0;
 }
-
-int App::LoadFile(lua_State *_L)
-{
-	int numarg = lua_gettop(_L);
-	if (numarg == 1)
-	{
-		const char* path = lua_tostring(_L, 1);
-		std::string s;
-		if (!Pxf::IsSuffix(path, ".lua"))
-		{
-			s = std::string(path) + ".lua";
-			path = s.c_str();
-		}
-		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
-		Resource::Text* text = res->Acquire<Resource::Text>(path, "txt");
-		luaL_loadstring(_L, text->Ptr());
-		res->Release(text);
-		return 1;
-	}
-	else
-	{
-		lua_pushstring(_L, "Invalid argument passed to loadfile function!");
-		lua_error(_L);
-	}
-	return 0;
-}
-
-int App::ImportFile(lua_State *_L)
-{
-	int numarg = lua_gettop(_L);
-	if (numarg == 1)
-	{
-		const char* path = lua_tostring(_L, 1);
-		std::string s;
-		if (!Pxf::IsSuffix(path, ".lua"))
-		{
-			s = std::string(path) + ".lua";
-			path = s.c_str();
-		}
-		Pxf::Resource::ResourceManager* res = Kernel::GetInstance()->GetResourceManager();
-		Resource::Text* text = res->Acquire<Resource::Text>(path, "txt");
-		if (!text)
-		{
-			lua_pushstring(_L, "Error loading file!");
-			lua_error(_L);
-			return 0;
-		}
-		char* code = text->Ptr();
-		int result = luaL_loadstring(_L, code);
-		res->Release(text);
-		if (result != 0)
-		{
-			char err[4096];
-			const char* blah = lua_tostring(_L, -1);
-			sprintf(err, "require failed with error code %d, %s", result, blah);
-			lua_pushstring(_L, err);
-			lua_error(_L);
-			return 0;
-		}
-		lua_pcall(_L, 0, 1, 0);
-		return 1;
-	}
-	else
-	{
-		lua_pushstring(_L, "Invalid argument passed to loadfile function!");
-		lua_error(_L);
-	}
-	return 0;
-}
-
-

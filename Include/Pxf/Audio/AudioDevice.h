@@ -4,6 +4,11 @@
 #include <Pxf/Base/Types.h>
 #include <Pxf/System.h>
 
+/*
+	TODO,XXX: Add streaming capability by providing a callback
+	function for getting stream data from *whereever*.
+*/
+
 namespace Pxf
 {
 	class Kernel;

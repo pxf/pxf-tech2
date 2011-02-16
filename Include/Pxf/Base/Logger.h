@@ -1,6 +1,15 @@
 #ifndef _PXF_BASE_LOGGER_H
 #define _PXF_BASE_LOGGER_H
 
+/*
+	Definition of Tag:
+	Message flags + Index (to a char** containing the logname-string)
+
+	The tag is of type unsigned int, with the high 2 bytes for flags
+	and the lower bytes for index. i.e. both are uint16.
+
+*/
+
 namespace Pxf
 {
 	class Logger

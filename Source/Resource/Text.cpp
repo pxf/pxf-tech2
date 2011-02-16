@@ -1,6 +1,7 @@
 #include <Pxf/Resource/Text.h>
 #include <Pxf/Base/Debug.h>
 #include <Pxf/Base/Stream.h>
+#include <Pxf/Base/String.h>
 #include <Pxf/Base/Logger.h>
 #include <Pxf/Kernel.h>
 
@@ -56,8 +57,13 @@ Resource::Text* Resource::TextLoader::Load(const char* _FilePath)
 Resource::Text* Resource::TextLoader::CreateFrom(const void* _DataPtr, unsigned _DataLen)
 {
 	Resource::Chunk* chunk = new Resource::Chunk();
-	chunk->data = (void*) _DataPtr;
-	chunk->size = _DataLen;
-	chunk->is_static = true;
+	size_t size = _DataLen;
+	char* data = new char[size+1];
+	StringCopy(data, (const char*)_DataPtr, size);
+	data[size] = 0;
+
+	chunk->data = data;
+	chunk->size = size+1;
+	chunk->is_static = false;
 	return new Text(m_Kernel, chunk, this);
 }

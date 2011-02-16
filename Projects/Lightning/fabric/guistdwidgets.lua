@@ -1318,13 +1318,14 @@ function gui:create_textinput(x,y,w,masked,stdvalue,changed) -- changed = functi
   
   function wid:lostfocus(wid)
     self.state = "normal"
+    --print("I LOST FOCUS")
     
     --if (self.changed) then
-    if self.old_value and self.old_value ~= self.value then
+    --if self.old_value and self.old_value ~= self.value then
       if (self.changed) then
         self:changed(self.value)
       end
-    end
+    --end
     self.old_value = self.value
     self:needsredraw()
   end
@@ -1693,3 +1694,84 @@ function gui:create_slider(x,y,w,h,min,max,on_change,discreet)
 end
 
 
+function gui:create_scrollable_panel(x,y,w,h,scroll)
+	local wid = gui:create_basewidget(x,y,w,h)
+	self.scroll = scroll
+	
+	function wid:mousedrag(mx,my)
+	  self:scroll(mx,my)
+  end
+
+  function wid:find_mousehit(mx,my)
+    if (self:hittest(mx,my,mx,my)) then
+      local thit = nil
+      
+        for k,v in pairs(self.childwidgets) do
+          if v then
+            local htest = v:find_mousehit(mx - self.hitbox.x, my - self.hitbox.y)
+            if htest then
+              thit = htest
+            end
+          end
+        end
+        
+      if (inp.iskeydown(inp.LCTRL)) then
+        thit = nil
+      end
+      
+      -- added: check if ctrl is pushed
+      if not (thit == nil) then
+        -- we hit a child widget, return this one instead
+        return thit
+      end
+      
+      return self
+    end
+    
+    return nil
+  end
+
+  return wid
+end
+
+function gui:create_horizontal_scroll(x,y,w,h,scroll)
+	local wid = gui:create_basewidget(x,y,w,h)
+	wid.scroll = scroll
+	wid.value = 0
+	wid.scrollsize = h / 20
+	wid.scrollarea = h - wid.scrollsize
+	
+	function wid:setvalue(val)
+	  self.value = val
+	  if (self.value < 0) then
+	    self.value = 0
+    elseif (self.value > 1) then
+      self.value = 1
+    end
+    self:scroll(self.value)
+  end
+	
+	function wid:mousedrag(mx,my)
+	  local x,y = inp.getmousepos()
+	  y = y - self.scrollsize / 2
+	  self:setvalue(y / self.scrollarea)
+    
+	  --print(self.value)
+  end
+
+  function wid:draw(force)
+    if (self.redraw_needed or force) and self.visible then
+			gfx.translate(self.drawbox.x,self.drawbox.y)
+			
+			-- bg
+			gfx.drawtopleft(0, 0, self.drawbox.w, self.drawbox.h, 2, 2, 1, 1)
+			
+			-- scroller
+			gfx.drawtopleft(0, self.value*self.scrollarea, self.drawbox.w, self.scrollsize, 2, 6, 1, 1)
+			
+			gfx.translate(-self.drawbox.x,-self.drawbox.y)
+		end
+  end
+
+  return wid
+end

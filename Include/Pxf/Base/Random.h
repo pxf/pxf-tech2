@@ -1,8 +1,15 @@
 #ifndef _PXF_BASE_RANDOM_H_
 #define _PXF_BASE_RANDOM_H_
 
+/*
+	Random number generation
+
+	Using mersenne twister for good distribution.
+
+	USE ME. rand() is crap.
+ */
+
 namespace Pxf {
-	/* Random number generation */
 	
 	void RandSetSeed(unsigned long seed);
 	unsigned long RandUI32();

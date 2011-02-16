@@ -33,6 +33,12 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* NodesResponse_Node_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   NodesResponse_Node_reflection_ = NULL;
+const ::google::protobuf::Descriptor* NodeAvailable_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  NodeAvailable_reflection_ = NULL;
+const ::google::protobuf::Descriptor* NodeConnection_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  NodeConnection_reflection_ = NULL;
 
 }  // namespace
 
@@ -144,6 +150,38 @@ void protobuf_AssignDesc_tracker_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(NodesResponse_Node));
+  NodeAvailable_descriptor_ = file->message_type(5);
+  static const int NodeAvailable_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodeAvailable, session_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodeAvailable, available_),
+  };
+  NodeAvailable_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      NodeAvailable_descriptor_,
+      NodeAvailable::default_instance_,
+      NodeAvailable_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodeAvailable, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodeAvailable, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(NodeAvailable));
+  NodeConnection_descriptor_ = file->message_type(6);
+  static const int NodeConnection_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodeConnection, session_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodeConnection, connected_to_id_),
+  };
+  NodeConnection_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      NodeConnection_descriptor_,
+      NodeConnection::default_instance_,
+      NodeConnection_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodeConnection, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NodeConnection, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(NodeConnection));
 }
 
 namespace {
@@ -168,6 +206,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
     NodesResponse_descriptor_, &NodesResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     NodesResponse_Node_descriptor_, &NodesResponse_Node::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    NodeAvailable_descriptor_, &NodeAvailable::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    NodeConnection_descriptor_, &NodeConnection::default_instance());
 }
 
 }  // namespace
@@ -185,6 +227,10 @@ void protobuf_ShutdownFile_tracker_2eproto() {
   delete NodesResponse_reflection_;
   delete NodesResponse_Node::default_instance_;
   delete NodesResponse_Node_reflection_;
+  delete NodeAvailable::default_instance_;
+  delete NodeAvailable_reflection_;
+  delete NodeConnection::default_instance_;
+  delete NodeConnection_reflection_;
 }
 
 void protobuf_AddDesc_tracker_2eproto() {
@@ -206,7 +252,10 @@ void protobuf_AddDesc_tracker_2eproto() {
     "d\030\001 \002(\005\022\r\n\005nodes\030\002 \002(\005\"v\n\rNodesResponse\022"
     "*\n\005nodes\030\001 \003(\0132\033.tracker.NodesResponse.N"
     "ode\0329\n\004Node\022\022\n\nsession_id\030\001 \002(\005\022\017\n\007addre"
-    "ss\030\002 \002(\t\022\014\n\004port\030\003 \002(\005", 502);
+    "ss\030\002 \002(\t\022\014\n\004port\030\003 \002(\005\"6\n\rNodeAvailable\022"
+    "\022\n\nsession_id\030\001 \002(\005\022\021\n\tavailable\030\002 \002(\005\"="
+    "\n\016NodeConnection\022\022\n\nsession_id\030\001 \002(\005\022\027\n\017"
+    "connected_to_id\030\002 \002(\005", 621);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "tracker.proto", &protobuf_RegisterTypes);
   HelloToTracker::default_instance_ = new HelloToTracker();
@@ -215,12 +264,16 @@ void protobuf_AddDesc_tracker_2eproto() {
   NodesRequest::default_instance_ = new NodesRequest();
   NodesResponse::default_instance_ = new NodesResponse();
   NodesResponse_Node::default_instance_ = new NodesResponse_Node();
+  NodeAvailable::default_instance_ = new NodeAvailable();
+  NodeConnection::default_instance_ = new NodeConnection();
   HelloToTracker::default_instance_->InitAsDefaultInstance();
   HelloToClient::default_instance_->InitAsDefaultInstance();
   NewBatch::default_instance_->InitAsDefaultInstance();
   NodesRequest::default_instance_->InitAsDefaultInstance();
   NodesResponse::default_instance_->InitAsDefaultInstance();
   NodesResponse_Node::default_instance_->InitAsDefaultInstance();
+  NodeAvailable::default_instance_->InitAsDefaultInstance();
+  NodeConnection::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_tracker_2eproto);
 }
 
@@ -1954,6 +2007,502 @@ void NodesResponse::Swap(NodesResponse* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = NodesResponse_descriptor_;
   metadata.reflection = NodesResponse_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int NodeAvailable::kSessionIdFieldNumber;
+const int NodeAvailable::kAvailableFieldNumber;
+#endif  // !_MSC_VER
+
+NodeAvailable::NodeAvailable()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void NodeAvailable::InitAsDefaultInstance() {
+}
+
+NodeAvailable::NodeAvailable(const NodeAvailable& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void NodeAvailable::SharedCtor() {
+  _cached_size_ = 0;
+  session_id_ = 0;
+  available_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+NodeAvailable::~NodeAvailable() {
+  SharedDtor();
+}
+
+void NodeAvailable::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void NodeAvailable::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* NodeAvailable::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return NodeAvailable_descriptor_;
+}
+
+const NodeAvailable& NodeAvailable::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_tracker_2eproto();  return *default_instance_;
+}
+
+NodeAvailable* NodeAvailable::default_instance_ = NULL;
+
+NodeAvailable* NodeAvailable::New() const {
+  return new NodeAvailable;
+}
+
+void NodeAvailable::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    session_id_ = 0;
+    available_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool NodeAvailable::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 session_id = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_available;
+        break;
+      }
+      
+      // required int32 available = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_available:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &available_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void NodeAvailable::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required int32 session_id = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->session_id(), output);
+  }
+  
+  // required int32 available = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->available(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* NodeAvailable::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required int32 session_id = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->session_id(), target);
+  }
+  
+  // required int32 available = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->available(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int NodeAvailable::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 session_id = 1;
+    if (has_session_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->session_id());
+    }
+    
+    // required int32 available = 2;
+    if (has_available()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->available());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void NodeAvailable::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const NodeAvailable* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const NodeAvailable*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void NodeAvailable::MergeFrom(const NodeAvailable& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_session_id(from.session_id());
+    }
+    if (from._has_bit(1)) {
+      set_available(from.available());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void NodeAvailable::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void NodeAvailable::CopyFrom(const NodeAvailable& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool NodeAvailable::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  
+  return true;
+}
+
+void NodeAvailable::Swap(NodeAvailable* other) {
+  if (other != this) {
+    std::swap(session_id_, other->session_id_);
+    std::swap(available_, other->available_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata NodeAvailable::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = NodeAvailable_descriptor_;
+  metadata.reflection = NodeAvailable_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int NodeConnection::kSessionIdFieldNumber;
+const int NodeConnection::kConnectedToIdFieldNumber;
+#endif  // !_MSC_VER
+
+NodeConnection::NodeConnection()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void NodeConnection::InitAsDefaultInstance() {
+}
+
+NodeConnection::NodeConnection(const NodeConnection& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void NodeConnection::SharedCtor() {
+  _cached_size_ = 0;
+  session_id_ = 0;
+  connected_to_id_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+NodeConnection::~NodeConnection() {
+  SharedDtor();
+}
+
+void NodeConnection::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void NodeConnection::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* NodeConnection::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return NodeConnection_descriptor_;
+}
+
+const NodeConnection& NodeConnection::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_tracker_2eproto();  return *default_instance_;
+}
+
+NodeConnection* NodeConnection::default_instance_ = NULL;
+
+NodeConnection* NodeConnection::New() const {
+  return new NodeConnection;
+}
+
+void NodeConnection::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    session_id_ = 0;
+    connected_to_id_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool NodeConnection::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 session_id = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &session_id_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_connected_to_id;
+        break;
+      }
+      
+      // required int32 connected_to_id = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_connected_to_id:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &connected_to_id_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void NodeConnection::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required int32 session_id = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->session_id(), output);
+  }
+  
+  // required int32 connected_to_id = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->connected_to_id(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* NodeConnection::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required int32 session_id = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->session_id(), target);
+  }
+  
+  // required int32 connected_to_id = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->connected_to_id(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int NodeConnection::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 session_id = 1;
+    if (has_session_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->session_id());
+    }
+    
+    // required int32 connected_to_id = 2;
+    if (has_connected_to_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->connected_to_id());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void NodeConnection::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const NodeConnection* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const NodeConnection*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void NodeConnection::MergeFrom(const NodeConnection& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_session_id(from.session_id());
+    }
+    if (from._has_bit(1)) {
+      set_connected_to_id(from.connected_to_id());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void NodeConnection::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void NodeConnection::CopyFrom(const NodeConnection& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool NodeConnection::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  
+  return true;
+}
+
+void NodeConnection::Swap(NodeConnection* other) {
+  if (other != this) {
+    std::swap(session_id_, other->session_id_);
+    std::swap(connected_to_id_, other->connected_to_id_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata NodeConnection::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = NodeConnection_descriptor_;
+  metadata.reflection = NodeConnection_reflection_;
   return metadata;
 }
 

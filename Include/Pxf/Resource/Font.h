@@ -4,6 +4,10 @@
 #include <Pxf/Resource/ResourceBase.h>
 #include <Pxf/Resource/ResourceLoader.h>
 
+/*
+	TODO: Distance fields for supersmooth font rendering. :)
+*/
+
 namespace Pxf {
 namespace Resource {
 	class Image;

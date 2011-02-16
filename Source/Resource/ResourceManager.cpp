@@ -21,10 +21,6 @@ Resource::ResourceManager::ResourceManager(Kernel* _Kernel)
 
 Resource::ResourceManager::~ResourceManager()
 {
-	// clean up resource loaders
-	// several extensions might share resource loader, but they are located together.
-	// we use prev to make sure to only delete a pointer once.
-
 	m_Kernel->Log(m_LogTag | Logger::IS_INFORMATION, "Destroying resource manager");
 
 	// clean up loaded resources

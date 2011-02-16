@@ -238,7 +238,7 @@ int startrender_cb(lua_State* L)
 	
 	// Create hash of datablob
 	Util::String serialized_batch = new_pack->SerializeAsString();
-	unsigned long new_hash_num = Hash((const char *)serialized_batch.c_str(), serialized_batch.size());
+	unsigned long new_hash_num = RandUI32();//Hash((const char *)serialized_batch.c_str(), serialized_batch.size());
 	std::stringstream ss;
 	ss << new_hash_num;
 	Util::String new_hash_str = ss.str();
@@ -249,8 +249,8 @@ int startrender_cb(lua_State* L)
 	data_pack->set_datasize(new_pack->ByteSize());
 	data_pack->set_datatype(RAYTRACER);
 	data_pack->set_data(new_pack->SerializeAsString());
-	data_pack->set_returnaddress("127.0.0.1");
-	data_pack->set_returnport(4632);
+	data_pack->set_returnaddress((char*)lua_tostring(L, 3));//("129.16.72.27");//"127.0.0.1");
+	data_pack->set_returnport(lua_tonumber(L, 4));
 	
 	
 	bool ready_to_send = false;
@@ -279,6 +279,7 @@ int startrender_cb(lua_State* L)
 				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
 				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
 				alloc_reqpack->set_batchhash(new_hash_str); // TODO: Create a real hash of the batch data blob
+				alloc_reqpack->set_datatype(RAYTRACER);
 				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
 				cman->send(conn, alloc_reqlipack->data, alloc_reqlipack->length);
 				

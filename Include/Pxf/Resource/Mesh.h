@@ -26,7 +26,7 @@ namespace Resource {
 			}
 			~mesh_descriptor()
 			{
-				// TODO: Move implementation details to module, so we can delete this.
+				// TODO,XXX: Move implementation details to module, so we can delete this.
 				/*
 				if (vertices)
 					delete [] vertices;

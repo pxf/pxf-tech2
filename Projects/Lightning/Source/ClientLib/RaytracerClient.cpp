@@ -40,7 +40,7 @@ public:
 				{
 					printf("FAILED PARSE!\n");
 				}
-				task_data->PrintDebugString();
+				//task_data->PrintDebugString();
 				//printf("size lols: %d\n", task_data->ByteSize());
 
 				//printf("h: %d   w: %d\n", task_data->h(), task_data->w());
@@ -203,7 +203,7 @@ RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 	, m_NumWorkers(1)
 {
 	m_LogTag = m_Kernel->CreateTag("RTC");
-	m_NumWorkers = 1;//Platform::GetNumberOfProcessors();
+	m_NumWorkers = Platform::GetNumberOfProcessors();
 	m_Executor = new ZThread::PoolExecutor(m_NumWorkers);
 }
 

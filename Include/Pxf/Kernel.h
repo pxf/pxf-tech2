@@ -42,7 +42,6 @@ namespace Pxf {
 		};
 		Pxf::Util::Array<ModuleEntry_t*> m_AvailableModules;
 		
-		// Would be nice with Util::List
 		struct LoggerEntry_t
 		{
 			Logger* logger;

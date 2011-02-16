@@ -30,7 +30,7 @@ function spawn_error_dialog(msg)
 end
 
 function spawn_gamemenu(game)
-  local tool_window = gui:create_window("tool_window", (512-200)/2, 20,200,150, false, "pxf-finalsolution", true)
+  local tool_window = gui:create_window("tool_window", (512-200)/2, 20,200,150, false, "pxf-asolution", true)
   
   -- store move pos
   tool_window.s_mousedrag = tool_window.mousedrag
