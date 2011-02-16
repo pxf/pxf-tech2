@@ -14,21 +14,35 @@ settings = new_settings_handler("settings.ini", {rendersize = 512,
                                                  toolpos = {0,0},
                                                  toolbarstate = "full",
                                                  clienthost = "dorsin.csbnet.se",
-                                                 clientport = "50001"
+                                                 clientport = "50002",
+                                                 localhost = "127.0.0.1",
+                                                 localport = "4632"
                                                 })
 settings:load()
 settings:save()
 
-spawn_toolwindow()
+toolwindow, toolscroller = spawn_toolwindow()
 
 ----------------------------------------------
 -- initial draw
 gfx.redrawneeded()
 
+last_tab = false
+
 function update()
+  if (inp.iskeydown(inp.TAB)) then
+    if (not last_tab) then
+      toolwindow.visible = not toolwindow.visible
+      toolscroller.visible = not toolscroller.visible
+    end
+    
+    last_tab = true
+  else
+    last_tab = false
+  end
   gui:update()
 end
 
 function draw(force)
-  gui:draw(force)
+  gui:draw(true)
 end
