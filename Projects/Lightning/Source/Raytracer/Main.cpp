@@ -239,6 +239,15 @@ int startrender_cb(lua_State* L)
 		return 0;
 	}
 	
+	// Open send connection
+	Connection *conn = cman->new_connection(CLIENT);
+	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
+	{
+		lua_pushboolean(L, false);
+		lua_pushstring(L, "Could not connect to render client!");
+		return 2;
+	}
+	
 	// Open result connection
 	if (recv_conn)
 	{
@@ -254,25 +263,16 @@ int startrender_cb(lua_State* L)
 		return 2;
 	}
 	
-	
-	Connection *conn = cman->new_connection(CLIENT);
-	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
-	{
-		lua_pushboolean(L, false);
-		lua_pushstring(L, "Could not connect to render client!");
-		return 2;
-	}
-	
-	// update grid count/size
+	// update/reset grid count/size
 	task_count = lua_tointeger(L, 6);
 	total_count = task_count*task_count;
+	total_done = 0;
 	task_size_w = w / task_count;
 	task_size_h = h / task_count;
 	
 	// update reqion textures
 	if (region_textures != 0)
 		delete [] region_textures;
-	
 	region_textures = new Texture*[task_count*task_count];
 	for(size_t i = 0; i < task_count*task_count; ++i)
 	{
@@ -284,7 +284,7 @@ int startrender_cb(lua_State* L)
 	
 	// create hello packet
 	client::Hello* hello_pack = new client::Hello();
-	hello_pack->set_address("localhost");
+	hello_pack->set_address((char*)lua_tostring(L, 3));
 	hello_pack->set_port(0);
 	hello_pack->set_session_id(-1);
 	LiPacket* hello_lipack = new LiPacket(conn, hello_pack, C_HELLO);
