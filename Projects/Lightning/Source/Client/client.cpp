@@ -38,7 +38,11 @@ public:
 					iter = m_BatchMap->find(batchhash);
 
 				if (iter == m_BatchMap->end())
+				{
+					printf("Error, iterator is at m_BatchMap->end().\n");
 					continue; /* error */
+				}
+					
 
 				char* retaddr = (*iter).second->return_address;
 				int retport = (*iter).second->return_port;
