@@ -97,21 +97,11 @@ void load_model(const char* path)
 		//Primitive** scene_data = (Primitive**) triangle_list(mesh);
 
 		int tri_count = mesh->GetData()->triangle_count;
-
-		// TODO: update/fix this when we are using triangles again!
-		//blob.tree = new KDTree(3);
-		//blob.tree->Build(scene_data,tri_count);
 		blob.primitives = scene_data;
 		blob.prim_count = tri_count;
 
 
 		blob.tree = build(scene_data,tri_count);
-
-		if(tree_VB)
-			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
-
-		tree_VB = kernel->GetGraphicsDevice()->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
-		//CreateVBFromTree(blob.tree,tree_VB);
 	}
 	else
 		Pxf::Message("Main","Unable to load model");
@@ -150,6 +140,30 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	c->set_orient_z(cam.GetOrientation()->z);
 	c->set_orient_w(cam.GetOrientation()->w);
 	
+	BVH* tree = blob.tree;
+	// pack tree
+	raytracer::DataBlob::BVH* b = npack_mutable_tree();
+	raytracer::DataBlob::Vec3f* min = b->mutable_min();
+	min->set_x(tree.min.x);
+	min->set_y(tree.min.y);
+	min->set_z(tree.min.z);
+	raytracer::DataBlob::Vec3f max* = b->mutable_max();
+	max->set_x(tree.max.x);
+	max->set_y(tree.max.y);
+	max->set_z(tree.max.z);
+
+	b->set_num_nodes(tree.num_nodes);
+
+	size_t nodes_data_size = sizeof(ca_node_t) * tree.num_nodes;
+	b->set_nodes(Util::String((char*) tree->nodes,nodes_data_size));
+
+	size_t index_list_data_size = sizeof(int) * tree->num_triangles;
+	b->set_index_list(Util::String((char*) tree->index_list,index_list_data_size));
+
+	//size_t materials_size = sizeof(MaterialLibrary);
+	//npack->set_materials(Util::String((char*) &blob->materials,materials_size));
+
+
 	// pack lights!
 	for(size_t i = 0; i < blob->light_count; i++)
 	{
