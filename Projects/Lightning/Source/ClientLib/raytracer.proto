@@ -25,6 +25,16 @@ message DataBlob {
 		required float orient_w = 5;
 	}
 
+	message BVH {
+		required bytes nodes = 1;
+		required int32 num_nodes = 2;
+		required int32 num_triangles = 3;
+		repeated int32 index_list = 4;
+		required bytes triangle_data = 5;
+		required Vec3f min = 6;
+		required Vec3f max = 7;
+	}
+
 	required int32 prim_count = 1;
 	required int32 light_count = 2;
 	

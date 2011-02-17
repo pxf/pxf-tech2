@@ -304,6 +304,7 @@ tree_t* build(triangle_t* data,int num_triangles)
 	tree->num_nodes = box_count;
 	tree->index_list = index_list;
 	tree->triangle_data = data;
+	tree->num_triangles = num_triangles;
 
 	tree->stack = new stack_entry_t[box_count];
 

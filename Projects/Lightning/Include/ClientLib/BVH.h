@@ -43,8 +43,8 @@ struct leaf_node_t : node_t
 // cache aligned node
 struct ca_node_t
 {
-	unsigned char axis;			// set top bit if leaf
-	float split_pos;
+	unsigned char axis;			// set top bit if leaf 1
+	float split_pos;			// 4
 
 	union {
 		struct {
@@ -56,7 +56,7 @@ struct ca_node_t
 			unsigned tri_count; 
 			unsigned list_index;
 		} leaf_node;
-	} data;
+	} data; // 8
 
 	bool is_leaf() { return axis & 0x80; }
 };
@@ -82,6 +82,7 @@ struct tree_t
 	// data
 	ca_node_t* nodes;
 	int num_nodes;
+	int num_triangles;
 	int* index_list;
 	triangle_t* triangle_data;
 
