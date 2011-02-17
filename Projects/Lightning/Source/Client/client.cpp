@@ -611,24 +611,30 @@ int Client::run()
 
 					for(int i=0; i < nodes->nodes_size(); i++)
 					{
+						// Current node
+						tracker::NodesResponse::Node node = nodes->nodes(i);
+						Connection* c;
+
 						m_Kernel->Log(m_log_tag, "node %d: [%d] %s:%d."
 							, i
-							, nodes->nodes(i).session_id()
-							, nodes->nodes(i).address().c_str()
-							, nodes->nodes(i).port()
+							, node.session_id()
+							, node.address().c_str()
+							, node.port()
 						);
 
 						// TODO: Check if client is already known
-						if (find_connection(nodes->nodes(i).session_id()))
+						if (c = find_connection(node.session_id()))
 						{
-							m_Kernel->Log(m_log_tag, "  already known! Skipping...");
+							m_Kernel->Log(m_log_tag, "  already known! Sending allocation..");
+							Batch* b = m_Batches[m_State.m_OutQueue.front()->batchhash()];
+							allocate_client(c, b, m_State.m_OutQueue.front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1));
 							continue;
 						}
 
 						Connection *new_node = m_ConnMan.new_connection(CLIENT);
-						m_ConnMan.connect_connection(new_node, (char*)nodes->nodes(i).address().c_str(), nodes->nodes(i).port());
+						m_ConnMan.connect_connection(new_node, (char*)node.address().c_str(), node.port());
 
-						new_node->session_id = nodes->nodes(i).session_id();
+						new_node->session_id = node.session_id();
 						//new_node->target_address
 						
 						client_state* state = new client_state;
