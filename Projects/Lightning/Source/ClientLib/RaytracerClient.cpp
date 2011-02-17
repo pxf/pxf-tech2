@@ -89,6 +89,19 @@ public:
 				blob.primitives = triangles;
 				blob.materials = *materials;
 
+				// unpack tree
+				std::string nodeData = blob_proto->tree().nodes();
+				std::string indexList = blob_proto->tree().index_list();
+
+				tree_t* tree = new tree_t;
+				blob.tree = tree;
+
+				tree->triangle_data = blob.primitives;
+				tree->num_triangles = blob.prim_count;
+				tree->num_nodes = blob_proto->tree().num_nodes();
+				tree->nodes = (ca_node_t*) nodeData.c_str();
+				tree->index_list = (int*) indexList.c_str();
+
 				/*
 				for(size_t i = 0; i < blob.prim_count; i++)
 				{
