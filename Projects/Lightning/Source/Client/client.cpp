@@ -230,6 +230,17 @@ int Client::run()
 						// Adding client to known clients
 						m_State.m_Clients.push_back(p->connection);
 
+						// Tell tracker of our new friendship
+						tracker::NodeConnection* tr_conn = new tracker::NodeConnection();
+						tr_conn->set_session_id(m_session_id);
+						tr_conn->set_connected_to_id(p->connection->session_id);
+
+						LiPacket* pkg = new LiPacket(p->connection, tr_conn, T_NODE_CONNECTION);
+						m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+
+						delete tr_conn;
+						delete pkg;
+
 						// Send allocation request
 						if (m_State.m_OutQueue.size() > 0)
 						{
@@ -362,13 +373,6 @@ int Client::run()
 					// Find a set the allocated client can handle
 					while (i != m_State.m_OutQueue.end())
 					{
-						printf("%s\n", resp->batchhash().c_str());
-						printf("%s\n", (*i)->batchhash().c_str());
-						printf("\n\n%s == %s\n\n"
-							, (*i)->batchhash().c_str()
-							, resp->batchhash().c_str()
-						);
-
 						if ( ((*i)->batchhash()).compare(resp->batchhash()) == 0 )
 						{
 							// Found one!
