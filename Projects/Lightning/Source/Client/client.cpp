@@ -269,7 +269,15 @@ int Client::run()
 					m_ConnMan.send(p->connection, (char*)&type, 4);
 
 					if (p->connection->session_id != -1)
+					{	
+						client_state* state = new client_state();
+						state->batch = NULL;
+						state->send_tasks = 0;
+						state->state = (ClientState)0;
+
+						m_State.m_States[p->connection] = state;
 						m_State.m_Clients.push_back(p->connection);
+					}
 
 					break;
 				}
@@ -354,6 +362,13 @@ int Client::run()
 					// Find a set the allocated client can handle
 					while (i != m_State.m_OutQueue.end())
 					{
+						printf("%s\n", resp->batchhash().c_str());
+						printf("%s\n", (*i)->batchhash().c_str());
+						printf("\n\n%s == %s\n\n"
+							, (*i)->batchhash().c_str()
+							, resp->batchhash().c_str()
+						);
+
 						if ( ((*i)->batchhash()).compare(resp->batchhash()) == 0 )
 						{
 							// Found one!
@@ -596,10 +611,25 @@ int Client::run()
 
 					for(int i=0; i < nodes->nodes_size(); i++)
 					{
-						m_Kernel->Log(m_log_tag, "node %d: %s:%d.", i, nodes->nodes(i).address().c_str(), nodes->nodes(i).port());
+						m_Kernel->Log(m_log_tag, "node %d: [%d] %s:%d."
+							, i
+							, nodes->nodes(i).session_id()
+							, nodes->nodes(i).address().c_str()
+							, nodes->nodes(i).port()
+						);
+
+						// TODO: Check if client is already known
+						if (find_connection(nodes->nodes(i).session_id()))
+						{
+							m_Kernel->Log(m_log_tag, "  already known! Skipping...");
+							continue;
+						}
 
 						Connection *new_node = m_ConnMan.new_connection(CLIENT);
 						m_ConnMan.connect_connection(new_node, (char*)nodes->nodes(i).address().c_str(), nodes->nodes(i).port());
+
+						new_node->session_id = nodes->nodes(i).session_id();
+						//new_node->target_address
 						
 						client_state* state = new client_state;
 						state->state = (ClientState)(WOK & W_HELLO);
@@ -637,6 +667,19 @@ int Client::run()
 	return 0;
 }
 
+// Find connection in m_State.m_Clients
+Connection* Client::find_connection(int _id)
+{
+	Pxf::Util::Array<struct Connection*>::iterator i;
+	i = m_State.m_Clients.begin();
+
+	for ( ; i != m_State.m_Clients.end() ; i++) {
+		if ((*i)->session_id == _id)
+			return (*i);
+	}
+	
+	return NULL;
+}
 // Request nodes from tracker
 void Client::request_nodes(int _amount)
 {

@@ -69,6 +69,7 @@ class Client
 		void list_connections();
 		Task* copy_task(const client::Tasks::Task& _task, Batch* _batch);
 
+		Connection* find_connection(int _id);
 		void request_nodes(int _amount);
 		void allocate_client(Connection* _c, Batch* _b, int _amount);
 
