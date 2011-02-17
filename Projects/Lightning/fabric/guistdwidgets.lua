@@ -591,19 +591,24 @@ function gui:create_labelbutton(x,y,w,h,label,action)
   wid.action = action
   wid.label = label
   wid.state = 0 -- 0 = up, 1 = down
+  wid.enabled = true
   
   function wid:mouserelease(mx,my,button)
-    if (button == inp.MOUSE_LEFT) then
-      self:action(mx,my,button)
+    if (self.enabled) then
+      if (button == inp.MOUSE_LEFT) then
+        self:action(mx,my,button)
+      end
+      self.state = 0
     end
-    self.state = 0
     self:needsredraw()
   end
   
   function wid:mousepush(mx,my,button)
-    if (button == inp.MOUSE_LEFT) then
-      self.state = 1
-      self:needsredraw()
+    if (self.enabled) then
+      if (button == inp.MOUSE_LEFT) then
+        self.state = 1
+        self:needsredraw()
+      end
     end
   end
   
@@ -664,12 +669,16 @@ function gui:create_labelbutton(x,y,w,h,label,action)
       -- right
       gfx.drawtopleft(self.drawbox.w-4, 4, 4, self.drawbox.h-8,
                       10,7,4,1)]]
+      local output_label = self.label
+      if (not self.enabled) then
+        output_label = "^(0.5, 0.5, 0.5){" .. output_label .. "}"
+      end
       
       -- label
       if (self.state == 0) then
-        gui:drawcenteredfont(self.label, self.drawbox.w / 2 - 1, self.drawbox.h / 2)
+        gui:drawcenteredfont(output_label, self.drawbox.w / 2 - 1, self.drawbox.h / 2)
       else
-        gui:drawcenteredfont(self.label, self.drawbox.w / 2, self.drawbox.h / 2 + 1)
+        gui:drawcenteredfont(output_label, self.drawbox.w / 2, self.drawbox.h / 2 + 1)
       end
     
       gfx.translate(-self.drawbox.x, -self.drawbox.y)
