@@ -103,7 +103,7 @@ triangle_t* triangle_list(Mesh* mesh)
 
 		if(v_index == 2)
 		{
-			t_list[t_index].box = aabb(CalcAABB(t_list[t_index]));
+			//t_list[t_index].box = aabb(CalcAABB(t_list[t_index]));
 			t_list[t_index].material_index = 0;
 			//t->SetAABB();
 		}

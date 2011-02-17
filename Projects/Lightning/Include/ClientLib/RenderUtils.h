@@ -32,14 +32,16 @@ public:
 
 	inline void Insert(material_t _Mat,int _Index)
 	{
-		PXF_ASSERT(_Index >= 0 && _Index < 64,"Invalid bounds");
+		//PXF_ASSERT(_Index >= 0 && _Index < 64,"Invalid bounds");
+		if(_Index < 0 || _Index >= 64) _Index = 0;
 		m_Materials[_Index] = _Mat;
 	}
 
 	//void Insert(material_t _Mat);
 	inline material_t GetMaterial(int _Index)
 	{
-		PXF_ASSERT(_Index >= 0 && _Index < 64,"Invalid bounds");
+		//PXF_ASSERT(_Index >= 0 && _Index < 64,"Invalid bounds");
+		if(_Index < 0 || _Index >= 64) _Index = 0;
 		return m_Materials[_Index];
 	}
 
@@ -50,7 +52,7 @@ private:
 struct triangle_t
 {
 	unsigned material_index;	// 4
-	aabb box;					// 24
+	//aabb box;					// 24
 	vertex_t vertices[3];		// 96
 	Pxf::Math::Vec3f n;			// 12
 };

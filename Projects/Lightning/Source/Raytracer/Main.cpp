@@ -37,7 +37,8 @@
 #include "lightning.pb.h"
 #include "client.pb.h"
 #include "raytracer.pb.h"
-#include "KDTree.h"
+//#include "KDTree.h"
+#include "BVH.h"
 
 #include "fabric/App.h"
 
@@ -73,9 +74,10 @@ Util::Map<Util::String, int> recieved_clients;
 const int w = 256;
 const int h = 256;
 const int channels = 3;
-const int task_count = 8;
+int task_count = 8;
 int task_size_w = w / task_count;
 int task_size_h = h / task_count;
+Texture **region_textures = 0;
 
 void load_model(const char* path)
 {
@@ -96,18 +98,11 @@ void load_model(const char* path)
 		//Primitive** scene_data = (Primitive**) triangle_list(mesh);
 
 		int tri_count = mesh->GetData()->triangle_count;
-
-		// TODO: update/fix this when we are using triangles again!
-		blob.tree = new KDTree(3);
-		blob.tree->Build(scene_data,tri_count);
 		blob.primitives = scene_data;
 		blob.prim_count = tri_count;
 
-		if(tree_VB)
-			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
 
-		tree_VB = kernel->GetGraphicsDevice()->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
-		CreateVBFromTree(blob.tree,tree_VB);
+		blob.tree = build(scene_data,tri_count);
 	}
 	else
 		Pxf::Message("Main","Unable to load model");
@@ -146,6 +141,26 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	c->set_orient_z(cam.GetOrientation()->z);
 	c->set_orient_w(cam.GetOrientation()->w);
 	
+	tree_t* tree = blob->tree;
+	// pack tree
+	raytracer::DataBlob::BVH* b = npack->mutable_tree();
+	raytracer::DataBlob::Vec3f* minpos = b->mutable_minpos();
+	minpos->set_x(tree->min.x);
+	minpos->set_y(tree->min.y);
+	minpos->set_z(tree->min.z);
+	raytracer::DataBlob::Vec3f* maxpos = b->mutable_maxpos();
+	maxpos->set_x(tree->max.x);
+	maxpos->set_y(tree->max.y);
+	maxpos->set_z(tree->max.z);
+
+	b->set_num_nodes(tree->num_nodes);
+
+	size_t nodes_data_size = sizeof(ca_node_t) * tree->num_nodes;
+	b->set_nodes(Util::String((char*) tree->nodes,nodes_data_size));
+
+	size_t index_list_data_size = sizeof(int) * tree->num_triangles;
+	b->set_index_list(Util::String((char*) tree->index_list,index_list_data_size));
+
 	// pack lights!
 	for(size_t i = 0; i < blob->light_count; i++)
 	{
@@ -165,10 +180,10 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	size_t materials_size = sizeof(MaterialLibrary);
 	npack->set_materials(Util::String((char*) &blob->materials,materials_size));
 
-	size_t penis = sizeof(aabb);
-
 	size_t triangle_size = sizeof(Triangle);
 	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
+
+
 
 	return npack;
 };
@@ -213,6 +228,16 @@ int loadmodel_cb(lua_State* L)
 
 int startrender_cb(lua_State* L)
 {
+	// lua: startrender(remote client host, remote client port,
+  //                  results host, results port,
+  //                  interleaved feedback,
+  //                  gridsize)
+	if (lua_gettop(L) != 6)
+	{
+		lua_pushstring(L, "Wrong parameter count to startrender(...).");
+		lua_error(L);
+		return 0;
+	}
 	
 	// Open result connection
 	if (recv_conn)
@@ -236,6 +261,16 @@ int startrender_cb(lua_State* L)
 		lua_pushboolean(L, false);
 		lua_pushstring(L, "Could not connect to render client!");
 		return 2;
+	}
+	
+	// update grid count/size
+	task_count = lua_tointeger(L, 6);
+	task_size_w = w / task_count;
+	task_size_h = h / task_count;
+	region_textures = new Texture*[task_count*task_count];
+	for(size_t i = 0; i < task_count*task_count; ++i)
+	{
+		region_textures[i] = 0;
 	}
 	
 	// create hello packet
@@ -373,8 +408,8 @@ int main(int argc, char* argv[])
 	res->DumpResourceLoaders();
 
 	Graphics::WindowSpecifications spec;
-	spec.Width = 712;
-	spec.Height = 712;
+	spec.Width = 512;
+	spec.Height = 512;
 	spec.ColorBits = 24;
 	spec.AlphaBits = 8;
 	spec.DepthBits = 8;
@@ -450,7 +485,7 @@ int main(int argc, char* argv[])
 	blob.light_count = 2;
 	
 	// create textures and primitive batches
-	Texture *region_textures[task_count*task_count] = {0};
+	//Texture *region_textures[task_count*task_count] = {0};
 	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("data/unfinished.png");
 	unfinished_task_texture->SetMagFilter(TEX_FILTER_NEAREST);
 	unfinished_task_texture->SetMinFilter(TEX_FILTER_NEAREST);
@@ -481,7 +516,7 @@ int main(int argc, char* argv[])
 	blob.cam = &cam;
 
 	// load a model!
-	load_model("data/box_2.ctm");
+	load_model("data/teapot.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -597,20 +632,20 @@ int main(int argc, char* argv[])
 			for(size_t i=0; i < blob.light_count; i++)
 				draw_light((BaseLight*) blob.lights[i]);
 
-			gfx->DrawBuffer(tree_VB,0);
+			//gfx->DrawBuffer(tree_VB,0);
 
 			// INIT DEBUG RAY
 			t += 0.01f;
 
 			ray_t debug_ray;
-			debug_ray.o = Math::Vec3f(5.0f,25.0f + sin(t*0.25f)*10.0f,50.0f);
-			debug_ray.d = Math::Vec3f(0.0f,-0.2f,-1.0f);
+			debug_ray.o = cam.GetPos() + Math::Vec3f(0.01f,0.01f,1.0f); //Math::Vec3f(-3.0f,10.0f + sin(t*0.15f)*5.0f,50.0f);
+			debug_ray.d = cam.GetDir(); //Math::Vec3f(0.0f,-0.2f,-1.0f);
 			Normalize(debug_ray.d);
 
 			Vec3f p0 = debug_ray.o;
 			Vec3f p1 = debug_ray.o + debug_ray.d * 10000.0f;
 
-			// DRAW DEBUG RAY
+			// DEBUG STUFF
 			glColor3f(0.0f,1.0f,0.0f);
 			glBegin(GL_LINES);
 				glVertex3f(p0.x,p0.y,p0.z);
@@ -618,10 +653,17 @@ int main(int argc, char* argv[])
 			glEnd();
 
 			intersection_response_t resp;
-			triangle_t* p_res = RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+
+			glColor3f(0.25f,0.25f,0.25f);
+			gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);
+
+			glColor3f(1.0f,0.0f,0.0f);
+			//gfx->DrawBuffer(blob.tree->debug_buffer,0);
 
 			if(p_res)
 			{
+				glColor3f(0.0f,0.0f,1.0f);
 				draw_triangle(*p_res);
 				//p_res->Draw();
 			}

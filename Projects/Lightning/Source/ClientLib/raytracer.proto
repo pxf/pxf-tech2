@@ -25,6 +25,14 @@ message DataBlob {
 		required float orient_w = 5;
 	}
 
+	message BVH {
+		required bytes nodes = 1;
+		required int32 num_nodes = 2;
+		required bytes index_list = 3;
+		required Vec3f minpos = 4;
+		required Vec3f maxpos = 5;
+	}
+
 	required int32 prim_count = 1;
 	required int32 light_count = 2;
 	
@@ -46,6 +54,8 @@ message DataBlob {
 
 	required bytes primitive_data = 12;
 	required bytes materials = 13;
+
+	required BVH tree = 14;
 }
 
 message Task {

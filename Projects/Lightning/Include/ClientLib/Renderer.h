@@ -2,10 +2,9 @@
 #define _RENDERER_H_
 
 #include "RenderUtils.h"
-#include "KDTree.h"
+//#include "KDTree.h"
 #include "Camera.h"
-
-class KDTree;
+#include "BVH.h"
 
 struct batch_blob_t
 {	
@@ -31,7 +30,8 @@ struct batch_blob_t
 	MaterialLibrary materials;
 
 	Camera* cam;
-	KDTree* tree;
+	tree_t* tree;
+	//KDTree* tree;
 };
 
 struct task_detail_t

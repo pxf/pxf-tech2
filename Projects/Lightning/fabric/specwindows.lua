@@ -187,7 +187,8 @@ function spawn_toolwindow()
     print("Trying to send job to: " .. tostring(ip_input.value) .. ":" .. tostring(port_input.value))
     local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value),           -- remote client
                                   tostring(localip_input.value), tostring(localport_input.value), -- result ip:port
-                                  interleaved_slider.value*interleaved_slider.value)              -- interleaved feedback
+                                  interleaved_slider.value*interleaved_slider.value,              -- interleaved feedback
+                                  taskcount_slider.value)                                         -- task count
     if not succ then
       spawn_error_dialog({msg})
     end

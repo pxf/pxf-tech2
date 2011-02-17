@@ -37,6 +37,7 @@ class DataBlob_Vec3f;
 class DataBlob_PrimitiveSphere;
 class DataBlob_PointLight;
 class DataBlob_Camera;
+class DataBlob_BVH;
 class Task;
 class Result;
 
@@ -454,6 +455,135 @@ class DataBlob_Camera : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class DataBlob_BVH : public ::google::protobuf::Message {
+ public:
+  DataBlob_BVH();
+  virtual ~DataBlob_BVH();
+  
+  DataBlob_BVH(const DataBlob_BVH& from);
+  
+  inline DataBlob_BVH& operator=(const DataBlob_BVH& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DataBlob_BVH& default_instance();
+  
+  void Swap(DataBlob_BVH* other);
+  
+  // implements Message ----------------------------------------------
+  
+  DataBlob_BVH* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DataBlob_BVH& from);
+  void MergeFrom(const DataBlob_BVH& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required bytes nodes = 1;
+  inline bool has_nodes() const;
+  inline void clear_nodes();
+  static const int kNodesFieldNumber = 1;
+  inline const ::std::string& nodes() const;
+  inline void set_nodes(const ::std::string& value);
+  inline void set_nodes(const char* value);
+  inline void set_nodes(const void* value, size_t size);
+  inline ::std::string* mutable_nodes();
+  
+  // required int32 num_nodes = 2;
+  inline bool has_num_nodes() const;
+  inline void clear_num_nodes();
+  static const int kNumNodesFieldNumber = 2;
+  inline ::google::protobuf::int32 num_nodes() const;
+  inline void set_num_nodes(::google::protobuf::int32 value);
+  
+  // required bytes index_list = 3;
+  inline bool has_index_list() const;
+  inline void clear_index_list();
+  static const int kIndexListFieldNumber = 3;
+  inline const ::std::string& index_list() const;
+  inline void set_index_list(const ::std::string& value);
+  inline void set_index_list(const char* value);
+  inline void set_index_list(const void* value, size_t size);
+  inline ::std::string* mutable_index_list();
+  
+  // required .raytracer.DataBlob.Vec3f minpos = 4;
+  inline bool has_minpos() const;
+  inline void clear_minpos();
+  static const int kMinposFieldNumber = 4;
+  inline const ::raytracer::DataBlob_Vec3f& minpos() const;
+  inline ::raytracer::DataBlob_Vec3f* mutable_minpos();
+  
+  // required .raytracer.DataBlob.Vec3f maxpos = 5;
+  inline bool has_maxpos() const;
+  inline void clear_maxpos();
+  static const int kMaxposFieldNumber = 5;
+  inline const ::raytracer::DataBlob_Vec3f& maxpos() const;
+  inline ::raytracer::DataBlob_Vec3f* mutable_maxpos();
+  
+  // @@protoc_insertion_point(class_scope:raytracer.DataBlob.BVH)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::std::string* nodes_;
+  static const ::std::string _default_nodes_;
+  ::google::protobuf::int32 num_nodes_;
+  ::std::string* index_list_;
+  static const ::std::string _default_index_list_;
+  ::raytracer::DataBlob_Vec3f* minpos_;
+  ::raytracer::DataBlob_Vec3f* maxpos_;
+  friend void  protobuf_AddDesc_raytracer_2eproto();
+  friend void protobuf_AssignDesc_raytracer_2eproto();
+  friend void protobuf_ShutdownFile_raytracer_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static DataBlob_BVH* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class DataBlob : public ::google::protobuf::Message {
  public:
   DataBlob();
@@ -510,6 +640,7 @@ class DataBlob : public ::google::protobuf::Message {
   typedef DataBlob_PrimitiveSphere PrimitiveSphere;
   typedef DataBlob_PointLight PointLight;
   typedef DataBlob_Camera Camera;
+  typedef DataBlob_BVH BVH;
   
   // accessors -------------------------------------------------------
   
@@ -625,6 +756,13 @@ class DataBlob : public ::google::protobuf::Message {
   inline void set_materials(const void* value, size_t size);
   inline ::std::string* mutable_materials();
   
+  // required .raytracer.DataBlob.BVH tree = 14;
+  inline bool has_tree() const;
+  inline void clear_tree();
+  static const int kTreeFieldNumber = 14;
+  inline const ::raytracer::DataBlob_BVH& tree() const;
+  inline ::raytracer::DataBlob_BVH* mutable_tree();
+  
   // @@protoc_insertion_point(class_scope:raytracer.DataBlob)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -645,11 +783,12 @@ class DataBlob : public ::google::protobuf::Message {
   static const ::std::string _default_primitive_data_;
   ::std::string* materials_;
   static const ::std::string _default_materials_;
+  ::raytracer::DataBlob_BVH* tree_;
   friend void  protobuf_AddDesc_raytracer_2eproto();
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(13 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(14 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1135,6 +1274,144 @@ inline void DataBlob_Camera::set_orient_w(float value) {
 
 // -------------------------------------------------------------------
 
+// DataBlob_BVH
+
+// required bytes nodes = 1;
+inline bool DataBlob_BVH::has_nodes() const {
+  return _has_bit(0);
+}
+inline void DataBlob_BVH::clear_nodes() {
+  if (nodes_ != &_default_nodes_) {
+    nodes_->clear();
+  }
+  _clear_bit(0);
+}
+inline const ::std::string& DataBlob_BVH::nodes() const {
+  return *nodes_;
+}
+inline void DataBlob_BVH::set_nodes(const ::std::string& value) {
+  _set_bit(0);
+  if (nodes_ == &_default_nodes_) {
+    nodes_ = new ::std::string;
+  }
+  nodes_->assign(value);
+}
+inline void DataBlob_BVH::set_nodes(const char* value) {
+  _set_bit(0);
+  if (nodes_ == &_default_nodes_) {
+    nodes_ = new ::std::string;
+  }
+  nodes_->assign(value);
+}
+inline void DataBlob_BVH::set_nodes(const void* value, size_t size) {
+  _set_bit(0);
+  if (nodes_ == &_default_nodes_) {
+    nodes_ = new ::std::string;
+  }
+  nodes_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* DataBlob_BVH::mutable_nodes() {
+  _set_bit(0);
+  if (nodes_ == &_default_nodes_) {
+    nodes_ = new ::std::string;
+  }
+  return nodes_;
+}
+
+// required int32 num_nodes = 2;
+inline bool DataBlob_BVH::has_num_nodes() const {
+  return _has_bit(1);
+}
+inline void DataBlob_BVH::clear_num_nodes() {
+  num_nodes_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 DataBlob_BVH::num_nodes() const {
+  return num_nodes_;
+}
+inline void DataBlob_BVH::set_num_nodes(::google::protobuf::int32 value) {
+  _set_bit(1);
+  num_nodes_ = value;
+}
+
+// required bytes index_list = 3;
+inline bool DataBlob_BVH::has_index_list() const {
+  return _has_bit(2);
+}
+inline void DataBlob_BVH::clear_index_list() {
+  if (index_list_ != &_default_index_list_) {
+    index_list_->clear();
+  }
+  _clear_bit(2);
+}
+inline const ::std::string& DataBlob_BVH::index_list() const {
+  return *index_list_;
+}
+inline void DataBlob_BVH::set_index_list(const ::std::string& value) {
+  _set_bit(2);
+  if (index_list_ == &_default_index_list_) {
+    index_list_ = new ::std::string;
+  }
+  index_list_->assign(value);
+}
+inline void DataBlob_BVH::set_index_list(const char* value) {
+  _set_bit(2);
+  if (index_list_ == &_default_index_list_) {
+    index_list_ = new ::std::string;
+  }
+  index_list_->assign(value);
+}
+inline void DataBlob_BVH::set_index_list(const void* value, size_t size) {
+  _set_bit(2);
+  if (index_list_ == &_default_index_list_) {
+    index_list_ = new ::std::string;
+  }
+  index_list_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* DataBlob_BVH::mutable_index_list() {
+  _set_bit(2);
+  if (index_list_ == &_default_index_list_) {
+    index_list_ = new ::std::string;
+  }
+  return index_list_;
+}
+
+// required .raytracer.DataBlob.Vec3f minpos = 4;
+inline bool DataBlob_BVH::has_minpos() const {
+  return _has_bit(3);
+}
+inline void DataBlob_BVH::clear_minpos() {
+  if (minpos_ != NULL) minpos_->::raytracer::DataBlob_Vec3f::Clear();
+  _clear_bit(3);
+}
+inline const ::raytracer::DataBlob_Vec3f& DataBlob_BVH::minpos() const {
+  return minpos_ != NULL ? *minpos_ : *default_instance_->minpos_;
+}
+inline ::raytracer::DataBlob_Vec3f* DataBlob_BVH::mutable_minpos() {
+  _set_bit(3);
+  if (minpos_ == NULL) minpos_ = new ::raytracer::DataBlob_Vec3f;
+  return minpos_;
+}
+
+// required .raytracer.DataBlob.Vec3f maxpos = 5;
+inline bool DataBlob_BVH::has_maxpos() const {
+  return _has_bit(4);
+}
+inline void DataBlob_BVH::clear_maxpos() {
+  if (maxpos_ != NULL) maxpos_->::raytracer::DataBlob_Vec3f::Clear();
+  _clear_bit(4);
+}
+inline const ::raytracer::DataBlob_Vec3f& DataBlob_BVH::maxpos() const {
+  return maxpos_ != NULL ? *maxpos_ : *default_instance_->maxpos_;
+}
+inline ::raytracer::DataBlob_Vec3f* DataBlob_BVH::mutable_maxpos() {
+  _set_bit(4);
+  if (maxpos_ == NULL) maxpos_ = new ::raytracer::DataBlob_Vec3f;
+  return maxpos_;
+}
+
+// -------------------------------------------------------------------
+
 // DataBlob
 
 // required int32 prim_count = 1;
@@ -1423,6 +1700,23 @@ inline ::std::string* DataBlob::mutable_materials() {
     materials_ = new ::std::string;
   }
   return materials_;
+}
+
+// required .raytracer.DataBlob.BVH tree = 14;
+inline bool DataBlob::has_tree() const {
+  return _has_bit(13);
+}
+inline void DataBlob::clear_tree() {
+  if (tree_ != NULL) tree_->::raytracer::DataBlob_BVH::Clear();
+  _clear_bit(13);
+}
+inline const ::raytracer::DataBlob_BVH& DataBlob::tree() const {
+  return tree_ != NULL ? *tree_ : *default_instance_->tree_;
+}
+inline ::raytracer::DataBlob_BVH* DataBlob::mutable_tree() {
+  _set_bit(13);
+  if (tree_ == NULL) tree_ = new ::raytracer::DataBlob_BVH;
+  return tree_;
 }
 
 // -------------------------------------------------------------------

@@ -6,6 +6,8 @@
 #include "AppInputLib.h"
 #include "AppGraphicsLib.h"
 #include "AppSoundLib.h"
+#include "AppUtilsLib.h"
+
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Resource/ResourceManager.h>
@@ -693,6 +695,7 @@ void App::_register_own_callbacks()
 	luaopen_appinput(L);
 	luaopen_appgraphics(L);
 	luaopen_appsound(L);
+	luaopen_apputils(L);
 	
 	// Iterate all external functions
 	for(Util::Map<const char*, lua_CFunction>::iterator iter = m_ExternalFuncs.begin(); iter != m_ExternalFuncs.end(); ++iter)

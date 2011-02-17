@@ -186,15 +186,15 @@ aabb CalcAABB(triangle_t* _Primitives, int _NbrPrim)
 
 	if(_Primitives)
 	{
-		box = _Primitives[0].box;
+		//box = _Primitives[0].box;
 	}
 
 	// accumulative additions on the bounding boxes
 	for(int i = 1; i < _NbrPrim; i++)
 	{
 		triangle_t p = _Primitives[i];
-		aabb tBox = p.box;
-		box = box + tBox;
+		//aabb tBox = p.box;
+		//box = box + tBox;
 	}
 
 	return box;

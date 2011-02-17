@@ -157,10 +157,10 @@ int main()
 		inp->ClearLastKey();
 		inp->ClearLastButton();
 		
-		char title[512];
-		t.Stop();
-		Format(title, "Renderer (fps: %d, processing time: %d ms)", win->GetFPS(), t.Interval());
-		win->SetTitle(title); 
+		//char title[512];
+		//t.Stop();
+		//Format(title, "Renderer (fps: %d, processing time: %d ms)", win->GetFPS(), t.Interval());
+		//win->SetTitle(title); 
 
 		win->Swap();
 	}
