@@ -37,7 +37,7 @@ function new_settings_handler(filename, defaults)
   	--for k,v in pairs(self.data) do
   	-- print(k,v)
   	--end
-  	print("Saved settings to: " .. self.filename)
+  	--print("Saved settings to: " .. self.filename)
   end
   
   function settings:load()
