@@ -1,5 +1,6 @@
 #include <math.h>
-#include <limits>
+#include <limits.h>
+#include <float.h>
 #include <stack>
 
 // remove these later

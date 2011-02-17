@@ -74,9 +74,10 @@ Util::Map<Util::String, int> recieved_clients;
 const int w = 256;
 const int h = 256;
 const int channels = 3;
-const int task_count = 8;
+int task_count = 8;
 int task_size_w = w / task_count;
 int task_size_h = h / task_count;
+Texture **region_textures = 0;
 
 void load_model(const char* path)
 {
@@ -231,6 +232,16 @@ int loadmodel_cb(lua_State* L)
 
 int startrender_cb(lua_State* L)
 {
+	// lua: startrender(remote client host, remote client port,
+  //                  results host, results port,
+  //                  interleaved feedback,
+  //                  gridsize)
+	if (lua_gettop(L) != 6)
+	{
+		lua_pushstring(L, "Wrong parameter count to startrender(...).");
+		lua_error(L);
+		return 0;
+	}
 	
 	// Open result connection
 	if (recv_conn)
@@ -255,6 +266,12 @@ int startrender_cb(lua_State* L)
 		lua_pushstring(L, "Could not connect to render client!");
 		return 2;
 	}
+	
+	// update grid count/size
+	task_count = lua_tointeger(L, 6);
+	task_size_w = w / task_count;
+	task_size_h = h / task_count;
+	region_textures = new Texture*[task_count*task_count];
 	
 	// create hello packet
 	client::Hello* hello_pack = new client::Hello();
@@ -468,7 +485,7 @@ int main(int argc, char* argv[])
 	blob.light_count = 2;
 	
 	// create textures and primitive batches
-	Texture *region_textures[task_count*task_count] = {0};
+	//Texture *region_textures[task_count*task_count] = {0};
 	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("data/unfinished.png");
 	unfinished_task_texture->SetMagFilter(TEX_FILTER_NEAREST);
 	unfinished_task_texture->SetMinFilter(TEX_FILTER_NEAREST);
