@@ -143,19 +143,19 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	
 	tree_t* tree = blob->tree;
 	// pack tree
-	raytracer::DataBlob::BVH* b = npack_mutable_tree();
+	raytracer::DataBlob::BVH* b = npack->mutable_tree();
 	raytracer::DataBlob::Vec3f* min = b->mutable_min();
-	min->set_x(tree.min.x);
-	min->set_y(tree.min.y);
-	min->set_z(tree.min.z);
-	raytracer::DataBlob::Vec3f max* = b->mutable_max();
-	max->set_x(tree.max.x);
-	max->set_y(tree.max.y);
-	max->set_z(tree.max.z);
+	min->set_x(tree->min.x);
+	min->set_y(tree->min.y);
+	min->set_z(tree->min.z);
+	raytracer::DataBlob::Vec3f* max = b->mutable_max();
+	max->set_x(tree->max.x);
+	max->set_y(tree->max.y);
+	max->set_z(tree->max.z);
 
-	b->set_num_nodes(tree.num_nodes);
+	b->set_num_nodes(tree->num_nodes);
 
-	size_t nodes_data_size = sizeof(ca_node_t) * tree.num_nodes;
+	size_t nodes_data_size = sizeof(ca_node_t) * tree->num_nodes;
 	b->set_nodes(Util::String((char*) tree->nodes,nodes_data_size));
 
 	size_t index_list_data_size = sizeof(int) * tree->num_triangles;
