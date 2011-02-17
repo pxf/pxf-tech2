@@ -161,10 +161,6 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	size_t index_list_data_size = sizeof(int) * tree->num_triangles;
 	b->set_index_list(Util::String((char*) tree->index_list,index_list_data_size));
 
-	//size_t materials_size = sizeof(MaterialLibrary);
-	//npack->set_materials(Util::String((char*) &blob->materials,materials_size));
-
-
 	// pack lights!
 	for(size_t i = 0; i < blob->light_count; i++)
 	{
