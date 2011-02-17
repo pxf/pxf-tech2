@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <float.h>
 #include <stack>
+#include <stdio.h>
 
 // remove these later
 #include <Pxf/Graphics/VertexBuffer.h>

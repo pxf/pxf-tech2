@@ -66,7 +66,13 @@ public:
 	}
 };
 
-Client::Client(const char *_tracker_address, int _tracker_port, const char *_local_address, int _local_port, int _client_port)
+Client::Client(const char *_tracker_address
+	, int _tracker_port, const char *_local_address
+	, int _local_port
+	, int _client_port
+	, int _max_clients
+	, int _preferred_tasks
+)
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -75,6 +81,9 @@ Client::Client(const char *_tracker_address, int _tracker_port, const char *_loc
 	m_local_address = Pxf::StringDuplicate(_local_address);
 	m_local_port = _local_port;
 	m_client_port = _client_port;
+
+	m_max_clients = _max_clients;
+	m_preferred_tasks = _preferred_tasks;
 
 	m_ConnMan = ConnectionManager();
 	m_State = State();
@@ -215,7 +224,7 @@ int Client::run()
 					if (state->state == (WOK & W_HELLO))
 					{
 						// Waiting for OK from a HELLO request
-						m_Kernel->Log(m_log_tag, "Got OK response on HELLO request from %d.",
+						m_Kernel->Log(m_log_tag, "Got OK response on HELLO request from [%d].",
 							p->connection->session_id);
 
 						// Adding client to known clients
@@ -231,14 +240,14 @@ int Client::run()
 							m_Kernel->Log(m_log_tag, "No tasks to be forwarded, doing nothing.");
 					}
 					else
-						m_Kernel->Log(m_log_tag, "Why did %d send an OK?", p->connection->session_id);
+						m_Kernel->Log(m_log_tag, "Why did [%d] send an OK?", p->connection->session_id);
 
 					// TODO: More stuff?
 					break;	
 				}
 				case GOODBYE:
 				{
-					m_Kernel->Log(m_log_tag, "Client %d disconnected.", p->connection->session_id);
+					m_Kernel->Log(m_log_tag, "Client [%d] disconnected.", p->connection->session_id);
 					m_ConnMan.remove_connection(p->connection);
 
 					// TODO: Remove from m_State.m_Clients as well
@@ -246,12 +255,12 @@ int Client::run()
 				}
 				case C_HELLO:
 				{
-					// TODO: Do more stuff
+					// TODO: Do more stuff?
 					client::Hello *hello = (client::Hello*)(p->unpack());
 					p->connection->session_id = hello->session_id();
 					p->connection->type = CLIENT;
 
-					m_Kernel->Log(m_log_tag, "Hello from %s:%d, session id:%d",
+					m_Kernel->Log(m_log_tag, "Hello from %s:%d, session id:[%d]",
 								  hello->address().c_str(),
 								  hello->port(),
 								  hello->session_id());
@@ -288,7 +297,7 @@ int Client::run()
 		
 					LiPacket *pkg = new LiPacket(p->connection, alloc_resp, C_ALLOC_RESP);
 
-					m_Kernel->Log(m_log_tag, "Allocation request from %d. %s."
+					m_Kernel->Log(m_log_tag, "Allocation request from [%d]. %s."
 						, p->connection->session_id
 						, m_TaskQueue->get_available() ? "Granted" : "Denied" 
 					);
@@ -350,12 +359,12 @@ int Client::run()
 							// Found one!
 							if ((*i)->task_size() <= c_state->send_tasks)
 							{
-								m_Kernel->Log(m_log_tag, "Sending %d tasks to %d"
+								// Send all tasks and remove from outqueue
+								m_Kernel->Log(m_log_tag, "Sending %d tasks to [%d]"
 									, (*i)->task_size()
 									, p->connection->session_id
 								);
 
-								// Send all tasks and remove from outqueue
 								LiPacket* pkg = new LiPacket(p->connection, (*i), C_TASKS);
 								m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
 
@@ -389,7 +398,7 @@ int Client::run()
 									j_task->CopyFrom(t->task(j));
 								}
 
-								m_Kernel->Log(m_log_tag, "Sending %d tasks to %d"
+								m_Kernel->Log(m_log_tag, "Sending %d tasks to [%d]"
 									, send_t->task_size()
 									, p->connection->session_id
 								);
@@ -459,7 +468,7 @@ int Client::run()
 					// Add batch to hashmap
 					m_Batches[hash] = b;
 
-					m_Kernel->Log(m_log_tag, "DATA from %d of type %d.", p->connection->session_id, b->type);
+					m_Kernel->Log(m_log_tag, "DATA from [%d] of type %d.", p->connection->session_id, b->type);
 
 					delete data;
 
@@ -471,16 +480,16 @@ int Client::run()
 
 					if (m_Batches.count(tasks->batchhash()) != 1)
 					{
-						m_Kernel->Log(m_log_tag, "Tasks sent without knowing batch data, dropping tasks!");
+						m_Kernel->Log(m_log_tag, "Tasks recieved without knowing batch data, dropping tasks!");
 						// TODO: Send tasks to another client?
 						delete tasks;
 						break;
 					}
 
-					int num = tasks->task_size(); // Number of tasks
+					int num_tasks = tasks->task_size(); // Number of tasks
 
 					// If there are no more tasks, continue to next package.
-					if (!num)
+					if (!num_tasks)
 					{
 						m_Kernel->Log(m_log_tag, "Got tasks package, but containing zero tasks, dropping..");
 						delete tasks;
@@ -490,17 +499,17 @@ int Client::run()
 					Batch* b = m_Batches[tasks->batchhash()];
 					int i = 0;
 
-					m_Kernel->Log(m_log_tag, "Got %d tasks from [%d]", num, p->connection->session_id);
+					m_Kernel->Log(m_log_tag, "Got %d tasks from [%d]", num_tasks, p->connection->session_id);
 
 					// Fill internal queue
 					// Will only work with lazy evaluation, is it standard? Dunno.. JONTE
-					for ( ; (i < num) && m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)); i++)
+					for ( ; (i < num_tasks) && m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)); i++)
 						;
 
 					/*while (m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)))
 					{
 						printf("PUSHED %d\n", i);
-						if (i == num - 1)
+						if (i == num_tasks - 1)
 							break;
 
 						i++;
@@ -509,7 +518,7 @@ int Client::run()
 					// Tasks up until (but not including) >i< have ben stored in internal queue
 					m_Kernel->Log(m_log_tag, "Pushed %d tasks to internal queue.", i);
 
-					if (i == num)
+					if (i == num_tasks)
 					{
 						// All tasks have been pushed to internal queue, no forwarding needed
 						m_Kernel->Log(m_log_tag, "No forwarding needed.");
@@ -535,52 +544,49 @@ int Client::run()
 					if (m_State.m_Clients.size() == 0)
 					{
 						// No clients known, request from tracker.
-						int magic_number_1 = 6; // Max number of clients to send to
-						int magic_number_2 = 10; // Preffered number of tasks per client
-						request_nodes(num >= (magic_number_2 * magic_number_1) ? magic_number_1 : (num / magic_number_2) + 1);
-
-						// Nothing more to do now, just wait for new clients, but store tasks in state first
-						client::Tasks* n_tasks = new client::Tasks();
-						for( ; i < num; i++)
-						{
-							client::Tasks::Task* n_task = n_tasks->add_task();
-							n_task->CopyFrom(tasks->task(i));
-						}
-						n_tasks->set_batchhash(b->hash);
-
-						m_State.m_OutQueue.push_back(n_tasks);
-
-						delete tasks;
-						break;
-					}
-
-					m_Kernel->Log(m_log_tag, "DUNNO WAT TO DOOO??! LOL");
-
-					/*
-					// Split the tasks in subgroups, copies data.
-					Pxf::Util::Array<client::Tasks*> tasks = split_tasks(proto_tasks);
-
-					delete proto_tasks;
-
-					if (tasks.back()->task_size() > 0)
-					{
-						m_Kernel->Log(m_log_tag, "Pushing %d tasks from %d",
-							tasks.back()->task_size(),
-							p->connection->session_id
+						request_nodes(
+							num_tasks >= (m_preferred_tasks * m_max_clients)
+							? m_max_clients 
+							: (num_tasks / m_preferred_tasks) + 1 // +1 to manage the rest of division
 						);
-
-						// Push a set of tasks to our queue
-						push(tasks.back());
-						
-						// Remove the set we just used
-						tasks.pop_back();
-
-						// Forward the rest
-						forward(tasks);
-
-						// MASSIVE CODE GOES HERE?
 					}
-					*/
+					else
+					{
+						int n_clients = m_State.m_Clients.size();
+						int n_requests = (num_tasks / m_preferred_tasks)+1-n_clients;
+
+						// Do we need more clients?
+						if (n_clients < ((num_tasks / m_preferred_tasks)+1))
+							request_nodes(n_requests);
+
+						// Allocate the ones we know of
+						Pxf::Util::Array<Connection*>::iterator iter_c;
+						iter_c = m_State.m_Clients.begin();
+
+						for ( ; iter_c != m_State.m_Clients.end() ; iter_c++)
+							allocate_client((*iter_c)
+								, b
+								, (num_tasks / m_preferred_tasks) + 1
+								// Maybe smarter equation (this one is if no
+								// clients have ben requested)
+							);
+
+					}
+
+
+					// Nothing more to do now, just wait for clients, but store tasks in state first
+					client::Tasks* n_tasks = new client::Tasks();
+					for( ; i < num_tasks; i++)
+					{
+						client::Tasks::Task* n_task = n_tasks->add_task();
+						n_task->CopyFrom(tasks->task(i));
+					}
+					n_tasks->set_batchhash(b->hash);
+
+					m_State.m_OutQueue.push_back(n_tasks);
+
+
+					delete tasks;
 					break;
 				}
 				case T_NODES_RESPONSE:
@@ -652,8 +658,10 @@ void Client::allocate_client(Connection* _c, Batch* _b, int _amount)
 {
 	client_state* state = m_State.m_States[_c];
 
-	m_Kernel->Log(m_log_tag, "Sending ALLOCATE request to %d",
-		_c->session_id);
+	m_Kernel->Log(m_log_tag, "Sending ALLOCATE for %d tasks to [%d]"
+		, _amount
+		, _c->session_id
+	);
 
 	client::AllocateClient* alloc = new client::AllocateClient();
 	alloc->set_batchhash(_b->hash);
@@ -669,6 +677,7 @@ void Client::allocate_client(Connection* _c, Batch* _b, int _amount)
 
 	state->state = WALLOC;
 	state->batch = _b;
+	state->send_tasks = _amount;
 }
 
 // Copy task data from protocol buffer to Lightning Task struct

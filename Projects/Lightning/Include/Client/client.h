@@ -33,7 +33,9 @@ class Client
 			int _tracker_port,
 			const char *_local_address,
 			int _local_port,
-			int _client_port
+			int _client_port,
+			int _max_clients = 6,
+			int _preferred_tasks = 10
 		);
 		~Client();
 		int run();
@@ -55,6 +57,9 @@ class Client
 		int m_net_tag;	
 		int m_log_tag;
 		int last_batch_check;
+
+		int m_max_clients;
+		int m_preferred_tasks;
 		
 		void ping(Connection *_c, int _timestamp);
 		bool connect_tracker();
