@@ -170,6 +170,8 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	size_t triangle_size = sizeof(Triangle);
 	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
 
+
+
 	return npack;
 }
 
@@ -466,7 +468,7 @@ int main(int argc, char* argv[])
 	blob.cam = &cam;
 
 	// load a model!
-	load_model("data/box_2.ctm");
+	load_model("data/teapot.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -581,8 +583,8 @@ int main(int argc, char* argv[])
 			t += 0.01f;
 
 			ray_t debug_ray;
-			debug_ray.o = Math::Vec3f(-5.0f  + sin(t*0.25f)*10.0f,25.0f + sin(t*0.25f)*10.0f,50.0f);
-			debug_ray.d = Math::Vec3f(0.0f,-0.2f,-1.0f);
+			debug_ray.o = cam.GetPos() + Math::Vec3f(0.01f,0.01f,1.0f); //Math::Vec3f(-3.0f,10.0f + sin(t*0.15f)*5.0f,50.0f);
+			debug_ray.d = cam.GetDir(); //Math::Vec3f(0.0f,-0.2f,-1.0f);
 			Normalize(debug_ray.d);
 
 			Vec3f p0 = debug_ray.o;
@@ -599,10 +601,10 @@ int main(int argc, char* argv[])
 			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
 
 			glColor3f(0.25f,0.25f,0.25f);
-			//gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);
+			gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);
 
 			glColor3f(1.0f,0.0f,0.0f);
-			gfx->DrawBuffer(blob.tree->debug_buffer,0);
+			//gfx->DrawBuffer(blob.tree->debug_buffer,0);
 
 			if(p_res)
 			{

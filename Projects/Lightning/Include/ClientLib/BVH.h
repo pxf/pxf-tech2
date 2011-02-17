@@ -70,7 +70,7 @@ struct stack_entry_t {
 	int next;
 	int prev;
 	Pxf::Math::Vec3f p;
-	//ca_node_t* node;
+	ca_node_t* node;
 	int node_index;
 };
 
