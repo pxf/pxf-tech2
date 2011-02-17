@@ -29,8 +29,8 @@ message DataBlob {
 		required bytes nodes = 1;
 		required int32 num_nodes = 2;
 		required bytes index_list = 3;
-		required Vec3f min = 4;
-		required Vec3f max = 5;
+		required Vec3f minpos = 4;
+		required Vec3f maxpos = 5;
 	}
 
 	required int32 prim_count = 1;

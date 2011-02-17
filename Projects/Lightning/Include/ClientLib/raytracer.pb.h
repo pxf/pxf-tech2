@@ -536,19 +536,19 @@ class DataBlob_BVH : public ::google::protobuf::Message {
   inline void set_index_list(const void* value, size_t size);
   inline ::std::string* mutable_index_list();
   
-  // required .raytracer.DataBlob.Vec3f min = 4;
-  inline bool has_min() const;
-  inline void clear_min();
-  static const int kMinFieldNumber = 4;
-  inline const ::raytracer::DataBlob_Vec3f& min() const;
-  inline ::raytracer::DataBlob_Vec3f* mutable_min();
+  // required .raytracer.DataBlob.Vec3f minpos = 4;
+  inline bool has_minpos() const;
+  inline void clear_minpos();
+  static const int kMinposFieldNumber = 4;
+  inline const ::raytracer::DataBlob_Vec3f& minpos() const;
+  inline ::raytracer::DataBlob_Vec3f* mutable_minpos();
   
-  // required .raytracer.DataBlob.Vec3f max = 5;
-  inline bool has_max() const;
-  inline void clear_max();
-  static const int kMaxFieldNumber = 5;
-  inline const ::raytracer::DataBlob_Vec3f& max() const;
-  inline ::raytracer::DataBlob_Vec3f* mutable_max();
+  // required .raytracer.DataBlob.Vec3f maxpos = 5;
+  inline bool has_maxpos() const;
+  inline void clear_maxpos();
+  static const int kMaxposFieldNumber = 5;
+  inline const ::raytracer::DataBlob_Vec3f& maxpos() const;
+  inline ::raytracer::DataBlob_Vec3f* mutable_maxpos();
   
   // @@protoc_insertion_point(class_scope:raytracer.DataBlob.BVH)
  private:
@@ -560,8 +560,8 @@ class DataBlob_BVH : public ::google::protobuf::Message {
   ::google::protobuf::int32 num_nodes_;
   ::std::string* index_list_;
   static const ::std::string _default_index_list_;
-  ::raytracer::DataBlob_Vec3f* min_;
-  ::raytracer::DataBlob_Vec3f* max_;
+  ::raytracer::DataBlob_Vec3f* minpos_;
+  ::raytracer::DataBlob_Vec3f* maxpos_;
   friend void  protobuf_AddDesc_raytracer_2eproto();
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
@@ -1376,38 +1376,38 @@ inline ::std::string* DataBlob_BVH::mutable_index_list() {
   return index_list_;
 }
 
-// required .raytracer.DataBlob.Vec3f min = 4;
-inline bool DataBlob_BVH::has_min() const {
+// required .raytracer.DataBlob.Vec3f minpos = 4;
+inline bool DataBlob_BVH::has_minpos() const {
   return _has_bit(3);
 }
-inline void DataBlob_BVH::clear_min() {
-  if (min_ != NULL) min_->::raytracer::DataBlob_Vec3f::Clear();
+inline void DataBlob_BVH::clear_minpos() {
+  if (minpos_ != NULL) minpos_->::raytracer::DataBlob_Vec3f::Clear();
   _clear_bit(3);
 }
-inline const ::raytracer::DataBlob_Vec3f& DataBlob_BVH::min() const {
-  return min_ != NULL ? *min_ : *default_instance_->min_;
+inline const ::raytracer::DataBlob_Vec3f& DataBlob_BVH::minpos() const {
+  return minpos_ != NULL ? *minpos_ : *default_instance_->minpos_;
 }
-inline ::raytracer::DataBlob_Vec3f* DataBlob_BVH::mutable_min() {
+inline ::raytracer::DataBlob_Vec3f* DataBlob_BVH::mutable_minpos() {
   _set_bit(3);
-  if (min_ == NULL) min_ = new ::raytracer::DataBlob_Vec3f;
-  return min_;
+  if (minpos_ == NULL) minpos_ = new ::raytracer::DataBlob_Vec3f;
+  return minpos_;
 }
 
-// required .raytracer.DataBlob.Vec3f max = 5;
-inline bool DataBlob_BVH::has_max() const {
+// required .raytracer.DataBlob.Vec3f maxpos = 5;
+inline bool DataBlob_BVH::has_maxpos() const {
   return _has_bit(4);
 }
-inline void DataBlob_BVH::clear_max() {
-  if (max_ != NULL) max_->::raytracer::DataBlob_Vec3f::Clear();
+inline void DataBlob_BVH::clear_maxpos() {
+  if (maxpos_ != NULL) maxpos_->::raytracer::DataBlob_Vec3f::Clear();
   _clear_bit(4);
 }
-inline const ::raytracer::DataBlob_Vec3f& DataBlob_BVH::max() const {
-  return max_ != NULL ? *max_ : *default_instance_->max_;
+inline const ::raytracer::DataBlob_Vec3f& DataBlob_BVH::maxpos() const {
+  return maxpos_ != NULL ? *maxpos_ : *default_instance_->maxpos_;
 }
-inline ::raytracer::DataBlob_Vec3f* DataBlob_BVH::mutable_max() {
+inline ::raytracer::DataBlob_Vec3f* DataBlob_BVH::mutable_maxpos() {
   _set_bit(4);
-  if (max_ == NULL) max_ = new ::raytracer::DataBlob_Vec3f;
-  return max_;
+  if (maxpos_ == NULL) maxpos_ = new ::raytracer::DataBlob_Vec3f;
+  return maxpos_;
 }
 
 // -------------------------------------------------------------------

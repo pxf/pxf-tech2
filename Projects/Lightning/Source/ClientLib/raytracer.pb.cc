@@ -148,8 +148,8 @@ void protobuf_AssignDesc_raytracer_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_BVH, nodes_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_BVH, num_nodes_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_BVH, index_list_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_BVH, min_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_BVH, max_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_BVH, minpos_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_BVH, maxpos_),
   };
   DataBlob_BVH_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -261,7 +261,7 @@ void protobuf_AddDesc_raytracer_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017raytracer.proto\022\traytracer\"\325\006\n\010DataBlo"
+    "\n\017raytracer.proto\022\traytracer\"\333\006\n\010DataBlo"
     "b\022\022\n\nprim_count\030\001 \002(\005\022\023\n\013light_count\030\002 \002"
     "(\005\022\017\n\007samples\030\003 \003(\002\022\024\n\014bounce_count\030\004 \002("
     "\005\022\r\n\005pic_w\030\005 \002(\005\022\r\n\005pic_h\030\006 \002(\005\022\031\n\021sampl"
@@ -279,15 +279,15 @@ void protobuf_AddDesc_raytracer_2eproto() {
     ".DataBlob.Vec3f\032}\n\006Camera\022+\n\010position\030\001 "
     "\002(\0132\031.raytracer.DataBlob.Vec3f\022\020\n\010orient"
     "_x\030\002 \002(\002\022\020\n\010orient_y\030\003 \002(\002\022\020\n\010orient_z\030\004"
-    " \002(\002\022\020\n\010orient_w\030\005 \002(\002\032\213\001\n\003BVH\022\r\n\005nodes\030"
+    " \002(\002\022\020\n\010orient_w\030\005 \002(\002\032\221\001\n\003BVH\022\r\n\005nodes\030"
     "\001 \002(\014\022\021\n\tnum_nodes\030\002 \002(\005\022\022\n\nindex_list\030\003"
-    " \002(\014\022&\n\003min\030\004 \002(\0132\031.raytracer.DataBlob.V"
-    "ec3f\022&\n\003max\030\005 \002(\0132\031.raytracer.DataBlob.V"
-    "ec3f\">\n\004Task\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y"
-    "\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\"k\n\006Result\022\n"
-    "\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 "
-    "\002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030\006 \002(\010\022\014\n\004size\030\007 "
-    "\002(\005\022\014\n\004data\030\010 \002(\014", 1057);
+    " \002(\014\022)\n\006minpos\030\004 \002(\0132\031.raytracer.DataBlo"
+    "b.Vec3f\022)\n\006maxpos\030\005 \002(\0132\031.raytracer.Data"
+    "Blob.Vec3f\">\n\004Task\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002("
+    "\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\"k\n\006Re"
+    "sult\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t"
+    "\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030\006 \002(\010\022\014\n\004s"
+    "ize\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 1063);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raytracer.proto", &protobuf_RegisterTypes);
   DataBlob::default_instance_ = new DataBlob();
@@ -1445,8 +1445,8 @@ const ::std::string DataBlob_BVH::_default_index_list_;
 const int DataBlob_BVH::kNodesFieldNumber;
 const int DataBlob_BVH::kNumNodesFieldNumber;
 const int DataBlob_BVH::kIndexListFieldNumber;
-const int DataBlob_BVH::kMinFieldNumber;
-const int DataBlob_BVH::kMaxFieldNumber;
+const int DataBlob_BVH::kMinposFieldNumber;
+const int DataBlob_BVH::kMaxposFieldNumber;
 #endif  // !_MSC_VER
 
 DataBlob_BVH::DataBlob_BVH()
@@ -1455,8 +1455,8 @@ DataBlob_BVH::DataBlob_BVH()
 }
 
 void DataBlob_BVH::InitAsDefaultInstance() {
-  min_ = const_cast< ::raytracer::DataBlob_Vec3f*>(&::raytracer::DataBlob_Vec3f::default_instance());
-  max_ = const_cast< ::raytracer::DataBlob_Vec3f*>(&::raytracer::DataBlob_Vec3f::default_instance());
+  minpos_ = const_cast< ::raytracer::DataBlob_Vec3f*>(&::raytracer::DataBlob_Vec3f::default_instance());
+  maxpos_ = const_cast< ::raytracer::DataBlob_Vec3f*>(&::raytracer::DataBlob_Vec3f::default_instance());
 }
 
 DataBlob_BVH::DataBlob_BVH(const DataBlob_BVH& from)
@@ -1470,8 +1470,8 @@ void DataBlob_BVH::SharedCtor() {
   nodes_ = const_cast< ::std::string*>(&_default_nodes_);
   num_nodes_ = 0;
   index_list_ = const_cast< ::std::string*>(&_default_index_list_);
-  min_ = NULL;
-  max_ = NULL;
+  minpos_ = NULL;
+  maxpos_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1487,8 +1487,8 @@ void DataBlob_BVH::SharedDtor() {
     delete index_list_;
   }
   if (this != default_instance_) {
-    delete min_;
-    delete max_;
+    delete minpos_;
+    delete maxpos_;
   }
 }
 
@@ -1526,10 +1526,10 @@ void DataBlob_BVH::Clear() {
       }
     }
     if (_has_bit(3)) {
-      if (min_ != NULL) min_->::raytracer::DataBlob_Vec3f::Clear();
+      if (minpos_ != NULL) minpos_->::raytracer::DataBlob_Vec3f::Clear();
     }
     if (_has_bit(4)) {
-      if (max_ != NULL) max_->::raytracer::DataBlob_Vec3f::Clear();
+      if (maxpos_ != NULL) maxpos_->::raytracer::DataBlob_Vec3f::Clear();
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1581,31 +1581,31 @@ bool DataBlob_BVH::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(34)) goto parse_min;
+        if (input->ExpectTag(34)) goto parse_minpos;
         break;
       }
       
-      // required .raytracer.DataBlob.Vec3f min = 4;
+      // required .raytracer.DataBlob.Vec3f minpos = 4;
       case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_min:
+         parse_minpos:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_min()));
+               input, mutable_minpos()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(42)) goto parse_max;
+        if (input->ExpectTag(42)) goto parse_maxpos;
         break;
       }
       
-      // required .raytracer.DataBlob.Vec3f max = 5;
+      // required .raytracer.DataBlob.Vec3f maxpos = 5;
       case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_max:
+         parse_maxpos:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_max()));
+               input, mutable_maxpos()));
         } else {
           goto handle_uninterpreted;
         }
@@ -1648,16 +1648,16 @@ void DataBlob_BVH::SerializeWithCachedSizes(
       3, this->index_list(), output);
   }
   
-  // required .raytracer.DataBlob.Vec3f min = 4;
+  // required .raytracer.DataBlob.Vec3f minpos = 4;
   if (_has_bit(3)) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->min(), output);
+      4, this->minpos(), output);
   }
   
-  // required .raytracer.DataBlob.Vec3f max = 5;
+  // required .raytracer.DataBlob.Vec3f maxpos = 5;
   if (_has_bit(4)) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->max(), output);
+      5, this->maxpos(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -1687,18 +1687,18 @@ void DataBlob_BVH::SerializeWithCachedSizes(
         3, this->index_list(), target);
   }
   
-  // required .raytracer.DataBlob.Vec3f min = 4;
+  // required .raytracer.DataBlob.Vec3f minpos = 4;
   if (_has_bit(3)) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->min(), target);
+        4, this->minpos(), target);
   }
   
-  // required .raytracer.DataBlob.Vec3f max = 5;
+  // required .raytracer.DataBlob.Vec3f maxpos = 5;
   if (_has_bit(4)) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        5, this->max(), target);
+        5, this->maxpos(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1733,18 +1733,18 @@ int DataBlob_BVH::ByteSize() const {
           this->index_list());
     }
     
-    // required .raytracer.DataBlob.Vec3f min = 4;
-    if (has_min()) {
+    // required .raytracer.DataBlob.Vec3f minpos = 4;
+    if (has_minpos()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->min());
+          this->minpos());
     }
     
-    // required .raytracer.DataBlob.Vec3f max = 5;
-    if (has_max()) {
+    // required .raytracer.DataBlob.Vec3f maxpos = 5;
+    if (has_maxpos()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->max());
+          this->maxpos());
     }
     
   }
@@ -1784,10 +1784,10 @@ void DataBlob_BVH::MergeFrom(const DataBlob_BVH& from) {
       set_index_list(from.index_list());
     }
     if (from._has_bit(3)) {
-      mutable_min()->::raytracer::DataBlob_Vec3f::MergeFrom(from.min());
+      mutable_minpos()->::raytracer::DataBlob_Vec3f::MergeFrom(from.minpos());
     }
     if (from._has_bit(4)) {
-      mutable_max()->::raytracer::DataBlob_Vec3f::MergeFrom(from.max());
+      mutable_maxpos()->::raytracer::DataBlob_Vec3f::MergeFrom(from.maxpos());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -1808,11 +1808,11 @@ void DataBlob_BVH::CopyFrom(const DataBlob_BVH& from) {
 bool DataBlob_BVH::IsInitialized() const {
   if ((_has_bits_[0] & 0x0000001f) != 0x0000001f) return false;
   
-  if (has_min()) {
-    if (!this->min().IsInitialized()) return false;
+  if (has_minpos()) {
+    if (!this->minpos().IsInitialized()) return false;
   }
-  if (has_max()) {
-    if (!this->max().IsInitialized()) return false;
+  if (has_maxpos()) {
+    if (!this->maxpos().IsInitialized()) return false;
   }
   return true;
 }
@@ -1822,8 +1822,8 @@ void DataBlob_BVH::Swap(DataBlob_BVH* other) {
     std::swap(nodes_, other->nodes_);
     std::swap(num_nodes_, other->num_nodes_);
     std::swap(index_list_, other->index_list_);
-    std::swap(min_, other->min_);
-    std::swap(max_, other->max_);
+    std::swap(minpos_, other->minpos_);
+    std::swap(maxpos_, other->maxpos_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
