@@ -141,7 +141,7 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	c->set_orient_z(cam.GetOrientation()->z);
 	c->set_orient_w(cam.GetOrientation()->w);
 	
-	BVH* tree = blob.tree;
+	tree_t* tree = blob->tree;
 	// pack tree
 	raytracer::DataBlob::BVH* b = npack_mutable_tree();
 	raytracer::DataBlob::Vec3f* min = b->mutable_min();
