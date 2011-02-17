@@ -265,13 +265,22 @@ int startrender_cb(lua_State* L)
 	
 	// update grid count/size
 	task_count = lua_tointeger(L, 6);
+	total_count = task_count*task_count;
 	task_size_w = w / task_count;
 	task_size_h = h / task_count;
+	
+	// update reqion textures
+	if (region_textures != 0)
+		delete [] region_textures;
+	
 	region_textures = new Texture*[task_count*task_count];
 	for(size_t i = 0; i < task_count*task_count; ++i)
 	{
 		region_textures[i] = 0;
 	}
+	
+	// Start timer!
+	render_timer.Start();
 	
 	// create hello packet
 	client::Hello* hello_pack = new client::Hello();
@@ -545,7 +554,7 @@ int main(int argc, char* argv[])
 	//client.wait();
 	//------------------------
 
-	render_timer.Start();
+	//render_timer.Start();
 
 	bool is_done = false;
 	bool exec_rt = false;
@@ -569,7 +578,7 @@ int main(int argc, char* argv[])
 			{
 				LiPacket* tpacket = new LiPacket((*i_tpacket));
 
-				Pxf::Message("aoe", "Got packet on SOME connection!");
+				//Pxf::Message("aoe", "Got packet on SOME connection!");
 				tpacket->get_type();
 				if (tpacket->message_type == C_RESULT)
 				{
