@@ -268,6 +268,10 @@ int startrender_cb(lua_State* L)
 	task_size_w = w / task_count;
 	task_size_h = h / task_count;
 	region_textures = new Texture*[task_count*task_count];
+	for(size_t i = 0; i < task_count*task_count; ++i)
+	{
+		region_textures[i] = 0;
+	}
 	
 	// create hello packet
 	client::Hello* hello_pack = new client::Hello();
