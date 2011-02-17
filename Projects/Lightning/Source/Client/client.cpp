@@ -402,7 +402,8 @@ int Client::run()
 								client::Tasks* keep_t = new client::Tasks();
 								
 								send_t->set_batchhash(t->batchhash());
-								keep_t->set_batchhash(t->batchhash().c_str());
+								std::string* apa = new std::string(t->batchhash().c_str());
+								keep_t->set_batchhash(*apa);
 
 								int j = 0;
 								for ( ; j < c_state->send_tasks ; j++)
