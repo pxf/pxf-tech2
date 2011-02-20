@@ -38,7 +38,11 @@ public:
 					iter = m_BatchMap->find(batchhash);
 
 				if (iter == m_BatchMap->end())
+				{
+					printf("Error, iterator is at m_BatchMap->end().\n");
 					continue; /* error */
+				}
+					
 
 				char* retaddr = (*iter).second->return_address;
 				int retport = (*iter).second->return_port;
@@ -566,8 +570,9 @@ void Client::push(client::Tasks* _tasks)
 // Split the tasks in chunks
 Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 {
-	int parts = 2; // TODO: Smarter stuff!
-	int n = _tasks->task_size() / parts;
+	//int parts = 2; // TODO: Smarter stuff!
+	int parts = _tasks->task_size() < 2 ? 1 : 2;
+	//int n = _tasks->task_size() / parts;
 	Pxf::Util::Array<client::Tasks*> tasks;
 
 	// Create new tasks sets
@@ -578,13 +583,11 @@ Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 		tasks.push_back(t);
 	}
 
-	int b = 0;
 	for (int i = 0; i < _tasks->task_size(); i++) {
-		client::Tasks_Task* t = tasks[b%parts]->add_task();
+		client::Tasks_Task* t = tasks[i%parts]->add_task();
 		t->CopyFrom(_tasks->task(i));
-		b++;
 	}
-	
+
 	return tasks;
 }
 

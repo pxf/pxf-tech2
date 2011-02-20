@@ -20,9 +20,9 @@ function create_dfworld( filepath )
   for y=0,511 do
     for x=0,511 do
       if (tonumber(bindata[y*512*4+x*4+3]) >= dfworld.solidvalue) then
-        dfworld.bindata[y*512+x] = true
+        dfworld.bindata[y*512+x] = {0, -1}
       else
-        dfworld.bindata[y*512+x] = false
+        dfworld.bindata[y*512+x] = nil
       end
     end
   end
@@ -30,7 +30,7 @@ function create_dfworld( filepath )
   -- function to test intersection
   function dfworld:hittest(x,y)
     if (self.bindata[y*self.size[1]+x]) then
-      return true
+      return self.bindata[y*self.size[1]+x]--true
     end
     
     return false
@@ -85,6 +85,8 @@ function create_dfworld( filepath )
   -- ox
   
   function dfworld:get_response_vec(x,y)
+    return self:hittest(x,y)
+    --[[
     local p1,p2,p3,p4
     p1 = self:hittest(x,y)
     p2 = self:hittest(x+1,y)
@@ -130,6 +132,8 @@ function create_dfworld( filepath )
     else
       return self:get_response_vec(x+2,y+2)
     end
+    
+    ]]
   end
   
   -- df circle shader
@@ -218,6 +222,139 @@ function create_dfworld( filepath )
     end
     
     -- mask out from bindata
+    for ty=-size/2-8,0 do
+      for tx=-size/2-8,0 do
+        local d = math.abs(math.sqrt(tx*tx + ty*ty))
+        local normal = vec(-tx,-ty)
+        normal = normal:norm()
+        normal = {normal[1], normal[2]}
+        
+        -- check top left
+        if (self:hittest(x+tx,y+ty)) then
+          if (d >= size/2) then
+            self:setbindata(x+tx,y+ty,normal)
+          else
+            self:setbindata(x+tx,y+ty,false)
+          end
+        end
+        
+        -- check top right
+        if (self:hittest(x-tx,y+ty)) then
+          if (d >= size/2) then
+            normal = {-normal[1], normal[2]}
+            self:setbindata(x-tx,y+ty,normal)
+          else
+            self:setbindata(x-tx,y+ty,false)
+          end
+        end
+        
+        -- check bottom left
+        if (self:hittest(x+tx,y-ty)) then
+          if (d >= size/2) then
+            normal = {normal[1], -normal[2]}
+            self:setbindata(x+tx,y-ty,normal)
+          else
+            self:setbindata(x+tx,y-ty,false)
+          end
+        end
+        
+        -- check bottom right
+        if (self:hittest(x-tx,y-ty)) then
+          if (d >= size/2) then
+            normal = {-normal[1], -normal[2]}
+            self:setbindata(x-tx,y-ty,normal)
+          else
+            self:setbindata(x-tx,y-ty,false)
+          end
+        end
+        
+      end
+    end
+    --[[
+    for ty=-size/2,0 do
+      for tx=-size/2,0 do
+        -- find value at delta pos
+        local dx,dy
+        dx = x + tx
+        dy = y + ty
+        --if (self:hittest(dx,dy)) then
+          
+          local val = nil
+          if (d <= size/2) then
+            val = vec(-tx,-ty)
+            val = val:norm()
+            val = {val[1], val[2]}
+          end
+            
+            for i=1,2 do
+              for ofx=dx,dx+(size-tx) do
+                if (i == 1) then
+                  if (self:hittest(dx,dy)) then
+                    self:setbindata(ofx,dy,val)
+                  end
+                else
+                  if (self:hittest(dx,y-ty)) then
+                    if (val) then
+                      val = {val[1], -val[2]}
+                    end
+                    self:setbindata(ofx,y-ty,val)
+                  end
+                end
+              end
+            end
+            
+            --break
+          
+        --end
+      end
+    end
+    ]]
+  end
+  --[[
+  function dfworld:cutcircle(x,y,size)
+    print("cut at " .. x .. ", " .. y .. ", size: " .. size)
+    
+    
+    -- draw to fbo
+    self.fbo:attach(self.tex[self.sec_tex], 1)
+    gfx.bindframebuffer(self.fbo)
+    gfx.clear()
+    gfx.setview(0,0,512,512)
+    gfx.setortho(0,512,0,512)
+    
+    -- copy from active to sec
+    local oldtex = gfx.bindtexture(self.tex[self.active_tex])
+    gfx.blending()
+    gfx.alphatest()
+    gfx.drawtopleft(0,0,512,512)
+    
+    -- TODO: render new hole
+    --gfx.bindtexture(0)
+    gfx.bindshader(self.df_circle_shader)
+    local newquadsize = size + self.feathersize
+    self.df_circle_shader:setuniformf("masksize", size)
+    self.df_circle_shader:setuniformf("feathersize", self.feathersize)
+    self.df_circle_shader:setuniformf("rel_x", x)
+    self.df_circle_shader:setuniformf("rel_y", y)
+    gfx.drawcentered(x,y,newquadsize,newquadsize)
+    gfx.bindshader()
+    
+    gfx.bindtexture(oldtex)
+    
+    -- detach fbo and tex
+    gfx.bindframebuffer()
+    self.fbo:detach(1)
+    
+    -- switch ping-pong-fbo/tex
+    if (self.active_tex == 1) then
+      self.active_tex = 2
+      self.sec_tex = 1
+    else
+      self.active_tex = 1
+      self.sec_tex = 2
+    end
+    
+    -- mask out from bindata
     for ty=-size/2,0 do
       for tx=-size/2,0 do
         -- find value at delta pos
@@ -244,6 +381,7 @@ function create_dfworld( filepath )
       end
     end
   end
+  ]]
   
   -- df render shader
   dfworld.df_render_shader = gfx.createshader("df_render", [[
@@ -285,6 +423,20 @@ function create_dfworld( filepath )
     gfx.blending()
     gfx.bindshader()
     gfx.bindtexture(oldtex)
+    
+    --[[
+    for y=0,511 do
+      for x=0,511 do
+        if (self:hittest(x,y)) then
+          local lol = self:get_response_vec(x,y)
+          gfx.setcolor(lol[1], lol[2], 0)
+          gfx.drawtopleft(x,y,1,1)
+        end
+      end
+    end
+    gfx.setcolor(1, 1, 1)
+    ]]
+    
   end
   
   return dfworld
@@ -349,10 +501,16 @@ function newgame:update()
 	
 	liq_world:step(0.5, world)
 	
+	--[[mx, my = inp.getmousepos()
+	local lol = world:get_response_vec(mx, my)
+	if (lol) then
+  	print(lol[1], lol[2])
+  end]]
+	
 	if (inp.isbuttondown(inp.MOUSE_LEFT)) then
 	  new_mouse_x, new_mouse_y = inp.getmousepos()
 	  
-		local time = math.random(100,300)
+		local time = nil--math.random(100,300)
 		local rnd = math.random(0,1)
 		local t
 		
@@ -362,14 +520,16 @@ function newgame:update()
 			t = 2
 		end
 	
-		local l = create_new_liq(new_mouse_x,new_mouse_y,8, 20, t, time)
-		liq_world:add_liq(l)
+		if new_mouse_x < 512 and new_mouse_y < 512 then
+			local l = create_new_liq(new_mouse_x,new_mouse_y,8, 20, t, time)
+			liq_world:add_liq(l)
+		end
 	  
-	  if (world:hittest(new_mouse_x, new_mouse_y)) then
+		if (world:hittest(new_mouse_x, new_mouse_y)) then
 	    --print("hit")
-    else
-		--print("miss")
-    end
+		else
+			--print("miss")
+		end
 	
 	--[[if (inp.isbuttondown(inp.MOUSE_RIGHT)) then
 	

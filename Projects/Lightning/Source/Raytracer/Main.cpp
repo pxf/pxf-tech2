@@ -37,7 +37,8 @@
 #include "lightning.pb.h"
 #include "client.pb.h"
 #include "raytracer.pb.h"
-#include "KDTree.h"
+//#include "KDTree.h"
+#include "BVH.h"
 
 #include "fabric/App.h"
 
@@ -66,14 +67,18 @@ struct scene {
 	Graphics::Model* mdl;
 } current_scene;
 
+// recieved clients/parts info
+Util::Map<Util::String, int> recieved_clients;
 
 // task/batch specific globals
 const int w = 256;
 const int h = 256;
 const int channels = 3;
-const int task_count = 8;
+int task_count = 8;
 int task_size_w = w / task_count;
 int task_size_h = h / task_count;
+Texture **region_textures = 0;
+Util::String current_hash_str;
 
 void load_model(const char* path)
 {
@@ -94,18 +99,11 @@ void load_model(const char* path)
 		//Primitive** scene_data = (Primitive**) triangle_list(mesh);
 
 		int tri_count = mesh->GetData()->triangle_count;
-
-		// TODO: update/fix this when we are using triangles again!
-		blob.tree = new KDTree(3);
-		blob.tree->Build(scene_data,tri_count);
 		blob.primitives = scene_data;
 		blob.prim_count = tri_count;
 
-		if(tree_VB)
-			kernel->GetGraphicsDevice()->DestroyVertexBuffer(tree_VB);
 
-		tree_VB = kernel->GetGraphicsDevice()->CreateVertexBuffer(Graphics::VB_LOCATION_GPU,Graphics::VB_USAGE_STATIC_DRAW);
-		CreateVBFromTree(blob.tree,tree_VB);
+		blob.tree = build(scene_data,tri_count);
 	}
 	else
 		Pxf::Message("Main","Unable to load model");
@@ -144,6 +142,26 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	c->set_orient_z(cam.GetOrientation()->z);
 	c->set_orient_w(cam.GetOrientation()->w);
 	
+	tree_t* tree = blob->tree;
+	// pack tree
+	raytracer::DataBlob::BVH* b = npack->mutable_tree();
+	raytracer::DataBlob::Vec3f* minpos = b->mutable_minpos();
+	minpos->set_x(tree->min.x);
+	minpos->set_y(tree->min.y);
+	minpos->set_z(tree->min.z);
+	raytracer::DataBlob::Vec3f* maxpos = b->mutable_maxpos();
+	maxpos->set_x(tree->max.x);
+	maxpos->set_y(tree->max.y);
+	maxpos->set_z(tree->max.z);
+
+	b->set_num_nodes(tree->num_nodes);
+
+	size_t nodes_data_size = sizeof(ca_node_t) * tree->num_nodes;
+	b->set_nodes(Util::String((char*) tree->nodes,nodes_data_size));
+
+	size_t index_list_data_size = sizeof(int) * tree->num_triangles;
+	b->set_index_list(Util::String((char*) tree->index_list,index_list_data_size));
+
 	// pack lights!
 	for(size_t i = 0; i < blob->light_count; i++)
 	{
@@ -163,12 +181,26 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	size_t materials_size = sizeof(MaterialLibrary);
 	npack->set_materials(Util::String((char*) &blob->materials,materials_size));
 
-	size_t penis = sizeof(aabb);
-
 	size_t triangle_size = sizeof(Triangle);
 	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
 
+
+
 	return npack;
+};
+
+int clientsstatus_cb(lua_State* L)
+{
+	Util::Map<Util::String,int>::iterator it;
+	
+	// loop recieved_clients
+	lua_newtable(L);
+	for (it=recieved_clients.begin() ; it != recieved_clients.end(); it++ )
+	{
+		lua_pushnumber(L, (*it).second);
+		lua_setfield (L, -2, (*it).first.c_str());
+	}
+	return 1;
 }
 
 int renderstatus_cb(lua_State* L)
@@ -195,8 +227,38 @@ int loadmodel_cb(lua_State* L)
 	}
 }
 
+int stoprender_cb(lua_State* L)
+{
+	if (recv_conn)
+	{
+		cman->remove_connection(recv_conn);
+	}
+	recv_conn = 0;
+	show_result = false;
+	return 0;
+}
+
 int startrender_cb(lua_State* L)
 {
+	// lua: startrender(remote client host, remote client port,
+  //                  results host, results port,
+  //                  interleaved feedback,
+  //                  gridsize)
+	if (lua_gettop(L) != 6)
+	{
+		lua_pushstring(L, "Wrong parameter count to startrender(...).");
+		lua_error(L);
+		return 0;
+	}
+	
+	// Open send connection
+	Connection *conn = cman->new_connection(CLIENT);
+	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
+	{
+		lua_pushboolean(L, false);
+		lua_pushstring(L, "Could not connect to render client!");
+		return 2;
+	}
 	
 	// Open result connection
 	if (recv_conn)
@@ -213,18 +275,28 @@ int startrender_cb(lua_State* L)
 		return 2;
 	}
 	
+	// update/reset grid count/size
+	task_count = lua_tointeger(L, 6);
+	total_count = task_count*task_count;
+	total_done = 0;
+	task_size_w = w / task_count;
+	task_size_h = h / task_count;
 	
-	Connection *conn = cman->new_connection(CLIENT);
-	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
+	// update reqion textures
+	if (region_textures != 0)
+		delete [] region_textures;
+	region_textures = new Texture*[task_count*task_count];
+	for(size_t i = 0; i < task_count*task_count; ++i)
 	{
-		lua_pushboolean(L, false);
-		lua_pushstring(L, "Could not connect to render client!");
-		return 2;
+		region_textures[i] = 0;
 	}
+	
+	// Start timer!
+	render_timer.Start();
 	
 	// create hello packet
 	client::Hello* hello_pack = new client::Hello();
-	hello_pack->set_address("localhost");
+	hello_pack->set_address((char*)lua_tostring(L, 3));
 	hello_pack->set_port(0);
 	hello_pack->set_session_id(-1);
 	LiPacket* hello_lipack = new LiPacket(conn, hello_pack, C_HELLO);
@@ -236,19 +308,19 @@ int startrender_cb(lua_State* L)
 	
 	// Create hash of datablob
 	Util::String serialized_batch = new_pack->SerializeAsString();
-	unsigned long new_hash_num = Hash((const char *)serialized_batch.c_str(), serialized_batch.size());
-	std::stringstream ss;
-	ss << new_hash_num;
-	Util::String new_hash_str = ss.str();
+	unsigned long new_hash_num = RandUI32();//Hash((const char *)serialized_batch.c_str(), serialized_batch.size());
+	std::stringstream current_hash;
+	current_hash << new_hash_num;
+	current_hash_str = current_hash.str();
 
 	// Create datablob packets	
 	client::Data* data_pack = new client::Data();
-	data_pack->set_batchhash(new_hash_str);
+	data_pack->set_batchhash(current_hash_str);
 	data_pack->set_datasize(new_pack->ByteSize());
 	data_pack->set_datatype(RAYTRACER);
 	data_pack->set_data(new_pack->SerializeAsString());
-	data_pack->set_returnaddress("129.16.72.27");//"127.0.0.1");
-	data_pack->set_returnport(4632);
+	data_pack->set_returnaddress((char*)lua_tostring(L, 3));//("129.16.72.27");//"127.0.0.1");
+	data_pack->set_returnport(lua_tonumber(L, 4));
 	
 	
 	bool ready_to_send = false;
@@ -276,7 +348,7 @@ int startrender_cb(lua_State* L)
 				// Send alloc request
 				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
 				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
-				alloc_reqpack->set_batchhash(new_hash_str); // TODO: Create a real hash of the batch data blob
+				alloc_reqpack->set_batchhash(current_hash_str);
 				alloc_reqpack->set_datatype(RAYTRACER);
 				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
 				cman->send(conn, alloc_reqlipack->data, alloc_reqlipack->length);
@@ -293,7 +365,7 @@ int startrender_cb(lua_State* L)
 
 				// Send tasks!
 				client::Tasks* tasks_pack = new client::Tasks();
-				tasks_pack->set_batchhash(new_hash_str);
+				tasks_pack->set_batchhash(current_hash_str);
 				for(int y = 0; y < task_count; y++)
 				{
 					for(int x = 0; x < task_count; x++)
@@ -434,7 +506,7 @@ int main(int argc, char* argv[])
 	blob.light_count = 2;
 	
 	// create textures and primitive batches
-	Texture *region_textures[task_count*task_count] = {0};
+	//Texture *region_textures[task_count*task_count] = {0};
 	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("data/unfinished.png");
 	unfinished_task_texture->SetMagFilter(TEX_FILTER_NEAREST);
 	unfinished_task_texture->SetMinFilter(TEX_FILTER_NEAREST);
@@ -451,6 +523,8 @@ int main(int argc, char* argv[])
 	app->BindExternalFunction("renderstatus", renderstatus_cb);
 	app->BindExternalFunction("loadmodel", loadmodel_cb);
 	app->BindExternalFunction("startrender", startrender_cb);
+	app->BindExternalFunction("stoprender", stoprender_cb);
+	app->BindExternalFunction("clientsstatus", clientsstatus_cb);
 	app->Boot();
 	bool running = true;
 	bool guihit = false;
@@ -464,7 +538,7 @@ int main(int argc, char* argv[])
 	blob.cam = &cam;
 
 	// load a model!
-	load_model("data/box_2.ctm");
+	load_model("data/teapot.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -493,7 +567,7 @@ int main(int argc, char* argv[])
 	//client.wait();
 	//------------------------
 
-	render_timer.Start();
+	//render_timer.Start();
 
 	bool is_done = false;
 	bool exec_rt = false;
@@ -517,7 +591,7 @@ int main(int argc, char* argv[])
 			{
 				LiPacket* tpacket = new LiPacket((*i_tpacket));
 
-				Pxf::Message("aoe", "Got packet on SOME connection!");
+				//Pxf::Message("aoe", "Got packet on SOME connection!");
 				tpacket->get_type();
 				if (tpacket->message_type == C_RESULT)
 				{
@@ -530,6 +604,20 @@ int main(int argc, char* argv[])
 					
 					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash().c_str(), res_raytrace_packet->id());
 					
+					// See if we want this packet (might be an old hash/batch)
+					if (current_hash_str != res_packet->batchhash())
+					{
+						Pxf::Message("aoe", "Got old/wrong result (%s != %s)", current_hash_str.c_str(), res_packet->batchhash().c_str());
+						continue;
+					}
+					
+					// update recieved clients list
+					if (recieved_clients.find(tpacket->connection->target_address) == recieved_clients.end())
+					{
+						recieved_clients.insert(pair<Util::String,int>(tpacket->connection->target_address,1));
+					} else {
+						recieved_clients[tpacket->connection->target_address] += 1;
+					}
 					
 					// Create texture from incomming data
 					int x = res_raytrace_packet->x() / task_size_w;
@@ -573,20 +661,20 @@ int main(int argc, char* argv[])
 			for(size_t i=0; i < blob.light_count; i++)
 				draw_light((BaseLight*) blob.lights[i]);
 
-			gfx->DrawBuffer(tree_VB,0);
+			//gfx->DrawBuffer(tree_VB,0);
 
 			// INIT DEBUG RAY
 			t += 0.01f;
 
 			ray_t debug_ray;
-			debug_ray.o = Math::Vec3f(5.0f,25.0f + sin(t*0.25f)*10.0f,50.0f);
-			debug_ray.d = Math::Vec3f(0.0f,-0.2f,-1.0f);
+			debug_ray.o = cam.GetPos() + Math::Vec3f(0.01f,0.01f,1.0f); //Math::Vec3f(-3.0f,10.0f + sin(t*0.15f)*5.0f,50.0f);
+			debug_ray.d = cam.GetDir(); //Math::Vec3f(0.0f,-0.2f,-1.0f);
 			Normalize(debug_ray.d);
 
 			Vec3f p0 = debug_ray.o;
 			Vec3f p1 = debug_ray.o + debug_ray.d * 10000.0f;
 
-			// DRAW DEBUG RAY
+			// DEBUG STUFF
 			glColor3f(0.0f,1.0f,0.0f);
 			glBegin(GL_LINES);
 				glVertex3f(p0.x,p0.y,p0.z);
@@ -594,10 +682,17 @@ int main(int argc, char* argv[])
 			glEnd();
 
 			intersection_response_t resp;
-			triangle_t* p_res = RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+
+			glColor3f(0.25f,0.25f,0.25f);
+			gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);
+
+			glColor3f(1.0f,0.0f,0.0f);
+			//gfx->DrawBuffer(blob.tree->debug_buffer,0);
 
 			if(p_res)
 			{
+				glColor3f(0.0f,0.0f,1.0f);
 				draw_triangle(*p_res);
 				//p_res->Draw();
 			}

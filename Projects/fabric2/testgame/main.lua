@@ -31,6 +31,8 @@ void main()
 
 ]])
 
+
+util.newgrid()
 local testtex = gfx.newtexture(12, 128, 128)
 local testfbo = gfx.newframebuffer()
 testfbo:attach(testtex, 1)
@@ -45,6 +47,7 @@ function update()
   end
   a = a + 0.004
 end
+
 
 function draw(force)
   

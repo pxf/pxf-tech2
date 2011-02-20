@@ -2,6 +2,7 @@
 
 import struct
 import traceback
+import sys
 
 import socket
 import select
@@ -23,10 +24,11 @@ class Tracker():
     _last_session_id = None
     _last_socket = None
 
-    def __init__(self):
+    def __init__(self, address="127.0.0.1", port=50000):
+        print("Tracker binding to {0}:{1}.".format(address, port))
         self._sck_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sck_listen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._sck_listen.bind((lightning.tracker_address, lightning.tracker_port))
+        self._sck_listen.bind((address, port))
         self._sck_listen.listen(10)
 
         self._db = TrackerDatabase()
@@ -109,6 +111,14 @@ class Tracker():
             #node.port = 0
         return lightning.T_NODES_RESPONSE, response
     _tr_table[lightning.T_NODES_REQUEST] = e_nodesrequest
+    
+    def e_nodeavailable(self, message):
+        pass
+    _tr_table[lightning.T_NODE_AVAILABLE] = e_nodeavailable
+
+    def e_nodeconnection(self, message):
+        pass
+    _tr_table[lightning.T_NODE_CONNECTION] = e_nodeconnection
 
     # Events end.
     # --------------------------------------------------------------
@@ -251,6 +261,10 @@ class Tracker():
                 continue
             if tmp == '':
                 print("client disconnected.")
+                session_id = self._scks[r]['session_id']
+                if len([ x for x in self._scks.values() \
+                    if x['session_id'] == session_id ]) < 2:
+                    self._db.del_client(session_id)
                 del self._scks[r]
                 continue
             client_data['buffer'] += tmp
@@ -297,7 +311,6 @@ class Tracker():
 
 
         while True:
-            # TODO: Clean up after dead clients.
             session_id, data = self.recv()
             message_type, message = lightning.unpack(data)
 
@@ -339,7 +352,10 @@ class TrackerDatabase:
     _blacklist = dict()
     _waitlist = dict()
     
-    _batchse = dict()
+    _batches = dict()
+    
+    # Testing something out here! /sven
+    _html_path = "index.html" #"/home/sweetfish/www.md5/tracker/index.html"
 
     _next_id = 1
 
@@ -348,6 +364,80 @@ class TrackerDatabase:
 
     def __del__(self):
         pass
+    
+    def update_html(self):
+        if self._html_path:
+            html_head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+            	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+            <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+            <head>
+            	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            	<style type="text/css" media="screen">
+                    * {
+                        padding: 0;
+                        margin: 0;
+                    }
+                    
+                    html {
+                        padding: 20px;
+                        background-color: #eee;
+                        font-family: Arial, "MS Trebuchet", sans-serif;
+                        font-size: 0.9em;
+                        width: 600px;
+                        margin: auto;
+                    }
+                    
+                    ul {
+                        list-style: none;
+                    }
+                    
+                    li {
+                        padding: 10px;
+                        background-color: #0f0;
+                        width: 100%;
+                        color: #000;
+                        margin-bottom: 2px;
+                    }
+                    
+                    .session_id {
+                        color: #080;
+                    }
+                    
+                    .address {
+                        font-weight: bold;
+                    }
+                    
+                </style>
+            	<title>Lightning - Tracker</title>
+            </head>
+
+            <body>
+            <h1>Connected clients</h1>
+            <ul>
+            """
+            
+            html_footer = """
+            </ul>
+
+            </body>
+            </html>
+            
+            """
+            
+            html_final = html_head
+            
+            for k,c in self._clients.items():
+                html_final += "<li><span class=\"session_id\">(#" + str(k) + ")</span> <span class=\"address\">" + str(c[0]) + "</span></li>"
+            
+            html_final += html_footer
+            
+            # TODO: Save html to file!
+            #print html_final
+            f = open(self._html_path, 'w')
+            f.write(html_final)
+            f.close()
+            
 
     def new_batch(self, batch_hash, batch_type):
         """new_batch() -> ."""
@@ -424,6 +514,8 @@ class TrackerDatabase:
         assert(session_id not in self._clients.keys())
         
         self._clients[session_id] = (address, available)
+        
+        self.update_html()
 
         return True
 
@@ -433,11 +525,9 @@ class TrackerDatabase:
         Removes the client with the corresponding session_id.
         """
         
-        print("del_client: {0}.".format(session_id))
-
         if session_id in self._clients.keys():
             del self._clients[session_id]
-            print("deleted.")
+            self.update_html()
             return True
         else:
             return False
@@ -465,7 +555,13 @@ class TrackerDatabase:
         return session_id
 
 def main():
-    tracker = Tracker()
+    if len(sys.argv) < 2:
+        print("usage: {0} [port] [address]".format(sys.argv[0]))
+        return
+
+    address = "127.0.0.1" if len(sys.argv) < 3 else sys.argv[2]
+    port = 50000 if len(sys.argv) < 2 else int(sys.argv[1])
+    tracker = Tracker(address, port)
     tracker.run()
 
 

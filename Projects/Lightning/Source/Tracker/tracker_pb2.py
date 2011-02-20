@@ -10,7 +10,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = descriptor.FileDescriptor(
   name='tracker.proto',
   package='tracker',
-  serialized_pb='\n\rtracker.proto\x12\x07tracker\"k\n\x0eHelloToTracker\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x02(\t\x12\x0c\n\x04port\x18\x03 \x02(\x05\x12\x13\n\x0b\x63lient_port\x18\x04 \x02(\x05\x12\x11\n\tavailable\x18\x05 \x02(\x05\"#\n\rHelloToClient\x12\x12\n\nsession_id\x18\x01 \x02(\x05\"\x9e\x01\n\x08NewBatch\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\x12\n\nbatch_hash\x18\x02 \x02(\t\x12\r\n\x05tasks\x18\x03 \x02(\x05\x12/\n\nbatch_type\x18\x04 \x02(\x0e\x32\x1b.tracker.NewBatch.BatchType\"*\n\tBatchType\x12\x0c\n\x08RAYTRACE\x10\x00\x12\x0f\n\x0bPHOTSHOOTAH\x10\x01\"1\n\x0cNodesRequest\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\r\n\x05nodes\x18\x02 \x02(\x05\"v\n\rNodesResponse\x12*\n\x05nodes\x18\x01 \x03(\x0b\x32\x1b.tracker.NodesResponse.Node\x1a\x39\n\x04Node\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x02(\t\x12\x0c\n\x04port\x18\x03 \x02(\x05')
+  serialized_pb='\n\rtracker.proto\x12\x07tracker\"k\n\x0eHelloToTracker\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x02(\t\x12\x0c\n\x04port\x18\x03 \x02(\x05\x12\x13\n\x0b\x63lient_port\x18\x04 \x02(\x05\x12\x11\n\tavailable\x18\x05 \x02(\x05\"#\n\rHelloToClient\x12\x12\n\nsession_id\x18\x01 \x02(\x05\"\x9e\x01\n\x08NewBatch\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\x12\n\nbatch_hash\x18\x02 \x02(\t\x12\r\n\x05tasks\x18\x03 \x02(\x05\x12/\n\nbatch_type\x18\x04 \x02(\x0e\x32\x1b.tracker.NewBatch.BatchType\"*\n\tBatchType\x12\x0c\n\x08RAYTRACE\x10\x00\x12\x0f\n\x0bPHOTSHOOTAH\x10\x01\"1\n\x0cNodesRequest\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\r\n\x05nodes\x18\x02 \x02(\x05\"v\n\rNodesResponse\x12*\n\x05nodes\x18\x01 \x03(\x0b\x32\x1b.tracker.NodesResponse.Node\x1a\x39\n\x04Node\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x02(\t\x12\x0c\n\x04port\x18\x03 \x02(\x05\"6\n\rNodeAvailable\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\x11\n\tavailable\x18\x02 \x02(\x05\"=\n\x0eNodeConnection\x12\x12\n\nsession_id\x18\x01 \x02(\x05\x12\x17\n\x0f\x63onnected_to_id\x18\x02 \x02(\x05')
 
 
 
@@ -274,6 +274,76 @@ _NODESRESPONSE = descriptor.Descriptor(
 )
 
 
+_NODEAVAILABLE = descriptor.Descriptor(
+  name='NodeAvailable',
+  full_name='tracker.NodeAvailable',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    descriptor.FieldDescriptor(
+      name='session_id', full_name='tracker.NodeAvailable.session_id', index=0,
+      number=1, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='available', full_name='tracker.NodeAvailable.available', index=1,
+      number=2, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=504,
+  serialized_end=558,
+)
+
+
+_NODECONNECTION = descriptor.Descriptor(
+  name='NodeConnection',
+  full_name='tracker.NodeConnection',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    descriptor.FieldDescriptor(
+      name='session_id', full_name='tracker.NodeConnection.session_id', index=0,
+      number=1, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='connected_to_id', full_name='tracker.NodeConnection.connected_to_id', index=1,
+      number=2, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=560,
+  serialized_end=621,
+)
+
+
 _NEWBATCH.fields_by_name['batch_type'].enum_type = _NEWBATCH_BATCHTYPE
 _NEWBATCH_BATCHTYPE.containing_type = _NEWBATCH;
 _NODESRESPONSE_NODE.containing_type = _NODESRESPONSE;
@@ -314,5 +384,17 @@ class NodesResponse(message.Message):
   DESCRIPTOR = _NODESRESPONSE
   
   # @@protoc_insertion_point(class_scope:tracker.NodesResponse)
+
+class NodeAvailable(message.Message):
+  __metaclass__ = reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _NODEAVAILABLE
+  
+  # @@protoc_insertion_point(class_scope:tracker.NodeAvailable)
+
+class NodeConnection(message.Message):
+  __metaclass__ = reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _NODECONNECTION
+  
+  # @@protoc_insertion_point(class_scope:tracker.NodeConnection)
 
 # @@protoc_insertion_point(module_scope)

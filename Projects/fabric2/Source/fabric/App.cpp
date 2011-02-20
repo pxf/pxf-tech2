@@ -6,6 +6,8 @@
 #include "AppInputLib.h"
 #include "AppGraphicsLib.h"
 #include "AppSoundLib.h"
+#include "AppUtilsLib.h"
+
 #include <Pxf/Audio/AudioDevice.h>
 #include <Pxf/Base/String.h>
 #include <Pxf/Resource/ResourceManager.h>
@@ -89,7 +91,7 @@ void App::Init()
 {
   m_RedrawMode = FABRIC_REDRAWMODE_FULL;
   
-  m_MaxQuadCount = 2048*2;
+  m_MaxQuadCount = 1024*1024;//2048*2;
   m_DepthStep = (FABRIC_DEPTH_RANGE / m_MaxQuadCount);
   
   m_QuadBatches[m_QuadBatchCount] = new QuadBatch(m_MaxQuadCount, &m_CurrentDepth, &m_CurrentColor, &m_TransformMatrix);
@@ -693,6 +695,7 @@ void App::_register_own_callbacks()
 	luaopen_appinput(L);
 	luaopen_appgraphics(L);
 	luaopen_appsound(L);
+	luaopen_apputils(L);
 	
 	// Iterate all external functions
 	for(Util::Map<const char*, lua_CFunction>::iterator iter = m_ExternalFuncs.begin(); iter != m_ExternalFuncs.end(); ++iter)
