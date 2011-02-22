@@ -32,13 +32,13 @@ public:
 			{
 				Task* req = m_Client->pop_request();
 				
-				if (m_Client->m_TaskQueue->get_available() == 0 && m_Client->m_Client->m_State.m_OutQueue.size() == 0)
+				if (m_Client->m_TaskQueue->get_available() == 0 && m_Client->m_Client->m_State.m_OutQueue->size() == 0)
 				{
 					m_Client->m_Client->signal_availability(1);
 				}
 				else if (m_Client->m_TaskQueue->get_available() < m_Client->m_TaskQueue->get_capacity())
 				{
-					m_Client->m_Client->m_State.m_OutQueue.Lock();
+					m_Client->m_Client->m_State.m_OutQueue->Lock();
 					
 					/*Batch* b = m_Batches[tasks->batchhash()];
 					int i = 0;
@@ -51,9 +51,9 @@ public:
 						;
 						*/
 					
-				//	m_Client->push_request(m_Client->m_Client->m_State.m_OutQueue.front());
-				//	m_Client->m_Client->m_State.m_OutQueue.pop_front();
-					m_Client->m_Client->m_State.m_OutQueue.Unlock();
+				//	m_Client->push_request(m_Client->m_Client->m_State.m_OutQueue->front());
+				//	m_Client->m_Client->m_State.m_OutQueue->pop_front();
+					m_Client->m_Client->m_State.m_OutQueue->Unlock();
 				}
 
 				//req->task->PrintDebugString();

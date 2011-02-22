@@ -242,9 +242,9 @@ int Client::run()
 						delete pkg;
 
 						// Send allocation request
-						if (m_State.m_OutQueue.size() > 0)
+						if (m_State.m_OutQueue->size() > 0)
 						{
-							Batch* b = m_Batches[m_State.m_OutQueue.front()->batchhash()];
+							Batch* b = m_Batches[m_State.m_OutQueue->front()->batchhash()];
 							allocate_client(p->connection, b, state->send_tasks);
 						}
 						else
@@ -368,10 +368,10 @@ int Client::run()
 					// Send tasks to client
 					client_state* c_state = m_State.m_States[p->connection];
 
-					std::deque<client::Tasks*>::iterator i = m_State.m_OutQueue.begin();
+					std::deque<client::Tasks*>::iterator i = m_State.m_OutQueue->begin();
 
 					// Find a set the allocated client can handle
-					while (i != m_State.m_OutQueue.end())
+					while (i != m_State.m_OutQueue->end())
 					{
 						if ( ((*i)->batchhash()).compare(resp->batchhash()) == 0 )
 						{
@@ -389,7 +389,7 @@ int Client::run()
 
 								delete pkg;
 								delete (*i);
-								i = m_State.m_OutQueue.erase(i);
+								i = m_State.m_OutQueue->erase(i);
 
 								break; // Only send one set of tasks
 							}
@@ -426,8 +426,8 @@ int Client::run()
 								LiPacket* pkg = new LiPacket(p->connection, send_t, C_TASKS);
 								m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
 
-								i = m_State.m_OutQueue.erase(i);
-								m_State.m_OutQueue.push_back(keep_t);
+								i = m_State.m_OutQueue->erase(i);
+								m_State.m_OutQueue->push_back(keep_t);
 
 								delete (*i);
 								delete send_t;
@@ -603,7 +603,7 @@ int Client::run()
 					}
 					n_tasks->set_batchhash(b->hash);
 
-					m_State.m_OutQueue.push_back(n_tasks);
+					m_State.m_OutQueue->push_back(n_tasks);
 
 
 					delete tasks;
@@ -631,8 +631,8 @@ int Client::run()
 						if (c = find_connection(node.session_id()))
 						{
 							m_Kernel->Log(m_log_tag, "  already known! Sending allocation..");
-							Batch* b = m_Batches[m_State.m_OutQueue.front()->batchhash()];
-							allocate_client(c, b, m_State.m_OutQueue.front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1));
+							Batch* b = m_Batches[m_State.m_OutQueue->front()->batchhash()];
+							allocate_client(c, b, m_State.m_OutQueue->front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1));
 							continue;
 						}
 
@@ -644,7 +644,7 @@ int Client::run()
 						
 						client_state* state = new client_state;
 						state->state = (ClientState)(WOK & W_HELLO);
-						state->send_tasks = m_State.m_OutQueue.front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1);
+						state->send_tasks = m_State.m_OutQueue->front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1);
 						m_State.m_States[new_node] = state;
 
 						client::Hello* hello = new client::Hello();
@@ -806,7 +806,7 @@ void Client::forward(Pxf::Util::Array<client::Tasks*> _tasks)
 		// Not all tasks could be forwarded, store the rest in the state
 		for ( ; j != _tasks.end(); j++)
 		{
-			m_State.m_OutQueue.push_back((*j));
+			m_State.m_OutQueue->push_back((*j));
 			m_Kernel->Log(m_log_tag, "Push task to OutQueue\n");
 		}
 	}
