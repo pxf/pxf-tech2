@@ -21,7 +21,7 @@ class State
 	public:
 		Pxf::Util::Map<Connection*, client_state*> m_States;
 		Pxf::Util::Array<Connection*> m_Clients;
-		std::deque<client::Tasks*> m_OutQueue;
+		std::deque<client::Tasks*> m_OutQueue; // TODO: Change this to blockingdeque!
 };
 
 #endif
