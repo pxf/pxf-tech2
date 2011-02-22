@@ -20,6 +20,8 @@ google::protobuf::Message *get_protobuf_class(MessageType type)
 		case T_BATCH_DONE: return NULL; // TODO: Fill in
 		case T_TASK_DONE: return NULL;
 		case T_HATE: return NULL;
+        case T_NODE_AVAILABLE: return new tracker::NodeAvailable;
+	    case T_NODE_CONNECTION: return new tracker::NodeConnection;
 
 		case C_HELLO: return new client::Hello;
 		case C_ALLOCATE: return new client::AllocateClient;

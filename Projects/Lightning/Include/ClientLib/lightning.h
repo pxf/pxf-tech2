@@ -27,6 +27,8 @@ enum MessageType {
 	T_BATCH_DONE,
 	T_TASK_DONE,
 	T_HATE,
+	T_NODE_AVAILABLE,
+	T_NODE_CONNECTION,
 
 	// Between clients
 	C_HELLO,

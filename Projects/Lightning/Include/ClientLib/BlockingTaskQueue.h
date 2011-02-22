@@ -29,6 +29,7 @@ protected:
 	std::map<unsigned int, ZThread::Condition*> m_Conditions;
 	std::deque<Entry_t> m_InternalArray;
 	ZThread::FastMutex m_Lock;
+	int m_capacity;
 	bool m_Canceled;
 
 	int count(unsigned int _Type)
@@ -44,7 +45,7 @@ protected:
 
 public:
 	BlockingTaskQueue()
-		: m_Canceled(false)
+		: m_Canceled(false), m_capacity(10)
 	{
 	
 	}
@@ -66,16 +67,33 @@ public:
 		return true;
 	}
 
-	void push(unsigned int _Type, const T _Task)
+	bool push(unsigned int _Type, const T _Task)
 	{
 		ZThread::Guard<ZThread::FastMutex> g(m_Lock);
-		Entry_t e(_Type, _Task);
-		m_InternalArray.push_back(e);
+		if (get_available())
+		{
+			Entry_t e(_Type, _Task);
+			m_InternalArray.push_back(e);
 
-		if (m_Conditions.find(_Type) == m_Conditions.end())
-			register_type(_Type);
+			if (m_Conditions.find(_Type) == m_Conditions.end())
+				register_type(_Type);
 
-		m_Conditions[_Type]->signal();
+			m_Conditions[_Type]->signal();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	int get_available()
+	{
+		return (m_capacity - m_InternalArray.size());
+	}
+
+	void set_capacity(int _c)
+	{
+		m_capacity = _c;
 	}
 
 	T pop(unsigned int _Type)

@@ -33,7 +33,9 @@ class Client
 			int _tracker_port,
 			const char *_local_address,
 			int _local_port,
-			int _client_port
+			int _client_port,
+			int _max_clients = 6,
+			int _preferred_tasks = 10
 		);
 		~Client();
 		int run();
@@ -52,10 +54,12 @@ class Client
 		TaskResultQueue* m_ResultQueue;
 
 
-		int m_queue_free;
 		int m_net_tag;	
 		int m_log_tag;
 		int last_batch_check;
+
+		int m_max_clients;
+		int m_preferred_tasks;
 		
 		void ping(Connection *_c, int _timestamp);
 		bool connect_tracker();
@@ -63,6 +67,11 @@ class Client
 		void push(client::Tasks* _tasks);
 		void forward(Pxf::Util::Array<client::Tasks*> _tasks);
 		void list_connections();
+		Task* copy_task(const client::Tasks::Task& _task, Batch* _batch);
+
+		Connection* find_connection(int _id);
+		void request_nodes(int _amount);
+		void allocate_client(Connection* _c, Batch* _b, int _amount);
 
 };
 
