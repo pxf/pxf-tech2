@@ -93,35 +93,81 @@ class Tracker():
     
     def e_nodesrequest(self, message):
         avail_cs = self._db.get_available_clients()
+        possible = self._get_possible_nodes(self._last_session_id)
         wants = message.nodes
-        print("client {0} wants {1} nodes.  available: {2}.".format(
+        print("client {0} wants {1} nodes.  available: {2} / possible: {3}.".format(
             self._last_session_id
             , wants
             , avail_cs
+            , possible
         ))
+        if possible == []:
+            self._db.set_client_waiting(
+                    message.session_id
+                    , message.nodes
+                )
+            print("client couldn't get any, put on the waitlist.")
         response = tracker_pb2.NodesResponse()
-        for session_id, num_avail in avail_cs:
-            if session_id == self._last_session_id:
-                continue # shouldn't send the same back.
+        for session_id in possible:
             node = response.nodes.add()
             node.session_id = session_id
             client = self._db.get_client(session_id)
             node.address, port = client[0].split(':')
             node.port = int(port)
-            #node.port = 0
         return lightning.T_NODES_RESPONSE, response
     _tr_table[lightning.T_NODES_REQUEST] = e_nodesrequest
     
     def e_nodeavailable(self, message):
-        pass
+        # Set it available.
+        self._db.set_client(message.session_id, available=message.available)
+        # Send it to the waiting nodes.
+        new_wait = {}
+        for node_sess, wait in self._db.get_waiting_clients():
+            possible = self._get_possible_nodes(node_sess)
+            if possible == []:
+                # None avaialable.
+                new_wait[node_sess] = wait
+                continue
+            response = tracker_pb2.NodesResponse()
+            for session_id in possible:
+                node = response.nodes.add()
+                node.session_id = message.session_id
+                client = self._db.get_client(message.session_id)
+                node.address, port = client[0].split(':')
+                node.port = int(port)
+            self.send((lightning.T_NODES_RESPONSE, response), node_sess)
+        self._db.waitlist = new_wait
+        return
     _tr_table[lightning.T_NODE_AVAILABLE] = e_nodeavailable
 
     def e_nodeconnection(self, message):
-        pass
+        self._db.connect_clients(message.session_id, message.connected_to_id)
+        #return lightning.OK # TODO: Should send an OK here?
+        return
     _tr_table[lightning.T_NODE_CONNECTION] = e_nodeconnection
 
     # Events end.
     # --------------------------------------------------------------
+
+    def _get_possible_nodes(self, _session_id):
+        """_get_possible_nodes(session_id) -> [int nodes session id]."""
+        # TODO: Respect num_avail.
+        avail = self._db.get_available_clients()
+        connections = []
+        possible = []
+        for k,v in self._db._connections:
+            if k == _session_id:
+                connections.append(v)
+            if v == _session_id:
+                connections.append(k)
+        for session_id, num_avail in avail:
+            if session_id in connections or session_id == _session_id:
+                # Node already connected to this node.
+                # OR it IS the node.
+                continue
+            else:
+                possible.append(session_id)
+        return possible
 
     # TODO: Make argument client optional.
     def set_session_id(self, client, new_id):
@@ -359,11 +405,9 @@ class TrackerDatabase:
 
     _next_id = 1
 
-    def __init__(self):
-        pass
-
-    def __del__(self):
-        pass
+    def connect_clients(self, id_1, id_2):
+        self._connections[id_1] = id_2
+        self.update_html()
     
     def update_html(self):
         if self._html_path:
@@ -413,24 +457,33 @@ class TrackerDatabase:
             </head>
 
             <body>
-            <h1>Connected clients</h1>
-            <ul>
             """
             
             html_footer = """
-            </ul>
-
             </body>
             </html>
-            
             """
             
             html_final = html_head
             
+            html_final += """
+            <h1>Connected clients</h1>
+            <ul>
+            """
             for k,c in self._clients.items():
                 html_final += "<li><span class=\"session_id\">(#" + str(k) + ")</span> <span class=\"address\">" + str(c[0]) + "</span></li>"
+
+            html_final += """
+            </ul>
+            <h1>Node connections</h1>
+            <ul>
+            """
+            for k,c in self._connections.items():
+                fr = self._clients[k]
+                to = self._clients[c]
+                html_final += "<li><span>{0} -> {1}</span></li>".format(fr[0], to[0])
             
-            html_final += html_footer
+            html_final += "</u>" + html_footer
             
             # TODO: Save html to file!
             #print html_final
@@ -524,6 +577,13 @@ class TrackerDatabase:
 
         Removes the client with the corresponding session_id.
         """
+
+        # Clean up the connections.
+        new_connections = dict([
+                (ns, nt) for (ns, nt) in self._connections.items() \
+                if ns != session_id and nt != session_id
+            ])
+        self._connections = new_connections
         
         if session_id in self._clients.keys():
             del self._clients[session_id]
@@ -555,12 +615,16 @@ class TrackerDatabase:
         return session_id
 
 def main():
-    if len(sys.argv) < 2:
-        print("usage: {0} [port] [address]".format(sys.argv[0]))
+    if len(sys.argv) >= 2 and sys.argv[1] in ['h', 'help']:
+        print("usage: {0} h[elp]|[port=50000] [address=0.0.0.0]".format(sys.argv[0]))
         return
 
-    address = "127.0.0.1" if len(sys.argv) < 3 else sys.argv[2]
-    port = 50000 if len(sys.argv) < 2 else int(sys.argv[1])
+    try:
+        address = "0.0.0.0" if len(sys.argv) < 3 else sys.argv[2]
+        port = 50000 if len(sys.argv) < 2 else int(sys.argv[1])
+    except:
+        print("usage: {0} h[elp]|[port=50000] [address=0.0.0.0]".format(sys.argv[0]))
+        return
     tracker = Tracker(address, port)
     tracker.run()
 
