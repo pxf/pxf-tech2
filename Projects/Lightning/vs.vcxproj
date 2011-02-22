@@ -109,6 +109,7 @@
     <ClCompile Include="Source\ClientLib\client.pb.cc" />
     <ClCompile Include="Source\ClientLib\connectionmanager.cpp" />
     <ClCompile Include="Source\ClientLib\lightning.cpp" />
+    <ClCompile Include="Source\ClientLib\Renderer.cpp" />
     <ClCompile Include="Source\Client\client.cpp" />
     <ClCompile Include="Source\Client\main.cpp" />
   </ItemGroup>
@@ -170,6 +171,7 @@
     <ClInclude Include="Include\ClientLib\lightning.h" />
     <ClInclude Include="Include\ClientLib\lightning.pb.h" />
     <ClInclude Include="Include\ClientLib\tracker.pb.h" />
+    <ClInclude Include="Include\Client\BlockingDeque.h" />
     <ClInclude Include="Include\Client\client.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

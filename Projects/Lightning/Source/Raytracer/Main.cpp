@@ -471,13 +471,9 @@ int main(int argc, char* argv[])
 	plane_mat_green.reflectiveness = 0.0f;
 	
 	sphere_mat1.ambient = Vec3f(0.1f, 0.1f, 0.1f);
-	sphere_mat1.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	sphere_mat1.reflectiveness = 1.0f;
-	sphere_mat1.matteness = 0.0f;
-	sphere_mat2.ambient = Vec3f(0.1f, 0.1f, 0.1f);
-	sphere_mat2.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	sphere_mat2.reflectiveness = 1.0f;
-	sphere_mat2.matteness = 1.0f;
+	sphere_mat1.diffuse = Vec3f(0.7f, 0.0f, 0.0f);
+	//sphere_mat1.reflectiveness = 1.0f;
+	//sphere_mat1.matteness = 0.0f;
 	
 	blob.prim_count = 0;
 
@@ -491,19 +487,20 @@ int main(int argc, char* argv[])
 	
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
-	light_mat1.diffuse = Vec3f(0.0f, 0.0f, 1.0f);
+	light_mat1.diffuse = Vec3f(0.0f, 0.5f, 0.5f);
 	light_mat1.ambient = Vec3f(0.1f,0.1f,0.1f);
 	light_mat2.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
-	light_mat2.ambient = Vec3f(0.1f,0.1f,0.1f);
+	light_mat2.ambient = Vec3f(0.3f,0.0f,0.1f);
 
 	blob.materials.Insert(light_mat1,0);
 	blob.materials.Insert(light_mat2,1);
+	blob.materials.Insert(sphere_mat1,2);
 
 	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 60.0f, 15.0f), 0);//&light_mat1);
-	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -20.0f, -15.0f), 1); //&light_mat2);
+	//blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -20.0f, -15.0f), 1); //&light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
-	blob.light_count = 2;
+	blob.light_count = 1;
 	
 	// create textures and primitive batches
 	//Texture *region_textures[task_count*task_count] = {0};
@@ -538,7 +535,7 @@ int main(int argc, char* argv[])
 	blob.cam = &cam;
 
 	// load a model!
-	load_model("data/teapot.ctm");
+	load_model("data/sphere.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -682,7 +679,7 @@ int main(int argc, char* argv[])
 			glEnd();
 
 			intersection_response_t resp;
-			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray,resp); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
 
 			glColor3f(0.25f,0.25f,0.25f);
 			gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);

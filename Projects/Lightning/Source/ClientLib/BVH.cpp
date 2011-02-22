@@ -52,7 +52,7 @@ inline Vec3f max_point(Vec3f a,Vec3f b) {
 node_t* recurse(vector<entry_t> work, int depth)
 {
 	// early stop
-	if(work.size() < 4)
+	if(work.size() < 4 || depth > 15)
 	{
 		leaf_node_t* leaf = new leaf_node_t;
 		for(vector<entry_t>::iterator it=work.begin(); it!=work.end();it++)
@@ -83,26 +83,82 @@ node_t* recurse(vector<entry_t> work, int depth)
 		int axis = i;
 		float start,stop;
 
-		switch(axis) {
-		case 0: 
-			start = _min.x;
-			stop = _max.x;
-			break;
-		case 1:
-			start = _min.y;
-			stop = _max.y;
-			break;
-		case 2:
-			start = _min.z;
-			stop = _max.z;
-			break;
-		default: 
-			break;
-		}
+		start = _min.GetAxis(axis);
+		stop = _max.GetAxis(axis);
 
 		float l = stop-start;
 		if(l < KD_EPSILON) continue;
 
+
+		vector<float> sc;
+		for(int j=0; j<work.size(); j++) {
+			int count_left = 0, count_right = 0;
+			entry_t e = work[j];
+
+			float p0 = e.min.GetAxis(axis);
+			float p1 = e.max.GetAxis(axis);
+
+			vector<float>::iterator it = sc.begin();
+			for(it; it != sc.end(); it++) {
+				if(*it == p0 || *it == p1)
+					break;
+			}
+
+			if(it == sc.end()) {
+				sc.push_back(p0);
+				sc.push_back(p1);
+			}
+		}
+
+		vector<float>::iterator it = sc.begin();
+		for(it; it != sc.end(); it++) {
+			int count_left = 0,count_right = 0;
+			Vec3f left_min(FLT_MAX,FLT_MAX,FLT_MAX),left_max(-FLT_MAX,-FLT_MAX,-FLT_MAX);
+			Vec3f right_min(FLT_MAX,FLT_MAX,FLT_MAX),right_max(-FLT_MAX,-FLT_MAX,-FLT_MAX);
+
+			float this_sp = *it;
+			for(int j=0; j < work.size(); j++) {
+				entry_t entry = work[j];
+				float minpos = entry.min.GetAxis(axis);
+				float maxpos = entry.max.GetAxis(axis);
+
+				// determine side
+				if(minpos <= this_sp) {
+					count_left++;
+				}
+
+				if(maxpos > this_sp) {
+					count_right++;
+				}
+			}
+
+			if(count_left <= 1 || count_right <= 1) continue;
+
+			left_min = _min;
+			left_max = _max;
+
+			right_min = _min;
+			right_max  = _max;
+
+			left_max.SetAxis(axis,this_sp);
+			right_min.SetAxis(axis,this_sp);
+
+			Vec3f left_side = left_max - left_min;
+			Vec3f right_side = right_max - right_min;
+
+			// calc SAH
+			float left_SAH = left_side.x * left_side.y + left_side.y * left_side.z + left_side.z * left_side.x;
+			float right_SAH = right_side.x * right_side.y + right_side.y * right_side.z + right_side.z * right_side.x;
+			float total_cost = left_SAH * count_left + right_SAH * count_right;
+
+			if(total_cost < best_split_cost) {
+				best_axis = axis;
+				best_split_cost = total_cost;
+				best_split_pos = this_sp;
+			}
+		}
+
+		/*
 		float step = l / (1024.0f / (depth + 1));
 		for(float split_pos = start+step; split_pos < stop-step; split_pos += step) {
 			int count_left = 0,count_right = 0;
@@ -141,6 +197,7 @@ node_t* recurse(vector<entry_t> work, int depth)
 				best_split_pos = split_pos;
 			}
 		}
+		*/
 	}
 
 	if(best_axis == -1) {
@@ -159,8 +216,19 @@ node_t* recurse(vector<entry_t> work, int depth)
 	for(int i=0; i < work.size(); i++)
 	{
 		entry_t e = work[i];
+		float minpos = e.min.GetAxis(best_axis);
+		float maxpos = e.max.GetAxis(best_axis);
 		float v = e.c.GetAxis(best_axis);
 
+		if(minpos <= best_split_pos) {
+			left_entries.push_back(e);
+		}
+
+		if(maxpos > best_split_pos) {
+			right_entries.push_back(e);
+		}
+
+		/*
 		if(v < best_split_pos) {
 			left_min = min_point(left_min,e.min);
 			left_max = max_point(left_max,e.max);
@@ -169,7 +237,7 @@ node_t* recurse(vector<entry_t> work, int depth)
 			right_min = min_point(right_min,e.min);
 			right_max = max_point(right_max,e.max);
 			right_entries.push_back(e);
-		}
+		} */
 	}
 
 	debug_sp_t d_sp;
@@ -178,7 +246,7 @@ node_t* recurse(vector<entry_t> work, int depth)
 	d_sp.min = _min;
 	d_sp.max = _max;
 
-	g_DebugBuf.push_back(d_sp);
+	//g_DebugBuf.push_back(d_sp);
 
 	inner_node_t* inner_node = new inner_node_t;
 	inner_node->left = recurse(left_entries,depth+1);
@@ -196,6 +264,17 @@ int count_nodes(node_t* node)
 		return 1 + count_nodes(n->left) + count_nodes(n->right);
 	} else 
 		return 1;
+}
+
+int count_triangles(node_t* node)
+{
+	if(node->is_leaf()) {
+		leaf_node_t* n = (leaf_node_t*) node;
+		return n->data.size();
+	} else {
+		inner_node_t* n = (inner_node_t*) node;
+		return count_triangles(n->left) + count_triangles(n->right);
+	}
 }
 
 void build_ca_nodes(ca_node_t* ca_nodes, node_t* node, unsigned& c, unsigned& t, int* index_list, triangle_t* start_tri)
@@ -287,9 +366,11 @@ tree_t* build(triangle_t* data,int num_triangles)
 
 	node_t* root = recurse(work,0);
 	int box_count = count_nodes(root);
+	int tri_count = count_triangles(root);
 
 	ca_node_t* node_list = new ca_node_t[box_count]();
-	int* index_list = new int[num_triangles]();
+	//int* index_list = new int[num_triangles]();
+	int* index_list = new int[tri_count]();
 
 	unsigned id = 0;
 	unsigned tri_id = 0;
@@ -306,7 +387,8 @@ tree_t* build(triangle_t* data,int num_triangles)
 	tree->num_nodes = box_count;
 	tree->index_list = index_list;
 	tree->triangle_data = data;
-	tree->num_triangles = num_triangles;
+	//tree->num_triangles = num_triangles;
+	tree->num_triangles = tri_count;
 
 	tree->stack = new stack_entry_t[box_count];
 
@@ -319,6 +401,7 @@ tree_t* build(triangle_t* data,int num_triangles)
 	g_DebugVB->SetData(Pxf::Graphics::VB_VERTEX_DATA,0,3);
 	g_DebugVB->SetPrimitive(Graphics::VB_PRIMITIVE_LINES);
 
+	/*
 	vector<debug_sp_t>::iterator it = g_DebugBuf.begin();
 	Vec3f* buf = (Vec3f*) g_DebugVB->MapData(Graphics::VB_ACCESS_WRITE_ONLY);
 	
@@ -358,8 +441,8 @@ tree_t* build(triangle_t* data,int num_triangles)
 	}
 
 	g_DebugVB->UnmapData();
-
 	tree->debug_buffer = g_DebugVB;
+	*/
 
 	return tree;
 }
@@ -372,7 +455,7 @@ inline bool interval(float a, float b)
 	else return false;
 }
 
-triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray)
+triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_response_t &resp)
 {
 	Vec3f minpos = tree->min;
 	Vec3f maxpos = tree->max;
@@ -380,8 +463,6 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray)
 	aabb box;
 	box.pos = minpos;
 	box.size = maxpos - minpos;
-
-	intersection_response_t resp;
 
 	if(!ray_aabb(ray,&box,&resp))
 		return 0;
@@ -398,10 +479,10 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray)
 	int* index_list = tree->index_list;
 
 	// get box extents
-	float t_min=-10000.0f,t_max=10000.0f;
+	float t_min=-FLT_MAX,t_max=FLT_MAX;
 
-	Vec3f _min = (minpos - o) / d;
-	Vec3f _max = (maxpos - o) / d;
+	Vec3f _min = (minpos - o) * inv_d;
+	Vec3f _max = (maxpos - o) * inv_d;
 
 	for(size_t i=0; i<3; i++)
 	{
@@ -516,8 +597,11 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray)
 	Vec3f entry_v = o + d*t_min;
 	Vec3f exit_v = o + d*t_max;
 
+	if (t_min > 0.0f) stack[entry_ptr].p = o + d * t_min;
+	else stack[entry_ptr].p = o;
+
 	stack[entry_ptr].node = node;
-	stack[entry_ptr].p = entry_v;
+	//stack[entry_ptr].p = entry_v;
 
 	stack[exit_ptr].node = 0;
 	stack[exit_ptr].p = exit_v;
@@ -547,6 +631,7 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray)
 				}
 
 				// parallel
+				//if(stack[exit_ptr].p.GetAxis(axis) >= split_pos && stack[exit_ptr].p.GetAxis(axis) <= (split_pos + KD_EPSILON))
 				if(stack[exit_ptr].p.GetAxis(axis) == split_pos)
 				{
 					// continue with right child
@@ -619,7 +704,7 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray)
 		int start_index = node->data.leaf_node.list_index;
 		int count = node->data.leaf_node.tri_count;
 
-		float closest_depth = 10000.0f;
+		float closest_depth = FLT_MAX;
 		ray_t r = *ray;
 		bool retval = false;
 
@@ -632,13 +717,145 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray)
 			if(ray_triangle(t.vertices,&r,&_resp)) {
 				retval = true;
 
-				if(resp.depth < closest_depth) {
+				if(_resp.depth < closest_depth) {
 					ret_p = &triangle_data[index];
 					closest_depth = resp.depth;
 				}
 			}
+		}
 
-			if(retval) return ret_p;
+		if(retval) {
+			resp = _resp;
+			return ret_p;
+		}
+
+		entry_ptr = exit_ptr;
+		node = stack[exit_ptr].node;
+		exit_ptr = stack[entry_ptr].prev;
+	}
+
+	return 0;
+}
+
+triangle_t* ray_tree_find_occluder(tree_t* tree, ray_t* ray, intersection_response_t &resp, float dist)
+{
+	Vec3f o = ray->o;
+	Vec3f d = ray->d;
+	Vec3f inv_d = Inverse(d);
+
+	ca_node_t* nodes = tree->nodes;
+	ca_node_t* node = nodes;
+
+	triangle_t* ret_p = 0;
+	triangle_t* triangle_data = tree->triangle_data;
+	int* index_list = tree->index_list;
+
+	float t_min=0.0f,t_max=dist;
+
+	// init stack
+	stack_entry_t* stack = tree->stack;
+	int entry_ptr=0,exit_ptr=1;
+	
+	Vec3f entry_v = o + d*t_min;
+	Vec3f exit_v = o + d*t_max;
+
+	stack[entry_ptr].node = node;
+	stack[entry_ptr].p = entry_v;
+
+	stack[exit_ptr].node = 0;
+	stack[exit_ptr].p = exit_v;
+
+	ca_node_t* near_node;
+	ca_node_t* far_node;
+
+	int i;
+
+	// build stack
+	while(node)
+	{
+		while(!node->is_leaf())
+		{
+			unsigned axis = node->axis;
+			float split_pos = node->split_pos;
+			
+			// determine near and far nodes 
+			if(stack[entry_ptr].p.GetAxis(axis) <= split_pos)
+			{
+				// enter point is on left side of split_position
+				if(stack[exit_ptr].p.GetAxis(axis) <= split_pos)
+				{
+					// ray hit left child
+					node = &nodes[node->data.inner_node.left_node];
+					continue;
+				}
+
+				// parallel
+				//if(stack[exit_ptr].p.GetAxis(axis) >= split_pos && stack[exit_ptr].p.GetAxis(axis) <= (split_pos + KD_EPSILON))
+				if(stack[exit_ptr].p.GetAxis(axis) == split_pos)
+				{
+					// continue with right child
+					node = &nodes[node->data.inner_node.right_node];
+					continue;
+				}
+
+				// ray hits both children
+				far_node = &nodes[node->data.inner_node.right_node];
+				node = &nodes[node->data.inner_node.left_node];
+			}
+			// ray origin is on right child
+			else 
+			{
+				// ray hits right only
+				if(stack[exit_ptr].p.GetAxis(axis) > split_pos)
+				{
+					node = &nodes[node->data.inner_node.right_node];
+					continue;
+				}
+
+				// ray hits both, in opposite directions
+				far_node = &nodes[node->data.inner_node.left_node];
+				node = &nodes[node->data.inner_node.right_node];
+			}
+			
+			// get distance to split position
+			float t_split = (split_pos - o.GetAxis(axis)) * inv_d.GetAxis(axis); //4 d.GetAxis(axis);
+
+			// set stack pointers
+			int ptr = exit_ptr++;
+			if(exit_ptr == entry_ptr)
+				exit_ptr++;
+
+			stack[exit_ptr].node = far_node;
+			stack[exit_ptr].p = o + d * t_split;
+			stack[exit_ptr].prev = ptr;
+		}
+
+		int start_index = node->data.leaf_node.list_index;
+		int count = node->data.leaf_node.tri_count;
+
+		float closest_depth = dist;
+		ray_t r = *ray;
+		bool retval = false;
+
+		intersection_response_t _resp;
+
+		for(int i=0; i < count; i++) {
+			unsigned index = index_list[start_index + i];
+			triangle_t t = triangle_data[index];
+
+			if(ray_triangle(t.vertices,&r,&_resp)) {
+				retval = true;
+
+				if(_resp.depth < closest_depth) {
+					ret_p = &triangle_data[index];
+					closest_depth = resp.depth;
+				}
+			}
+		}
+
+		if(retval) {
+			resp = _resp;
+			return ret_p;
 		}
 
 		entry_ptr = exit_ptr;

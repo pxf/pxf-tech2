@@ -122,44 +122,23 @@ public:
 				tree_t* tree = new tree_t;
 				blob.tree = tree;
 
+				Math::Vec3f minpos(blob_proto->tree().minpos().x(),blob_proto->tree().minpos().y(),blob_proto->tree().minpos().z());
+				Math::Vec3f maxpos(blob_proto->tree().maxpos().x(),blob_proto->tree().maxpos().y(),blob_proto->tree().maxpos().z());
+
+				tree->min = minpos;
+				tree->max = maxpos;
 				tree->triangle_data = blob.primitives;
 				tree->num_triangles = blob.prim_count;
 				tree->num_nodes = blob_proto->tree().num_nodes();
 				tree->nodes = (ca_node_t*) nodeData.c_str();
+				tree->stack = new stack_entry_t[tree->num_nodes];
 				tree->index_list = (int*) indexList.c_str();
-
-				/*
-				for(size_t i = 0; i < blob.prim_count; i++)
-				{
-					material_t *sphere_mat1 = new material_t();
-
-					sphere_mat1->ambient = Math::Vec3f(0.1f, 0.1f, 0.1f);
-					sphere_mat1->diffuse = Math::Vec3f(1.0f, 1.0f, 1.0f);
-					sphere_mat1->reflectiveness = 1.0f;
-					
-					// TODO: lol, jhonnys grejer.
-					//raytracer::DataBlob::PrimitiveSphere *pb_sphere = blob_proto->primitives(i);
-					raytracer::DataBlob::Vec3f pb_pos = blob_proto->primitives(i).position();
-					blob.primitives[i] = Sphere(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), blob_proto->primitives(i).size(), 0);
-				}*/
 				
 				// unpack lights!
 				for(size_t i = 0; i < blob.light_count; i++)
 				{
-					/*
-					material_t *light_mat1 = new material_t();
-
-					light_mat1->ambient = Math::Vec3f(0.1f, 0.1f, 0.1f);
-					light_mat1->diffuse = Math::Vec3f(1.0f, 1.0f, 1.0f);
-
-					*/
-					
-					// TODO: lol, jhonnys grejer.
 					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position();
 					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), 0);
-				
-
-				//printf("if %d\n", blob.interleaved_feedback);
 				}
 
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;

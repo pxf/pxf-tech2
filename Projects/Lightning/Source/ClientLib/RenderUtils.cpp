@@ -101,12 +101,15 @@ triangle_t* triangle_list(Mesh* mesh)
 		t_list[t_index].vertices[v_index].n = normal;
 		t_list[t_index].vertices[v_index].uv = texcoord;
 
+		t_list[t_index].material_index = 0;
+
+		/*
 		if(v_index == 2)
 		{
 			//t_list[t_index].box = aabb(CalcAABB(t_list[t_index]));
-			t_list[t_index].material_index = 0;
+			t_list[t_index].material_index = 2;
 			//t->SetAABB();
-		}
+		}*/
 	}
 
 	return t_list;
