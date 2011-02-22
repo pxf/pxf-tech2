@@ -235,8 +235,8 @@ int Client::run()
 						tr_conn->set_session_id(m_session_id);
 						tr_conn->set_connected_to_id(p->connection->session_id);
 
-						LiPacket* pkg = new LiPacket(p->connection, tr_conn, T_NODE_CONNECTION);
-						m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+						LiPacket* pkg = new LiPacket(m_tracker, tr_conn, T_NODE_CONNECTION);
+						m_ConnMan.send(m_tracker, pkg->data, pkg->length);
 
 						delete tr_conn;
 						delete pkg;
