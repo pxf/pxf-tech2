@@ -421,7 +421,7 @@ int Client::run()
 
 					if (m_Batches.count(proto_tasks->batchhash()) != 1)
 					{
-						m_Kernel->Log(m_log_tag, "Tasks sent without knowing batch data, dropping tasks!");
+						m_Kernel->Log(m_log_tag, "Got tasks without knowing batch data, dropping tasks!");
 						// TODO: Send tasks to another client?
 						delete proto_tasks;
 						break;
