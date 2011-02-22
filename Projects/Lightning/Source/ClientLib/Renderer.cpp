@@ -80,6 +80,14 @@ bool find_any_intersection_closer_than(batch_blob_t *datablob, ray_t *ray, float
 	//Primitive *closest_prim = 0x0;
 	intersection_response_t closest_resp;
 	
+	if(ray_tree_intersection(datablob->tree, ray, closest_resp)) {
+		if(max_distance > closest_resp.depth) {
+			*resp = closest_resp;
+			return true;
+		}
+	}
+
+	/*
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
 		// test intersection
@@ -94,6 +102,7 @@ bool find_any_intersection_closer_than(batch_blob_t *datablob, ray_t *ray, float
 			}
 		}
 	}
+	*/
 	
 	return false;
 }
@@ -106,9 +115,9 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, triangle_t **prim, in
 	//Primitive *closest_prim = 0x0;
 	intersection_response_t closest_resp;
 	
-	/*if(!datablob->tree) return false;
+	if(!datablob->tree) return false;
 
-	triangle_t* p = RayTreeIntersect(*datablob->tree,*ray,10000.0f,closest_resp);
+	triangle_t* p = ray_tree_intersection(datablob->tree, ray, closest_resp); //RayTreeIntersect(*datablob->tree,*ray,10000.0f,closest_resp);
 
 	if(p) 
 	{
@@ -116,9 +125,9 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, triangle_t **prim, in
 		*prim = p;
 		*resp = closest_resp;
 		found = true;
-	}*/
+	}
 
-	
+	/*
 	for(int i = 0; i < datablob->prim_count; ++i)
 	{
 		// test intersection
@@ -134,7 +143,7 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, triangle_t **prim, in
 				found = true;
 			}
 		}
-	}
+	} */
 	
 	return found;
 }

@@ -653,7 +653,7 @@ int main(int argc, char* argv[])
 			glEnd();
 
 			intersection_response_t resp;
-			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray,resp); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
 
 			glColor3f(0.25f,0.25f,0.25f);
 			gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);

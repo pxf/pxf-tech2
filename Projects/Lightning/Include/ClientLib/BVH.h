@@ -10,13 +10,21 @@ namespace Pxf {
 	}
 }
 
+struct intersection_response_t;
 struct node_t;
 struct triangle_t;
 struct tree_t;
 struct ray_t;
+struct aabb_t;
 
 tree_t* build(triangle_t* data,int num_triangles);
-triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray);
+triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_response_t &resp);
+
+
+struct aabb_t {
+	Pxf::Math::Vec3f min;
+	Pxf::Math::Vec3f max;
+};
 
 struct node_t
 {

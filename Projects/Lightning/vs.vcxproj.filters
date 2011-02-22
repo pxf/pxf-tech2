@@ -149,6 +149,9 @@
     <ClCompile Include="Source\ClientLib\client.pb.cc">
       <Filter>Client\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ClientLib\Renderer.cpp">
+      <Filter>Client\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Kernel.h">

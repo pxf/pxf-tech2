@@ -109,6 +109,7 @@
     <ClCompile Include="Source\ClientLib\client.pb.cc" />
     <ClCompile Include="Source\ClientLib\connectionmanager.cpp" />
     <ClCompile Include="Source\ClientLib\lightning.cpp" />
+    <ClCompile Include="Source\ClientLib\Renderer.cpp" />
     <ClCompile Include="Source\Client\client.cpp" />
     <ClCompile Include="Source\Client\main.cpp" />
   </ItemGroup>
