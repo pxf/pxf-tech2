@@ -2,6 +2,7 @@
 #include <Pxf/Base/Platform.h>
 #include <string>
 
+#include "../Client/client.h"
 #include <Renderer.h>
 
 #ifdef CONF_FAMILY_WINDOWS
@@ -30,6 +31,19 @@ public:
 			try
 			{
 				Task* req = m_Client->pop_request();
+				
+				if (m_Client->m_TaskQueue->get_available() == 0 && m_Client->m_Client->m_State.m_OutQueue.size() == 0)
+				{
+					m_Client->m_Client->signal_availability(1);
+				}
+				else if (m_Client->m_TaskQueue->get_available() < m_Client->m_TaskQueue->get_capacity())
+				{
+					m_Client->m_Client->m_State.m_OutQueue.Lock();
+				//	m_Client->push_request(m_Client->m_Client->m_State.m_OutQueue.front());
+				//	m_Client->m_Client->m_State.m_OutQueue.pop_front();
+					m_Client->m_Client->m_State.m_OutQueue.Unlock();
+				}
+
 				//req->task->PrintDebugString();
 
 				raytracer::Task *task_data = new raytracer::Task();
@@ -199,8 +213,9 @@ RaytracerClient::RaytracerClient(Pxf::Kernel* _Kernel)
 	m_Executor = new ZThread::PoolExecutor(m_NumWorkers);
 }
 
-void RaytracerClient::initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue)
+void RaytracerClient::initialize(Client* _Client, BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue)
 {
+	m_Client = _Client;
 	m_TaskQueue = _TaskQueue;
 	m_ResultQueue = _ResultQueue;
 	m_TaskQueue->register_type(LightningClient::RayTraceTask);

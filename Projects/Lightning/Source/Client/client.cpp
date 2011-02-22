@@ -235,8 +235,8 @@ int Client::run()
 						tr_conn->set_session_id(m_session_id);
 						tr_conn->set_connected_to_id(p->connection->session_id);
 
-						LiPacket* pkg = new LiPacket(p->connection, tr_conn, T_NODE_CONNECTION);
-						m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+						LiPacket* pkg = new LiPacket(m_tracker, tr_conn, T_NODE_CONNECTION);
+						m_ConnMan.send(m_tracker, pkg->data, pkg->length);
 
 						delete tr_conn;
 						delete pkg;
@@ -691,6 +691,22 @@ Connection* Client::find_connection(int _id)
 	
 	return NULL;
 }
+
+void Client::signal_availability(int _amount)
+{
+	tracker::NodeAvailable* request = new tracker::NodeAvailable();
+	request->set_session_id(m_session_id);
+	request->set_available(_amount);
+																	   
+	LiPacket* pkg = new LiPacket(m_tracker, request, T_NODE_AVAILABLE);
+	m_ConnMan.send(pkg->connection, pkg->data, pkg->length);
+																	   
+	m_Kernel->Log(m_log_tag, "Signal availability to tracker.");
+																	   
+	delete pkg;
+	delete request;
+}
+
 // Request nodes from tracker
 void Client::request_nodes(int _amount)
 {
@@ -842,7 +858,7 @@ Pxf::Util::Array<client::Tasks*> Client::split_tasks(client::Tasks* _tasks)
 
 void Client::attach(LightningClient* _client)
 {
-		_client->initialize(m_TaskQueue, m_ResultQueue);
+		_client->initialize(this, m_TaskQueue, m_ResultQueue);
 		_client->run_noblock();
 }
 
