@@ -223,6 +223,8 @@ int Client::run()
                         tracker::NodeConnection *node_connection = new tracker::NodeConnection();
                         node_connection->set_session_id(m_session_id);
                         node_connection->set_connected_to_id(p->connection->session_id);
+                        //LiPacket* tpkg = new LiPacket(m_tracker, node_connection, )
+                        //m_ConnMan.send(m_tracker, )
 
 
 						if (m_State.m_OutQueue.size() > 0)
