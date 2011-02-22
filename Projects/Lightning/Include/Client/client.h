@@ -41,10 +41,11 @@ class Client
 		int run();
 
 		void attach(LightningClient* _client);
+		void signal_availability(int _amount);
+		State m_State;
 
 	private:
 		ConnectionManager m_ConnMan;
-		State m_State;
 		Pxf::Kernel* m_Kernel;
 		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
 		Connection* m_tracker;
