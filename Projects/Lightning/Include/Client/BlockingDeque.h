@@ -25,6 +25,11 @@ public:
 	BlockingDeque(const T& crap)
 	{
 	}
+	
+	bool TryLock()
+	{
+		return m_Lock->tryAcquire(0);
+	}
 
 	void Lock()
 	{
