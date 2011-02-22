@@ -475,6 +475,7 @@ class TrackerDatabase:
 
             html_final += """
             </ul>
+            <br />
             <h1>Node connections</h1>
             <ul>
             """
@@ -482,8 +483,18 @@ class TrackerDatabase:
                 fr = self._clients[k]
                 to = self._clients[c]
                 html_final += "<li><span>{0} -> {1}</span></li>".format(fr[0], to[0])
-            
-            html_final += "</u>" + html_footer
+
+            html_final += """
+            </ul>
+            <br />
+            <h1>Wait list</h1>
+            <ul>
+            """
+            for k,n in self._waitlist.items():
+                client = self._clients[k]
+                html_final += "<li><span>{0} waits for {1} nodes.</span></li>".format(client[0], n)
+
+            html_final += "</ul>" + html_footer
             
             # TODO: Save html to file!
             #print html_final
@@ -505,6 +516,7 @@ class TrackerDatabase:
         """set_client_waiting(int session_id, int wants=1) -> nothing."""
 
         self._waitlist[session_id] = wants
+        self.update_html()
 
     def get_available_clients(self, min_available=1):
         """get_available_clients(int min_available=1) -> [(int session_id, int available)]."""
