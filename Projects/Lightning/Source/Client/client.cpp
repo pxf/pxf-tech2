@@ -219,6 +219,12 @@ int Client::run()
 							p->connection->session_id);
 						m_State.m_Allocated.push_back(p->connection);
 
+                        // Tell the tracker we connected to another node.
+                        tracker::NodeConnection *node_connection = new tracker::NodeConnection();
+                        node_connection->set_session_id(m_session_id);
+                        node_connection->set_connected_to_id(p->connection->session_id);
+
+
 						if (m_State.m_OutQueue.size() > 0)
 						{
 							m_Kernel->Log(m_log_tag, "Sending ALLOCATE request to %d",
