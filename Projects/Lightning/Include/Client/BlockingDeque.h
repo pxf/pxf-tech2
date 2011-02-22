@@ -8,15 +8,33 @@
 template <typename T>
 class BlockingDeque : public std::deque<T>
 {
-public:
-	BlockingDeque();
-	virtual ~BlockingDeque();
-	
-	void Lock();
-	void Unlock();
-
 private:
-	ZThread::FastMutex m_Lock;
+	ZThread::FastMutex* m_Lock;
+
+public:
+	BlockingDeque()
+	{
+		m_Lock = new ZThread::FastMutex();
+	}
+
+	virtual ~BlockingDeque()
+	{
+		delete m_Lock;
+	}
+
+	BlockingDeque(const T& crap)
+	{
+	}
+
+	void Lock()
+	{
+		m_Lock->acquire();
+	}
+
+	void Unlock()
+	{
+		m_Lock->release();
+	}
 };
 
 #endif /* _BLOCKINGDEQUE_H_ */

@@ -96,6 +96,11 @@ public:
 		m_capacity = _c;
 	}
 
+	int get_capacity()
+	{
+		return m_capacity;
+	}
+
 	T pop(unsigned int _Type)
 	{
 		ZThread::Guard<ZThread::FastMutex> g(m_Lock);

@@ -42,11 +42,14 @@ struct TaskResult
 	bool final;
 };
 */
+
+class Client;
+
 class LightningClient
 {
-protected:
+public:
+	Client* m_Client;
 	BlockingTaskQueue<Task*> *m_TaskQueue;
-	
 	typedef ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex> TaskResultQueue;
 	TaskResultQueue *m_ResultQueue;
 
@@ -57,7 +60,7 @@ public:
 	virtual void push_result(TaskResult* _Result) = 0;
 	virtual TaskResult* pop_result() = 0;
 
-	virtual void initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue) = 0;
+	virtual void initialize(Client* client, BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue) = 0;
 
 	virtual bool run() = 0;
 	virtual bool run_noblock() = 0;
@@ -79,7 +82,7 @@ public:
 	RaytracerClient(Pxf::Kernel* _Kernel);
 	~RaytracerClient();
 
-	virtual void initialize(BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue);
+	virtual void initialize(Client* client, BlockingTaskQueue<Task*>* _TaskQueue, ZThread::BlockingQueue<TaskResult*, ZThread::FastMutex>* _ResultQueue);
 
 	virtual void push_request(Task* _Request);
 	virtual Task* pop_request();
