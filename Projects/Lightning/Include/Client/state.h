@@ -12,14 +12,15 @@ enum ClientState {
 struct client_state
 {
 	ClientState state;
+	int send_tasks;
+	Batch* batch;
 };
 
 class State
 {
 	public:
 		Pxf::Util::Map<Connection*, client_state*> m_States;
-		Pxf::Util::Array<Connection*> m_Allocatees;
-		Pxf::Util::Array<Connection*> m_Allocated;
+		Pxf::Util::Array<Connection*> m_Clients;
 		std::deque<client::Tasks*> m_OutQueue;
 };
 

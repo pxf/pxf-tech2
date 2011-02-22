@@ -118,9 +118,9 @@ function spawn_toolwindow()
   tool_stack:addwidget(taskcount_inputs)
   
   -- task count slider
-  local taskcount_value = gui:create_labelpanel(0,0,60,26,"1x1")
-  local taskcount_slider = gui:create_slider(0,0,220,20,1,8,function (self) taskcount_value.label_text = tostring(2^self.value) .. "x" ..  tostring(2^self.value) end, true)
-  taskcount_slider:setvalue(1)
+  local taskcount_value = gui:create_labelpanel(0,0,60,26, tostring(2^settings.data.gridcount) .. "x" .. tostring(2^settings.data.gridcount))
+  local taskcount_slider = gui:create_slider(0,0,220,20,1,8,function (self) settings.data.gridcount = self.value; settings:save() taskcount_value.label_text = tostring(2^self.value) .. "x" ..  tostring(2^self.value) end, true)
+  taskcount_slider:setvalue(settings.data.gridcount)
   taskcount_inputs:addwidget(taskcount_slider)
   
   -- task count label
@@ -181,19 +181,33 @@ function spawn_toolwindow()
   local localport_input = gui:create_textinput(0,0,58,false,settings.data.localport, function (self) settings.data.localport = tostring(self.value); settings:save(); print("changed to: " .. tostring(self.value)) end)
   localhost_inputs:addwidget(localport_input)
   
+  -- button stack
+  local buttons_stack = gui:create_horizontalstack(0,0,280,46)
+  tool_stack:addwidget(buttons_stack)
+  
+  -- stop button
+  local stop_button = gui:create_labelbutton(0,0,80,32,"Stop", function (self) 
+    stoprender()
+    self.enabled = false
+  end)
+  stop_button.enabled = false
   
   -- render button
-  local render_button = gui:create_labelbutton(0,0,120,32,"Render", function () 
+  local render_button = gui:create_labelbutton(0,0,120,32,"Render", function (self) 
     print("Trying to send job to: " .. tostring(ip_input.value) .. ":" .. tostring(port_input.value))
     local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value),           -- remote client
                                   tostring(localip_input.value), tostring(localport_input.value), -- result ip:port
                                   interleaved_slider.value*interleaved_slider.value,              -- interleaved feedback
-                                  taskcount_slider.value)                                         -- task count
+                                  2^taskcount_slider.value)                                         -- task count
     if not succ then
       spawn_error_dialog({msg})
+    else
+      stop_button.enabled = true
     end
   end)
-  tool_stack:addwidget(render_button)
+  buttons_stack:addwidget(render_button)
+  
+  buttons_stack:addwidget(stop_button)
   
   -- divider
   local spacer = gui:create_stackdivider(0,0,280,20)

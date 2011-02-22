@@ -78,6 +78,7 @@ int task_count = 8;
 int task_size_w = w / task_count;
 int task_size_h = h / task_count;
 Texture **region_textures = 0;
+Util::String current_hash_str;
 
 void load_model(const char* path)
 {
@@ -226,6 +227,17 @@ int loadmodel_cb(lua_State* L)
 	}
 }
 
+int stoprender_cb(lua_State* L)
+{
+	if (recv_conn)
+	{
+		cman->remove_connection(recv_conn);
+	}
+	recv_conn = 0;
+	show_result = false;
+	return 0;
+}
+
 int startrender_cb(lua_State* L)
 {
 	// lua: startrender(remote client host, remote client port,
@@ -237,6 +249,15 @@ int startrender_cb(lua_State* L)
 		lua_pushstring(L, "Wrong parameter count to startrender(...).");
 		lua_error(L);
 		return 0;
+	}
+	
+	// Open send connection
+	Connection *conn = cman->new_connection(CLIENT);
+	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
+	{
+		lua_pushboolean(L, false);
+		lua_pushstring(L, "Could not connect to render client!");
+		return 2;
 	}
 	
 	// Open result connection
@@ -254,28 +275,28 @@ int startrender_cb(lua_State* L)
 		return 2;
 	}
 	
-	
-	Connection *conn = cman->new_connection(CLIENT);
-	if (!cman->connect_connection(conn, (char*)lua_tostring(L, 1), lua_tonumber(L, 2)))
-	{
-		lua_pushboolean(L, false);
-		lua_pushstring(L, "Could not connect to render client!");
-		return 2;
-	}
-	
-	// update grid count/size
+	// update/reset grid count/size
 	task_count = lua_tointeger(L, 6);
+	total_count = task_count*task_count;
+	total_done = 0;
 	task_size_w = w / task_count;
 	task_size_h = h / task_count;
+	
+	// update reqion textures
+	if (region_textures != 0)
+		delete [] region_textures;
 	region_textures = new Texture*[task_count*task_count];
 	for(size_t i = 0; i < task_count*task_count; ++i)
 	{
 		region_textures[i] = 0;
 	}
 	
+	// Start timer!
+	render_timer.Start();
+	
 	// create hello packet
 	client::Hello* hello_pack = new client::Hello();
-	hello_pack->set_address("localhost");
+	hello_pack->set_address((char*)lua_tostring(L, 3));
 	hello_pack->set_port(0);
 	hello_pack->set_session_id(-1);
 	LiPacket* hello_lipack = new LiPacket(conn, hello_pack, C_HELLO);
@@ -288,13 +309,13 @@ int startrender_cb(lua_State* L)
 	// Create hash of datablob
 	Util::String serialized_batch = new_pack->SerializeAsString();
 	unsigned long new_hash_num = RandUI32();//Hash((const char *)serialized_batch.c_str(), serialized_batch.size());
-	std::stringstream ss;
-	ss << new_hash_num;
-	Util::String new_hash_str = ss.str();
+	std::stringstream current_hash;
+	current_hash << new_hash_num;
+	current_hash_str = current_hash.str();
 
 	// Create datablob packets	
 	client::Data* data_pack = new client::Data();
-	data_pack->set_batchhash(new_hash_str);
+	data_pack->set_batchhash(current_hash_str);
 	data_pack->set_datasize(new_pack->ByteSize());
 	data_pack->set_datatype(RAYTRACER);
 	data_pack->set_data(new_pack->SerializeAsString());
@@ -327,7 +348,7 @@ int startrender_cb(lua_State* L)
 				// Send alloc request
 				client::AllocateClient* alloc_reqpack = new client::AllocateClient();
 				alloc_reqpack->set_amount(0); // TODO: Send real amount of tasks
-				alloc_reqpack->set_batchhash(new_hash_str); // TODO: Create a real hash of the batch data blob
+				alloc_reqpack->set_batchhash(current_hash_str);
 				alloc_reqpack->set_datatype(RAYTRACER);
 				LiPacket* alloc_reqlipack = new LiPacket(conn, alloc_reqpack, C_ALLOCATE);
 				cman->send(conn, alloc_reqlipack->data, alloc_reqlipack->length);
@@ -344,7 +365,7 @@ int startrender_cb(lua_State* L)
 
 				// Send tasks!
 				client::Tasks* tasks_pack = new client::Tasks();
-				tasks_pack->set_batchhash(new_hash_str);
+				tasks_pack->set_batchhash(current_hash_str);
 				for(int y = 0; y < task_count; y++)
 				{
 					for(int x = 0; x < task_count; x++)
@@ -502,6 +523,7 @@ int main(int argc, char* argv[])
 	app->BindExternalFunction("renderstatus", renderstatus_cb);
 	app->BindExternalFunction("loadmodel", loadmodel_cb);
 	app->BindExternalFunction("startrender", startrender_cb);
+	app->BindExternalFunction("stoprender", stoprender_cb);
 	app->BindExternalFunction("clientsstatus", clientsstatus_cb);
 	app->Boot();
 	bool running = true;
@@ -545,7 +567,7 @@ int main(int argc, char* argv[])
 	//client.wait();
 	//------------------------
 
-	render_timer.Start();
+	//render_timer.Start();
 
 	bool is_done = false;
 	bool exec_rt = false;
@@ -569,7 +591,7 @@ int main(int argc, char* argv[])
 			{
 				LiPacket* tpacket = new LiPacket((*i_tpacket));
 
-				Pxf::Message("aoe", "Got packet on SOME connection!");
+				//Pxf::Message("aoe", "Got packet on SOME connection!");
 				tpacket->get_type();
 				if (tpacket->message_type == C_RESULT)
 				{
@@ -581,6 +603,13 @@ int main(int argc, char* argv[])
 					res_raytrace_packet->ParseFromString(res_packet->result());
 					
 					Pxf::Message("aoe", "Got result packet for batch: %s, result id: %d.", res_packet->batchhash().c_str(), res_raytrace_packet->id());
+					
+					// See if we want this packet (might be an old hash/batch)
+					if (current_hash_str != res_packet->batchhash())
+					{
+						Pxf::Message("aoe", "Got old/wrong result (%s != %s)", current_hash_str.c_str(), res_packet->batchhash().c_str());
+						continue;
+					}
 					
 					// update recieved clients list
 					if (recieved_clients.find(tpacket->connection->target_address) == recieved_clients.end())
