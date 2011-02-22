@@ -171,6 +171,7 @@
     <ClInclude Include="Include\ClientLib\lightning.h" />
     <ClInclude Include="Include\ClientLib\lightning.pb.h" />
     <ClInclude Include="Include\ClientLib\tracker.pb.h" />
+    <ClInclude Include="Include\Client\BlockingDeque.h" />
     <ClInclude Include="Include\Client\client.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

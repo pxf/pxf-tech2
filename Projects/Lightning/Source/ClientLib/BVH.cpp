@@ -230,39 +230,6 @@ node_t* recurse(vector<entry_t> work, int depth)
 
 		/*
 		if(v < best_split_pos) {
-			left_entries.push_back(e);
-			if(maxpos > best_split_pos) 
-				right_entries.push_back(e);
-		} else {
-			right_entries.push_back(e);
-			if(minpos < best_split_pos) 
-				left_entries.push_back(e);
-		} */
-
-		/*
-		if(maxpos < best_split_pos) {
-			left_min = min_point(left_min,e.min);
-			left_max = max_point(left_max,e.max);
-			left_entries.push_back(e);
-		} else if(minpos > best_split_pos) {
-			right_min = min_point(right_min,e.min);
-			right_max = max_point(right_max,e.max);
-			right_entries.push_back(e);
-		} else {
-			left_min = min_point(left_min,e.min);
-			left_max = max_point(left_max,e.max);
-			left_max.SetAxis(best_axis,best_split_pos);
-
-			right_min = min_point(right_min,e.min);
-			right_max = max_point(right_max,e.max);
-			right_min.SetAxis(best_axis,best_split_pos);
-
-			left_entries.push_back(e);
-			right_entries.push_back(e);
-		}*/
-
-		/*
-		if(v < best_split_pos) {
 			left_min = min_point(left_min,e.min);
 			left_max = max_point(left_max,e.max);
 			left_entries.push_back(e);
@@ -630,8 +597,11 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_respons
 	Vec3f entry_v = o + d*t_min;
 	Vec3f exit_v = o + d*t_max;
 
+	if (t_min > 0.0f) stack[entry_ptr].p = o + d * t_min;
+	else stack[entry_ptr].p = o;
+
 	stack[entry_ptr].node = node;
-	stack[entry_ptr].p = entry_v;
+	//stack[entry_ptr].p = entry_v;
 
 	stack[exit_ptr].node = 0;
 	stack[exit_ptr].p = exit_v;
@@ -661,6 +631,7 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_respons
 				}
 
 				// parallel
+				//if(stack[exit_ptr].p.GetAxis(axis) >= split_pos && stack[exit_ptr].p.GetAxis(axis) <= (split_pos + KD_EPSILON))
 				if(stack[exit_ptr].p.GetAxis(axis) == split_pos)
 				{
 					// continue with right child
@@ -734,6 +705,135 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_respons
 		int count = node->data.leaf_node.tri_count;
 
 		float closest_depth = FLT_MAX;
+		ray_t r = *ray;
+		bool retval = false;
+
+		intersection_response_t _resp;
+
+		for(int i=0; i < count; i++) {
+			unsigned index = index_list[start_index + i];
+			triangle_t t = triangle_data[index];
+
+			if(ray_triangle(t.vertices,&r,&_resp)) {
+				retval = true;
+
+				if(_resp.depth < closest_depth) {
+					ret_p = &triangle_data[index];
+					closest_depth = resp.depth;
+				}
+			}
+		}
+
+		if(retval) {
+			resp = _resp;
+			return ret_p;
+		}
+
+		entry_ptr = exit_ptr;
+		node = stack[exit_ptr].node;
+		exit_ptr = stack[entry_ptr].prev;
+	}
+
+	return 0;
+}
+
+triangle_t* ray_tree_find_occluder(tree_t* tree, ray_t* ray, intersection_response_t &resp, float dist)
+{
+	Vec3f o = ray->o;
+	Vec3f d = ray->d;
+	Vec3f inv_d = Inverse(d);
+
+	ca_node_t* nodes = tree->nodes;
+	ca_node_t* node = nodes;
+
+	triangle_t* ret_p = 0;
+	triangle_t* triangle_data = tree->triangle_data;
+	int* index_list = tree->index_list;
+
+	float t_min=0.0f,t_max=dist;
+
+	// init stack
+	stack_entry_t* stack = tree->stack;
+	int entry_ptr=0,exit_ptr=1;
+	
+	Vec3f entry_v = o + d*t_min;
+	Vec3f exit_v = o + d*t_max;
+
+	stack[entry_ptr].node = node;
+	stack[entry_ptr].p = entry_v;
+
+	stack[exit_ptr].node = 0;
+	stack[exit_ptr].p = exit_v;
+
+	ca_node_t* near_node;
+	ca_node_t* far_node;
+
+	int i;
+
+	// build stack
+	while(node)
+	{
+		while(!node->is_leaf())
+		{
+			unsigned axis = node->axis;
+			float split_pos = node->split_pos;
+			
+			// determine near and far nodes 
+			if(stack[entry_ptr].p.GetAxis(axis) <= split_pos)
+			{
+				// enter point is on left side of split_position
+				if(stack[exit_ptr].p.GetAxis(axis) <= split_pos)
+				{
+					// ray hit left child
+					node = &nodes[node->data.inner_node.left_node];
+					continue;
+				}
+
+				// parallel
+				//if(stack[exit_ptr].p.GetAxis(axis) >= split_pos && stack[exit_ptr].p.GetAxis(axis) <= (split_pos + KD_EPSILON))
+				if(stack[exit_ptr].p.GetAxis(axis) == split_pos)
+				{
+					// continue with right child
+					node = &nodes[node->data.inner_node.right_node];
+					continue;
+				}
+
+				// ray hits both children
+				far_node = &nodes[node->data.inner_node.right_node];
+				node = &nodes[node->data.inner_node.left_node];
+			}
+			// ray origin is on right child
+			else 
+			{
+				// ray hits right only
+				if(stack[exit_ptr].p.GetAxis(axis) > split_pos)
+				{
+					node = &nodes[node->data.inner_node.right_node];
+					continue;
+				}
+
+				// ray hits both, in opposite directions
+				far_node = &nodes[node->data.inner_node.left_node];
+				node = &nodes[node->data.inner_node.right_node];
+			}
+			
+			// get distance to split position
+			float t_split = (split_pos - o.GetAxis(axis)) * inv_d.GetAxis(axis); //4 d.GetAxis(axis);
+
+			// set stack pointers
+			int ptr = exit_ptr++;
+			if(exit_ptr == entry_ptr)
+				exit_ptr++;
+
+			stack[exit_ptr].node = far_node;
+			stack[exit_ptr].p = o + d * t_split;
+			stack[exit_ptr].prev = ptr;
+		}
+
+		int start_index = node->data.leaf_node.list_index;
+		int count = node->data.leaf_node.tri_count;
+
+		float closest_depth = dist;
 		ray_t r = *ray;
 		bool retval = false;
 

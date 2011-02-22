@@ -19,7 +19,7 @@ struct aabb_t;
 
 tree_t* build(triangle_t* data,int num_triangles);
 triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_response_t &resp);
-
+triangle_t* ray_tree_find_occluder(tree_t* tree, ray_t* ray, intersection_response_t &resp, float dist);
 
 struct aabb_t {
 	Pxf::Math::Vec3f min;

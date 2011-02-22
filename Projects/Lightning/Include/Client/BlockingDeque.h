@@ -4,9 +4,9 @@
 #include <deque>
 #include <zthread/Guard.h>
 #include <zthread/FastMutex.h>
+#include <client.pb.h>
 
-template <typename T>
-class BlockingDeque : public std::deque<T>
+class BlockingDeque : public std::deque<client::Tasks*>
 {
 private:
 	ZThread::FastMutex* m_Lock;
@@ -22,8 +22,10 @@ public:
 		delete m_Lock;
 	}
 
-	BlockingDeque(const T& crap)
+	BlockingDeque(const client::Tasks& crap)
 	{
+		int i = 1;
+		printf("LOL");
 	}
 	
 	bool TryLock()

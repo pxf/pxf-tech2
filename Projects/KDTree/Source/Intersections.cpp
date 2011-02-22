@@ -30,7 +30,7 @@ bool ray_aabb(ray_t* ray,aabb* box,intersection_response_t* resp)
 			float t2 = max.GetAxis(i);
 
 			if(t1 > t2) 
-				swap(t1,t2);
+				std::swap(t1,t2);
 			if(t1 > t_min)
 				t_min = t1;
 			if(t2 < t_max) 

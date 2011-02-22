@@ -328,5 +328,8 @@
     <ClInclude Include="Include\ClientLib\tracker.pb.h">
       <Filter>Client\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Client\BlockingDeque.h">
+      <Filter>Client\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
