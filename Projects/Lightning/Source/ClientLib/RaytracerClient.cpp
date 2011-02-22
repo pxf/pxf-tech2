@@ -39,6 +39,18 @@ public:
 				else if (m_Client->m_TaskQueue->get_available() < m_Client->m_TaskQueue->get_capacity())
 				{
 					m_Client->m_Client->m_State.m_OutQueue.Lock();
+					
+					/*Batch* b = m_Batches[tasks->batchhash()];
+					int i = 0;
+
+					m_Kernel->Log(m_log_tag, "Got %d tasks from [%d]", num_tasks, p->connection->session_id);
+
+					// Fill internal queue
+					// Will only work with lazy evaluation, is it standard? Dunno.. JONTE
+					for ( ; (i < num_tasks) && m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)); i++)
+						;
+						*/
+					
 				//	m_Client->push_request(m_Client->m_Client->m_State.m_OutQueue.front());
 				//	m_Client->m_Client->m_State.m_OutQueue.pop_front();
 					m_Client->m_Client->m_State.m_OutQueue.Unlock();

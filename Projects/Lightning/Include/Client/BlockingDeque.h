@@ -14,12 +14,12 @@ private:
 public:
 	BlockingDeque()
 	{
-		m_Lock = new ZThread::FastMutex();
+		//m_Lock = new ZThread::FastMutex();
 	}
 
 	virtual ~BlockingDeque()
 	{
-		delete m_Lock;
+		//delete m_Lock;
 	}
 
 	BlockingDeque(const T& crap)
