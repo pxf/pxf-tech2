@@ -538,7 +538,6 @@ int Client::run()
 					m_State.m_OutQueue->Lock();
 					for ( ; (i < num_tasks) && m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)); i++)
 						;
-					m_State.m_OutQueue->Unlock();
 					/*while (m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)))
 					{
 						printf("PUSHED %d\n", i);
@@ -616,7 +615,6 @@ int Client::run()
 					}
 					n_tasks->set_batchhash(b->hash);
 
-					m_State.m_OutQueue->Lock();
 					m_State.m_OutQueue->push_back(n_tasks);
 					m_State.m_OutQueue->Unlock();
 
