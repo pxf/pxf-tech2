@@ -8,6 +8,7 @@
 #include <Pxf/Graphics/VertexBuffer.h>
 #include <Pxf/Kernel.h>
 #include <Pxf/Graphics/GraphicsDevice.h>
+#include <Pxf/Base/Timer.h>
 
 #include "BVH.h"
 #include "RenderUtils.h"
@@ -52,7 +53,7 @@ inline Vec3f max_point(Vec3f a,Vec3f b) {
 node_t* recurse(vector<entry_t> work, int depth)
 {
 	// early stop
-	if(work.size() < 4 || depth > 15)
+	if(work.size() < 8 || depth > 12)
 	{
 		leaf_node_t* leaf = new leaf_node_t;
 		for(vector<entry_t>::iterator it=work.begin(); it!=work.end();it++)
@@ -220,24 +221,13 @@ node_t* recurse(vector<entry_t> work, int depth)
 		float maxpos = e.max.GetAxis(best_axis);
 		float v = e.c.GetAxis(best_axis);
 
-		if(minpos <= best_split_pos) {
+		if(minpos < best_split_pos) {
 			left_entries.push_back(e);
 		}
 
-		if(maxpos > best_split_pos) {
+		if(maxpos >= best_split_pos) {
 			right_entries.push_back(e);
 		}
-
-		/*
-		if(v < best_split_pos) {
-			left_min = min_point(left_min,e.min);
-			left_max = max_point(left_max,e.max);
-			left_entries.push_back(e);
-		} else {
-			right_min = min_point(right_min,e.min);
-			right_max = max_point(right_max,e.max);
-			right_entries.push_back(e);
-		} */
 	}
 
 	debug_sp_t d_sp;
@@ -246,7 +236,7 @@ node_t* recurse(vector<entry_t> work, int depth)
 	d_sp.min = _min;
 	d_sp.max = _max;
 
-	//g_DebugBuf.push_back(d_sp);
+	g_DebugBuf.push_back(d_sp);
 
 	inner_node_t* inner_node = new inner_node_t;
 	inner_node->left = recurse(left_entries,depth+1);
@@ -284,9 +274,13 @@ void build_ca_nodes(ca_node_t* ca_nodes, node_t* node, unsigned& c, unsigned& t,
 		inner_node_t* n = (inner_node_t*) node;
 		ca_nodes[id].split_pos = n->split_pos;
 		ca_nodes[id].axis = n->axis;
-		ca_nodes[id].data.inner_node.left_node = ++c;
+		c++;
+		ca_nodes[id].data.inner_node.left_node = c;
+
 		build_ca_nodes(ca_nodes,n->left,c,t,index_list,start_tri);
-		ca_nodes[id].data.inner_node.right_node = ++c;
+		c++;
+		ca_nodes[id].data.inner_node.right_node = c;
+
 		build_ca_nodes(ca_nodes,n->right,c,t,index_list,start_tri);
 	} else {
 		leaf_node_t* n = (leaf_node_t*) node;
@@ -337,6 +331,9 @@ tree_t* build(triangle_t* data,int num_triangles)
 {
 	if(!data) return 0;
 
+	Pxf::Timer timer;
+	timer.Start();
+
 	vector<entry_t> work;
 	Vec3f tmin(FLT_MAX,FLT_MAX,FLT_MAX);
 	Vec3f tmax(-FLT_MAX,-FLT_MAX,-FLT_MAX);
@@ -363,7 +360,8 @@ tree_t* build(triangle_t* data,int num_triangles)
 
 		work.push_back(e);
 	}
-
+	
+	g_DebugBuf.clear();
 	node_t* root = recurse(work,0);
 	int box_count = count_nodes(root);
 	int tri_count = count_triangles(root);
@@ -389,9 +387,16 @@ tree_t* build(triangle_t* data,int num_triangles)
 	tree->triangle_data = data;
 	//tree->num_triangles = num_triangles;
 	tree->num_triangles = tri_count;
-
 	tree->stack = new stack_entry_t[box_count];
 
+	timer.Stop();
+
+	printf("\n\nNew Tree:\n----------\n");
+	printf("Build time: %i\n",timer.Interval());
+	printf("nodes: %i\n",box_count);
+	printf("triangle refs: %i\n\n", tri_count);
+
+	/*
 	Graphics::GraphicsDevice* gfx = Kernel::GetInstance()->GetGraphicsDevice();
 	if(g_DebugVB)
 		gfx->DestroyVertexBuffer(g_DebugVB);
@@ -401,7 +406,6 @@ tree_t* build(triangle_t* data,int num_triangles)
 	g_DebugVB->SetData(Pxf::Graphics::VB_VERTEX_DATA,0,3);
 	g_DebugVB->SetPrimitive(Graphics::VB_PRIMITIVE_LINES);
 
-	/*
 	vector<debug_sp_t>::iterator it = g_DebugBuf.begin();
 	Vec3f* buf = (Vec3f*) g_DebugVB->MapData(Graphics::VB_ACCESS_WRITE_ONLY);
 	
@@ -671,36 +675,6 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_respons
 			stack[exit_ptr].prev = ptr;
 		}
 
-		/*
-		triangle_t* data = node->GetPrimData();
-
-		if(data)
-		{
-			int nbr_prims = node->GetPrimCount();
-
-			bool retval = false;
-
-			float closest_depth = 10000.0f;
-			ray_t test_r = r;
-
-			for (i=0;i<nbr_prims;i++)
-			{	
-				//if(data[i]->Intersects(&test_r,&resp))
-				if(ray_triangle(data[i].vertices,&test_r,&resp))
-				{
-					retval = true;
-					if(resp.depth < closest_depth)
-					{
-						ret_p = &data[i];
-						closest_depth = resp.depth;
-					}
-				}
-			}
-
-			if(retval)
-				return ret_p;
-		} */
-
 		int start_index = node->data.leaf_node.list_index;
 		int count = node->data.leaf_node.tri_count;
 
@@ -719,13 +693,13 @@ triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_respons
 
 				if(_resp.depth < closest_depth) {
 					ret_p = &triangle_data[index];
-					closest_depth = resp.depth;
+					closest_depth = _resp.depth;
+					resp = _resp;
 				}
 			}
 		}
 
 		if(retval) {
-			resp = _resp;
 			return ret_p;
 		}
 
@@ -790,8 +764,8 @@ triangle_t* ray_tree_find_occluder(tree_t* tree, ray_t* ray, intersection_respon
 				}
 
 				// parallel
-				//if(stack[exit_ptr].p.GetAxis(axis) >= split_pos && stack[exit_ptr].p.GetAxis(axis) <= (split_pos + KD_EPSILON))
-				if(stack[exit_ptr].p.GetAxis(axis) == split_pos)
+				if(stack[exit_ptr].p.GetAxis(axis) >= split_pos && stack[exit_ptr].p.GetAxis(axis) <= (split_pos + KD_EPSILON))
+				//if(stack[exit_ptr].p.GetAxis(axis) == split_pos)
 				{
 					// continue with right child
 					node = &nodes[node->data.inner_node.right_node];
@@ -848,13 +822,13 @@ triangle_t* ray_tree_find_occluder(tree_t* tree, ray_t* ray, intersection_respon
 
 				if(_resp.depth < closest_depth) {
 					ret_p = &triangle_data[index];
-					closest_depth = resp.depth;
+					closest_depth = _resp.depth;
+					resp = _resp;
 				}
 			}
 		}
 
 		if(retval) {
-			resp = _resp;
 			return ret_p;
 		}
 

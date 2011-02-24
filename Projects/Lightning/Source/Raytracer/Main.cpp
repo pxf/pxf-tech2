@@ -535,7 +535,7 @@ int main(int argc, char* argv[])
 	blob.cam = &cam;
 
 	// load a model!
-	load_model("data/sphere.ctm");
+	load_model("data/box_2.ctm");
 
 	// Raytracer client test
 	//------------------------
@@ -661,6 +661,8 @@ int main(int argc, char* argv[])
 			//gfx->DrawBuffer(tree_VB,0);
 
 			// INIT DEBUG RAY
+
+			/*
 			t += 0.01f;
 
 			ray_t debug_ray;
@@ -680,6 +682,7 @@ int main(int argc, char* argv[])
 
 			intersection_response_t resp;
 			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray,resp); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
+			*/
 
 			glColor3f(0.25f,0.25f,0.25f);
 			gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);
@@ -687,13 +690,14 @@ int main(int argc, char* argv[])
 			glColor3f(1.0f,0.0f,0.0f);
 			//gfx->DrawBuffer(blob.tree->debug_buffer,0);
 
+			/*
 			if(p_res)
 			{
 				glColor3f(0.0f,0.0f,1.0f);
 				draw_triangle(*p_res);
 				//p_res->Draw();
-			}
-		}
+			} */
+		} 
 
 		glLoadIdentity();
 		// Setup view!!!!!!!!
