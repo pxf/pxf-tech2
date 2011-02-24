@@ -128,10 +128,10 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, triangle_t **prim, in
 
 	if(p) 
 	{
-		closest_depth = closest_resp.depth;
+		//closest_depth = closest_resp.depth;
 		*prim = p;
 		*resp = closest_resp;
-		found = true;
+		return true;
 	}
 
 	/*
@@ -204,8 +204,15 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 	intersection_response_t closest_resp;
 	if (find_intersection(datablob, ray, &closest_prim, &closest_resp))
 	{
+		/*
 		*res = closest_resp.n;
-		return true;
+
+		Vec3f n = closest_resp.n;
+
+		n = (n + Vec3f(1.0f,1.0f,1.0f)) * 0.5;
+		*res = n;
+
+		return true; */
 
 		//Pxf::Math::Vec3f eye_dir = ray.o - closest_resp.p;
 		//Normalize(eye_dir);
@@ -340,11 +347,12 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 	//Normalize(screen_coords);
 	screen_coords += cam->GetPos();
 
+	/*
 	if (!calc_multisample_ray(&cray, datablob, &fpixel, 0.001f, 0))
 	{
 		Pxf::Message("calculate_pixel", "Ray shooting failed!");
 		return false;
-	}
+	}*/
 
 	// find closest primitive
 	for(int pixel_x = 0; pixel_x < datablob->samples_per_pixel; ++pixel_x)

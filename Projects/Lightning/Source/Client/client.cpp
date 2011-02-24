@@ -429,7 +429,8 @@ int Client::run()
 								i = m_State.m_OutQueue->erase(i);
 								m_State.m_OutQueue->push_back(keep_t);
 
-								delete (*i);
+								// TODO: this line causes an assertion, does erase call delete on pointers?
+								//delete (*i);
 								delete send_t;
 								delete pkg;
 
