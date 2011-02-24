@@ -31,6 +31,7 @@ public:
 	bool TryLock()
 	{
 		return m_Lock.tryAcquire(0);
+		//return false;
 	}
 
 	void Lock()

@@ -220,6 +220,7 @@ int Client::run()
 				}
 				case OK:
 				{
+					m_State.m_OutQueue->Lock();
 					client_state* state = m_State.m_States[p->connection];
 					if (state->state == (WOK & W_HELLO))
 					{
@@ -242,6 +243,7 @@ int Client::run()
 						delete pkg;
 
 						// Send allocation request
+						
 						if (m_State.m_OutQueue->size() > 0)
 						{
 							Batch* b = m_Batches[m_State.m_OutQueue->front()->batchhash()];
@@ -249,11 +251,13 @@ int Client::run()
 						}
 						else
 							m_Kernel->Log(m_log_tag, "No tasks to be forwarded, doing nothing.");
+						
 					}
 					else
 						m_Kernel->Log(m_log_tag, "Why did [%d] send an OK?", p->connection->session_id);
 
 					// TODO: More stuff?
+					m_State.m_OutQueue->Unlock();
 					break;	
 				}
 				case GOODBYE:
@@ -330,6 +334,7 @@ int Client::run()
 				}
 				case C_ALLOC_RESP:
 				{
+					m_State.m_OutQueue->Lock();
 					m_Kernel->Log(m_log_tag, "Recieved allocation response.\n");
 					client::AllocateResponse *resp = (client::AllocateResponse*)(p->unpack());
 					
@@ -367,7 +372,7 @@ int Client::run()
 
 					// Send tasks to client
 					client_state* c_state = m_State.m_States[p->connection];
-
+					
 					std::deque<client::Tasks*>::iterator i = m_State.m_OutQueue->begin();
 
 					// Find a set the allocated client can handle
@@ -440,6 +445,7 @@ int Client::run()
 							i++;
 					}
 
+					m_State.m_OutQueue->Unlock();
 					delete resp;
 					break;
 				}
@@ -496,6 +502,7 @@ int Client::run()
 				}
 				case C_TASKS:
 				{
+					m_State.m_OutQueue->Lock();
 					client::Tasks *tasks = (client::Tasks*)(p->unpack());
 
 					if (m_Batches.count(tasks->batchhash()) != 1)
@@ -603,14 +610,18 @@ int Client::run()
 					}
 					n_tasks->set_batchhash(b->hash);
 
+					//m_State.m_OutQueue->Lock();
 					m_State.m_OutQueue->push_back(n_tasks);
-
+					
+					m_State.m_OutQueue->Unlock();
 
 					delete tasks;
 					break;
 				}
 				case T_NODES_RESPONSE:
 				{
+					m_State.m_OutQueue->Lock();
+					
 					tracker::NodesResponse *nodes = (tracker::NodesResponse*)(p->unpack());
 					m_Kernel->Log(m_log_tag, "Allocation response from tracker, got %d nodes", nodes->nodes_size());
 
@@ -658,7 +669,8 @@ int Client::run()
 						delete hello;
 						delete hello_pkg;
 					}
-
+					
+					m_State.m_OutQueue->Unlock();
 					delete nodes;
 					break;
 				}

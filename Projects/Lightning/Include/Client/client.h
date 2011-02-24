@@ -43,15 +43,19 @@ class Client
 		void attach(LightningClient* _client);
 		void signal_availability(int _amount);
 		State m_State;
+		
+		// made these three public, needed inside RaytracerClient
+		BlockingTaskQueue<Task*>* m_TaskQueue;
+		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
+		Task* copy_task(const client::Tasks::Task& _task, Batch* _batch);
 
 	private:
 		ConnectionManager m_ConnMan;
 		Pxf::Kernel* m_Kernel;
-		Pxf::Util::Map<Pxf::Util::String, Batch*> m_Batches;
+		
 		Connection* m_tracker;
 
 		ZThread::ThreadedExecutor* m_ThreadedExecutor;
-		BlockingTaskQueue<Task*>* m_TaskQueue;
 		TaskResultQueue* m_ResultQueue;
 
 
@@ -68,7 +72,7 @@ class Client
 		void push(client::Tasks* _tasks);
 		void forward(Pxf::Util::Array<client::Tasks*> _tasks);
 		void list_connections();
-		Task* copy_task(const client::Tasks::Task& _task, Batch* _batch);
+		
 
 		Connection* find_connection(int _id);
 		void request_nodes(int _amount);

@@ -491,8 +491,9 @@ class TrackerDatabase:
             <ul>
             """
             for k,n in self._waitlist.items():
-                client = self._clients[k]
-                html_final += "<li><span>{0} waits for {1} nodes.</span></li>".format(client[0], n)
+                if k in self._clients:
+                    client = self._clients[k]
+                    html_final += "<li><span>{0} waits for {1} nodes.</span></li>".format(client[0], n)
 
             html_final += "</ul>" + html_footer
             

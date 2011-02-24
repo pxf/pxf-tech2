@@ -40,6 +40,32 @@ public:
 				{
 					m_Client->m_Client->m_State.m_OutQueue->Lock();
 					
+					// get first best tasks from the external queueueuelue
+					client::Tasks* tasks = m_Client->m_Client->m_State.m_OutQueue->front();//pop_front();
+					Batch* b = m_Client->m_Client->m_Batches[tasks->batchhash()];
+					m_Client->m_Client->m_State.m_OutQueue->pop_front();
+					
+					// use first task in tasks, put pack rest
+					if (tasks->task_size() > 1)
+					{
+						client::Tasks* new_tasks = new client::Tasks();
+						int i = 0;
+						for( ; i < tasks->task_size() - 1; i++)
+						{
+							client::Tasks::Task* new_task = new_tasks->add_task();
+							new_task->CopyFrom(tasks->task(i));
+						}
+						new_tasks->set_batchhash(b->hash);
+						//new_tasks->set_tasksize(tasks->task_size() - 1);
+						
+						m_Client->m_Client->m_State.m_OutQueue->push_front(new_tasks);
+					}
+					
+					// package the task into the internal queueluelue
+					m_Client->m_Client->m_TaskQueue->push(b->type, m_Client->m_Client->copy_task(tasks->task(tasks->task_size()-1), b));
+					
+					
+					
 					/*Batch* b = m_Batches[tasks->batchhash()];
 					int i = 0;
 
