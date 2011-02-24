@@ -534,9 +534,11 @@ int Client::run()
 
 					// Fill internal queue
 					// Will only work with lazy evaluation, is it standard? Dunno.. JONTE
+					
+					m_State.m_OutQueue->Lock();
 					for ( ; (i < num_tasks) && m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)); i++)
 						;
-
+					m_State.m_OutQueue->Unlock();
 					/*while (m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)))
 					{
 						printf("PUSHED %d\n", i);
