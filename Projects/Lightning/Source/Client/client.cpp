@@ -555,6 +555,7 @@ int Client::run()
 						// All tasks have been pushed to internal queue, no forwarding needed
 						m_Kernel->Log(m_log_tag, "No forwarding needed.");
 						delete tasks;
+						m_State.m_OutQueue->Unlock();
 						break;
 					}
 
