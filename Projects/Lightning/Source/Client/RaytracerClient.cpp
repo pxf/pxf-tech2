@@ -66,6 +66,8 @@ public:
 					
 						// package the task into the internal queueluelue
 						m_Client->m_Client->m_TaskQueue->push(b->type, m_Client->m_Client->copy_task(tasks->task(tasks->task_size()-1), b));
+					} else {
+						m_Client->m_Client->signal_availability(1);
 					}
 					
 					m_Client->m_Client->m_State.m_OutQueue->Unlock();
