@@ -647,8 +647,15 @@ int Client::run()
 						{
 							m_Kernel->Log(m_log_tag, "  already known! Sending allocation..");
 							m_State.m_OutQueue->Lock();
-							Batch* b = m_Batches[m_State.m_OutQueue->front()->batchhash()];
-							allocate_client(c, b, m_State.m_OutQueue->front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1));
+							
+							if (!m_State.m_OutQueue->empty())
+							{
+								Batch* b = m_Batches[m_State.m_OutQueue->front()->batchhash()];
+								allocate_client(c, b, m_State.m_OutQueue->front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1));
+							} else {
+								m_Kernel->Log(m_log_tag, "Allocation request for, but have 0 tasks.");
+							}
+							
 							m_State.m_OutQueue->Unlock();
 							continue;
 						}
