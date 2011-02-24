@@ -181,7 +181,8 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 	size_t materials_size = sizeof(MaterialLibrary);
 	npack->set_materials(Util::String((char*) &blob->materials,materials_size));
 
-	size_t triangle_size = sizeof(Triangle);
+	//size_t triangle_size = sizeof(Triangle);
+	size_t triangle_size = sizeof(triangle_t);
 	npack->set_primitive_data(Util::String((char*) blob->primitives,triangle_size * blob->prim_count));
 
 
@@ -454,7 +455,7 @@ int main(int argc, char* argv[])
 	// job specifics
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 4; // 10 -> 10*10 = 100
+	blob.samples_per_pixel = 1; // 10 -> 10*10 = 100
 	blob.bounce_count = 6; // Number of reflection bounces
 	blob.interleaved_feedback = 1;
 	
@@ -487,7 +488,7 @@ int main(int argc, char* argv[])
 	
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
-	light_mat1.diffuse = Vec3f(0.0f, 0.5f, 0.5f);
+	light_mat1.diffuse = Vec3f(0.0f, 1.0f, 0.5f);
 	light_mat1.ambient = Vec3f(0.1f,0.1f,0.1f);
 	light_mat2.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
 	light_mat2.ambient = Vec3f(0.3f,0.0f,0.1f);
@@ -496,11 +497,11 @@ int main(int argc, char* argv[])
 	blob.materials.Insert(light_mat2,1);
 	blob.materials.Insert(sphere_mat1,2);
 
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 60.0f, 15.0f), 0);//&light_mat1);
-	//blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -20.0f, -15.0f), 1); //&light_mat2);
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 160.0f, 15.0f), 1);//&light_mat1);
+	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -3.0f, -15.0f), 0); //&light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
-	blob.light_count = 1;
+	blob.light_count = 2;
 	
 	// create textures and primitive batches
 	//Texture *region_textures[task_count*task_count] = {0};
@@ -535,7 +536,7 @@ int main(int argc, char* argv[])
 	blob.cam = &cam;
 
 	// load a model!
-	load_model("data/box_2.ctm");
+	load_model("data/teapot.ctm");
 
 	// Raytracer client test
 	//------------------------

@@ -49,5 +49,7 @@ bool StdLogger::WriteImpl(unsigned int _Tag, const char** _TagTable, unsigned in
 	else
 		TagName = _TagTable[TagID];
 	
-	return printf("[%s] %s\n", TagName, _SrcBuffer) > 0;
+	int ret = printf("[%s] %s\n", TagName, _SrcBuffer);
+	fflush(stdout);
+	return ret > 0;
 }
