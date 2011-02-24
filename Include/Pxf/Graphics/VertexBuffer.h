@@ -2,6 +2,7 @@
 #define _PXF_GRAPHICS_VERTEXBUFFER_H_
 
 #include <Pxf/Base/Types.h>
+#include <Pxf/Base/Memory.h>
 #include <Pxf/Graphics/DeviceType.h> // enum DeviceType
 #include <Pxf/Graphics/GraphicsDevice.h>
 #include <Pxf/Graphics/DeviceResource.h>
@@ -61,7 +62,7 @@ namespace Pxf
 			AttributeData m_ColorAttributes;
 			AttributeData m_IndexAttributes;
 			AttributeData m_EdgeFlagAttributes;
-			AttributeData* m_TexCoordAttributes;
+			AttributeData m_TexCoordAttributes[8];
 
 		public:
 			VertexBuffer(GraphicsDevice* _pDevice, VertexBufferLocation _VertexBufferLocation, VertexBufferUsageFlag _VertexBufferUsageFlag)
@@ -72,7 +73,6 @@ namespace Pxf
 				, m_VertexBufferUsageFlag(_VertexBufferUsageFlag)
 				, m_VertexAttributes(0, 0)
 				, m_NormalAttributes(0, 0)
-				, m_TexCoordAttributes(0)
 				, m_ColorAttributes(0, 0)
 				, m_IndexAttributes(0, 0)
 				, m_EdgeFlagAttributes(0, 0)
@@ -82,7 +82,8 @@ namespace Pxf
 				, m_ByteCount(0)
 				, m_IsMapped(false)
 			{
-				m_TexCoordAttributes = new AttributeData[8]();
+				MemoryZero(m_TexCoordAttributes, sizeof(AttributeData) * 8);
+				//m_TexCoordAttributes = new AttributeData[8]();
 			}
 			
 			virtual ~VertexBuffer(){};

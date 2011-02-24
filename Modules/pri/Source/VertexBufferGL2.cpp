@@ -114,6 +114,7 @@ void VertexBufferGL2::_PreDraw()
 	if(m_Attributes & VB_TEXCOORD0_DATA)
 	{
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTexture(GL_TEXTURE0);
 		glTexCoordPointer(m_TexCoordAttributes[0].NumComponents, GL_FLOAT, m_VertexSize, GL::BufferObjectPtr(BufferOffset + m_TexCoordAttributes[0].StrideOffset));
 	}
 
