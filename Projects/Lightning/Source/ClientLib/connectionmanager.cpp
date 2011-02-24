@@ -1,5 +1,8 @@
 #include "connectionmanager.h"
 
+#include <zthread/Guard.h>
+#include <zthread/FastMutex.h>
+
 #define MAX_SEND_ITERATIONS 20
 
 Connection::Connection(ConnectionType _type, int _id)
@@ -8,6 +11,7 @@ Connection::Connection(ConnectionType _type, int _id)
 	, buffer_cur(NULL)
 	, buffer_size(0)
 	, id(_id)
+
 	, session_id(0)
 	, type(_type)
 	, bound(false)
@@ -408,6 +412,7 @@ void ConnectionManager::set_fdset()
 
 bool ConnectionManager::send(Connection *_connection, char *_msg, int _length)
 {	
+	ZThread::Guard<ZThread::FastMutex> g(m_Lock);
 	int sent, i=0, offset=0;
 
 	// Transmit the length of the message
