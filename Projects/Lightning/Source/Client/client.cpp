@@ -334,7 +334,7 @@ int Client::run()
 				}
 				case C_ALLOC_RESP:
 				{
-					m_State.m_OutQueue->Lock();
+					
 					m_Kernel->Log(m_log_tag, "Recieved allocation response.\n");
 					client::AllocateResponse *resp = (client::AllocateResponse*)(p->unpack());
 					
@@ -373,6 +373,7 @@ int Client::run()
 					// Send tasks to client
 					client_state* c_state = m_State.m_States[p->connection];
 					
+					m_State.m_OutQueue->Lock();
 					std::deque<client::Tasks*>::iterator i = m_State.m_OutQueue->begin();
 
 					// Find a set the allocated client can handle
@@ -395,6 +396,7 @@ int Client::run()
 								delete pkg;
 								delete (*i);
 								i = m_State.m_OutQueue->erase(i);
+								m_State.m_OutQueue->Unlock();
 
 								break; // Only send one set of tasks
 							}
@@ -433,6 +435,7 @@ int Client::run()
 
 								i = m_State.m_OutQueue->erase(i);
 								m_State.m_OutQueue->push_back(keep_t);
+								m_State.m_OutQueue->Unlock();
 
 								// TODO: this line causes an assertion, does erase call delete on pointers?
 								//delete (*i);
@@ -503,7 +506,7 @@ int Client::run()
 				}
 				case C_TASKS:
 				{
-					m_State.m_OutQueue->Lock();
+					//m_State.m_OutQueue->Lock();
 					client::Tasks *tasks = (client::Tasks*)(p->unpack());
 
 					if (m_Batches.count(tasks->batchhash()) != 1)
@@ -611,9 +614,8 @@ int Client::run()
 					}
 					n_tasks->set_batchhash(b->hash);
 
-					//m_State.m_OutQueue->Lock();
+					m_State.m_OutQueue->Lock();
 					m_State.m_OutQueue->push_back(n_tasks);
-					
 					m_State.m_OutQueue->Unlock();
 
 					delete tasks;
@@ -621,7 +623,7 @@ int Client::run()
 				}
 				case T_NODES_RESPONSE:
 				{
-					m_State.m_OutQueue->Lock();
+					//m_State.m_OutQueue->Lock();
 					
 					tracker::NodesResponse *nodes = (tracker::NodesResponse*)(p->unpack());
 					m_Kernel->Log(m_log_tag, "Allocation response from tracker, got %d nodes", nodes->nodes_size());
@@ -643,8 +645,10 @@ int Client::run()
 						if (c = find_connection(node.session_id()))
 						{
 							m_Kernel->Log(m_log_tag, "  already known! Sending allocation..");
+							m_State.m_OutQueue->Lock();
 							Batch* b = m_Batches[m_State.m_OutQueue->front()->batchhash()];
 							allocate_client(c, b, m_State.m_OutQueue->front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1));
+							m_State.m_OutQueue->Unlock();
 							continue;
 						}
 
@@ -656,7 +660,9 @@ int Client::run()
 						
 						client_state* state = new client_state;
 						state->state = (ClientState)(WOK & W_HELLO);
+						m_State.m_OutQueue->Lock();
 						state->send_tasks = m_State.m_OutQueue->front()->task_size() / (nodes->nodes_size() ? nodes->nodes_size() : 1);
+						m_State.m_OutQueue->Unlock();
 						m_State.m_States[new_node] = state;
 
 						client::Hello* hello = new client::Hello();
@@ -671,7 +677,7 @@ int Client::run()
 						delete hello_pkg;
 					}
 					
-					m_State.m_OutQueue->Unlock();
+					//m_State.m_OutQueue->Unlock();
 					delete nodes;
 					break;
 				}
