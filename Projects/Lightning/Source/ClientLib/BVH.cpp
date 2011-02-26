@@ -50,9 +50,97 @@ inline Vec3f max_point(Vec3f a,Vec3f b) {
 	return Vec3f(max(a.x,b.x),max(a.y,b.y),max(a.z,b.z));
 }
 
+#pragma pack (push)
+#pragma pack (1)
+
+struct bvh_header_t {
+	int		num_nodes;
+	int		num_triangles;
+	int		num_triangles_data;
+	Vec3f	min;
+	Vec3f	max;
+};
+
+#pragma pack (pop)
+
+tree_t* load_BVH(const char* path)
+{
+	if(!path) return 0;
+
+	tree_t* t = 0;
+	FILE* file = fopen(path,"rb");
+	size_t offset = 0;
+
+	if(!file) {
+		return 0;
+	}
+
+	t = new tree_t;
+
+	// read header
+	bvh_header_t h;
+	offset += fread((void*) &h,sizeof(bvh_header_t),1,file);
+
+	// read tri data
+	/*
+	size_t t_data_size = sizeof(triangle_t) * h.num_triangles_data;
+	triangle_t* t_data = (triangle_t*) malloc(t_data_size);
+	offset += fread((void*) t_data,1,t_data_size,file); */
+
+	// read index list
+	size_t i_list_size = sizeof(int) * h.num_triangles;
+	int* index_list = (int*) malloc(i_list_size);
+	offset += fread((void*) index_list,1,i_list_size,file);
+
+	// read node data
+	size_t n_data_size = sizeof(ca_node_t) * h.num_nodes;
+	ca_node_t* node_data = (ca_node_t*) malloc(n_data_size);
+	offset += fread((void*) node_data,1,n_data_size,file);
+
+	// set pointers and data
+	t->num_triangles = h.num_triangles;
+	t->num_nodes = h.num_nodes;
+	t->num_triangles_data = h.num_triangles_data;
+	t->min = h.min;
+	t->max = h.max;
+	t->index_list = index_list;
+	t->nodes = node_data;
+
+	return t;
+}
+
+void write_BVH(const char* path,tree_t* t) 
+{
+	if(!t || !t->triangle_data) return;
+	
+	bvh_header_t h;
+	h.num_nodes				= t->num_nodes;
+	h.num_triangles			= t->num_triangles;
+	h.num_triangles_data	= t->num_triangles_data;
+	h.min					= t->min;
+	h.max					= t->max;
+
+	FILE* file = fopen(path,"wb");
+	size_t offset = 0;
+
+	// write header
+	offset += fwrite((void*) &h,1,sizeof(bvh_header_t),file);
+
+	// write data
+	//offset += fwrite((void*) t->triangle_data,1,sizeof(triangle_t) * t->num_triangles_data,file);
+
+	// write index list
+	offset += fwrite((void*) t->index_list,1,sizeof(int) * t->num_triangles,file);
+
+	// write node data
+	offset += fwrite((void*) t->nodes,1,sizeof(ca_node_t) * t->num_nodes,file);
+}
+
+
 node_t* recurse(vector<entry_t> work, int depth)
 {
-	// early stop
+	// early stop, tweak values for amount of nodes
+	// TODO: defines? 
 	if(work.size() < 8 || depth > 12)
 	{
 		leaf_node_t* leaf = new leaf_node_t;
@@ -388,6 +476,8 @@ tree_t* build(triangle_t* data,int num_triangles)
 	//tree->num_triangles = num_triangles;
 	tree->num_triangles = tri_count;
 	tree->stack = new stack_entry_t[box_count];
+	tree->num_triangles_data = num_triangles;
+
 
 	timer.Stop();
 

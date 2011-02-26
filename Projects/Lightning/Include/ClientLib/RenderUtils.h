@@ -19,7 +19,8 @@ class BaseLight;
 
 void draw_light(BaseLight* light);
 void draw_triangle(triangle_t t);
-triangle_t* triangle_list(Pxf::Resource::Mesh* mesh);
+triangle_t* triangle_list(Pxf::Resource::Mesh* mesh,int mat_index = 0);
+triangle_t* merge_meshlist(Pxf::Resource::Mesh** meshes, int* materials, int num_meshes);
 
 enum PrimType { UndefinedPrim, SpherePrim, PlanePrim, PointLightPrim, AreaLightPrim, TrianglePrim };
 
