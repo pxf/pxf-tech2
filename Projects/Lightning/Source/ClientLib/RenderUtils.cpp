@@ -1,6 +1,7 @@
 #include "RenderUtils.h"
 #include <Pxf/Resource/Mesh.h>
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <string.h>
 
 using namespace Pxf;
 using namespace Resource;
