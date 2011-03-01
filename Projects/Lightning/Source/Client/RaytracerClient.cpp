@@ -48,12 +48,20 @@ public:
 						Batch* b = m_Client->m_Client->m_Batches[tasks->batchhash()];
 						m_Client->m_Client->m_State.m_OutQueue->pop_front();
 					
+						// package the task into the internal queueluelue
+						bool succ = m_Client->m_Client->m_TaskQueue->push(b->type, m_Client->m_Client->copy_task(tasks->task(tasks->task_size()-1), b));
+						int num_flytt = tasks->task_size() - 1;
+						if (!succ)
+						{
+							num_flytt = tasks->task_size();
+						}
+						
 						// use first task in tasks, put pack rest
 						if (tasks->task_size() > 1)
 						{
 							client::Tasks* new_tasks = new client::Tasks();
 							int i = 0;
-							for( ; i < tasks->task_size() - 1; i++)
+							for( ; i < num_flytt; i++)
 							{
 								client::Tasks::Task* new_task = new_tasks->add_task();
 								new_task->CopyFrom(tasks->task(i));
@@ -63,9 +71,7 @@ public:
 						
 							m_Client->m_Client->m_State.m_OutQueue->push_front(new_tasks);
 						}
-					
-						// package the task into the internal queueluelue
-						m_Client->m_Client->m_TaskQueue->push(b->type, m_Client->m_Client->copy_task(tasks->task(tasks->task_size()-1), b));
+						
 					} else {
 						m_Client->m_Client->signal_availability(1);
 					}

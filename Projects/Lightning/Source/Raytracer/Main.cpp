@@ -292,6 +292,9 @@ int startrender_cb(lua_State* L)
 		region_textures[i] = 0;
 	}
 	
+	// clear recv list
+	recieved_clients.clear();
+	
 	// Start timer!
 	render_timer.Start();
 	
