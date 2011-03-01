@@ -1,9 +1,12 @@
 #include <Pxf/Base/Platform.h>
+#include <Pxf/Base/Memory.h>
 #ifdef CONF_FAMILY_UNIX
 #include <sys/time.h> 
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <unistd.h>
+
+#include <pthread.h>
 
 using namespace Pxf;
 
@@ -43,5 +46,57 @@ int32 Platform::GetNumberOfProcessors()
 	n = (int)sysconf(_SC_NPROCESSORS_ONLN);
 	return n;
 }
+
+void Platform::ThreadSleep(int32 _ms)
+{
+	usleep(_ms*1000);
+}
+
+void* Platform::ThreadCreate(void (*func)(void *), void *userdata)
+{
+	pthread_t thread_id;
+	pthread_create(&thread_id, NULL, (void *(*)(void*))func, userdata);
+
+	return (void*)thread_id;
+}
+
+void Platform::ThreadWait(void* thread)
+{
+	pthread_join((pthread_t)thread, NULL);
+}
+
+void Platform::ThreadYield(void* thread)
+{
+	sched_yield();
+}
+
+Platform::Lock Platform::LockCreate()
+{
+	pthread_mutex_t* lock = (pthread_mutex_t*)MemoryAllocate(sizeof(pthread_mutex_t));
+	pthread_mutex_init(lock, 0);
+	return (Platform::Lock)lock;
+}
+
+void Platform::LockDestroy(Platform::Lock _Lock)
+{
+	pthread_mutex_destroy((pthread_mutex_t *)_Lock);
+	MemoryFree(_Lock);
+}
+
+bool Platform::LockTry(Platform::Lock _Lock)
+{
+	return pthread_mutex_trylock((pthread_mutex_t*)_Lock);
+}
+
+void Platform::LockWait(Platform::Lock _Lock)
+{
+	pthread_mutex_lock((pthread_mutex_t*)_Lock);
+}
+
+void Platform::LockRelease(Platform::Lock _Lock)
+{
+	pthread_mutex_unlock((pthread_mutex_t*)_Lock);
+}
+
 
 #endif // CONF_FAMILY_UNIX

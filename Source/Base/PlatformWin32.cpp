@@ -50,4 +50,52 @@ int32 Platform::GetNumberOfProcessors()
 	return si.dwNumberOfProcessors;
 }
 
+void Platform::ThreadSleep(int32 _ms)
+{
+	Sleep(_ms);
+}
+
+void* Platform::ThreadCreate(void (*func)(void *), void *userdata)
+{
+	return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)func, userdata, 0, NULL);
+}
+
+void Platform::ThreadWait(void* thread)
+{
+	WaitForSingleObject((HANDLE)thread, INFINITE)
+}
+
+void Platform::ThreadYield(void* thread)
+{
+	Sleep(0);
+}
+
+Platform::Lock Platform::LockCreate()
+{
+	CRITICAL_SECTION* lock = (CRITICAL_SECTION*)MemoryAllocate(sizeof(CRITICAL_SECTION));
+	InitializeCriticalSection((LPCRITICAL_SECTION)lock);
+	return (Platform::Lock)lock;
+}
+
+void Platform::LockDestroy(Platform::Lock _Lock)
+{
+	DeleteCriticalSection((LPCRITICAL_SECTION)_Lock);
+	MemoryFree(_Lock);
+}
+
+bool Platform::LockTry(Platform::Lock _Lock)
+{
+	return TryEnterCriticalSection((LPCRITICAL_SECTION)_Lock);
+}
+
+void Platform::LockWait(Platform::Lock _Lock)
+{
+	EnterCriticalSection((LPCRITICAL_SECTION)_Lock);
+}
+
+void Platform::LockRelease(Platform::Lock _Lock)
+{
+	LeaveCriticalSection((LPCRITICAL_SECTION)_Lock);
+}
+
 #endif // CONF_FAMILY_WINDOWS

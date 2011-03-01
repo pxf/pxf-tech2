@@ -25,6 +25,21 @@ namespace Pxf
 		
 		static int64 GetTime();
 		static int32 GetNumberOfProcessors();
+
+		/* Threading */
+		void ThreadSleep(int32 _ms);
+		void* ThreadCreate(void (*func)(void *), void *userdata);
+		void ThreadWait(void* thread);
+		void ThreadYield(void* thread);
+
+		/* Mutex */
+		typedef void* Lock;
+		Lock LockCreate();
+		void LockDestroy(Lock _Lock);
+		bool LockTry(Lock _Lock);
+		void LockWait(Lock _Lock);
+		void LockRelease(Lock _Lock);
+
 	};
 }
 
