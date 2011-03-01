@@ -58,8 +58,8 @@ public:
 						}
 						
 						// use first task in tasks, put pack rest
-						//if (tasks->task_size() > 1)
-						//{
+						if (tasks->task_size() <= num_start)
+						{
 							client::Tasks* new_tasks = new client::Tasks();
 							int i = num_start;
 							for( ; i < tasks->task_size(); i++)
@@ -71,7 +71,7 @@ public:
 							//new_tasks->set_tasksize(tasks->task_size() - 1);
 						
 							m_Client->m_Client->m_State.m_OutQueue->push_front(new_tasks);
-						//}
+						}
 						
 					} else {
 						m_Client->m_Client->signal_availability(1);
