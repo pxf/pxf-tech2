@@ -28,9 +28,10 @@ namespace Pxf
 
 		/* Threading */
 		void ThreadSleep(int32 _ms);
+		void ThreadYield();
+		
 		void* ThreadCreate(void (*func)(void *), void *userdata);
 		void ThreadWait(void* thread);
-		void ThreadYield(void* thread);
 
 		/* Mutex */
 		typedef void* Lock;
