@@ -54,6 +54,18 @@ public:
 						if (!succ)
 						{
 							printf("Could not move task from external to internal queulueue.\n");
+							
+							raytracer::Task *task_data = new raytracer::Task();
+							//printf("raw task data: %s\n", (req->task)->DebugString());
+							//(req->task)->PrintDebugString();
+
+							if (!task_data->ParseFromString(tasks->task(0).task()))//Array((const void*)(req->task)->task().c_str(), (req->task)->tasksize()))
+							{
+								printf("FAILED PARSE!\n");
+							}
+							
+							printf("failed with id: %d\n", task_data->id());
+							
 							num_start = 0;
 						}
 						
