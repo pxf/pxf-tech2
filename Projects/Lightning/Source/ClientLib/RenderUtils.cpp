@@ -1,6 +1,7 @@
 #include "RenderUtils.h"
 #include <Pxf/Resource/Mesh.h>
 #include <Pxf/Modules/pri/OpenGL.h>
+#include <string.h>
 
 using namespace Pxf;
 using namespace Resource;
@@ -53,7 +54,38 @@ void draw_triangle(triangle_t t)
 	glEnd();
 }
 
-triangle_t* triangle_list(Mesh* mesh)
+triangle_t* merge_meshlist(Mesh** meshes, int* materials, int num_meshes) 
+{
+
+	triangle_t* tlist = 0;
+	int t_count = 0;
+
+	// determine total size
+	for(int i=0; i < num_meshes; i++) {
+		t_count += meshes[i]->GetData()->triangle_count;
+	}
+
+	size_t tri_size = sizeof(triangle_t);
+	size_t read_size = tri_size * t_count;
+	tlist = (triangle_t*) malloc(read_size);
+	
+	int offset = 0;
+	for(int i=0; i < num_meshes; i++) {
+		Mesh* m = meshes[i];
+		triangle_t* t = triangle_list(m,materials[i]);
+
+		size_t bytes_to_read = tri_size * m->GetData()->triangle_count;
+		memcpy(tlist + offset,t,bytes_to_read);
+
+		offset += m->GetData()->triangle_count;
+
+		delete [] t;
+	}
+
+	return tlist;
+}
+
+triangle_t* triangle_list(Mesh* mesh,int mat_index)
 {
 	Mesh::mesh_descriptor* md = mesh->GetData();
 
@@ -61,20 +93,7 @@ triangle_t* triangle_list(Mesh* mesh)
 	int triangle_count = md->triangle_count;
 	const unsigned int* indices = md->indices;
 
-	//Triangle** t_list = new Triangle*[triangle_count]();
 	triangle_t* t_list = new triangle_t[triangle_count]();
-
-	/*
-	for(size_t i=0; i < triangle_count; i++)
-		t_list[i] = new Triangle(); */
-
-	// set default material to a white material.. 
-	/*
-	material_t* material_white = new material_t();
-	material_white->ambient = Pxf::Math::Vec3f(0.1f, 0.1f, 0.1f);
-	material_white->diffuse = Pxf::Math::Vec3f(0.2f, 0.2f, 0.2f);
-	material_white->reflectiveness = 0.0f;
-	material_white->matteness = 0.0f; */
 
 	for(int i = 0; i < triangle_count*3; i++)
 	{
@@ -94,22 +113,11 @@ triangle_t* triangle_list(Mesh* mesh)
 		int t_index = i / 3;
 		int v_index = i % 3; 
 
-		//triangle_t* t = t_list[i / 3];
-		//t->material = material_white;
-
 		t_list[t_index].vertices[v_index].v = vertex; // = *v;
 		t_list[t_index].vertices[v_index].n = normal;
 		t_list[t_index].vertices[v_index].uv = texcoord;
 
-		t_list[t_index].material_index = 0;
-
-		/*
-		if(v_index == 2)
-		{
-			//t_list[t_index].box = aabb(CalcAABB(t_list[t_index]));
-			t_list[t_index].material_index = 2;
-			//t->SetAABB();
-		}*/
+		t_list[t_index].material_index = mat_index;
 	}
 
 	return t_list;

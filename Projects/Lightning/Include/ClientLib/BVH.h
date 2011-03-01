@@ -21,6 +21,9 @@ tree_t* build(triangle_t* data,int num_triangles);
 triangle_t* ray_tree_intersection(tree_t* tree, ray_t* ray, intersection_response_t &resp);
 triangle_t* ray_tree_find_occluder(tree_t* tree, ray_t* ray, intersection_response_t &resp, float dist);
 
+tree_t* load_BVH(const char* path);
+void write_BVH(const char* path,tree_t* t);
+
 struct aabb_t {
 	Pxf::Math::Vec3f min;
 	Pxf::Math::Vec3f max;
@@ -91,6 +94,7 @@ struct tree_t
 	ca_node_t* nodes;
 	int num_nodes;
 	int num_triangles;
+	int num_triangles_data;
 	int* index_list;
 	triangle_t* triangle_data;
 

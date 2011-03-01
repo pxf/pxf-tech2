@@ -64,7 +64,9 @@ SimpleCamera cam;
 
 struct scene {
 	Resource::Mesh* mesh;
-	Graphics::Model* mdl;
+	Graphics::Model** mdl;
+
+	int mdl_count;
 } current_scene;
 
 // recieved clients/parts info
@@ -82,6 +84,8 @@ Util::String current_hash_str;
 
 void load_model(const char* path)
 {
+	if(!path) return;
+
 	Kernel* kernel = Pxf::Kernel::GetInstance();
 	Resource::Mesh* mesh = kernel->GetResourceManager()->Acquire<Resource::Mesh>(path);
 	Graphics::Model* model = kernel->GetGraphicsDevice()->CreateModel(mesh);
@@ -91,8 +95,10 @@ void load_model(const char* path)
 		if(current_scene.mesh)
 			kernel->GetResourceManager()->Release<Resource::Mesh>(mesh);
 
+		if(!current_scene.mdl) current_scene.mdl = new Graphics::Model*;
 		current_scene.mesh = mesh;
-		current_scene.mdl = model;
+		current_scene.mdl[0] = model;
+		current_scene.mdl_count = 1;
 
 
 		triangle_t* scene_data = triangle_list(mesh);
@@ -102,8 +108,17 @@ void load_model(const char* path)
 		blob.primitives = scene_data;
 		blob.prim_count = tri_count;
 
+		std::string path_ext(path);
+		path_ext += ".bvh";
+		
+		blob.tree = load_BVH(path_ext.c_str());
 
-		blob.tree = build(scene_data,tri_count);
+		if(!blob.tree) {
+			blob.tree = build(scene_data,tri_count);
+			write_BVH(path_ext.c_str(),blob.tree);
+		} else {
+			blob.tree->triangle_data = scene_data;
+		}
 	}
 	else
 		Pxf::Message("Main","Unable to load model");
@@ -418,6 +433,25 @@ int startrender_cb(lua_State* L)
 	return 2;
 }
 
+void generate_offline(const char* path) {
+	Kernel* kernel = Pxf::Kernel::GetInstance();
+	Resource::Mesh* mesh = kernel->GetResourceManager()->Acquire<Resource::Mesh>(path);
+
+	// build triangle data from mesh data
+	triangle_t* scene_data = triangle_list(mesh);
+	int tri_count = mesh->GetData()->triangle_count;
+
+	// build ext path
+	std::string path_ext(path);
+	path_ext += ".bvh";
+
+	tree_t* tree = build(scene_data,tri_count);
+	write_BVH(path_ext.c_str(),tree);
+
+	delete tree;
+}
+
+
 int main(int argc, char* argv[])
 {
 	Pxf::RandSetSeed(time(NULL));
@@ -431,6 +465,17 @@ int main(int argc, char* argv[])
 	Input::InputDevice* inp = kernel->GetInputDevice();
 	
 	res->DumpResourceLoaders();
+
+	// generate tree offline 
+	if(argc > 1) {
+		char* path = argv[1];
+		printf("generating BVH for %s\n",path);
+		
+		generate_offline(path);
+
+		delete kernel;
+		return 0;
+	}
 
 	Graphics::WindowSpecifications spec;
 	spec.Width = 512;
@@ -500,7 +545,7 @@ int main(int argc, char* argv[])
 	blob.materials.Insert(light_mat2,1);
 	blob.materials.Insert(sphere_mat1,2);
 
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 160.0f, 15.0f), 1);//&light_mat1);
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 560.0f, 15.0f), 1);//&light_mat1);
 	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -3.0f, -15.0f), 0); //&light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
@@ -539,7 +584,34 @@ int main(int argc, char* argv[])
 	blob.cam = &cam;
 
 	// load a model!
-	load_model("data/teapot.ctm");
+	//load_model("data/teapot.ctm");
+
+	/*
+	Pxf::Resource::Mesh* meshlist[2];
+	meshlist[0] = res->Acquire<Resource::Mesh>("data/moto.ctm");
+	meshlist[1] = res->Acquire<Resource::Mesh>("data/teapot.ctm");
+
+	int tri_count = 0;
+	for(int i=0; i < 2; i++) {
+		tri_count += meshlist[i]->GetData()->triangle_count;
+	}
+
+	int matlist[] = {0,1};
+	triangle_t* tlist = merge_meshlist(meshlist,matlist,2);
+	tree_t* tree = build(tlist,tri_count);
+
+
+	Pxf::Graphics::Model* mdllist[2];
+	mdllist[0] = gfx->CreateModel(meshlist[0]);
+	mdllist[1] = gfx->CreateModel(meshlist[1]);
+
+	current_scene.mdl = mdllist;
+	current_scene.mdl_count = 2;
+
+	blob.tree = tree;
+	blob.primitives = tlist;
+	blob.prim_count = tri_count;
+	*/
 
 	// Raytracer client test
 	//------------------------
@@ -689,7 +761,11 @@ int main(int argc, char* argv[])
 			*/
 
 			glColor3f(0.25f,0.25f,0.25f);
-			gfx->DrawBuffer(current_scene.mdl->GetVertexBuffer(),0);
+			if(current_scene.mdl) {
+				for(int i = 0; i < current_scene.mdl_count; i++) {
+					gfx->DrawBuffer(current_scene.mdl[i]->GetVertexBuffer(),0);
+				}
+			}
 
 			glColor3f(1.0f,0.0f,0.0f);
 			//gfx->DrawBuffer(blob.tree->debug_buffer,0);
