@@ -1,4 +1,5 @@
 #include <Pxf/Base/Platform.h>
+#include <Pxf/Base/Memory.h>
 #ifdef CONF_FAMILY_WINDOWS
 
 #define WIN32_LEAN_AND_MEAN 1
@@ -62,7 +63,7 @@ void* Platform::ThreadCreate(void (*func)(void *), void *userdata)
 
 void Platform::ThreadWait(void* thread)
 {
-	WaitForSingleObject((HANDLE)thread, INFINITE)
+	WaitForSingleObject((HANDLE)thread, INFINITE);
 }
 
 void Platform::ThreadYield(void* thread)
