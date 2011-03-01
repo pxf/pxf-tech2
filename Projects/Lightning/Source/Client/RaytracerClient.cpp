@@ -58,7 +58,7 @@ public:
 						}
 						
 						// use first task in tasks, put pack rest
-						if (tasks->task_size() <= num_start)
+						if (num_start < tasks->task_size())
 						{
 							client::Tasks* new_tasks = new client::Tasks();
 							int i = num_start;
