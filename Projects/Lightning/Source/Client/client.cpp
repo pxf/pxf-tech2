@@ -536,16 +536,16 @@ int Client::run()
 					// Will only work with lazy evaluation, is it standard? Dunno.. JONTE
 					
 					m_State.m_OutQueue->Lock();
-					for ( ; (i < num_tasks) && m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)); i++)
-						;
-					/*while (m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)))
+					//for ( ; (i < num_tasks) && m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)); i++)
+					//	;
+					while (m_TaskQueue->push(b->type, copy_task(tasks->task(i), b)))
 					{
 						printf("PUSHED %d\n", i);
 						if (i == num_tasks - 1)
 							break;
 
 						i++;
-					}*/
+					}
 					
 					// Tasks up until (but not including) >i< have ben stored in internal queue
 					m_Kernel->Log(m_log_tag, "Pushed %d tasks to internal queue.", i);

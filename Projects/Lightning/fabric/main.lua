@@ -45,5 +45,11 @@ function update()
 end
 
 function draw(force)
+  local actual_count = 2^settings.data.gridcount
+  for y=0,actual_count do
+    for x=0,actual_count do
+      panic.text(tostring(y*actual_count+x), x*(512/actual_count)+8, y*(512/actual_count)+8)
+    end
+  end
   gui:draw(true)
 end
