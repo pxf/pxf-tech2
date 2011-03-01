@@ -147,6 +147,11 @@ void MoveCamera(Camera* cam, Input::InputDevice* inp)
 	Math::Vec2i dpos;
 	inp->GetMousePos(&dpos.x,&dpos.y);
 	dpos = dpos - ms.last_pos;
+	
+	float acc = 1.0f;
+
+	if(inp->IsKeyDown(Pxf::Input::LSHIFT)) 
+		acc = 10.0f;
 
 	if(inp->IsButtonDown(Pxf::Input::MOUSE_LEFT) && !inp->IsButtonDown(Pxf::Input::MOUSE_RIGHT))
 	{
@@ -157,8 +162,11 @@ void MoveCamera(Camera* cam, Input::InputDevice* inp)
 		pp_vec.y = pos.y;
 
 		pp_vec = (pp_vec * -dpos.x) * 0.2f;
+		pp_vec.y = dpos.y*0.2f;
+		pp_vec *= acc;
 
-		c->Translate(pp_vec.x,dpos.y*0.2f,pp_vec.z); 
+		//c->Translate(pp_vec.x,dpos.y*0.2f,pp_vec.z); 
+		c->Translate(pp_vec);
 
 		ms.state = mouse_state::LEFT;
 	}
@@ -171,7 +179,7 @@ void MoveCamera(Camera* cam, Input::InputDevice* inp)
 	{
 		Math::Vec3f ed = c->GetDir();
 
-		c->Translate((ed)*dpos.y);
+		c->Translate((ed)*dpos.y * acc);
 		ms.state = mouse_state::LEFT_RIGHT;
 	}
 	else

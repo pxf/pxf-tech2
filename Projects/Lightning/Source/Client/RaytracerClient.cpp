@@ -48,12 +48,33 @@ public:
 						Batch* b = m_Client->m_Client->m_Batches[tasks->batchhash()];
 						m_Client->m_Client->m_State.m_OutQueue->pop_front();
 					
+						// package the task into the internal queueluelue
+						bool succ = m_Client->m_Client->m_TaskQueue->push(b->type, m_Client->m_Client->copy_task(tasks->task(0), b));
+						int num_start = 1;
+						if (!succ)
+						{
+							printf("Could not move task from external to internal queulueue.\n");
+							
+							raytracer::Task *task_data = new raytracer::Task();
+							//printf("raw task data: %s\n", (req->task)->DebugString());
+							//(req->task)->PrintDebugString();
+
+							if (!task_data->ParseFromString(tasks->task(0).task()))//Array((const void*)(req->task)->task().c_str(), (req->task)->tasksize()))
+							{
+								printf("FAILED PARSE!\n");
+							}
+							
+							printf("failed with id: %d\n", task_data->id());
+							
+							num_start = 0;
+						}
+						
 						// use first task in tasks, put pack rest
-						if (tasks->task_size() > 1)
+						if (num_start < tasks->task_size())
 						{
 							client::Tasks* new_tasks = new client::Tasks();
-							int i = 0;
-							for( ; i < tasks->task_size() - 1; i++)
+							int i = num_start;
+							for( ; i < tasks->task_size(); i++)
 							{
 								client::Tasks::Task* new_task = new_tasks->add_task();
 								new_task->CopyFrom(tasks->task(i));
@@ -63,9 +84,7 @@ public:
 						
 							m_Client->m_Client->m_State.m_OutQueue->push_front(new_tasks);
 						}
-					
-						// package the task into the internal queueluelue
-						m_Client->m_Client->m_TaskQueue->push(b->type, m_Client->m_Client->copy_task(tasks->task(tasks->task_size()-1), b));
+						
 					} else {
 						m_Client->m_Client->signal_availability(1);
 					}
@@ -154,8 +173,9 @@ public:
 				// unpack lights!
 				for(size_t i = 0; i < blob.light_count; i++)
 				{
-					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position();
+					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position(); 
 					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), 0);
+					blob.lights[i]->material_index = blob_proto->lights(i).material_index();
 				}
 
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;

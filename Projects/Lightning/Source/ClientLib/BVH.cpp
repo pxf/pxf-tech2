@@ -32,6 +32,10 @@ struct debug_sp_t {
 vector<debug_sp_t> g_DebugBuf;
 Graphics::VertexBuffer* g_DebugVB = 0;
 
+// global vert controllers (for debugging)
+int g_vert_done	= 0;
+int g_vert_total = 0;
+
 struct entry_t {
 	Vec3f min;
 	Vec3f max;
@@ -136,9 +140,17 @@ void write_BVH(const char* path,tree_t* t)
 	offset += fwrite((void*) t->nodes,1,sizeof(ca_node_t) * t->num_nodes,file);
 }
 
+Pxf::Timer g_timer;
 
 node_t* recurse(vector<entry_t> work, int depth)
 {
+	/*
+	if(g_timer.Interval() > 1000) { 
+		printf("status: %i vertices done\n",g_vert_done);
+		g_timer.Stop();
+		g_timer.Start();
+	}*/
+
 	// early stop, tweak values for amount of nodes
 	// TODO: defines? 
 	if(work.size() < 8 || depth > 12)
@@ -146,6 +158,15 @@ node_t* recurse(vector<entry_t> work, int depth)
 		leaf_node_t* leaf = new leaf_node_t;
 		for(vector<entry_t>::iterator it=work.begin(); it!=work.end();it++)
 			leaf->data.push_back(it->tri);
+
+		g_vert_done += work.size();
+
+		if(g_timer.Interval() > 1000) { 
+			printf("status: %i vertices done\n",g_vert_done);
+			g_timer.Stop();
+			g_timer.Start();
+		}
+
 
 		return leaf;
 	}
@@ -293,6 +314,16 @@ node_t* recurse(vector<entry_t> work, int depth)
 		leaf_node_t* node = new leaf_node_t;
 		for(vector<entry_t>::iterator it=work.begin(); it != work.end(); it++)
 			node->data.push_back(it->tri);
+
+		g_vert_done += work.size();
+
+
+		if(g_timer.Interval() > 1000) { 
+			printf("status: %i vertices done\n",g_vert_done);
+			g_timer.Stop();
+			g_timer.Start();
+		}
+
 		return node;
 	}
 
@@ -425,7 +456,12 @@ tree_t* build(triangle_t* data,int num_triangles)
 	vector<entry_t> work;
 	Vec3f tmin(FLT_MAX,FLT_MAX,FLT_MAX);
 	Vec3f tmax(-FLT_MAX,-FLT_MAX,-FLT_MAX);
+
+	printf("Calculating bounding boxes");
+	int d = num_triangles / 10;
 	for(int i=0; i < num_triangles; i++) {
+		if(i % d == 0)
+			printf(".");
 		triangle_t tri = data[i];
 		entry_t e(Vec3f(FLT_MAX,FLT_MAX,FLT_MAX),Vec3f(-FLT_MAX,-FLT_MAX,-FLT_MAX));
 		
@@ -448,9 +484,14 @@ tree_t* build(triangle_t* data,int num_triangles)
 
 		work.push_back(e);
 	}
+	printf("done\n");
 	
 	g_DebugBuf.clear();
+
+	printf("Building tree\n");
 	node_t* root = recurse(work,0);
+	printf("status: %i vertices done\n",g_vert_done);
+
 	int box_count = count_nodes(root);
 	int tri_count = count_triangles(root);
 

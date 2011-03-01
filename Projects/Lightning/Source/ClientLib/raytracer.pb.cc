@@ -110,8 +110,9 @@ void protobuf_AssignDesc_raytracer_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DataBlob_PrimitiveSphere));
   DataBlob_PointLight_descriptor_ = DataBlob_descriptor_->nested_type(2);
-  static const int DataBlob_PointLight_offsets_[1] = {
+  static const int DataBlob_PointLight_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PointLight, position_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PointLight, material_index_),
   };
   DataBlob_PointLight_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -261,7 +262,7 @@ void protobuf_AddDesc_raytracer_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017raytracer.proto\022\traytracer\"\333\006\n\010DataBlo"
+    "\n\017raytracer.proto\022\traytracer\"\363\006\n\010DataBlo"
     "b\022\022\n\nprim_count\030\001 \002(\005\022\023\n\013light_count\030\002 \002"
     "(\005\022\017\n\007samples\030\003 \003(\002\022\024\n\014bounce_count\030\004 \002("
     "\005\022\r\n\005pic_w\030\005 \002(\005\022\r\n\005pic_h\030\006 \002(\005\022\031\n\021sampl"
@@ -274,20 +275,21 @@ void protobuf_AddDesc_raytracer_2eproto() {
     "\004tree\030\016 \002(\0132\027.raytracer.DataBlob.BVH\032(\n\005"
     "Vec3f\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002(\002\032L"
     "\n\017PrimitiveSphere\022+\n\010position\030\001 \002(\0132\031.ra"
-    "ytracer.DataBlob.Vec3f\022\014\n\004size\030\002 \002(\002\0329\n\n"
+    "ytracer.DataBlob.Vec3f\022\014\n\004size\030\002 \002(\002\032Q\n\n"
     "PointLight\022+\n\010position\030\001 \002(\0132\031.raytracer"
-    ".DataBlob.Vec3f\032}\n\006Camera\022+\n\010position\030\001 "
-    "\002(\0132\031.raytracer.DataBlob.Vec3f\022\020\n\010orient"
-    "_x\030\002 \002(\002\022\020\n\010orient_y\030\003 \002(\002\022\020\n\010orient_z\030\004"
-    " \002(\002\022\020\n\010orient_w\030\005 \002(\002\032\221\001\n\003BVH\022\r\n\005nodes\030"
-    "\001 \002(\014\022\021\n\tnum_nodes\030\002 \002(\005\022\022\n\nindex_list\030\003"
-    " \002(\014\022)\n\006minpos\030\004 \002(\0132\031.raytracer.DataBlo"
-    "b.Vec3f\022)\n\006maxpos\030\005 \002(\0132\031.raytracer.Data"
-    "Blob.Vec3f\">\n\004Task\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002("
-    "\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\"k\n\006Re"
-    "sult\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t"
-    "\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030\006 \002(\010\022\014\n\004s"
-    "ize\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 1063);
+    ".DataBlob.Vec3f\022\026\n\016material_index\030\002 \002(\005\032"
+    "}\n\006Camera\022+\n\010position\030\001 \002(\0132\031.raytracer."
+    "DataBlob.Vec3f\022\020\n\010orient_x\030\002 \002(\002\022\020\n\010orie"
+    "nt_y\030\003 \002(\002\022\020\n\010orient_z\030\004 \002(\002\022\020\n\010orient_w"
+    "\030\005 \002(\002\032\221\001\n\003BVH\022\r\n\005nodes\030\001 \002(\014\022\021\n\tnum_nod"
+    "es\030\002 \002(\005\022\022\n\nindex_list\030\003 \002(\014\022)\n\006minpos\030\004"
+    " \002(\0132\031.raytracer.DataBlob.Vec3f\022)\n\006maxpo"
+    "s\030\005 \002(\0132\031.raytracer.DataBlob.Vec3f\">\n\004Ta"
+    "sk\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001"
+    "w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\"k\n\006Result\022\n\n\002id\030\001 \002(\005"
+    "\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005"
+    " \002(\005\022\r\n\005final\030\006 \002(\010\022\014\n\004size\030\007 \002(\005\022\014\n\004dat"
+    "a\030\010 \002(\014", 1087);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raytracer.proto", &protobuf_RegisterTypes);
   DataBlob::default_instance_ = new DataBlob();
@@ -857,6 +859,7 @@ void DataBlob_PrimitiveSphere::Swap(DataBlob_PrimitiveSphere* other) {
 
 #ifndef _MSC_VER
 const int DataBlob_PointLight::kPositionFieldNumber;
+const int DataBlob_PointLight::kMaterialIndexFieldNumber;
 #endif  // !_MSC_VER
 
 DataBlob_PointLight::DataBlob_PointLight()
@@ -877,6 +880,7 @@ DataBlob_PointLight::DataBlob_PointLight(const DataBlob_PointLight& from)
 void DataBlob_PointLight::SharedCtor() {
   _cached_size_ = 0;
   position_ = NULL;
+  material_index_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -915,6 +919,7 @@ void DataBlob_PointLight::Clear() {
     if (_has_bit(0)) {
       if (position_ != NULL) position_->::raytracer::DataBlob_Vec3f::Clear();
     }
+    material_index_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -932,6 +937,22 @@ bool DataBlob_PointLight::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_position()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_material_index;
+        break;
+      }
+      
+      // required int32 material_index = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_material_index:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &material_index_)));
+          _set_bit(1);
         } else {
           goto handle_uninterpreted;
         }
@@ -963,6 +984,11 @@ void DataBlob_PointLight::SerializeWithCachedSizes(
       1, this->position(), output);
   }
   
+  // required int32 material_index = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->material_index(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -976,6 +1002,11 @@ void DataBlob_PointLight::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->position(), target);
+  }
+  
+  // required int32 material_index = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->material_index(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -994,6 +1025,13 @@ int DataBlob_PointLight::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->position());
+    }
+    
+    // required int32 material_index = 2;
+    if (has_material_index()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->material_index());
     }
     
   }
@@ -1026,6 +1064,9 @@ void DataBlob_PointLight::MergeFrom(const DataBlob_PointLight& from) {
     if (from._has_bit(0)) {
       mutable_position()->::raytracer::DataBlob_Vec3f::MergeFrom(from.position());
     }
+    if (from._has_bit(1)) {
+      set_material_index(from.material_index());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1043,7 +1084,7 @@ void DataBlob_PointLight::CopyFrom(const DataBlob_PointLight& from) {
 }
 
 bool DataBlob_PointLight::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
   
   if (has_position()) {
     if (!this->position().IsInitialized()) return false;
@@ -1054,6 +1095,7 @@ bool DataBlob_PointLight::IsInitialized() const {
 void DataBlob_PointLight::Swap(DataBlob_PointLight* other) {
   if (other != this) {
     std::swap(position_, other->position_);
+    std::swap(material_index_, other->material_index_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
