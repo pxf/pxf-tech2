@@ -49,19 +49,20 @@ public:
 						m_Client->m_Client->m_State.m_OutQueue->pop_front();
 					
 						// package the task into the internal queueluelue
-						bool succ = m_Client->m_Client->m_TaskQueue->push(b->type, m_Client->m_Client->copy_task(tasks->task(tasks->task_size()-1), b));
-						int num_flytt = tasks->task_size() - 1;
+						bool succ = m_Client->m_Client->m_TaskQueue->push(b->type, m_Client->m_Client->copy_task(tasks->task(0), b));
+						int num_start = 1;
 						if (!succ)
 						{
-							num_flytt = tasks->task_size();
+							printf("Could not move task from external to internal queulueue.\n");
+							num_start = 0;
 						}
 						
 						// use first task in tasks, put pack rest
-						if (tasks->task_size() > 1)
-						{
+						//if (tasks->task_size() > 1)
+						//{
 							client::Tasks* new_tasks = new client::Tasks();
-							int i = 0;
-							for( ; i < num_flytt; i++)
+							int i = num_start;
+							for( ; i < tasks->task_size(); i++)
 							{
 								client::Tasks::Task* new_task = new_tasks->add_task();
 								new_task->CopyFrom(tasks->task(i));
@@ -70,7 +71,7 @@ public:
 							//new_tasks->set_tasksize(tasks->task_size() - 1);
 						
 							m_Client->m_Client->m_State.m_OutQueue->push_front(new_tasks);
-						}
+						//}
 						
 					} else {
 						m_Client->m_Client->signal_availability(1);
