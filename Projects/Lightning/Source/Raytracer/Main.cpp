@@ -187,7 +187,9 @@ raytracer::DataBlob* gen_packet_from_blob(batch_blob_t* blob)
 			raytracer::DataBlob::Vec3f* p = light_pack->mutable_position();
 			p->set_x(l->p.x);
 			p->set_y(l->p.y);
-			p->set_z(l->p.z);
+			p->set_z(l->p.z);	
+
+			light_pack->set_material_index(l->material_index);
 		}
 	}
 
@@ -518,7 +520,7 @@ int main(int argc, char* argv[])
 	
 	sphere_mat1.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat1.diffuse = Vec3f(0.7f, 0.0f, 0.0f);
-	//sphere_mat1.reflectiveness = 1.0f;
+	sphere_mat1.reflectiveness = 1.0f;
 	//sphere_mat1.matteness = 0.0f;
 	
 	blob.prim_count = 0;
@@ -533,17 +535,18 @@ int main(int argc, char* argv[])
 	
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
-	light_mat1.diffuse = Vec3f(0.0f, 1.0f, 0.5f);
+	light_mat1.diffuse = Vec3f(0.5f, 0.0f, 0.5f);
 	light_mat1.ambient = Vec3f(0.1f,0.1f,0.1f);
-	light_mat2.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
+
+	light_mat2.diffuse = Vec3f(1.0f, 0.4f, 0.0f);
 	light_mat2.ambient = Vec3f(0.3f,0.0f,0.1f);
 
 	blob.materials.Insert(light_mat1,0);
 	blob.materials.Insert(light_mat2,1);
 	blob.materials.Insert(sphere_mat1,2);
 
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 560.0f, 15.0f), 1);//&light_mat1);
-	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -3.0f, -15.0f), 0); //&light_mat2);
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 560.0f, 15.0f), 0);//&light_mat1);
+	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -3.0f, -15.0f), 1); //&light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 2;

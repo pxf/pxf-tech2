@@ -306,17 +306,25 @@ class DataBlob_PointLight : public ::google::protobuf::Message {
   inline const ::raytracer::DataBlob_Vec3f& position() const;
   inline ::raytracer::DataBlob_Vec3f* mutable_position();
   
+  // required int32 material_index = 2;
+  inline bool has_material_index() const;
+  inline void clear_material_index();
+  static const int kMaterialIndexFieldNumber = 2;
+  inline ::google::protobuf::int32 material_index() const;
+  inline void set_material_index(::google::protobuf::int32 value);
+  
   // @@protoc_insertion_point(class_scope:raytracer.DataBlob.PointLight)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
   ::raytracer::DataBlob_Vec3f* position_;
+  ::google::protobuf::int32 material_index_;
   friend void  protobuf_AddDesc_raytracer_2eproto();
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1185,6 +1193,22 @@ inline ::raytracer::DataBlob_Vec3f* DataBlob_PointLight::mutable_position() {
   _set_bit(0);
   if (position_ == NULL) position_ = new ::raytracer::DataBlob_Vec3f;
   return position_;
+}
+
+// required int32 material_index = 2;
+inline bool DataBlob_PointLight::has_material_index() const {
+  return _has_bit(1);
+}
+inline void DataBlob_PointLight::clear_material_index() {
+  material_index_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 DataBlob_PointLight::material_index() const {
+  return material_index_;
+}
+inline void DataBlob_PointLight::set_material_index(::google::protobuf::int32 value) {
+  _set_bit(1);
+  material_index_ = value;
 }
 
 // -------------------------------------------------------------------

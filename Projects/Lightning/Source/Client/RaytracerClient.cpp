@@ -154,8 +154,9 @@ public:
 				// unpack lights!
 				for(size_t i = 0; i < blob.light_count; i++)
 				{
-					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position();
+					raytracer::DataBlob::Vec3f pb_pos = blob_proto->lights(i).position(); 
 					blob.lights[i] = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), 0);
+					blob.lights[i]->material_index = blob_proto->lights(i).material_index();
 				}
 
 				int sub_tasks_left = blob.interleaved_feedback*blob.interleaved_feedback;
