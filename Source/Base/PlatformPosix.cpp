@@ -52,7 +52,7 @@ void Platform::ThreadSleep(int32 _ms)
 	usleep(_ms*1000);
 }
 
-void Platform::ThreadYield(void* thread)
+void Platform::ThreadYield()
 {
 	sched_yield();
 }
