@@ -73,8 +73,8 @@ struct scene {
 Util::Map<Util::String, int> recieved_clients;
 
 // task/batch specific globals
-const int w = 256;
-const int h = 256;
+int w = 256;
+int h = 256;
 const int channels = 3;
 int task_count = 8;
 int task_size_w = w / task_count;
@@ -261,8 +261,9 @@ int startrender_cb(lua_State* L)
 	// lua: startrender(remote client host, remote client port,
   //                  results host, results port,
   //                  interleaved feedback,
-  //                  gridsize)
-	if (lua_gettop(L) != 6)
+  //                  gridsize,
+  //                  imagesize)
+	if (lua_gettop(L) != 7)
 	{
 		lua_pushstring(L, "Wrong parameter count to startrender(...).");
 		lua_error(L);
@@ -295,6 +296,10 @@ int startrender_cb(lua_State* L)
 	
 	// update/reset grid count/size
 	task_count = lua_tointeger(L, 6);
+	w = lua_tointeger(L, 7);
+	h = lua_tointeger(L, 7);
+	blob.pic_w = w;
+	blob.pic_h = h;
 	total_count = task_count*task_count;
 	total_done = 0;
 	task_size_w = w / task_count;

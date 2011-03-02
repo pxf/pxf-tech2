@@ -126,6 +126,24 @@ function spawn_toolwindow()
   -- task count label
   taskcount_inputs:addwidget(taskcount_value)
   
+  
+  -- imagesize label
+  local imagesize_label = gui:create_labelpanel(0,0,280,26,"Image size:")
+  tool_stack:addwidget(imagesize_label)
+  
+  -- imagesize-input stack
+  local imagesize_inputs = gui:create_horizontalstack(0,0,280,32)
+  tool_stack:addwidget(imagesize_inputs)
+  
+  -- imagesize slider
+  local imagesize_value = gui:create_labelpanel(0,0,60,26, tostring(2^(settings.data.imagesize + 5)) .. "x" .. tostring(2^(settings.data.imagesize + 5)))
+  local imagesize_slider = gui:create_slider(0,0,220,20,0,4, function (self) value = 2^(self.value + 5); settings.data.imagesize = self.value; settings:save() imagesize_value.label_text = tostring(value) .. "x" ..  tostring(value) end, true)
+  imagesize_slider:setvalue(settings.data.imagesize)
+  imagesize_inputs:addwidget(imagesize_slider)
+  
+  -- imagesize label
+  imagesize_inputs:addwidget(imagesize_value)
+  
   -- load model button
   local load_model_button = gui:create_labelbutton(128,0,120,32,"Load Model",
 		function () 
@@ -198,7 +216,8 @@ function spawn_toolwindow()
     local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value),           -- remote client
                                   tostring(localip_input.value), tostring(localport_input.value), -- result ip:port
                                   interleaved_slider.value*interleaved_slider.value,              -- interleaved feedback
-                                  2^taskcount_slider.value)                                         -- task count
+                                  2^taskcount_slider.value,                                       -- task count
+                                  2^(imagesize_slider.value + 5))                                 -- output image size
     if not succ then
       spawn_error_dialog({msg})
     else
@@ -231,6 +250,11 @@ function spawn_toolwindow()
   
   local spacer = gui:create_stackdivider(0,0,280,20)
   tool_stack:addwidget(spacer)
+  
+  -- gui options
+  local show_blocknumbering = gui:create_checkbox(0,0,280,"Show block numbers", function (self, value) settings.data.gui_showblocknumbers = value; settings:save(); print("Show block numbers: ".. tostring(value)) end )
+  show_blocknumbering.state = settings.data.gui_showblocknumbers
+  tool_stack:addwidget(show_blocknumbering)
   
   -- client results list
   local client_res_list = gui:create_multiline_label(0,0,300,300,{"-"})
