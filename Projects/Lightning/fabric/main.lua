@@ -19,7 +19,8 @@ settings = new_settings_handler("settings.ini", {rendersize = 512,
                                                  clientport = "50002",
                                                  localhost = "127.0.0.1",
                                                  localport = "4632",
-                                                 gui_showblocknumbers = true
+                                                 gui_showblocknumbers = true,
+												 model = ""
                                                 })
 settings:load()
 settings:save()

@@ -16,6 +16,9 @@ message DataBlob {
 	message PointLight {
 		required Vec3f position = 1;
 		required int32 material_index = 2;
+		optional float constant_attenuation = 3 [default = 2.0];
+		optional float linear_attenuation = 4 [default = 1.0];
+		optional float quadratic_attenuation = 5 [default = 0.5];
 	}
 	
 	message Camera {

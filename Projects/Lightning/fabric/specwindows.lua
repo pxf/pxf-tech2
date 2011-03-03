@@ -148,6 +148,8 @@ function spawn_toolwindow()
   local load_model_button = gui:create_labelbutton(128,0,120,32,"Load Model",
 		function () 
 			local path = app.opendialog() 
+			settings.data.model = path
+			settings:save()
 			loadmodel(path)
 		end)
   tool_stack:addwidget(load_model_button)

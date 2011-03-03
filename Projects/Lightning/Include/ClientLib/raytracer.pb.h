@@ -313,6 +313,27 @@ class DataBlob_PointLight : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 material_index() const;
   inline void set_material_index(::google::protobuf::int32 value);
   
+  // optional float constant_attenuation = 3 [default = 2];
+  inline bool has_constant_attenuation() const;
+  inline void clear_constant_attenuation();
+  static const int kConstantAttenuationFieldNumber = 3;
+  inline float constant_attenuation() const;
+  inline void set_constant_attenuation(float value);
+  
+  // optional float linear_attenuation = 4 [default = 1];
+  inline bool has_linear_attenuation() const;
+  inline void clear_linear_attenuation();
+  static const int kLinearAttenuationFieldNumber = 4;
+  inline float linear_attenuation() const;
+  inline void set_linear_attenuation(float value);
+  
+  // optional float quadratic_attenuation = 5 [default = 0.5];
+  inline bool has_quadratic_attenuation() const;
+  inline void clear_quadratic_attenuation();
+  static const int kQuadraticAttenuationFieldNumber = 5;
+  inline float quadratic_attenuation() const;
+  inline void set_quadratic_attenuation(float value);
+  
   // @@protoc_insertion_point(class_scope:raytracer.DataBlob.PointLight)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
@@ -320,11 +341,14 @@ class DataBlob_PointLight : public ::google::protobuf::Message {
   
   ::raytracer::DataBlob_Vec3f* position_;
   ::google::protobuf::int32 material_index_;
+  float constant_attenuation_;
+  float linear_attenuation_;
+  float quadratic_attenuation_;
   friend void  protobuf_AddDesc_raytracer_2eproto();
   friend void protobuf_AssignDesc_raytracer_2eproto();
   friend void protobuf_ShutdownFile_raytracer_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -1209,6 +1233,54 @@ inline ::google::protobuf::int32 DataBlob_PointLight::material_index() const {
 inline void DataBlob_PointLight::set_material_index(::google::protobuf::int32 value) {
   _set_bit(1);
   material_index_ = value;
+}
+
+// optional float constant_attenuation = 3 [default = 2];
+inline bool DataBlob_PointLight::has_constant_attenuation() const {
+  return _has_bit(2);
+}
+inline void DataBlob_PointLight::clear_constant_attenuation() {
+  constant_attenuation_ = 2;
+  _clear_bit(2);
+}
+inline float DataBlob_PointLight::constant_attenuation() const {
+  return constant_attenuation_;
+}
+inline void DataBlob_PointLight::set_constant_attenuation(float value) {
+  _set_bit(2);
+  constant_attenuation_ = value;
+}
+
+// optional float linear_attenuation = 4 [default = 1];
+inline bool DataBlob_PointLight::has_linear_attenuation() const {
+  return _has_bit(3);
+}
+inline void DataBlob_PointLight::clear_linear_attenuation() {
+  linear_attenuation_ = 1;
+  _clear_bit(3);
+}
+inline float DataBlob_PointLight::linear_attenuation() const {
+  return linear_attenuation_;
+}
+inline void DataBlob_PointLight::set_linear_attenuation(float value) {
+  _set_bit(3);
+  linear_attenuation_ = value;
+}
+
+// optional float quadratic_attenuation = 5 [default = 0.5];
+inline bool DataBlob_PointLight::has_quadratic_attenuation() const {
+  return _has_bit(4);
+}
+inline void DataBlob_PointLight::clear_quadratic_attenuation() {
+  quadratic_attenuation_ = 0.5f;
+  _clear_bit(4);
+}
+inline float DataBlob_PointLight::quadratic_attenuation() const {
+  return quadratic_attenuation_;
+}
+inline void DataBlob_PointLight::set_quadratic_attenuation(float value) {
+  _set_bit(4);
+  quadratic_attenuation_ = value;
 }
 
 // -------------------------------------------------------------------

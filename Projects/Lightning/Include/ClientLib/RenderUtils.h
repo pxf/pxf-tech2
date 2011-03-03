@@ -157,6 +157,11 @@ public:
 	virtual ~PointLight(){};
 	bool Intersects(ray_t *ray, intersection_response_t* resp) { return false; };
 	PrimType GetType() { return PointLightPrim; }
+
+	// attenuation params
+	float constant_attenuation;
+	float linear_attenuation;
+	float quadratic_attenuation;
 };
 
 class AreaLight : public BaseLight//public Primitive
