@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sstream>
+#include <string.h>
 #include "Renderer.h"
 #include "Camera.h"
 
@@ -234,7 +235,9 @@ int loadmodel_cb(lua_State* L)
 	if(lua_gettop(L) == 1)
 	{
 		const char* path = lua_tostring(L,1);
-		load_model(path);
+
+		if(path && strcmp(path,"") != 0)
+			load_model(path);
 
 		return 0;
 	}
@@ -505,7 +508,7 @@ int main(int argc, char* argv[])
 
 	// Setup connection manager and stuff!
 	cman = new ConnectionManager();
-	char pixels[w*h*channels];
+	char* pixels = new char[w*h*channels];
 	
 	// job specifics
 	blob.pic_w = w;

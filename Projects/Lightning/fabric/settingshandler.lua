@@ -47,10 +47,15 @@ function new_settings_handler(filename, defaults)
     	local str = file:read("*a")
     	indata = loadstring("return" .. str)()
     	for k,v in pairs(indata) do
-    	 if self.data[k] then
-    	   self.data[k] = v
-  	   end
+			if self.data[k] then
+				self.data[k] = v
+			end
     	end
+		
+		if settings.data.model then
+			loadmodel(settings.data.model)
+		end
+		
     	file:close()
     end
     print("Loaded settings from: " .. self.filename)
