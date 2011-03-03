@@ -198,8 +198,8 @@ int Client::run()
 						m_ConnMan.set_highest_fd();
 
 					//m_ConnMan.remove_connection(*i_conn);
-					//if (i_conn == m_ConnMan.m_Connections.end())
-					//	break;
+					if (i_conn == m_ConnMan.m_Connections.end())
+						break;
 					continue;
 				}
 
