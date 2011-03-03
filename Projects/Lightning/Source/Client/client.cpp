@@ -4,7 +4,7 @@
 
 #define INITIAL_QUEUE 6
 #define PING_INTERVAL 10000 // Ping interval in milliseconds
-#define PING_TIMEOUT 5000 // Ping timeout in milliseconds
+#define PING_TIMEOUT 20000 // Ping timeout in milliseconds
 
 class SendThread : public ZThread::Runnable
 {
