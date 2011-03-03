@@ -565,8 +565,8 @@ int main(int argc, char* argv[])
 	// create textures and primitive batches
 	//Texture *region_textures[task_count*task_count] = {0};
 	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("data/unfinished.png");
-	unfinished_task_texture->SetMagFilter(TEX_FILTER_NEAREST);
-	unfinished_task_texture->SetMinFilter(TEX_FILTER_NEAREST);
+	unfinished_task_texture->SetMagFilter(TEX_FILTER_LINEAR);
+	unfinished_task_texture->SetMinFilter(TEX_FILTER_LINEAR);
 
 	int ty = 0;
 	int tx = 0;
