@@ -112,6 +112,7 @@
     <ClCompile Include="Source\ClientLib\Renderer.cpp" />
     <ClCompile Include="Source\Client\client.cpp" />
     <ClCompile Include="Source\Client\main.cpp" />
+    <ClCompile Include="Source\Client\RaytracerClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Pxf\Input\InputDefs.h" />
