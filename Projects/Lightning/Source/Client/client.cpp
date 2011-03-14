@@ -48,13 +48,21 @@ public:
 				int retport = (*iter).second->return_port;
 
 				Connection* conn = m_ConnectionManager->new_connection(CLIENT);
-				m_ConnectionManager->connect_connection(conn, retaddr, retport);
-				
-				//std::string str = result->SerializeAsString();
-				LiPacket* pkg = new LiPacket(conn, result, C_RESULT);
-				m_ConnectionManager->send(pkg->connection, pkg->data, pkg->length);
-				//m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
-				m_ConnectionManager->remove_connection(conn);
+				if (!m_ConnectionManager->connect_connection(conn, retaddr, retport))
+				{
+					printf("Error, couldn't establish connection to work giver.\n");
+				}
+				else
+				{
+					//std::string str = result->SerializeAsString();
+					LiPacket* pkg = new LiPacket(conn, result, C_RESULT);
+					if (!m_ConnectionManager->send(pkg->connection, pkg->data, pkg->length) > 0)
+					{
+						printf("Error, unable to send result to work giver.\n");
+					}
+					//m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
+					m_ConnectionManager->remove_connection(conn);
+				}
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{
