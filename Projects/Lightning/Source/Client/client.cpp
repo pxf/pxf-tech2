@@ -47,21 +47,25 @@ public:
 				char* retaddr = (*iter).second->return_address;
 				int retport = (*iter).second->return_port;
 
-				Connection* conn = m_ConnectionManager->new_connection(CLIENT);
-				if (!m_ConnectionManager->connect_connection(conn, retaddr, retport))
+				while (true)
 				{
-					printf("Error, couldn't establish connection to work giver.\n");
-				}
-				else
-				{
-					//std::string str = result->SerializeAsString();
-					LiPacket* pkg = new LiPacket(conn, result, C_RESULT);
-					if (!m_ConnectionManager->send(pkg->connection, pkg->data, pkg->length) > 0)
+					Connection* conn = m_ConnectionManager->new_connection(CLIENT);
+					if (!m_ConnectionManager->connect_connection(conn, retaddr, retport))
 					{
-						printf("Error, unable to send result to work giver.\n");
+						printf("Error, couldn't establish connection to work giver.\n");
 					}
-					//m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
-					m_ConnectionManager->remove_connection(conn);
+					else
+					{
+						//std::string str = result->SerializeAsString();
+						LiPacket* pkg = new LiPacket(conn, result, C_RESULT);
+						if (!m_ConnectionManager->send(pkg->connection, pkg->data, pkg->length) > 0)
+						{
+							printf("Error, unable to send result to work giver.\n");
+						}
+						//m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
+						m_ConnectionManager->remove_connection(conn);
+						break;
+					}
 				}
 			}
 			catch (ZThread::Cancellation_Exception* e)
