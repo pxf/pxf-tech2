@@ -122,7 +122,7 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 		return false;
 	}
 
-	listen(sck, 10);
+	listen(sck, 50);
 
 	void *addr;
 
