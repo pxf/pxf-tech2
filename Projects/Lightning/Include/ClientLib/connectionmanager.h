@@ -88,6 +88,7 @@ class ConnectionManager
 		void set_fdset();
 
 	public:
+		friend class Client;
 		int m_log_tag;
 		Pxf::Util::Array<struct Connection *> m_Connections;
 

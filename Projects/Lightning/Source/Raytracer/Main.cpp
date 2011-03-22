@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sstream>
+#include <string.h>
 #include "Renderer.h"
 #include "Camera.h"
 
@@ -73,8 +74,8 @@ struct scene {
 Util::Map<Util::String, int> recieved_clients;
 
 // task/batch specific globals
-const int w = 256;
-const int h = 256;
+int w = 256;
+int h = 256;
 const int channels = 3;
 int task_count = 8;
 int task_size_w = w / task_count;
@@ -234,7 +235,9 @@ int loadmodel_cb(lua_State* L)
 	if(lua_gettop(L) == 1)
 	{
 		const char* path = lua_tostring(L,1);
-		load_model(path);
+
+		if(path && strcmp(path,"") != 0)
+			load_model(path);
 
 		return 0;
 	}
@@ -261,8 +264,9 @@ int startrender_cb(lua_State* L)
 	// lua: startrender(remote client host, remote client port,
   //                  results host, results port,
   //                  interleaved feedback,
-  //                  gridsize)
-	if (lua_gettop(L) != 6)
+  //                  gridsize,
+  //                  imagesize)
+	if (lua_gettop(L) != 7)
 	{
 		lua_pushstring(L, "Wrong parameter count to startrender(...).");
 		lua_error(L);
@@ -295,6 +299,10 @@ int startrender_cb(lua_State* L)
 	
 	// update/reset grid count/size
 	task_count = lua_tointeger(L, 6);
+	w = lua_tointeger(L, 7);
+	h = lua_tointeger(L, 7);
+	blob.pic_w = w;
+	blob.pic_h = h;
 	total_count = task_count*task_count;
 	total_done = 0;
 	task_size_w = w / task_count;
@@ -500,7 +508,7 @@ int main(int argc, char* argv[])
 
 	// Setup connection manager and stuff!
 	cman = new ConnectionManager();
-	char pixels[w*h*channels];
+	char* pixels = new char[w*h*channels];
 	
 	// job specifics
 	blob.pic_w = w;
@@ -557,8 +565,8 @@ int main(int argc, char* argv[])
 	// create textures and primitive batches
 	//Texture *region_textures[task_count*task_count] = {0};
 	Texture *unfinished_task_texture = Pxf::Kernel::GetInstance()->GetGraphicsDevice()->CreateTexture("data/unfinished.png");
-	unfinished_task_texture->SetMagFilter(TEX_FILTER_NEAREST);
-	unfinished_task_texture->SetMinFilter(TEX_FILTER_NEAREST);
+	unfinished_task_texture->SetMagFilter(TEX_FILTER_LINEAR);
+	unfinished_task_texture->SetMinFilter(TEX_FILTER_LINEAR);
 
 	int ty = 0;
 	int tx = 0;

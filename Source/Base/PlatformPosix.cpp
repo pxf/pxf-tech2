@@ -52,6 +52,11 @@ void Platform::ThreadSleep(int32 _ms)
 	usleep(_ms*1000);
 }
 
+void Platform::ThreadYield()
+{
+	sched_yield();
+}
+
 void* Platform::ThreadCreate(void (*func)(void *), void *userdata)
 {
 	pthread_t thread_id;
@@ -63,11 +68,6 @@ void* Platform::ThreadCreate(void (*func)(void *), void *userdata)
 void Platform::ThreadWait(void* thread)
 {
 	pthread_join((pthread_t)thread, NULL);
-}
-
-void Platform::ThreadYield(void* thread)
-{
-	sched_yield();
 }
 
 Platform::Lock Platform::LockCreate()

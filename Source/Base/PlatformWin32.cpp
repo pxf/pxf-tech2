@@ -1,4 +1,5 @@
 #include <Pxf/Base/Platform.h>
+#include <Pxf/Base/Memory.h>
 #ifdef CONF_FAMILY_WINDOWS
 
 #define WIN32_LEAN_AND_MEAN 1
@@ -55,6 +56,11 @@ void Platform::ThreadSleep(int32 _ms)
 	Sleep(_ms);
 }
 
+void Platform::ThreadYield()
+{
+	Sleep(0);
+}
+
 void* Platform::ThreadCreate(void (*func)(void *), void *userdata)
 {
 	return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)func, userdata, 0, NULL);
@@ -62,12 +68,7 @@ void* Platform::ThreadCreate(void (*func)(void *), void *userdata)
 
 void Platform::ThreadWait(void* thread)
 {
-	WaitForSingleObject((HANDLE)thread, INFINITE)
-}
-
-void Platform::ThreadYield(void* thread)
-{
-	Sleep(0);
+	WaitForSingleObject((HANDLE)thread, INFINITE);
 }
 
 Platform::Lock Platform::LockCreate()

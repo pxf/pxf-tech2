@@ -122,7 +122,7 @@ bool ConnectionManager::bind_connection(Connection *_connection, char *_address,
 		return false;
 	}
 
-	listen(sck, 10);
+	listen(sck, 50);
 
 	void *addr;
 
@@ -353,6 +353,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					{
 						c->buffer_size = 0;
 						remove_connection(c);
+						printf("Didn't get enough bytes for a read.\n");
 						continue;
 					}
 

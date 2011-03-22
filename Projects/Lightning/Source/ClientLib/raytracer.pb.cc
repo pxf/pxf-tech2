@@ -110,9 +110,12 @@ void protobuf_AssignDesc_raytracer_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DataBlob_PrimitiveSphere));
   DataBlob_PointLight_descriptor_ = DataBlob_descriptor_->nested_type(2);
-  static const int DataBlob_PointLight_offsets_[2] = {
+  static const int DataBlob_PointLight_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PointLight, position_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PointLight, material_index_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PointLight, constant_attenuation_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PointLight, linear_attenuation_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataBlob_PointLight, quadratic_attenuation_),
   };
   DataBlob_PointLight_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -262,7 +265,7 @@ void protobuf_AddDesc_raytracer_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017raytracer.proto\022\traytracer\"\363\006\n\010DataBlo"
+    "\n\017raytracer.proto\022\traytracer\"\330\007\n\010DataBlo"
     "b\022\022\n\nprim_count\030\001 \002(\005\022\023\n\013light_count\030\002 \002"
     "(\005\022\017\n\007samples\030\003 \003(\002\022\024\n\014bounce_count\030\004 \002("
     "\005\022\r\n\005pic_w\030\005 \002(\005\022\r\n\005pic_h\030\006 \002(\005\022\031\n\021sampl"
@@ -275,21 +278,23 @@ void protobuf_AddDesc_raytracer_2eproto() {
     "\004tree\030\016 \002(\0132\027.raytracer.DataBlob.BVH\032(\n\005"
     "Vec3f\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\t\n\001z\030\003 \002(\002\032L"
     "\n\017PrimitiveSphere\022+\n\010position\030\001 \002(\0132\031.ra"
-    "ytracer.DataBlob.Vec3f\022\014\n\004size\030\002 \002(\002\032Q\n\n"
-    "PointLight\022+\n\010position\030\001 \002(\0132\031.raytracer"
-    ".DataBlob.Vec3f\022\026\n\016material_index\030\002 \002(\005\032"
-    "}\n\006Camera\022+\n\010position\030\001 \002(\0132\031.raytracer."
-    "DataBlob.Vec3f\022\020\n\010orient_x\030\002 \002(\002\022\020\n\010orie"
-    "nt_y\030\003 \002(\002\022\020\n\010orient_z\030\004 \002(\002\022\020\n\010orient_w"
-    "\030\005 \002(\002\032\221\001\n\003BVH\022\r\n\005nodes\030\001 \002(\014\022\021\n\tnum_nod"
-    "es\030\002 \002(\005\022\022\n\nindex_list\030\003 \002(\014\022)\n\006minpos\030\004"
-    " \002(\0132\031.raytracer.DataBlob.Vec3f\022)\n\006maxpo"
-    "s\030\005 \002(\0132\031.raytracer.DataBlob.Vec3f\">\n\004Ta"
-    "sk\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001"
-    "w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\"k\n\006Result\022\n\n\002id\030\001 \002(\005"
-    "\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005"
-    " \002(\005\022\r\n\005final\030\006 \002(\010\022\014\n\004size\030\007 \002(\005\022\014\n\004dat"
-    "a\030\010 \002(\014", 1087);
+    "ytracer.DataBlob.Vec3f\022\014\n\004size\030\002 \002(\002\032\265\001\n"
+    "\nPointLight\022+\n\010position\030\001 \002(\0132\031.raytrace"
+    "r.DataBlob.Vec3f\022\026\n\016material_index\030\002 \002(\005"
+    "\022\037\n\024constant_attenuation\030\003 \001(\002:\0012\022\035\n\022lin"
+    "ear_attenuation\030\004 \001(\002:\0011\022\"\n\025quadratic_at"
+    "tenuation\030\005 \001(\002:\0030.5\032}\n\006Camera\022+\n\010positi"
+    "on\030\001 \002(\0132\031.raytracer.DataBlob.Vec3f\022\020\n\010o"
+    "rient_x\030\002 \002(\002\022\020\n\010orient_y\030\003 \002(\002\022\020\n\010orien"
+    "t_z\030\004 \002(\002\022\020\n\010orient_w\030\005 \002(\002\032\221\001\n\003BVH\022\r\n\005n"
+    "odes\030\001 \002(\014\022\021\n\tnum_nodes\030\002 \002(\005\022\022\n\nindex_l"
+    "ist\030\003 \002(\014\022)\n\006minpos\030\004 \002(\0132\031.raytracer.Da"
+    "taBlob.Vec3f\022)\n\006maxpos\030\005 \002(\0132\031.raytracer"
+    ".DataBlob.Vec3f\">\n\004Task\022\n\n\002id\030\001 \002(\005\022\t\n\001x"
+    "\030\002 \002(\005\022\t\n\001y\030\003 \002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\""
+    "k\n\006Result\022\n\n\002id\030\001 \002(\005\022\t\n\001x\030\002 \002(\005\022\t\n\001y\030\003 "
+    "\002(\005\022\t\n\001w\030\004 \002(\005\022\t\n\001h\030\005 \002(\005\022\r\n\005final\030\006 \002(\010"
+    "\022\014\n\004size\030\007 \002(\005\022\014\n\004data\030\010 \002(\014", 1188);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raytracer.proto", &protobuf_RegisterTypes);
   DataBlob::default_instance_ = new DataBlob();
@@ -860,6 +865,9 @@ void DataBlob_PrimitiveSphere::Swap(DataBlob_PrimitiveSphere* other) {
 #ifndef _MSC_VER
 const int DataBlob_PointLight::kPositionFieldNumber;
 const int DataBlob_PointLight::kMaterialIndexFieldNumber;
+const int DataBlob_PointLight::kConstantAttenuationFieldNumber;
+const int DataBlob_PointLight::kLinearAttenuationFieldNumber;
+const int DataBlob_PointLight::kQuadraticAttenuationFieldNumber;
 #endif  // !_MSC_VER
 
 DataBlob_PointLight::DataBlob_PointLight()
@@ -881,6 +889,9 @@ void DataBlob_PointLight::SharedCtor() {
   _cached_size_ = 0;
   position_ = NULL;
   material_index_ = 0;
+  constant_attenuation_ = 2;
+  linear_attenuation_ = 1;
+  quadratic_attenuation_ = 0.5f;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -920,6 +931,9 @@ void DataBlob_PointLight::Clear() {
       if (position_ != NULL) position_->::raytracer::DataBlob_Vec3f::Clear();
     }
     material_index_ = 0;
+    constant_attenuation_ = 2;
+    linear_attenuation_ = 1;
+    quadratic_attenuation_ = 0.5f;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -956,6 +970,54 @@ bool DataBlob_PointLight::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(29)) goto parse_constant_attenuation;
+        break;
+      }
+      
+      // optional float constant_attenuation = 3 [default = 2];
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+         parse_constant_attenuation:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &constant_attenuation_)));
+          _set_bit(2);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(37)) goto parse_linear_attenuation;
+        break;
+      }
+      
+      // optional float linear_attenuation = 4 [default = 1];
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+         parse_linear_attenuation:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &linear_attenuation_)));
+          _set_bit(3);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(45)) goto parse_quadratic_attenuation;
+        break;
+      }
+      
+      // optional float quadratic_attenuation = 5 [default = 0.5];
+      case 5: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+         parse_quadratic_attenuation:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &quadratic_attenuation_)));
+          _set_bit(4);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -989,6 +1051,21 @@ void DataBlob_PointLight::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->material_index(), output);
   }
   
+  // optional float constant_attenuation = 3 [default = 2];
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->constant_attenuation(), output);
+  }
+  
+  // optional float linear_attenuation = 4 [default = 1];
+  if (_has_bit(3)) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->linear_attenuation(), output);
+  }
+  
+  // optional float quadratic_attenuation = 5 [default = 0.5];
+  if (_has_bit(4)) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(5, this->quadratic_attenuation(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1007,6 +1084,21 @@ void DataBlob_PointLight::SerializeWithCachedSizes(
   // required int32 material_index = 2;
   if (_has_bit(1)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->material_index(), target);
+  }
+  
+  // optional float constant_attenuation = 3 [default = 2];
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->constant_attenuation(), target);
+  }
+  
+  // optional float linear_attenuation = 4 [default = 1];
+  if (_has_bit(3)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->linear_attenuation(), target);
+  }
+  
+  // optional float quadratic_attenuation = 5 [default = 0.5];
+  if (_has_bit(4)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(5, this->quadratic_attenuation(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -1032,6 +1124,21 @@ int DataBlob_PointLight::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->material_index());
+    }
+    
+    // optional float constant_attenuation = 3 [default = 2];
+    if (has_constant_attenuation()) {
+      total_size += 1 + 4;
+    }
+    
+    // optional float linear_attenuation = 4 [default = 1];
+    if (has_linear_attenuation()) {
+      total_size += 1 + 4;
+    }
+    
+    // optional float quadratic_attenuation = 5 [default = 0.5];
+    if (has_quadratic_attenuation()) {
+      total_size += 1 + 4;
     }
     
   }
@@ -1067,6 +1174,15 @@ void DataBlob_PointLight::MergeFrom(const DataBlob_PointLight& from) {
     if (from._has_bit(1)) {
       set_material_index(from.material_index());
     }
+    if (from._has_bit(2)) {
+      set_constant_attenuation(from.constant_attenuation());
+    }
+    if (from._has_bit(3)) {
+      set_linear_attenuation(from.linear_attenuation());
+    }
+    if (from._has_bit(4)) {
+      set_quadratic_attenuation(from.quadratic_attenuation());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1096,6 +1212,9 @@ void DataBlob_PointLight::Swap(DataBlob_PointLight* other) {
   if (other != this) {
     std::swap(position_, other->position_);
     std::swap(material_index_, other->material_index_);
+    std::swap(constant_attenuation_, other->constant_attenuation_);
+    std::swap(linear_attenuation_, other->linear_attenuation_);
+    std::swap(quadratic_attenuation_, other->quadratic_attenuation_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

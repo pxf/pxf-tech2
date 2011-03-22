@@ -4,7 +4,7 @@
 
 #define INITIAL_QUEUE 6
 #define PING_INTERVAL 10000 // Ping interval in milliseconds
-#define PING_TIMEOUT 5000 // Ping timeout in milliseconds
+#define PING_TIMEOUT 20000 // Ping timeout in milliseconds
 
 class SendThread : public ZThread::Runnable
 {
@@ -47,14 +47,26 @@ public:
 				char* retaddr = (*iter).second->return_address;
 				int retport = (*iter).second->return_port;
 
-				Connection* conn = m_ConnectionManager->new_connection(CLIENT);
-				m_ConnectionManager->connect_connection(conn, retaddr, retport);
-				
-				//std::string str = result->SerializeAsString();
-				LiPacket* pkg = new LiPacket(conn, result, C_RESULT);
-				m_ConnectionManager->send(pkg->connection, pkg->data, pkg->length);
-				//m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
-				m_ConnectionManager->remove_connection(conn);
+				while (true)
+				{
+					Connection* conn = m_ConnectionManager->new_connection(CLIENT);
+					if (!m_ConnectionManager->connect_connection(conn, retaddr, retport))
+					{
+						printf("Error, couldn't establish connection to work giver.\n");
+					}
+					else
+					{
+						//std::string str = result->SerializeAsString();
+						LiPacket* pkg = new LiPacket(conn, result, C_RESULT);
+						if (!m_ConnectionManager->send(pkg->connection, pkg->data, pkg->length) > 0)
+						{
+							printf("Error, unable to send result to work giver.\n");
+						}
+						//m_ConnectionManager->send(conn, (char*)str.c_str(), str.size());
+						m_ConnectionManager->remove_connection(conn);
+						break;
+					}
+				}
 			}
 			catch (ZThread::Cancellation_Exception* e)
 			{
@@ -170,7 +182,34 @@ int Client::run()
 				if (difftime(ping_timestamp, (*i_conn)->timestamp) > PING_TIMEOUT/1000.0f)
 				{
 					m_Kernel->Log(m_log_tag, "Connection to %s timed out...", (*i_conn)->target_address);
-					m_ConnMan.remove_connection(*i_conn);
+					Connection* _connection = *i_conn;
+
+					bool have_socket = (_connection->socket != -1);
+
+					if (have_socket)
+						FD_CLR(_connection->socket, &m_ConnMan.m_read_sockets);
+
+					// Remove from the hash map.
+					Pxf::Util::Map<int, struct Connection *>::iterator iter;
+					iter = m_ConnMan.m_socketfdToConnection.find(_connection->socket);
+					if (iter != m_ConnMan.m_socketfdToConnection.end())
+						m_ConnMan.m_socketfdToConnection.erase(iter);
+
+					// Remove from the connection list.
+					Pxf::Util::Array<struct Connection*>::iterator i;
+					for(i = m_ConnMan.m_Connections.begin(); i != m_ConnMan.m_Connections.end(); i++) {
+						if((*i) == _connection) {
+							i_conn = m_ConnMan.m_Connections.erase(i);
+							break;
+						}
+					}
+
+					delete _connection;
+
+					if (have_socket)
+						m_ConnMan.set_highest_fd();
+
+					//m_ConnMan.remove_connection(*i_conn);
 					if (i_conn == m_ConnMan.m_Connections.end())
 						break;
 					continue;
@@ -396,7 +435,7 @@ int Client::run()
 								delete pkg;
 								delete (*i);
 								i = m_State.m_OutQueue->erase(i);
-								m_State.m_OutQueue->Unlock();
+								//m_State.m_OutQueue->Unlock();
 
 								break; // Only send one set of tasks
 							}
@@ -435,7 +474,7 @@ int Client::run()
 
 								i = m_State.m_OutQueue->erase(i);
 								m_State.m_OutQueue->push_back(keep_t);
-								m_State.m_OutQueue->Unlock();
+								//m_State.m_OutQueue->Unlock();
 
 								// TODO: this line causes an assertion, does erase call delete on pointers?
 								//delete (*i);
