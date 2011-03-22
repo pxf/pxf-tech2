@@ -80,6 +80,7 @@ bool find_any_intersection_closer_than(batch_blob_t *datablob, ray_t *ray, float
 	//Primitive *closest_prim = 0x0;
 	intersection_response_t closest_resp;
 
+
 	if(ray_tree_find_occluder(datablob->tree, ray,closest_resp,max_distance)) {
 		if(max_distance > closest_resp.depth) {
 			*resp = closest_resp;
