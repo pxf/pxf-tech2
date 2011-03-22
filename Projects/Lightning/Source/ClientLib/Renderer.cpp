@@ -157,7 +157,7 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, triangle_t **prim, in
 
 bool calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec3f *res, float spread, int bounce)
 {
-	Pxf::Math::Vec3f fsubres(0.0f);
+	Pxf::Math::Vec3f fsubres(0.0f,0.0f,0.0f);
 	// find closest primitive
 	for(int sample_x = 0; sample_x < datablob->samples_per_pixel / (bounce+1); ++sample_x)
 	{
@@ -179,8 +179,8 @@ bool calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec
 				Pxf::Message("calculate_pixel", "Light calculations failed!");
 				return false;
 			}
-			fsubres += light_contrib;
-			
+			if(light_contrib.x > 0.0f && light_contrib.y > 0.0f && light_contrib.z > 0.0f)
+				fsubres += light_contrib;
 		}
 	}
 	
@@ -265,6 +265,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				float step_w = (float)light->width / (float)light->num_rays;
 				float step_h = (float)light->height / (float)light->num_rays;
 				Vec3f start_pos = light->p - (up * light->width + light->dir * light->height) / 2.0f;
+
 				for(int y = 0; y < light->num_rays; ++y)
 				{
 					for(int x = 0; x < light->num_rays; ++x)
@@ -315,6 +316,8 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
 						return false;
 					}
+
+					
 					*res += (bounce_contrib / (float)bounce) * m.reflectiveness * attscale;
 				}
 			}
@@ -331,6 +334,9 @@ bool calculate_pixel(float x, float y, task_detail_t *task, batch_blob_t *databl
 {	
 	// Clear pixel
 	Pxf::Math::Vec3f fpixel(0.0f, 0.0f, 0.0f);
+	fpixel.r = 0.0f;
+	fpixel.g = 0.0f;
+	fpixel.b = 0.0f;
 	
 	SimpleCamera* cam = (SimpleCamera*) datablob->cam;
 

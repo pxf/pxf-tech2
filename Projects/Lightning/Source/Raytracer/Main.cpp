@@ -513,7 +513,7 @@ int main(int argc, char* argv[])
 	// job specifics
 	blob.pic_w = w;
 	blob.pic_h = h;
-	blob.samples_per_pixel = 1; // 10 -> 10*10 = 100
+	blob.samples_per_pixel = 2; // 10 -> 10*10 = 100
 	blob.bounce_count = 6; // Number of reflection bounces
 	blob.interleaved_feedback = 1;
 	
@@ -548,19 +548,21 @@ int main(int argc, char* argv[])
 	material_t light_mat1,light_mat2;
 	light_mat1.diffuse = Vec3f(0.5f, 0.0f, 0.5f);
 	light_mat1.ambient = Vec3f(0.1f,0.1f,0.1f);
+	light_mat1.reflectiveness = 0.8f;
 
 	light_mat2.diffuse = Vec3f(1.0f, 0.4f, 0.0f);
 	light_mat2.ambient = Vec3f(0.3f,0.0f,0.1f);
+	light_mat2.reflectiveness = 0.0f;
 
 	blob.materials.Insert(light_mat1,0);
 	blob.materials.Insert(light_mat2,1);
 	blob.materials.Insert(sphere_mat1,2);
 
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 560.0f, 15.0f), 0);//&light_mat1);
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 60.0f, 15.0f), 0);//&light_mat1);
 	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -3.0f, -15.0f), 1); //&light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
-	blob.light_count = 2;
+	blob.light_count = 1;
 	
 	// create textures and primitive batches
 	//Texture *region_textures[task_count*task_count] = {0};
@@ -599,7 +601,7 @@ int main(int argc, char* argv[])
 
 	/*
 	Pxf::Resource::Mesh* meshlist[2];
-	meshlist[0] = res->Acquire<Resource::Mesh>("data/moto.ctm");
+	meshlist[0] = res->Acquire<Resource::Mesh>("data/sphere.ctm");
 	meshlist[1] = res->Acquire<Resource::Mesh>("data/teapot.ctm");
 
 	int tri_count = 0;
