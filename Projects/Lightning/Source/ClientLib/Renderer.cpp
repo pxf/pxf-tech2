@@ -317,8 +317,11 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
 						return false;
 					}
-
 					
+
+					if (bounce_contrib.r < 0.0f)
+						printf("error with bounce contrib!!\n");
+						
 					*res += (bounce_contrib / (float)bounce) * m.reflectiveness * attscale;
 				}
 			}
