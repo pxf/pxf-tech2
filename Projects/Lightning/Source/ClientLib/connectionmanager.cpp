@@ -257,7 +257,7 @@ static int recv_int(int sock, char* buff, unsigned flags)
 	int total_read = 0;
 	for(int i = 0; i < 4; i++)
 	{
-		int num_read = recv((SOCKET)sock, buff+i, 1, flags);
+		int num_read = recv(sock, buff+i, 1, flags);
 		total_read += num_read;
 		if (num_read == 0)
 		{
