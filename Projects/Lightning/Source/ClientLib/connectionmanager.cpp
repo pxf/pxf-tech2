@@ -252,6 +252,23 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 	return NULL;
 }
 
+static int recv_int(int sock, char* buff, unsigned flags)
+{
+	int total_read = 0;
+	for(int i = 0; i < 4; i++)
+	{
+		int num_read = recv((SOCKET)sock, buff+i, 1, flags);
+		total_read += num_read;
+		if (num_read == 0)
+		{
+			fprintf(stderr, "recv_int: only managed to recieve %d bytes\n", total_read);
+			return total_read;
+		}
+	}
+	return total_read;
+}
+
+
 Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 {
 	struct timeval timeout;
@@ -331,7 +348,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				if (c->buffer_size == 0)
 				{
 					// New message, read message length
-					recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(c->buffer_size), 0);
+					recv_bytes = recv_int(c->socket, (char*)(&(c->buffer_size)), 0);
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						c->buffer_size = 0;
