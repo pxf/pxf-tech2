@@ -348,7 +348,8 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				if (c->buffer_size == 0)
 				{
 					// New message, read message length
-					recv_bytes = recv_int(c->socket, (char*)(&(c->buffer_size)), 0);
+					//recv_bytes = recv_int(c->socket, (char*)(&(c->buffer_size)), 0);
+					recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(int), 0);
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						c->buffer_size = 0;
