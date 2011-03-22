@@ -175,11 +175,15 @@ public:
 				{
 					raytracer::DataBlob::PointLight p = blob_proto->lights(i);
 					raytracer::DataBlob::Vec3f pb_pos = p.position(); 
-					PointLight* l = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), 0);
+					//PointLight* l = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), 0);
+					Pxf::Math::Vec3f pos(pb_pos.x(), pb_pos.y(), pb_pos.z());
+					AreaLight* l = new AreaLight(pos, 10.0f,10.0f,Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f),3,30.0f,p.material_index());
+
 					l->material_index = p.material_index();
+					/*
 					l->constant_attenuation = p.constant_attenuation();
 					l->linear_attenuation = p.linear_attenuation();
-					l->quadratic_attenuation = p.quadratic_attenuation();
+					l->quadratic_attenuation = p.quadratic_attenuation(); */
 					blob.lights[i] = l;
 				}
 
