@@ -180,7 +180,7 @@ bool calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec
 				Pxf::Message("calculate_pixel", "Light calculations failed!");
 				return false;
 			}
-			if(light_contrib.x > 0.0f && light_contrib.y > 0.0f && light_contrib.z > 0.0f)
+			if(light_contrib.x >= 0.0f && light_contrib.y >= 0.0f && light_contrib.z >= 0.0f)
 				fsubres += light_contrib;
 		}
 	}
@@ -259,7 +259,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				AreaLight *light = (AreaLight*)datablob->lights[l];
 				
 				// Calc distance
-				float attscale = Pxf::Math::Clamp(light->strength / Length(((BaseLight*) light)->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
+				float attscale = 1.0f;//Pxf::Math::Clamp(light->strength / Length(((BaseLight*) light)->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
 				
 				// construct "up-vector"
 				Vec3f up = Cross(light->normal, light->dir);
@@ -302,24 +302,26 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				{
 					// Find reflection
 					Pxf::Math::Vec3f bounce_contrib(0.0f);
-					Pxf::Math::Vec3f eye_vec = closest_resp.p - ray->o;
+					Pxf::Math::Vec3f eye_vec = -(closest_resp.p - ray->o);
 					Normalize(eye_vec);
-					Pxf::Math::Vec3f refl = closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
+					Pxf::Math::Vec3f refl = closest_resp.n * 2.0f * Dot(eye_vec, closest_resp.n) - eye_vec;//closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
 					
-					// reflection vector
+					// reflection vector	
 					ray_t refl_ray;
-					refl_ray.o = closest_resp.p;
 					refl_ray.d = refl;
 					Normalize(refl_ray.d);
+					refl_ray.o = closest_resp.p + refl_ray.d*0.01f;
+
 					
 					if (!calc_multisample_ray(&refl_ray, datablob, &bounce_contrib, m.matteness, bounce))
 					{
 						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
 						return false;
 					}
-					
 						
-					*res += (bounce_contrib / (float)bounce) * m.reflectiveness * attscale;
+					*res += (bounce_contrib / (float)(bounce)) * m.reflectiveness * attscale;
+					//float v = (float) bounce / 4.0f;
+					//*res = Vec3f(v, 0, 0);
 				}
 			}
 		

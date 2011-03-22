@@ -548,7 +548,7 @@ int main(int argc, char* argv[])
 	material_t light_mat1,light_mat2;
 	light_mat1.diffuse = Vec3f(0.5f, 0.0f, 0.5f);
 	light_mat1.ambient = Vec3f(0.1f,0.1f,0.1f);
-	light_mat1.reflectiveness = 0.0f;
+	light_mat1.reflectiveness = 0.3f;
 
 	light_mat2.diffuse = Vec3f(1.0f, 0.4f, 0.0f);
 	light_mat2.ambient = Vec3f(0.3f,0.0f,0.1f);
@@ -599,7 +599,6 @@ int main(int argc, char* argv[])
 	// load a model!
 	//load_model("data/teapot.ctm");
 
-	/*
 	Pxf::Resource::Mesh* meshlist[2];
 	meshlist[0] = res->Acquire<Resource::Mesh>("data/sphere.ctm");
 	meshlist[1] = res->Acquire<Resource::Mesh>("data/teapot.ctm");
@@ -624,7 +623,6 @@ int main(int argc, char* argv[])
 	blob.tree = tree;
 	blob.primitives = tlist;
 	blob.prim_count = tri_count;
-	*/
 
 	// Raytracer client test
 	//------------------------
