@@ -258,7 +258,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				AreaLight *light = (AreaLight*)datablob->lights[l];
 				
 				// Calc distance
-				float attscale = Pxf::Math::Clamp(light->strength / Length(((BaseLight*) light)->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
+				float attscale = 1.0f;//Pxf::Math::Clamp(light->strength / Length(((BaseLight*) light)->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
 				
 				// construct "up-vector"
 				Vec3f up = Cross(light->normal, light->dir);
@@ -303,7 +303,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 					Pxf::Math::Vec3f bounce_contrib(0.0f);
 					Pxf::Math::Vec3f eye_vec = closest_resp.p - ray->o;
 					Normalize(eye_vec);
-					Pxf::Math::Vec3f refl = closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
+					Pxf::Math::Vec3f refl = closest_resp.n * 2.0f * Dot(eye_vec, closest_resp.n) - eye_vec;//closest_resp.n * (eye_vec - 2.0f * Dot(eye_vec, closest_resp.n));
 					
 					// reflection vector
 					ray_t refl_ray;
@@ -316,12 +316,9 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 						Pxf::Message("calc_ray_contrib", "Bounce calculations failed!");
 						return false;
 					}
-					
-
-					if (bounce_contrib.r < 0.0f)
-						printf("error with bounce contrib!!\n");
 						
-					*res += (bounce_contrib / (float)bounce) * m.reflectiveness * attscale;
+					//*res += //(bounce_contrib / (float)(bounce+1)) * m.reflectiveness * attscale;
+					*res = Vec3f(bounce / 4.0f, 0, 0);
 				}
 			}
 		
