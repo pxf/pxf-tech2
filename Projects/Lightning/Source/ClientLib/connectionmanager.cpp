@@ -349,7 +349,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 				{
 					// New message, read message length
 					//recv_bytes = recv_int(c->socket, (char*)(&(c->buffer_size)), 0);
-					recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(int), 0);
+					recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(int), MSG_WAITALL);
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						c->buffer_size = 0;
@@ -360,7 +360,7 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 
 					c->buffer = (char*)Pxf::MemoryAllocate(c->buffer_size);
 					
-					recv_bytes = recv(c->socket, (char*)(c->buffer), c->buffer_size, 0);
+					recv_bytes = recv(c->socket, (char*)(c->buffer), c->buffer_size, MSG_WAITALL);
 					m_Kernel->Log(m_log_tag, "Read %d bytes", recv_bytes);
 
 					if (recv_bytes == c->buffer_size)
