@@ -895,8 +895,8 @@ triangle_t* ray_tree_find_occluder(tree_t* tree, ray_t* ray, intersection_respon
 				}
 
 				// parallel
-				if(stack[exit_ptr].p.GetAxis(axis) >= split_pos && stack[exit_ptr].p.GetAxis(axis) <= (split_pos + KD_EPSILON))
-				//if(stack[exit_ptr].p.GetAxis(axis) == split_pos)
+				//if(stack[exit_ptr].p.GetAxis(axis) >= split_pos && stack[exit_ptr].p.GetAxis(axis) <= (split_pos + KD_EPSILON))
+				if(stack[exit_ptr].p.GetAxis(axis) == split_pos)
 				{
 					// continue with right child
 					node = &nodes[node->data.inner_node.right_node];
