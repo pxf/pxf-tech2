@@ -260,13 +260,13 @@ static int recv_int(int sock, char* buff, unsigned flags)
 	while(total_read < 4)
 	{
 		int num_read = recv(sock, buff+i, 1, flags);
-		if (num_read == 0)
-		{
-			fprintf(stderr, "recv_int: only managed to recieve %d bytes\n", total_read);
-			return total_read;
-		}
 		//if (num_read == 0)
-		//	continue;
+		//{
+		//	fprintf(stderr, "recv_int: only managed to recieve %d bytes\n", total_read);
+		//	return total_read;
+		//}
+		if (num_read == 0)
+			continue;
 		i += num_read;
 		total_read += num_read;
 	}
