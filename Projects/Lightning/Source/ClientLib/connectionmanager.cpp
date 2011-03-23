@@ -255,19 +255,28 @@ Connection *ConnectionManager::get_connection(int _id, bool _is_session_id)
 static int recv_int(int sock, char* buff, unsigned flags)
 {
 	int total_read = 0;
-	for(int i = 0; i < 4; i++)
+	int i = 0;
+	int tries_left = 200;
+
+	while((total_read < 4) && (tries_left > 0))
 	{
 		int num_read = recv(sock, buff+i, 1, flags);
-		total_read += num_read;
 		if (num_read == 0)
 		{
-			fprintf(stderr, "recv_int: only managed to recieve %d bytes\n", total_read);
-			return total_read;
+			if (total_read == 0)
+				// first try... the socket is dead.
+				return 0;
+			tries_left--;
+			continue;
 		}
+		i += num_read;
+		total_read += num_read;
 	}
+
+	if (total_read < 4)
+		fprintf(stderr, "recv_int: failed after 200 tries... only got %d bytes from socket %d\n", total_read, sock);
 	return total_read;
 }
-
 
 Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 {
@@ -280,9 +289,9 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	set_fdset();
 
 #if defined(CONF_FAMILY_WINDOWS)
-	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == SOCKET_ERROR)
+	if (select(m_max_socketfd+1, &m_read_sockets, NULL, &m_error_sockets, &timeout) == SOCKET_ERROR)
 #else
-	if (select(m_max_socketfd+1, &m_read_sockets, NULL, NULL, &timeout) == -1)
+	if (select(m_max_socketfd+1, &m_read_sockets, NULL, &m_error_sockets, &timeout) == -1)
 #endif
 	{
 #if defined(CONF_FAMILY_WINDOWS)
@@ -296,7 +305,11 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 	Connection *c;
 	for (int i=0; i <= m_max_socketfd; i++) 
 	{
-		if (FD_ISSET(i, &m_read_sockets))
+		if (FD_ISSET(i, &m_error_sockets))
+		{
+			printf("LOL ERROR!!!\n");
+		}
+		else if (FD_ISSET(i, &m_read_sockets))
 		{
 			c = m_socketfdToConnection[i];
 			//if (c == NULL) continue;
@@ -342,19 +355,20 @@ Pxf::Util::Array<Packet*> *ConnectionManager::recv_packets(int _timeout)
 					// TODO: Tedious check that client already isn't connected
 					add_incoming_connection(new_connection_fd, CLIENT);
 				}
-			} else { // if (c->bound)
+			} else { // if (!c->bound)
 				int recv_bytes;
 
 				if (c->buffer_size == 0)
 				{
 					// New message, read message length
-					//recv_bytes = recv_int(c->socket, (char*)(&(c->buffer_size)), 0);
-					recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(int), MSG_WAITALL);
+					recv_bytes = recv_int(c->socket, (char*)(&(c->buffer_size)), 0);
+					//recv_bytes = recv(c->socket, (char*)(&(c->buffer_size)), sizeof(int), MSG_WAITALL);
 					if ((recv_bytes != 4) || (c->buffer_size == 0))
 					{
 						c->buffer_size = 0;
 						remove_connection(c);
-						printf("Didn't get enough bytes for a read.\n");
+						if (recv_bytes != 0)
+							printf("Didn't get enough bytes (%d) for a read. Connection remoed.\n", recv_bytes);
 						continue;
 					}
 
@@ -417,12 +431,14 @@ void ConnectionManager::set_fdset()
 	Pxf::Util::Array<Connection*>::iterator c;
 
 	FD_ZERO(&m_read_sockets);
+	FD_ZERO(&m_error_sockets);
 
 	for(c = m_Connections.begin(); c != m_Connections.end(); c++)
 	{
 		if ((*c)->socket == -1)
 			continue;
 		FD_SET((*c)->socket, &m_read_sockets);
+		FD_SET((*c)->socket, &m_error_sockets);
 		if ((*c)->socket > max)
 			max = (*c)->socket;
 	}

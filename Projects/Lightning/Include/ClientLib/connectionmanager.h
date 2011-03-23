@@ -83,6 +83,7 @@ class ConnectionManager
 		int m_NextId;
 		int m_max_socketfd;
 		fd_set m_read_sockets;
+		fd_set m_error_sockets;
 
 		void clear_connbuf(Connection *_connection);
 		void set_fdset();
