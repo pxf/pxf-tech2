@@ -514,21 +514,32 @@ int main(int argc, char* argv[])
 	blob.pic_w = w;
 	blob.pic_h = h;
 	blob.samples_per_pixel = 2; // 10 -> 10*10 = 100
-	blob.bounce_count = 6; // Number of reflection bounces
-	blob.interleaved_feedback = 1;
+	blob.bounce_count = 4; // Number of reflection bounces
+	blob.interleaved_feedback = 1;	
 	
 	// add a couple of primitives to the data blob
-	material_t plane_mat_white,plane_mat_red,plane_mat_green,sphere_mat1,sphere_mat2;
+	material_t plane_mat_white,plane_mat_red,plane_mat_green,plane_mat_blue,sphere_mat1,sphere_mat2;
+	
+	// white mat - floor
 	plane_mat_white.ambient = Vec3f(0.1f, 0.1f, 0.1f);
-	plane_mat_white.diffuse = Vec3f(1.0f, 1.0f, 1.0f);
-	plane_mat_white.reflectiveness = 0.0f;
+	plane_mat_white.diffuse = Vec3f(0.8f, 0.8f, 0.8f);
+	plane_mat_white.reflectiveness = 0.8f;
+
 	plane_mat_red.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	plane_mat_red.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
-	plane_mat_red.reflectiveness = 0.0f;
+	plane_mat_red.matteness = 0.0f;
+	plane_mat_red.reflectiveness = 0.8f;
+
 	plane_mat_green.ambient = Vec3f(0.0f, 0.1f, 0.0f);
 	plane_mat_green.diffuse = Vec3f(0.0f, 1.0f, 0.0f);
-	plane_mat_green.reflectiveness = 0.0f;
+	plane_mat_green.matteness = 0.4f;
+	plane_mat_green.reflectiveness = 0.8f;
 	
+	plane_mat_blue.ambient = Vec3f(0.0f, 0.0f, 0.1f);
+	plane_mat_blue.diffuse = Vec3f(0.0f, 0.0f, 1.0f);
+	plane_mat_blue.matteness = 0.0f;
+	plane_mat_blue.reflectiveness = 0.0f;
+
 	sphere_mat1.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	sphere_mat1.diffuse = Vec3f(0.7f, 0.0f, 0.0f);
 	sphere_mat1.reflectiveness = 1.0f;
@@ -546,20 +557,23 @@ int main(int argc, char* argv[])
 	
 	// add a couple of lights to the data blob
 	material_t light_mat1,light_mat2;
-	light_mat1.diffuse = Vec3f(0.5f, 0.0f, 0.5f);
+	light_mat1.diffuse = Vec3f(0.8f, 0.8f, 0.8f);
 	light_mat1.ambient = Vec3f(0.1f,0.1f,0.1f);
-	light_mat1.reflectiveness = 0.3f;
+	light_mat1.reflectiveness = 0.0f;
 
 	light_mat2.diffuse = Vec3f(1.0f, 0.4f, 0.0f);
 	light_mat2.ambient = Vec3f(0.3f,0.0f,0.1f);
 	light_mat2.reflectiveness = 0.0f;
 
 	blob.materials.Insert(light_mat1,0);
-	blob.materials.Insert(light_mat2,1);
-	blob.materials.Insert(sphere_mat1,2);
+	blob.materials.Insert(plane_mat_white,1);
+	blob.materials.Insert(plane_mat_red,2);
+	blob.materials.Insert(plane_mat_green,3);
+	blob.materials.Insert(plane_mat_blue,4);
 
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 260.0f, 15.0f), 0);//&light_mat1);
-	blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -3.0f, -15.0f), 1); //&light_mat2);
+
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 160.0f, 15.0f), 0);//&light_mat1);
+	//blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -3.0f, -15.0f), 1); //&light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
 	blob.light_count = 1;
@@ -599,59 +613,39 @@ int main(int argc, char* argv[])
 	// load a model!
 	//load_model("data/teapot.ctm");
 
-	Pxf::Resource::Mesh* meshlist[2];
-	meshlist[0] = res->Acquire<Resource::Mesh>("data/sphere.ctm");
-	meshlist[1] = res->Acquire<Resource::Mesh>("data/teapot.ctm");
+	Pxf::Resource::Mesh* meshlist[3];
+	//meshlist[0] = res->Acquire<Resource::Mesh>("data/sphere.ctm");
+	//meshlist[1] = res->Acquire<Resource::Mesh>("data/teapot.ctm");
+
+	meshlist[0] = res->Acquire<Resource::Mesh>("data/scene0/sphere0.ctm");
+	meshlist[1] = res->Acquire<Resource::Mesh>("data/scene0/sphere1.ctm");
+	meshlist[2] = res->Acquire<Resource::Mesh>("data/scene0/floor.ctm");
 
 	int tri_count = 0;
-	for(int i=0; i < 2; i++) {
+	for(int i=0; i < 3; i++) {
 		tri_count += meshlist[i]->GetData()->triangle_count;
 	}
 
-	int matlist[] = {0,1};
-	triangle_t* tlist = merge_meshlist(meshlist,matlist,2);
+	int matlist[] = {2,3,1};
+	triangle_t* tlist = merge_meshlist(meshlist,matlist,3);
 	tree_t* tree = build(tlist,tri_count);
 
 
-	Pxf::Graphics::Model* mdllist[2];
+	Pxf::Graphics::Model* mdllist[3];
 	mdllist[0] = gfx->CreateModel(meshlist[0]);
 	mdllist[1] = gfx->CreateModel(meshlist[1]);
+	mdllist[2] = gfx->CreateModel(meshlist[2]);
 
 	current_scene.mdl = mdllist;
-	current_scene.mdl_count = 2;
+	current_scene.mdl_count = 3;
 
 	blob.tree = tree;
 	blob.primitives = tlist;
 	blob.prim_count = tri_count;
-
-	// Raytracer client test
-	//------------------------
-	//RaytracerClient client(kernel);
-	//client.run_noblock();
-
-	// add a bunch of tasks
-	/*for(int y = 0; y < task_count; y++)
-	{
-		for(int x = 0; x < task_count; x++)
-		{
-			TaskRequest* req = new TaskRequest;
-			req->blob = &blob;
-			req->rect.x = x * task_size_w;
-			req->rect.y = y * task_size_h;
-			req->rect.h = task_size_h;
-			req->rect.w = task_size_w;
-			client.push_request(req);
-		}
-	}*/
 	
 	// DEPTH TEST
 	gfx->SetDepthFunction(DF_LEQUAL);
 	gfx->SetDepthState(true);
-
-	//client.wait();
-	//------------------------
-
-	//render_timer.Start();
 
 	bool is_done = false;
 	bool exec_rt = false;

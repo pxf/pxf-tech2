@@ -177,7 +177,7 @@ public:
 					raytracer::DataBlob::Vec3f pb_pos = p.position(); 
 					//PointLight* l = new PointLight(Pxf::Math::Vec3f(pb_pos.x(), pb_pos.y(), pb_pos.z()), 0);
 					Pxf::Math::Vec3f pos(pb_pos.x(), pb_pos.y(), pb_pos.z());
-					AreaLight* l = new AreaLight(pos, 50.0f,50.0f,Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f),3,30.0f,p.material_index());
+					AreaLight* l = new AreaLight(pos, 5.0f,5.0f,Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f),4,5.0f,p.material_index());
 
 					l->material_index = p.material_index();
 					/*

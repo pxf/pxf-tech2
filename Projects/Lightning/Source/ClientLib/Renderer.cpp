@@ -159,13 +159,20 @@ bool find_intersection(batch_blob_t *datablob, ray_t *ray, triangle_t **prim, in
 bool calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec3f *res, float spread, int bounce)
 {
 	Pxf::Math::Vec3f fsubres(0.0f,0.0f,0.0f);
+
+	int samples = 0;
+
 	// find closest primitive
-	for(int sample_x = 0; sample_x < datablob->samples_per_pixel / (bounce+1); ++sample_x)
+	for(int sample_x = 0; sample_x < datablob->samples_per_pixel; ++sample_x)
 	{
-		for(int sample_y = 0; sample_y < datablob->samples_per_pixel / (bounce+1); ++sample_y)
+		for(int sample_y = 0; sample_y < datablob->samples_per_pixel; ++sample_y)
 		{
 			// Offset ray
-			ray_t ray = *primray;
+			//ray_t ray = *primray;
+			ray_t ray;
+			ray.o = primray->o;
+			ray.d = primray->d;
+
 			Vec3f offset = Vec3f((0.5f * spread) * (datablob->samples[rand() % 255] * 2.0f - 1.0f),
 			                     (0.5f * spread) * (datablob->samples[rand() % 255] * 2.0f - 1.0f),
 			                     (0.5f * spread) * (datablob->samples[rand() % 255] * 2.0f - 1.0f));
@@ -175,17 +182,22 @@ bool calc_multisample_ray(ray_t *primray, batch_blob_t *datablob, Pxf::Math::Vec
 			
 			// Calc direct light
 			Pxf::Math::Vec3f light_contrib;
-			if (!calc_ray_contrib(&ray, datablob, &light_contrib, bounce+1))
+			if (!calc_ray_contrib(&ray, datablob, &light_contrib, bounce))
 			{
 				Pxf::Message("calculate_pixel", "Light calculations failed!");
 				return false;
 			}
-			if(light_contrib.x >= 0.0f && light_contrib.y >= 0.0f && light_contrib.z >= 0.0f)
-				fsubres += light_contrib;
+
+			fsubres += light_contrib;
+			/*
+			if(light_contrib.x >= 0.0f && light_contrib.y >= 0.0f && light_contrib.z >= 0.0f) {
+				samples++;
+				//fsubres += light_contrib;
+			}*/
 		}
 	}
 	
-	fsubres /= (datablob->samples_per_pixel / (bounce+1)) * (datablob->samples_per_pixel / (bounce+1));
+	fsubres /= (datablob->samples_per_pixel) * (datablob->samples_per_pixel);
 	*res += fsubres;
 	return true;
 }
@@ -259,7 +271,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				AreaLight *light = (AreaLight*)datablob->lights[l];
 				
 				// Calc distance
-				float attscale = 1.0f;//Pxf::Math::Clamp(light->strength / Length(((BaseLight*) light)->p - closest_resp.p), 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
+				float attscale = 1.0f; //Pxf::Math::Clamp(Length(((BaseLight*) light)->p - closest_resp.p) / light->strength, 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
 				
 				// construct "up-vector"
 				Vec3f up = Cross(light->normal, light->dir);
@@ -292,10 +304,20 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 					}
 				}
 				
+				
+
 				// TODO: add better contributing calculations
-				float ndotl = Dot(closest_resp.n, light_ray.d);
+				float ndotl = Clamp(Dot(closest_resp.n, light_ray.d),0.0f,1.0f);
 				float reflscale = 1.0f - m.reflectiveness;
-				*res += m.diffuse * l_mat.diffuse * ndotl * attscale * reflscale * att;
+
+				/*
+				Vec3f mat_s(1.0f,1.0f,1.0f);
+				float shininess = 96.0f;
+				float s = pow(ndotl,shininess); */
+
+				att = Clamp(att,0.0f,1.0f);
+
+				*res += m.diffuse * l_mat.diffuse * ndotl * attscale * reflscale * att; // + mat_s * s * att;
 				
 				// Shoot reflection rays
 				if (m.reflectiveness > 0.0f)
@@ -310,7 +332,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 					ray_t refl_ray;
 					refl_ray.d = refl;
 					Normalize(refl_ray.d);
-					refl_ray.o = closest_resp.p + refl_ray.d*0.01f;
+					refl_ray.o = closest_resp.p + refl_ray.d*0.001f;
 
 					
 					if (!calc_multisample_ray(&refl_ray, datablob, &bounce_contrib, m.matteness, bounce))
