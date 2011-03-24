@@ -1,6 +1,7 @@
 #include "client.h"
 
 #include <zthread/ConcurrentExecutor.h>
+#include <Pxf/Base/Platform.h>
 
 #define INITIAL_QUEUE 6
 #define PING_INTERVAL 10000 // Ping interval in milliseconds
@@ -102,6 +103,7 @@ Client::Client(const char *_tracker_address
 
 	m_Kernel = Pxf::Kernel::GetInstance();
 	m_TaskQueue = new BlockingTaskQueue<Task*>;
+	m_TaskQueue->set_capacity(Pxf::Platform::GetNumberOfProcessors());
 	m_TaskQueue->register_type(RAYTRACER); // TODO: Move to raytracer class
 	m_ResultQueue = new TaskResultQueue();
 
