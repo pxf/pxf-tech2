@@ -271,7 +271,7 @@ bool calc_ray_contrib(ray_t *ray, batch_blob_t *datablob, Pxf::Math::Vec3f *res,
 				AreaLight *light = (AreaLight*)datablob->lights[l];
 				
 				// Calc distance
-				float attscale = 1.0f; //Pxf::Math::Clamp(Length(((BaseLight*) light)->p - closest_resp.p) / light->strength, 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
+        float attscale = 1.0f;//Pxf::Math::Clamp(Length(((BaseLight*) light)->p - closest_resp.p) / light->strength, 0.0f, 1.0f);//1.0f / (float)datablob->light_count;
 				
 				// construct "up-vector"
 				Vec3f up = Cross(light->normal, light->dir);

@@ -45,7 +45,7 @@ protected:
 
 public:
 	BlockingTaskQueue()
-		: m_Canceled(false), m_capacity(10)
+		: m_Canceled(false), m_capacity(4)
 	{
 	
 	}
