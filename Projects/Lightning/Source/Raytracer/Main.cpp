@@ -68,6 +68,8 @@ struct scene {
 	Graphics::Model** mdl;
 
 	int mdl_count;
+	int mdl_mat[32];
+
 } current_scene;
 
 // recieved clients/parts info
@@ -523,27 +525,23 @@ int main(int argc, char* argv[])
 	// white mat - floor
 	plane_mat_white.ambient = Vec3f(0.1f, 0.1f, 0.1f);
 	plane_mat_white.diffuse = Vec3f(0.8f, 0.8f, 0.8f);
+	plane_mat_white.matteness = 0.0f;
 	plane_mat_white.reflectiveness = 0.8f;
 
 	plane_mat_red.ambient = Vec3f(0.1f, 0.0f, 0.0f);
 	plane_mat_red.diffuse = Vec3f(1.0f, 0.0f, 0.0f);
 	plane_mat_red.matteness = 0.0f;
-	plane_mat_red.reflectiveness = 0.8f;
+	plane_mat_red.reflectiveness = 0.4f;
 
 	plane_mat_green.ambient = Vec3f(0.0f, 0.1f, 0.0f);
 	plane_mat_green.diffuse = Vec3f(0.0f, 1.0f, 0.0f);
-	plane_mat_green.matteness = 0.4f;
-	plane_mat_green.reflectiveness = 0.8f;
+	plane_mat_green.matteness = 0.0f;
+	plane_mat_green.reflectiveness = 0.4f;
 	
 	plane_mat_blue.ambient = Vec3f(0.0f, 0.0f, 0.1f);
 	plane_mat_blue.diffuse = Vec3f(0.0f, 0.0f, 1.0f);
 	plane_mat_blue.matteness = 0.0f;
 	plane_mat_blue.reflectiveness = 0.0f;
-
-	sphere_mat1.ambient = Vec3f(0.1f, 0.1f, 0.1f);
-	sphere_mat1.diffuse = Vec3f(0.7f, 0.0f, 0.0f);
-	sphere_mat1.reflectiveness = 1.0f;
-	//sphere_mat1.matteness = 0.0f;
 	
 	blob.prim_count = 0;
 
@@ -610,13 +608,45 @@ int main(int argc, char* argv[])
 	cam.Translate(0.0f,0.0f,20.0f);
 	blob.cam = &cam;
 
-	// load a model!
-	//load_model("data/teapot.ctm");
+
+	/*
+	Pxf::Resource::Mesh* meshlist[2];
+	meshlist[0] = res->Acquire<Resource::Mesh>("data/scene2/floor.ctm");
+	meshlist[1] = res->Acquire<Resource::Mesh>("data/scene2/venus.ctm");
+
+	int tri_count = 0;
+	for(int i=0; i < 2; i++) {
+		tri_count += meshlist[i]->GetData()->triangle_count;
+	}
+
+	int matlist[] = {1,2};
+	triangle_t* tlist = merge_meshlist(meshlist,matlist,2);
+	
+	tree_t* tree = load_BVH("data/scene2/tree");
+	
+	//tree_t* tree = build(tlist,tri_count);
+	//write_BVH("data/scene2/tree",tree);
+
+
+	current_scene.mdl_mat[0] = matlist[0];
+	current_scene.mdl_mat[1] = matlist[1];
+	//current_scene.mdl_mat[2] = matlist[2];
+
+	Pxf::Graphics::Model* mdllist[2];
+	mdllist[0] = gfx->CreateModel(meshlist[0]);
+	mdllist[1] = gfx->CreateModel(meshlist[1]);
+	//mdllist[2] = gfx->CreateModel(meshlist[2]);
+
+	current_scene.mdl = mdllist;
+	current_scene.mdl_count = 2;
+
+	blob.tree = tree;
+	blob.primitives = tlist;
+	blob.prim_count = tri_count;
+	*/
+
 
 	Pxf::Resource::Mesh* meshlist[3];
-	//meshlist[0] = res->Acquire<Resource::Mesh>("data/sphere.ctm");
-	//meshlist[1] = res->Acquire<Resource::Mesh>("data/teapot.ctm");
-
 	meshlist[0] = res->Acquire<Resource::Mesh>("data/scene0/sphere0.ctm");
 	meshlist[1] = res->Acquire<Resource::Mesh>("data/scene0/sphere1.ctm");
 	meshlist[2] = res->Acquire<Resource::Mesh>("data/scene0/floor.ctm");
@@ -628,8 +658,16 @@ int main(int argc, char* argv[])
 
 	int matlist[] = {2,3,1};
 	triangle_t* tlist = merge_meshlist(meshlist,matlist,3);
-	tree_t* tree = build(tlist,tri_count);
 
+	tree_t* tree = load_BVH("data/scene0/tree0");
+
+	//tree_t* tree = build(tlist,tri_count);
+	//write_BVH("data/scene0/tree0",tree);
+
+
+	current_scene.mdl_mat[0] = 2;
+	current_scene.mdl_mat[1] = 3;
+	current_scene.mdl_mat[2] = 1;
 
 	Pxf::Graphics::Model* mdllist[3];
 	mdllist[0] = gfx->CreateModel(meshlist[0]);
@@ -738,36 +776,11 @@ int main(int argc, char* argv[])
 
 			for(size_t i=0; i < blob.light_count; i++)
 				draw_light((BaseLight*) blob.lights[i]);
-
-			//gfx->DrawBuffer(tree_VB,0);
-
-			// INIT DEBUG RAY
-
-			/*
-			t += 0.01f;
-
-			ray_t debug_ray;
-			debug_ray.o = cam.GetPos() + Math::Vec3f(0.01f,0.01f,1.0f); //Math::Vec3f(-3.0f,10.0f + sin(t*0.15f)*5.0f,50.0f);
-			debug_ray.d = cam.GetDir(); //Math::Vec3f(0.0f,-0.2f,-1.0f);
-			Normalize(debug_ray.d);
-
-			Vec3f p0 = debug_ray.o;
-			Vec3f p1 = debug_ray.o + debug_ray.d * 10000.0f;
-
-			// DEBUG STUFF
-			glColor3f(0.0f,1.0f,0.0f);
-			glBegin(GL_LINES);
-				glVertex3f(p0.x,p0.y,p0.z);
-				glVertex3f(p1.x,p1.y,p1.z);
-			glEnd();
-
-			intersection_response_t resp;
-			triangle_t* p_res = ray_tree_intersection(blob.tree,&debug_ray,resp); //RayTreeIntersect(*blob.tree,debug_ray,10000.0f,resp);
-			*/
-
-			glColor3f(0.25f,0.25f,0.25f);
+			
 			if(current_scene.mdl) {
 				for(int i = 0; i < current_scene.mdl_count; i++) {
+					Vec3f c = blob.materials.GetMaterial(current_scene.mdl_mat[i]).diffuse;
+					glColor3f(c.r,c.g,c.b);
 					gfx->DrawBuffer(current_scene.mdl[i]->GetVertexBuffer(),0);
 				}
 			}

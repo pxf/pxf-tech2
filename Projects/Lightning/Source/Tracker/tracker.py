@@ -155,7 +155,7 @@ class Tracker():
         avail = self._db.get_available_clients()
         connections = []
         possible = []
-        for k,v in self._db._connections:
+        for k,v in self._db._connections.items():
             if k == _session_id:
                 connections.append(v)
             if v == _session_id:
