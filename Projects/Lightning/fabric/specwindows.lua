@@ -218,7 +218,8 @@ function spawn_toolwindow()
     local succ, msg = startrender(tostring(ip_input.value), tostring(port_input.value),           -- remote client
                                   tostring(localip_input.value), tostring(localport_input.value), -- result ip:port
                                   interleaved_slider.value*interleaved_slider.value,              -- interleaved feedback
-                                  2^taskcount_slider.value,                                       -- task count
+                                  --2^taskcount_slider.value,                                       -- task count
+								  1,
                                   2^(imagesize_slider.value + 5))                                 -- output image size
     if not succ then
       spawn_error_dialog({msg})

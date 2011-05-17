@@ -570,7 +570,7 @@ int main(int argc, char* argv[])
 	blob.materials.Insert(plane_mat_blue,4);
 
 
-	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 160.0f, 15.0f), 0);//&light_mat1);
+	blob.lights[0] = new PointLight(Pxf::Math::Vec3f(0.0f, 560.0f, 15.0f), 0);//&light_mat1);
 	//blob.lights[1] = new PointLight(Pxf::Math::Vec3f(15.0f, -3.0f, -15.0f), 1); //&light_mat2);
 	//blob.lights[0] = new AreaLight(Pxf::Math::Vec3f(0.0f, 50.0f, 15.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, -0.5f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 3, 3.0f, &light_mat1);
 	//blob.lights[1] = new AreaLight(Pxf::Math::Vec3f(0.0f, 4.8f, 5.0f), 1.0f, 1.0f, Pxf::Math::Vec3f(0.0f, -1.0f, 0.0f), Pxf::Math::Vec3f(1.0f, 0.0f, 0.0f), 9, light_mat1);
@@ -608,44 +608,43 @@ int main(int argc, char* argv[])
 	cam.Translate(0.0f,0.0f,20.0f);
 	blob.cam = &cam;
 
-
-	/*
 	Pxf::Resource::Mesh* meshlist[2];
-	meshlist[0] = res->Acquire<Resource::Mesh>("data/scene2/floor.ctm");
-	meshlist[1] = res->Acquire<Resource::Mesh>("data/scene2/venus.ctm");
+	//meshlist[0] = res->Acquire<Resource::Mesh>("data/scene1/floor0.ctm");
+	meshlist[0] = res->Acquire<Resource::Mesh>("data/bentley.ctm");
+	//meshlist[1] = res->Acquire<Resource::Mesh>("data/bentley.ctm");
 
 	int tri_count = 0;
-	for(int i=0; i < 2; i++) {
+	for(int i=0; i < 1; i++) {
 		tri_count += meshlist[i]->GetData()->triangle_count;
 	}
 
-	int matlist[] = {1,2};
-	triangle_t* tlist = merge_meshlist(meshlist,matlist,2);
+	int matlist[] = {4};
+	triangle_t* tlist = merge_meshlist(meshlist,matlist,1);
 	
-	tree_t* tree = load_BVH("data/scene2/tree");
+	//tree_t* tree = load_BVH("data/scene3/tree");
 	
-	//tree_t* tree = build(tlist,tri_count);
-	//write_BVH("data/scene2/tree",tree);
+	tree_t* tree = build(tlist,tri_count);
+	write_BVH("data/scene3/tree",tree);
 
 
 	current_scene.mdl_mat[0] = matlist[0];
-	current_scene.mdl_mat[1] = matlist[1];
+	//current_scene.mdl_mat[1] = matlist[1];
 	//current_scene.mdl_mat[2] = matlist[2];
 
-	Pxf::Graphics::Model* mdllist[2];
+	Pxf::Graphics::Model* mdllist[1];
 	mdllist[0] = gfx->CreateModel(meshlist[0]);
-	mdllist[1] = gfx->CreateModel(meshlist[1]);
+	//mdllist[1] = gfx->CreateModel(meshlist[1]);
 	//mdllist[2] = gfx->CreateModel(meshlist[2]);
 
 	current_scene.mdl = mdllist;
-	current_scene.mdl_count = 2;
+	current_scene.mdl_count = 1;
 
 	blob.tree = tree;
 	blob.primitives = tlist;
 	blob.prim_count = tri_count;
-	*/
 
 
+/*
 	Pxf::Resource::Mesh* meshlist[3];
 	meshlist[0] = res->Acquire<Resource::Mesh>("data/scene0/sphere0.ctm");
 	meshlist[1] = res->Acquire<Resource::Mesh>("data/scene0/sphere1.ctm");
@@ -680,6 +679,7 @@ int main(int argc, char* argv[])
 	blob.tree = tree;
 	blob.primitives = tlist;
 	blob.prim_count = tri_count;
+	*/
 	
 	// DEPTH TEST
 	gfx->SetDepthFunction(DF_LEQUAL);
