@@ -120,6 +120,16 @@ class Tracker():
     def e_nodeavailable(self, message):
         # Set it available.
         self._db.set_client(message.session_id, available=message.available)
+        # Send it to ALL NOODEEES.
+        response = tracker_pb2.NodesResponse()
+        node = response.nodes.add()
+        node.session_id = message.session_id
+        client = self._db.get_client(message.session_id)
+        node.address, port = client[0].split(':')
+        node.port = int(port)
+        for c in self._db._clients.keys():
+            self.send((lightning.T_NODES_RESPONSE, response), c)
+
         # Send it to the waiting nodes.
         new_wait = {}
         for node_sess, wait in self._db.get_waiting_clients():
@@ -401,7 +411,8 @@ class TrackerDatabase:
     _batches = dict()
     
     # Testing something out here! /sven
-    _html_path = "index.html" #"/home/sweetfish/www.md5/tracker/index.html"
+    #_html_path = "index.html" #"/home/sweetfish/www.md5/tracker/index.html"
+    _html_path = "/home/ethex/www/tmp/lightning.html"
 
     _next_id = 1
 
